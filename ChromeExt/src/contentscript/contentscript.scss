@@ -1,3 +1,40 @@
-div {
-  background: yellow;
+
+div#n3qPage {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  //background-color: rgba(255, 255, 255, 0.0);
+  //background-color: rgba(70, 201, 70, 0.05);
+  background-image: url("page-bg.png");
+  pointer-events: none;
+  z-index: 1000000000;
+}
+
+div#n3qDisplay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  //background-color: rgba(255, 255, 255, 0.0);
+  //background-color: rgba(70, 201, 70, 0.1);
+  background-image: url("display-bg.png");
+  pointer-events: none;
+}
+
+.n3qContent {
+  display: inline;
+  pointer-events: auto;
+  background-color:yellow;
+  position: absolute;
+  user-select: none;
+}
+
+.n3qHello {
+  left: 200px;
+  bottom: 0;
+  width: 100px;
+  height: 100px;
 }

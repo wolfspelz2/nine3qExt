@@ -3,14 +3,16 @@ import "./contentscript.scss";
 const isThisContentscript: boolean = true;
 console.log("isThisContentscript", isThisContentscript);
 
-var div = document.createElement("div");
-div.style.width = "100%";
-div.style.height = "100px";
-div.style.position = "absolute";
-div.style.left = "0px";
-div.style.bottom = "0px";
-div.style.backgroundColor = "transparent";
-div.style.border = "2px solid black";
-div.style.zIndex = "1000000000";
-div.innerHTML = "Hello World";
-document.body.appendChild(div); 
+var page = document.createElement('div');
+page.id = 'n3qPage';
+
+var display = document.createElement('div');
+display.id = 'n3qDisplay';
+page.appendChild(display);
+
+document.body.appendChild(page);
+
+var hello = document.createElement('div');
+hello.className = 'n3qContent n3qHello';
+hello.innerHTML = 'Hello World';
+display.appendChild(hello);
