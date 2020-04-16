@@ -1,7 +1,7 @@
-import "./contentscript.scss";
+import './contentscript.scss';
 
 const isThisContentscript: boolean = true;
-console.log("isThisContentscript", isThisContentscript);
+console.log('isThisContentscript', isThisContentscript);
 
 var page = document.createElement('div');
 page.id = 'n3qPage';
