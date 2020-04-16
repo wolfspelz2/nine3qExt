@@ -1,18 +1,20 @@
 import './contentscript.scss';
 
-const isThisContentscript: boolean = true;
-console.log('isThisContentscript', isThisContentscript);
+const isContentscript: boolean = true;
+console.log('contentscript', isContentscript);
 
-var page = document.createElement('div');
+var page: HTMLElement = document.createElement('div');
 page.id = 'n3qPage';
 
-var display = document.createElement('div');
+var display: HTMLElement = document.createElement('div');
 display.id = 'n3qDisplay';
 page.appendChild(display);
 
 document.body.appendChild(page);
 
-var hello = document.createElement('div');
-hello.className = 'n3qContent n3qHello';
-hello.innerHTML = 'Hello World';
-display.appendChild(hello);
+setTimeout(() => {
+  var hello: HTMLElement = document.createElement('div');
+  hello.className = 'n3qContent n3qHello';
+  hello.innerHTML = 'Hello World';
+  display.appendChild(hello);
+}, 1000);
