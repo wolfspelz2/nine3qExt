@@ -1,20 +1,22 @@
 import './contentscript.scss';
+import { Log } from './Log';
+import { Connection } from './Connection';
+const $ = require('jquery');
 
 const isContentscript: boolean = true;
-console.log('contentscript', isContentscript);
+console.log('Contentscript', isContentscript);
 
-var page: HTMLElement = document.createElement('div');
-page.id = 'n3qPage';
-
-var display: HTMLElement = document.createElement('div');
-display.id = 'n3qDisplay';
-page.appendChild(display);
-
-document.body.appendChild(page);
+var pageElement: HTMLElement = $('<div id="n3q-id-page" />')[0];
+var displayElement: HTMLElement = $('<div class="n3q-display" />')[0];
+var logElement: HTMLElement = $('<div class="n3q-log" />')[0];
+pageElement.append(displayElement);
+// pageElement.append(logElement);
+$('body').append(pageElement);
 
 setTimeout(() => {
-  var hello: HTMLElement = document.createElement('div');
-  hello.className = 'n3qContent n3qHello';
-  hello.innerHTML = 'Hello World';
-  display.appendChild(hello);
-}, 1000);
+  var helloElement: HTMLElement = $('<div class="n3q-content n3q-hello">Hello World</div>')[0];
+  displayElement.append(helloElement);
+}, 500);
+
+var connection = new Connection();
+connection.start();
