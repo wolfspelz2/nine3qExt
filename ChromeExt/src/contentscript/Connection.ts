@@ -1,14 +1,14 @@
-const { client, xml } = require('@xmpp/client');
+const { client, xml, jid } = require('@xmpp/client');
 const debug = require('@xmpp/debug');
 import { Log } from './Log';
+import { Room } from './Room';
 
 export class Connection
 {
   private xmpp: any;
-  private myJid: string;
-  private roomJid: string;
-  private myNick: string;
-  private x: number;
+  private myJid: string = 'test@xmpp.dev.sui.li';
+  private myNick: string = 'nick_';
+  private rooms: { [id: string]: Room; } = {};
 
   constructor()
   {
@@ -20,9 +20,6 @@ export class Connection
       password: 'testtest',
     });
 
-    this.myJid = 'test@xmpp.dev.sui.li';
-    this.roomJid = '2883fcb56d5ac9d5e7adad03a38bce8a362dbdc2@muc4.virtual-presence.org';
-    this.myNick = 'nick_';
 
     this.xmpp.on('error', (err: any) =>
     {
@@ -37,7 +34,6 @@ export class Connection
     this.xmpp.on('online', async (address: any) =>
     {
       Log.info('online', address);
-      this.join(this.roomJid, this.myNick, this.x);
     });
 
     this.xmpp.on('stanza', (stanza: any) =>
@@ -55,25 +51,29 @@ export class Connection
     this.xmpp.start().catch(Log.error);
   }
 
-  onPresence(stanza: any): void
+  enterRoomByJid(roomJid: string)
   {
-    if (stanza.attrs.from === this.roomJid + '/' + this.myNick)
+    if (typeof this.rooms[roomJid] === typeof undefined)
     {
-      this.onJoined(stanza);
+      let newRoom = new Room(this, roomJid, this.myJid, this.myNick);
+      this.rooms[roomJid] = newRoom;
+      newRoom.enter();
     }
   }
 
-  onJoined(stanza: any): void
+  onPresence(stanza: any): void
   {
-    Log.info('joined', stanza);
+    let from = jid(stanza.attrs.from);
+    let  roomOrUser = from.bare();
+
+    if (typeof this.rooms[roomOrUser] != typeof undefined)
+    {
+      this.rooms[roomOrUser].onPresence(stanza);
+    }
   }
 
-  join(room: string, nick: string, x: number): void
+  send(stanza: any)
   {
-    let presence = xml('presence', { to: room + '/' + nick })
-      .append(xml('x', { xmlns: 'firebat:user:identity', jid: this.myJid, src: 'http://example.com/identity/invalid.xml', }))
-      .append(xml('x', { xmlns: 'firebat:avatar:state', jid: this.myJid, }).append(xml('position', { x: x }))
-      );
-    this.xmpp.send(presence);
+    this.xmpp.send(stanza);
   }
 }
