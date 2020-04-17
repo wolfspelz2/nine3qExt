@@ -11,7 +11,7 @@ export class Room
 
   constructor(private app: App, private display: HTMLElement, private jid: string, private userJid: string, private proposedNick: string) 
   {
-    this.nick = this.proposedNick; 
+    this.nick = this.proposedNick;
   }
 
   enter(): void
@@ -33,8 +33,7 @@ export class Room
     let from = jid(stanza.attrs.from);
     let nick = from.getResource();
 
-    if (typeof this.participants[nick] === typeof undefined)
-    {
+    if (typeof this.participants[nick] === typeof undefined) {
       this.participants[nick] = new Participant(this.app, this, this.display, nick, nick == this.nick);
     }
     this.participants[nick].onPresence(stanza);

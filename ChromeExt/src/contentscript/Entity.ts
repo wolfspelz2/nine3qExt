@@ -27,8 +27,7 @@ export class Entity
 
   show(visible: boolean): void
   {
-    if (visible != this.visible)
-    {
+    if (visible != this.visible) {
       this.elem.style.display = visible ? 'block' : 'none';
       this.visible = visible;
     }

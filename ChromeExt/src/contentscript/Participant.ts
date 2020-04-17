@@ -31,18 +31,15 @@ export class Participant extends Entity
           .attrs.x
         , -1);
 
-      if (newX != -1)
-      {
+      if (newX != -1) {
         presenceHasPosition = true;
       }
     }
 
-    if (this.firstPresence)
-    {
+    if (this.firstPresence) {
       this.firstPresence = false;
 
-      if (!presenceHasPosition)
-      {
+      if (!presenceHasPosition) {
         newX = this.isSelf ? this.app.getSavedPosition() : this.app.getDefaultPosition();
       }
       if (newX < 0) { newX = 100; }
@@ -56,13 +53,10 @@ export class Participant extends Entity
       this.show(true);
 
       // this.app.sendGetUserAttributesMessage(this.id, msg => this.onAttributes(msg));
-    } else
-    {
+    } else {
 
-      if (presenceHasPosition)
-      {
-        if (this.getPosition() != newX)
-        {
+      if (presenceHasPosition) {
+        if (this.getPosition() != newX) {
           this.move(newX, this.speedX);
         }
       }
@@ -74,8 +68,7 @@ export class Participant extends Entity
   {
     if (newX < 0) { newX = 0; }
 
-    if (this.isSelf)
-    {
+    if (this.isSelf) {
       this.app.savePosition(newX);
     }
 
@@ -83,12 +76,10 @@ export class Participant extends Entity
 
     var oldX = this.getPosition();
     var diffX = newX - oldX;
-    if (diffX < 0)
-    {
+    if (diffX < 0) {
       diffX = -diffX;
       this.avatar.setState('moveleft');
-    } else
-    {
+    } else {
       this.avatar.setState('moveright');
     }
     var duration = (diffX * 1000) / speedX;
@@ -105,8 +96,8 @@ export class Participant extends Entity
 
   moveDestinationReached(newX: number): void
   {
-      this.setPosition(newX);
-      this.avatar.setState('');
+    this.setPosition(newX);
+    this.avatar.setState('');
   }
 
 }

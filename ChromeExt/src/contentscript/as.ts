@@ -15,18 +15,13 @@
     static Bool(val: any, alt?: boolean): boolean
     {
         var res = alt;
-        if (typeof val === this.typeBoolean)
-        {
+        if (typeof val === this.typeBoolean) {
             res = val;
-        } else
-        {
-            if (typeof val === this.typeString)
-            {
+        } else {
+            if (typeof val === this.typeString) {
                 if (val == 'true' || val == 'True' || val == 'TRUE' || val == '1' || val == 'yes') { res = true; }
-            } else
-            {
-                if (typeof val === this.typeNumber)
-                {
+            } else {
+                if (typeof val === this.typeNumber) {
                     if (val == 1) { res = true; }
                 }
             }
@@ -37,18 +32,13 @@
     static String(val: any, alt?: string): string
     {
         var res = alt;
-        if (typeof val === this.typeString)
-        {
+        if (typeof val === this.typeString) {
             res = val;
-        } else
-        {
-            if (typeof val === this.typeNumber)
-            {
+        } else {
+            if (typeof val === this.typeNumber) {
                 res = '' + val;
-            } else
-            {
-                if (typeof val === this.typeBoolean)
-                {
+            } else {
+                if (typeof val === this.typeBoolean) {
                     res = val ? 'true' : 'false';
                 }
             }
@@ -59,16 +49,12 @@
     static Int(val: any, alt?: number): number
     {
         var res = alt;
-        if (typeof val === this.typeNumber)
-        {
+        if (typeof val === this.typeNumber) {
             res = Math.round(val);
-        } else
-        {
-            if (typeof val === this.typeString)
-            {
+        } else {
+            if (typeof val === this.typeString) {
                 res = parseInt(val);
-                if (isNaN(res))
-                {
+                if (isNaN(res)) {
                     res = alt;
                 }
             }
@@ -79,16 +65,12 @@
     static Float(val: any, alt?: number): number
     {
         var res = alt;
-        if (typeof val === this.typeNumber)
-        {
+        if (typeof val === this.typeNumber) {
             res = val;
-        } else
-        {
-            if (typeof val === this.typeString)
-            {
+        } else {
+            if (typeof val === this.typeString) {
                 res = parseFloat(val);
-                if (isNaN(res))
-                {
+                if (isNaN(res)) {
                     res = alt;
                 }
             }
@@ -105,15 +87,12 @@
     static HtmlLink(val: any, text?: string, urlFilter?: (s: string) => string, alt?: string): string
     {
         var res = as.String(val, alt);
-        if (urlFilter == null)
-        {
+        if (urlFilter == null) {
             urlFilter = (s => s.substr(0, 4) == 'http' ? s : '');
         }
         var url = urlFilter(res);
-        if (as.String(url) != '')
-        {
-            if (text == '')
-            {
+        if (as.String(url) != '') {
+            if (text == '') {
                 text = url;
             }
             res = '<a href="' + as.Html(url) + '">' + as.Html(text) + '</a>'
@@ -125,11 +104,9 @@
     {
         var res = as.String(val, alt);
         var obj = null;
-        try
-        {
+        try {
             obj = JSON.parse(res);
-        } catch (exception)
-        {
+        } catch (exception) {
             obj = JSON.parse(alt);
         }
         return obj;

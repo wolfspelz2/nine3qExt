@@ -2,6 +2,7 @@ const { client, xml, jid } = require('@xmpp/client');
 const debug = require('@xmpp/debug');
 const $ = require('jquery');
 import { as } from './as';
+import { Platform } from './Platform';
 import { Log } from './Log';
 import { Room } from './Room';
 
@@ -56,8 +57,7 @@ export class App
     this.xmpp.on('stanza', (stanza: any) =>
     {
       Log.verbose('stanza', stanza);
-      if (stanza.is('presence'))
-      {
+      if (stanza.is('presence')) {
         this.onPresence(stanza);
       }
     });
@@ -70,8 +70,7 @@ export class App
 
   enterRoomByJid(roomJid: string)
   {
-    if (typeof this.rooms[roomJid] === typeof undefined)
-    {
+    if (typeof this.rooms[roomJid] === typeof undefined) {
       this.rooms[roomJid] = new Room(this, this.display, roomJid, this.myJid, this.myNick);
     }
     this.rooms[roomJid].enter();
@@ -82,8 +81,7 @@ export class App
     let from = jid(stanza.attrs.from);
     let roomOrUser = from.bare();
 
-    if (typeof this.rooms[roomOrUser] != typeof undefined)
-    {
+    if (typeof this.rooms[roomOrUser] != typeof undefined) {
       this.rooms[roomOrUser].onPresence(stanza);
     }
   }
@@ -100,41 +98,20 @@ export class App
 
   // Local storage
 
-  localStorage_Key_Avatar_x: string = 'Avatar_x';
-  localStorage_unavailable_x: number = -1;
+  private readonly localStorage_Key_Avatar_x: string = 'Avatar_x';
 
   savePosition(x: number): void
   {
-    if (typeof window.localStorage == typeof undefined)
-    {
-      this.localStorage_unavailable_x = x;
-    } else
-    {
-      localStorage.setItem(this.localStorage_Key_Avatar_x, as.String(x));
-    }
+    Platform.setStorageString(this.localStorage_Key_Avatar_x, as.String(x));
   }
 
   getSavedPosition(): number
   {
-    if (typeof window.localStorage == typeof undefined)
-    {
-      if (this.localStorage_unavailable_x >= 0)
-      {
-        return this.localStorage_unavailable_x;
-      } else
-      {
-        return this.getDefaultPosition();
-      }
-    } else
-    {
-      var val = localStorage.getItem(this.localStorage_Key_Avatar_x);
-      if (val == null)
-      {
-        return this.getDefaultPosition();
-      } else
-      {
-        return as.Int(val);
-      }
+    let value = Platform.getStorageString(this.localStorage_Key_Avatar_x, '');
+    if (value == '') {
+      return this.getDefaultPosition();
+    } else {
+      return as.Int(value);
     }
   }
 

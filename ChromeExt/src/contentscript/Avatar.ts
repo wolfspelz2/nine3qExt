@@ -21,7 +21,7 @@ export class Avatar
 
   setState(state: string): void
   {
-      this.currentState = state;
-      // this.startNextAnimation();
+    this.currentState = state;
+    // this.startNextAnimation();
   }
 }
