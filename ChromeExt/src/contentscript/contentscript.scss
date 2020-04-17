@@ -1,3 +1,12 @@
+@function z-index($key) {
+  @return map-get($z-index, $key);
+}
+
+$z-index: (
+  page        : 1000000000,
+  participant : 1002000000,
+  thing       : 1001000000,
+);
 
 #n3q-id-page {
   position: fixed;
@@ -9,7 +18,7 @@
   //background-color: rgba(70, 201, 70, 0.05);
   background-image: url("page-bg.png");
   pointer-events: none;
-  z-index: 1000000000;
+  z-index: z-index(page);
 }
 
 // .n3q-log {
@@ -55,4 +64,30 @@
   bottom: 0;
   width: 100px;
   height: 100px;
+}
+
+.n3q-entity {
+  position: absolute;
+  bottom: 0px;
+  pointer-events: none;
+}
+
+.n3q-avatar {
+  width: 100px;
+  height: 100px;
+  position: relative;
+  left: -50px;
+  background-image: url("default-avatar.png");
+  background-repeat:no-repeat;
+  background-position: center bottom;
+  // border: 1px solid #808080;
+  pointer-events: auto;
+}
+
+.n3q-participant {
+  z-index: z-index(participant);
+}
+
+.n3q-thing {
+  z-index: z-index(thing);
 }

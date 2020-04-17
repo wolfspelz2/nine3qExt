@@ -1,13 +1,18 @@
+const $ = require('jquery');
+import { App } from './App';
 import { Entity } from './Entity';
 import { Room } from './Room';
+import { Avatar } from './Avatar';
 
 export class Participant extends Entity
 {
+  private avatar: Avatar;
   private firstPresence: boolean = true;
 
-  constructor(room: Room, private nick: string, private isSelf: boolean)
+  constructor(private app: App, room: Room, display: HTMLElement, private nick: string, private isSelf: boolean)
   {
-    super(room);
+    super(room, display);
+    $(this.getElem()).addClass('n3q-participant');
   }
 
   onPresence(stanza: any)
@@ -29,14 +34,14 @@ export class Participant extends Entity
       //   newX = this.isSelf ? this.app.getSavedPosition() : this.app.getDefaultPosition();
       // }
       // if (newX < 0) { newX = 100; }
-      // this.setPosition(newX);
+      this.setPosition(newX);
 
-      // this.avatar = new Avatar(this.app, this, this.getCenterElem(), this.app.getImagesBaseUrl() + 'DefaultAvatar.png');
+      this.avatar = new Avatar(this.app, this, this.getElem());
       // this.nickname = new Nickname(this.app, this, this.getElem());
       // this.chatout = new Chatout(this.app, this, this.getElem());
       // this.chatin = new Chatin(this.app, this, this.getElem());
 
-      // this.show(true);
+      this.show(true);
 
       // this.app.sendGetUserAttributesMessage(this.id, msg => this.onAttributes(msg));
     } else
