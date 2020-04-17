@@ -3,6 +3,7 @@ import { App } from './App';
 import { Entity } from './Entity';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
+import { Identity } from './Identity';
 import { as } from './as';
 
 export class Participant extends Entity
@@ -10,6 +11,7 @@ export class Participant extends Entity
   private avatar: Avatar;
   private firstPresence: boolean = true;
   private speedX: number = 80;
+  private identity: Identity;
 
   constructor(private app: App, room: Room, display: HTMLElement, private nick: string, private isSelf: boolean)
   {
@@ -33,6 +35,25 @@ export class Participant extends Entity
 
       if (newX != -1) {
         presenceHasPosition = true;
+      }
+    }
+
+    {
+      let identityAttrs = as.Object(
+        stanza
+          .getChildren('x')
+          .find(stanzaChild => stanzaChild.attrs.xmlns === 'firebat:user:identity')
+          .attrs
+        , '{}');
+
+      let url = as.String(identityAttrs.src, '');
+      let digest = as.String(identityAttrs.digest, '');
+      if (url != '' && digest != '') {
+        if (this.identity == null) {
+          this.identity = new Identity(url, digest);
+        } else {
+          this.identity.changed(url, digest);
+        }
       }
     }
 
@@ -95,11 +116,11 @@ export class Participant extends Entity
         { left: newX + 'px' },
         duration,
         'linear',
-        () => this.moveDestinationReached(newX)
+        () => this.onMoveDestinationReached(newX)
       );
   }
 
-  moveDestinationReached(newX: number): void
+  onMoveDestinationReached(newX: number): void
   {
     this.setPosition(newX);
     this.avatar.setState('');

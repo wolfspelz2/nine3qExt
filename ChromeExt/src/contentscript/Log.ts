@@ -12,18 +12,18 @@ export class Log
   static info(...args: any[]): void
   {
     console.log(args);
-    this._log('n3q-logline n3q-logline-info', args);
+    // this._log('n3q-logline n3q-logline-info', args);
   }
 
   static verbose(...args: any[]): void
   {
     console.log(args);
-    this._log('n3q-logline n3q-logline-verbose', args);
+    // this._log('n3q-logline n3q-logline-verbose', args);
   }
 
   static error(...args: any[]): void
   {
     console.error(args);
-    this._log('n3q-logline n3q-logline-error', args);
+    // this._log('n3q-logline n3q-logline-error', args);
   }
 }
