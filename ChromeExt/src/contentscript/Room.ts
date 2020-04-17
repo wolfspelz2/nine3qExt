@@ -35,9 +35,8 @@ export class Room
 
     if (typeof this.participants[nick] === typeof undefined)
     {
-      let newParticipant = new Participant(this.app, this, this.display, nick, nick == this.nick);
-      this.participants[nick] = newParticipant;
-      newParticipant.onPresence(stanza);
+      this.participants[nick] = new Participant(this.app, this, this.display, nick, nick == this.nick);
     }
+    this.participants[nick].onPresence(stanza);
   }
 }

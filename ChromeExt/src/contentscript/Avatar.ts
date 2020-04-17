@@ -3,11 +3,11 @@ import { App } from './App';
 import { Entity } from './Entity';
 
 import imgDefaultAvatar from '../assets/DefaultAvatar.png';
-// import imgDefaultAvatar from '../assets/Items/Admin/test.png';
 
 export class Avatar
 {
   elem: HTMLImageElement;
+  currentState: string = '';
 
   constructor(private app: App, private entity: Entity, private display: HTMLElement)
   {
@@ -17,5 +17,11 @@ export class Avatar
     var url = imgDefaultAvatar;
     this.elem.src = url;
     display.appendChild(this.elem);
+  }
+
+  setState(state: string): void
+  {
+      this.currentState = state;
+      // this.startNextAnimation();
   }
 }
