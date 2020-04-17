@@ -20,4 +20,4 @@ npm run build
 
 ## Based on
 
-Chrome-Extension-with-React-and-Typescript-Starter-Pack by **Guibert Thomas**, LinkedIn: [thomas-guibert](https://www.linkedin.com/in/thomas-guibert/), Github: [thmsgbrt](https://github.com/thmsgbrt), Medium: [@thmsgbrt](https://medium.com/@th.guibert), Twitter: [@Guibz16](https://twitter.com/Guibz16)
+Chrome-Extension-with-React-and-Typescript-Starter-Pack by **Guibert Thomas**, [LinkedIn](https://www.linkedin.com/in/thomas-guibert/), [Github](https://github.com/thmsgbrt), [Medium](https://medium.com/@th.guibert), [Twitter](https://twitter.com/Guibz16)
