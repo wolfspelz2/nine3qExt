@@ -17,7 +17,7 @@ export class Participant extends Entity
     $(this.getElem()).addClass('n3q-participant');
   }
 
-  onPresence(stanza: any)
+  onPresenceAvailable(stanza: any)
   {
     var presenceHasPosition: boolean = false;
     var newX: number = 123;
@@ -62,6 +62,11 @@ export class Participant extends Entity
       }
 
     }
+  }
+
+  onPresenceUnavailable(stanza: any)
+  {
+    this.shutdown();
   }
 
   move(newX: number, speedX: number): void

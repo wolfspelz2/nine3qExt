@@ -42,12 +42,13 @@ export class Room
         if (typeof this.participants[nick] === typeof undefined) {
           this.participants[nick] = new Participant(this.app, this, this.display, nick, nick == this.nick);
         }
-        this.participants[nick].onPresence(stanza);
+        this.participants[nick].onPresenceAvailable(stanza);
         break;
 
       case 'unavailable':
         if (typeof this.participants[nick] != typeof undefined) {
-          this.participants[nick].onPresence(stanza);
+          this.participants[nick].onPresenceUnavailable(stanza);
+          delete this.participants[nick];
         }
         break;
 

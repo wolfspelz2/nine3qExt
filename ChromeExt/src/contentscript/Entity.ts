@@ -25,7 +25,14 @@ export class Entity
   getElem(): HTMLElement { return this.elem; }
   getCenterElem(): HTMLElement { return this.centerElem; }
 
-  show(visible: boolean): void
+  shutdown(): void
+  {
+      this.show(false);
+      this.display.removeChild(this.elem);
+      delete this.elem;
+  }
+
+show(visible: boolean): void
   {
     if (visible != this.visible) {
       this.elem.style.display = visible ? 'block' : 'none';
