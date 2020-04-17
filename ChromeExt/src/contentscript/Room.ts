@@ -1,4 +1,5 @@
 const { xml, jid } = require('@xmpp/client');
+import { as } from './as';
 import { Log } from './Log';
 import { App } from './App';
 import { Participant } from './Participant';
@@ -6,6 +7,8 @@ import { Participant } from './Participant';
 export class Room
 {
   private nick: string;
+  private enterRetryCount: number = 0;
+  private maxEnterRetries: number = 4;
   private x: number = 300;
   private participants: { [id: string]: Participant; } = {};
 
@@ -16,6 +19,7 @@ export class Room
 
   enter(): void
   {
+    this.enterRetryCount = 0;
     this.sendPresence();
   }
 
@@ -33,9 +37,43 @@ export class Room
     let from = jid(stanza.attrs.from);
     let nick = from.getResource();
 
-    if (typeof this.participants[nick] === typeof undefined) {
-      this.participants[nick] = new Participant(this.app, this, this.display, nick, nick == this.nick);
+    switch (as.String(stanza.attrs.type, 'available')) {
+      case 'available':
+        if (typeof this.participants[nick] === typeof undefined) {
+          this.participants[nick] = new Participant(this.app, this, this.display, nick, nick == this.nick);
+        }
+        this.participants[nick].onPresence(stanza);
+        break;
+
+      case 'unavailable':
+        if (typeof this.participants[nick] != typeof undefined) {
+          this.participants[nick].onPresence(stanza);
+        }
+        break;
+
+      case 'error':
+        let code = as.Int(stanza.getChildren('error')[0].attrs.code, -1);
+        if (code == 409) {
+          this.reEnterDifferentNick();
+        }
+        break;
     }
-    this.participants[nick].onPresence(stanza);
+  }
+
+  reEnterDifferentNick()
+  {
+    this.enterRetryCount++;
+    if (this.enterRetryCount > this.maxEnterRetries) {
+      Log.error('Too many retries ', this.enterRetryCount, 'giving up on room', this.jid);
+      return;
+    } else {
+      this.nick = this.getNextNick(this.nick);
+      this.sendPresence();
+    }
+  }
+
+  getNextNick(nick: string): string
+  {
+    return nick + '_';
   }
 }
