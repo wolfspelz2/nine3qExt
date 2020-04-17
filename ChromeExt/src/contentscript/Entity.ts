@@ -12,6 +12,10 @@ export class Entity
   {
     this.elem = <HTMLDivElement>$('<div class="n3q-entity" />')[0];
     this.elem.style.display = 'none';
+
+    this.centerElem = <HTMLDivElement>$('<div class="n3q-entity-content" />')[0];
+    this.elem.appendChild(this.centerElem);
+
     this.display.appendChild(this.elem);
 
     // let avatarElement = <HTMLDivElement>$('<div class="n3q-avatar" />')[0];
@@ -19,6 +23,7 @@ export class Entity
   }
 
   getElem(): HTMLElement { return this.elem; }
+  getCenterElem(): HTMLElement { return this.centerElem; }
 
   show(visible: boolean): void
   {

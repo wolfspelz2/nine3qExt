@@ -36,7 +36,7 @@ export class Participant extends Entity
       // if (newX < 0) { newX = 100; }
       this.setPosition(newX);
 
-      this.avatar = new Avatar(this.app, this, this.getElem());
+      this.avatar = new Avatar(this.app, this, this.getCenterElem());
       // this.nickname = new Nickname(this.app, this, this.getElem());
       // this.chatout = new Chatout(this.app, this, this.getElem());
       // this.chatin = new Chatin(this.app, this, this.getElem());

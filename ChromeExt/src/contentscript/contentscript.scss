@@ -51,7 +51,7 @@ $z-index: (
   pointer-events: none;
 }
 
-.n3q-content {
+.n3q-ctrl {
   display: inline;
   pointer-events: auto;
   background-color:yellow;
@@ -71,17 +71,25 @@ $z-index: (
   bottom: 0px;
   pointer-events: none;
 }
-
-.n3q-avatar {
+.n3q-entity-content {
   width: 100px;
   height: 100px;
   position: relative;
   left: -50px;
-  background-image: url("default-avatar.png");
-  background-repeat:no-repeat;
-  background-position: center bottom;
-  // border: 1px solid #808080;
+  border-top: 1px solid #808080;
+  border-left: 1px solid #808080;
+  border-right: 1px solid #808080;
+  pointer-events: none;
+}
+
+.n3q-avatar {
+  margin: auto;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   pointer-events: auto;
+  user-select: none;
 }
 
 .n3q-participant {

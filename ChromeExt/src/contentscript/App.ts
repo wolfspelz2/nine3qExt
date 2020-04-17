@@ -18,12 +18,12 @@ export class App
     this.page.append(this.display);
 
     {
-      let controlElem: HTMLElement = $('<div class="n3q-content n3q-hello">Hello World</div>')[0];
+      let controlElem: HTMLElement = $('<div class="n3q-ctrl n3q-hello">Hello World</div>')[0];
       this.display.append(controlElem);
 
-      let enterButton: HTMLButtonElement = $('<button id="n3q-id-enter">enter</button>')[0];
+      let enterButton: HTMLButtonElement = $('<button>enter</button>')[0];
       controlElem.append(enterButton);
-      $('#n3q-id-enter').click(() =>
+      $(enterButton).click(() =>
       {
         this.enterRoomByJid('2883fcb56d5ac9d5e7adad03a38bce8a362dbdc2@muc4.virtual-presence.org');
       });
@@ -91,5 +91,10 @@ export class App
   send(stanza: any)
   {
     this.xmpp.send(stanza);
+  }
+
+  getAssetUrl(filePath: string)
+  {
+    return chrome.runtime.getURL('assets/' + filePath);
   }
 }

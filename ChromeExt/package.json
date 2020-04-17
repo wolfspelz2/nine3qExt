@@ -52,10 +52,12 @@
   },
   "dependencies": {
     "@types/jquery": "^3.3.35",
+    "@types/jqueryui": "^1.12.10",
     "@xmpp/client": "^0.11.1",
     "@xmpp/debug": "^0.11.0",
     "cross-env": "^7.0.2",
     "jquery": "^3.5.0",
+    "jquery-ui": "^1.12.1",
     "rimraf": "^3.0.2"
   }
 }
