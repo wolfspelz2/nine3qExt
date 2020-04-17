@@ -1,4 +1,4 @@
-### Nine3q Chrome Extension
+# Nine3q Chrome Extension
 
 ## Install
 
