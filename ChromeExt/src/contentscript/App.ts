@@ -5,6 +5,7 @@ import { as } from './as';
 import { Platform } from './Platform';
 import { Log } from './Log';
 import { Room } from './Room';
+import { PropStorage } from './PropStorage';
 
 export class App
 {
@@ -13,6 +14,12 @@ export class App
   private myJid: string = 'test@xmpp.dev.sui.li';
   private myNick: string = 'nick_';
   private rooms: { [id: string]: Room; } = {};
+  private storage: PropStorage = new PropStorage();
+
+  // Getter
+
+  getStorage(): PropStorage { return this.storage; }
+  getAssetUrl(filePath: string) { return Platform.getAssetUrl(filePath); }
 
   constructor(private page: HTMLElement)
   {
@@ -63,6 +70,8 @@ export class App
     });
   }
 
+  // Connection
+  
   start(): void
   {
     this.xmpp.start().catch(Log.error);
@@ -89,11 +98,6 @@ export class App
   send(stanza: any)
   {
     this.xmpp.send(stanza);
-  }
-
-  getAssetUrl(filePath: string)
-  {
-    return chrome.runtime.getURL('assets/' + filePath);
   }
 
   // Local storage

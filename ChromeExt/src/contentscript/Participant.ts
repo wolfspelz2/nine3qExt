@@ -39,15 +39,15 @@ export class Participant extends Entity
     }
 
     {
-      let identityAttrs = as.Object(
-        stanza
-          .getChildren('x')
-          .find(stanzaChild => stanzaChild.attrs.xmlns === 'firebat:user:identity')
-          .attrs
-        , '{}');
+      let identityAttrs = stanza
+        .getChildren('x')
+        .find(stanzaChild => stanzaChild.attrs.xmlns === 'firebat:user:identity')
+        .attrs
+        ;
 
       let url = as.String(identityAttrs.src, '');
       let digest = as.String(identityAttrs.digest, '');
+
       if (url != '' && digest != '') {
         if (this.identity == null) {
           this.identity = new Identity(url, digest);
