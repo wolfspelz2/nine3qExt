@@ -9,119 +9,119 @@ import { PropStorage } from './PropStorage';
 
 export class App
 {
-  private display: HTMLElement;
-  private xmpp: any;
-  private myJid: string = 'test@xmpp.dev.sui.li';
-  private myNick: string = 'nick_';
-  private rooms: { [id: string]: Room; } = {};
-  private storage: PropStorage = new PropStorage();
+    private display: HTMLElement;
+    private xmpp: any;
+    private myJid: string = 'test@xmpp.dev.sui.li';
+    private myNick: string = 'nick_';
+    private rooms: { [id: string]: Room; } = {};
+    private storage: PropStorage = new PropStorage();
 
-  // Getter
+    // Getter
 
-  getStorage(): PropStorage { return this.storage; }
-  getAssetUrl(filePath: string) { return Platform.getAssetUrl(filePath); }
+    getStorage(): PropStorage { return this.storage; }
+    getAssetUrl(filePath: string) { return Platform.getAssetUrl(filePath); }
 
-  constructor(private page: HTMLElement)
-  {
-    this.display = $('<div class="n3q-display" />')[0];
-    this.page.append(this.display);
-
+    constructor(private page: HTMLElement)
     {
-      let controlElem: HTMLElement = $('<div class="n3q-ctrl n3q-hello">Hello World</div>')[0];
-      this.display.append(controlElem);
+        this.display = $('<div class="n3q-display" />')[0];
+        this.page.append(this.display);
 
-      let enterButton: HTMLButtonElement = $('<button>enter</button>')[0];
-      controlElem.append(enterButton);
-      $(enterButton).click(() =>
-      {
-        this.enterRoomByJid('2883fcb56d5ac9d5e7adad03a38bce8a362dbdc2@muc4.virtual-presence.org');
-      });
+        {
+            let controlElem: HTMLElement = $('<div class="n3q-ctrl n3q-hello">Hello World</div>')[0];
+            this.display.append(controlElem);
+
+            let enterButton: HTMLButtonElement = $('<button>enter</button>')[0];
+            controlElem.append(enterButton);
+            $(enterButton).click(() =>
+            {
+                this.enterRoomByJid('2883fcb56d5ac9d5e7adad03a38bce8a362dbdc2@muc4.virtual-presence.org');
+            });
+        }
+
+        this.xmpp = client({
+            service: 'wss://xmpp.dev.sui.li/xmpp-websocket',
+            domain: 'xmpp.dev.sui.li',
+            resource: 'example',
+            username: 'test',
+            password: 'testtest',
+        });
+
+        this.xmpp.on('error', (err: any) =>
+        {
+            Log.error(err);
+        });
+
+        this.xmpp.on('offline', () =>
+        {
+            Log.info('offline');
+        });
+
+        this.xmpp.on('online', async (address: any) =>
+        {
+            Log.info('online', address);
+        });
+
+        this.xmpp.on('stanza', (stanza: any) =>
+        {
+            Log.verbose('stanza', stanza);
+            if (stanza.is('presence')) {
+                this.onPresence(stanza);
+            }
+        });
     }
 
-    this.xmpp = client({
-      service: 'wss://xmpp.dev.sui.li/xmpp-websocket',
-      domain: 'xmpp.dev.sui.li',
-      resource: 'example',
-      username: 'test',
-      password: 'testtest',
-    });
+    // Connection
 
-    this.xmpp.on('error', (err: any) =>
+    start(): void
     {
-      Log.error(err);
-    });
-
-    this.xmpp.on('offline', () =>
-    {
-      Log.info('offline');
-    });
-
-    this.xmpp.on('online', async (address: any) =>
-    {
-      Log.info('online', address);
-    });
-
-    this.xmpp.on('stanza', (stanza: any) =>
-    {
-      Log.verbose('stanza', stanza);
-      if (stanza.is('presence')) {
-        this.onPresence(stanza);
-      }
-    });
-  }
-
-  // Connection
-  
-  start(): void
-  {
-    this.xmpp.start().catch(Log.error);
-  }
-
-  enterRoomByJid(roomJid: string)
-  {
-    if (typeof this.rooms[roomJid] === typeof undefined) {
-      this.rooms[roomJid] = new Room(this, this.display, roomJid, this.myJid, this.myNick);
+        this.xmpp.start().catch(Log.error);
     }
-    this.rooms[roomJid].enter();
-  }
 
-  onPresence(stanza: any): void
-  {
-    let from = jid(stanza.attrs.from);
-    let roomOrUser = from.bare();
-
-    if (typeof this.rooms[roomOrUser] != typeof undefined) {
-      this.rooms[roomOrUser].onPresence(stanza);
+    enterRoomByJid(roomJid: string)
+    {
+        if (typeof this.rooms[roomJid] === typeof undefined) {
+            this.rooms[roomJid] = new Room(this, this.display, roomJid, this.myJid, this.myNick);
+        }
+        this.rooms[roomJid].enter();
     }
-  }
 
-  send(stanza: any)
-  {
-    this.xmpp.send(stanza);
-  }
+    onPresence(stanza: any): void
+    {
+        let from = jid(stanza.attrs.from);
+        let roomOrUser = from.bare();
 
-  // Local storage
-
-  private readonly localStorage_Key_Avatar_x: string = 'Avatar_x';
-
-  savePosition(x: number): void
-  {
-    Platform.setStorageString(this.localStorage_Key_Avatar_x, as.String(x));
-  }
-
-  getSavedPosition(): number
-  {
-    let value = Platform.getStorageString(this.localStorage_Key_Avatar_x, '');
-    if (value == '') {
-      return this.getDefaultPosition();
-    } else {
-      return as.Int(value);
+        if (typeof this.rooms[roomOrUser] != typeof undefined) {
+            this.rooms[roomOrUser].onPresence(stanza);
+        }
     }
-  }
 
-  getDefaultPosition(): number
-  {
-    return 100 + Math.floor(Math.random() * 500);
-  }
+    send(stanza: any)
+    {
+        this.xmpp.send(stanza);
+    }
+
+    // Local storage
+
+    private readonly localStorage_Key_Avatar_x: string = 'Avatar_x';
+
+    savePosition(x: number): void
+    {
+        Platform.setStorageString(this.localStorage_Key_Avatar_x, as.String(x));
+    }
+
+    getSavedPosition(): number
+    {
+        let value = Platform.getStorageString(this.localStorage_Key_Avatar_x, '');
+        if (value == '') {
+            return this.getDefaultPosition();
+        } else {
+            return as.Int(value);
+        }
+    }
+
+    getDefaultPosition(): number
+    {
+        return 100 + Math.floor(Math.random() * 500);
+    }
 
 }

@@ -6,75 +6,75 @@ import { Participant } from './Participant';
 
 export class Room
 {
-  private nick: string;
-  private enterRetryCount: number = 0;
-  private maxEnterRetries: number = 4;
-  private x: number = 300;
-  private participants: { [id: string]: Participant; } = {};
+    private nick: string;
+    private enterRetryCount: number = 0;
+    private maxEnterRetries: number = 4;
+    private x: number = 300;
+    private participants: { [id: string]: Participant; } = {};
 
-  constructor(private app: App, private display: HTMLElement, private jid: string, private userJid: string, private proposedNick: string) 
-  {
-    this.nick = this.proposedNick;
-  }
-
-  enter(): void
-  {
-    this.enterRetryCount = 0;
-    this.sendPresence();
-  }
-
-  sendPresence(): void
-  {
-    let presence = xml('presence', { to: this.jid + '/' + this.nick })
-      .append(xml('x', { xmlns: 'firebat:user:identity', jid: this.userJid, src: 'http://example.com/identity/invalid.xml' }))
-      .append(xml('x', { xmlns: 'firebat:avatar:state', jid: this.userJid, }).append(xml('position', { x: this.x }))
-      );
-    this.app.send(presence);
-  }
-
-  onPresence(stanza: any)
-  {
-    let from = jid(stanza.attrs.from);
-    let nick = from.getResource();
-
-    switch (as.String(stanza.attrs.type, 'available')) {
-      case 'available':
-        if (typeof this.participants[nick] === typeof undefined) {
-          this.participants[nick] = new Participant(this.app, this, this.display, nick, nick == this.nick);
-        }
-        this.participants[nick].onPresenceAvailable(stanza);
-        break;
-
-      case 'unavailable':
-        if (typeof this.participants[nick] != typeof undefined) {
-          this.participants[nick].onPresenceUnavailable(stanza);
-          delete this.participants[nick];
-        }
-        break;
-
-      case 'error':
-        let code = as.Int(stanza.getChildren('error')[0].attrs.code, -1);
-        if (code == 409) {
-          this.reEnterDifferentNick();
-        }
-        break;
+    constructor(private app: App, private display: HTMLElement, private jid: string, private userJid: string, private proposedNick: string) 
+    {
+        this.nick = this.proposedNick;
     }
-  }
 
-  reEnterDifferentNick()
-  {
-    this.enterRetryCount++;
-    if (this.enterRetryCount > this.maxEnterRetries) {
-      Log.error('Too many retries ', this.enterRetryCount, 'giving up on room', this.jid);
-      return;
-    } else {
-      this.nick = this.getNextNick(this.nick);
-      this.sendPresence();
+    enter(): void
+    {
+        this.enterRetryCount = 0;
+        this.sendPresence();
     }
-  }
 
-  getNextNick(nick: string): string
-  {
-    return nick + '_';
-  }
+    sendPresence(): void
+    {
+        let presence = xml('presence', { to: this.jid + '/' + this.nick })
+            .append(xml('x', { xmlns: 'firebat:user:identity', jid: this.userJid, src: 'http://example.com/identity/invalid.xml' }))
+            .append(xml('x', { xmlns: 'firebat:avatar:state', jid: this.userJid, }).append(xml('position', { x: this.x }))
+            );
+        this.app.send(presence);
+    }
+
+    onPresence(stanza: any)
+    {
+        let from = jid(stanza.attrs.from);
+        let nick = from.getResource();
+
+        switch (as.String(stanza.attrs.type, 'available')) {
+            case 'available':
+                if (typeof this.participants[nick] === typeof undefined) {
+                    this.participants[nick] = new Participant(this.app, this, this.display, nick, nick == this.nick);
+                }
+                this.participants[nick].onPresenceAvailable(stanza);
+                break;
+
+            case 'unavailable':
+                if (typeof this.participants[nick] != typeof undefined) {
+                    this.participants[nick].onPresenceUnavailable(stanza);
+                    delete this.participants[nick];
+                }
+                break;
+
+            case 'error':
+                let code = as.Int(stanza.getChildren('error')[0].attrs.code, -1);
+                if (code == 409) {
+                    this.reEnterDifferentNick();
+                }
+                break;
+        }
+    }
+
+    reEnterDifferentNick()
+    {
+        this.enterRetryCount++;
+        if (this.enterRetryCount > this.maxEnterRetries) {
+            Log.error('Too many retries ', this.enterRetryCount, 'giving up on room', this.jid);
+            return;
+        } else {
+            this.nick = this.getNextNick(this.nick);
+            this.sendPresence();
+        }
+    }
+
+    getNextNick(nick: string): string
+    {
+        return nick + '_';
+    }
 }
