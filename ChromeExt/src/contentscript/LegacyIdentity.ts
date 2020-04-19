@@ -1,32 +1,23 @@
 const $ = require('jquery');
 import { Platform } from './Platform';
+import { PropertyStorage } from './PropertyStorage';
+import { as } from './as';
 
-export class IdentityItem
+export class LegacyIdentity
 {
-    public props: any = {};
-}
-
-export class Identity
-{
+    private url: string = '';
+    private digest: string = '';
     private isFetching: boolean = false;
-    private isFetched: boolean = false;
-    private items: { [id: string]: IdentityItem; } = {};
 
-    constructor(private url: string, private digest: string)
+    constructor(private storage: PropertyStorage, private entity: string)
     {
-        this.fetch(this.url);
     }
 
     changed(url: string, digest: string): void
     {
-        let changed = false;
-        if (url != this.url || digest != this.digest) {
+        if (url != '' && digest != '' && url != this.url || digest != this.digest) {
             this.url = url;
             this.digest = digest;
-            changed = true;
-        }
-
-        if (changed) {
             this.fetch(this.url);
         }
     }
@@ -71,22 +62,34 @@ export class Identity
         }
     }
 
-    setItem(id: string, props: Object)
+    setItem(id: string, props: any)
     {
-        if (typeof this.items[id] === typeof undefined) {
-            this.items[id] = new IdentityItem();
-            this.items[id].props = props;
-        } else {
-            this.items[id].props = props;
+        switch (id) {
+            case 'avatar':
+                this.storage.setProperty(this.entity, 'ImageUrl', as.String(props.src, '')); break;
+            case 'avatar2':
+                this.storage.setProperty(this.entity, 'AnimationsUrl', as.String(props.src, '')); break;
+            case 'profilepage':
+                this.storage.setProperty(this.entity, 'ProfileUrl', as.String(props.src, '')); break;
+            case 'properties':
+                {
+                    if (as.String(props.mimetype, '') == 'text/plain' || as.String(props.encoding, '') == 'plain') {
+                        let text = as.String(props.text, '');
+                        let removedCr = text.replace(/(?:\r\n|\r|\n)/g, '\n');
+                        let lines = removedCr.split('\n');
+                        lines.forEach(line =>
+                        {
+                            let parts = line.trim().split('=', 2);
+                            if (parts.length == 2) {
+                                this.storage.setProperty(this.entity, parts[0], parts[1]);
+                            }
+                        });
+                    }
+                }
+                break;
+            default:
+                this.storage.setProperty(this.entity, id, as.String(props.text, ''));
+                break;
         }
-    }
-}
-
-export class IdentityRepository
-{
-    private identities: { [id: string]: Identity; } = {};
-
-    public set(url: string, digest: string)
-    {
     }
 }

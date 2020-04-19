@@ -5,7 +5,7 @@ import { as } from './as';
 import { Platform } from './Platform';
 import { Log } from './Log';
 import { Room } from './Room';
-import { PropStorage } from './PropStorage';
+import { PropertyStorage } from './PropertyStorage';
 
 export class App
 {
@@ -14,11 +14,11 @@ export class App
     private myJid: string = 'test@xmpp.dev.sui.li';
     private myNick: string = 'nick_';
     private rooms: { [id: string]: Room; } = {};
-    private storage: PropStorage = new PropStorage();
+    private storage: PropertyStorage = new PropertyStorage();
 
     // Getter
 
-    getStorage(): PropStorage { return this.storage; }
+    getStorage(): PropertyStorage { return this.storage; }
     getAssetUrl(filePath: string) { return Platform.getAssetUrl(filePath); }
 
     constructor(private page: HTMLElement)
@@ -34,7 +34,7 @@ export class App
             controlElem.append(enterButton);
             $(enterButton).click(() =>
             {
-                this.enterRoomByJid('2883fcb56d5ac9d5e7adad03a38bce8a362dbdc2@muc4.virtual-presence.org');
+                this.enterRoomByJid('d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org');
             });
         }
 
@@ -63,7 +63,7 @@ export class App
 
         this.xmpp.on('stanza', (stanza: any) =>
         {
-            Log.verbose('stanza', stanza);
+            Log.verbose(stanza.name, stanza);
             if (stanza.is('presence')) {
                 this.onPresence(stanza);
             }

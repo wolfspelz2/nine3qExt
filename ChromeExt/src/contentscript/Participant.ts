@@ -3,14 +3,16 @@ import { App } from './App';
 import { Entity } from './Entity';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
-import { Identity } from './Identity';
+import { LegacyIdentity } from './LegacyIdentity';
 import { as } from './as';
 
 export class Participant extends Entity
 {
+    private avatar: Avatar;
     private firstPresence: boolean = true;
     private speedX: number = 80;
-    private identity: Identity;
+    private identityUrl: string;
+    private userId: string;
 
     constructor(private app: App, room: Room, display: HTMLElement, private nick: string, private isSelf: boolean)
     {
@@ -46,13 +48,12 @@ export class Participant extends Entity
 
             let url = as.String(identityAttrs.src, '');
             let digest = as.String(identityAttrs.digest, '');
+            let jid = as.String(identityAttrs.jid, url);
+            this.userId = as.String(identityAttrs.id, jid);
 
             if (url != '' && digest != '') {
-                if (this.identity == null) {
-                    this.identity = new Identity(url, digest);
-                } else {
-                    this.identity.changed(url, digest);
-                }
+                this.identityUrl = url;
+                this.app.getStorage().setIdentity(this.userId, url, digest);
             }
         }
 
@@ -66,6 +67,9 @@ export class Participant extends Entity
             this.setPosition(newX);
 
             this.avatar = new Avatar(this.app, this, this.getCenterElem());
+            this.app.getStorage().watch(this.userId, 'ImageUrl', this.avatar);
+            this.app.getStorage().watch(this.userId, 'AnimationsUrl', this.avatar);
+            
             // this.nickname = new Nickname(this.app, this, this.getElem());
             // this.chatout = new Chatout(this.app, this, this.getElem());
             // this.chatin = new Chatin(this.app, this, this.getElem());
