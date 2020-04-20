@@ -6,6 +6,7 @@ import { Platform } from './Platform';
 import { Log } from './Log';
 import { Room } from './Room';
 import { PropertyStorage } from './PropertyStorage';
+import { HelloWorld } from './HelloWorld';
 
 export class App
 {
@@ -27,8 +28,10 @@ export class App
         this.page.append(this.display);
 
         {
-            let controlElem: HTMLElement = $('<div class="n3q-ctrl n3q-hello">Hello World</div>')[0];
+            let controlElem: HTMLElement = $('<div id="n3q-hello" class="n3q-ctrl"></div>')[0];
             this.display.append(controlElem);
+
+            $('#n3q-hello').text(HelloWorld.getText());
 
             let enterButton: HTMLButtonElement = $('<button>enter</button>')[0];
             controlElem.append(enterButton);
