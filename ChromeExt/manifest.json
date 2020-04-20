@@ -1,13 +1,13 @@
 {
   "manifest_version": 2,
-  "name": "Chrome Extension with React and Typescript Starter Pack",
-  "short_name": "React & Typescript based Chrome Extension",
+  "name": "Nine3q Extension: Avatars and things on web pages",
+  "short_name": "Nine3q: Avatars and things on web pages",
   "version": "1.0.0",
-  "description": "Chrome Extension with React and Typescript Starter Pack",
+  "description": "Nine3q Extension: Avatars and things on web pages",
   "permissions": ["tabs", "activeTab", "storage"],
   "browser_action": {
     "default_popup": "popup/index.html",
-    "default_title": "React Chrome Extension Starter"
+    "default_title": "Nine3q: Avatars and things on web pages"
   },
   "icons": {
     "128": "./assets/icon.png"

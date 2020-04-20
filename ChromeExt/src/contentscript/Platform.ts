@@ -62,7 +62,7 @@ export class Platform
 
     static fetchUrl(url: string, callback: PlatformFetchUrlCallback)
     {
-        console.log('Platform.fetchUrl', url);
+        // console.log('Platform.fetchUrl', url);
 
         chrome.runtime.sendMessage({ 'type': 'fetchUrl', 'url': url }, response =>
         {

@@ -35,7 +35,7 @@ export class PropertyStorage
 
     setProperty(entity: string, key: string, value: any)
     {
-        Log.info('PropertyStorage.setProperty', entity, key,value);
+        // Log.info('PropertyStorage.setProperty', entity, key,value);
         this.setObservable(entity, key, value);
     }
 

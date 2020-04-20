@@ -63,7 +63,7 @@ export class App
 
         this.xmpp.on('stanza', (stanza: any) =>
         {
-            Log.verbose(stanza.name, stanza);
+            Log.verbose(stanza.name, stanza.attrs.type, stanza);
             if (stanza.is('presence')) {
                 this.onPresence(stanza);
             }

@@ -10,7 +10,7 @@ export class Room
     private enterRetryCount: number = 0;
     private maxEnterRetries: number = 4;
     private x: number = 300;
-    private participants: { [id: string]: Participant; } = {};
+    private participants: { [nick: string]: Participant; } = {};
 
     constructor(private app: App, private display: HTMLElement, private jid: string, private userJid: string, private proposedNick: string) 
     {
@@ -37,7 +37,12 @@ export class Room
         let from = jid(stanza.attrs.from);
         let nick = from.getResource();
 
-        switch (as.String(stanza.attrs.type, 'available')) {
+        let type = as.String(stanza.attrs.type, '');
+        if (type == '') {
+            type = 'available';
+        }
+
+        switch (type) {
             case 'available':
                 if (typeof this.participants[nick] === typeof undefined) {
                     this.participants[nick] = new Participant(this.app, this, this.display, nick, nick == this.nick);
