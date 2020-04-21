@@ -8,13 +8,23 @@ import { sut } from '../lib/sut';
 //     };
 // }
 
+function external_function_because_all_methods_are_ubject_to_testing()
+{
+   return 42;
+}
+
 export class TestHelloWorld
 {
     private aPrivateProperty: number = 42;
 
-    private aPrivateMethod = function()
+    private privateMethodThrows = function()
     {
        throw 'should not be called';
+    }
+
+    static staticMethod()
+    {
+        return 42;
     }
 
     getText_fails()
@@ -31,6 +41,8 @@ export class TestHelloWorld
 
     getText()
     {
+        const privateMethodResult = TestHelloWorld.staticMethod();
+        // const privateMethodResult = external_function_because_all_methods_are_ubject_to_testing();
         const result = HelloWorld.getText();
         expect(result).to.equal('Hello World');
     }
