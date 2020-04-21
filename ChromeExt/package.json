@@ -1,17 +1,19 @@
 {
-  "name": "chrome-extension-with-react-and-typescript-starter-pack",
+  "name": "nine3q-chrome-extension-avatars-and-things-on-web-pages",
   "version": "1.0.0",
-  "description": "Chrome Extension with React and Typescript Starter Pack",
+  "description": "Nine3q Extension: avatars and things on web pages",
   "homepage": "https://github.com/wolfspelz/nine3q/blob/master/ChromeExt/README.md",
   "scripts": {
     "clean": "rimraf -rf dist && cpy manifest.json dist && cpy src/assets/* dist/assets",
     "prebuild": "npm run clean",
     "build:contentscript-background": "cross-env NODE_ENV=production webpack --config webpack.config.js",
     "build:popup": "cross-env INLINE_RUNTIME_CHUNK=false npm run build --prefix src/popup && cd src/popup/build && cpy * /static/* ../../../dist/popup --parents",
+    "build:test": "webpack --config webpack.test.config.js",
     "build": "npm-run-all build:*",
     "prewatch": "npm run clean",
     "watch:contentscript-background": "cross-env NODE_ENV=development webpack --config webpack.config.js -w",
     "watch:popup": "npm run watch:build --prefix src/popup",
+    "watch:test": "webpack --config webpack.test.config.js -w",
     "watch": "npm-run-all --parallel watch:*",
     "zip": "bestzip extension.zip dist/*"
   },
@@ -51,11 +53,14 @@
     "webpack-cli": "3.3.10"
   },
   "dependencies": {
+    "@types/chai": "^4.2.11",
     "@types/jquery": "^3.3.35",
     "@types/jqueryui": "^1.12.10",
     "@xmpp/client": "^0.11.1",
     "@xmpp/debug": "^0.11.0",
+    "chai": "^4.2.0",
     "cross-env": "^7.0.2",
+    "html-webpack-plugin": "^4.2.0",
     "jquery": "^3.5.0",
     "jquery-ui": "^1.12.1",
     "rimraf": "^3.0.2"

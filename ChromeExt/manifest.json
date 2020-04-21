@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "Nine3q Extension: Avatars and things on web pages",
-  "short_name": "Nine3q: Avatars and things on web pages",
+  "name": "Nine3q Extension: avatars and things on web pages",
+  "short_name": "Nine3q: avatars and things on web pages",
   "version": "1.0.0",
   "description": "Nine3q Extension: Avatars and things on web pages",
   "permissions": ["tabs", "activeTab", "storage"],
