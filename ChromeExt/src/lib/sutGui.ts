@@ -3,7 +3,7 @@ import { sut } from './sut';
 
 export class sutGui
 {
-    render(s: sut, parent: HTMLElement)
+    render(s: sut, parent: any)
     {
         let result = s.getResult();
 
@@ -67,7 +67,7 @@ export class sutGui
             }
 
             eList.append(eTest);
-        });
+        };
 
         eTop.append(eList);
 
