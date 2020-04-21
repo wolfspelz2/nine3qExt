@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { HelloWorld } from '../contentscript/HelloWorld';
-import { sut } from './sut';
+import { sut } from '../lib/sut';
 
 // function sutMethod() {
 //     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
@@ -20,7 +20,7 @@ export class TestHelloWorld
     getText_fails()
     {
         const result = HelloWorld.getText();
-        expect(result).to.equal('xHello World');
+        expect(result).to.equal('Expected Hello');
     }
 
     getText_fails_with_result()

@@ -1,11 +1,19 @@
+export class sutTest
+{
+    constructor(
+        public name: string,
+        public methodName: string,
+        public className: string,
+        public fn: any,
+        public success: boolean,
+        public result: any
+    ) { }
+}
+
 export class sut
 {
     private ignoredClasses: Array<string> = [];
-    private names: Array<string> = [];
-    private tests: { [name: string]: any; } = {};
-    private functions: { [name: string]: any; } = {};
-    private results: { [name: string]: boolean; } = {};
-    private messages: { [name: string]: any; } = {};
+    private tests: { [name: string]: sutTest; } = {};
     private totalTests: number = 0;
     private countStarted: number = 0;
     private countFinished: number = 0;
@@ -31,10 +39,8 @@ export class sut
             if (typeof testClass.prototype[member] == 'function') {
                 let methodName = member;
                 let className = testClass.name;
-                let name = className + '.' + methodName;
-                this.names.push(name);
-                this.tests[name] = { 'methodName': methodName, 'className': className };
-                this.functions[name] = testClass.prototype[member];
+                let name = className + '_' + methodName;
+                this.tests[name] = new sutTest(name, methodName, className,testClass.prototype[member], false, null);
                 this.totalTests++;
             }
         }
@@ -44,23 +50,23 @@ export class sut
     {
         this.runStarted = true;
         this.runSuccess = true;
-        for (var name in this.functions) {
-            let message;
+        for (var name in this.tests) {
+            let result;
             this.countStarted++;
             try {
-                message = this.functions[name]();
+                result = this.tests[name].fn();
             } catch (ex) {
-                message = ex;
+                result = ex;
             }
             this.countFinished++;
-            this.messages[name] = message;
-            if (message === undefined || message === '') {
-                this.results[name] = true;
+            this.tests[name].result = result;
+            if (result === undefined || result === '') {
+                this.tests[name].success = true;
                 if (!(this.isFailureIgnoredClass(this.tests[name].className))) {
                     this.countSuccess++;
                 }
             } else {
-                this.results[name] = false;
+                this.tests[name].success = false;
                 if (!(this.isFailureIgnoredClass(this.tests[name].className))) {
                     this.countFailures++;
                     this.runSuccess = false;
@@ -70,7 +76,7 @@ export class sut
         this.runFinished = true;
     }
 
-    getResults()
+    getResult()
     {
         return {
             'runSuccess': this.runSuccess,
@@ -78,9 +84,6 @@ export class sut
             'runFinished': this.runFinished,
             'countSuccess': this.countSuccess,
             'countFailures': this.countFailures,
-            'names': this.names,
-            'results': this.results,
-            'messages': this.messages,
             'totalTests': this.totalTests,
             'tests': this.tests,
         }
