@@ -103,6 +103,18 @@ export class App
         this.xmpp.send(stanza);
     }
 
+    // Window management
+
+    enableScreen(on: boolean)
+    {
+        // if (on) {
+        //     this.originalScreenHeight = this.screenElem.style.height;
+        //     this.screenElem.style.height = '100%';
+        // } else {
+        //     this.screenElem.style.height = this.originalScreenHeight;
+        // }
+    }
+
     // Local storage
 
     private readonly localStorage_Key_Avatar_x: string = 'Avatar_x';

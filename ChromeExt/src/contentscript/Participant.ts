@@ -1,4 +1,4 @@
-const $ = require('jquery');
+import * as $ from 'jquery';
 import { App } from './App';
 import { Entity } from './Entity';
 import { Room } from './Room';
@@ -57,6 +57,22 @@ export class Participant extends Entity
             }
         }
 
+        { // <show>: dnd, away, xa
+            let showAvailability: string = 'available';
+            let show = stanza.getChild('show');
+            if (show != undefined) {
+                showAvailability = show.getText();
+            }
+        }
+
+        { // <status>: Status message (text)
+            let statusMessage: string = '';
+            let statusChild = stanza.getChild('status');
+            if (statusChild != undefined) {
+                statusMessage = statusChild.getText();
+            }
+        }
+
         if (this.firstPresence) {
             this.firstPresence = false;
 
@@ -69,7 +85,7 @@ export class Participant extends Entity
             this.avatar = new Avatar(this.app, this, this.getCenterElem());
             this.app.getStorage().watch(this.userId, 'ImageUrl', this.avatar);
             this.app.getStorage().watch(this.userId, 'AnimationsUrl', this.avatar);
-            
+
             // this.nickname = new Nickname(this.app, this, this.getElem());
             // this.chatout = new Chatout(this.app, this, this.getElem());
             // this.chatin = new Chatin(this.app, this, this.getElem());
@@ -130,5 +146,25 @@ export class Participant extends Entity
         this.setPosition(newX);
         this.avatar.setState('');
     }
+
+    onDraggedBy(dX: number, dY: number): void
+    {
+        var newX = this.getPosition() + dX;
+
+        if (this.getPosition() != newX) {
+            if (this.isSelf) {
+                this.room.sendMoveMessage(newX);
+            } else {
+                this.quickSlide(newX);
+            }
+        }
+    }
+
+    quickSlide(newX: number): void
+    {
+        this.avatar.setState('');
+        super.quickSlide(newX);
+    }
+
 
 }

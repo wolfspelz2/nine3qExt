@@ -1,10 +1,11 @@
-const $ = require('jquery');
+import * as $ from 'jquery';
+import 'jqueryui';
 import { as } from './as';
 import { App } from './App';
 import { Entity } from './Entity';
 import { Platform } from './Platform';
 import { IObserver, IObservable } from './ObservableProperty';
-import { AnimationsXml, AnimationsDefinition, AvatarAnimationParam, AvatarAnimationSequence } from './AnimationsXml';
+import * as AnimationsXml from './AnimationsXml';
 
 import imgDefaultAvatar from '../assets/DefaultAvatar.png';
 
@@ -26,22 +27,73 @@ export class Avatar implements IObserver
     private hasAnimation = false;
     private animationsUrl: string;
     private animationsUrlBase: string;
-    private animations: AnimationsDefinition;
+    private animations: AnimationsXml.AnimationsDefinition;
     private defaultGroup: string;
     private currentState: string = '';
     private currentAction: string = '';
     private animationTimer: number = -1;
+    private inDrag: boolean = false;
     private speedInPixelPerMsec: number = 0.1;
     private defaultSpeedInPixelPerMsec: number = 0.1;
+    private doubleClickDelay: number = 20;
+
+    private preventNextClick_a_hack_otherwise_draggable_clicks = false;
+    private clickTimer: number = null;
 
     constructor(private app: App, private entity: Entity, private display: HTMLElement)
     {
-        this.elem = <HTMLImageElement>$('<img class="n3q-avatar" />')[0];
+        this.elem = <HTMLImageElement>$('<img class="n3q-avatar" />')[0]; 
         // var url = 'https://www.virtual-presence.org/images/wolf.png';
         // var url = app.getAssetUrl('default-avatar.png');
         var url = imgDefaultAvatar;
         this.elem.src = url;
+
         display.appendChild(this.elem);
+
+        $(this.elem).draggable({
+            scroll: false,
+            stack: '.n3q-participant',
+            opacity: 0.5,
+            distance: 4,
+            helper: 'clone',
+            zIndex: 1100000000,
+            containment: 'document',
+            start: (ev: JQueryMouseEventObject, ui) =>
+            {
+                this.app.enableScreen(true);
+                this.inDrag = true;
+                this.a_hack_otherwise_draggable_clicks_start(ev);
+                this.entity.onStartDragAvatar(ev, ui);
+
+                //if (typeof ui.helper[0] !== typeof undefined) {
+                //    ui.helper[0].style.zIndex = '1200';
+                //}
+            },
+            drag: (ev: JQueryMouseEventObject, ui) =>
+            {
+                this.entity.onDragAvatar(ev, ui);
+            },
+            stop: (ev: JQueryMouseEventObject, ui) =>
+            {
+                this.entity.onStopDragAvatar(ev, ui);
+                this.a_hack_otherwise_draggable_clicks_stop(ev);
+                this.inDrag = false;
+                this.app.enableScreen(false);
+            }
+        });
+
+    }
+
+    a_hack_otherwise_draggable_clicks_x: number;
+    a_hack_otherwise_draggable_clicks_start(ev: JQueryMouseEventObject): void
+    {
+        this.a_hack_otherwise_draggable_clicks_x = $(this.elem).offset().left;
+    }
+    a_hack_otherwise_draggable_clicks_stop(ev: JQueryMouseEventObject): void
+    {
+        if (ev.clientX > this.a_hack_otherwise_draggable_clicks_x && ev.clientX <= this.a_hack_otherwise_draggable_clicks_x + this.elem.width) {
+            this.preventNextClick_a_hack_otherwise_draggable_clicks = true;
+        }
     }
 
     update(key: string, value: any): void
@@ -89,7 +141,7 @@ export class Avatar implements IObserver
         Platform.fetchUrl(url, (ok, status, statusText, data) =>
         {
             if (ok) {
-                let parsed = AnimationsXml.parseXml(url, data);
+                let parsed = AnimationsXml.AnimationsXml.parseXml(url, data);
                 this.onAnimations(parsed);
             }
         });
@@ -109,7 +161,7 @@ export class Avatar implements IObserver
     startNextAnimation(): void
     {
         this.speedInPixelPerMsec = this.defaultSpeedInPixelPerMsec;
-        
+
         var once = true;
         var group = this.currentAction;
         this.currentAction = '';
@@ -121,7 +173,7 @@ export class Avatar implements IObserver
             return;
         }
 
-        var duration : number = animation.duration;
+        var duration: number = animation.duration;
         if (as.Int(duration, 0) < 10) {
             duration = 1000;
         }
@@ -178,6 +230,6 @@ export class Avatar implements IObserver
 
     getDefaultGroup(): string
     {
-        return as.String(this.animations.params[AvatarAnimationParam.defaultsequence], 'idle');
+        return as.String(this.animations.params[AnimationsXml.AvatarAnimationParam.defaultsequence], 'idle');
     }
 }

@@ -1,4 +1,5 @@
-const $ = require('jquery');
+// const $ = require('jquery');
+import * as $ from 'jquery';
 import { Room } from './Room';
 
 export class Entity
@@ -8,7 +9,7 @@ export class Entity
     private positionX: number = -1;
     private visible: boolean = false;
 
-    constructor(private room: Room, protected display: HTMLElement)
+    constructor(protected room: Room, protected display: HTMLElement)
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-entity" />')[0];
         this.elem.style.display = 'none';
@@ -47,5 +48,47 @@ export class Entity
     {
         return this.positionX;
     }
+
+    quickSlide(newX: number): void
+    {
+        if (newX < 0) { newX = 0; }
+
+        $(this.elem)
+            .stop(true)
+            .animate(
+            { left: newX + 'px' },
+            100,
+            'linear',
+            () => this.quickSlideDestinationReached(newX)
+            );
+    }
+
+    private quickSlideDestinationReached(newX: number): void
+    {
+        this.positionX = newX;
+    }
+
+    // Drag
+
+    private dragStartPosition: any;
+    public onStartDragAvatar(ev: JQueryMouseEventObject, ui: any): void
+    {
+        this.dragStartPosition = ui.position;
+    }
+
+    public onDragAvatar(ev: JQueryMouseEventObject, ui: any): void
+    {
+    }
+
+    public onStopDragAvatar(ev: JQueryMouseEventObject, ui: any): void
+    {
+        this.onDraggedBy((ui.position.left - this.dragStartPosition.left), (ui.position.top - this.dragStartPosition.top));
+    }
+
+    protected onDraggedBy(dX: number, dY: number): void
+    {
+    }
+
+    // 
 
 }

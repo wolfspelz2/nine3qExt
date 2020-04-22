@@ -62,7 +62,7 @@
     "cross-env": "^7.0.2",
     "html-webpack-plugin": "^4.2.0",
     "jquery": "^3.5.0",
-    "jquery-ui": "^1.12.1",
+    "jqueryui": "^1.11.1",
     "rimraf": "^3.0.2"
   }
 }

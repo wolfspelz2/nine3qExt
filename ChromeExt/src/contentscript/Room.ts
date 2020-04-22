@@ -82,4 +82,10 @@ export class Room
     {
         return nick + '_';
     }
+
+    sendMoveMessage(newX: number): void
+    {
+        this.x = newX;
+        this.sendPresence();
+    }
 }
