@@ -16,7 +16,7 @@
     {
       "js": ["contentscript.js"],
       "css": ["contentscript.css"],
-      "matches": ["<all_urls>"]
+      "matches": ["http://*/*", "https://*/*"]
     }
   ],
   "background": {
