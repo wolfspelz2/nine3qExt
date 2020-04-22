@@ -17,9 +17,6 @@ export class Entity
         this.elem.appendChild(this.centerElem);
 
         this.display.appendChild(this.elem);
-
-        // let avatarElement = <HTMLDivElement>$('<div class="n3q-avatar" />')[0];
-        // entityElement.appendChild(avatarElement);
     }
 
     getElem(): HTMLElement { return this.elem; }

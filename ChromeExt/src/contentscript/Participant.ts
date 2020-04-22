@@ -10,7 +10,7 @@ export class Participant extends Entity
 {
     private avatar: Avatar;
     private firstPresence: boolean = true;
-    private speedX: number = 80;
+    private defaultSpeedInPixelPerMsec: number = 0.1;
     private identityUrl: string;
     private userId: string;
 
@@ -81,7 +81,7 @@ export class Participant extends Entity
 
             if (presenceHasPosition) {
                 if (this.getPosition() != newX) {
-                    this.move(newX, this.speedX);
+                    this.move(newX);
                 }
             }
 
@@ -93,7 +93,7 @@ export class Participant extends Entity
         this.shutdown();
     }
 
-    move(newX: number, speedX: number): void
+    move(newX: number): void
     {
         if (newX < 0) { newX = 0; }
 
@@ -111,13 +111,15 @@ export class Participant extends Entity
         } else {
             this.avatar.setState('moveright');
         }
-        var duration = (diffX * 1000) / speedX;
+
+        let speedPixelPerMsec = as.Float(this.avatar.getSpeedInPixelPerMsec(), this.defaultSpeedInPixelPerMsec);
+        var durationMsec = diffX / speedPixelPerMsec;
 
         $(this.getElem())
             .stop(true)
             .animate(
                 { left: newX + 'px' },
-                duration,
+                durationMsec,
                 'linear',
                 () => this.onMoveDestinationReached(newX)
             );

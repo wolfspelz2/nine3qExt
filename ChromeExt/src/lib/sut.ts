@@ -68,6 +68,7 @@ export class sut
             } else {
                 this.tests[name].success = false;
                 if (!(this.isFailureIgnoredClass(this.tests[name].className))) {
+                    console.log(name, result);
                     this.countFailures++;
                     this.runSuccess = false;
                 }
