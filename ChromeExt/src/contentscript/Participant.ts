@@ -5,6 +5,7 @@ import { Room } from './Room';
 import { Avatar } from './Avatar';
 import { LegacyIdentity } from './LegacyIdentity';
 import { as } from './as';
+import { Log } from './Log';
 
 export class Participant extends Entity
 {
@@ -24,18 +25,21 @@ export class Participant extends Entity
     {
         var presenceHasPosition: boolean = false;
         var newX: number = 123;
+        var newCondition: string = '';
 
         {
-            newX = as.Int(
-                stanza
-                    .getChildren('x')
-                    .find(stanzaChild => stanzaChild.attrs.xmlns === 'firebat:avatar:state')
-                    .getChild('position')
-                    .attrs.x
-                , -1);
-
-            if (newX != -1) {
-                presenceHasPosition = true;
+            let stateNode = stanza.getChildren('x').find(stanzaChild => stanzaChild.attrs.xmlns === 'firebat:avatar:state');
+            let positionNode = stateNode.getChild('position');
+            if (positionNode != undefined) {
+                newX = as.Int(positionNode.attrs.x, -1);
+                if (newX != -1) {
+                    presenceHasPosition = true;
+                    Log.info(newX);
+                }
+            }
+            let conditionNode = stateNode.getChild('condition');
+            if (conditionNode != undefined) {
+                newCondition = as.String(conditionNode.attrs.status, '');
             }
         }
 
@@ -59,17 +63,17 @@ export class Participant extends Entity
 
         { // <show>: dnd, away, xa
             let showAvailability: string = 'available';
-            let show = stanza.getChild('show');
-            if (show != undefined) {
-                showAvailability = show.getText();
+            let showNode = stanza.getChild('show');
+            if (showNode != undefined) {
+                showAvailability = showNode.getText();
             }
         }
 
         { // <status>: Status message (text)
             let statusMessage: string = '';
-            let statusChild = stanza.getChild('status');
-            if (statusChild != undefined) {
-                statusMessage = statusChild.getText();
+            let statusNode = stanza.getChild('status');
+            if (statusNode != undefined) {
+                statusMessage = statusNode.getText();
             }
         }
 
@@ -83,8 +87,10 @@ export class Participant extends Entity
             this.setPosition(newX);
 
             this.avatar = new Avatar(this.app, this, this.getCenterElem());
-            this.app.getStorage().watch(this.userId, 'ImageUrl', this.avatar);
-            this.app.getStorage().watch(this.userId, 'AnimationsUrl', this.avatar);
+            if (this.isSelf) {
+                this.app.getStorage().watch(this.userId, 'ImageUrl', this.avatar);
+                this.app.getStorage().watch(this.userId, 'AnimationsUrl', this.avatar);
+            }
 
             // this.nickname = new Nickname(this.app, this, this.getElem());
             // this.chatout = new Chatout(this.app, this, this.getElem());
@@ -100,8 +106,9 @@ export class Participant extends Entity
                     this.move(newX);
                 }
             }
-
         }
+
+        this.avatar.setState(newCondition);
     }
 
     onPresenceUnavailable(stanza: any)

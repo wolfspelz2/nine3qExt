@@ -67,19 +67,36 @@ $z-index: (
     bottom: 0px;
     pointer-events: none;
 }
-.n3q-entity-content {
-    width: 100px;
-    height: 100px;
+// .n3q-entity-content {
+//     width: 100px;
+//     height: 100px;
+//     position: relative;
+//     left: -50px;
+//     border-top: 1px solid #808080;
+//     border-left: 1px solid #808080;
+//     border-right: 1px solid #808080;
+//     pointer-events: none;
+// }
+
+.n3q-centertable {
+    display: table;
     position: relative;
     left: -50px;
+    width: 100px;
+    height: 100px;
     border-top: 1px solid #808080;
     border-left: 1px solid #808080;
     border-right: 1px solid #808080;
-    pointer-events: none;
+}
+.n3q-centercell {
+    display: table-cell;
+    text-align: center;
+    vertical-align: bottom;
+    font-size: 0px;
 }
 
 .n3q-avatar {
-    margin: auto;
+    // margin: auto;
     position: absolute;
     bottom: 0;
     left: 0;
