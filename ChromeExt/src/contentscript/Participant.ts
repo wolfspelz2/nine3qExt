@@ -3,6 +3,7 @@ import { App } from './App';
 import { Entity } from './Entity';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
+import { Nickname } from './Nickname';
 import { LegacyIdentity } from './LegacyIdentity';
 import { as } from './as';
 import { Log } from './Log';
@@ -10,6 +11,7 @@ import { Log } from './Log';
 export class Participant extends Entity
 {
     private avatar: Avatar;
+    private nickname: Nickname;
     private firstPresence: boolean = true;
     private defaultSpeedInPixelPerMsec: number = 0.1;
     private identityUrl: string;
@@ -99,7 +101,9 @@ export class Participant extends Entity
             this.app.getStorage().watch(this.userId, 'ImageUrl', this.avatar);
             this.app.getStorage().watch(this.userId, 'AnimationsUrl', this.avatar);
 
-            // this.nickname = new Nickname(this.app, this, this.getElem());
+            this.nickname = new Nickname(this.app, this, this.getElem());
+            this.app.getStorage().watch(this.userId, 'Nickname', this.nickname);
+
             // this.chatout = new Chatout(this.app, this, this.getElem());
             // this.chatin = new Chatin(this.app, this, this.getElem());
 

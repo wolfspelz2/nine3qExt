@@ -3,9 +3,11 @@
 }
 
 $z-index: (
-    page        : 1000000000,
-    participant : 1002000000,
-    thing       : 1001000000,
+    Page               : 1000000000,
+    Thing              : 1001000000,
+    Participant        : 1002000000,
+    ParticipantAvatar  : 1002001000,
+    ParticipantNickname: 1002002000,
 );
 
 #n3q-id-page {
@@ -18,7 +20,7 @@ $z-index: (
     //background-color: rgba(70, 201, 70, 0.05);
     background-image: url("page-bg.png");
     pointer-events: none;
-    z-index: z-index(page);
+    z-index: z-index(Page);
 }
 
 // .n3q-log {
@@ -96,6 +98,17 @@ $z-index: (
     // border-right: 1px solid #0000ff;
 }
 
+.n3q-text {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+}
+
+.n3q-participant {
+    z-index: z-index(Participant);
+}
+
 .n3q-avatar {
     left: unset;
     right: unset;
@@ -103,12 +116,31 @@ $z-index: (
     bottom: 0;
     pointer-events: auto;
     user-select: none;
+    z-index: z-index(ParticipantAvatar);
 }
 
-.n3q-participant {
-    z-index: z-index(participant);
+.n3q-nickname {
+    position: absolute;
+    left: 20px;
+    bottom: 10px;
+    border: 1px solid #888;
+    padding: 0 2px 1px 2px;
+    background-color: #f5f5f5;
+    white-space: nowrap;
+    max-width: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: z-index(ParticipantNickname);
+    pointer-events: auto;
+}
+
+.n3q-shadow {
+    -webkit-box-shadow: 1px 1px 1px #888;
+    -moz-box-shadow: 1px 1px 2px #888;
+    box-shadow: 1px 1px 2px #888;
 }
 
 .n3q-thing {
-    z-index: z-index(thing);
+    z-index: z-index(Thing);
 }
+
