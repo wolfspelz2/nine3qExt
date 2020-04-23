@@ -1,4 +1,5 @@
 import * as $ from 'jquery';
+const { xml, jid } = require('@xmpp/client');
 import { App } from './App';
 import { Entity } from './Entity';
 import { Room } from './Room';
@@ -97,13 +98,22 @@ export class Participant extends Entity
             if (newX < 0) { newX = 100; }
             this.setPosition(newX);
 
-            this.avatar = new Avatar(this.app, this, this.getCenterElem(), this.isSelf);
-            this.app.getStorage().watch(this.userId, 'ImageUrl', this.avatar);
-            this.app.getStorage().watch(this.userId, 'AnimationsUrl', this.avatar);
+            {
+                this.avatar = new Avatar(this.app, this, this.getCenterElem(), this.isSelf);
+                this.app.getStorage().watch(this.userId, 'ImageUrl', this.avatar);
+                this.app.getStorage().watch(this.userId, 'AnimationsUrl', this.avatar);
+            }
 
-            this.nickname = new Nickname(this.app, this, this.getElem());
-            this.app.getStorage().watch(this.userId, 'Nickname', this.nickname);
-
+            {
+                this.nickname = new Nickname(this.app, this, this.getElem());
+                let from = jid(stanza.attrs.from);
+                let xmppNickname = as.String(from.getResource(), '');
+                if (xmppNickname != '') {
+                    this.nickname.setNickname(xmppNickname);
+                }
+                this.app.getStorage().watch(this.userId, 'Nickname', this.nickname);
+            }
+            
             // this.chatout = new Chatout(this.app, this, this.getElem());
             // this.chatin = new Chatin(this.app, this, this.getElem());
 
