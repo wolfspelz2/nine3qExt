@@ -9,6 +9,8 @@ $z-index: (
     Participant        : 1002000000,
     ParticipantAvatar  : 1002001000,
     ParticipantNickname: 1002002000,
+    ParticipantChatout : 1002003000,
+    ParticipantChatin  : 1002004000,
 );
 
 #n3q-id-page {
@@ -116,13 +118,19 @@ $z-index: (
 
 // Glyphicon simulation
 
-.glyphicon-remove::before {
+.glyphicon-remove::after {
     content: "x";
+    width: 10px;
+    height: 10px;
 }
-.glyphicon-remove {
-    width: 11px;
-    height: 11px;
+.glyphicon-forward::after {
+    content: ">>";
+    width: 15px;
+    height: 10px;
 }
+
+// .glyphicon {
+// }
 
 // Buttons
 
@@ -137,7 +145,7 @@ $z-index: (
 
 .n3q-button-overlay {
     position: absolute;
-    right: 2px;
+    right: 4px;
     top: 2px;
     background-color: #FFF;
     /*border: 1px solid #666;
@@ -147,6 +155,7 @@ $z-index: (
 
 .n3q-button-sendchat {
     margin-left: 2px;
+    padding-right: 4px;
     position: relative;
     top: 2px;
 }
@@ -200,6 +209,7 @@ $z-index: (
     left: -50px;
     bottom: 110px;
     width: 100px;
+    z-index: z-index(ParticipantChatout);
     pointer-events: auto;
 }
 
@@ -260,6 +270,7 @@ $z-index: (
     padding: 0px 8px 0px 6px;
     z-index: 500;
     pointer-events: auto;
+    z-index: z-index(ParticipantChatin);
 }
 
 .n3q-chatin .n3q-text {

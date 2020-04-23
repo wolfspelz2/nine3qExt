@@ -49,28 +49,27 @@ export class Avatar implements IObserver
         var url = imgDefaultAvatar;
         this.elem.src = url;
 
-        //hw notyet
-        // $(this.elem).click(ev =>
-        // {
-        //     if (this.clickTimer == null) {
-        //         if (this.preventNextClick_a_hack_otherwise_draggable_clicks) {
-        //             this.preventNextClick_a_hack_otherwise_draggable_clicks = false;
-        //         } else {
-        //             this.clickTimer = setTimeout(() =>
-        //             {
-        //                 this.clickTimer = null;
-        //                 this.entity.onMouseClickAvatar(ev);
-        //                 //hw notyet app.zIndexTop(this.elem);
-        //             }, this.doubleClickDelay);
-        //         }
-        //     } else {
-        //         if (this.clickTimer != null) {
-        //             clearTimeout(this.clickTimer);
-        //             this.clickTimer = null;
-        //             this.entity.onMouseDoubleClickAvatar(ev);
-        //         }
-        //     }
-        // });
+        $(this.elem).on('click', ev =>
+        {
+            if (this.clickTimer == null) {
+                if (this.preventNextClick_a_hack_otherwise_draggable_clicks) {
+                    this.preventNextClick_a_hack_otherwise_draggable_clicks = false;
+                } else {
+                    this.clickTimer = setTimeout(() =>
+                    {
+                        this.clickTimer = null;
+                        this.entity.onMouseClickAvatar(ev);
+                        //hw later app.zIndexTop(this.elem);
+                    }, this.doubleClickDelay);
+                }
+            } else {
+                if (this.clickTimer != null) {
+                    clearTimeout(this.clickTimer);
+                    this.clickTimer = null;
+                    this.entity.onMouseDoubleClickAvatar(ev);
+                }
+            }
+        });
 
         display.appendChild(this.elem);
 

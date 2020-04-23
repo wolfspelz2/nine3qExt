@@ -119,7 +119,7 @@ export class Room
     sendGroupChat(text: string, fromNick: string)
     {
         let message = xml('message', { type: 'groupchat', to: this.jid, from: this.jid + '/' + fromNick })
-            .append(xml('body').text(text))
+            .append(xml('body', {}, text))
             ;
         this.app.send(message);
     }

@@ -1,5 +1,5 @@
-// const $ = require('jquery');
 import * as $ from 'jquery';
+import 'jqueryui';
 import { Room } from './Room';
 
 export class Entity
@@ -73,19 +73,19 @@ export class Entity
 
     // Mouse
 
-    public onMouseEnterAvatar(ev: JQueryMouseEventObject): void
+    public onMouseEnterAvatar(ev: JQuery.Event): void
     {
     }
 
-    public onMouseLeaveAvatar(ev: JQueryMouseEventObject): void
+    public onMouseLeaveAvatar(ev: JQuery.Event): void
     {
     }
 
-    public onMouseClickAvatar(ev: JQueryMouseEventObject): void
+    public onMouseClickAvatar(ev: JQuery.Event): void
     {
     }
 
-    public onMouseDoubleClickAvatar(ev: JQueryMouseEventObject): void
+    public onMouseDoubleClickAvatar(ev: JQuery.Event): void
     {
     }
 

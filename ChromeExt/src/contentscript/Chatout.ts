@@ -16,7 +16,7 @@ export class Chatout
         $(this.elem).click(() =>
         {
             $(this.elem).stop(true).fadeTo('fast', 1);
-            //hw notyet  participant.select();
+            this.participant.select();
         });
 
         var speechBubble = <HTMLDivElement>$('<div class="n3q-speech n3q-shadow" />')[0];
@@ -33,7 +33,7 @@ export class Chatout
             ev.stopPropagation();
         });
         this.elem.appendChild(this.closeElem);
-        //hw notyet this.app.translateElem(this.closeElem);
+        //hw later this.app.translateElem(this.closeElem);
 
         display.appendChild(this.elem);
     }

@@ -181,7 +181,7 @@ export class Participant extends Entity
     chat_command_apply: string = '/action';
     sendGroupChat(text: string, handler?: (IMessage: any) => any): void
     {
-        //hw notyet
+        //hw later
         // if (text.substr(0, this.chat_command_apply.length) == this.chat_command_apply) {
         //     var parts = text.split(' ');
         //     if (parts.length == 4) {
@@ -289,64 +289,83 @@ export class Participant extends Entity
     //#endregion
     //#region Mouse
 
-    //hw notyet
-    // menu: Menu = null;
-    // onMouseClickAvatar(ev: JQueryMouseEventObject): void
-    // {
-    //     this.select()
+    select(): void
+    {
+        //$(this.elem).siblings().zIndex(1);
+        //$(this.elem).zIndex(100);
+    }
 
-    //     if (this.isSelf) {
-    //         var elem = $(''
-    //             + '<ul data-translate="children">'
-    //             + '<li data-menuid="chat" data-translate="children"><span class="glyphicon glyphicon-font" /><span data-translate="text:Client">Chat</span></li>'
-    //             + '<li data-menuid="inventory" data-translate="children"><span class="glyphicon glyphicon-folder-open" /><span data-translate="text:Client">Inventory</span></li>'
-    //             + '<li data-menuid="nickname" data-translate="children"><span class="glyphicon glyphicon-pencil" /><span data-translate="text:Client">Change Nickname</span></li>'
-    //             + '<li data-menuid="avatar" data-translate="children"><span class="glyphicon glyphicon-user" /><span data-translate="text:Client">Change Avatar</span></li>'
-    //             + '<li data-translate="children"><span class="glyphicon glyphicon-asterisk" /><span data-translate="text:Client">Emotion</span>'
-    //                 + '<ul data-translate="children">'
-    //                 + '<li data-menuid="do-wave" data-translate="text:Client">wave</li>'
-    //                 + '<li data-menuid="do-dance" data-translate="text:Client">dance</li>'
-    //                 + '<li data-menuid="do-cheer" data-translate="text:Client">cheer</li>'
-    //                 + '<li data-menuid="do-kiss" data-translate="text:Client">kiss</li>'
-    //                 + '<li data-menuid="do-clap" data-translate="text:Client">clap</li>'
-    //                 + '<li data-menuid="do-laugh" data-translate="text:Client">laugh</li>'
-    //                 + '<li data-menuid="do-angry" data-translate="text:Client">angry</li>'
-    //                 + '<li data-menuid="do-deny" data-translate="text:Client">deny</li>'
-    //                 + '<li data-menuid="do-yawn" data-translate="text:Client">yawn</li>'
-    //                 + '</ul>'
-    //             + '</li>'
-    //             + '</ul>'
-    //         )[0];
-    //         var actions: IMenuEvents = {
-    //             'chat': (ev: JQueryMouseEventObject) => { this.toggleChatin(); },
-    //             'inventory': (ev: JQueryMouseEventObject) => { this.app.toggleInventory(ev.clientX); },
-    //             'nickname': (ev: JQueryMouseEventObject) => { this.changeNickname(ev.clientX); },
-    //             'avatar': (ev: JQueryMouseEventObject) => { this.changeAvatar(ev.clientX); },
-    //             'do-wave': (ev: JQueryMouseEventObject) => { this.do('wave'); },
-    //             'do-dance': (ev: JQueryMouseEventObject) => { this.do('dance'); },
-    //             'do-cheer': (ev: JQueryMouseEventObject) => { this.do('cheer'); },
-    //             'do-kiss': (ev: JQueryMouseEventObject) => { this.do('kiss'); },
-    //             'do-clap': (ev: JQueryMouseEventObject) => { this.do('clap'); },
-    //             'do-laugh': (ev: JQueryMouseEventObject) => { this.do('laugh'); },
-    //             'do-angry': (ev: JQueryMouseEventObject) => { this.do('angry'); },
-    //             'do-deny': (ev: JQueryMouseEventObject) => { this.do('deny'); },
-    //             'do-yawn': (ev: JQueryMouseEventObject) => { this.do('yawn'); },
-    //         };
-    //         if (this.menu == null) {
-    //             this.menu = new Menu(this.app, this, elem, actions, ev, () => this.menu = null);
-    //         }
-    //     } else {
-    //         var elem = $(''
-    //             + '<ul data-translate="children">'
-    //             + '<li data-menuid="chatout" data-translate="children"><span class="glyphicon glyphicon-font" /><span data-translate="text:Client">Chat</span></li>'
-    //             + '</ul>'
-    //         )[0];
-    //         var actions: IMenuEvents = {
-    //             'chatout': (ev: JQueryMouseEventObject) => { this.toggleChatout(); },
-    //         };
-    //         if (this.menu == null) {
-    //             this.menu = new Menu(this.app, this, elem, actions, ev, () => this.menu = null);
-    //         }
-    //     }
-    // }
+    // menu: Menu = null;
+    onMouseClickAvatar(ev: JQuery.Event): void
+    {
+        this.select()
+
+        this.toggleChatin();
+
+        //hw later
+        // if (this.isSelf) {
+        //     var elem = $(''
+        //         + '<ul data-translate="children">'
+        //         + '<li data-menuid="chat" data-translate="children"><span class="glyphicon glyphicon-font" /><span data-translate="text:Client">Chat</span></li>'
+        //         + '<li data-menuid="inventory" data-translate="children"><span class="glyphicon glyphicon-folder-open" /><span data-translate="text:Client">Inventory</span></li>'
+        //         + '<li data-menuid="nickname" data-translate="children"><span class="glyphicon glyphicon-pencil" /><span data-translate="text:Client">Change Nickname</span></li>'
+        //         + '<li data-menuid="avatar" data-translate="children"><span class="glyphicon glyphicon-user" /><span data-translate="text:Client">Change Avatar</span></li>'
+        //         + '<li data-translate="children"><span class="glyphicon glyphicon-asterisk" /><span data-translate="text:Client">Emotion</span>'
+        //             + '<ul data-translate="children">'
+        //             + '<li data-menuid="do-wave" data-translate="text:Client">wave</li>'
+        //             + '<li data-menuid="do-dance" data-translate="text:Client">dance</li>'
+        //             + '<li data-menuid="do-cheer" data-translate="text:Client">cheer</li>'
+        //             + '<li data-menuid="do-kiss" data-translate="text:Client">kiss</li>'
+        //             + '<li data-menuid="do-clap" data-translate="text:Client">clap</li>'
+        //             + '<li data-menuid="do-laugh" data-translate="text:Client">laugh</li>'
+        //             + '<li data-menuid="do-angry" data-translate="text:Client">angry</li>'
+        //             + '<li data-menuid="do-deny" data-translate="text:Client">deny</li>'
+        //             + '<li data-menuid="do-yawn" data-translate="text:Client">yawn</li>'
+        //             + '</ul>'
+        //         + '</li>'
+        //         + '</ul>'
+        //     )[0];
+        //     var actions: IMenuEvents = {
+        //         'chat': (ev: JQueryMouseEventObject) => { this.toggleChatin(); },
+        //         'inventory': (ev: JQueryMouseEventObject) => { this.app.toggleInventory(ev.clientX); },
+        //         'nickname': (ev: JQueryMouseEventObject) => { this.changeNickname(ev.clientX); },
+        //         'avatar': (ev: JQueryMouseEventObject) => { this.changeAvatar(ev.clientX); },
+        //         'do-wave': (ev: JQueryMouseEventObject) => { this.do('wave'); },
+        //         'do-dance': (ev: JQueryMouseEventObject) => { this.do('dance'); },
+        //         'do-cheer': (ev: JQueryMouseEventObject) => { this.do('cheer'); },
+        //         'do-kiss': (ev: JQueryMouseEventObject) => { this.do('kiss'); },
+        //         'do-clap': (ev: JQueryMouseEventObject) => { this.do('clap'); },
+        //         'do-laugh': (ev: JQueryMouseEventObject) => { this.do('laugh'); },
+        //         'do-angry': (ev: JQueryMouseEventObject) => { this.do('angry'); },
+        //         'do-deny': (ev: JQueryMouseEventObject) => { this.do('deny'); },
+        //         'do-yawn': (ev: JQueryMouseEventObject) => { this.do('yawn'); },
+        //     };
+        //     if (this.menu == null) {
+        //         this.menu = new Menu(this.app, this, elem, actions, ev, () => this.menu = null);
+        //     }
+        // } else {
+        //     var elem = $(''
+        //         + '<ul data-translate="children">'
+        //         + '<li data-menuid="chatout" data-translate="children"><span class="glyphicon glyphicon-font" /><span data-translate="text:Client">Chat</span></li>'
+        //         + '</ul>'
+        //     )[0];
+        //     var actions: IMenuEvents = {
+        //         'chatout': (ev: JQueryMouseEventObject) => { this.toggleChatout(); },
+        //     };
+        //     if (this.menu == null) {
+        //         this.menu = new Menu(this.app, this, elem, actions, ev, () => this.menu = null);
+        //     }
+        // }
+    }
+
+    toggleChatin(): void
+    {
+        this.chatin.toggle();
+    }
+
+    toggleChatout(): void
+    {
+        this.chatout.toggle();
+    }
+
 }

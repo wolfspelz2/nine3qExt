@@ -50,7 +50,7 @@ export class Chatin
         this.elem.appendChild(this.closeElem);
 
         display.appendChild(this.elem);
-        //hw notyet this.app.translateElem(this.elem);
+        //hw later this.app.translateElem(this.elem);
     }
 
     sendChat(): void
