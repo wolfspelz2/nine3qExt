@@ -1,6 +1,7 @@
 import * as $ from 'jquery';
 import 'jqueryui';
 import { as } from './as';
+import { Log } from './Log';
 import { App } from './App';
 import { Entity } from './Entity';
 import { Platform } from './Platform';
@@ -31,7 +32,7 @@ export class Avatar implements IObserver
     private defaultGroup: string;
     private currentState: string = '';
     private currentAction: string = '';
-    private animationTimer: number = -1;
+    private animationTimer: NodeJS.Timeout;
     private inDrag: boolean = false;
     private speedInPixelPerMsec: number = 0.1;
     private defaultSpeedInPixelPerMsec: number = 0.1;
@@ -40,9 +41,9 @@ export class Avatar implements IObserver
     private preventNextClick_a_hack_otherwise_draggable_clicks = false;
     private clickTimer: number = null;
 
-    constructor(private app: App, private entity: Entity, private display: HTMLElement)
+    constructor(private app: App, private entity: Entity, private display: HTMLElement, private isSelf: boolean)
     {
-        this.elem = <HTMLImageElement>$('<img class="n3q-avatar" />')[0]; 
+        this.elem = <HTMLImageElement>$('<img class="n3q-avatar" />')[0];
         // var url = 'https://www.virtual-presence.org/images/wolf.png';
         // var url = app.getAssetUrl('default-avatar.png');
         var url = imgDefaultAvatar;
@@ -129,11 +130,6 @@ export class Avatar implements IObserver
         this.startNextAnimation();
     }
 
-    getSpeedInPixelPerMsec(): Number
-    {
-        return this.speedInPixelPerMsec;
-    }
-
     setAnimations(url: string): void
     {
         this.animationsUrl = url;
@@ -180,16 +176,17 @@ export class Avatar implements IObserver
 
         this.speedInPixelPerMsec = Math.abs(animation.dx) / duration;
 
-        this.stopAnimation();
         this.elem.src = animation.url;
-        this.animationTimer = window.setTimeout(() => this.startNextAnimation(), duration);
-    }
 
-    stopAnimation(): void
-    {
-        if (this.animationTimer >= 0) {
+        if (this.animationTimer != undefined) {
             clearTimeout(this.animationTimer);
         }
+        this.animationTimer = setTimeout(() => this.startNextAnimation(), duration);
+    }
+
+    getSpeedInPixelPerMsec(): Number
+    {
+        return this.speedInPixelPerMsec;
     }
 
     getAnimationByGroup(group: string): AvatarGetAnimationResult

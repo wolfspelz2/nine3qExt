@@ -14,6 +14,8 @@ export class Participant extends Entity
     private defaultSpeedInPixelPerMsec: number = 0.1;
     private identityUrl: string;
     private userId: string;
+    private inMove: boolean = false;
+    private condition_: string = '';
 
     constructor(private app: App, room: Room, display: HTMLElement, private nick: string, private isSelf: boolean)
     {
@@ -34,7 +36,6 @@ export class Participant extends Entity
                 newX = as.Int(positionNode.attrs.x, -1);
                 if (newX != -1) {
                     presenceHasPosition = true;
-                    Log.info(newX);
                 }
             }
             let conditionNode = stateNode.getChild('condition');
@@ -66,6 +67,14 @@ export class Participant extends Entity
             let showNode = stanza.getChild('show');
             if (showNode != undefined) {
                 showAvailability = showNode.getText();
+                switch (showAvailability) {
+                    case 'chat': newCondition = ''; break;
+                    case 'available': newCondition = ''; break;
+                    case 'away': newCondition = 'sleep'; break;
+                    case 'dnd': newCondition = 'sleep'; break;
+                    case 'xa': newCondition = 'sleep'; break;
+                    default: break;
+                }
             }
         }
 
@@ -86,11 +95,9 @@ export class Participant extends Entity
             if (newX < 0) { newX = 100; }
             this.setPosition(newX);
 
-            this.avatar = new Avatar(this.app, this, this.getCenterElem());
-            if (this.isSelf) {
-                this.app.getStorage().watch(this.userId, 'ImageUrl', this.avatar);
-                this.app.getStorage().watch(this.userId, 'AnimationsUrl', this.avatar);
-            }
+            this.avatar = new Avatar(this.app, this, this.getCenterElem(), this.isSelf);
+            this.app.getStorage().watch(this.userId, 'ImageUrl', this.avatar);
+            this.app.getStorage().watch(this.userId, 'AnimationsUrl', this.avatar);
 
             // this.nickname = new Nickname(this.app, this, this.getElem());
             // this.chatout = new Chatout(this.app, this, this.getElem());
@@ -108,7 +115,10 @@ export class Participant extends Entity
             }
         }
 
-        this.avatar.setState(newCondition);
+        this.condition_ = newCondition;
+        if (!this.inMove) {
+            this.avatar.setState(this.condition_);
+        }
     }
 
     onPresenceUnavailable(stanza: any)
@@ -118,6 +128,8 @@ export class Participant extends Entity
 
     move(newX: number): void
     {
+        this.inMove = true;
+
         if (newX < 0) { newX = 0; }
 
         if (this.isSelf) {
@@ -150,8 +162,9 @@ export class Participant extends Entity
 
     onMoveDestinationReached(newX: number): void
     {
+        this.inMove = false;
         this.setPosition(newX);
-        this.avatar.setState('');
+        this.avatar.setState(this.condition_);
     }
 
     onDraggedBy(dX: number, dY: number): void
