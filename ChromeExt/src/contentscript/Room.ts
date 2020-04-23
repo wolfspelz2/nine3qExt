@@ -17,6 +17,8 @@ export class Room
         this.nick = this.proposedNick;
     }
 
+    //#region presence
+
     enter(): void
     {
         this.enterRetryCount = 0;
@@ -32,7 +34,7 @@ export class Room
         this.app.send(presence);
     }
 
-    onPresence(stanza: any)
+    onPresence(stanza: any): void
     {
         let from = jid(stanza.attrs.from);
         let nick = from.getResource();
@@ -66,7 +68,7 @@ export class Room
         }
     }
 
-    reEnterDifferentNick()
+    reEnterDifferentNick(): void
     {
         this.enterRetryCount++;
         if (this.enterRetryCount > this.maxEnterRetries) {
@@ -83,9 +85,36 @@ export class Room
         return nick + '_';
     }
 
+    //#endregion
+    //#region message
+
+    onMessage(stanza: any)
+    {
+        let from = jid(stanza.attrs.from);
+        let nick = from.getResource();
+        let type = as.String(stanza.attrs.type, 'groupchat');
+
+        switch (type) {
+            case 'groupchat':
+                if (typeof this.participants[nick] != typeof undefined) {
+                    this.participants[nick].onMessageGroupchat(stanza);
+                }
+                break;
+
+            case 'error':
+                //hw todo
+                break;
+        }
+    }
+
+    //#endregion
+    //#region Send stuff
+
     sendMoveMessage(newX: number): void
     {
         this.x = newX;
         this.sendPresence();
     }
+
+    //#endregion
 }

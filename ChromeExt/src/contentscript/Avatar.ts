@@ -65,10 +65,6 @@ export class Avatar implements IObserver
                 this.inDrag = true;
                 this.a_hack_otherwise_draggable_clicks_start(ev);
                 this.entity.onStartDragAvatar(ev, ui);
-
-                //if (typeof ui.helper[0] !== typeof undefined) {
-                //    ui.helper[0].style.zIndex = '1200';
-                //}
             },
             drag: (ev: JQueryMouseEventObject, ui) =>
             {
@@ -197,7 +193,6 @@ export class Avatar implements IObserver
         var nWeightSum: number = 0;
 
         for (var name in this.animations.sequences) {
-            // for (var i = 0; i < this.animations.sequences.length; i++) {
             var animation = this.animations.sequences[name];
             if (animation.group == group) {
                 var nWeight = as.Int(animation.weight, 1);

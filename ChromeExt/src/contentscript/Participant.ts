@@ -5,6 +5,7 @@ import { Entity } from './Entity';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
 import { Nickname } from './Nickname';
+import { Chatout } from './Chatout';
 import { LegacyIdentity } from './LegacyIdentity';
 import { as } from './as';
 import { Log } from './Log';
@@ -13,6 +14,7 @@ export class Participant extends Entity
 {
     private avatar: Avatar;
     private nickname: Nickname;
+    private chatout: Chatout;
     private firstPresence: boolean = true;
     private defaultSpeedInPixelPerMsec: number = 0.1;
     private identityUrl: string;
@@ -26,7 +28,9 @@ export class Participant extends Entity
         $(this.getElem()).addClass('n3q-participant');
     }
 
-    onPresenceAvailable(stanza: any)
+    //#region presence
+
+    onPresenceAvailable(stanza: any): void
     {
         var presenceHasPosition: boolean = false;
         var newX: number = 123;
@@ -113,13 +117,15 @@ export class Participant extends Entity
                 }
                 this.app.getStorage().watch(this.userId, 'Nickname', this.nickname);
             }
-            
-            // this.chatout = new Chatout(this.app, this, this.getElem());
+
+            {
+                this.chatout = new Chatout(this.app, this, this.getElem());
+            }
+
             // this.chatin = new Chatin(this.app, this, this.getElem());
 
             this.show(true);
 
-            // this.app.sendGetUserAttributesMessage(this.id, msg => this.onAttributes(msg));
         } else {
 
             if (presenceHasPosition) {
@@ -135,10 +141,45 @@ export class Participant extends Entity
         }
     }
 
-    onPresenceUnavailable(stanza: any)
+    onPresenceUnavailable(stanza: any): void
     {
         this.shutdown();
     }
+
+    //#endregion
+    //#region message
+
+    onMessageGroupchat(stanza: any): void
+    {
+        let bodyNode = stanza.getChild('body');
+        if (bodyNode != undefined) {
+            let text = bodyNode.getText();
+
+            if (text.substring(0, 1) == '/') {
+                return this.onChatCommand(text);
+            }
+
+            this.chatout.setText(text);
+        }
+    }
+
+    onChatCommand(text: string): void
+    {
+        var parts: string[] = text.split(' ');
+        if (parts.length < 1) { return; }
+        var cmd: string = parts[0];
+
+        switch (cmd) {
+            case '/do':
+                if (parts.length < 2) { return; }
+                this.chatout.setText(text);
+                this.avatar.setAction(parts[1]);
+                break;
+        }
+    }
+
+    //#endregion
+    //#region Do stuff
 
     move(newX: number): void
     {
@@ -199,6 +240,4 @@ export class Participant extends Entity
         this.avatar.setState('');
         super.quickSlide(newX);
     }
-
-
 }

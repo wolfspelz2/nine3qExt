@@ -1,4 +1,5 @@
 const { client, xml, jid } = require('@xmpp/client');
+// import { client, xml, jid } from '@xmpp/client';
 const debug = require('@xmpp/debug');
 const $ = require('jquery');
 import { as } from './as';
@@ -69,7 +70,10 @@ export class App
             Log.verbose(stanza.name, stanza.attrs.type, stanza);
             if (stanza.is('presence')) {
                 this.onPresence(stanza);
+            } else if (stanza.is('message')) {
+                this.onMessage(stanza);
             }
+
         });
     }
 
@@ -80,7 +84,7 @@ export class App
         this.xmpp.start().catch(Log.error);
     }
 
-    enterRoomByJid(roomJid: string)
+    enterRoomByJid(roomJid: string): void
     {
         if (typeof this.rooms[roomJid] === typeof undefined) {
             this.rooms[roomJid] = new Room(this, this.display, roomJid, this.myJid, this.myNick);
@@ -98,14 +102,24 @@ export class App
         }
     }
 
-    send(stanza: any)
+    onMessage(stanza: any): void
+    {
+        let from = jid(stanza.attrs.from);
+        let roomOrUser = from.bare();
+
+        if (typeof this.rooms[roomOrUser] != typeof undefined) {
+            this.rooms[roomOrUser].onMessage(stanza);
+        }
+    }
+
+    send(stanza: any): void
     {
         this.xmpp.send(stanza);
     }
 
     // Window management
 
-    enableScreen(on: boolean)
+    enableScreen(on: boolean): void
     {
         // if (on) {
         //     this.originalScreenHeight = this.screenElem.style.height;

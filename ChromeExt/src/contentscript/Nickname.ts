@@ -12,10 +12,10 @@ export class Nickname implements IObserver
     constructor(private app: App, private participant: Participant, private display: HTMLElement)
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-nickname n3q-shadow" />')[0];
-        // $(this.elem).click(() => { participant.select(); });
+        //hw notyet $(this.elem).click(() => { participant.select(); });
 
-        // $(this.elem).mouseenter((ev) => this.participant.onMouseEnterAvatar(ev));
-        // $(this.elem).mouseleave((ev) => this.participant.onMouseLeaveAvatar(ev));
+        //hw notyet $(this.elem).mouseenter((ev) => this.participant.onMouseEnterAvatar(ev));
+        //hw notyet $(this.elem).mouseleave((ev) => this.participant.onMouseLeaveAvatar(ev));
 
         this.textElem = <HTMLSpanElement>$('<span class="n3q-text" />')[0];
         this.elem.appendChild(this.textElem);
@@ -36,7 +36,7 @@ export class Nickname implements IObserver
     onCloseButtonPressed(): void
     {
         this.elem.style.display = 'none';
-        // this.app.sendSetUserAttributesMessage({ 'HideNickname': true });
+        //hw notyet this.app.sendSetUserAttributesMessage({ 'HideNickname': true });
     }
 
     setVisible(visible: boolean): void

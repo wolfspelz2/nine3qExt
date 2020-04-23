@@ -105,6 +105,14 @@ $z-index: (
     font-size: 11px;
 }
 
+.n3q-shadow {
+    -webkit-box-shadow: 1px 1px 1px #888;
+    -moz-box-shadow: 1px 1px 2px #888;
+    box-shadow: 1px 1px 2px #888;
+}
+
+// Participant
+
 .n3q-participant {
     z-index: z-index(Participant);
 }
@@ -134,11 +142,59 @@ $z-index: (
     pointer-events: auto;
 }
 
-.n3q-shadow {
-    -webkit-box-shadow: 1px 1px 1px #888;
-    -moz-box-shadow: 1px 1px 2px #888;
-    box-shadow: 1px 1px 2px #888;
+// Chatout
+
+.n3q-chatout {
+    position: absolute;
+    left: -50px;
+    bottom: 110px;
+    width: 100px;
 }
+
+.n3q-speech {
+    position: relative;
+    line-break: loose;
+    word-wrap: break-word;
+    text-align: center;
+    padding: 4px;
+    background-color: #fff;
+    border: 1px solid #666;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.n3q-chatout .n3q-text {
+    max-width: 100px;
+    max-height: 200px;
+    text-align: left;
+    overflow: auto;
+    padding: 2px 2px;
+}
+
+.n3q-speech:before {
+    content: ' ';
+    position: absolute;
+    width: 0;
+    height: 0;
+    left: 75px;
+    bottom: -12px;
+    border: 6px solid;
+    border-color: #666 transparent transparent #666;
+}
+
+.n3q-speech:after {
+    content: ' ';
+    position: absolute;
+    width: 0;
+    height: 0;
+    left: 76px;
+    bottom: -10px;
+    border: 5px solid;
+    border-color: #fff transparent transparent #fff;
+}
+
+// Thing
 
 .n3q-thing {
     z-index: z-index(Thing);
