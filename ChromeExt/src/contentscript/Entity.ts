@@ -71,6 +71,24 @@ export class Entity
         this.positionX = newX;
     }
 
+    // Mouse
+
+    public onMouseEnterAvatar(ev: JQueryMouseEventObject): void
+    {
+    }
+
+    public onMouseLeaveAvatar(ev: JQueryMouseEventObject): void
+    {
+    }
+
+    public onMouseClickAvatar(ev: JQueryMouseEventObject): void
+    {
+    }
+
+    public onMouseDoubleClickAvatar(ev: JQueryMouseEventObject): void
+    {
+    }
+
     // Drag
 
     private dragStartPosition: any;

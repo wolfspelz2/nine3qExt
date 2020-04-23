@@ -107,6 +107,23 @@ export class Room
         }
     }
 
+    /*
+    <message
+        from='hag66@shakespeare.lit/pda'
+        id='hysf1v37'
+        to='coven@chat.shakespeare.lit'
+        type='groupchat'>
+      <body>Harpier cries: 'tis time, 'tis time.</body>
+    </message>
+    */
+    sendGroupChat(text: string, fromNick: string)
+    {
+        let message = xml('message', { type: 'groupchat', to: this.jid, from: this.jid + '/' + fromNick })
+            .append(xml('body').text(text))
+            ;
+        this.app.send(message);
+    }
+
     //#endregion
     //#region Send stuff
 

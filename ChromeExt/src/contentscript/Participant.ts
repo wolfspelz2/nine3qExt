@@ -6,6 +6,7 @@ import { Room } from './Room';
 import { Avatar } from './Avatar';
 import { Nickname } from './Nickname';
 import { Chatout } from './Chatout';
+import { Chatin } from './Chatin';
 import { LegacyIdentity } from './LegacyIdentity';
 import { as } from './as';
 import { Log } from './Log';
@@ -15,6 +16,7 @@ export class Participant extends Entity
     private avatar: Avatar;
     private nickname: Nickname;
     private chatout: Chatout;
+    private chatin: Chatin;
     private firstPresence: boolean = true;
     private defaultSpeedInPixelPerMsec: number = 0.1;
     private identityUrl: string;
@@ -118,11 +120,8 @@ export class Participant extends Entity
                 this.app.getStorage().watch(this.userId, 'Nickname', this.nickname);
             }
 
-            {
-                this.chatout = new Chatout(this.app, this, this.getElem());
-            }
-
-            // this.chatin = new Chatin(this.app, this, this.getElem());
+            this.chatout = new Chatout(this.app, this, this.getElem());
+            this.chatin = new Chatin(this.app, this, this.getElem());
 
             this.show(true);
 
@@ -176,6 +175,52 @@ export class Participant extends Entity
                 this.avatar.setAction(parts[1]);
                 break;
         }
+    }
+
+    // /do WaterBottle ApplyTo WaterCan
+    chat_command_apply: string = '/action';
+    sendGroupChat(text: string, handler?: (IMessage: any) => any): void
+    {
+        //hw notyet
+        // if (text.substr(0, this.chat_command_apply.length) == this.chat_command_apply) {
+        //     var parts = text.split(' ');
+        //     if (parts.length == 4) {
+        //         var activeName = parts[1];
+        //         var action = parts[2];
+        //         var passiveName = parts[3];
+        //         var activeId: string = '';
+        //         var passiveId: string = '';
+        //         var activeUndecided: boolean = false;
+        //         var passiveUndecided: boolean = false;
+        //         for (var id in this.things) {
+        //             if (this.things[id].isIdentifiedBy(activeName)) {
+        //                 activeUndecided = (activeId != '');
+        //                 if (!activeUndecided) {
+        //                     activeId = id;
+        //                 }
+        //                 break;
+        //             }
+        //         }
+        //         for (var id in this.things) {
+        //             if (this.things[id].isIdentifiedBy(passiveName)) {
+        //                 passiveUndecided = (passiveId != '');
+        //                 if (!passiveUndecided) {
+        //                     passiveId = id;
+        //                 }
+        //                 break;
+        //             }
+        //         }
+        //         if (activeUndecided || passiveUndecided) {
+        //             new SimpleNotice(this, 'ActionAmbiguous', 10, 'glyphicon glyphicon-ban-circle', 'Not Executed', (activeUndecided ? activeName : passiveName) + ' is ambiguous');
+        //         } else {
+        //             if (activeId != '' && passiveId != '') {
+        //                 this.sendItemActionMessage(this.getRoomName(), activeId, action, { Item: passiveId });
+        //             }
+        //         }
+        //     }
+        // }
+
+        this.room.sendGroupChat(text, this.nick);
     }
 
     //#endregion
@@ -240,4 +285,68 @@ export class Participant extends Entity
         this.avatar.setState('');
         super.quickSlide(newX);
     }
+
+    //#endregion
+    //#region Mouse
+
+    //hw notyet
+    // menu: Menu = null;
+    // onMouseClickAvatar(ev: JQueryMouseEventObject): void
+    // {
+    //     this.select()
+
+    //     if (this.isSelf) {
+    //         var elem = $(''
+    //             + '<ul data-translate="children">'
+    //             + '<li data-menuid="chat" data-translate="children"><span class="glyphicon glyphicon-font" /><span data-translate="text:Client">Chat</span></li>'
+    //             + '<li data-menuid="inventory" data-translate="children"><span class="glyphicon glyphicon-folder-open" /><span data-translate="text:Client">Inventory</span></li>'
+    //             + '<li data-menuid="nickname" data-translate="children"><span class="glyphicon glyphicon-pencil" /><span data-translate="text:Client">Change Nickname</span></li>'
+    //             + '<li data-menuid="avatar" data-translate="children"><span class="glyphicon glyphicon-user" /><span data-translate="text:Client">Change Avatar</span></li>'
+    //             + '<li data-translate="children"><span class="glyphicon glyphicon-asterisk" /><span data-translate="text:Client">Emotion</span>'
+    //                 + '<ul data-translate="children">'
+    //                 + '<li data-menuid="do-wave" data-translate="text:Client">wave</li>'
+    //                 + '<li data-menuid="do-dance" data-translate="text:Client">dance</li>'
+    //                 + '<li data-menuid="do-cheer" data-translate="text:Client">cheer</li>'
+    //                 + '<li data-menuid="do-kiss" data-translate="text:Client">kiss</li>'
+    //                 + '<li data-menuid="do-clap" data-translate="text:Client">clap</li>'
+    //                 + '<li data-menuid="do-laugh" data-translate="text:Client">laugh</li>'
+    //                 + '<li data-menuid="do-angry" data-translate="text:Client">angry</li>'
+    //                 + '<li data-menuid="do-deny" data-translate="text:Client">deny</li>'
+    //                 + '<li data-menuid="do-yawn" data-translate="text:Client">yawn</li>'
+    //                 + '</ul>'
+    //             + '</li>'
+    //             + '</ul>'
+    //         )[0];
+    //         var actions: IMenuEvents = {
+    //             'chat': (ev: JQueryMouseEventObject) => { this.toggleChatin(); },
+    //             'inventory': (ev: JQueryMouseEventObject) => { this.app.toggleInventory(ev.clientX); },
+    //             'nickname': (ev: JQueryMouseEventObject) => { this.changeNickname(ev.clientX); },
+    //             'avatar': (ev: JQueryMouseEventObject) => { this.changeAvatar(ev.clientX); },
+    //             'do-wave': (ev: JQueryMouseEventObject) => { this.do('wave'); },
+    //             'do-dance': (ev: JQueryMouseEventObject) => { this.do('dance'); },
+    //             'do-cheer': (ev: JQueryMouseEventObject) => { this.do('cheer'); },
+    //             'do-kiss': (ev: JQueryMouseEventObject) => { this.do('kiss'); },
+    //             'do-clap': (ev: JQueryMouseEventObject) => { this.do('clap'); },
+    //             'do-laugh': (ev: JQueryMouseEventObject) => { this.do('laugh'); },
+    //             'do-angry': (ev: JQueryMouseEventObject) => { this.do('angry'); },
+    //             'do-deny': (ev: JQueryMouseEventObject) => { this.do('deny'); },
+    //             'do-yawn': (ev: JQueryMouseEventObject) => { this.do('yawn'); },
+    //         };
+    //         if (this.menu == null) {
+    //             this.menu = new Menu(this.app, this, elem, actions, ev, () => this.menu = null);
+    //         }
+    //     } else {
+    //         var elem = $(''
+    //             + '<ul data-translate="children">'
+    //             + '<li data-menuid="chatout" data-translate="children"><span class="glyphicon glyphicon-font" /><span data-translate="text:Client">Chat</span></li>'
+    //             + '</ul>'
+    //         )[0];
+    //         var actions: IMenuEvents = {
+    //             'chatout': (ev: JQueryMouseEventObject) => { this.toggleChatout(); },
+    //         };
+    //         if (this.menu == null) {
+    //             this.menu = new Menu(this.app, this, elem, actions, ev, () => this.menu = null);
+    //         }
+    //     }
+    // }
 }

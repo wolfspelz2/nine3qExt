@@ -1,3 +1,4 @@
+
 @function z-index($key) {
     @return map-get($z-index, $key);
 }
@@ -98,6 +99,8 @@ $z-index: (
     // border-right: 1px solid #0000ff;
 }
 
+// General
+
 .n3q-text {
     margin: 0;
     padding: 0;
@@ -109,6 +112,54 @@ $z-index: (
     -webkit-box-shadow: 1px 1px 1px #888;
     -moz-box-shadow: 1px 1px 2px #888;
     box-shadow: 1px 1px 2px #888;
+}
+
+// Glyphicon simulation
+
+.glyphicon-remove::before {
+    content: "x";
+}
+.glyphicon-remove {
+    width: 11px;
+    height: 11px;
+}
+
+// Buttons
+
+.n3q-button {
+    color: #666;
+    cursor: default;
+}
+
+    .n3q-button:hover {
+        color: #BBB;
+    }
+
+.n3q-button-overlay {
+    position: absolute;
+    right: 2px;
+    top: 2px;
+    background-color: #FFF;
+    /*border: 1px solid #666;
+    border-radius: 2px;
+    -webkit-border-radius: 2px;*/
+}
+
+.n3q-button-sendchat {
+    margin-left: 2px;
+    position: relative;
+    top: 2px;
+}
+
+// .n3q-button-close {
+// }
+
+.n3q-button-medium {
+    font-size: 14px;
+}
+
+.n3q-button-small {
+    font-size: 11px;
 }
 
 // Participant
@@ -149,6 +200,7 @@ $z-index: (
     left: -50px;
     bottom: 110px;
     width: 100px;
+    pointer-events: auto;
 }
 
 .n3q-speech {
@@ -192,6 +244,35 @@ $z-index: (
     bottom: -10px;
     border: 5px solid;
     border-color: #fff transparent transparent #fff;
+}
+
+// Chatin
+
+.n3q-chatin {
+    position: absolute;
+    left: -70px;
+    bottom: 70px;
+    background-color: #FFFFFF;
+    border: 1px solid #888;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    white-space: nowrap;
+    padding: 0px 8px 0px 6px;
+    z-index: 500;
+    pointer-events: auto;
+}
+
+.n3q-chatin .n3q-text {
+    position: relative;
+    border: none;
+    line-height: 14px;
+    padding: 4px;
+    outline: none;
+}
+.n3q-button-sendchat {
+    margin-left: 2px;
+    position: relative;
+    top: 2px;
 }
 
 // Thing

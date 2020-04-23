@@ -49,7 +49,7 @@ export class Chatout
         $(this.textElem).html(as.Html(text));
 
         this.elem.style.display = 'block';
-        $(this.elem).delay(10000).fadeOut(10000);
+        //$(this.elem).delay(10000).fadeOut(10000);
     }
 
     setVisible(visible: boolean): void

@@ -32,14 +32,14 @@ export class Avatar implements IObserver
     private defaultGroup: string;
     private currentState: string = '';
     private currentAction: string = '';
-    private animationTimer: NodeJS.Timeout;
+    private animationTimer: NodeJS.Timeout = null;
     private inDrag: boolean = false;
     private speedInPixelPerMsec: number = 0.1;
     private defaultSpeedInPixelPerMsec: number = 0.1;
     private doubleClickDelay: number = 20;
 
     private preventNextClick_a_hack_otherwise_draggable_clicks = false;
-    private clickTimer: number = null;
+    private clickTimer: NodeJS.Timeout = null;
 
     constructor(private app: App, private entity: Entity, private display: HTMLElement, private isSelf: boolean)
     {
@@ -48,6 +48,29 @@ export class Avatar implements IObserver
         // var url = app.getAssetUrl('default-avatar.png');
         var url = imgDefaultAvatar;
         this.elem.src = url;
+
+        //hw notyet
+        // $(this.elem).click(ev =>
+        // {
+        //     if (this.clickTimer == null) {
+        //         if (this.preventNextClick_a_hack_otherwise_draggable_clicks) {
+        //             this.preventNextClick_a_hack_otherwise_draggable_clicks = false;
+        //         } else {
+        //             this.clickTimer = setTimeout(() =>
+        //             {
+        //                 this.clickTimer = null;
+        //                 this.entity.onMouseClickAvatar(ev);
+        //                 //hw notyet app.zIndexTop(this.elem);
+        //             }, this.doubleClickDelay);
+        //         }
+        //     } else {
+        //         if (this.clickTimer != null) {
+        //             clearTimeout(this.clickTimer);
+        //             this.clickTimer = null;
+        //             this.entity.onMouseDoubleClickAvatar(ev);
+        //         }
+        //     }
+        // });
 
         display.appendChild(this.elem);
 
@@ -174,8 +197,9 @@ export class Avatar implements IObserver
 
         this.elem.src = animation.url;
 
-        if (this.animationTimer != undefined) {
+        if (this.animationTimer != null) {
             clearTimeout(this.animationTimer);
+            this.animationTimer = null;
         }
         this.animationTimer = setTimeout(() => this.startNextAnimation(), duration);
     }
