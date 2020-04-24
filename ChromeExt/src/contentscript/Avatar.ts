@@ -32,14 +32,13 @@ export class Avatar implements IObserver
     private defaultGroup: string;
     private currentState: string = '';
     private currentAction: string = '';
-    private animationTimer: NodeJS.Timeout = null;
     private inDrag: boolean = false;
     private speedInPixelPerMsec: number = 0.1;
     private defaultSpeedInPixelPerMsec: number = 0.1;
     private doubleClickDelay: number = 20;
 
     private preventNextClick_a_hack_otherwise_draggable_clicks = false;
-    private clickTimer: NodeJS.Timeout = null;
+    private clickTimer: number = undefined;
 
     constructor(private app: App, private entity: Entity, private display: HTMLElement, private isSelf: boolean)
     {
@@ -51,21 +50,21 @@ export class Avatar implements IObserver
 
         $(this.elem).on('click', ev =>
         {
-            if (this.clickTimer == null) {
+            if (this.clickTimer == undefined) {
                 if (this.preventNextClick_a_hack_otherwise_draggable_clicks) {
                     this.preventNextClick_a_hack_otherwise_draggable_clicks = false;
                 } else {
-                    this.clickTimer = setTimeout(() =>
+                    this.clickTimer = <number><unknown>setTimeout(() =>
                     {
-                        this.clickTimer = null;
+                        this.clickTimer = undefined;
                         this.entity.onMouseClickAvatar(ev);
                         //hw later app.zIndexTop(this.elem);
                     }, this.doubleClickDelay);
                 }
             } else {
-                if (this.clickTimer != null) {
+                if (this.clickTimer != undefined) {
                     clearTimeout(this.clickTimer);
-                    this.clickTimer = null;
+                    this.clickTimer = undefined;
                     this.entity.onMouseDoubleClickAvatar(ev);
                 }
             }
@@ -172,6 +171,7 @@ export class Avatar implements IObserver
         this.startNextAnimation();
     }
 
+    private animationTimer: number = undefined;
     startNextAnimation(): void
     {
         this.speedInPixelPerMsec = this.defaultSpeedInPixelPerMsec;
@@ -196,11 +196,11 @@ export class Avatar implements IObserver
 
         this.elem.src = animation.url;
 
-        if (this.animationTimer != null) {
+        if (this.animationTimer != undefined) {
             clearTimeout(this.animationTimer);
-            this.animationTimer = null;
+            this.animationTimer = undefined;
         }
-        this.animationTimer = setTimeout(() => this.startNextAnimation(), duration);
+        this.animationTimer = <number><unknown>setTimeout(() => this.startNextAnimation(), duration);
     }
 
     getSpeedInPixelPerMsec(): Number

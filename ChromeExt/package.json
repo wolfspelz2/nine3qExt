@@ -53,6 +53,7 @@
     "webpack-cli": "3.3.10"
   },
   "dependencies": {
+    "@iconify/iconify": "^1.0.6",
     "@types/chai": "^4.2.11",
     "@types/jquery": "^3.3.35",
     "@types/jqueryui": "^1.12.10",

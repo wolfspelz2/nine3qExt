@@ -33,14 +33,14 @@ export class Chatin
         });
         this.elem.appendChild(this.textElem);
 
-        this.sendElem = <HTMLSpanElement>$('<span class="n3q-button n3q-button-medium n3q-button-sendchat glyphicon glyphicon-forward" title="SendChat" data-translate="attr:title:Client" />')[0];
+        this.sendElem = <HTMLElement>$('<div class="n3q-button n3q-button-sendchat" title="SendChat" data-translate="attr:title:Client" />')[0];
         $(this.sendElem).click(ev =>
         {
             this.sendChat();
         });
         this.elem.appendChild(this.sendElem);
 
-        this.closeElem = <HTMLSpanElement>$('<span class="n3q-button n3q-button-overlay n3q-button-small n3q-button-close glyphicon glyphicon-remove" title="Close" data-translate="attr:title:Client" />')[0];
+        this.closeElem = <HTMLElement>$('<div class="n3q-button n3q-button-overlay n3q-button-close-small" title="Close" data-translate="attr:title:Client" />')[0];
         $(this.closeElem).click(ev =>
         {
             $(this.elem).stop(true);
