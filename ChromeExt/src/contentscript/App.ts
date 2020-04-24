@@ -32,25 +32,34 @@ export class App
 
     constructor(private page: HTMLElement)
     {
-        this.display = $('<div class="n3q-display" />')[0];
+        this.display = $('<div class="n3q-div n3q-display" />')[0];
         this.page.append(this.display);
+        // this.display = page;
 
+        // this.createPageControl();
+    }
+
+    createPageControl()
+    {
+        let controlElem: HTMLElement = $('<div class="n3q-div n3q-ctrl" id="n3q-hello"></div>')[0];
+        this.display.append(controlElem);
+
+        $('#n3q-hello').text(HelloWorld.getText());
+
+        let enterButton: HTMLButtonElement = $('<button>enter</button>')[0];
+        controlElem.append(enterButton);
+        $(enterButton).click(() =>
         {
-            let controlElem: HTMLElement = $('<div id="n3q-hello" class="n3q-ctrl"></div>')[0];
-            this.display.append(controlElem);
+            // this.enterRoomByJid('d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org');
+            // this.enterRoomByPageUrl('https://www.galactic-developments.de/');
+            this.enterPage();
+        });
+    }
 
-            $('#n3q-hello').text(HelloWorld.getText());
+    // Connection
 
-            let enterButton: HTMLButtonElement = $('<button>enter</button>')[0];
-            controlElem.append(enterButton);
-            $(enterButton).click(() =>
-            {
-                // this.enterRoomByJid('d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org');
-                // this.enterRoomByPageUrl('https://www.galactic-developments.de/');
-                this.enterRoomByPageUrl(Platform.getCurrentPageUrl());
-            });
-        }
-
+    start(): void
+    {
         this.xmpp = client({
             service: 'wss://xmpp.dev.sui.li/xmpp-websocket',
             domain: 'xmpp.dev.sui.li',
@@ -61,24 +70,25 @@ export class App
 
         this.xmpp.on('error', (err: any) =>
         {
-            Log.error(err);
+            Log.error('App.error', err);
         });
 
         this.xmpp.on('offline', () =>
         {
-            Log.info('offline');
+            Log.info('App.offline');
         });
 
         this.xmpp.on('online', async (address: any) =>
         {
-            Log.info('online', address);
+            Log.info('App.online', address);
             this.sendPresence();
             this.keepAlive();
+            this.enterPage();
         });
 
         this.xmpp.on('stanza', (stanza: any) =>
         {
-            Log.verbose(stanza.name, stanza.attrs.type, stanza);
+            Log.info('App.recv', stanza);
             if (stanza.is('presence')) {
                 this.onPresence(stanza);
             } else if (stanza.is('message')) {
@@ -86,13 +96,13 @@ export class App
             }
 
         });
+
+        this.xmpp.start().catch(Log.error);
     }
 
-    // Connection
-
-    start(): void
+    enterPage()
     {
-        this.xmpp.start().catch(Log.error);
+        this.enterRoomByPageUrl(Platform.getCurrentPageUrl());
     }
 
     static getRoomJidFromLocationUrl(locationUrl: string): string
@@ -154,17 +164,6 @@ export class App
         }
     }
 
-    send(stanza: any): void
-    {
-        Log.info('App.send', stanza);
-        this.xmpp.send(stanza);
-    }
-
-    sendPresence()
-    {
-        this.send(xml('presence'));
-    }
-
     private keepAliveTimer: number = undefined;
     keepAlive()
     {
@@ -176,6 +175,17 @@ export class App
                 this.keepAlive();
             }, this.keepAliveSec * 1000);
         }
+    }
+
+    send(stanza: any): void
+    {
+        Log.info('App.send', stanza);
+        this.xmpp.send(stanza);
+    }
+
+    sendPresence()
+    {
+        this.send(xml('presence'));
     }
 
     // Window management

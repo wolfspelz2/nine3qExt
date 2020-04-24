@@ -11,7 +11,7 @@ export class Chatout
 
     constructor(private app: App, private participant: Participant, private display: HTMLElement)
     {
-        this.elem = <HTMLDivElement>$('<div class="n3q-chatout" />')[0];
+        this.elem = <HTMLDivElement>$('<div class="n3q-div n3q-chatout" />')[0];
         this.elem.style.display = 'none';
         $(this.elem).click(() =>
         {
@@ -19,13 +19,13 @@ export class Chatout
             this.participant.select();
         });
 
-        var speechBubble = <HTMLDivElement>$('<div class="n3q-speech n3q-shadow" />')[0];
+        var speechBubble = <HTMLDivElement>$('<div class="n3q-div n3q-speech n3q-shadow" />')[0];
 
-        this.textElem = <HTMLParagraphElement>$('<p class="n3q-text" />')[0];
+        this.textElem = <HTMLParagraphElement>$('<p class="n3q-div n3q-text" />')[0];
         speechBubble.appendChild(this.textElem);
         this.elem.appendChild(speechBubble);
 
-        this.closeElem = <HTMLElement>$('<div class="n3q-button n3q-button-overlay n3q-button-close-small" title="Close" data-translate="attr:title:Client" />')[0];
+        this.closeElem = <HTMLElement>$('<div class="n3q-div n3q-button n3q-button-overlay n3q-button-close-small" title="Close" data-translate="attr:title:Client" />')[0];
         $(this.closeElem).click(ev =>
         {
             $(this.elem).stop(true);

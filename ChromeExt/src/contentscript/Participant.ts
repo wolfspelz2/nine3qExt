@@ -122,7 +122,10 @@ export class Participant extends Entity
             }
 
             this.chatout = new Chatout(this.app, this, this.getElem());
-            this.chatin = new Chatin(this.app, this, this.getElem());
+
+            if (this.isSelf) {
+                this.chatin = new Chatin(this.app, this, this.getElem());
+            }
 
             this.show(true);
 

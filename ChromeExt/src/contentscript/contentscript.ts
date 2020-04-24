@@ -7,9 +7,9 @@ import { Platform } from './Platform';
 const isContentscript: boolean = true;
 console.log('Contentscript', isContentscript);
 
-var pageElement: HTMLElement = $('<div id="n3q-id-page" />')[0];
+var pageElement: HTMLElement = $('<div class="n3q-div" id="n3q-id-page" />')[0];
 
-// var logElement: HTMLElement = $('<div class="n3q-log" />')[0];
+// var logElement: HTMLElement = $('<div class="n3q-div n3q-log" />')[0];
 // pageElement.append(logElement);
 
 $('body').append(pageElement);

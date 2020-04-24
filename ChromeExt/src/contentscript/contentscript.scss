@@ -14,6 +14,9 @@ $z-index: (
 );
 
 #n3q-id-page {
+    width: unset;
+    margin: unset;
+    padding: unset;
     position: fixed;
     top: 0;
     bottom: 0;
@@ -21,9 +24,34 @@ $z-index: (
     right: 0;
     //background-color: rgba(255, 255, 255, 0.0);
     //background-color: rgba(70, 201, 70, 0.05);
-    background-image: url("page-bg.png");
+    //background-image: url("page-bg.png");
     pointer-events: none;
     z-index: z-index(Page);
+}
+
+.n3q-div {
+    width: unset;
+    min-width: unset;
+    margin: unset;
+    padding: unset;
+    border-radius: unset;
+    box-shadow: none;
+    filter: none;
+    text-align: unset;
+    vertical-align: unset;
+    color: black;
+    background-color: unset;
+    // font: normal normal normal normal 11px / 0px "Arial, sans-serif";
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    font-weight: normal;
+    font-style: normal;
+    font-variant-ligatures: normal;
+    font-variant-caps: normal;
+    font-variant-numeric: normal;
+    font-variant-east-asian: normal;
+    font-stretch: 1;
+    line-height: unset;
 }
 
 // .n3q-log {
@@ -44,17 +72,17 @@ $z-index: (
 //   background-color: red;
 // }
 
-.n3q-display {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 100px;
-    //background-color: rgba(255, 255, 255, 0.0);
-    //background-color: rgba(70, 201, 70, 0.1);
-    background-image: url("display-bg.png");
-    pointer-events: none;
-}
+// .n3q-display {
+//     position: absolute;
+//     bottom: 0;
+//     left: 0;
+//     right: 0;
+//     height: 100px;
+//     //background-color: rgba(255, 255, 255, 0.0);
+//     //background-color: rgba(70, 201, 70, 0.1);
+//     //background-image: url("display-bg.png");
+//     pointer-events: none;
+// }
 
 .n3q-ctrl {
     position: absolute;
@@ -106,27 +134,12 @@ $z-index: (
 .n3q-text {
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
-    font-size: 11px;
 }
 
 .n3q-shadow {
     -webkit-box-shadow: 1px 1px 1px #888;
     -moz-box-shadow: 1px 1px 2px #888;
     box-shadow: 1px 1px 2px #888;
-}
-
-// Glyphicon simulation
-
-.glyphicon-remove::after {
-    content: "x";
-    width: 10px;
-    height: 10px;
-}
-.glyphicon-forward::after {
-    content: ">>";
-    width: 15px;
-    height: 10px;
 }
 
 // Buttons

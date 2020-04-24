@@ -6,7 +6,7 @@ export class Log
     {
         // let text: string = '';
         // for (let arg of args) { text += arg + ' '; }
-        // this.container.append($('<div class="' + className + '"></div>').text(text));
+        // this.container.append($('<div class="n3q-div ' + className + '"></div>').text(text));
     }
 
     static info(...args: any[]): void
