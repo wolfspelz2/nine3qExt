@@ -149,7 +149,8 @@ $z-index: (
 
 .n3q-button-sendchat {
     display: inline-block;
-    background: url('https://api.iconify.design/ic:sharp-send.svg') no-repeat center center / contain;
+    // background: url('https://api.iconify.design/ic:sharp-send.svg') no-repeat center center / contain;
+    background: url('https://api.iconify.design/ic:baseline-send.svg') no-repeat center center / contain;
     width: 14px;
     height: 14px;
     margin-left: 2px;
@@ -158,7 +159,8 @@ $z-index: (
 }
 
 .n3q-button-close-small {
-    background: url('https://api.iconify.design/jam:close-circle.svg') no-repeat center center / contain;
+    // background: url('https://api.iconify.design/jam:close-circle.svg') no-repeat center center / contain;
+    background: url('https://api.iconify.design/ic:outline-cancel.svg') no-repeat center center / contain;
     width: 11px;
     height: 11px;
 }
@@ -271,11 +273,6 @@ $z-index: (
     line-height: 14px;
     padding: 4px;
     outline: none;
-}
-.n3q-button-sendchat {
-    margin-left: 2px;
-    position: relative;
-    top: 2px;
 }
 
 // Thing
