@@ -43,9 +43,7 @@ export class Room
             )
             .append(
                 xml('x', { xmlns: 'http://jabber.org/protocol/muc' })
-                    .append(xml('history', { seconds: '60' }))
-                    .append(xml('history', { maxchars: '1000' }))
-                    .append(xml('history', { maxstanzas: '1' }))
+                    .append(xml('history', { seconds: '60', maxchars: '1000', maxstanzas: '1' }))
             )
             ;
         this.app.send(presence);
@@ -61,10 +59,12 @@ export class Room
             type = 'available';
         }
 
+        let isSelf = nick == this.nick;
+
         switch (type) {
             case 'available':
                 if (typeof this.participants[nick] === typeof undefined) {
-                    this.participants[nick] = new Participant(this.app, this, this.display, nick, nick == this.nick);
+                    this.participants[nick] = new Participant(this.app, this, this.display, nick, isSelf);
                 }
                 this.participants[nick].onPresenceAvailable(stanza);
                 break;

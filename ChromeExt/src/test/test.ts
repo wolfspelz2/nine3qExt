@@ -5,6 +5,7 @@ var s = new sut();
 
 import { TestHelloWorld } from './TestHelloWorld'; s.addTestClass(TestHelloWorld);
 import { TestAnimationsXml } from './TestAnimationsXml'; s.addTestClass(TestAnimationsXml);
+import { TestApp } from './TestApp'; s.addTestClass(TestApp);
 
 s.ignoreFailureForClass(TestHelloWorld);
 s.run();

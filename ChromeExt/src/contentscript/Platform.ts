@@ -4,6 +4,13 @@ interface PlatformFetchUrlCallback { (ok: boolean, status: string, statusText: s
 
 export class Platform
 {
+    // Browser
+
+    static getCurrentPageUrl(): string
+    {
+        return document.location.toString();
+    }
+
     // Local storage
 
     private static tmpStorage: any = {};

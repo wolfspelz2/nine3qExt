@@ -9,6 +9,12 @@ import { Room } from './Room';
 import { PropertyStorage } from './PropertyStorage';
 import { HelloWorld } from './HelloWorld';
 
+interface ILocationMapperResponse
+{
+    //    sMessage: string;
+    sLocationURL: string;
+}
+
 export class App
 {
     private display: HTMLElement;
@@ -17,6 +23,7 @@ export class App
     private myNick: string = 'nick_';
     private rooms: { [id: string]: Room; } = {};
     private storage: PropertyStorage = new PropertyStorage();
+    private keepAliveSec: number = 180;
 
     // Getter
 
@@ -38,7 +45,9 @@ export class App
             controlElem.append(enterButton);
             $(enterButton).click(() =>
             {
-                this.enterRoomByJid('d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org');
+                // this.enterRoomByJid('d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org');
+                // this.enterRoomByPageUrl('https://www.galactic-developments.de/');
+                this.enterRoomByPageUrl(Platform.getCurrentPageUrl());
             });
         }
 
@@ -63,6 +72,8 @@ export class App
         this.xmpp.on('online', async (address: any) =>
         {
             Log.info('online', address);
+            this.sendPresence();
+            this.keepAlive();
         });
 
         this.xmpp.on('stanza', (stanza: any) =>
@@ -84,11 +95,42 @@ export class App
         this.xmpp.start().catch(Log.error);
     }
 
+    static getRoomJidFromLocationUrl(locationUrl: string): string
+    {
+        let jid = '';
+        let url = new URL(locationUrl);
+        return url.pathname;
+    }
+
+    enterRoomByPageUrl(pageUrl: string): void
+    {
+        let url = new URL('http://lms.virtual-presence.org/api/');
+        url.searchParams.set('Method', 'VPI.Info');
+        url.searchParams.set('sDocumentURL', pageUrl);
+        url.searchParams.set('Format', 'json');
+
+        Platform.fetchUrl(url.toString(), (ok, status, statusText, data: string) =>
+        {
+            if (ok) {
+                try {
+                    let mappingResponse: ILocationMapperResponse = JSON.parse(data);
+                    let locationUrl = mappingResponse.sLocationURL;
+                    Log.info('Mapped', pageUrl, ' => ', locationUrl);
+                    let roomJid = App.getRoomJidFromLocationUrl(locationUrl);
+                    this.enterRoomByJid(roomJid);
+                } catch (ex) {
+                    Log.error(ex);
+                }
+            }
+        });
+    }
+
     enterRoomByJid(roomJid: string): void
     {
         if (typeof this.rooms[roomJid] === typeof undefined) {
             this.rooms[roomJid] = new Room(this, this.display, roomJid, this.myJid, this.myNick);
         }
+        Log.info('enterRoomByJid', roomJid);
         this.rooms[roomJid].enter();
     }
 
@@ -114,7 +156,26 @@ export class App
 
     send(stanza: any): void
     {
+        Log.info('App.send', stanza);
         this.xmpp.send(stanza);
+    }
+
+    sendPresence()
+    {
+        this.send(xml('presence'));
+    }
+
+    private keepAliveTimer: number = undefined;
+    keepAlive()
+    {
+        if (this.keepAliveTimer == undefined) {
+            this.keepAliveTimer = <number><unknown>setTimeout(() =>
+            {
+                this.sendPresence();
+                this.keepAliveTimer = undefined;
+                this.keepAlive();
+            }, this.keepAliveSec * 1000);
+        }
     }
 
     // Window management
