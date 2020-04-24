@@ -43,9 +43,9 @@ export class Room
             )
             .append(
                 xml('x', { xmlns: 'http://jabber.org/protocol/muc' })
+                    .append(xml('history', { seconds: '60' }))
                     .append(xml('history', { maxchars: '1000' }))
                     .append(xml('history', { maxstanzas: '1' }))
-                    .append(xml('history', { seconds: '60' }))
             )
             ;
         this.app.send(presence);
