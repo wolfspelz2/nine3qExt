@@ -23,6 +23,7 @@ export class Participant extends Entity
     private userId: string;
     private inMove: boolean = false;
     private condition_: string = '';
+    private maxDelaySec: number = 60;
 
     constructor(private app: App, room: Room, display: HTMLElement, private nick: string, private isSelf: boolean)
     {
@@ -150,15 +151,39 @@ export class Participant extends Entity
 
     onMessageGroupchat(stanza: any): void
     {
-        let bodyNode = stanza.getChild('body');
-        if (bodyNode != undefined) {
-            let text = bodyNode.getText();
+        let delaySec = 0;
 
-            if (text.substring(0, 1) == '/') {
-                return this.onChatCommand(text);
+        // {
+        //     let node = stanza.getChildren('delay').find(stanzaChild => stanzaChild.attrs.xmlns === 'urn:xmpp:delay').first();
+        //     if (node != undefined) {
+        //         let dateStr = as.String(node.attrs.stamp, ''); // 2020-04-24T06:53:46Z
+        //         if (dateStr != '') {
+        //             var date = new Date(dateStr);
+        //         }
+        //     }
+        // }
+
+        // {
+        //     let node = stanza.getChildren('x').find(stanzaChild => stanzaChild.attrs.xmlns === 'jabber:x:delay').first();
+        //     if (node != undefined) {
+        //         let dateStr = as.String(node.attrs.stamp, ''); // 20200424T06:53:46
+        //         if (dateStr != '') {
+        //             var date = new Date(dateStr);
+        //         }
+        //     }
+        // }
+
+        if (delaySec < this.maxDelaySec) {
+            let bodyNode = stanza.getChild('body');
+            if (bodyNode != undefined) {
+                let text = bodyNode.getText();
+
+                if (text.substring(0, 1) == '/') {
+                    return this.onChatCommand(text);
+                }
+
+                this.chatout.setText(text);
             }
-
-            this.chatout.setText(text);
         }
     }
 

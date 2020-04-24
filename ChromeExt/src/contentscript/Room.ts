@@ -25,12 +25,29 @@ export class Room
         this.sendPresence();
     }
 
+    /*
+    <x xmlns='http://jabber.org/protocol/muc'>
+        <history maxchars='65000'/>
+        <history maxstanzas='20'/>
+        <history seconds='180'/>
+    </x>
+    */
     sendPresence(): void
     {
         let presence = xml('presence', { to: this.jid + '/' + this.nick })
-            .append(xml('x', { xmlns: 'firebat:user:identity', id: 'id:n3q:test', jid: this.userJid, src: 'https://storage.zweitgeist.com/index.php/12344151', digest: 'bf167285ccfec3cd3f0141e6de77fed1418fcbae' }))
-            .append(xml('x', { xmlns: 'firebat:avatar:state', jid: this.userJid, }).append(xml('position', { x: this.x }))
-            );
+            .append(
+                xml('x', { xmlns: 'firebat:user:identity', id: 'id:n3q:test', jid: this.userJid, src: 'https://storage.zweitgeist.com/index.php/12344151', digest: 'bf167285ccfec3cd3f0141e6de77fed1418fcbae' }))
+            .append(
+                xml('x', { xmlns: 'firebat:avatar:state', jid: this.userJid, })
+                    .append(xml('position', { x: this.x }))
+            )
+            .append(
+                xml('x', { xmlns: 'http://jabber.org/protocol/muc' })
+                    .append(xml('history', { maxchars: '1000' }))
+                    .append(xml('history', { maxstanzas: '1' }))
+                    .append(xml('history', { seconds: '60' }))
+            )
+            ;
         this.app.send(presence);
     }
 
