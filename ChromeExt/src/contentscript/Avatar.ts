@@ -70,6 +70,9 @@ export class Avatar implements IObserver
             }
         });
 
+        $(this.elem).mouseenter((ev) => this.entity.onMouseEnterAvatar(ev));
+        $(this.elem).mouseleave((ev) => this.entity.onMouseLeaveAvatar(ev));
+
         display.appendChild(this.elem);
 
         $(this.elem).draggable({
@@ -111,6 +114,15 @@ export class Avatar implements IObserver
     {
         if (ev.clientX > this.a_hack_otherwise_draggable_clicks_x && ev.clientX <= this.a_hack_otherwise_draggable_clicks_x + this.elem.width) {
             this.preventNextClick_a_hack_otherwise_draggable_clicks = true;
+        }
+    }
+
+    hilite(on: boolean)
+    {
+        if (on) {
+            $(this.elem).addClass('n3q-avatar-hilite');
+        } else {
+            $(this.elem).removeClass('n3q-avatar-hilite');
         }
     }
 

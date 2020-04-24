@@ -320,6 +320,18 @@ export class Participant extends Entity
         //$(this.elem).zIndex(100);
     }
 
+    onMouseEnterAvatar(ev: JQuery.Event): void
+    {
+        this.avatar.hilite(true);
+        //this.nickname.setVisible(true);
+    }
+
+    onMouseLeaveAvatar(ev: JQuery.Event): void
+    {
+        this.avatar.hilite(false);
+        //this.nickname.setVisible(false);
+    }
+
     // menu: Menu = null;
     onMouseClickAvatar(ev: JQuery.Event): void
     {

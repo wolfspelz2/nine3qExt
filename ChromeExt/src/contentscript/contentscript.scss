@@ -181,6 +181,11 @@ $z-index: (
     z-index: z-index(ParticipantAvatar);
 }
 
+.n3q-avatar-hilite {
+    filter: drop-shadow(0 0 2px #808080);
+    -webkit-filter: drop-shadow(0 0 2px #808080);
+}
+
 .n3q-nickname {
     position: absolute;
     left: 20px;
