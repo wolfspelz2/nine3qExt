@@ -14,10 +14,10 @@ export class Entity
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-entity" />')[0];
         this.elem.style.display = 'none';
 
-        this.centerElem = this.elem;
+        // this.centerElem = this.elem;
 
-        // this.centerElem = <HTMLDivElement>$('<div class="n3q-base n3q-entity-content" />')[0];
-        // this.elem.appendChild(this.centerElem);
+        this.centerElem = <HTMLDivElement>$('<div class="n3q-base n3q-entity-content" />')[0];
+        this.elem.appendChild(this.centerElem);
 
         // var e = <HTMLElement>$('<div class="n3q-base n3q-centertable"><div class="n3q-base n3q-centercell"></div></div>')[0];
         // this.centerElem = $(e).find('div.n3q-centercell')[0];

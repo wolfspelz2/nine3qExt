@@ -99,16 +99,15 @@ input.n3q-base {
     bottom: 0px;
     pointer-events: none;
 }
-// .n3q-entity-content {
-//     width: 100px;
-//     height: 100px;
-//     position: relative;
-//     left: -50px;
-//     border-top: 1px solid #808080;
-//     border-left: 1px solid #808080;
-//     border-right: 1px solid #808080;
-//     pointer-events: none;
-// }
+.n3q-entity-content {
+    width: 100px;
+    height: 100px;
+    position: relative;
+    left: -50px;
+    border-left: 1px solid #808080;
+    border-right: 1px solid #808080;
+    pointer-events: none;
+}
 
 .n3q-centertable {
     display: table;
@@ -190,7 +189,8 @@ input.n3q-base {
     // position: relative; // centers the image in the div, but elevates the avatar on some pages
     // left: unset;
     // right: unset;
-    // bottom: 0;
+    // top: unset;
+    // bottom: unset;
 
     pointer-events: auto;
     user-select: none;
