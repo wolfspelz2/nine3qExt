@@ -32,7 +32,7 @@ export class App
 
     constructor(private page: HTMLElement)
     {
-        // this.display = $('<div class="n3q-div n3q-display" />')[0];
+        // this.display = $('<div class="n3q-base n3q-display" />')[0];
         // this.page.append(this.display);
         this.display = page;
 
@@ -41,12 +41,12 @@ export class App
 
     createPageControl()
     {
-        let controlElem: HTMLElement = $('<div class="n3q-div n3q-ctrl" id="n3q-hello"></div>')[0];
+        let controlElem: HTMLElement = $('<div class="n3q-base n3q-ctrl" id="n3q-hello"></div>')[0];
         this.display.append(controlElem);
 
         $('#n3q-hello').text(HelloWorld.getText());
 
-        let enterButton: HTMLButtonElement = $('<button>enter</button>')[0];
+        let enterButton: HTMLButtonElement = $('<button class="n3q-base">enter</button>')[0];
         controlElem.append(enterButton);
         $(enterButton).click(() =>
         {

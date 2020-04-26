@@ -42,7 +42,7 @@ export class Avatar implements IObserver
 
     constructor(private app: App, private entity: Entity, private display: HTMLElement, private isSelf: boolean)
     {
-        this.elem = <HTMLImageElement>$('<img class="n3q-avatar" />')[0];
+        this.elem = <HTMLImageElement>$('<img class="n3q-base n3q-avatar" />')[0];
         // var url = 'https://www.virtual-presence.org/images/wolf.png';
         // var url = app.getAssetUrl('default-avatar.png');
         var url = imgDefaultAvatar;

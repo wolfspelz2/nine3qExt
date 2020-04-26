@@ -5,7 +5,7 @@ import { App } from './App';
 const isContentscript: boolean = true;
 console.log('Contentscript', isContentscript);
 
-var pageElem: HTMLElement = $('<div class="n3q-div" id="n3q-id-page" />')[0];
+var pageElem: HTMLElement = $('<div class="n3q-base" id="n3q-id-page" />')[0];
 $('body').append(pageElem);
 new App(pageElem).start();
 
