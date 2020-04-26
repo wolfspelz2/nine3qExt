@@ -86,7 +86,7 @@ $z-index: (
 
 .n3q-ctrl {
     position: absolute;
-    left: 200px;
+    left: 100px;
     bottom: 0;
     width: 100px;
     height: 100px;
@@ -185,11 +185,14 @@ $z-index: (
 }
 
 .n3q-avatar {
-    left: unset;
-    right: unset;
     position: absolute;
-    // position: relative; // centers the image in the div, but elevates the avatar on some pages
     bottom: 0;
+
+    // position: relative; // centers the image in the div, but elevates the avatar on some pages
+    // left: unset;
+    // right: unset;
+    // bottom: 0;
+
     pointer-events: auto;
     user-select: none;
     z-index: z-index(ParticipantAvatar);

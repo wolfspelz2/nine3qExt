@@ -32,11 +32,11 @@ export class App
 
     constructor(private page: HTMLElement)
     {
-        this.display = $('<div class="n3q-div n3q-display" />')[0];
-        this.page.append(this.display);
-        // this.display = page;
+        // this.display = $('<div class="n3q-div n3q-display" />')[0];
+        // this.page.append(this.display);
+        this.display = page;
 
-        // this.createPageControl();
+        this.createPageControl();
     }
 
     createPageControl()

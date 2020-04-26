@@ -1,4 +1,4 @@
-const { xml, jid } = require('@xmpp/client');
+import { xml, jid } from '@xmpp/client';
 import { as } from './as';
 import { Log } from './Log';
 import { App } from './App';
@@ -9,12 +9,15 @@ export class Room
     private nick: string;
     private enterRetryCount: number = 0;
     private maxEnterRetries: number = 4;
-    private x: number = 300;
+    private x: number = 200;
     private participants: { [nick: string]: Participant; } = {};
 
     constructor(private app: App, private display: HTMLElement, private jid: string, private userJid: string, private proposedNick: string) 
     {
         this.nick = this.proposedNick;
+
+        this.participants['dummy'] = new Participant(this.app, this, this.display, 'dummy', false);
+        this.participants['dummy'].onPresenceAvailable(xml('presence', { from: jid + '/dummy' }).append(xml('x', { xmlns: 'firebat:avatar:state' }).append(xml('position', { x: 100 }))));
     }
 
     //#region presence

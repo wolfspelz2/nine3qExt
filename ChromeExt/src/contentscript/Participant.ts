@@ -1,5 +1,5 @@
 import * as $ from 'jquery';
-const { xml, jid } = require('@xmpp/client');
+import { xml, jid } from '@xmpp/client';
 import { App } from './App';
 import { Entity } from './Entity';
 import { Room } from './Room';
@@ -55,20 +55,18 @@ export class Participant extends Entity
         }
 
         {
-            let identityAttrs = stanza
-                .getChildren('x')
-                .find(stanzaChild => stanzaChild.attrs.xmlns === 'firebat:user:identity')
-                .attrs
-                ;
+            let identityNode = stanza.getChildren('x').find(stanzaChild => stanzaChild.attrs.xmlns === 'firebat:user:identity');
+            if (identityNode != undefined) {
+                let attrs = identityNode.attrs;
+                let url = as.String(attrs.src, '');
+                let digest = as.String(attrs.digest, '');
+                let jid = as.String(attrs.jid, url);
+                this.userId = as.String(attrs.id, jid);
 
-            let url = as.String(identityAttrs.src, '');
-            let digest = as.String(identityAttrs.digest, '');
-            let jid = as.String(identityAttrs.jid, url);
-            this.userId = as.String(identityAttrs.id, jid);
-
-            if (url != '' && digest != '') {
-                this.identityUrl = url;
-                this.app.getStorage().setIdentity(this.userId, url, digest);
+                if (url != '' && digest != '') {
+                    this.identityUrl = url;
+                    this.app.getStorage().setIdentity(this.userId, url, digest);
+                }
             }
         }
 
@@ -113,10 +111,13 @@ export class Participant extends Entity
 
             {
                 this.nickname = new Nickname(this.app, this, this.getElem());
-                let from = jid(stanza.attrs.from);
-                let xmppNickname = as.String(from.getResource(), '');
-                if (xmppNickname != '') {
-                    this.nickname.setNickname(xmppNickname);
+                let from = stanza.attrs.from
+                if (from != undefined) {
+                    let fromJid = new jid(from);
+                    let xmppNickname = as.String(fromJid.getResource(), '');
+                    if (xmppNickname != '') {
+                        this.nickname.setNickname(xmppNickname);
+                    }
                 }
                 this.app.getStorage().watch(this.userId, 'Nickname', this.nickname);
             }

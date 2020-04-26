@@ -1,19 +1,16 @@
 import './contentscript.scss';
 const $ = require('jquery');
-import { Log } from './Log';
 import { App } from './App';
-import { Platform } from './Platform';
 
 const isContentscript: boolean = true;
 console.log('Contentscript', isContentscript);
 
-var pageElement: HTMLElement = $('<div class="n3q-div" id="n3q-id-page" />')[0];
+var pageElem: HTMLElement = $('<div class="n3q-div" id="n3q-id-page" />')[0];
+$('body').append(pageElem);
+new App(pageElem).start();
 
-// var logElement: HTMLElement = $('<div class="n3q-div n3q-log" />')[0];
-// pageElement.append(logElement);
-
-$('body').append(pageElement);
-
-new App(pageElement).start();
-
+// iframe test
+// let html = '<html><head><title></title><style>.n3q-img{pointer-events:auto;}</style></head><body><p>This text will appear in the iframe!</p> <img class=\'n3q-img\' src=\'https://www.galactic-developments.de/images/post/Vegas-fbpost.jpg\'/></body></html>';
+// var e: HTMLElement = $('<iframe id="n3q-frame" frameborder="0" srcdoc="' + html + '"></iframe>')[0];
+// $('body').append(e);
 
