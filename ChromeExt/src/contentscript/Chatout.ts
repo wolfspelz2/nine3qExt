@@ -12,7 +12,8 @@ export class Chatout
     constructor(private app: App, private participant: Participant, private display: HTMLElement)
     {
         this.elem = <HTMLElement>$('<div class="n3q-base n3q-chatout" />')[0];
-        this.elem.style.display = 'none';
+        this.setVisibility(false);
+
         $(this.elem).click(() =>
         {
             $(this.elem).stop(true).fadeTo('fast', 1);
@@ -30,7 +31,7 @@ export class Chatout
         $(this.closeElem).click(ev =>
         {
             $(this.elem).stop(true);
-            this.setVisible(false);
+            this.setVisibility(false);
             ev.stopPropagation();
         });
         this.elem.appendChild(this.closeElem);
@@ -50,20 +51,21 @@ export class Chatout
         $(this.textElem).html(as.Html(text));
 
         this.elem.style.display = 'block';
-        //$(this.elem).delay(10000).fadeOut(10000);
+        $(this.elem).delay(10000).fadeOut(10000);
     }
 
-    setVisible(visible: boolean): void
+    setVisibility(visible: boolean): void
     {
+        // Have to work with display:block instead of class n3q-hidden, beacusebecause JQuery-fade uses display:block
         this.elem.style.display = visible ? 'block' : 'none';
         if (visible) {
             $(this.textElem).focus();
         }
     }
 
-    toggle(): void
+    toggleVisibility(): void
     {
         var visible = this.elem.style.display == 'block';
-        this.setVisible(!visible);
+        this.setVisibility(!visible);
     }
 }

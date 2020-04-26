@@ -13,9 +13,10 @@ export class Chatin
     constructor(private app: App, private participant: Participant, private display: HTMLElement)
     {
         this.elem = <HTMLElement>$('<div class="n3q-base n3q-chatin n3q-shadow" data-translate="children" />')[0];
-        this.elem.style.display = 'none';
+        this.setVisibility(false);
+        // this.elem.style.display = 'none';
 
-        this.textElem = <HTMLElement>$('<input type="text" class="n3q-base n3q-input n3q-text" placeholder="Enter chat here..." data-translate="attr:placeholder:Client" />')[0];
+        this.textElem = <HTMLElement>$('<input type="text" class="n3q-base n3q-input n3q-text" style="    position: relative; line-height: 14px; padding: 4px; outline: none; font-family: Arial, sans-serif; font-size: 11px; font-weight: normal; font-style: normal; border: none; box-shadow: unset;" placeholder="Enter chat here..." data-translate="attr:placeholder:Client" />')[0];
         $(this.textElem).bind('keydown', ev =>
         {
             var keycode = (ev.keyCode ? ev.keyCode : (ev.which ? ev.which : ev.charCode));
@@ -24,7 +25,7 @@ export class Chatin
                     this.sendChat();
                     return false;
                 case 27:
-                    this.setVisible(false);
+                    this.setVisibility(false);
                     ev.stopPropagation();
                     return false;
                 default:
@@ -44,7 +45,7 @@ export class Chatin
         $(this.closeElem).click(ev =>
         {
             $(this.elem).stop(true);
-            this.setVisible(false);
+            this.setVisibility(false);
             ev.stopPropagation();
         });
         this.elem.appendChild(this.closeElem);
@@ -62,17 +63,22 @@ export class Chatin
         }
     }
 
-    setVisible(visible: boolean): void
+    // Visibility
+
+    setVisibility(visible: boolean): void
     {
-        this.elem.style.display = visible ? 'block' : 'none';
+        this.isVisible = visible;
         if (visible) {
+            $(this.elem).removeClass('n3q-hidden');
             $(this.textElem).focus();
+        } else {
+            $(this.elem).addClass('n3q-hidden');
         }
     }
 
-    toggle(): void
+    private isVisible = true;
+    toggleVisibility(): void
     {
-        var visible = this.elem.style.display == 'block';
-        this.setVisible(!visible);
+        this.setVisibility(!this.isVisible);
     }
 }

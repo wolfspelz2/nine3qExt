@@ -401,12 +401,12 @@ export class Participant extends Entity
 
     toggleChatin(): void
     {
-        this.chatin.toggle();
+        this.chatin.toggleVisibility();
     }
 
     toggleChatout(): void
     {
-        this.chatout.toggle();
+        this.chatout.toggleVisibility();
     }
 
 }
