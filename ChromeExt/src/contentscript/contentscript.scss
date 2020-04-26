@@ -71,6 +71,11 @@ input.n3q-base {
     display: inline;
 }
 
+// zeit.de
+input.n3q-base:focus {
+    background-color: white;
+}
+
 // .n3q-display {
 //     position: absolute;
 //     bottom: 0;
