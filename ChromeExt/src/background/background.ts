@@ -58,7 +58,7 @@ chrome.runtime.onMessage.addListener(
                     fetch(url)
                         .then(httpResponse =>
                         {
-                            console.log('background fetchUrl response', httpResponse);
+                            // console.log('background fetchUrl response', httpResponse);
                             if (httpResponse.ok) {
                                 return httpResponse.text();
                             } else {
@@ -67,18 +67,18 @@ chrome.runtime.onMessage.addListener(
                         })
                         .then(text =>
                         {
-                            console.log('background fetchUrl text', text);
+                            // console.log('background fetchUrl text', text);
                             return sendResponse({ 'ok': true, 'data': text });
                         })
                         .catch(ex =>
                         {
-                            console.log('background fetchUrl ex', ex);
+                            // console.log('background fetchUrl ex', ex);
                             return sendResponse({ 'ok': false, 'status': ex.status, 'statusText': ex.statusText });
                         }
                         );
 
                 } catch (ex) {
-                    console.log('background fetchUrl catch', ex);
+                    // console.log('background fetchUrl catch', ex);
                     return sendResponse({ 'ok': false, 'status': ex.status, 'statusText': ex.statusText });
                 }
             } break;

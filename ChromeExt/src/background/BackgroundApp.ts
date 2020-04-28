@@ -112,11 +112,12 @@ export class BackgroundApp
     private startXmpp()
     {
         this.xmpp = client({
-            service: 'wss://xmpp.dev.sui.li/xmpp-websocket',
-            domain: 'xmpp.dev.sui.li',
-            resource: 'example',
-            username: 'test',
-            password: 'testtest',
+            service: 'wss://xmpp.weblin.sui.li/xmpp-websocket',
+            // service: 'wss://xmpp.dev.sui.li/xmpp-websocket',
+            domain: 'xmpp.weblin.sui.li',
+            resource: 'schnuppe',
+            username: 'f85bpkavrnp0j2r8jgb079kmsg',
+            password: '475167916f52ab832e89386eddc90295e81c5563',
         });
 
         this.xmpp.on('error', (err: any) =>
