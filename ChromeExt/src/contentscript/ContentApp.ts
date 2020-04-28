@@ -82,8 +82,10 @@ export class ContentApp
         return true;
     }
 
-    handle_recvStanza(stanza: any): any
+    handle_recvStanza(jsStanza: any): any
     {
+        let stanza = Platform.jsObject2xmlObject(jsStanza);
+
         switch (stanza.name) {
             case 'presence': this.onPresence(stanza);
             case 'message': this.onMessage(stanza);

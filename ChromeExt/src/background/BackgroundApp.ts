@@ -91,7 +91,7 @@ export class BackgroundApp
                 );
         } catch (ex) {
             console.log('BackgroundApp.handle_fetchUrl ex', ex);
-            return sendResponse({ 'ok': false, 'status': 0, 'statusText': ex.message});
+            return sendResponse({ 'ok': false, 'status': 0, 'statusText': ex.message });
         }
     }
 
@@ -100,7 +100,8 @@ export class BackgroundApp
         Log.info('BackgroundApp.handle_sendStanza', stanza, tabId);
 
         try {
-            this.sendStanza(stanza);
+            let xmlStanza = Platform.jsObject2xmlObject(stanza);
+            this.sendStanza(xmlStanza);
         } catch (ex) {
             Log.error('BackgroundApp.handle_sendStanza', ex);
         }

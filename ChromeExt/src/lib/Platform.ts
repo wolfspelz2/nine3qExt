@@ -1,9 +1,22 @@
+import { xml } from '@xmpp/client';
 import { as } from './as';
 
 interface PlatformFetchUrlCallback { (ok: boolean, status: string, statusText: string, data: string): void }
 
 export class Platform
 {
+    // xmpp util
+
+    static jsObject2xmlObject(stanza: any): any
+    {
+        let children = [];
+        stanza.children.forEach(child => {
+            children.push(this.jsObject2xmlObject(child);
+        });
+        return xml(stanza.name, stanza.attrs, children);
+    }
+
+
     // Browser
 
     static getCurrentPageUrl(): string
