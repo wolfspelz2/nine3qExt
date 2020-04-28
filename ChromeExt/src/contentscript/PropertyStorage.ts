@@ -1,6 +1,6 @@
 import { LegacyIdentity } from './LegacyIdentity';
 import { ObservableProperty, IObserver } from './ObservableProperty';
-import { Log } from './Log';
+import { Log } from '../lib/Log';
 
 export class PropertyStorage
 {

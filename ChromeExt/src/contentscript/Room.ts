@@ -1,7 +1,7 @@
 import { xml, jid } from '@xmpp/client';
-import { as } from './as';
-import { Log } from './Log';
-import { App } from './App';
+import { as } from '../lib/as';
+import { Log } from '../lib/Log';
+import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
 
 export class Room
@@ -11,8 +11,9 @@ export class Room
     private maxEnterRetries: number = 4;
     private x: number = 200;
     private participants: { [nick: string]: Participant; } = {};
+    private isEntered = false;
 
-    constructor(private app: App, private display: HTMLElement, private jid: string, private userJid: string, private proposedNick: string) 
+    constructor(private app: ContentApp, private display: HTMLElement, private jid: string, private userJid: string, private proposedNick: string) 
     {
         this.nick = this.proposedNick;
 
@@ -28,13 +29,11 @@ export class Room
         this.sendPresence();
     }
 
-    /*
-    <x xmlns='http://jabber.org/protocol/muc'>
-        <history maxchars='65000'/>
-        <history maxstanzas='20'/>
-        <history seconds='180'/>
-    </x>
-    */
+    leave(): void
+    {
+        this.sendPresenceUnavailable();
+    }
+
     sendPresence(): void
     {
         let presence = xml('presence', { to: this.jid + '/' + this.nick })
@@ -43,13 +42,23 @@ export class Room
             .append(
                 xml('x', { xmlns: 'firebat:avatar:state', jid: this.userJid, })
                     .append(xml('position', { x: this.x }))
-            )
-            .append(
+            );
+
+        if (!this.isEntered) {
+            presence.append(
                 xml('x', { xmlns: 'http://jabber.org/protocol/muc' })
                     .append(xml('history', { seconds: '60', maxchars: '1000', maxstanzas: '1' }))
-            )
-            ;
-        this.app.send(presence);
+            );
+        }
+
+        this.app.sendStanza(presence);
+    }
+
+    sendPresenceUnavailable(): void
+    {
+        let presence = xml('presence', { type: 'unavailable', to: this.jid + '/' + this.nick });
+
+        this.app.sendStanza(presence);
     }
 
     onPresence(stanza: any): void
@@ -70,6 +79,12 @@ export class Room
                     this.participants[nick] = new Participant(this.app, this, this.display, nick, isSelf);
                 }
                 this.participants[nick].onPresenceAvailable(stanza);
+
+                if (isSelf && !this.isEntered) {
+                    this.isEntered = true;
+                    this.keepAlive();
+                }
+
                 break;
 
             case 'unavailable':
@@ -105,8 +120,21 @@ export class Room
         return nick + '_';
     }
 
-    //#endregion
-    //#region message
+    private keepAliveSec: number = 180;
+    private keepAliveTimer: number = undefined;
+    keepAlive()
+    {
+        if (this.keepAliveTimer == undefined) {
+            this.keepAliveTimer = <number><unknown>setTimeout(() =>
+            {
+                this.sendPresence();
+                this.keepAliveTimer = undefined;
+                this.keepAlive();
+            }, this.keepAliveSec * 1000);
+        }
+    }
+
+    // message
 
     onMessage(stanza: any)
     {
@@ -141,7 +169,7 @@ export class Room
         let message = xml('message', { type: 'groupchat', to: this.jid, from: this.jid + '/' + fromNick })
             .append(xml('body', {}, text))
             ;
-        this.app.send(message);
+        this.app.sendStanza(message);
     }
 
     //#endregion

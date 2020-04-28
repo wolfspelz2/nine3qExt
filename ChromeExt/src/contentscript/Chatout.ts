@@ -1,6 +1,6 @@
 import * as $ from 'jquery';
-import { as } from './as';
-import { App } from './App';
+import { as } from '../lib/as';
+import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
 
 export class Chatout
@@ -9,7 +9,7 @@ export class Chatout
     private textElem: HTMLElement;
     private closeElem: HTMLElement;
 
-    constructor(private app: App, private participant: Participant, private display: HTMLElement)
+    constructor(private app: ContentApp, private participant: Participant, private display: HTMLElement)
     {
         this.elem = <HTMLElement>$('<div class="n3q-base n3q-chatout" />')[0];
         this.setVisibility(false);

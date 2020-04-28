@@ -1,6 +1,6 @@
 import * as $ from 'jquery';
 import { xml, jid } from '@xmpp/client';
-import { App } from './App';
+import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
@@ -8,8 +8,8 @@ import { Nickname } from './Nickname';
 import { Chatout } from './Chatout';
 import { Chatin } from './Chatin';
 import { LegacyIdentity } from './LegacyIdentity';
-import { as } from './as';
-import { Log } from './Log';
+import { as } from '../lib/as';
+import { Log } from '../lib/Log';
 
 export class Participant extends Entity
 {
@@ -25,7 +25,7 @@ export class Participant extends Entity
     private condition_: string = '';
     private maxDelaySec: number = 60;
 
-    constructor(private app: App, room: Room, display: HTMLElement, private nick: string, private isSelf: boolean)
+    constructor(private app: ContentApp, room: Room, display: HTMLElement, private nick: string, private isSelf: boolean)
     {
         super(room, display);
         $(this.getElem()).addClass('n3q-participant');

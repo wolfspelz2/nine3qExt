@@ -12,6 +12,6 @@
   "include": [
     "src/background", 
     "src/contentscript", 
-    "declarations.d.ts"
+    "src/lib"
   ]
 }

@@ -1,5 +1,5 @@
 ﻿const $ = require('jquery');
-import { as } from './as';
+import { as } from '../lib/as';
 
 export class AvatarAnimationParam
 {

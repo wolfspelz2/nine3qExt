@@ -67,14 +67,14 @@ export class Platform
     //   alert(data);
     // });
 
+    // Frontent/Backend comm
+
     static fetchUrl(url: string, callback: PlatformFetchUrlCallback)
     {
-        // console.log('Platform.fetchUrl', url);
-
-        chrome.runtime.sendMessage({ 'type': 'fetchUrl', 'url': url }, response =>
+        chrome.runtime.sendMessage({ 'type': 'fetchUrl', 'url': url }, (response) =>
         {
-            // console.log('Platform.fetchUrl', response);
             callback(response.ok, response.status, response.statusText, response.data);
         });
     }
+
 }

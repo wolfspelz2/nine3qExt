@@ -1,10 +1,10 @@
 import * as $ from 'jquery';
 import 'jqueryui';
-import { as } from './as';
-import { Log } from './Log';
-import { App } from './App';
+import { as } from '../lib/as';
+import { Log } from '../lib/Log';
+import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
-import { Platform } from './Platform';
+import { Platform } from '../lib/Platform';
 import { IObserver, IObservable } from './ObservableProperty';
 import * as AnimationsXml from './AnimationsXml';
 
@@ -40,7 +40,7 @@ export class Avatar implements IObserver
     private preventNextClick_a_hack_otherwise_draggable_clicks = false;
     private clickTimer: number = undefined;
 
-    constructor(private app: App, private entity: Entity, private display: HTMLElement, private isSelf: boolean)
+    constructor(private app: ContentApp, private entity: Entity, private display: HTMLElement, private isSelf: boolean)
     {
         this.elem = <HTMLImageElement>$('<img class="n3q-base n3q-avatar" />')[0];
         // var url = 'https://www.virtual-presence.org/images/wolf.png';

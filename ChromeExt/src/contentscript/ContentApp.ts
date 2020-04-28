@@ -2,9 +2,9 @@ const { client, xml, jid } = require('@xmpp/client');
 // import { client, xml, jid } from '@xmpp/client';
 const debug = require('@xmpp/debug');
 const $ = require('jquery');
-import { as } from './as';
-import { Platform } from './Platform';
-import { Log } from './Log';
+import { as } from '../lib/as';
+import { Platform } from '../lib/Platform';
+import { Log } from '../lib/Log';
 import { Room } from './Room';
 import { PropertyStorage } from './PropertyStorage';
 import { HelloWorld } from './HelloWorld';
@@ -15,13 +15,13 @@ interface ILocationMapperResponse
     sLocationURL: string;
 }
 
-export class App
+export class ContentApp
 {
     private display: HTMLElement;
     private xmpp: any;
     private myJid: string = 'test@xmpp.dev.sui.li';
     private myNick: string = 'nick_';
-    private rooms: { [id: string]: Room; } = {};
+    private rooms: { [roomJid: string]: Room; } = {};
     private storage: PropertyStorage = new PropertyStorage();
     private keepAliveSec: number = 180;
 
@@ -30,13 +30,8 @@ export class App
     getStorage(): PropertyStorage { return this.storage; }
     getAssetUrl(filePath: string) { return Platform.getAssetUrl(filePath); }
 
-    constructor(private page: HTMLElement)
+    constructor(private appendToMe: HTMLElement)
     {
-        // this.display = $('<div class="n3q-base n3q-display" />')[0];
-        // this.page.append(this.display);
-        this.display = page;
-
-        this.createPageControl();
     }
 
     createPageControl()
@@ -58,51 +53,54 @@ export class App
 
     // Connection
 
-    start(): void
+    start()
     {
-        this.xmpp = client({
-            service: 'wss://xmpp.dev.sui.li/xmpp-websocket',
-            domain: 'xmpp.dev.sui.li',
-            resource: 'example',
-            username: 'test',
-            password: 'testtest',
-        });
+        this.display = $('<div id="n3q-id-page" class="n3q-base n3q-displa" />')[0];
+        this.appendToMe.append(this.display);
 
-        this.xmpp.on('error', (err: any) =>
-        {
-            Log.error('App.error', err);
-        });
+        this.createPageControl();
 
-        this.xmpp.on('offline', () =>
-        {
-            Log.info('App.offline');
-        });
+        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
 
-        this.xmpp.on('online', async (address: any) =>
-        {
-            Log.info('App.online', address);
-            this.sendPresence();
-            this.keepAlive();
-            this.enterPage();
-        });
+        this.enterPage();
+    }
 
-        this.xmpp.on('stanza', (stanza: any) =>
-        {
-            Log.info('App.recv', stanza);
-            if (stanza.is('presence')) {
-                this.onPresence(stanza);
-            } else if (stanza.is('message')) {
-                this.onMessage(stanza);
-            }
+    stop()
+    {
+        this.leavePage();
 
-        });
+        chrome.runtime.onMessage.removeListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
 
-        this.xmpp.start().catch(Log.error);
+        $('#n3q-id-page').remove();
+    }
+
+    runtimeOnMessage(message, sender: chrome.runtime.MessageSender, sendResponse): any
+    {
+        switch (message.type) {
+            case 'recvStanza': return this.handle_recvStanza(message.stanza); break;
+        }
+        return true;
+    }
+
+    handle_recvStanza(stanza: any): any
+    {
+        switch (stanza.name) {
+            case 'presence': this.onPresence(stanza);
+            case 'message': this.onMessage(stanza);
+        }
     }
 
     enterPage()
     {
         this.enterRoomByPageUrl(Platform.getCurrentPageUrl());
+    }
+
+    leavePage()
+    {
+        // Leave all, there should be only one
+        for (let roomJid in this.rooms) {
+            this.leaveRoomByJid(roomJid);
+        }
     }
 
     static getRoomJidFromLocationUrl(locationUrl: string): string
@@ -126,7 +124,7 @@ export class App
                     let mappingResponse: ILocationMapperResponse = JSON.parse(data);
                     let locationUrl = mappingResponse.sLocationURL;
                     Log.info('Mapped', pageUrl, ' => ', locationUrl);
-                    let roomJid = App.getRoomJidFromLocationUrl(locationUrl);
+                    let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);
                     this.enterRoomByJid(roomJid);
                 } catch (ex) {
                     Log.error(ex);
@@ -137,11 +135,20 @@ export class App
 
     enterRoomByJid(roomJid: string): void
     {
-        if (typeof this.rooms[roomJid] === typeof undefined) {
+        if (this.rooms[roomJid] === undefined) {
             this.rooms[roomJid] = new Room(this, this.display, roomJid, this.myJid, this.myNick);
         }
         Log.info('enterRoomByJid', roomJid);
         this.rooms[roomJid].enter();
+    }
+
+    leaveRoomByJid(roomJid: string): void
+    {
+        Log.info('enterRoomByJid', roomJid);
+        if (this.rooms[roomJid] != undefined) {
+            this.rooms[roomJid].leave();
+            delete this.rooms[roomJid];
+        }
     }
 
     onPresence(stanza: any): void
@@ -164,28 +171,10 @@ export class App
         }
     }
 
-    private keepAliveTimer: number = undefined;
-    keepAlive()
+    sendStanza(stanza: any): void
     {
-        if (this.keepAliveTimer == undefined) {
-            this.keepAliveTimer = <number><unknown>setTimeout(() =>
-            {
-                this.sendPresence();
-                this.keepAliveTimer = undefined;
-                this.keepAlive();
-            }, this.keepAliveSec * 1000);
-        }
-    }
-
-    send(stanza: any): void
-    {
-        Log.info('App.send', stanza);
-        this.xmpp.send(stanza);
-    }
-
-    sendPresence()
-    {
-        this.send(xml('presence'));
+        Log.info('ContentApp.sendStanza', stanza);
+        chrome.runtime.sendMessage({ 'type': 'sendStanza', 'stanza': stanza });
     }
 
     // Window management

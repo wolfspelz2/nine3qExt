@@ -1,7 +1,7 @@
 const $ = require('jquery');
-import { Platform } from './Platform';
+import { Platform } from '../lib/Platform';
 import { PropertyStorage } from './PropertyStorage';
-import { as } from './as';
+import { as } from '../lib/as';
 
 export class LegacyIdentity
 {

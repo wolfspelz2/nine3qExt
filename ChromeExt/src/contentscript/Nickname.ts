@@ -1,6 +1,6 @@
 import * as $ from 'jquery';
-import { as } from './as';
-import { App } from './App';
+import { as } from '../lib/as';
+import { ContentApp } from './ContentApp';
 import { IObserver, IObservable } from './ObservableProperty';
 import { Participant } from './Participant';
 
@@ -9,7 +9,7 @@ export class Nickname implements IObserver
     private elem: HTMLDivElement;
     private textElem: HTMLElement;
 
-    constructor(private app: App, private participant: Participant, private display: HTMLElement)
+    constructor(private app: ContentApp, private participant: Participant, private display: HTMLElement)
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-nickname n3q-shadow" />')[0];
         $(this.elem).click(() => { this.participant.select(); });
