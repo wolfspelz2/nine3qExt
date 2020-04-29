@@ -1,6 +1,7 @@
 import { client, xml, jid } from '@xmpp/client';
 import { as } from '../lib/as';
 import { Log } from '../lib/Log';
+import { Utils } from '../lib/Utils';
 import { Platform } from '../lib/Platform';
 
 interface ILocationMapperResponse
@@ -100,7 +101,7 @@ export class BackgroundApp
         Log.info('BackgroundApp.handle_sendStanza', stanza, tabId);
 
         try {
-            let xmlStanza = Platform.jsObject2xmlObject(stanza);
+            let xmlStanza = Utils.jsObject2xmlObject(stanza);
             this.sendStanza(xmlStanza);
         } catch (ex) {
             Log.error('BackgroundApp.handle_sendStanza', ex);
@@ -122,17 +123,17 @@ export class BackgroundApp
 
         this.xmpp.on('error', (err: any) =>
         {
-            Log.error('BackgroundApp.error', err);
+            Log.error('BackgroundApp. xmpp.on.error', err);
         });
 
         this.xmpp.on('offline', () =>
         {
-            Log.info('BackgroundApp.offline');
+            Log.info('BackgroundApp xmpp.on.offline');
         });
 
         this.xmpp.on('online', async (address: any) =>
         {
-            Log.info('BackgroundApp.online', address);
+            Log.info('BackgroundApp xmpp.on.online', address);
             this.sendPresence();
             this.keepAlive();
         });

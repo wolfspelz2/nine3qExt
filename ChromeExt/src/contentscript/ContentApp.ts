@@ -1,8 +1,7 @@
-const { client, xml, jid } = require('@xmpp/client');
-// import { client, xml, jid } from '@xmpp/client';
-const debug = require('@xmpp/debug');
-const $ = require('jquery');
+import { xml, jid } from '@xmpp/client';
+import * as $ from 'jquery';
 import { as } from '../lib/as';
+import { Utils } from '../lib/Utils';
 import { Platform } from '../lib/Platform';
 import { Log } from '../lib/Log';
 import { Room } from './Room';
@@ -55,7 +54,7 @@ export class ContentApp
 
     start()
     {
-        this.display = $('<div id="n3q-id-page" class="n3q-base n3q-displa" />')[0];
+        this.display = $('<div id="n3q-id-page" class="n3q-base" />')[0];
         this.appendToMe.append(this.display);
 
         this.createPageControl();
@@ -84,7 +83,7 @@ export class ContentApp
 
     handle_recvStanza(jsStanza: any): any
     {
-        let stanza = Platform.jsObject2xmlObject(jsStanza);
+        let stanza : xml = Utils.jsObject2xmlObject(jsStanza);
 
         switch (stanza.name) {
             case 'presence': this.onPresence(stanza);
@@ -140,20 +139,20 @@ export class ContentApp
         if (this.rooms[roomJid] === undefined) {
             this.rooms[roomJid] = new Room(this, this.display, roomJid, this.myJid, this.myNick);
         }
-        Log.info('enterRoomByJid', roomJid);
+        Log.info('ContentApp.enterRoomByJid', roomJid);
         this.rooms[roomJid].enter();
     }
 
     leaveRoomByJid(roomJid: string): void
     {
-        Log.info('enterRoomByJid', roomJid);
+        Log.info('ContentApp.leaveRoomByJid', roomJid);
         if (this.rooms[roomJid] != undefined) {
             this.rooms[roomJid].leave();
             delete this.rooms[roomJid];
         }
     }
 
-    onPresence(stanza: any): void
+    onPresence(stanza: xml): void
     {
         let from = jid(stanza.attrs.from);
         let roomOrUser = from.bare();
@@ -163,7 +162,7 @@ export class ContentApp
         }
     }
 
-    onMessage(stanza: any): void
+    onMessage(stanza: xml): void
     {
         let from = jid(stanza.attrs.from);
         let roomOrUser = from.bare();
@@ -173,7 +172,7 @@ export class ContentApp
         }
     }
 
-    sendStanza(stanza: any): void
+    sendStanza(stanza: xml): void
     {
         Log.info('ContentApp.sendStanza', stanza);
         chrome.runtime.sendMessage({ 'type': 'sendStanza', 'stanza': stanza });

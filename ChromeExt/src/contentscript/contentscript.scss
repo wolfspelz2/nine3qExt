@@ -30,40 +30,10 @@ $z-index: (
 }
 
 .n3q-base {
-    all: revert; // all: revert?
-    font-family: Arial, sans-serif;
-    font-size: 11px;
-    font-weight: normal;
-    font-style: normal;
-    font-variant-ligatures: normal;
-    font-variant-caps: normal;
-    font-variant-numeric: normal;
-    font-variant-east-asian: normal;
-    font-stretch: 1;
+    all: revert;
+    font: normal 11px/11px Arial, sans-serif;
     display:block;
-    // line-height:normal;
-
-    // width: unset;
-    // min-width: unset;
-    // margin: unset;
-    // padding: unset;
-    // border-radius: unset;
-    // box-shadow: none;
-    // filter: none;
-    // text-align: unset;
-    // vertical-align: unset;
-    // color: black;
-    // background-color: unset;
-    // font-family: Arial, sans-serif;
-    // font-size: 11px;
-    // font-weight: normal;
-    // font-style: normal;
-    // font-variant-ligatures: normal;
-    // font-variant-caps: normal;
-    // font-variant-numeric: normal;
-    // font-variant-east-asian: normal;
-    // font-stretch: 1;
-    // line-height: unset;
+    color: black;
 }
 
 input.n3q-base {
@@ -303,10 +273,6 @@ input.n3q-base:focus {
     line-height: 14px;
     padding: 4px;
     outline: none;
-    font-family: Arial, sans-serif; 
-    font-size: 11px; 
-    font-weight: normal; 
-    font-style: normal; 
     border: none; 
     box-shadow: unset;
 }

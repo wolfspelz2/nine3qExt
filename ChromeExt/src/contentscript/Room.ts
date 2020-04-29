@@ -23,18 +23,19 @@ export class Room
 
     //#region presence
 
-    enter(): void
+    public enter(): void
     {
         this.enterRetryCount = 0;
         this.sendPresence();
     }
 
-    leave(): void
+    public leave(): void
     {
         this.sendPresenceUnavailable();
+        this.removeAllParticipants();
     }
-
-    sendPresence(): void
+    
+    private sendPresence(): void
     {
         let presence = xml('presence', { to: this.jid + '/' + this.nick })
             .append(
@@ -54,14 +55,14 @@ export class Room
         this.app.sendStanza(presence);
     }
 
-    sendPresenceUnavailable(): void
+    private sendPresenceUnavailable(): void
     {
         let presence = xml('presence', { type: 'unavailable', to: this.jid + '/' + this.nick });
 
         this.app.sendStanza(presence);
     }
 
-    onPresence(stanza: any): void
+    public onPresence(stanza: any): void
     {
         let from = jid(stanza.attrs.from);
         let nick = from.getResource();
@@ -103,7 +104,7 @@ export class Room
         }
     }
 
-    reEnterDifferentNick(): void
+    private reEnterDifferentNick(): void
     {
         this.enterRetryCount++;
         if (this.enterRetryCount > this.maxEnterRetries) {
@@ -115,14 +116,20 @@ export class Room
         }
     }
 
-    getNextNick(nick: string): string
+    private getNextNick(nick: string): string
     {
         return nick + '_';
     }
 
+    private removeAllParticipants()
+    {
+    }
+
+    // Keepalive
+
     private keepAliveSec: number = 180;
     private keepAliveTimer: number = undefined;
-    keepAlive()
+    private keepAlive()
     {
         if (this.keepAliveTimer == undefined) {
             this.keepAliveTimer = <number><unknown>setTimeout(() =>
@@ -136,7 +143,7 @@ export class Room
 
     // message
 
-    onMessage(stanza: any)
+    public onMessage(stanza: any)
     {
         let from = jid(stanza.attrs.from);
         let nick = from.getResource();
@@ -155,6 +162,8 @@ export class Room
         }
     }
 
+    // Send stuff
+
     /*
     <message
         from='hag66@shakespeare.lit/pda'
@@ -164,7 +173,7 @@ export class Room
       <body>Harpier cries: 'tis time, 'tis time.</body>
     </message>
     */
-    sendGroupChat(text: string, fromNick: string)
+   public sendGroupChat(text: string, fromNick: string)
     {
         let message = xml('message', { type: 'groupchat', to: this.jid, from: this.jid + '/' + fromNick })
             .append(xml('body', {}, text))
@@ -172,14 +181,9 @@ export class Room
         this.app.sendStanza(message);
     }
 
-    //#endregion
-    //#region Send stuff
-
-    sendMoveMessage(newX: number): void
+    public sendMoveMessage(newX: number): void
     {
         this.x = newX;
         this.sendPresence();
     }
-
-    //#endregion
 }
