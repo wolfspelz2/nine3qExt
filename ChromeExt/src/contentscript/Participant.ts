@@ -146,7 +146,7 @@ export class Participant extends Entity
 
     onPresenceUnavailable(stanza: any): void
     {
-        this.shutdown();
+        this.remove();
     }
 
     //#endregion

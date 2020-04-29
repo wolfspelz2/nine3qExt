@@ -72,6 +72,7 @@ export class ContentApp
         chrome.runtime.onMessage.removeListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
 
         $('#n3q-id-page').remove();
+        this.display = null;
     }
 
     runtimeOnMessage(message, sender: chrome.runtime.MessageSender, sendResponse): any

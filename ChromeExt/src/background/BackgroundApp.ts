@@ -125,7 +125,11 @@ export class BackgroundApp
     private sendStanza(stanza: any): void
     {
         log.debug('BackgroundApp.sendStanza', stanza);
-        this.xmpp.send(stanza);
+        try {
+            this.xmpp.send(stanza);
+        } catch (ex) {
+            log.warn('BackgroundApp.sendStanza', ex.message ?? '');
+        }
     }
 
     // recv / forward

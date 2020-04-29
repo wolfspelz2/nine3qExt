@@ -123,6 +123,13 @@ export class Room
 
     private removeAllParticipants()
     {
+        let nicks = Array<string>();
+        for (let nick in this.participants) {
+            nicks.push(nick);
+        }
+        nicks.forEach(nick => {
+            this.participants[nick].remove();
+        });
     }
 
     // Keepalive

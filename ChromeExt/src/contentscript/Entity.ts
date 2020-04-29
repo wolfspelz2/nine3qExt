@@ -29,19 +29,19 @@ export class Entity
     getElem(): HTMLElement { return this.elem; }
     getCenterElem(): HTMLElement { return this.centerElem; }
 
-    shutdown(): void
-    {
-        this.show(false);
-        this.display.removeChild(this.elem);
-        delete this.elem;
-    }
-
     show(visible: boolean): void
     {
         if (visible != this.visible) {
             this.elem.style.display = visible ? 'block' : 'none';
             this.visible = visible;
         }
+    }
+
+    remove(): void
+    {
+        this.show(false);
+        this.display.removeChild(this.elem);
+        delete this.elem;
     }
 
     setPosition(x: number): void
