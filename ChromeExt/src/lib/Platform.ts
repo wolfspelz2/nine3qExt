@@ -1,5 +1,5 @@
 import log = require('loglevel');
-import { Unbearable } from './Unbearable';
+import { Panic } from './Panic';
 
 interface PlatformFetchUrlCallback { (ok: boolean, status: string, statusText: string, data: string): void }
 
@@ -56,7 +56,7 @@ export class Platform
                 callback(response.ok, response.status, response.statusText, response.data);
             });
         } catch (ex) {
-            Unbearable.problem();
+            Panic.now();
             // log.error(ex);
         }
     }

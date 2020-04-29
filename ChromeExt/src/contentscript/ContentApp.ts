@@ -4,7 +4,7 @@ import log = require('loglevel');
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Platform } from '../lib/Platform';
-import { Unbearable } from '../lib/Unbearable';
+import { Panic } from '../lib/Panic';
 import { Config } from '../lib/Config';
 import { Room } from './Room';
 import { PropertyStorage } from './PropertyStorage';
@@ -179,7 +179,7 @@ export class ContentApp
         try {
             chrome.runtime.sendMessage({ 'type': 'sendStanza', 'stanza': stanza });
         } catch (ex) {
-            Unbearable.problem();
+            Panic.now();
             // log.error(ex);
         }
     }

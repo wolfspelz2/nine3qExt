@@ -71,7 +71,7 @@ export class BackgroundApp
             service: 'wss://xmpp.weblin.sui.li/xmpp-websocket',
             // service: 'wss://xmpp.dev.sui.li/xmpp-websocket',
             domain: 'xmpp.weblin.sui.li',
-            resource: 'schnuppe',
+            resource: 'web',
             username: 'f85bpkavrnp0j2r8jgb079kmsg',
             password: '475167916f52ab832e89386eddc90295e81c5563',
         });

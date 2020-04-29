@@ -2,7 +2,7 @@ import './contentscript.scss';
 const $ = require('jquery');
 import log = require('loglevel');
 import { ContentApp } from './ContentApp';
-import { Unbearable } from '../lib/Unbearable';
+import { Panic } from '../lib/Panic';
 
 const isContentscript: boolean = true;
 console.log('Contentscript', isContentscript);
@@ -26,7 +26,7 @@ function deactivate()
     }
 }
 
-Unbearable.onProblem(deactivate);
+Panic.onNow(deactivate);
 
 window.addEventListener('onbeforeunload', deactivate);
 

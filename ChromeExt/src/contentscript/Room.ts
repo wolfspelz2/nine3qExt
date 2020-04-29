@@ -3,7 +3,7 @@ import log = require('loglevel');
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
-import { Unbearable } from '../lib/Unbearable';
+import { Panic } from '../lib/Panic';
 import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
 
@@ -22,7 +22,7 @@ export class Room
         let user = Config.get('xmpp.user', Utils.randomString(0));
         let domain = Config.get('xmpp.domain', '');
         if (domain == '') {
-            Unbearable.problem();
+            Panic.now();
         }
         this.userJid = user + '@' + domain;
 
