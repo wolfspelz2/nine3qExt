@@ -60,7 +60,7 @@ export class ContentApp
 
         //this.createPageControl();
 
-        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
+        chrome.runtime?.onMessage.addListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
 
         this.enterPage();
     }
@@ -69,7 +69,7 @@ export class ContentApp
     {
         this.leavePage();
 
-        chrome.runtime.onMessage.removeListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
+        chrome.runtime?.onMessage.removeListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
 
         $('#n3q-id-page').remove();
         this.display = null;

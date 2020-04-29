@@ -43,7 +43,7 @@ export class Platform
 
     static getAssetUrl(filePath: string)
     {
-        chrome.runtime.getURL('assets/' + filePath);
+        chrome.runtime?.getURL('assets/' + filePath);
     }
 
     // HTTP get
@@ -51,7 +51,7 @@ export class Platform
     static fetchUrl(url: string, callback: PlatformFetchUrlCallback)
     {
         try {
-            chrome.runtime.sendMessage({ 'type': 'fetchUrl', 'url': url }, (response) =>
+            chrome.runtime?.sendMessage({ 'type': 'fetchUrl', 'url': url }, (response) =>
             {
                 callback(response.ok, response.status, response.statusText, response.data);
             });

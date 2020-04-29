@@ -65,7 +65,7 @@ activate();
 //     });
 // })
 
-chrome.runtime.onMessage.addListener(
+chrome.runtime?.onMessage.addListener(
     function (message, sender, sendResponse)
     {
         switch (message.type) {
