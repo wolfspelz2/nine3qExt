@@ -34,6 +34,10 @@ $z-index: (
     font: normal 11px/11px Arial, sans-serif;
     display:block;
     color: black;
+    background-color: unset;
+    padding: 0;
+    border-radius: unset;
+    box-shadow: none;
 }
 
 input.n3q-base {
@@ -84,8 +88,8 @@ input.n3q-base:focus {
     height: 100px;
     position: relative;
     left: -50px;
-    border-left: 1px solid #808080;
-    border-right: 1px solid #808080;
+    // border-left: 1px solid #808080;
+    // border-right: 1px solid #808080;
     pointer-events: none;
 }
 
@@ -95,16 +99,12 @@ input.n3q-base:focus {
     left: -50px;
     width: 100px;
     height: 100px;
-    // border-left: 1px solid #808080;
-    // border-right: 1px solid #808080;
 }
 .n3q-centercell {
     display: table-cell;
     text-align: center;
     vertical-align: bottom;
     font-size: 0px;
-    // border-left: 1px solid #0000ff;
-    // border-right: 1px solid #0000ff;
 }
 
 // General

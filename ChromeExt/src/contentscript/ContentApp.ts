@@ -58,7 +58,7 @@ export class ContentApp
         this.display = $('<div id="n3q-id-page" class="n3q-base" />')[0];
         this.appendToMe.append(this.display);
 
-        this.createPageControl();
+        //this.createPageControl();
 
         chrome.runtime.onMessage.addListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
 

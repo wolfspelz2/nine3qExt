@@ -1,5 +1,6 @@
 import * as $ from 'jquery';
 import 'jqueryui';
+import log = require('loglevel');
 import { Room } from './Room';
 
 export class Entity
@@ -40,7 +41,8 @@ export class Entity
     remove(): void
     {
         this.show(false);
-        this.display.removeChild(this.elem);
+            // this.display.removeChild(this.elem);
+
         delete this.elem;
     }
 

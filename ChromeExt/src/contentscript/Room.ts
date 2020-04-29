@@ -17,8 +17,8 @@ export class Room
     {
         this.nick = this.proposedNick;
 
-        this.participants['dummy'] = new Participant(this.app, this, this.display, 'dummy', false);
-        this.participants['dummy'].onPresenceAvailable(xml('presence', { from: jid + '/dummy' }).append(xml('x', { xmlns: 'firebat:avatar:state' }).append(xml('position', { x: 100 }))));
+        // this.participants['dummy'] = new Participant(this.app, this, this.display, 'dummy', false);
+        // this.participants['dummy'].onPresenceAvailable(xml('presence', { from: jid + '/dummy' }).append(xml('x', { xmlns: 'firebat:avatar:state' }).append(xml('position', { x: 100 }))));
     }
 
     //#region presence
