@@ -17,4 +17,20 @@ export class Utils
         }
         return xml(stanza.name, stanza.attrs, children);
     }
+
+    private static randomStringChars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    public static randomString(length: number): string
+    {
+        var maxIndex: number = Utils.randomStringChars.length - 1;
+        var result = '';
+        for (var i = length; i > 0; --i) {
+            result += Utils.randomStringChars[Math.round(Math.random() * maxIndex)];
+        }
+        return result;
+    }
+
+    public static randomInt(min: number, max: number): number
+    {
+        return Math.trunc(Math.random() * (max - min) + min);
+    }
 }

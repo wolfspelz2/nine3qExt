@@ -1,21 +1,32 @@
 import { xml, jid } from '@xmpp/client';
 import log = require('loglevel');
 import { as } from '../lib/as';
+import { Config } from '../lib/Config';
+import { Utils } from '../lib/Utils';
+import { Unbearable } from '../lib/Unbearable';
 import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
 
 export class Room
 {
+    private userJid: string;
     private nick: string;
     private enterRetryCount: number = 0;
-    private maxEnterRetries: number = 4;
-    private x: number = 200;
+    private maxEnterRetries: number = as.Int(Config.get('maxMucEnterRetries', 4));
+    private posX: number = Utils.randomInt(as.Int(Config.get('roomEnterPosXMin', 400)), as.Int(Config.get('roomEnterPosXMax', 700)));
     private participants: { [nick: string]: Participant; } = {};
     private isEntered = false;
 
-    constructor(private app: ContentApp, private display: HTMLElement, private jid: string, private userJid: string, private proposedNick: string) 
+    constructor(private app: ContentApp, private display: HTMLElement, private jid: string) 
     {
-        this.nick = this.proposedNick;
+        let user = Config.get('xmpp.user', Utils.randomString(0));
+        let domain = Config.get('xmpp.domain', '');
+        if (domain == '') {
+            Unbearable.problem();
+        }
+        this.userJid = user + '@' + domain;
+
+        this.nick = Config.get('xmpp.nick', 'user' + Utils.randomString(3));
 
         // this.participants['dummy'] = new Participant(this.app, this, this.display, 'dummy', false);
         // this.participants['dummy'].onPresenceAvailable(xml('presence', { from: jid + '/dummy' }).append(xml('x', { xmlns: 'firebat:avatar:state' }).append(xml('position', { x: 100 }))));
@@ -39,10 +50,10 @@ export class Room
     {
         let presence = xml('presence', { to: this.jid + '/' + this.nick })
             .append(
-                xml('x', { xmlns: 'firebat:user:identity', id: 'id:n3q:test', jid: this.userJid, src: 'https://storage.zweitgeist.com/index.php/12344151', digest: 'bf167285ccfec3cd3f0141e6de77fed1418fcbae' }))
+                xml('x', { xmlns: 'firebat:user:identity', jid: this.userJid, src: 'https://storage.zweitgeist.com/index.php/12344151', digest: 'bf167285ccfec3cd3f0141e6de77fed1418fcbae' }))
             .append(
                 xml('x', { xmlns: 'firebat:avatar:state', jid: this.userJid, })
-                    .append(xml('position', { x: this.x }))
+                    .append(xml('position', { x: this.posX }))
             );
 
         if (!this.isEntered) {
@@ -190,7 +201,7 @@ export class Room
 
     public sendMoveMessage(newX: number): void
     {
-        this.x = newX;
+        this.posX = newX;
         this.sendPresence();
     }
 }

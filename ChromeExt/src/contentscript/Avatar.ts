@@ -4,6 +4,7 @@ import { as } from '../lib/as';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Platform } from '../lib/Platform';
+import { Config } from '../lib/Config';
 import { IObserver, IObservable } from './ObservableProperty';
 import * as AnimationsXml from './AnimationsXml';
 
@@ -25,16 +26,14 @@ export class Avatar implements IObserver
     private elem: HTMLImageElement;
     private imageUrl: string;
     private hasAnimation = false;
-    private animationsUrl: string;
-    private animationsUrlBase: string;
     private animations: AnimationsXml.AnimationsDefinition;
     private defaultGroup: string;
     private currentState: string = '';
     private currentAction: string = '';
     private inDrag: boolean = false;
-    private speedInPixelPerMsec: number = 0.1;
-    private defaultSpeedInPixelPerMsec: number = 0.1;
-    private doubleClickDelay: number = 20;
+    private speedInPixelPerMsec: number = as.Float(Config.get('speedInPixelPerMsec', 0.1));
+    private defaultSpeedInPixelPerMsec: number = as.Float(Config.get('speedInPixelPerMsec', 0.1));
+    private doubleClickDelay: number = as.Int(Config.get('doubleClickDelay', 20));
 
     private preventNextClick_a_hack_otherwise_draggable_clicks = false;
     private clickTimer: number = undefined;
@@ -160,8 +159,6 @@ export class Avatar implements IObserver
 
     setAnimations(url: string): void
     {
-        this.animationsUrl = url;
-
         Platform.fetchUrl(url, (ok, status, statusText, data) =>
         {
             if (ok) {

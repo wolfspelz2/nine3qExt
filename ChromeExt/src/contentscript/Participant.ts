@@ -1,6 +1,7 @@
 import * as $ from 'jquery';
-import { as } from '../lib/as';
 import { xml, jid } from '@xmpp/client';
+import { as } from '../lib/as';
+import { Config } from '../lib/Config';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
@@ -8,7 +9,6 @@ import { Avatar } from './Avatar';
 import { Nickname } from './Nickname';
 import { Chatout } from './Chatout';
 import { Chatin } from './Chatin';
-import { LegacyIdentity } from './LegacyIdentity';
 
 export class Participant extends Entity
 {
@@ -17,12 +17,12 @@ export class Participant extends Entity
     private chatout: Chatout;
     private chatin: Chatin;
     private firstPresence: boolean = true;
-    private defaultSpeedInPixelPerMsec: number = 0.1;
+    private defaultSpeedInPixelPerMsec: number = as.Float(Config.get('speedInPixelPerMsec', 0.1));
     private identityUrl: string;
     private userId: string;
     private inMove: boolean = false;
     private condition_: string = '';
-    private maxDelaySec: number = 60;
+    private maxChatDelaySec: number = as.Int(Config.get('maxChatDelaySec', 60));
 
     constructor(private app: ContentApp, room: Room, display: HTMLElement, private nick: string, private isSelf: boolean)
     {
@@ -176,7 +176,7 @@ export class Participant extends Entity
         //     }
         // }
 
-        if (delaySec < this.maxDelaySec) {
+        if (delaySec < this.maxChatDelaySec) {
             let bodyNode = stanza.getChild('body');
             if (bodyNode != undefined) {
                 let text = bodyNode.getText();
