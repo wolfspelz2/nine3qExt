@@ -49,21 +49,12 @@ activate();
 //     }
 // );
 
-// chrome.runtime.onInstalled.addListener(function (details)
-// {
-//     // details = {previousVersion: "1.0.0", reason: update" }
-//     chrome.tabs.query({}, function (tabs)
-//     {
-//         tabs.forEach(tab =>
-//         {
-//             if (tab.url != undefined) {
-//                 if (!tab.url.match(/(chrome):\/\//gi)) {
-//                     chrome.tabs.sendMessage(tab.id, { 'type': 'backgroundInstalled' });
-//                 }
-//             }
-//         });
-//     });
-// })
+let reInstalled = false;
+chrome.runtime.onInstalled.addListener(function (details)
+{
+    // details = {previousVersion: "1.0.0", reason: update" }
+    reInstalled = true;
+})
 
 chrome.runtime.onMessage.addListener(
     function (message, sender, sendResponse)

@@ -78,13 +78,12 @@ export class ContentApp
     runtimeOnMessage(message, sender: chrome.runtime.MessageSender, sendResponse): any
     {
         switch (message.type) {
-            case 'recvStanza': this.handle_recvStanza(message.stanza); break;
-            case 'backgroundInstalled': this.handle_backgroundInstalled(); break;
+            case 'recvStanza': return this.handle_recvStanza(message.stanza); break;
         }
         return true;
     }
 
-    handle_recvStanza(jsStanza: any): void
+    handle_recvStanza(jsStanza: any): any
     {
         let stanza: xml = Utils.jsObject2xmlObject(jsStanza);
 
@@ -92,11 +91,6 @@ export class ContentApp
             case 'presence': this.onPresence(stanza);
             case 'message': this.onMessage(stanza);
         }
-    }
-
-    handle_backgroundInstalled(): void
-    {
-        Unbearable.problem();
     }
 
     enterPage()
