@@ -20,7 +20,7 @@ export class ObservableProperty implements IObservable
     {
         const isExist = this.observers.includes(observer);
         if (!isExist) {
-            // console.log('IObservable: Attached an observer.');
+            // log.debug('IObservable: Attached an observer.');
             this.observers.push(observer);
         }
     }
@@ -29,10 +29,10 @@ export class ObservableProperty implements IObservable
     {
         const observerIndex = this.observers.indexOf(observer);
         if (observerIndex === -1) {
-            // console.log('IObservable: Nonexistent observer.');
+            // log.debug('IObservable: Nonexistent observer.');
         } else {
             this.observers.splice(observerIndex, 1);
-            // console.log('IObservable: Detached an observer.');
+            // log.debug('IObservable: Detached an observer.');
         }
     }
 
@@ -55,7 +55,7 @@ export class ObservableProperty implements IObservable
 
     private notify(): void
     {
-        // console.log('IObservable: Notifying observers', this.name);
+        // log.debug('IObservable: Notifying observers', this.name);
         for (const observer of this.observers) {
             if (this.value != undefined) {
                 observer.update(this.name, this.value);

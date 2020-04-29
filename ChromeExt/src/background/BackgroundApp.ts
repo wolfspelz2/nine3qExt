@@ -1,8 +1,6 @@
+import log = require('loglevel');
 import { client, xml, jid } from '@xmpp/client';
-import { as } from '../lib/as';
-import { Log } from '../lib/Log';
 import { Utils } from '../lib/Utils';
-import { Platform } from '../lib/Platform';
 
 interface ILocationMapperResponse
 {
@@ -18,7 +16,6 @@ export class BackgroundApp
 
     public start(): void
     {
-        // chrome.runtime.onMessage.addListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
         chrome.tabs.onActivated.addListener((activeInfo) => { return this.tabsOnActivated(activeInfo); });
         // chrome.tabs.onUpdated.addListener(this.tabsOnUpdated);
 
@@ -31,18 +28,8 @@ export class BackgroundApp
     {
         // chrome.tabs.onUpdated.removeListener(this.tabsOnUpdated);
         chrome.tabs.onActivated.removeListener((activeInfo) => { this.tabsOnActivated(activeInfo); });
-        // chrome.runtime.onMessage.removeListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
 
         this.stopXmpp();
-    }
-
-    public runtimeOnMessage(message, sender: chrome.runtime.MessageSender, sendResponse): boolean
-    {
-        switch (message.type) {
-            case 'fetchUrl': return this.handle_fetchUrl(message.url, sender.tab.id, sendResponse); break;
-            case 'sendStanza': return this.handle_sendStanza(message.stanza, sender.tab.id, sendResponse); break;
-        }
-        return true;
     }
 
     private tabsOnActivated(activeInfo: chrome.tabs.TabActiveInfo): void
@@ -64,47 +51,15 @@ export class BackgroundApp
 
     // IPC
 
-    private handle_fetchUrl(url: string, tabId: number, sendResponse: any): any
-    {
-        Log.info('BackgroundApp.handle_fetchUrl', url, tabId);
-
-        try {
-            fetch(url)
-                .then(httpResponse =>
-                {
-                    console.log('BackgroundApp.handle_fetchUrl response', httpResponse);
-                    if (httpResponse.ok) {
-                        return httpResponse.text();
-                    } else {
-                        throw { 'ok': false, 'status': httpResponse.status, 'statusText': httpResponse.statusText };
-                    }
-                })
-                .then(text =>
-                {
-                    console.log('BackgroundApp.handle_fetchUrl text', text);
-                    return sendResponse({ 'ok': true, 'data': text });
-                })
-                .catch(ex =>
-                {
-                    console.log('BackgroundApp.handle_fetchUrl catch', ex);
-                    return sendResponse({ 'ok': false, 'status': ex.status, 'statusText': ex.statusText });
-                }
-                );
-        } catch (ex) {
-            console.log('BackgroundApp.handle_fetchUrl ex', ex);
-            return sendResponse({ 'ok': false, 'status': 0, 'statusText': ex.message });
-        }
-    }
-
     private handle_sendStanza(stanza: any, tabId: number, sendResponse: any): any
     {
-        Log.info('BackgroundApp.handle_sendStanza', stanza, tabId);
+        log.info('BackgroundApp.handle_sendStanza', stanza, tabId);
 
         try {
             let xmlStanza = Utils.jsObject2xmlObject(stanza);
             this.sendStanza(xmlStanza);
         } catch (ex) {
-            Log.error('BackgroundApp.handle_sendStanza', ex);
+            log.error('BackgroundApp.handle_sendStanza', ex);
         }
     }
 
@@ -123,24 +78,24 @@ export class BackgroundApp
 
         this.xmpp.on('error', (err: any) =>
         {
-            Log.error('BackgroundApp. xmpp.on.error', err);
+            log.error('BackgroundApp. xmpp.on.error', err);
         });
 
         this.xmpp.on('offline', () =>
         {
-            Log.info('BackgroundApp xmpp.on.offline');
+            log.warn('BackgroundApp xmpp.on.offline');
         });
 
         this.xmpp.on('online', async (address: any) =>
         {
-            Log.info('BackgroundApp xmpp.on.online', address);
+            log.info('BackgroundApp xmpp.on.online', address);
             this.sendPresence();
             this.keepAlive();
         });
 
         this.xmpp.on('stanza', (stanza: any) => this.recvStanza(stanza));
 
-        this.xmpp.start().catch(Log.error);
+        this.xmpp.start().catch(log.error);
     }
 
     private stopXmpp()
@@ -169,7 +124,7 @@ export class BackgroundApp
 
     private sendStanza(stanza: any): void
     {
-        Log.info('BackgroundApp.sendStanza', stanza);
+        log.debug('BackgroundApp.sendStanza', stanza);
         this.xmpp.send(stanza);
     }
 
@@ -177,7 +132,7 @@ export class BackgroundApp
 
     private recvStanza(stanza: any)
     {
-        Log.info('BackgroundApp.recvStanza', stanza);
+        log.debug('BackgroundApp.recvStanza', stanza);
         chrome.tabs.sendMessage(this.activeTabId, { 'type': 'recvStanza', 'stanza': stanza });
 
         // if (stanza.attrs != undefined) {
@@ -185,7 +140,7 @@ export class BackgroundApp
         //         let from = jid(stanza.attrs.from);
         //         let roomOrUser = from.bare();
         //         if (typeof this.rooms[roomOrUser] != typeof undefined) {
-        //             Log.info('BackgroundApp.onStanza', stanza);
+        //             log.info('BackgroundApp.onStanza', stanza);
 
 
         //             if (stanza.is('presence')) {

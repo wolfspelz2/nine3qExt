@@ -1,10 +1,13 @@
 import './contentscript.scss';
 const $ = require('jquery');
+import log = require('loglevel');
 import { ContentApp } from './ContentApp';
+import { Unbearable } from '../lib/Unbearable';
 
 const isContentscript: boolean = true;
 console.log('Contentscript', isContentscript);
 
+log.setLevel(log.levels.DEBUG);
 var app = null;
 
 function activate()
@@ -23,6 +26,7 @@ function deactivate()
     }
 }
 
+Unbearable.onProblem(deactivate);
 
 window.addEventListener('onbeforeunload', deactivate);
 

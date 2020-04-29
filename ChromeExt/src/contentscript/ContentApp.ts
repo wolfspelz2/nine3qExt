@@ -1,9 +1,10 @@
-import { xml, jid } from '@xmpp/client';
 import * as $ from 'jquery';
+import { xml, jid } from '@xmpp/client';
+import log = require('loglevel');
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Platform } from '../lib/Platform';
-import { Log } from '../lib/Log';
+import { Unbearable } from '../lib/Unbearable';
 import { Room } from './Room';
 import { PropertyStorage } from './PropertyStorage';
 import { HelloWorld } from './HelloWorld';
@@ -40,7 +41,7 @@ export class ContentApp
 
         $('#n3q-hello').text(HelloWorld.getText());
 
-        let enterButton: HTMLButtonElement = $('<button class="n3q-base">enter</button>')[0];
+        let enterButton: HTMLElement = $('<button class="n3q-base">enter</button>')[0];
         controlElem.append(enterButton);
         $(enterButton).click(() =>
         {
@@ -83,7 +84,7 @@ export class ContentApp
 
     handle_recvStanza(jsStanza: any): any
     {
-        let stanza : xml = Utils.jsObject2xmlObject(jsStanza);
+        let stanza: xml = Utils.jsObject2xmlObject(jsStanza);
 
         switch (stanza.name) {
             case 'presence': this.onPresence(stanza);
@@ -124,11 +125,11 @@ export class ContentApp
                 try {
                     let mappingResponse: ILocationMapperResponse = JSON.parse(data);
                     let locationUrl = mappingResponse.sLocationURL;
-                    Log.info('Mapped', pageUrl, ' => ', locationUrl);
+                    log.info('Mapped', pageUrl, ' => ', locationUrl);
                     let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);
                     this.enterRoomByJid(roomJid);
                 } catch (ex) {
-                    Log.error(ex);
+                    log.error(ex);
                 }
             }
         });
@@ -139,13 +140,13 @@ export class ContentApp
         if (this.rooms[roomJid] === undefined) {
             this.rooms[roomJid] = new Room(this, this.display, roomJid, this.myJid, this.myNick);
         }
-        Log.info('ContentApp.enterRoomByJid', roomJid);
+        log.info('ContentApp.enterRoomByJid', roomJid);
         this.rooms[roomJid].enter();
     }
 
     leaveRoomByJid(roomJid: string): void
     {
-        Log.info('ContentApp.leaveRoomByJid', roomJid);
+        log.info('ContentApp.leaveRoomByJid', roomJid);
         if (this.rooms[roomJid] != undefined) {
             this.rooms[roomJid].leave();
             delete this.rooms[roomJid];
@@ -174,8 +175,13 @@ export class ContentApp
 
     sendStanza(stanza: xml): void
     {
-        Log.info('ContentApp.sendStanza', stanza);
-        chrome.runtime.sendMessage({ 'type': 'sendStanza', 'stanza': stanza });
+        log.debug('ContentApp.sendStanza', stanza);
+        try {
+            chrome.runtime.sendMessage({ 'type': 'sendStanza', 'stanza': stanza });
+        } catch (ex) {
+            Unbearable.problem();
+            // log.error(ex);
+        }
     }
 
     // Window management

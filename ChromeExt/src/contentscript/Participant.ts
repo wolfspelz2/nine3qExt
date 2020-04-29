@@ -1,4 +1,5 @@
 import * as $ from 'jquery';
+import { as } from '../lib/as';
 import { xml, jid } from '@xmpp/client';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
@@ -8,8 +9,6 @@ import { Nickname } from './Nickname';
 import { Chatout } from './Chatout';
 import { Chatin } from './Chatin';
 import { LegacyIdentity } from './LegacyIdentity';
-import { as } from '../lib/as';
-import { Log } from '../lib/Log';
 
 export class Participant extends Entity
 {

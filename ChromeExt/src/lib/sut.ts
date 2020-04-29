@@ -1,3 +1,5 @@
+import log = require('loglevel');
+
 export class sutTest
 {
     constructor(
@@ -68,7 +70,7 @@ export class sut
             } else {
                 this.tests[name].success = false;
                 if (!(this.isFailureIgnoredClass(this.tests[name].className))) {
-                    console.log(name, result);
+                    log.info(name, result);
                     this.countFailures++;
                     this.runSuccess = false;
                 }

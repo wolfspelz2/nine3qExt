@@ -1,7 +1,10 @@
 const isBackground = true;
 console.log('Background', isBackground);
+
+import log = require('loglevel');
 import { BackgroundApp } from './BackgroundApp';
 
+log.setLevel(log.levels.DEBUG);
 var app = null;
 
 function activate()
@@ -46,19 +49,26 @@ activate();
 //     }
 // );
 
+let reInstalled = false;
+chrome.runtime.onInstalled.addListener(function (details)
+{
+    // details = {previousVersion: "1.0.0", reason: update" }
+    reInstalled = true;
+})
+
 chrome.runtime.onMessage.addListener(
     function (message, sender, sendResponse)
     {
         switch (message.type) {
             case 'fetchUrl': {
                 var url = message.url;
-                console.log('background fetchUrl', url);
+                console.debug('background fetchUrl', url);
                 try {
 
                     fetch(url)
                         .then(httpResponse =>
                         {
-                            // console.log('background fetchUrl response', httpResponse);
+                            log.trace('background fetchUrl response', httpResponse);
                             if (httpResponse.ok) {
                                 return httpResponse.text();
                             } else {
@@ -67,18 +77,18 @@ chrome.runtime.onMessage.addListener(
                         })
                         .then(text =>
                         {
-                            // console.log('background fetchUrl text', text);
+                            log.trace('background fetchUrl text', text);
                             return sendResponse({ 'ok': true, 'data': text });
                         })
                         .catch(ex =>
                         {
-                            // console.log('background fetchUrl ex', ex);
+                            log.trace('background fetchUrl catch', ex);
                             return sendResponse({ 'ok': false, 'status': ex.status, 'statusText': ex.statusText });
                         }
                         );
 
                 } catch (ex) {
-                    // console.log('background fetchUrl catch', ex);
+                    log.trace('background fetchUrl ex', ex);
                     return sendResponse({ 'ok': false, 'status': ex.status, 'statusText': ex.statusText });
                 }
             } break;

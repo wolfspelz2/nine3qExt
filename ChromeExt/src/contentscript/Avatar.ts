@@ -1,7 +1,6 @@
 import * as $ from 'jquery';
 import 'jqueryui';
 import { as } from '../lib/as';
-import { Log } from '../lib/Log';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Platform } from '../lib/Platform';

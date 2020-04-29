@@ -1,6 +1,6 @@
 import { xml, jid } from '@xmpp/client';
+import log = require('loglevel');
 import { as } from '../lib/as';
-import { Log } from '../lib/Log';
 import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
 
@@ -108,7 +108,7 @@ export class Room
     {
         this.enterRetryCount++;
         if (this.enterRetryCount > this.maxEnterRetries) {
-            Log.error('Too many retries ', this.enterRetryCount, 'giving up on room', this.jid);
+            log.error('Too many retries ', this.enterRetryCount, 'giving up on room', this.jid);
             return;
         } else {
             this.nick = this.getNextNick(this.nick);

@@ -1,6 +1,5 @@
 import { LegacyIdentity } from './LegacyIdentity';
 import { ObservableProperty, IObserver } from './ObservableProperty';
-import { Log } from '../lib/Log';
 
 export class PropertyStorage
 {
@@ -35,7 +34,7 @@ export class PropertyStorage
 
     setProperty(entity: string, key: string, value: any)
     {
-        // Log.info('PropertyStorage.setProperty', entity, key,value);
+        // Log.debug('PropertyStorage.setProperty', entity, key,value);
         this.setObservable(entity, key, value);
     }
 

@@ -43,7 +43,7 @@ export class LegacyIdentity
             // let xml = $.parseXML(data);
             // $(xml).find('item').each((index, item) =>
             // {
-            //   console.log($(item).attr('id'), $(item).text());
+            //   log.log($(item).attr('id'), $(item).text());
             // });
             let xml = $.parseXML(data);
             $(xml).find('item').each((index, item) =>

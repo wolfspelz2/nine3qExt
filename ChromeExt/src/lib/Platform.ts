@@ -1,3 +1,6 @@
+import log = require('loglevel');
+import { Unbearable } from './Unbearable';
+
 interface PlatformFetchUrlCallback { (ok: boolean, status: string, statusText: string, data: string): void }
 
 export class Platform
@@ -17,7 +20,7 @@ export class Platform
     {
         // chrome.storage.local.set({ key: value }, function ()
         // {
-        //   console.log('setStorageString', key, value);
+        //   log.debug('setStorageString', key, value);
         // });
 
         this.tmpStorage[key] = value;
@@ -27,7 +30,7 @@ export class Platform
     {
         // chrome.storage.local.get(key, (value) =>
         // {
-        //   console.log('getStorageString', value);
+        //   log.debug('getStorageString', value);
         // });
         // return '100';
         if (typeof this.tmpStorage[key] == typeof undefined) {
@@ -45,34 +48,17 @@ export class Platform
 
     // HTTP get
 
-    // $.get('https://storage.zweitgeist.com/index.php/295')
-    // .done((data) =>
-    // {
-    //   console.log('done', data);
-    // })
-    // .fail(() =>
-    // {
-    //   console.log('fail');
-    // })
-    // .always(() =>
-    // {
-    //   console.log('always');
-    // });
-
-    // Platform.fetchUrl('https://storage.zweitgeist.com/index.php/295', (ok, status, statusText, data) =>
-    // {
-    //   console.log('Platform.fetchUrlCallback', ok, status, statusText, data);
-    //   alert(data);
-    // });
-
-    // Frontent/Backend comm
-
     static fetchUrl(url: string, callback: PlatformFetchUrlCallback)
     {
-        chrome.runtime.sendMessage({ 'type': 'fetchUrl', 'url': url }, (response) =>
-        {
-            callback(response.ok, response.status, response.statusText, response.data);
-        });
+        try {
+            chrome.runtime.sendMessage({ 'type': 'fetchUrl', 'url': url }, (response) =>
+            {
+                callback(response.ok, response.status, response.statusText, response.data);
+            });
+        } catch (ex) {
+            Unbearable.problem();
+            // log.error(ex);
+        }
     }
 
 }

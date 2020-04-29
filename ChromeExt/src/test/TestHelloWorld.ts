@@ -4,7 +4,7 @@ import { sut } from '../lib/sut';
 
 // function sutMethod() {
 //     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-//         console.log('sutMethod', target, propertyKey, descriptor);
+//         log.info('sutMethod', target, propertyKey, descriptor);
 //     };
 // }
 
