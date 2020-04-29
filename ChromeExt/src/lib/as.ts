@@ -8,9 +8,9 @@
         '"': '&#39;',
     }
 
-    private static readonly typeBoolean: string = 'boolean';
-    private static readonly typeString: string = 'string';
-    private static readonly typeNumber: string = 'number';
+    private static readonly typeBoolean: string = typeof true;
+    private static readonly typeString: string = typeof '';
+    private static readonly typeNumber: string = typeof 1;
 
     static Bool(val: any, alt?: boolean): boolean
     {
