@@ -14,6 +14,8 @@ export class Config
         'roomEnterPosXMin': 400,
         'roomEnterPosXMax': 700,
         'maxChatDelaySec': 60,
+        'nickname': '初心者',//'new-user',
+        'avatar': '002/sportive03_m',
         'xmpp': {
             'service': 'wss://xmpp.weblin.sui.li/xmpp-websocket',
             'domain': 'xmpp.weblin.sui.li',

@@ -10,7 +10,7 @@ import { Participant } from './Participant';
 export class Room
 {
     private userJid: string;
-    private nick: string;
+    private nickname: string = Config.get('nickname', 'user' + Utils.randomString(3));
     private enterRetryCount: number = 0;
     private maxEnterRetries: number = as.Int(Config.get('maxMucEnterRetries', 4));
     private posX: number = Utils.randomInt(as.Int(Config.get('roomEnterPosXMin', 400)), as.Int(Config.get('roomEnterPosXMax', 700)));
@@ -25,8 +25,6 @@ export class Room
             Panic.now();
         }
         this.userJid = user + '@' + domain;
-
-        this.nick = Config.get('xmpp.nick', 'user' + Utils.randomString(3));
 
         // this.participants['dummy'] = new Participant(this.app, this, this.display, 'dummy', false);
         // this.participants['dummy'].onPresenceAvailable(xml('presence', { from: jid + '/dummy' }).append(xml('x', { xmlns: 'firebat:avatar:state' }).append(xml('position', { x: 100 }))));
@@ -45,10 +43,12 @@ export class Room
         this.sendPresenceUnavailable();
         this.removeAllParticipants();
     }
-    
+
     private sendPresence(): void
     {
-        let presence = xml('presence', { to: this.jid + '/' + this.nick })
+        let presence = xml('presence', { to: this.jid + '/' + this.nickname })
+            .append(
+                xml('x', { xmlns: 'vp:props', nickname: Config.get('nickname', 'new-user'), avatar: Config.get('avatar', '002/sportive03_m') }))
             .append(
                 xml('x', { xmlns: 'firebat:user:identity', jid: this.userJid, src: 'https://storage.zweitgeist.com/index.php/12344151', digest: 'bf167285ccfec3cd3f0141e6de77fed1418fcbae' }))
             .append(
@@ -68,7 +68,7 @@ export class Room
 
     private sendPresenceUnavailable(): void
     {
-        let presence = xml('presence', { type: 'unavailable', to: this.jid + '/' + this.nick });
+        let presence = xml('presence', { type: 'unavailable', to: this.jid + '/' + this.nickname });
 
         this.app.sendStanza(presence);
     }
@@ -83,7 +83,7 @@ export class Room
             type = 'available';
         }
 
-        let isSelf = nick == this.nick;
+        let isSelf = nick == this.nickname;
 
         switch (type) {
             case 'available':
@@ -122,7 +122,7 @@ export class Room
             log.error('Too many retries ', this.enterRetryCount, 'giving up on room', this.jid);
             return;
         } else {
-            this.nick = this.getNextNick(this.nick);
+            this.nickname = this.getNextNick(this.nickname);
             this.sendPresence();
         }
     }
@@ -138,7 +138,8 @@ export class Room
         for (let nick in this.participants) {
             nicks.push(nick);
         }
-        nicks.forEach(nick => {
+        nicks.forEach(nick =>
+        {
             this.participants[nick].remove();
         });
     }
@@ -191,7 +192,7 @@ export class Room
       <body>Harpier cries: 'tis time, 'tis time.</body>
     </message>
     */
-   public sendGroupChat(text: string, fromNick: string)
+    public sendGroupChat(text: string, fromNick: string)
     {
         let message = xml('message', { type: 'groupchat', to: this.jid, from: this.jid + '/' + fromNick })
             .append(xml('body', {}, text))

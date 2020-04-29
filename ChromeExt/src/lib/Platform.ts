@@ -2,6 +2,7 @@ import log = require('loglevel');
 import { Panic } from './Panic';
 
 interface PlatformFetchUrlCallback { (ok: boolean, status: string, statusText: string, data: string): void }
+interface PlatformGetConfigCallback { (config: any): void }
 
 export class Platform
 {
@@ -54,6 +55,19 @@ export class Platform
             chrome.runtime?.sendMessage({ 'type': 'fetchUrl', 'url': url }, (response) =>
             {
                 callback(response.ok, response.status, response.statusText, response.data);
+            });
+        } catch (ex) {
+            Panic.now();
+            // log.error(ex);
+        }
+    }
+
+    static getConfig(callback: PlatformGetConfigCallback)
+    {
+        try {
+            chrome.runtime?.sendMessage({ 'type': 'getConfig' }, (response) =>
+            {
+                callback(response);
             });
         } catch (ex) {
             Panic.now();

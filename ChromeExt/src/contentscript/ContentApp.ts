@@ -54,6 +54,11 @@ export class ContentApp
 
     start()
     {
+        Platform.getConfig((config) =>
+        {
+            Config.setAllOnline(config);
+        });
+
         this.display = $('<div id="n3q-id-page" class="n3q-base" />')[0];
         this.appendToMe.append(this.display);
 

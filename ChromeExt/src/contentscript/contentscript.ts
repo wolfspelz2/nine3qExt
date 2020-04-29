@@ -9,7 +9,6 @@ const isContentscript: boolean = true;
 console.log('Contentscript', isContentscript);
 
 let debug = true;
-
 log.setLevel(log.levels.INFO);
 
 if (debug) {

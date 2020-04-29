@@ -1,8 +1,16 @@
+import log = require('loglevel');
+import { Config } from '../lib/Config';
+import { BackgroundApp } from './BackgroundApp';
+
 const isBackground = true;
 console.log('Background', isBackground);
 
-import log = require('loglevel');
-import { BackgroundApp } from './BackgroundApp';
+let debug = true;
+log.setLevel(log.levels.INFO);
+
+if (debug) {
+    log.setLevel(log.levels.DEBUG);
+}
 
 log.setLevel(log.levels.DEBUG);
 var app = null;
@@ -102,11 +110,14 @@ chrome.runtime?.onMessage.addListener(
                 }
             } break;
 
+            case 'getConfig': {
+                return sendResponse(Config.getAllOnline());
+            } break;
+
             case 'sendStanza': {
                 if (app != null) {
                     return app.handle_sendStanza(message.stanza, sender.tab.id, sendResponse);
                 }
-
             } break;
         }
 

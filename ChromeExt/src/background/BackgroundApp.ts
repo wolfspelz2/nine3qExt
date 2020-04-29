@@ -53,7 +53,7 @@ export class BackgroundApp
 
     // IPC
 
-    private handle_sendStanza(stanza: any, tabId: number, sendResponse: any): any
+    public handle_sendStanza(stanza: any, tabId: number, sendResponse: any): any
     {
         log.info('BackgroundApp.handle_sendStanza', stanza, tabId);
 
@@ -134,7 +134,7 @@ export class BackgroundApp
     }
 
     // keepalive
-    
+
     private keepAliveSec: number = 180;
     private keepAliveTimer: number = undefined;
     private keepAlive()
