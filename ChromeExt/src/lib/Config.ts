@@ -118,6 +118,16 @@ export class Config
         chrome.storage.sync.set({ key: value }, setComplete);
     }
 
+    public static getAllStaticConfig(): any
+    {
+        return this.staticConfig;
+    }
+
+    public static getAllOnlineConfig(): any
+    {
+        return this.onlineConfig;
+    }
+
     public static setAllStaticConfig(values: any): void
     {
         this.staticConfig = values;

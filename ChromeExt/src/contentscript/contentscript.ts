@@ -1,13 +1,23 @@
 import './contentscript.scss';
 const $ = require('jquery');
 import log = require('loglevel');
-import { ContentApp } from './ContentApp';
 import { Panic } from '../lib/Panic';
+import { Config } from '../lib/Config';
+import { ContentApp } from './ContentApp';
 
 const isContentscript: boolean = true;
 console.log('Contentscript', isContentscript);
 
-log.setLevel(log.levels.DEBUG);
+let debug = true;
+
+log.setLevel(log.levels.INFO);
+
+if (debug) {
+    Config.getAllStaticConfig().roomEnterPosXMin = 200;
+    Config.getAllStaticConfig().roomEnterPosXMax = 200;
+    log.setLevel(log.levels.DEBUG);
+}
+
 var app = null;
 
 function activate()

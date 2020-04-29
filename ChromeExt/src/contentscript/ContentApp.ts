@@ -85,6 +85,7 @@ export class ContentApp
     handle_recvStanza(jsStanza: any): any
     {
         let stanza: xml = Utils.jsObject2xmlObject(jsStanza);
+        log.debug('ContentApp.handle_recvStanza', stanza);
 
         switch (stanza.name) {
             case 'presence': this.onPresence(stanza);
