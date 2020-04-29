@@ -13,8 +13,8 @@ let debug = true;
 log.setLevel(log.levels.INFO);
 
 if (debug) {
-    Config.getAllStaticConfig().roomEnterPosXMin = 200;
-    Config.getAllStaticConfig().roomEnterPosXMax = 200;
+    Config.getAllStatic().roomEnterPosXMin = 200;
+    Config.getAllStatic().roomEnterPosXMax = 200;
     log.setLevel(log.levels.DEBUG);
 }
 

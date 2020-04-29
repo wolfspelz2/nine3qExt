@@ -13,6 +13,8 @@ export class BackgroundApp
     private xmpp: any;
     private activeTabId: number;
     private roomJid2tabId: { [roomJid: string]: number; } = {};
+    private xmppConnected = false;
+    private stanzaQ: Array<xml> = [];
 
     public start(): void
     {
@@ -78,19 +80,29 @@ export class BackgroundApp
 
         this.xmpp.on('error', (err: any) =>
         {
-            log.error('BackgroundApp. xmpp.on.error', err);
+            log.error('BackgroundApp xmpp.on.error', err);
         });
 
         this.xmpp.on('offline', () =>
         {
             log.warn('BackgroundApp xmpp.on.offline');
+            this.xmppConnected = false;
         });
 
         this.xmpp.on('online', async (address: any) =>
         {
             log.info('BackgroundApp xmpp.on.online', address);
+
             this.sendPresence();
             this.keepAlive();
+
+            if (!this.xmppConnected) {
+                this.xmppConnected = true;
+                while(this.stanzaQ.length > 0) {
+                    let stanza = this.stanzaQ.shift();
+                    this.sendStanzaUnbuffered(stanza);
+                }
+            }
         });
 
         this.xmpp.on('stanza', (stanza: any) => this.recvStanza(stanza));
@@ -103,6 +115,26 @@ export class BackgroundApp
         //hw todo
     }
 
+    private sendStanzaUnbuffered(stanza: any): void
+    {
+            try {
+                this.xmpp.send(stanza);
+            } catch (ex) {
+                log.warn('BackgroundApp.sendStanza', ex.message ?? '');
+            }
+    }
+
+    private sendStanza(stanza: any): void
+    {
+        if (!this.xmppConnected) {
+            this.stanzaQ.push(stanza);
+        } else {
+            this.sendStanzaUnbuffered(stanza);
+        }
+    }
+
+    // keepalive
+    
     private keepAliveSec: number = 180;
     private keepAliveTimer: number = undefined;
     private keepAlive()
@@ -120,16 +152,6 @@ export class BackgroundApp
     private sendPresence()
     {
         this.sendStanza(xml('presence'));
-    }
-
-    private sendStanza(stanza: any): void
-    {
-        log.debug('BackgroundApp.sendStanza', stanza);
-        try {
-            this.xmpp.send(stanza);
-        } catch (ex) {
-            log.warn('BackgroundApp.sendStanza', ex.message ?? '');
-        }
     }
 
     // recv / forward

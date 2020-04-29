@@ -59,9 +59,9 @@ export class Config
 
     public static get(key: string, defaultValue: any): any
     {
-        let result = Config.getOnlineConfig(key);
+        let result = Config.getOnline(key);
         if (result == undefined || result == null) {
-            result = Config.getStaticConfig(key);
+            result = Config.getStatic(key);
         }
         if (result == undefined || result == null) {
             result = defaultValue;
@@ -69,25 +69,25 @@ export class Config
         return result;
     }
 
-    public static getOnlineConfig(key: string): any
+    public static getPreferLocal(key: string, defaultValue: any, callback: ConfigGetCallback): void
     {
-        return Config.getFromTree(this.onlineConfig, key);
-    }
-
-    public static getStaticConfig(key: string): any
-    {
-        return Config.getFromTree(this.staticConfig, key);
-    }
-
-    public static getPreferLocalStorage(key: string, defaultValue: any, callback: ConfigGetCallback): void
-    {
-        Config.getLocalStorage(key, value =>
+        Config.getLocal(key, value =>
         {
             if (value == undefined || value == null) {
                 value = this.get(key, defaultValue);
             }
             callback(value);
         });
+    }
+
+    public static getOnline(key: string): any
+    {
+        return Config.getFromTree(this.onlineConfig, key);
+    }
+
+    public static getStatic(key: string): any
+    {
+        return Config.getFromTree(this.staticConfig, key);
     }
 
     private static getFromTree(tree: any, key: string): any
@@ -105,7 +105,7 @@ export class Config
         return current;
     }
 
-    private static getLocalStorage(key: string, getComplete: ConfigGetCallback): void
+    private static getLocal(key: string, getComplete: ConfigGetCallback): void
     {
         chrome.storage.sync.get([key], function (result)
         {
@@ -113,27 +113,27 @@ export class Config
         });
     }
 
-    public static setLocalStorage(key: string, value: any, setComplete: ConfigSetCallback): void
+    public static setLocal(key: string, value: any, setComplete: ConfigSetCallback): void
     {
         chrome.storage.sync.set({ key: value }, setComplete);
     }
 
-    public static getAllStaticConfig(): any
+    public static getAllStatic(): any
     {
         return this.staticConfig;
     }
 
-    public static getAllOnlineConfig(): any
+    public static getAllOnline(): any
     {
         return this.onlineConfig;
     }
 
-    public static setAllStaticConfig(values: any): void
+    public static setAllStatic(values: any): void
     {
         this.staticConfig = values;
     }
 
-    public static setAllOnlineConfig(values: any): void
+    public static setAllOnline(values: any): void
     {
         this.onlineConfig = values;
     }

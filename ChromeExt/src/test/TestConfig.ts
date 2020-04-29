@@ -6,7 +6,7 @@ export class TestConfig
 {
     get_from_static_config()
     {
-        Config.setAllStaticConfig({
+        Config.setAllStatic({
             'xmpp': {
                 'service': 'wss://xmpp.weblin.sui.li/xmpp-websocket',
                 'domain': 'xmpp.weblin.sui.li',
@@ -29,7 +29,7 @@ export class TestConfig
 
     get_from_online_config_with_static_fallback()
     {
-        Config.setAllStaticConfig({
+        Config.setAllStatic({
             'notInOnlineConfig1': {
                 'notInOnlineConfig2': 'notInOnlineConfig3',
             },
@@ -37,7 +37,7 @@ export class TestConfig
                 'service': 'no-service',
             },
         });
-        Config.setAllOnlineConfig({
+        Config.setAllOnline({
             'xmpp': {
                 'service': 'wss://xmpp.weblin.sui.li/xmpp-websocket',
                 'domain': 'xmpp.weblin.sui.li',
@@ -53,9 +53,9 @@ export class TestConfig
                 ]
             }
         });
-        expect(Config.getStaticConfig('notInOnlineConfig1.notInOnlineConfig2')).to.equal('notInOnlineConfig3');
-        expect(Config.getStaticConfig('xmpp.service')).to.equal('no-service');
-        expect(Config.getOnlineConfig('xmpp.service')).to.equal('wss://xmpp.weblin.sui.li/xmpp-websocket');
+        expect(Config.getStatic('notInOnlineConfig1.notInOnlineConfig2')).to.equal('notInOnlineConfig3');
+        expect(Config.getStatic('xmpp.service')).to.equal('no-service');
+        expect(Config.getOnline('xmpp.service')).to.equal('wss://xmpp.weblin.sui.li/xmpp-websocket');
         expect(Config.get('xmpp.service','no-value')).to.equal('wss://xmpp.weblin.sui.li/xmpp-websocket');
     }
 }
