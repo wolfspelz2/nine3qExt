@@ -26,16 +26,20 @@ export class ConfigUpdater
 
     public async checkUpdate()
     {
-        let now: number = Date.now();
         let lastUpdateConfigTime: number = as.Int(await Config.getLocal('lastUpdateConfigTime', 0), 0);
-        if (now - lastUpdateConfigTime > as.Int(Config.get('updateConfigIntervalSec', 86331))) {
-            try {
-                let data = await this.fetchConfig();
-                Config.setLocal('lastUpdateConfigTime', now);
-                Config.setAllOnline(data);
-            } catch (error) {
-                log.warn('ConfigUpdater.checkUpdate', 'fetchConfig failed')
-            }
+        if (Date.now() - lastUpdateConfigTime > as.Int(Config.get('updateConfigIntervalSec', 86331))) {
+            await this.getUpdate()
+        }
+    }
+
+    public async getUpdate()
+    {
+        try {
+            let data = await this.fetchConfig();
+            Config.setAllOnline(data);
+            await Config.setLocal('lastUpdateConfigTime', Date.now());
+        } catch (error) {
+            log.warn('ConfigUpdater.checkUpdate', 'fetchConfig failed')
         }
     }
 

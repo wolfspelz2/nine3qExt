@@ -17,50 +17,19 @@ export class Config
         'roomEnterPosXMin': 400,
         'roomEnterPosXMax': 700,
         'maxChatDelaySec': 60,
-        'nickname': '初心者',//'new-user',
-        'avatar': '002/sportive03_m',
+        'nickname': '新しいアバター',//'new-avatar',
+        'avatar': '004/pinguin',
         'checkUpdateConfigIntervalSec': 600,
         'updateConfigIntervalSec': Utils.randomInt(60000, 80000),
         'configSeviceUrl': 'https://config.weblin.sui.li/',
-
+        'randomAvatars': ['002/sportive03_m', '002/business03_m', '002/child02_m', '002/sportive01_m', '002/business06_m', '002/casual04_f', '002/business01_f', '002/casual30_m', '002/sportive03_f', '002/casual16_m', '002/casual10_f', '002/business03_f', '002/casual03_m', '002/sportive07_m', '002/casual13_f', '002/casual09_m', '002/casual16_f', '002/child02_f', '002/sportive08_m', '002/casual15_m', '002/casual15_f', '002/casual01_f', '002/casual11_f', '002/sportive09_m', '002/casual20_f', '002/sportive02_f', '002/business05_m', '002/casual06_m', '002/casual10_m', '002/casual02_f',],
         'xmpp': {
             'service': 'wss://xmpp.weblin.sui.li/xmpp-websocket',
             'domain': 'xmpp.weblin.sui.li',
         },
         'avatars': {
             'baseUrl': 'https://avatar.weblin.sui.li/avatar/?url=http://avatar.zweitgeist.com/gif/',
-            'list': [
-                '002/sportive03_m',
-                '002/business03_m',
-                '002/child02_m',
-                '002/sportive01_m',
-                '002/business06_m',
-                '002/casual04_f',
-                '002/business01_f',
-                '002/casual30_m',
-                '002/sportive03_f',
-                '002/casual16_m',
-                '002/casual10_f',
-                '002/business03_f',
-                '002/casual03_m',
-                '002/sportive07_m',
-                '002/casual13_f',
-                '002/casual09_m',
-                '002/casual16_f',
-                '002/child02_f',
-                '002/sportive08_m',
-                '002/casual15_m',
-                '002/casual15_f',
-                '002/casual01_f',
-                '002/casual11_f',
-                '002/sportive09_m',
-                '002/casual20_f',
-                '002/sportive02_f',
-                '002/business05_m',
-                '002/casual06_m',
-                '002/casual10_m',
-                '002/casual02_f',
-            ]
+            'list': ['002/sportive03_m', '002/business03_m', '002/child02_m', '002/sportive01_m', '002/business06_m', '002/casual04_f', '002/business01_f', '002/casual30_m', '002/sportive03_f', '002/casual16_m', '002/casual10_f', '002/business03_f', '002/casual03_m', '002/sportive07_m', '002/casual13_f', '002/casual09_m', '002/casual16_f', '002/child02_f', '002/sportive08_m', '002/casual15_m', '002/casual15_f', '002/casual01_f', '002/casual11_f', '002/sportive09_m', '002/casual20_f', '002/sportive02_f', '002/business05_m', '002/casual06_m', '002/casual10_m', '002/casual02_f',]
         }
     }
 
@@ -79,7 +48,7 @@ export class Config
     public static async getPreferLocal(key: string, defaultValue: any)
     {
         let result = await Config.getLocal(key, undefined);
-        if (result == undefined ){
+        if (result == undefined) {
             result = Config.get(key, defaultValue);
         }
         return result;
@@ -116,8 +85,8 @@ export class Config
         {
             chrome.storage.sync.get([key], result =>
             {
-                if (result.key != undefined) {
-                    resolve(result.key);
+                if (result[key] != undefined) {
+                    resolve(result[key]);
                 } else {
                     resolve(defaultValue);
                 }
@@ -129,7 +98,9 @@ export class Config
     {
         return new Promise(resolve =>
         {
-            chrome.storage.sync.set({ key: value }, () => { resolve(); });
+            let dict = {};
+            dict[key] = value;
+            chrome.storage.sync.set(dict, () => { resolve(); });
         });
     }
 

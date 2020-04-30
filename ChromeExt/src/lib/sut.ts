@@ -57,8 +57,8 @@ export class sut
             this.countStarted++;
             try {
                 result = this.tests[name].fn();
-            } catch (ex) {
-                result = ex;
+            } catch (error) {
+                result = error;
             }
             this.countFinished++;
             this.tests[name].result = result;

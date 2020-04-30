@@ -56,23 +56,25 @@ export class Platform
             {
                 callback(response.ok, response.status, response.statusText, response.data);
             });
-        } catch (ex) {
+        } catch (error) {
             Panic.now();
             // log.error(ex);
         }
     }
 
-    static getConfig(callback: PlatformGetConfigCallback)
+    static async getConfig(): Promise<any>
     {
-        try {
-            chrome.runtime?.sendMessage({ 'type': 'getConfig' }, (response) =>
-            {
-                callback(response);
-            });
-        } catch (ex) {
-            Panic.now();
-            // log.error(ex);
-        }
+        return new Promise((resolve, reject) =>
+        {
+            try {
+                chrome.runtime?.sendMessage({ 'type': 'getConfig' }, (response) =>
+                {
+                    resolve(response);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
 }

@@ -9,6 +9,7 @@ import { Config } from '../lib/Config';
 import { Room } from './Room';
 import { PropertyStorage } from './PropertyStorage';
 import { HelloWorld } from './HelloWorld';
+import { AvatarGallery } from './AvatarGallery';
 
 interface ILocationMapperResponse
 {
@@ -52,12 +53,26 @@ export class ContentApp
 
     // Connection
 
-    start()
+    async start()
     {
-        Platform.getConfig((config) =>
-        {
+        try {
+            let config = await Platform.getConfig();
             Config.setAllOnline(config);
-        });
+        } catch (error) {
+            Panic.now();
+        }
+
+        let nickname = await Config.getLocal('nickname', '');
+        if (nickname == '') {
+            nickname = 'Your name';
+            await Config.setLocal('nickname', nickname);
+        }
+
+        let avatar = await Config.getLocal('avatar', '');
+        if (avatar == '') {
+            avatar = AvatarGallery.getRandomAvatar();
+            await Config.setLocal('avatar', avatar);
+        }
 
         this.display = $('<div id="n3q-id-page" class="n3q-base" />')[0];
         this.appendToMe.append(this.display);
@@ -134,8 +149,8 @@ export class ContentApp
                     log.info('Mapped', pageUrl, ' => ', locationUrl);
                     let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);
                     this.enterRoomByJid(roomJid);
-                } catch (ex) {
-                    log.error(ex);
+                } catch (error) {
+                    log.error(error);
                 }
             }
         });
@@ -184,7 +199,7 @@ export class ContentApp
         log.debug('ContentApp.sendStanza', stanza);
         try {
             chrome.runtime.sendMessage({ 'type': 'sendStanza', 'stanza': stanza });
-        } catch (ex) {
+        } catch (error) {
             Panic.now();
             // log.error(ex);
         }

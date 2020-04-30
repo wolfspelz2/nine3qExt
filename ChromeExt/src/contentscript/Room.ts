@@ -44,11 +44,11 @@ export class Room
         this.removeAllParticipants();
     }
 
-    private sendPresence(): void
+    private async sendPresence(): Promise<void>
     {
         let presence = xml('presence', { to: this.jid + '/' + this.nickname })
             .append(
-                xml('x', { xmlns: 'vp:props', nickname: Config.get('nickname', 'new-user'), avatar: Config.get('avatar', '002/sportive03_m') }))
+                xml('x', { xmlns: 'vp:props', nickname: await Config.getLocal('nickname', 'new-user'), avatar: await Config.getLocal('avatar', '004/pinguin') }))
             .append(
                 xml('x', { xmlns: 'firebat:user:identity', jid: this.userJid, src: 'https://storage.zweitgeist.com/index.php/12344151', digest: 'bf167285ccfec3cd3f0141e6de77fed1418fcbae' }))
             .append(

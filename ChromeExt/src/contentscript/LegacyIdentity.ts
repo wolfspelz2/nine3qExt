@@ -58,7 +58,7 @@ export class LegacyIdentity
                         'text': $(item).text()
                     });
             });
-        } catch (ex) {
+        } catch (error) {
         }
     }
 

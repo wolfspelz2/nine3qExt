@@ -24,7 +24,7 @@ export class BackgroundApp
     public async start(): Promise<void>
     {
         this.configUpdater = new ConfigUpdater();
-        await this.configUpdater.checkUpdate();
+        await this.configUpdater.getUpdate();
         await this.configUpdater.startUpdateTimer()
 
         chrome.tabs.onActivated.addListener((activeInfo) => { return this.tabsOnActivated(activeInfo); });
@@ -75,8 +75,8 @@ export class BackgroundApp
         try {
             let xmlStanza = Utils.jsObject2xmlObject(stanza);
             this.sendStanza(xmlStanza);
-        } catch (ex) {
-            log.error('BackgroundApp.handle_sendStanza', ex);
+        } catch (error) {
+            log.error('BackgroundApp.handle_sendStanza', error);
         }
     }
 
@@ -137,8 +137,8 @@ export class BackgroundApp
     {
         try {
             this.xmpp.send(stanza);
-        } catch (ex) {
-            log.warn('BackgroundApp.sendStanza', ex.message ?? '');
+        } catch (error) {
+            log.warn('BackgroundApp.sendStanza', error.message ?? '');
         }
     }
 

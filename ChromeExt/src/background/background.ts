@@ -38,20 +38,9 @@ function deactivate()
     }
 }
 
-// window.addEventListener('onbeforeunload', deactivate);
-
-// window.addEventListener('visibilitychange', function ()
-// {
-//     if (document.visibilityState === 'visible') {
-//         activate();
-//     } else {
-//         deactivate();
-//     }
-// });
-
 activate();
 
-// chrome.runtime.onMessage.addListener(
+// chrome.runtime?.onMessage.addListener(
 //     function (request, sender, sendResponse)
 //     {
 //         if (app != null) {
@@ -64,7 +53,7 @@ activate();
 //     }
 // );
 
-// chrome.runtime.onInstalled.addListener(function (details)
+// chrome.runtime?.onInstalled.addListener(function (details)
 // {
 //     // details = {previousVersion: "1.0.0", reason: update" }
 //     chrome.tabs.query({}, function (tabs)
@@ -111,9 +100,9 @@ chrome.runtime?.onMessage.addListener(
                         }
                         );
 
-                } catch (ex) {
-                    log.trace('background fetchUrl ex', ex);
-                    return sendResponse({ 'ok': false, 'status': ex.status, 'statusText': ex.statusText });
+                } catch (error) {
+                    log.trace('background fetchUrl error', error);
+                    return sendResponse({ 'ok': false, 'status': error.status, 'statusText': error.statusText });
                 }
             } break;
 
