@@ -1,6 +1,6 @@
 ﻿﻿export interface IObserver
 {
-    update(name: string, value: any): void;
+    updateObservableProperty(name: string, value: any): void;
 }
 
 export interface IObservable
@@ -49,7 +49,7 @@ export class ObservableProperty implements IObservable
     notifyOne(observer: IObserver): void
     {
         if (this.value != undefined) {
-            observer.update(this.name, this.value);
+            observer.updateObservableProperty(this.name, this.value);
         }
     }
 
@@ -58,7 +58,7 @@ export class ObservableProperty implements IObservable
         // log.debug('IObservable: Notifying observers', this.name);
         for (const observer of this.observers) {
             if (this.value != undefined) {
-                observer.update(this.name, this.value);
+                observer.updateObservableProperty(this.name, this.value);
             }
         }
     }

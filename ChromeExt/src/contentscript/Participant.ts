@@ -17,7 +17,7 @@ export class Participant extends Entity
     private chatoutDisplay: Chatout;
     private chatinDisplay: Chatin;
     private firstPresence: boolean = true;
-    private defaultSpeedInPixelPerMsec: number = as.Float(Config.get('speedInPixelPerMsec', 0.1));
+    private defaultSpeedPixelPerSec: number = as.Float(Config.get('speedPixelPerSec', 100));
     private identityUrl: string;
     private userId: string;
     private inMove: boolean = false;
@@ -129,7 +129,11 @@ export class Participant extends Entity
 
             {
                 this.avatarDisplay = new Avatar(this.app, this, this.getCenterElem(), this.isSelf);
-                if (vpAvatar == '') {
+                if (vpAvatar != '') {
+                    let avatarUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', vpAvatar);
+                    let animationsProxyUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', avatarUrl);
+                    this.avatarDisplay.updateObservableProperty('AnimationsUrl', animationsProxyUrl);
+                } else {
                     this.app.getStorage().watch(this.userId, 'ImageUrl', this.avatarDisplay);
                     this.app.getStorage().watch(this.userId, 'AnimationsUrl', this.avatarDisplay);
                 }
@@ -301,14 +305,14 @@ export class Participant extends Entity
             this.avatarDisplay.setState('moveright');
         }
 
-        let speedPixelPerMsec = as.Float(this.avatarDisplay.getSpeedInPixelPerMsec(), this.defaultSpeedInPixelPerMsec);
-        var durationMsec = diffX / speedPixelPerMsec;
+        let speedPixelPerSec = as.Float(this.avatarDisplay.getSpeedPixelPerSec(), this.defaultSpeedPixelPerSec);
+        var durationSec = diffX / speedPixelPerSec;
 
         $(this.getElem())
             .stop(true)
             .animate(
                 { left: newX + 'px' },
-                durationMsec,
+                durationSec * 1000,
                 'linear',
                 () => this.onMoveDestinationReached(newX)
             );

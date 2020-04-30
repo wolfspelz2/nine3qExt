@@ -31,8 +31,8 @@ export class Avatar implements IObserver
     private currentState: string = '';
     private currentAction: string = '';
     private inDrag: boolean = false;
-    private speedInPixelPerMsec: number = as.Float(Config.get('speedInPixelPerMsec', 0.1));
-    private defaultSpeedInPixelPerMsec: number = as.Float(Config.get('speedInPixelPerMsec', 0.1));
+    private currentSpeedPixelPerSec: number = as.Float(Config.get('speedPixelPerSec', 100));
+    private defaultSpeedPixelPerSec: number = as.Float(Config.get('speedPixelPerSec', 100));
     private doubleClickDelay: number = as.Int(Config.get('doubleClickDelay', 20));
 
     private preventNextClick_a_hack_otherwise_draggable_clicks = false;
@@ -124,7 +124,7 @@ export class Avatar implements IObserver
         }
     }
 
-    update(key: string, value: any): void
+    updateObservableProperty(key: string, value: any): void
     {
         switch (key) {
             case 'ImageUrl': {
@@ -182,7 +182,7 @@ export class Avatar implements IObserver
     private animationTimer: number = undefined;
     startNextAnimation(): void
     {
-        this.speedInPixelPerMsec = this.defaultSpeedInPixelPerMsec;
+        this.currentSpeedPixelPerSec = this.defaultSpeedPixelPerSec;
 
         var once = true;
         var group = this.currentAction;
@@ -195,12 +195,12 @@ export class Avatar implements IObserver
             return;
         }
 
-        var duration: number = animation.duration;
-        if (as.Int(duration, 0) < 10) {
-            duration = 1000;
+        var durationSec: number = animation.duration / 1000;
+        if (durationSec < 0.1) {
+            durationSec = 1.0;
         }
 
-        this.speedInPixelPerMsec = Math.abs(animation.dx) / duration;
+        this.currentSpeedPixelPerSec = Math.abs(animation.dx) / durationSec;
 
         this.elem.src = animation.url;
 
@@ -208,12 +208,12 @@ export class Avatar implements IObserver
             clearTimeout(this.animationTimer);
             this.animationTimer = undefined;
         }
-        this.animationTimer = <number><unknown>setTimeout(() => this.startNextAnimation(), duration);
+        this.animationTimer = <number><unknown>setTimeout(() => { this.startNextAnimation(); }, durationSec * 1000);
     }
 
-    getSpeedInPixelPerMsec(): Number
+    getSpeedPixelPerSec(): Number
     {
-        return this.speedInPixelPerMsec;
+        return this.currentSpeedPixelPerSec;
     }
 
     getAnimationByGroup(group: string): AvatarGetAnimationResult

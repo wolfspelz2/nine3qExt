@@ -23,7 +23,7 @@ export class Nickname implements IObserver
         display.appendChild(this.elem);
     }
 
-    update(name: string, value: any): void
+    updateObservableProperty(name: string, value: any): void
     {
         this.setNickname(value);
     }

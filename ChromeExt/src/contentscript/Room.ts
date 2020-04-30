@@ -49,12 +49,18 @@ export class Room
     }
 
     private async sendPresence(): Promise<void>
-    {        
+    {
+        let avatarUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', this.avatar);
+        let identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}'))
+            .replace('{nickname}', this.nickname)
+            .replace('{avatarUrl}', avatarUrl)
+            ;
+
         let presence = xml('presence', { to: this.jid + '/' + this.nickname })
             .append(
                 xml('x', { xmlns: 'vp:props', nickname: this.nickname, avatar: this.avatar }))
             .append(
-                xml('x', { xmlns: 'firebat:user:identity', jid: this.userJid, src: 'https://storage.zweitgeist.com/index.php/12344151', digest: 'bf167285ccfec3cd3f0141e6de77fed1418fcbae' }))
+                xml('x', { xmlns: 'firebat:user:identity', jid: this.userJid, src: identityUrl, digest: '1' }))
             .append(
                 xml('x', { xmlns: 'firebat:avatar:state', jid: this.userJid, })
                     .append(xml('position', { x: this.posX }))
