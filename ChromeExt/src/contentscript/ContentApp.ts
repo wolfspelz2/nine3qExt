@@ -62,6 +62,8 @@ export class ContentApp
             Panic.now();
         }
 
+        await Utils.sleep(as.Float(Config.get('deferPageEnterSec', 1)) * 1000);
+        
         let nickname = await Config.getLocal('nickname', '');
         if (nickname == '') {
             nickname = 'Your name';

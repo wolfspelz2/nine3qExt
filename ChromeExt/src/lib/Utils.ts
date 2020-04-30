@@ -18,6 +18,12 @@ export class Utils
         return xml(stanza.name, stanza.attrs, children);
     }
 
+    public static async sleep(ms): Promise<void>
+    {
+        ms = ms < 0 ? 0 : ms;
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     private static randomStringChars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     public static randomString(length: number): string
     {
