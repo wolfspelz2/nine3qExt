@@ -4,9 +4,6 @@ const { join } = require('path');
 
 module.exports = {
     mode: 'development',
-    node: {
-        fs: 'empty'
-    },
     entry: { test: join(__dirname, 'src/test/test.ts') },
     output: {
         path: __dirname + '/dist',
