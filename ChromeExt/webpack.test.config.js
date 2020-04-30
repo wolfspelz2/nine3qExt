@@ -7,7 +7,7 @@ module.exports = {
     node: {
         fs: 'empty'
     },
-    entry: join(__dirname, 'src/test/test.ts'),
+    entry: { test: join(__dirname, 'src/test/test.ts') },
     output: {
         path: __dirname + '/dist',
         filename: 'test.js'
@@ -32,7 +32,7 @@ module.exports = {
     plugins: [
         new MiniCssExtractPlugin({
             filename: '[name].css',
-            chunkFilename: '[id].css',
+            chunkFilename: '[name].css',
         }),
         new HtmlWebpackPlugin({
             filename: "test.html",
