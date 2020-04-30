@@ -35,24 +35,32 @@ export class sut
         return this.ignoredClasses.indexOf(className) >= 0;
     }
 
+    getAllMethods(object)
+    {
+        return Object.getOwnPropertyNames(object.prototype).filter(function (property)
+        {
+            return typeof object[property] == 'function';
+        });
+    }
+
     addTestClass(testClass: any): void
     {
-        for (var member in testClass.prototype) {
-            if (typeof testClass.prototype[member] == 'function') {
-                let methodName = member;
-                let className = testClass.name;
+        let className = testClass.name;
+        Object.getOwnPropertyNames(testClass.prototype).forEach(methodName =>
+        {
+            if (methodName != 'constructor' && typeof testClass.prototype[methodName] == 'function') {
                 let name = className + '_' + methodName;
-                this.tests[name] = new sutTest(name, methodName, className,testClass.prototype[member], false, null);
+                this.tests[name] = new sutTest(name, methodName, className, testClass.prototype[methodName], false, null);
                 this.totalTests++;
             }
-        }
+        });
     }
 
     run()
     {
         this.runStarted = true;
         this.runSuccess = true;
-        for (var name in this.tests) {
+        for (let name in this.tests) {
             let result;
             this.countStarted++;
             try {
