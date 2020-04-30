@@ -71,7 +71,7 @@ export class AnimationsXml
 
             let duration: number = as.Int($(animation).attr('duration'), -1);
             if (duration > 0) {
-                record.duration = dx;
+                record.duration = duration;
             }
 
             let loop: boolean = as.Bool($(animation).attr('loop'), null);

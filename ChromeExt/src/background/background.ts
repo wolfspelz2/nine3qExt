@@ -101,7 +101,7 @@ chrome.runtime?.onMessage.addListener(
                         );
 
                 } catch (error) {
-                    log.trace('background fetchUrl error', error);
+                    log.trace('background fetchUrl', error);
                     return sendResponse({ 'ok': false, 'status': error.status, 'statusText': error.statusText });
                 }
             } break;
