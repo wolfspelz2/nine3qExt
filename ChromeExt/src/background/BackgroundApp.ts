@@ -1,6 +1,10 @@
 import log = require('loglevel');
 import { client, xml, jid } from '@xmpp/client';
 import { Utils } from '../lib/Utils';
+import { ConfigUpdater } from './ConfigUpdater';
+import { timingSafeEqual } from 'crypto';
+import { Config } from '../lib/Config';
+import { Panic } from '../lib/Panic';
 
 interface ILocationMapperResponse
 {
@@ -15,19 +19,30 @@ export class BackgroundApp
     private roomJid2tabId: { [roomJid: string]: number; } = {};
     private xmppConnected = false;
     private stanzaQ: Array<xml> = [];
+    private configUpdater: ConfigUpdater;
 
-    public start(): void
+    public async start(): Promise<void>
     {
+        this.configUpdater = new ConfigUpdater();
+        await this.configUpdater.checkUpdate();
+        await this.configUpdater.startUpdateTimer()
+
         chrome.tabs.onActivated.addListener((activeInfo) => { return this.tabsOnActivated(activeInfo); });
         // chrome.tabs.onUpdated.addListener(this.tabsOnUpdated);
 
         chrome.tabs.query({ active: true }, (result: Array<chrome.tabs.Tab>) => { this.activeTabId = result[0].id; });
 
-        this.startXmpp();
+        try {
+            await this.startXmpp();
+        } catch (error) {
+            throw error;
+        }
     }
 
     public stop(): void
     {
+        this.configUpdater.stopUpdateTimer();
+
         // chrome.tabs.onUpdated.removeListener(this.tabsOnUpdated);
         chrome.tabs.onActivated.removeListener((activeInfo) => { this.tabsOnActivated(activeInfo); });
 
@@ -67,16 +82,19 @@ export class BackgroundApp
 
     // xmpp
 
-    private startXmpp()
+    private async startXmpp()
     {
-        this.xmpp = client({
-            service: 'wss://xmpp.weblin.sui.li/xmpp-websocket',
-            // service: 'wss://xmpp.dev.sui.li/xmpp-websocket',
-            domain: 'xmpp.weblin.sui.li',
-            resource: 'web',
-            username: 'f85bpkavrnp0j2r8jgb079kmsg',
-            password: '475167916f52ab832e89386eddc90295e81c5563',
-        });
+        var conf = {
+            service: Config.get('xmpp.service', 'wss://xmpp.weblin.sui.li/xmpp-websocket'),// service: 'wss://xmpp.dev.sui.li/xmpp-websocket',
+            domain: Config.get('xmpp.domain', 'xmpp.weblin.sui.li'),
+            resource: Config.get('xmpp.resource', 'web'),
+            username: await Config.getPreferLocal('xmpp.user', ''),
+            password: await Config.getPreferLocal('xmpp.pass', ''),
+        };
+        if (conf.username == '' || conf.password == '') {
+            throw 'Missing xmpp.user or xmpp.pass';
+        }
+        this.xmpp = client(conf);
 
         this.xmpp.on('error', (err: any) =>
         {
@@ -98,7 +116,7 @@ export class BackgroundApp
 
             if (!this.xmppConnected) {
                 this.xmppConnected = true;
-                while(this.stanzaQ.length > 0) {
+                while (this.stanzaQ.length > 0) {
                     let stanza = this.stanzaQ.shift();
                     this.sendStanzaUnbuffered(stanza);
                 }
@@ -117,11 +135,11 @@ export class BackgroundApp
 
     private sendStanzaUnbuffered(stanza: any): void
     {
-            try {
-                this.xmpp.send(stanza);
-            } catch (ex) {
-                log.warn('BackgroundApp.sendStanza', ex.message ?? '');
-            }
+        try {
+            this.xmpp.send(stanza);
+        } catch (ex) {
+            log.warn('BackgroundApp.sendStanza', ex.message ?? '');
+        }
     }
 
     private sendStanza(stanza: any): void

@@ -1,4 +1,6 @@
 import { xml } from '@xmpp/client';
+import log = require('loglevel');
+import { Utils } from './Utils';
 
 interface ConfigGetCallback { (value: any): void }
 interface ConfigSetCallback { (): void }
@@ -6,6 +8,7 @@ interface ConfigSetCallback { (): void }
 export class Config
 {
     private static onlineConfig: any = {};
+
     private static staticConfig: any = {
         'locationMappingServiceUrl': 'http://lms.virtual-presence.org/api/',
         'speedInPixelPerMsec': 0.1,
@@ -16,11 +19,13 @@ export class Config
         'maxChatDelaySec': 60,
         'nickname': '初心者',//'new-user',
         'avatar': '002/sportive03_m',
+        'checkUpdateConfigIntervalSec': 600,
+        'updateConfigIntervalSec': Utils.randomInt(60000, 80000),
+        'configSeviceUrl': 'https://config.weblin.sui.li/',
+
         'xmpp': {
             'service': 'wss://xmpp.weblin.sui.li/xmpp-websocket',
             'domain': 'xmpp.weblin.sui.li',
-            'user': 'at4peaaa1o74iuv2us4h4v8u4k',
-            'pass': 'e8149223956afdd79a4345fcdf884e9c502c1bea',
         },
         'avatars': {
             'baseUrl': 'https://avatar.weblin.sui.li/avatar/?url=http://avatar.zweitgeist.com/gif/',
@@ -71,15 +76,13 @@ export class Config
         return result;
     }
 
-    public static getPreferLocal(key: string, defaultValue: any, callback: ConfigGetCallback): void
+    public static async getPreferLocal(key: string, defaultValue: any)
     {
-        Config.getLocal(key, value =>
-        {
-            if (value == undefined || value == null) {
-                value = this.get(key, defaultValue);
-            }
-            callback(value);
-        });
+        let result = await Config.getLocal(key, undefined);
+        if (result == undefined ){
+            result = Config.get(key, defaultValue);
+        }
+        return result;
     }
 
     public static getOnline(key: string): any
@@ -107,17 +110,27 @@ export class Config
         return current;
     }
 
-    private static getLocal(key: string, getComplete: ConfigGetCallback): void
+    public static async getLocal(key: string, defaultValue: any): Promise<any>
     {
-        chrome.storage.sync.get([key], function (result)
+        return new Promise(resolve =>
         {
-            getComplete(result.key);
+            chrome.storage.sync.get([key], result =>
+            {
+                if (result.key != undefined) {
+                    resolve(result.key);
+                } else {
+                    resolve(defaultValue);
+                }
+            });
         });
     }
 
-    public static setLocal(key: string, value: any, setComplete: ConfigSetCallback): void
+    public static async setLocal(key: string, value: any): Promise<void>
     {
-        chrome.storage.sync.set({ key: value }, setComplete);
+        return new Promise(resolve =>
+        {
+            chrome.storage.sync.set({ key: value }, () => { resolve(); });
+        });
     }
 
     public static getAllStatic(): any
@@ -132,11 +145,13 @@ export class Config
 
     public static setAllStatic(values: any): void
     {
+        log.debug('Config.setAllStatic');
         this.staticConfig = values;
     }
 
     public static setAllOnline(values: any): void
     {
+        log.debug('Config.setAllOnline');
         this.onlineConfig = values;
     }
 }

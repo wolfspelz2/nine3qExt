@@ -1,5 +1,6 @@
 import log = require('loglevel');
 import { Config } from '../lib/Config';
+import { Panic } from '../lib/Panic';
 import { BackgroundApp } from './BackgroundApp';
 
 const isBackground = true;
@@ -15,11 +16,17 @@ if (debug) {
 log.setLevel(log.levels.DEBUG);
 var app = null;
 
-function activate()
+async function activate()
 {
     if (app == null) {
         app = new BackgroundApp();
-        app.start();
+
+        try {
+            await app.start();
+        }
+        catch (error) {
+            app = null;
+        }
     }
 }
 
