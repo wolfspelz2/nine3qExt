@@ -7,7 +7,7 @@
   "permissions": ["tabs", "activeTab", "storage"],
   "browser_action": {
     "default_popup": "popup.html",
-    "default_title": "Nine3q: Avatars and things on web pages"
+    "default_title": "Configure your avatar"
   },
   "icons": {
     "128": "./assets/icon.png"
