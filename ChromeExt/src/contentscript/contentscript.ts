@@ -5,8 +5,7 @@ import { Panic } from '../lib/Panic';
 import { Config } from '../lib/Config';
 import { ContentApp } from './ContentApp';
 
-const isContentscript: boolean = true;
-console.log('Contentscript', isContentscript);
+console.log('Contentscript');
 
 let debug = true;
 log.setLevel(log.levels.INFO);

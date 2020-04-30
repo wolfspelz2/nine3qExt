@@ -1,13 +1,24 @@
+const { CheckerPlugin } = require('awesome-typescript-loader');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { optimize } = require('webpack');
 const { join } = require('path');
+let prodPlugins = [];
+
+if (process.env.NODE_ENV === 'production') {
+    prodPlugins.push(
+        new optimize.AggressiveMergingPlugin(),
+        new optimize.OccurrenceOrderPlugin()
+    );
+}
 
 module.exports = {
-    mode: 'development',
-    entry: { test: join(__dirname, 'src/test/test.ts') },
+    mode: process.env.NODE_ENV,
+    devtool: 'inline-source-map',
+    entry: { popup: join(__dirname, 'src/popup/popup.ts') },
     output: {
         path: __dirname + '/dist',
-        filename: 'test.js'
+        filename: 'popup.js'
     },
     module: {
         rules: [
@@ -27,13 +38,15 @@ module.exports = {
         ]
     },
     plugins: [
+        new CheckerPlugin(),
+        ...prodPlugins,
         new MiniCssExtractPlugin({
             filename: '[name].css',
             chunkFilename: '[name].css',
         }),
         new HtmlWebpackPlugin({
-            filename: "test.html",
-            title: "Browser Tests",
+            filename: "popup.html",
+            title: "Configure your avatar",
         })
     ],
     resolve: {
