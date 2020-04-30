@@ -1,5 +1,5 @@
+import { ObservableProperty, IObserver } from '../lib/ObservableProperty';
 import { LegacyIdentity } from './LegacyIdentity';
-import { ObservableProperty, IObserver } from './ObservableProperty';
 
 export class PropertyStorage
 {

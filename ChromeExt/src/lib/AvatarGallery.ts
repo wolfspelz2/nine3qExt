@@ -1,5 +1,5 @@
-import { Config } from '../lib/Config';
-import { Utils } from '../lib/Utils';
+import { Config } from './Config';
+import { Utils } from './Utils';
 
 export class AvatarGallery
 {

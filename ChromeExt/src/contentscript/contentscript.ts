@@ -1,5 +1,5 @@
 import './contentscript.scss';
-const $ = require('jquery');
+import * as $ from 'jquery';
 import log = require('loglevel');
 import { Panic } from '../lib/Panic';
 import { Config } from '../lib/Config';
@@ -21,7 +21,7 @@ var app = null;
 function activate()
 {
     if (app == null) {
-        app = new ContentApp($('body'));
+        app = new ContentApp($('body')[0]);
         app.start();
     }
 }

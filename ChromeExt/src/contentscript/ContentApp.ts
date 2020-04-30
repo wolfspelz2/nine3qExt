@@ -9,7 +9,7 @@ import { Config } from '../lib/Config';
 import { Room } from './Room';
 import { PropertyStorage } from './PropertyStorage';
 import { HelloWorld } from './HelloWorld';
-import { AvatarGallery } from './AvatarGallery';
+import { AvatarGallery } from '../lib/AvatarGallery';
 
 interface ILocationMapperResponse
 {

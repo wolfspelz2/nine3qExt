@@ -5,7 +5,7 @@ import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Platform } from '../lib/Platform';
 import { Config } from '../lib/Config';
-import { IObserver, IObservable } from './ObservableProperty';
+import { IObserver, IObservable } from '../lib/ObservableProperty';
 import * as AnimationsXml from './AnimationsXml';
 
 import imgDefaultAvatar from '../assets/DefaultAvatar.png';

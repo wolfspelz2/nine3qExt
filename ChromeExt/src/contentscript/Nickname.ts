@@ -1,7 +1,7 @@
 import * as $ from 'jquery';
 import { as } from '../lib/as';
+import { IObserver, IObservable } from '../lib/ObservableProperty';
 import { ContentApp } from './ContentApp';
-import { IObserver, IObservable } from './ObservableProperty';
 import { Participant } from './Participant';
 
 export class Nickname implements IObserver
