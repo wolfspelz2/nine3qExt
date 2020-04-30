@@ -6,7 +6,7 @@
   "description": "Nine3q Extension: Avatars and things on web pages",
   "permissions": ["tabs", "activeTab", "storage"],
   "browser_action": {
-    "default_popup": "popup/index.html",
+    "default_popup": "popup.html",
     "default_title": "Nine3q: Avatars and things on web pages"
   },
   "icons": {

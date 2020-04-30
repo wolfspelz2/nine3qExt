@@ -7,10 +7,10 @@ module.exports = {
     node: {
         fs: 'empty'
     },
-    entry: { test: join(__dirname, 'src/test/test.ts') },
+    entry: { popup: join(__dirname, 'src/popup/popup.ts') },
     output: {
         path: __dirname + '/dist',
-        filename: 'test.js'
+        filename: 'popup.js'
     },
     module: {
         rules: [
@@ -35,8 +35,8 @@ module.exports = {
             chunkFilename: '[name].css',
         }),
         new HtmlWebpackPlugin({
-            filename: "test.html",
-            title: "Browser Tests",
+            filename: "popup.html",
+            title: "Configure Avatars and Things on Web Pages",
         })
     ],
     resolve: {

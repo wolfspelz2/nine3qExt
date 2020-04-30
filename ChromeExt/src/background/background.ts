@@ -3,8 +3,7 @@ import { Config } from '../lib/Config';
 import { Panic } from '../lib/Panic';
 import { BackgroundApp } from './BackgroundApp';
 
-const isBackground = true;
-console.log('Background', isBackground);
+console.log('Background');
 
 let debug = true;
 log.setLevel(log.levels.INFO);
