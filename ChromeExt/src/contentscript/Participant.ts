@@ -12,10 +12,10 @@ import { Chatin } from './Chatin';
 
 export class Participant extends Entity
 {
-    private avatar: Avatar;
-    private nickname: Nickname;
-    private chatout: Chatout;
-    private chatin: Chatin;
+    private avatarDisplay: Avatar;
+    private nicknameDisplay: Nickname;
+    private chatoutDisplay: Chatout;
+    private chatinDisplay: Chatin;
     private firstPresence: boolean = true;
     private defaultSpeedInPixelPerMsec: number = as.Float(Config.get('speedInPixelPerMsec', 0.1));
     private identityUrl: string;
@@ -34,9 +34,23 @@ export class Participant extends Entity
 
     onPresenceAvailable(stanza: any): void
     {
-        var presenceHasPosition: boolean = false;
-        var newX: number = 123;
-        var newCondition: string = '';
+        let presenceHasPosition: boolean = false;
+        let newX: number = 123;
+        let newCondition: string = '';
+        let xmppNickname = '';
+        let vpNickname = '';
+        let vpAvatar = '';
+
+        {
+            let from = stanza.attrs.from
+            if (from != undefined) {
+                let fromJid = new jid(from);
+                let nickname = as.String(fromJid.getResource(), '');
+                if (nickname != '') {
+                    xmppNickname = nickname;
+                }
+            }
+        }
 
         {
             let stateNode = stanza.getChildren('x').find(stanzaChild => stanzaChild.attrs.xmlns === 'firebat:avatar:state');
@@ -66,6 +80,17 @@ export class Participant extends Entity
                     this.identityUrl = url;
                     this.app.getStorage().setIdentity(this.userId, url, digest);
                 }
+            }
+        }
+
+        {
+            let vpNode = stanza.getChildren('x').find(stanzaChild => stanzaChild.attrs.xmlns === 'vp:props');
+            if (vpNode != undefined) {
+                let attrs = vpNode.attrs;
+                let nickname = as.String(attrs.nickname, '');
+                if (nickname != '') { vpNickname = nickname; }
+                let avatar = as.String(attrs.avatar, '');
+                if (avatar != '') { vpAvatar = avatar; }
             }
         }
 
@@ -103,28 +128,29 @@ export class Participant extends Entity
             this.setPosition(newX);
 
             {
-                this.avatar = new Avatar(this.app, this, this.getCenterElem(), this.isSelf);
-                this.app.getStorage().watch(this.userId, 'ImageUrl', this.avatar);
-                this.app.getStorage().watch(this.userId, 'AnimationsUrl', this.avatar);
+                this.avatarDisplay = new Avatar(this.app, this, this.getCenterElem(), this.isSelf);
+                if (vpAvatar == '') {
+                    this.app.getStorage().watch(this.userId, 'ImageUrl', this.avatarDisplay);
+                    this.app.getStorage().watch(this.userId, 'AnimationsUrl', this.avatarDisplay);
+                }
             }
 
             {
-                this.nickname = new Nickname(this.app, this, this.getElem());
-                let from = stanza.attrs.from
-                if (from != undefined) {
-                    let fromJid = new jid(from);
-                    let xmppNickname = as.String(fromJid.getResource(), '');
-                    if (xmppNickname != '') {
-                        this.nickname.setNickname(xmppNickname);
-                    }
+                this.nicknameDisplay = new Nickname(this.app, this, this.getElem());
+                var shownNickname = xmppNickname;
+                if (vpNickname != '') {
+                    shownNickname = vpNickname;
                 }
-                this.app.getStorage().watch(this.userId, 'Nickname', this.nickname);
+                this.nicknameDisplay.setNickname(shownNickname);
+                if (vpNickname == '') {
+                    this.app.getStorage().watch(this.userId, 'Nickname', this.nicknameDisplay);
+                }
             }
 
-            this.chatout = new Chatout(this.app, this, this.getElem());
+            this.chatoutDisplay = new Chatout(this.app, this, this.getElem());
 
             if (this.isSelf) {
-                this.chatin = new Chatin(this.app, this, this.getElem());
+                this.chatinDisplay = new Chatin(this.app, this, this.getElem());
             }
 
             this.show(true);
@@ -140,7 +166,7 @@ export class Participant extends Entity
 
         this.condition_ = newCondition;
         if (!this.inMove) {
-            this.avatar.setState(this.condition_);
+            this.avatarDisplay.setState(this.condition_);
         }
     }
 
@@ -185,7 +211,7 @@ export class Participant extends Entity
                     return this.onChatCommand(text);
                 }
 
-                this.chatout.setText(text);
+                this.chatoutDisplay.setText(text);
             }
         }
     }
@@ -199,8 +225,8 @@ export class Participant extends Entity
         switch (cmd) {
             case '/do':
                 if (parts.length < 2) { return; }
-                this.chatout.setText(text);
-                this.avatar.setAction(parts[1]);
+                this.chatoutDisplay.setText(text);
+                this.avatarDisplay.setAction(parts[1]);
                 break;
         }
     }
@@ -270,12 +296,12 @@ export class Participant extends Entity
         var diffX = newX - oldX;
         if (diffX < 0) {
             diffX = -diffX;
-            this.avatar.setState('moveleft');
+            this.avatarDisplay.setState('moveleft');
         } else {
-            this.avatar.setState('moveright');
+            this.avatarDisplay.setState('moveright');
         }
 
-        let speedPixelPerMsec = as.Float(this.avatar.getSpeedInPixelPerMsec(), this.defaultSpeedInPixelPerMsec);
+        let speedPixelPerMsec = as.Float(this.avatarDisplay.getSpeedInPixelPerMsec(), this.defaultSpeedInPixelPerMsec);
         var durationMsec = diffX / speedPixelPerMsec;
 
         $(this.getElem())
@@ -292,7 +318,7 @@ export class Participant extends Entity
     {
         this.inMove = false;
         this.setPosition(newX);
-        this.avatar.setState(this.condition_);
+        this.avatarDisplay.setState(this.condition_);
     }
 
     onDraggedBy(dX: number, dY: number): void
@@ -310,7 +336,7 @@ export class Participant extends Entity
 
     quickSlide(newX: number): void
     {
-        this.avatar.setState('');
+        this.avatarDisplay.setState('');
         super.quickSlide(newX);
     }
 
@@ -325,13 +351,13 @@ export class Participant extends Entity
 
     onMouseEnterAvatar(ev: JQuery.Event): void
     {
-        this.avatar.hilite(true);
+        this.avatarDisplay.hilite(true);
         //this.nickname.setVisible(true);
     }
 
     onMouseLeaveAvatar(ev: JQuery.Event): void
     {
-        this.avatar.hilite(false);
+        this.avatarDisplay.hilite(false);
         //this.nickname.setVisible(false);
     }
 
@@ -400,12 +426,12 @@ export class Participant extends Entity
 
     toggleChatin(): void
     {
-        this.chatin.toggleVisibility();
+        this.chatinDisplay.toggleVisibility();
     }
 
     toggleChatout(): void
     {
-        this.chatout.toggleVisibility();
+        this.chatoutDisplay.toggleVisibility();
     }
 
 }

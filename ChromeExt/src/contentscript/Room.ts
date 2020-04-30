@@ -10,7 +10,8 @@ import { Participant } from './Participant';
 export class Room
 {
     private userJid: string;
-    private nickname: string = Config.get('nickname', 'user' + Utils.randomString(3));
+    private nickname: string = '';
+    private avatar: string = '';
     private enterRetryCount: number = 0;
     private maxEnterRetries: number = as.Int(Config.get('maxMucEnterRetries', 4));
     private posX: number = Utils.randomInt(as.Int(Config.get('roomEnterPosXMin', 400)), as.Int(Config.get('roomEnterPosXMax', 700)));
@@ -30,10 +31,13 @@ export class Room
         // this.participants['dummy'].onPresenceAvailable(xml('presence', { from: jid + '/dummy' }).append(xml('x', { xmlns: 'firebat:avatar:state' }).append(xml('position', { x: 100 }))));
     }
 
-    //#region presence
+    // presence
 
-    public enter(): void
+    public async enter(): Promise<void>
     {
+        this.nickname = await Config.getLocal('nickname', 'new-user');
+        this.avatar = await Config.getLocal('avatar', '004/pinguin');
+
         this.enterRetryCount = 0;
         this.sendPresence();
     }
@@ -45,10 +49,10 @@ export class Room
     }
 
     private async sendPresence(): Promise<void>
-    {
+    {        
         let presence = xml('presence', { to: this.jid + '/' + this.nickname })
             .append(
-                xml('x', { xmlns: 'vp:props', nickname: await Config.getLocal('nickname', 'new-user'), avatar: await Config.getLocal('avatar', '004/pinguin') }))
+                xml('x', { xmlns: 'vp:props', nickname: this.nickname, avatar: this.avatar }))
             .append(
                 xml('x', { xmlns: 'firebat:user:identity', jid: this.userJid, src: 'https://storage.zweitgeist.com/index.php/12344151', digest: 'bf167285ccfec3cd3f0141e6de77fed1418fcbae' }))
             .append(
