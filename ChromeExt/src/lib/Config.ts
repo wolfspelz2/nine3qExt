@@ -18,6 +18,7 @@ export class Config
         'roomEnterPosXMax': 700,
         'maxChatDelaySec': 60,
         'deferPageEnterSec': 2,
+        'showNicknameTooltip': true,
         'nickname': '',//'新しいアバター',//'new-avatar',
         'avatar': '',
         'checkUpdateConfigIntervalSec': 600,

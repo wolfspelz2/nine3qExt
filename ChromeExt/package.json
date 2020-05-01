@@ -65,6 +65,7 @@
     "jquery": "^3.5.0",
     "jqueryui": "^1.11.1",
     "loglevel": "^1.6.8",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "unique-names-generator": "^4.2.0"
   }
 }

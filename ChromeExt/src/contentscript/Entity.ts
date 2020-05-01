@@ -41,9 +41,7 @@ export class Entity
     remove(): void
     {
         this.show(false);
-
-        this.display.removeChild(this.elem);
-
+        $(this.elem).remove();
         delete this.elem;
     }
 

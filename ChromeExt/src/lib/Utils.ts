@@ -1,4 +1,5 @@
 import { xml } from '@xmpp/client';
+import { uniqueNamesGenerator, Config, adjectives, colors, animals } from 'unique-names-generator';
 
 export class Utils
 {
@@ -38,5 +39,18 @@ export class Utils
     static randomInt(min: number, max: number): number
     {
         return Math.trunc(Math.random() * (max - min) + min);
+    }
+
+    static randomNickname(): string
+    {
+        const customConfig: Config = {
+            dictionaries: [colors, animals],
+            separator: ' ',
+            length: 2,
+            style: 'capital',
+        };
+
+        const randomName: string = uniqueNamesGenerator(customConfig);
+        return randomName;
     }
 }

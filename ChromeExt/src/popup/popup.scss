@@ -1,7 +1,8 @@
-* { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 14px; }
+* { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 12px; }
 
 #n3q-id-popup {
     width: 30em;
+    margin: 1em;
 }
 
 .n3q-base {
@@ -12,8 +13,49 @@ input.n3q-base {
     display: inline;
 }
 
-.n3q-popup-nickname .n3q-popup-label {
+.n3q-popup-title {
+    font-size: 24px;
+    font-weight: bold;
+    max-width: 20em;
+}
+
+.n3q-popup-description {
+    margin-top: 1em;
+    font-size: 14px;
+    max-width: 20em;
+}
+
+.n3q-popup-icon {
+    width: 64px;
+    float: right;
+}
+
+.n3q-popup-nickname {
+    margin-top: 1em;
+}
+
+.n3q-popup-label {
     display: inline;
 }
 
+.n3q-popup-nickname input {
+    margin-left: 1em;
+    border-color: #a9a9a9;
+    border-style: solid;
+    border-width: 0 0 1px 0;
+}
+
+.n3q-popup-label::after { 
+    content: ":"; 
+}
+
 // .n3q-popup-nickname input[type="text] {}
+
+.n3q-popup-random { 
+    display: inline;
+    margin-left: 1em;
+}
+
+.n3q-popup-save {
+    margin-top: 1em;
+}

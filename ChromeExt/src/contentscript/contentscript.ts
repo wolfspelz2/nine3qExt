@@ -13,6 +13,7 @@ log.setLevel(log.levels.INFO);
 if (debug) {
     Config.getAllStatic().roomEnterPosXMin = 200;
     Config.getAllStatic().roomEnterPosXMax = 200;
+    Config.getAllStatic().deferPageEnterSec = 0;
     log.setLevel(log.levels.DEBUG);
 }
 

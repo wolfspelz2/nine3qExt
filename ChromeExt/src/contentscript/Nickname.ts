@@ -3,6 +3,7 @@ import { as } from '../lib/as';
 import { IObserver, IObservable } from '../lib/ObservableProperty';
 import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
+import { Config } from '../lib/Config';
 
 export class Nickname implements IObserver
 {
@@ -31,6 +32,9 @@ export class Nickname implements IObserver
     setNickname(nickname: string): void
     {
         $(this.textElem).html(as.Html(nickname));
+        if (Config.get('showNicknameTooltip', true)) {
+            $(this.textElem).prop('title', nickname);;
+        }
     }
 
     onCloseButtonPressed(): void
