@@ -79,35 +79,35 @@ export class Entity
 
     // Mouse
 
-    public onMouseEnterAvatar(ev: JQuery.Event): void
+    onMouseEnterAvatar(ev: JQuery.Event): void
     {
     }
 
-    public onMouseLeaveAvatar(ev: JQuery.Event): void
+    onMouseLeaveAvatar(ev: JQuery.Event): void
     {
     }
 
-    public onMouseClickAvatar(ev: JQuery.Event): void
+    onMouseClickAvatar(ev: JQuery.Event): void
     {
     }
 
-    public onMouseDoubleClickAvatar(ev: JQuery.Event): void
+    onMouseDoubleClickAvatar(ev: JQuery.Event): void
     {
     }
 
     // Drag
 
     private dragStartPosition: any;
-    public onStartDragAvatar(ev: JQueryMouseEventObject, ui: any): void
+    onStartDragAvatar(ev: JQueryMouseEventObject, ui: any): void
     {
         this.dragStartPosition = ui.position;
     }
 
-    public onDragAvatar(ev: JQueryMouseEventObject, ui: any): void
+    onDragAvatar(ev: JQueryMouseEventObject, ui: any): void
     {
     }
 
-    public onStopDragAvatar(ev: JQueryMouseEventObject, ui: any): void
+    onStopDragAvatar(ev: JQueryMouseEventObject, ui: any): void
     {
         this.onDraggedBy((ui.position.left - this.dragStartPosition.left), (ui.position.top - this.dragStartPosition.top));
     }

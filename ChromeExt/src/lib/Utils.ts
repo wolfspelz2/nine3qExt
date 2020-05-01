@@ -18,14 +18,14 @@ export class Utils
         return xml(stanza.name, stanza.attrs, children);
     }
 
-    public static async sleep(ms): Promise<void>
+    static async sleep(ms): Promise<void>
     {
         ms = ms < 0 ? 0 : ms;
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     private static randomStringChars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    public static randomString(length: number): string
+    static randomString(length: number): string
     {
         var maxIndex: number = Utils.randomStringChars.length - 1;
         var result = '';
@@ -35,7 +35,7 @@ export class Utils
         return result;
     }
 
-    public static randomInt(min: number, max: number): number
+    static randomInt(min: number, max: number): number
     {
         return Math.trunc(Math.random() * (max - min) + min);
     }

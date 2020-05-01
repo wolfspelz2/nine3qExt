@@ -31,7 +31,7 @@ export class AnimationsDefinition
 
 export class AnimationsXml
 {
-    public static parseXml(dataUrl: string, data: string): AnimationsDefinition
+    static parseXml(dataUrl: string, data: string): AnimationsDefinition
     {
         let params: { [id: string]: AvatarAnimationParam } = {};
         let sequences: { [id: string]: AvatarAnimationSequence } = {};

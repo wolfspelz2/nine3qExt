@@ -7,7 +7,7 @@ export class ConfigUpdater
 {
     private timer: number = undefined;
 
-    public async startUpdateTimer()
+    async startUpdateTimer()
     {
         this.timer = <number><unknown>setTimeout(async () =>
         {
@@ -17,14 +17,14 @@ export class ConfigUpdater
         }, Config.get('checkUpdateConfigIntervalSec', 600) * 1000);
     }
 
-    public stopUpdateTimer(): void
+    stopUpdateTimer(): void
     {
         if (this.timer != undefined) {
             window.clearTimeout(this.timer);
         }
     }
 
-    public async checkUpdate()
+    async checkUpdate()
     {
         let lastUpdateConfigTime: number = as.Int(await Config.getLocal('lastUpdateConfigTime', 0), 0);
         if (Date.now() - lastUpdateConfigTime > as.Int(Config.get('updateConfigIntervalSec', 86331))) {
@@ -32,7 +32,7 @@ export class ConfigUpdater
         }
     }
 
-    public async getUpdate()
+    async getUpdate()
     {
         try {
             let data = await this.fetchConfig();

@@ -33,7 +33,7 @@ export class Room
 
     // presence
 
-    public async enter(): Promise<void>
+    async enter(): Promise<void>
     {
         this.nickname = await Config.getLocal('nickname', 'new-user');
         this.avatar = await Config.getLocal('avatar', '004/pinguin');
@@ -42,7 +42,7 @@ export class Room
         this.sendPresence();
     }
 
-    public leave(): void
+    leave(): void
     {
         this.sendPresenceUnavailable();
         this.removeAllParticipants();
@@ -83,7 +83,7 @@ export class Room
         this.app.sendStanza(presence);
     }
 
-    public onPresence(stanza: any): void
+    onPresence(stanza: any): void
     {
         let from = jid(stanza.attrs.from);
         let nick = from.getResource();
@@ -172,7 +172,7 @@ export class Room
 
     // message
 
-    public onMessage(stanza: any)
+    onMessage(stanza: any)
     {
         let from = jid(stanza.attrs.from);
         let nick = from.getResource();
@@ -202,7 +202,7 @@ export class Room
       <body>Harpier cries: 'tis time, 'tis time.</body>
     </message>
     */
-    public sendGroupChat(text: string, fromNick: string)
+    sendGroupChat(text: string, fromNick: string)
     {
         let message = xml('message', { type: 'groupchat', to: this.jid, from: this.jid + '/' + fromNick })
             .append(xml('body', {}, text))
@@ -210,7 +210,7 @@ export class Room
         this.app.sendStanza(message);
     }
 
-    public sendMoveMessage(newX: number): void
+    sendMoveMessage(newX: number): void
     {
         this.posX = newX;
         this.sendPresence();

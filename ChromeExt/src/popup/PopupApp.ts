@@ -13,7 +13,7 @@ export class PopupApp
     {
     }
 
-    public async start()
+    async start()
     {
         this.display = $('<div id="n3q-id-popup" class="n3q-base" />')[0];
         this.appendToMe.append(this.display);
@@ -41,7 +41,7 @@ export class PopupApp
 
     }
 
-    public stop()
+    stop()
     {
         $('#n3q-id-page').remove();
         this.display = null;

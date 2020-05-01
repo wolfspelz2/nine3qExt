@@ -21,7 +21,7 @@ export class BackgroundApp
     private stanzaQ: Array<xml> = [];
     private configUpdater: ConfigUpdater;
 
-    public async start(): Promise<void>
+    async start(): Promise<void>
     {
         this.configUpdater = new ConfigUpdater();
         await this.configUpdater.getUpdate();
@@ -39,7 +39,7 @@ export class BackgroundApp
         }
     }
 
-    public stop(): void
+    stop(): void
     {
         this.configUpdater.stopUpdateTimer();
 
@@ -68,7 +68,7 @@ export class BackgroundApp
 
     // IPC
 
-    public handle_sendStanza(stanza: any, tabId: number, sendResponse: any): any
+    handle_sendStanza(stanza: any, tabId: number, sendResponse: any): any
     {
         log.info('BackgroundApp.handle_sendStanza', stanza, tabId);
 

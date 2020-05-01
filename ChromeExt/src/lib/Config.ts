@@ -39,7 +39,7 @@ export class Config
         },
     }
 
-    public static get(key: string, defaultValue: any): any
+    static get(key: string, defaultValue: any): any
     {
         let result = Config.getOnline(key);
         if (result == undefined || result == null) {
@@ -51,7 +51,7 @@ export class Config
         return result;
     }
 
-    public static async getPreferLocal(key: string, defaultValue: any)
+    static async getPreferLocal(key: string, defaultValue: any)
     {
         let result = await Config.getLocal(key, undefined);
         if (result == undefined) {
@@ -60,12 +60,12 @@ export class Config
         return result;
     }
 
-    public static getOnline(key: string): any
+    static getOnline(key: string): any
     {
         return Config.getFromTree(this.onlineConfig, key);
     }
 
-    public static getStatic(key: string): any
+    static getStatic(key: string): any
     {
         return Config.getFromTree(this.staticConfig, key);
     }
@@ -85,7 +85,7 @@ export class Config
         return current;
     }
 
-    public static async getLocal(key: string, defaultValue: any): Promise<any>
+    static async getLocal(key: string, defaultValue: any): Promise<any>
     {
         return new Promise(resolve =>
         {
@@ -100,7 +100,7 @@ export class Config
         });
     }
 
-    public static async setLocal(key: string, value: any): Promise<void>
+    static async setLocal(key: string, value: any): Promise<void>
     {
         return new Promise(resolve =>
         {
@@ -110,23 +110,23 @@ export class Config
         });
     }
 
-    public static getAllStatic(): any
+    static getAllStatic(): any
     {
         return this.staticConfig;
     }
 
-    public static getAllOnline(): any
+    static getAllOnline(): any
     {
         return this.onlineConfig;
     }
 
-    public static setAllStatic(values: any): void
+    static setAllStatic(values: any): void
     {
         log.debug('Config.setAllStatic');
         this.staticConfig = values;
     }
 
-    public static setAllOnline(values: any): void
+    static setAllOnline(values: any): void
     {
         log.debug('Config.setAllOnline');
         this.onlineConfig = values;
