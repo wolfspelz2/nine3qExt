@@ -70,7 +70,7 @@ export class ContentApp
         await this.assertSavedPosition();
 
         let page = $('<div id="n3q-id-page" class="n3q-base" />')[0];
-        this.display = $('<div class="n3q-display" class="n3q-base" />')[0];
+        this.display = $('<div class="n3q-base n3q-display" />')[0];
         $(page).append(this.display);
         this.appendToMe.append(page);
 
