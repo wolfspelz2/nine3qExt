@@ -2,6 +2,7 @@ const $ = require('jquery');
 import { Platform } from '../lib/Platform';
 import { PropertyStorage } from './PropertyStorage';
 import { as } from '../lib/as';
+import { Config } from '../lib/Config';
 
 export class LegacyIdentity
 {
@@ -68,7 +69,13 @@ export class LegacyIdentity
             case 'avatar':
                 this.storage.setProperty(this.entity, 'ImageUrl', as.String(props.src, '')); break;
             case 'avatar2':
-                this.storage.setProperty(this.entity, 'AnimationsUrl', as.String(props.src, '')); break;
+                {
+                    let animationsUrl = as.String(props.src, '');
+                    if (animationsUrl != '') {
+                        let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', animationsUrl);
+                        this.storage.setProperty(this.entity, 'AnimationsUrl', proxiedAnimationsUrl);
+                    }
+                } break;
             case 'profilepage':
                 this.storage.setProperty(this.entity, 'ProfileUrl', as.String(props.src, '')); break;
             case 'properties':

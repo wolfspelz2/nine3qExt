@@ -129,11 +129,11 @@ export class Participant extends Entity
             {
                 this.avatarDisplay = new Avatar(this.app, this, this.getCenterElem(), this.isSelf);
                 if (vpAvatar != '') {
-                    let avatarUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', vpAvatar);
-                    let animationsProxyUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', avatarUrl);
-                    this.avatarDisplay.updateObservableProperty('AnimationsUrl', animationsProxyUrl);
+                    let animationsUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', vpAvatar);
+                    let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', animationsUrl);
+                    this.avatarDisplay.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
                 } else {
-                    this.app.getStorage().watch(this.userId, 'ImageUrl', this.avatarDisplay);
+                    //this.app.getStorage().watch(this.userId, 'ImageUrl', this.avatarDisplay);
                     this.app.getStorage().watch(this.userId, 'AnimationsUrl', this.avatarDisplay);
                 }
             }

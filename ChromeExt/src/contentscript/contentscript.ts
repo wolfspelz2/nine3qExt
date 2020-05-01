@@ -11,8 +11,8 @@ let debug = true;
 log.setLevel(log.levels.INFO);
 
 if (debug) {
-    Config.getAllStatic().room.randomEnterPosXMin = 200;
-    Config.getAllStatic().room.randomEnterPosXMax= 200;
+    // Config.getAllStatic().room.randomEnterPosXMin = 200;
+    // Config.getAllStatic().room.randomEnterPosXMax= 200;
     Config.getAllStatic().vp.deferPageEnterSec = 0;
     log.setLevel(log.levels.DEBUG);
 }
