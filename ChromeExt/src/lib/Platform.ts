@@ -13,33 +13,6 @@ export class Platform
         return document.location.toString();
     }
 
-    // Local storage
-
-    private static tmpStorage: any = {};
-
-    static setStorageString(key: string, value: string): void
-    {
-        // chrome.storage.local.set({ key: value }, function ()
-        // {
-        //   log.debug('setStorageString', key, value);
-        // });
-
-        this.tmpStorage[key] = value;
-    }
-
-    static getStorageString(key: string, defaultValue: string): string
-    {
-        // chrome.storage.local.get(key, (value) =>
-        // {
-        //   log.debug('getStorageString', value);
-        // });
-        // return '100';
-        if (typeof this.tmpStorage[key] == typeof undefined) {
-            return defaultValue;
-        }
-        return this.tmpStorage[key];
-    }
-
     // Paths
 
     static getAssetUrl(filePath: string)
@@ -52,7 +25,7 @@ export class Platform
     static fetchUrl(url: string, callback: PlatformFetchUrlCallback)
     {
         try {
-            chrome.runtime?.sendMessage({ 'type': 'fetchUrl', 'url': url }, (response) =>
+            chrome.runtime?.sendMessage({ 'type': 'fetchUrl', 'url': url }, response =>
             {
                 callback(response.ok, response.status, response.statusText, response.data);
             });
@@ -67,7 +40,41 @@ export class Platform
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': 'getConfig' }, (response) =>
+                chrome.runtime?.sendMessage({ 'type': 'getConfig' }, response =>
+                {
+                    resolve(response);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    static async getLocalStorage(key: string, defaultValue: any): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            try {
+                chrome.runtime?.sendMessage({ 'type': 'getLocalStorage', 'key': key }, response =>
+                {
+                    if (response != undefined && response[key] != undefined) {
+                        resolve(response[key]);
+                    } else {
+                        resolve(defaultValue);
+                    }
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    static setLocalStorage(key: string, value: any): Promise<void>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            try {
+                chrome.runtime?.sendMessage({ 'type': 'setLocalStorage', 'key': key, 'value': value }, response =>
                 {
                     resolve(response);
                 });

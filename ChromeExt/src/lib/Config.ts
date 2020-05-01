@@ -7,6 +7,8 @@ interface ConfigSetCallback { (): void }
 
 export class Config
 {
+    private static tempConfig: any = {};
+
     private static onlineConfig: any = {};
 
     private static staticConfig: any = {
@@ -45,11 +47,15 @@ export class Config
         'identity': {
             'identificatorUrlTemplate': 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}',
         },
+        'last': 0,
     }
 
     static get(key: string, defaultValue: any): any
     {
-        let result = Config.getOnline(key);
+        let result = Config.getTemp(key);
+        if (result == undefined || result == null) {
+            result = Config.getOnline(key);
+        }
         if (result == undefined || result == null) {
             result = Config.getStatic(key);
         }
@@ -59,13 +65,23 @@ export class Config
         return result;
     }
 
-    static async getPreferLocal(key: string, defaultValue: any)
+    static set(key: string, value: any): void
     {
-        let result = await Config.getLocal(key, undefined);
+        this.tempConfig[key] = value;
+    }
+
+    static async getPreferSync(key: string, defaultValue: any)
+    {
+        let result = await Config.getSync(key, undefined);
         if (result == undefined) {
             result = Config.get(key, defaultValue);
         }
         return result;
+    }
+
+    static getTemp(key: string): any
+    {
+        return this.tempConfig[key];
     }
 
     static getOnline(key: string): any
@@ -93,11 +109,44 @@ export class Config
         return current;
     }
 
+    static async getSync(key: string, defaultValue: any): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            if (chrome.storage != undefined) {
+                chrome.storage.sync.get([key], result =>
+                {
+                    if (result[key] != undefined) {
+                        resolve(result[key]);
+                    } else {
+                        resolve(defaultValue);
+                    }
+                });
+            } else {
+                reject('chrome.storage undefined');
+            }
+        });
+    }
+
+    static async setSync(key: string, value: any): Promise<void>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            let dict = {};
+            dict[key] = value;
+            if (chrome.storage != undefined) {
+                chrome.storage.sync.set(dict, () => { resolve(); });
+            } else {
+                reject('chrome.storage undefined');
+            }
+        });
+    }
+
     static async getLocal(key: string, defaultValue: any): Promise<any>
     {
         return new Promise(resolve =>
         {
-            chrome.storage.sync.get([key], result =>
+            chrome.storage.local.get([key], result =>
             {
                 if (result[key] != undefined) {
                     resolve(result[key]);
@@ -114,7 +163,7 @@ export class Config
         {
             let dict = {};
             dict[key] = value;
-            chrome.storage.sync.set(dict, () => { resolve(); });
+            chrome.storage.local.set(dict, () => { resolve(); });
         });
     }
 

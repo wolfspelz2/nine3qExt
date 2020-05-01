@@ -14,11 +14,10 @@ export class Room
     private avatar: string = '';
     private enterRetryCount: number = 0;
     private maxEnterRetries: number = as.Int(Config.get('xmpp.maxMucEnterRetries', 4));
-    private posX: number = Utils.randomInt(as.Int(Config.get('room.randomEnterPosXMin', 400)), as.Int(Config.get('room.randomEnterPosXMax', 700)));
     private participants: { [nick: string]: Participant; } = {};
     private isEntered = false;
 
-    constructor(private app: ContentApp, private display: HTMLElement, private jid: string) 
+    constructor(private app: ContentApp, private display: HTMLElement, private jid: string, private posX: number) 
     {
         let user = Config.get('xmpp.user', Utils.randomString(0));
         let domain = Config.get('xmpp.domain', '');
@@ -36,8 +35,8 @@ export class Room
     async enter(): Promise<void>
     {
         try {
-            this.nickname = await Config.getLocal('me.nickname', 'new-user');
-            this.avatar = await Config.getLocal('me.avatar', '004/pinguin');
+            this.nickname = await Config.getSync('me.nickname', 'new-user');
+            this.avatar = await Config.getSync('me.avatar', '004/pinguin');
         } catch (error) {
             log.error(error);
             this.nickname = 'new-user';

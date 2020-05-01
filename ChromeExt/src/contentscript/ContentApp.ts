@@ -65,29 +65,14 @@ export class ContentApp
 
         await Utils.sleep(as.Float(Config.get('vp.deferPageEnterSec', 1)) * 1000);
 
-        try {
-            let nickname = await Config.getLocal('me.nickname', '');
-            if (nickname == '') {
-                await Config.setLocal('me.nickname', 'Your name');
-            }
-        } catch (error) {
-            log.error(error);
-            Panic.now();
-        }
+        await this.assertSavedNickname();
+        await this.assertSavedAvatar();
+        await this.assertSavedPosition();
 
-        try {
-            let avatar = await Config.getLocal('me.avatar', '');
-            if (avatar == '') {
-                avatar = AvatarGallery.getRandomAvatar();
-                await Config.setLocal('me.avatar', avatar);
-            }
-        } catch (error) {
-            log.error(error);
-            Panic.now();
-        }
-
-        this.display = $('<div id="n3q-id-page" class="n3q-base" />')[0];
-        this.appendToMe.append(this.display);
+        let page = $('<div id="n3q-id-page" class="n3q-base" />')[0];
+        this.display = $('<div class="n3q-display" class="n3q-base" />')[0];
+        $(page).append(this.display);
+        this.appendToMe.append(page);
 
         //this.createPageControl();
 
@@ -168,10 +153,10 @@ export class ContentApp
         });
     }
 
-    enterRoomByJid(roomJid: string): void
+    async enterRoomByJid(roomJid: string): Promise<void>
     {
         if (this.rooms[roomJid] === undefined) {
-            this.rooms[roomJid] = new Room(this, this.display, roomJid);
+            this.rooms[roomJid] = new Room(this, this.display, roomJid, await this.getSavedPosition());
         }
         log.info('ContentApp.enterRoomByJid', roomJid);
         this.rooms[roomJid].enter();
@@ -229,28 +214,80 @@ export class ContentApp
         // }
     }
 
-    // Local storage
+    // my nickname
 
-    private readonly localStorage_Key_Avatar_x: string = 'Avatar_x';
-
-    savePosition(x: number): void
+    async assertSavedNickname()
     {
-        Platform.setStorageString(this.localStorage_Key_Avatar_x, as.String(x));
+        try {
+            let nickname = await Config.getSync('me.nickname', '');
+            if (nickname == '') {
+                await Config.setSync('me.nickname', 'Your name');
+            }
+        } catch (error) {
+            log.error(error);
+            Panic.now();
+        }
     }
 
-    getSavedPosition(): number
+    // my avatar
+
+    async assertSavedAvatar()
     {
-        let value = Platform.getStorageString(this.localStorage_Key_Avatar_x, '');
-        if (value == '') {
-            return this.getDefaultPosition();
-        } else {
-            return as.Int(value);
+        try {
+            let avatar = await Config.getSync('me.avatar', '');
+            if (avatar == '') {
+                avatar = AvatarGallery.getRandomAvatar();
+                await Config.setSync('me.avatar', avatar);
+            }
+        } catch (error) {
+            log.error(error);
+            Panic.now();
         }
+    }
+
+    // my x
+
+    async assertSavedPosition()
+    {
+        try {
+            let x = as.Int(await Platform.getLocalStorage('me.x', -1), -1);
+            if (x < 0) {
+                x = Utils.randomInt(as.Int(Config.get('room.randomEnterPosXMin', 400)), as.Int(Config.get('room.randomEnterPosXMax', 700)))
+                await this.savePosition(x);
+            }
+        } catch (error) {
+            log.error(error);
+        }
+    }
+
+    async savePosition(x: number): Promise<void>
+    {
+        try {
+            await Platform.setLocalStorage('me.x', x);
+        } catch (error) {
+            log.warn(error);
+        }
+    }
+
+    async getSavedPosition(): Promise<number>
+    {
+        let x = 0;
+
+        try {
+            x = as.Int(await Platform.getLocalStorage('me.x', -1), -1);
+        } catch (error) {
+            log.warn(error);
+        }
+
+        if (x <= 0) {
+            x = this.getDefaultPosition();
+        }
+
+        return x;
     }
 
     getDefaultPosition(): number
     {
-        return 100 + Math.floor(Math.random() * 500);
+        return Utils.randomInt(100, 500);
     }
-
 }

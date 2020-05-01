@@ -6,6 +6,7 @@ import { Config } from '../lib/Config';
 import { Platform } from '../lib/Platform';
 import { AvatarGallery } from '../lib/AvatarGallery';
 
+// @ts-ignore
 import imgPopupIcon from '../assets/PopupIcon.png';
 
 export class PopupApp
@@ -45,8 +46,8 @@ export class PopupApp
         this.display = $('<div id="n3q-id-popup" class="n3q-base" />').get(0);
         this.appendToMe.append(this.display);
 
-        let nickname = as.String(await Config.getLocal('me.nickname', 'Your name'));
-        let avatar = as.String(await Config.getLocal('me.avatar', ''));
+        let nickname = as.String(await Config.getSync('me.nickname', 'Your name'));
+        let avatar = as.String(await Config.getSync('me.avatar', ''));
 
         {
             let group = $('<div class="n3q-base n3q-popup-header" />').get(0);
@@ -94,7 +95,7 @@ export class PopupApp
                 if (avatarIdx < 0) {
                     avatar = '004/pinguin';
                 }
-                await Config.setLocal('me.avatar', avatar);
+                await Config.setSync('me.avatar', avatar);
             }
 
             let group = $('<div class="n3q-base n3q-popup-group n3q-popup-group-avatar" />').get(0);
@@ -145,8 +146,8 @@ export class PopupApp
             let save = $('<button class="n3q-base n3q-popup-save" >Save</button>').get(0);
             $(save).bind('click', async ev =>
             {
-                await Config.setLocal('me.nickname', $('#n3q-id-popup-nickname').val())
-                await Config.setLocal('me.avatar', $('#n3q-id-popup-avatar').val())
+                await Config.setSync('me.nickname', $('#n3q-id-popup-nickname').val())
+                await Config.setSync('me.avatar', $('#n3q-id-popup-avatar').val())
             });
             group.append(save);
 

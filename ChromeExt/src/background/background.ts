@@ -12,7 +12,6 @@ if (debug) {
     log.setLevel(log.levels.DEBUG);
 }
 
-log.setLevel(log.levels.DEBUG);
 var app = null;
 
 async function activate()
@@ -106,7 +105,32 @@ chrome.runtime?.onMessage.addListener(
             } break;
 
             case 'getConfig': {
+                log.debug('background getConfig');
                 return sendResponse(Config.getAllOnline());
+            } break;
+
+            case 'getLocalStorage': {
+                let response = {};
+                try {
+                    let value = Config.get(message.key, undefined);
+                    if (value != undefined) {
+                        response[message.key] = value;
+                    }
+                } catch (error) {
+                    log.warn('background getLocalStorage', error);
+                }
+                log.debug('background getLocalStorage', message.key, 'response', response);
+                return sendResponse(response);
+            } break;
+
+            case 'setLocalStorage': {
+                log.debug('background setLocalStorage', message.key, message.value);
+                try {
+                    Config.set(message.key, message.value);
+                } catch (error) {
+                    log.warn('background setLocalStorage', error);
+                }
+                return sendResponse({});
             } break;
 
             case 'sendStanza': {

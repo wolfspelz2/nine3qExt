@@ -89,8 +89,8 @@ export class BackgroundApp
                 service: Config.get('xmpp.service', 'wss://xmpp.weblin.sui.li/xmpp-websocket'),// service: 'wss://xmpp.dev.sui.li/xmpp-websocket',
                 domain: Config.get('xmpp.domain', 'xmpp.weblin.sui.li'),
                 resource: Config.get('xmpp.resource', 'web'),
-                username: await Config.getPreferLocal('xmpp.user', ''),
-                password: await Config.getPreferLocal('xmpp.pass', ''),
+                username: await Config.getPreferSync('xmpp.user', ''),
+                password: await Config.getPreferSync('xmpp.pass', ''),
             };
             if (conf.username == '' || conf.password == '') {
                 throw 'Missing xmpp.user or xmpp.pass';

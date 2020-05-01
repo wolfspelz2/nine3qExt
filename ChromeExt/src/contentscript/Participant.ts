@@ -31,7 +31,7 @@ export class Participant extends Entity
 
     //#region presence
 
-    onPresenceAvailable(stanza: any): void
+    async onPresenceAvailable(stanza: any): Promise<void>
     {
         let presenceHasPosition: boolean = false;
         let newX: number = 123;
@@ -121,7 +121,7 @@ export class Participant extends Entity
             this.firstPresence = false;
 
             if (!presenceHasPosition) {
-                newX = this.isSelf ? this.app.getSavedPosition() : this.app.getDefaultPosition();
+                newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition();
             }
             if (newX < 0) { newX = 100; }
             this.setPosition(newX);
@@ -289,10 +289,6 @@ export class Participant extends Entity
 
         if (newX < 0) { newX = 0; }
 
-        if (this.isSelf) {
-            this.app.savePosition(newX);
-        }
-
         this.setPosition(this.getPosition());
 
         var oldX = this.getPosition();
@@ -330,6 +326,7 @@ export class Participant extends Entity
 
         if (this.getPosition() != newX) {
             if (this.isSelf) {
+                this.app.savePosition(newX);
                 this.room.sendMoveMessage(newX);
             } else {
                 this.quickSlide(newX);

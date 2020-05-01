@@ -58,17 +58,17 @@ input.n3q-base:focus {
 
 // Components
 
-// .n3q-display {
-//     position: absolute;
-//     bottom: 0;
-//     left: 0;
-//     right: 0;
-//     height: 100px;
-//     //background-color: rgba(255, 255, 255, 0.0);
-//     //background-color: rgba(70, 201, 70, 0.1);
-//     //background-image: url("display-bg.png");
-//     pointer-events: none;
-// }
+.n3q-display {
+    position: absolute;
+    bottom: 0;
+    left: 50px;
+    right: 0;
+    top: 0;
+    //background-color: rgba(255, 255, 255, 0.0);
+    //background-color: rgba(70, 201, 70, 0.1);
+    //background-image: url("display-bg.png");
+    pointer-events: none;
+}
 
 .n3q-ctrl {
     position: absolute;
