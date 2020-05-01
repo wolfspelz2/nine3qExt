@@ -6,10 +6,10 @@ import { Utils } from '../lib/Utils';
 import { Platform } from '../lib/Platform';
 import { Panic } from '../lib/Panic';
 import { Config } from '../lib/Config';
+import { AvatarGallery } from '../lib/AvatarGallery';
 import { Room } from './Room';
 import { PropertyStorage } from './PropertyStorage';
 import { HelloWorld } from './HelloWorld';
-import { AvatarGallery } from '../lib/AvatarGallery';
 
 interface ILocationMapperResponse
 {
@@ -62,18 +62,18 @@ export class ContentApp
             Panic.now();
         }
 
-        await Utils.sleep(as.Float(Config.get('deferPageEnterSec', 1)) * 1000);
+        await Utils.sleep(as.Float(Config.get('vp.deferPageEnterSec', 1)) * 1000);
         
-        let nickname = await Config.getLocal('nickname', '');
+        let nickname = await Config.getLocal('me.nickname', '');
         if (nickname == '') {
             nickname = 'Your name';
-            await Config.setLocal('nickname', nickname);
+            await Config.setLocal('me.nickname', nickname);
         }
 
-        let avatar = await Config.getLocal('avatar', '');
+        let avatar = await Config.getLocal('me.avatar', '');
         if (avatar == '') {
             avatar = AvatarGallery.getRandomAvatar();
-            await Config.setLocal('avatar', avatar);
+            await Config.setLocal('me.avatar', avatar);
         }
 
         this.display = $('<div id="n3q-id-page" class="n3q-base" />')[0];
@@ -137,7 +137,7 @@ export class ContentApp
 
     enterRoomByPageUrl(pageUrl: string): void
     {
-        let url = new URL(Config.get('locationMappingServiceUrl', 'http://lms.virtual-presence.org/api/'));
+        let url = new URL(Config.get('vp.locationMappingServiceUrl', 'http://lms.virtual-presence.org/api/'));
         url.searchParams.set('Method', 'VPI.Info');
         url.searchParams.set('sDocumentURL', pageUrl);
         url.searchParams.set('Format', 'json');

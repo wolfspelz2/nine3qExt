@@ -32,7 +32,7 @@ export class Nickname implements IObserver
     setNickname(nickname: string): void
     {
         $(this.textElem).html(as.Html(nickname));
-        if (Config.get('showNicknameTooltip', true)) {
+        if (Config.get('room.showNicknameTooltip', true)) {
             $(this.textElem).prop('title', nickname);;
         }
     }

@@ -14,7 +14,7 @@ export class ConfigUpdater
             this.timer = undefined;
             this.startUpdateTimer();
             this.checkUpdate();
-        }, Config.get('checkUpdateConfigIntervalSec', 600) * 1000);
+        }, Config.get('config.checkUpdateIntervalSec', 600) * 1000);
     }
 
     stopUpdateTimer(): void
@@ -26,8 +26,8 @@ export class ConfigUpdater
 
     async checkUpdate()
     {
-        let lastUpdateConfigTime: number = as.Int(await Config.getLocal('lastUpdateConfigTime', 0), 0);
-        if (Date.now() - lastUpdateConfigTime > as.Int(Config.get('updateConfigIntervalSec', 86331))) {
+        let lastUpdateConfigTime: number = as.Int(await Config.getLocal('config.lastUpdateTime', 0), 0);
+        if (Date.now() - lastUpdateConfigTime > as.Int(Config.get('config.updateIntervalSec', 86331))) {
             await this.getUpdate()
         }
     }
@@ -37,7 +37,7 @@ export class ConfigUpdater
         try {
             let data = await this.fetchConfig();
             Config.setAllOnline(data);
-            await Config.setLocal('lastUpdateConfigTime', Date.now());
+            await Config.setLocal('config.lastUpdateTime', Date.now());
         } catch (error) {
             log.warn('ConfigUpdater.checkUpdate', 'fetchConfig failed')
         }
@@ -45,7 +45,7 @@ export class ConfigUpdater
 
     private async fetchConfig(): Promise<any>
     {
-        let url = Config.get('configSeviceUrl', 'https://config.weblin.sui.li/');
+        let url = Config.get('config.seviceUrl', 'https://config.weblin.sui.li/');
         log.info('ConfigUpdater.fetchConfig', url);
 
         return new Promise((resolve, reject) =>

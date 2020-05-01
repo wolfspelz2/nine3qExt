@@ -13,8 +13,8 @@ export class Room
     private nickname: string = '';
     private avatar: string = '';
     private enterRetryCount: number = 0;
-    private maxEnterRetries: number = as.Int(Config.get('maxMucEnterRetries', 4));
-    private posX: number = Utils.randomInt(as.Int(Config.get('roomEnterPosXMin', 400)), as.Int(Config.get('roomEnterPosXMax', 700)));
+    private maxEnterRetries: number = as.Int(Config.get('xmpp.maxMucEnterRetries', 4));
+    private posX: number = Utils.randomInt(as.Int(Config.get('room.randomEnterPosXMin', 400)), as.Int(Config.get('room.randomEnterPosXMax', 700)));
     private participants: { [nick: string]: Participant; } = {};
     private isEntered = false;
 
@@ -35,8 +35,8 @@ export class Room
 
     async enter(): Promise<void>
     {
-        this.nickname = await Config.getLocal('nickname', 'new-user');
-        this.avatar = await Config.getLocal('avatar', '004/pinguin');
+        this.nickname = await Config.getLocal('me.nickname', 'new-user');
+        this.avatar = await Config.getLocal('me.avatar', '004/pinguin');
 
         this.enterRetryCount = 0;
         this.sendPresence();

@@ -31,9 +31,8 @@ export class Avatar implements IObserver
     private currentState: string = '';
     private currentAction: string = '';
     private inDrag: boolean = false;
-    private currentSpeedPixelPerSec: number = as.Float(Config.get('speedPixelPerSec', 100));
-    private defaultSpeedPixelPerSec: number = as.Float(Config.get('speedPixelPerSec', 100));
-    private doubleClickDelay: number = as.Int(Config.get('doubleClickDelay', 20));
+    private currentSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
+    private defaultSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
 
     private preventNextClick_a_hack_otherwise_draggable_clicks = false;
     private clickTimer: number = undefined;
@@ -57,7 +56,7 @@ export class Avatar implements IObserver
                         this.clickTimer = undefined;
                         this.entity.onMouseClickAvatar(ev);
                         //hw later app.zIndexTop(this.elem);
-                    }, this.doubleClickDelay);
+                    }, as.Float(Config.get('avatarDoubleClickDelaySec', 0.25)) * 1000);
                 }
             } else {
                 if (this.clickTimer != undefined) {

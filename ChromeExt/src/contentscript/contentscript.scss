@@ -194,10 +194,13 @@ input.n3q-base:focus {
     background-color: #f5f5f5;
     white-space: nowrap;
     max-width: 80px;
-    overflow: hidden;
-    text-overflow: ellipsis;
     z-index: z-index(ParticipantNickname);
     pointer-events: auto;
+}
+
+.n3q-nickname .n3q-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 // Chatout

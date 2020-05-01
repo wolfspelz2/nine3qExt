@@ -17,12 +17,11 @@ export class Participant extends Entity
     private chatoutDisplay: Chatout;
     private chatinDisplay: Chatin;
     private firstPresence: boolean = true;
-    private defaultSpeedPixelPerSec: number = as.Float(Config.get('speedPixelPerSec', 100));
+    private defaultSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
     private identityUrl: string;
     private userId: string;
     private inMove: boolean = false;
     private condition_: string = '';
-    private maxChatDelaySec: number = as.Int(Config.get('maxChatDelaySec', 60));
 
     constructor(private app: ContentApp, room: Room, display: HTMLElement, private nick: string, private isSelf: boolean)
     {
@@ -206,7 +205,7 @@ export class Participant extends Entity
         //     }
         // }
 
-        if (delaySec < this.maxChatDelaySec) {
+        if (delaySec < as.Float(Config.get('room.maxChatAgeSec', 60))) {
             let bodyNode = stanza.getChild('body');
             if (bodyNode != undefined) {
                 let text = bodyNode.getText();
