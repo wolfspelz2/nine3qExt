@@ -35,8 +35,14 @@ export class Room
 
     async enter(): Promise<void>
     {
-        this.nickname = await Config.getLocal('me.nickname', 'new-user');
-        this.avatar = await Config.getLocal('me.avatar', '004/pinguin');
+        try {
+            this.nickname = await Config.getLocal('me.nickname', 'new-user');
+            this.avatar = await Config.getLocal('me.avatar', '004/pinguin');
+        } catch (error) {
+            log.error(error);
+            this.nickname = 'new-user';
+            this.avatar = '004/pinguin';
+        }
 
         this.enterRetryCount = 0;
         this.sendPresence();

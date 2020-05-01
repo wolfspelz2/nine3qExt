@@ -26,9 +26,13 @@ export class ConfigUpdater
 
     async checkUpdate()
     {
-        let lastUpdateConfigTime: number = as.Int(await Config.getLocal('config.lastUpdateTime', 0), 0);
-        if (Date.now() - lastUpdateConfigTime > as.Int(Config.get('config.updateIntervalSec', 86331))) {
-            await this.getUpdate()
+        try {
+            let lastUpdateConfigTime: number = as.Int(await Config.getLocal('config.lastUpdateTime', 0), 0);
+            if (Date.now() - lastUpdateConfigTime > as.Int(Config.get('config.updateIntervalSec', 86331))) {
+                await this.getUpdate()
+            }
+        } catch (error) {
+            log.error(error);
         }
     }
 

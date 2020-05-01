@@ -84,48 +84,52 @@ export class BackgroundApp
 
     private async startXmpp()
     {
-        var conf = {
-            service: Config.get('xmpp.service', 'wss://xmpp.weblin.sui.li/xmpp-websocket'),// service: 'wss://xmpp.dev.sui.li/xmpp-websocket',
-            domain: Config.get('xmpp.domain', 'xmpp.weblin.sui.li'),
-            resource: Config.get('xmpp.resource', 'web'),
-            username: await Config.getPreferLocal('xmpp.user', ''),
-            password: await Config.getPreferLocal('xmpp.pass', ''),
-        };
-        if (conf.username == '' || conf.password == '') {
-            throw 'Missing xmpp.user or xmpp.pass';
-        }
-        this.xmpp = client(conf);
-
-        this.xmpp.on('error', (err: any) =>
-        {
-            log.error('BackgroundApp xmpp.on.error', err);
-        });
-
-        this.xmpp.on('offline', () =>
-        {
-            log.warn('BackgroundApp xmpp.on.offline');
-            this.xmppConnected = false;
-        });
-
-        this.xmpp.on('online', async (address: any) =>
-        {
-            log.info('BackgroundApp xmpp.on.online', address);
-
-            this.sendPresence();
-            this.keepAlive();
-
-            if (!this.xmppConnected) {
-                this.xmppConnected = true;
-                while (this.stanzaQ.length > 0) {
-                    let stanza = this.stanzaQ.shift();
-                    this.sendStanzaUnbuffered(stanza);
-                }
+        try {
+            var conf = {
+                service: Config.get('xmpp.service', 'wss://xmpp.weblin.sui.li/xmpp-websocket'),// service: 'wss://xmpp.dev.sui.li/xmpp-websocket',
+                domain: Config.get('xmpp.domain', 'xmpp.weblin.sui.li'),
+                resource: Config.get('xmpp.resource', 'web'),
+                username: await Config.getPreferLocal('xmpp.user', ''),
+                password: await Config.getPreferLocal('xmpp.pass', ''),
+            };
+            if (conf.username == '' || conf.password == '') {
+                throw 'Missing xmpp.user or xmpp.pass';
             }
-        });
-
-        this.xmpp.on('stanza', (stanza: any) => this.recvStanza(stanza));
-
-        this.xmpp.start().catch(log.error);
+            this.xmpp = client(conf);
+    
+            this.xmpp.on('error', (err: any) =>
+            {
+                log.error('BackgroundApp xmpp.on.error', err);
+            });
+    
+            this.xmpp.on('offline', () =>
+            {
+                log.warn('BackgroundApp xmpp.on.offline');
+                this.xmppConnected = false;
+            });
+    
+            this.xmpp.on('online', async (address: any) =>
+            {
+                log.info('BackgroundApp xmpp.on.online', address);
+    
+                this.sendPresence();
+                this.keepAlive();
+    
+                if (!this.xmppConnected) {
+                    this.xmppConnected = true;
+                    while (this.stanzaQ.length > 0) {
+                        let stanza = this.stanzaQ.shift();
+                        this.sendStanzaUnbuffered(stanza);
+                    }
+                }
+            });
+    
+            this.xmpp.on('stanza', (stanza: any) => this.recvStanza(stanza));
+    
+            this.xmpp.start().catch(log.error);
+            } catch (error) {
+            log.error(error);
+        }
     }
 
     private stopXmpp()

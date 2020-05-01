@@ -59,21 +59,31 @@ export class ContentApp
             let config = await Platform.getConfig();
             Config.setAllOnline(config);
         } catch (error) {
+            log.error(error);
             Panic.now();
         }
 
         await Utils.sleep(as.Float(Config.get('vp.deferPageEnterSec', 1)) * 1000);
-        
-        let nickname = await Config.getLocal('me.nickname', '');
-        if (nickname == '') {
-            nickname = 'Your name';
-            await Config.setLocal('me.nickname', nickname);
+
+        try {
+            let nickname = await Config.getLocal('me.nickname', '');
+            if (nickname == '') {
+                await Config.setLocal('me.nickname', 'Your name');
+            }
+        } catch (error) {
+            log.error(error);
+            Panic.now();
         }
 
-        let avatar = await Config.getLocal('me.avatar', '');
-        if (avatar == '') {
-            avatar = AvatarGallery.getRandomAvatar();
-            await Config.setLocal('me.avatar', avatar);
+        try {
+            let avatar = await Config.getLocal('me.avatar', '');
+            if (avatar == '') {
+                avatar = AvatarGallery.getRandomAvatar();
+                await Config.setLocal('me.avatar', avatar);
+            }
+        } catch (error) {
+            log.error(error);
+            Panic.now();
         }
 
         this.display = $('<div id="n3q-id-page" class="n3q-base" />')[0];
