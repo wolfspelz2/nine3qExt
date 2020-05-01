@@ -30,6 +30,13 @@ input.n3q-base {
     float: right;
 }
 
+.n3q-popup-header {
+    border-color: #a9a9a9;
+    border-style: solid;
+    border-width: 0 0 1px 0;
+    padding: 0.5em 0 1em 0;    
+}
+
 .n3q-popup-group {
     margin-top: 1em;
 }
@@ -39,7 +46,7 @@ input.n3q-base {
     margin-right: 1em;
 }
 
-.n3q-popup-nickname input {
+#n3q-id-popup-nickname {
     border-color: #a9a9a9;
     border-style: solid;
     border-width: 0 0 1px 0;
@@ -48,8 +55,6 @@ input.n3q-base {
 .n3q-popup-label::after { 
     content: ":"; 
 }
-
-// .n3q-popup-nickname input[type="text] {}
 
 .n3q-popup-random { 
     display: inline;
@@ -79,11 +84,36 @@ input.n3q-base {
 }
 
 .n3q-popup-avatar-arrow:hover {
-    background-repeat: no-repeat;
-    background-color:lightgrey;
+    filter: brightness(1.2);
 }
   
 .n3q-popup-avatar-arrow:active {
-    background-repeat: no-repeat;
-    background-color:darkgrey;
+    filter: brightness(0.8);
 }
+
+.n3q-popup-group-save {
+    border-color: #a9a9a9;
+    border-style: solid;
+    border-width: 1px 0 0 0;
+    padding: 1em 0 0.5em 0;    
+}
+
+.n3q-popup-save {
+    background-color: #b1c032;
+    display: inline;
+    border: 1px solid grey;
+    padding: 2px 2em;
+}
+
+.n3q-popup-save:hover {
+    filter: brightness(1.2);
+}
+  
+.n3q-popup-save:active {
+    filter: brightness(0.8);
+}
+
+.n3q-popup-close {
+    float: right;
+}
+

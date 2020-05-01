@@ -150,6 +150,13 @@ export class PopupApp
             });
             group.append(save);
 
+            let close = $('<button class="n3q-base n3q-popup-close" >Close</button>').get(0);
+            $(close).bind('click', async ev =>
+            {
+                window.close();
+            });
+            group.append(close);
+
             this.display.append(group);
         }
     }
