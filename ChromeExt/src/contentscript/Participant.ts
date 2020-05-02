@@ -368,7 +368,6 @@ export class Participant extends Entity
 
         this.toggleChatin();
 
-        //hw later
         // if (this.isSelf) {
         //     var elem = $(''
         //         + '<ul data-translate="children">'
@@ -393,9 +392,6 @@ export class Participant extends Entity
         //     )[0];
         //     var actions: IMenuEvents = {
         //         'chat': (ev: JQueryMouseEventObject) => { this.toggleChatin(); },
-        //         'inventory': (ev: JQueryMouseEventObject) => { this.app.toggleInventory(ev.clientX); },
-        //         'nickname': (ev: JQueryMouseEventObject) => { this.changeNickname(ev.clientX); },
-        //         'avatar': (ev: JQueryMouseEventObject) => { this.changeAvatar(ev.clientX); },
         //         'do-wave': (ev: JQueryMouseEventObject) => { this.do('wave'); },
         //         'do-dance': (ev: JQueryMouseEventObject) => { this.do('dance'); },
         //         'do-cheer': (ev: JQueryMouseEventObject) => { this.do('cheer'); },

@@ -37,9 +37,29 @@ class HtmlElementTextPartApplier extends HtmlElementPartApplier
     }
 }
 
+interface TranslatorLanguageMapper { (key: string): string }
+
 export class Translator
 {
     translationStatus: { [id: string]: boolean; } = {};
+
+    static mapLanguage(browserLanguage: string, languageMapper: TranslatorLanguageMapper, defaultLanguage: string): string
+    {
+        let language = defaultLanguage;
+
+        if (languageMapper(browserLanguage) != undefined) {
+            language = languageMapper(browserLanguage);
+        } else {
+            let parts = browserLanguage.split('-', 2);
+            if (parts.length == 2) {
+                if (languageMapper(parts[0]) != undefined) {
+                    language = languageMapper(parts[0]);
+                }
+            }
+        }
+
+        return language;
+    }
 
     constructor(private translations: any, private language: string, private translationService: string)
     {
@@ -107,7 +127,7 @@ export class Translator
         }
     }
 
-    getKey(context: string, text: string): string 
+    getKey(context: string, text: string): string
     {
         let key: string = context;
         if (context.indexOf('.') < 0) {

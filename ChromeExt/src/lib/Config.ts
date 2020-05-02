@@ -48,12 +48,39 @@ export class Config
             'identificatorUrlTemplate': 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}',
         },
         'i18n': {
+            'defaultLanguage': 'en-US',
+            'languageMapping': {
+                'de': 'de-DE',
+            },
             'translations': {
-                'en': {},
-                'de': {
+                'en-US': {
+                    'Common.Close': 'Close',
+
+                    'Chatin.Enter chat here...': 'Enter chat here...',
+                    'Chatin.SendChat': 'Send chat',
+
+                    'Popup.title': 'Configure your avatar',
+                    'Popup.description': 'Change name and avatar, press [save], and then reload the page.',
+                    'Popup.Name': 'Name',
+                    'Popup.Random': 'Random',
+                    'Popup.Avatar': 'Avatar',
+                    'Popup.Save': 'Save',
+
+                    'Client.wave': 'Wave',
+                    'Client.dance': 'Dance',
+                    'Client.cheer': 'Cheer',
+                    'Client.kiss': 'Kiss',
+                    'Client.clap': 'Clap',
+                    'Client.laugh': 'Laugh',
+                    'Client.angry': 'Angry',
+                    'Client.deny': 'Deny',
+                    'Client.yawn': 'Yawn',
+                },
+                'de-DE': {
+                    'Common.Close': 'Schließen',
+
                     'Chatin.Enter chat here...': 'Chat Text hier eingeben...',
                     'Chatin.SendChat': 'Chat abschicken',
-                    'Common.Close': 'Schließen',
 
                     'Popup.title': 'Avatar Einstellungen',
                     'Popup.description': 'Wähle Name und Avatar, dann drücke [Speichern] und lade die Seite neu.',

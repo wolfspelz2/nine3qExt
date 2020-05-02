@@ -17,7 +17,8 @@ export class PopupApp
 
     constructor(private appendToMe: HTMLElement)
     {
-        this.babelfish = new Translator(Config.get('i18n.translations.de', {}), 'de', Config.get('i18n.serviceUrl', ''));
+        let language: string = Translator.mapLanguage(navigator.language, lang => { return Config.get('i18n.languageMapping', {})[lang]; }, Config.get('i18n.defaultLanguage', 'en-US'));
+        this.babelfish = new Translator(Config.get('i18n.translations', {})[language], language, Config.get('i18n.serviceUrl', ''));
     }
 
     async dev_start()
@@ -61,7 +62,7 @@ export class PopupApp
             let title = $('<div class="n3q-base n3q-popup-title" data-translate="text:Popup.title">Configure your avatar</div>').get(0);
             group.append(title);
 
-            let description = $('<div class="n3q-base n3q-popup-description" data-translate="text:Popup.description">Change name and avatar, press [save], and then reload the page.</div>').get(0);
+            let description = $('<div class="n3q-base n3q-popup-description" data-translate="text:Popup.description">Change name and avatar, then reload the page.</div>').get(0);
             group.append(description);
 
             this.display.append(group);

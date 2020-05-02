@@ -38,12 +38,12 @@ export class ContentApp
 
     createPageControl()
     {
-        let controlElem: HTMLElement = $('<div class="n3q-base n3q-ctrl" id="n3q-hello"></div>')[0];
+        let controlElem: HTMLElement = $('<div class="n3q-base n3q-ctrl" id="n3q-hello"></div>').get(0);
         this.display.append(controlElem);
 
         $('#n3q-hello').text(HelloWorld.getText());
 
-        let enterButton: HTMLElement = $('<button class="n3q-base">enter</button>')[0];
+        let enterButton: HTMLElement = $('<button class="n3q-base">enter</button>').get(0);
         controlElem.append(enterButton);
         $(enterButton).click(() =>
         {
@@ -67,14 +67,15 @@ export class ContentApp
 
         await Utils.sleep(as.Float(Config.get('vp.deferPageEnterSec', 1)) * 1000);
 
-        this.babelfish = new Translator(Config.get('i18n.translations.de', {}), 'de', Config.get('i18n.serviceUrl', ''));
+        let language: string = Translator.mapLanguage(navigator.language, lang => { return Config.get('i18n.languageMapping', {})[lang]; }, Config.get('i18n.defaultLanguage', 'en-US'));
+        this.babelfish = new Translator(Config.get('i18n.translations', {})[language], language, Config.get('i18n.serviceUrl', ''));
 
         await this.assertUserNickname();
         await this.assertUserAvatar();
         await this.assertSavedPosition();
 
-        let page = $('<div id="n3q-id-page" class="n3q-base" />')[0];
-        this.display = $('<div class="n3q-base n3q-display" />')[0];
+        let page = $('<div id="n3q-id-page" class="n3q-base" />').get(0);
+        this.display = $('<div class="n3q-base n3q-display" />').get(0);
         $(page).append(this.display);
         this.appendToMe.append(page);
 
@@ -239,7 +240,7 @@ export class ContentApp
     }
 
     async getUserNickname(): Promise<string>
-    {        
+    {
         return await Config.getSync('me.nickname', 'no name');
     }
 
@@ -260,7 +261,7 @@ export class ContentApp
     }
 
     async getUserAvatar(): Promise<string>
-    {        
+    {
         return await Config.getSync('me.avatar', '004/pinguin');
     }
 

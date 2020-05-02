@@ -8,6 +8,7 @@ import { TestAnimationsXml } from './TestAnimationsXml'; s.addTestClass(TestAnim
 import { TestContentApp } from './TestContentApp'; s.addTestClass(TestContentApp);
 import { TestUtils } from './TestUtils'; s.addTestClass(TestUtils);
 import { TestConfig} from './TestConfig'; s.addTestClass(TestConfig);
+import { TestTranslator} from './TestTranslator'; s.addTestClass(TestTranslator);
 import { TestMisc} from './TestMisc'; s.addTestClass(TestMisc);
 
 s.ignoreFailureForClass(TestHelloWorld);
