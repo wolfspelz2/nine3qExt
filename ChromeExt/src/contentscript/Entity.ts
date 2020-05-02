@@ -48,7 +48,9 @@ export class Entity
     setPosition(x: number): void
     {
         this.positionX = x;
-        this.elem.style.left = x + 'px';
+        if (this.elem != undefined) {
+            this.elem.style.left = x + 'px';
+        }
     }
 
     getPosition(): number

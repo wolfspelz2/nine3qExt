@@ -30,7 +30,7 @@ export class Config
             'randomEnterPosXMin': 400,
             'randomEnterPosXMax': 700,
             'showNicknameTooltip': true,
-            'avatarDoubleClickDelaySec': 0.3,
+            'avatarDoubleClickDelaySec': 0.1,
             'maxChatAgeSec': 60,
         },
         'xmpp': {
