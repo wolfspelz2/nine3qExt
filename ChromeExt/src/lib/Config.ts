@@ -27,8 +27,8 @@ export class Config
         },
         'room': {
             'defaultAvatarSpeedPixelPerSec': 100,
-            'randomEnterPosXMin': 400,
-            'randomEnterPosXMax': 700,
+            'randomEnterPosXMin': 300,
+            'randomEnterPosXMax': 600,
             'showNicknameTooltip': true,
             'avatarDoubleClickDelaySec': 0.1,
             'maxChatAgeSec': 60,
@@ -46,6 +46,27 @@ export class Config
         },
         'identity': {
             'identificatorUrlTemplate': 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}',
+        },
+        'i18n': {
+            'translations': {
+                'en': {},
+                'de': {
+                    'Chatin.Enter chat here...': 'Chat Text hier eingeben...',
+                    'Chatin.SendChat': 'Chat abschicken',
+                    'Common.Close': 'Schließen',
+
+                    'Client.wave': 'Winken',
+                    'Client.dance': 'Tanzen',
+                    'Client.cheer': 'Jubeln',
+                    'Client.kiss': 'Küssen',
+                    'Client.clap': 'Klatschen',
+                    'Client.laugh': 'Lachen',
+                    'Client.angry': 'Ärgern',
+                    'Client.deny': 'Ablehnen',
+                    'Client.yawn': 'Gähnen',
+                },
+            },
+            'serviceUrl': '',
         },
         'last': 0,
     }

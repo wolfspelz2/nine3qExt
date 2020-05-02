@@ -35,8 +35,8 @@ export class Room
     async enter(): Promise<void>
     {
         try {
-            this.nickname = await Config.getSync('me.nickname', 'new-user');
-            this.avatar = await Config.getSync('me.avatar', '004/pinguin');
+            this.nickname = await this.app.getUserNickname();
+            this.avatar = await this.app.getUserAvatar();
         } catch (error) {
             log.error(error);
             this.nickname = 'new-user';

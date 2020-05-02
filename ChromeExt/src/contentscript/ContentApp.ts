@@ -7,6 +7,7 @@ import { Platform } from '../lib/Platform';
 import { Panic } from '../lib/Panic';
 import { Config } from '../lib/Config';
 import { AvatarGallery } from '../lib/AvatarGallery';
+import { Translator } from '../lib/Translator';
 import { Room } from './Room';
 import { PropertyStorage } from './PropertyStorage';
 import { HelloWorld } from './HelloWorld';
@@ -24,6 +25,7 @@ export class ContentApp
     private rooms: { [roomJid: string]: Room; } = {};
     private storage: PropertyStorage = new PropertyStorage();
     private keepAliveSec: number = 180;
+    private babelfish: Translator;
 
     // Getter
 
@@ -65,8 +67,10 @@ export class ContentApp
 
         await Utils.sleep(as.Float(Config.get('vp.deferPageEnterSec', 1)) * 1000);
 
-        await this.assertSavedNickname();
-        await this.assertSavedAvatar();
+        this.babelfish = new Translator(Config.get('i18n.translations.de', {}), 'de', Config.get('i18n.serviceUrl', ''));
+
+        await this.assertUserNickname();
+        await this.assertUserAvatar();
         await this.assertSavedPosition();
 
         let page = $('<div id="n3q-id-page" class="n3q-base" />')[0];
@@ -214,9 +218,14 @@ export class ContentApp
         // }
     }
 
+    translateElem(elem: HTMLElement): void
+    {
+        this.babelfish.translateElem(elem);
+    }
+
     // my nickname
 
-    async assertSavedNickname()
+    async assertUserNickname()
     {
         try {
             let nickname = await Config.getSync('me.nickname', '');
@@ -229,9 +238,14 @@ export class ContentApp
         }
     }
 
+    async getUserNickname(): Promise<string>
+    {        
+        return await Config.getSync('me.nickname', 'no name');
+    }
+
     // my avatar
 
-    async assertSavedAvatar()
+    async assertUserAvatar()
     {
         try {
             let avatar = await Config.getSync('me.avatar', '');
@@ -243,6 +257,11 @@ export class ContentApp
             log.error(error);
             Panic.now();
         }
+    }
+
+    async getUserAvatar(): Promise<string>
+    {        
+        return await Config.getSync('me.avatar', '004/pinguin');
     }
 
     // my x
