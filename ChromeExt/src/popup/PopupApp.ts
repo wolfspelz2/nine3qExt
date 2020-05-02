@@ -4,6 +4,7 @@ import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
 import { Platform } from '../lib/Platform';
+import { Translator } from '../lib/Translator';
 import { AvatarGallery } from '../lib/AvatarGallery';
 
 // @ts-ignore
@@ -12,9 +13,11 @@ import imgPopupIcon from '../assets/PopupIcon.png';
 export class PopupApp
 {
     private display: HTMLElement;
+    private babelfish: Translator;
 
     constructor(private appendToMe: HTMLElement)
     {
+        this.babelfish = new Translator(Config.get('i18n.translations.de', {}), 'de', Config.get('i18n.serviceUrl', ''));
     }
 
     async dev_start()
@@ -43,39 +46,38 @@ export class PopupApp
             log.warn(error);
         }
 
-        this.display = $('<div id="n3q-id-popup" class="n3q-base" />').get(0);
-        this.appendToMe.append(this.display);
+        this.display = $('<div id="n3q-id-popup" class="n3q-base" data-translate="children"/>').get(0);
 
         let nickname = as.String(await Config.getSync('me.nickname', 'Your name'));
         let avatar = as.String(await Config.getSync('me.avatar', ''));
 
         {
-            let group = $('<div class="n3q-base n3q-popup-header" />').get(0);
+            let group = $('<div class="n3q-base n3q-popup-header" data-translate="children"/>').get(0);
 
             let icon = <HTMLImageElement>$('<img class="n3q-base n3q-popup-icon" />').get(0);
             icon.src = imgPopupIcon;
             group.append(icon);
 
-            let title = $('<div class="n3q-base n3q-popup-title">Configure your avatar</div>').get(0);
+            let title = $('<div class="n3q-base n3q-popup-title" data-translate="text:Popup.title">Configure your avatar</div>').get(0);
             group.append(title);
 
-            let description = $('<div class="n3q-base n3q-popup-description">Change name and avatar, press [save], and then reload the page.</div>').get(0);
+            let description = $('<div class="n3q-base n3q-popup-description" data-translate="text:Popup.description">Change name and avatar, press [save], and then reload the page.</div>').get(0);
             group.append(description);
 
             this.display.append(group);
         }
 
         {
-            let group = $('<div class="n3q-base n3q-popup-group n3q-popup-group-nickname" />').get(0);
+            let group = $('<div class="n3q-base n3q-popup-group n3q-popup-group-nickname" data-translate="children"/>').get(0);
 
-            let label = $('<div class="n3q-base n3q-popup-label">Name</div>').get(0);
+            let label = $('<div class="n3q-base n3q-popup-label" data-translate="text:Popup">Name</div>').get(0);
             group.append(label);
 
             let input = $('<input type="text" id="n3q-id-popup-nickname" class="n3q-base" />').get(0);
             $(input).val(nickname);
             group.append(input);
 
-            let button = $('<button class="n3q-base n3q-popup-random" >Random</button>').get(0);
+            let button = $('<button class="n3q-base n3q-popup-random" data-translate="text:Popup">Random</button>').get(0);
             $(button).bind('click', async ev =>
             {
                 $('#n3q-id-popup-nickname').val(Utils.randomNickname());
@@ -98,13 +100,13 @@ export class PopupApp
                 await Config.setSync('me.avatar', avatar);
             }
 
-            let group = $('<div class="n3q-base n3q-popup-group n3q-popup-group-avatar" />').get(0);
+            let group = $('<div class="n3q-base n3q-popup-group n3q-popup-group-avatar" data-translate="children"/>').get(0);
 
             let input = $('<input type="hidden" id="n3q-id-popup-avatar" class="n3q-base" />').get(0);
             $(input).val(avatar);
             group.append(input);
 
-            let label = $('<div class="n3q-base n3q-popup-label">Avatar</div>').get(0);
+            let label = $('<div class="n3q-base n3q-popup-label" data-translate="text:Popup">Avatar</div>').get(0);
             group.append(label);
 
             let left = <HTMLElement>$('<button class="n3q-base n3q-popup-avatar-arrow n3q-popup-avatar-left">&lt;</button>').get(0);
@@ -141,9 +143,9 @@ export class PopupApp
         }
 
         {
-            let group = $('<div class="n3q-base n3q-popup-group n3q-popup-group-save" />').get(0);
+            let group = $('<div class="n3q-base n3q-popup-group n3q-popup-group-save" data-translate="children"/>').get(0);
 
-            let save = $('<button class="n3q-base n3q-popup-save" >Save</button>').get(0);
+            let save = $('<button class="n3q-base n3q-popup-save" data-translate="text:Popup">Save</button>').get(0);
             $(save).bind('click', async ev =>
             {
                 await Config.setSync('me.nickname', $('#n3q-id-popup-nickname').val())
@@ -151,7 +153,7 @@ export class PopupApp
             });
             group.append(save);
 
-            let close = $('<button class="n3q-base n3q-popup-close" >Close</button>').get(0);
+            let close = $('<button class="n3q-base n3q-popup-close" data-translate="text:Common">Close</button>').get(0);
             $(close).bind('click', async ev =>
             {
                 window.close();
@@ -160,6 +162,9 @@ export class PopupApp
 
             this.display.append(group);
         }
+
+        this.babelfish.translateElem(this.display);
+        this.appendToMe.append(this.display);
     }
 
     private setCurrentAvatar(id: string, displayElem: HTMLImageElement, hiddenElem: HTMLElement, nameElem: HTMLElement)

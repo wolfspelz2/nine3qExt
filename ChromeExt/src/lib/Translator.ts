@@ -62,20 +62,16 @@ export class Translator
                         var attrName = cmdParts[1];
                         var context = cmdParts[2];
                         var text = $(elem).attr(attrName);
-                        if (text != null && text != '') {
-                            var key: string = context + '.' + text;
-                            applier = new HtmlElementPartAttributeApplier(elem, what, attrName);
-                        }
+                        var key = this.getKey(context, text);
+                        applier = new HtmlElementPartAttributeApplier(elem, what, attrName);
                         break;
 
                     case 'text':
                         if ($(elem).children().length == 0) {
                             var context = cmdParts[1];
                             var text = $(elem).text();
-                            if (text != null && text != '') {
-                                var key: string = context + '.' + text;
-                                applier = new HtmlElementTextPartApplier(elem, what);
-                            }
+                            var key = this.getKey(context, text);
+                            applier = new HtmlElementTextPartApplier(elem, what);
                         }
                         break;
 
@@ -109,6 +105,17 @@ export class Translator
                 }
             }
         }
+    }
+
+    getKey(context: string, text: string): string 
+    {
+        let key: string = context;
+        if (context.indexOf('.') < 0) {
+            if (text != undefined && text != null && text != '') {
+                key = context + '.' + text;
+            }
+        }
+        return key;
     }
 
     applyTranslation(applier: HtmlElementPartApplier, translatedText: string, isTranslated: boolean): void

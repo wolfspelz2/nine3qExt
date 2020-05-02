@@ -55,6 +55,13 @@ export class Config
                     'Chatin.SendChat': 'Chat abschicken',
                     'Common.Close': 'Schließen',
 
+                    'Popup.title': 'Avatar Einstellungen',
+                    'Popup.description': 'Wähle Name und Avatar, dann drücke [Speichern] und lade die Seite neu.',
+                    'Popup.Name': 'Name',
+                    'Popup.Random': 'Zufallsname',
+                    'Popup.Avatar': 'Avatar',
+                    'Popup.Save': 'Speichern',
+
                     'Client.wave': 'Winken',
                     'Client.dance': 'Tanzen',
                     'Client.cheer': 'Jubeln',
