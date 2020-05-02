@@ -32,14 +32,14 @@ input.n3q-base {
 
 .n3q-popup-header {
     border-color: #a9a9a9;
-    border-style: solid;
+    border-style: dashed;
     border-width: 0 0 1px 0;
-    padding: 0.5em 0 1em 0;    
+    padding: 0.5em 0 1.5em 0;    
 }
 
 .n3q-popup-group {
-    margin-top: 1em;
-}
+    margin-top: 1.5em;
+}   
 
 .n3q-popup-label {
     display: inline;
@@ -93,9 +93,10 @@ input.n3q-base {
 
 .n3q-popup-group-save {
     border-color: #a9a9a9;
-    border-style: solid;
+    border-style: dashed;
     border-width: 1px 0 0 0;
-    padding: 1em 0 0.5em 0;    
+    padding: 1.5em 0 0 0;    
+    margin: 1.5em 0 0.5em 0;    
 }
 
 .n3q-popup-save {

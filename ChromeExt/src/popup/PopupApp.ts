@@ -164,7 +164,7 @@ export class PopupApp
 
     private setCurrentAvatar(id: string, displayElem: HTMLImageElement, hiddenElem: HTMLElement, nameElem: HTMLElement)
     {
-        $(nameElem).text(id);
+        // $(nameElem).text(id);
         $(hiddenElem).val(id);
         displayElem.src = this.getAvatarDisplayUrlFromAvatarId(id);
     }
