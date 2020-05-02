@@ -41,7 +41,7 @@ interface TranslatorLanguageMapper { (key: string): string }
 
 export class Translator
 {
-    translationStatus: { [id: string]: boolean; } = {};
+    translationAvailable: { [id: string]: boolean; } = {};
 
     static mapLanguage(browserLanguage: string, languageMapper: TranslatorLanguageMapper, defaultLanguage: string): string
     {
@@ -102,17 +102,17 @@ export class Translator
 
                 if (applier != null) {
                     if (this.translations[key] != undefined) {
-                        this.translationStatus[key] = true;
+                        this.translationAvailable[key] = true;
                         this.applyTranslation(applier, this.translations[key], true);
                     } else {
-                        if (this.translationStatus[key] == undefined) {
+                        if (this.translationAvailable[key] == undefined) {
                             if (this.translationService != undefined && this.translationService != null && this.translationService != '') {
                                 var url = this.translationService + '?lang=' + encodeURI(this.language) + '&key=' + encodeURI(key);
                                 jQuery.getJSON(url, data =>
                                 {
                                     if (data.translatedText != undefined) {
                                         var response: ITranslationResponse = <ITranslationResponse>data;
-                                        this.translationStatus[key] = response.isTranslated;
+                                        this.translationAvailable[key] = response.isTranslated;
                                         if (response.isTranslated) {
                                             this.translations[key] = response.translatedText;
                                         }

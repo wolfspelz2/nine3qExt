@@ -22,7 +22,7 @@ var app = null;
 function activate()
 {
     if (app == null) {
-        app = new ContentApp($('body')[0]);
+        app = new ContentApp($('body').get(0));
         app.start();
     }
 }
@@ -54,6 +54,6 @@ if (document.visibilityState === 'visible') {
 
 // iframe test
 // let html = '<html><head><title></title><style>.n3q-img{pointer-events:auto;}</style></head><body><p>This text will appear in the iframe!</p> <img class=\'n3q-img\' src=\'https://www.galactic-developments.de/images/post/Vegas-fbpost.jpg\'/></body></html>';
-// var e: HTMLElement = $('<iframe id="n3q-frame" frameborder="0" srcdoc="' + html + '"></iframe>')[0];
+// var e: HTMLElement = $('<iframe id="n3q-frame" frameborder="0" srcdoc="' + html + '"></iframe>').get(0);
 // $('body').append(e);
 

@@ -389,7 +389,7 @@ export class Participant extends Entity
         //             + '</ul>'
         //         + '</li>'
         //         + '</ul>'
-        //     )[0];
+        //     ).get(0);
         //     var actions: IMenuEvents = {
         //         'chat': (ev: JQueryMouseEventObject) => { this.toggleChatin(); },
         //         'do-wave': (ev: JQueryMouseEventObject) => { this.do('wave'); },
@@ -410,7 +410,7 @@ export class Participant extends Entity
         //         + '<ul data-translate="children">'
         //         + '<li data-menuid="chatout" data-translate="children"><span class="glyphicon glyphicon-font" /><span data-translate="text:Client">Chat</span></li>'
         //         + '</ul>'
-        //     )[0];
+        //     ).get(0);
         //     var actions: IMenuEvents = {
         //         'chatout': (ev: JQueryMouseEventObject) => { this.toggleChatout(); },
         //     };

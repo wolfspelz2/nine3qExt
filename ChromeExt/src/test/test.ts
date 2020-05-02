@@ -13,4 +13,4 @@ import { TestMisc} from './TestMisc'; s.addTestClass(TestMisc);
 
 s.ignoreFailureForClass(TestHelloWorld);
 s.run();
-new sutGui().render(s, document.getElementsByTagName('body')[0]);
+new sutGui().render(s, document.getElementsByTagName('body').get(0));

@@ -12,13 +12,13 @@ export class Nickname implements IObserver
 
     constructor(private app: ContentApp, private participant: Participant, private display: HTMLElement)
     {
-        this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-nickname n3q-shadow" />')[0];
+        this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-nickname n3q-shadow" />').get(0);
         $(this.elem).click(() => { this.participant.select(); });
 
         $(this.elem).on('mouseenter', ev => this.participant.onMouseEnterAvatar(ev));
         $(this.elem).on('mouseleave', ev => this.participant.onMouseLeaveAvatar(ev));
 
-        this.textElem = <HTMLElement>$('<div class="n3q-base n3q-text" />')[0];
+        this.textElem = <HTMLElement>$('<div class="n3q-base n3q-text" />').get(0);
         this.elem.appendChild(this.textElem);
 
         display.appendChild(this.elem);
