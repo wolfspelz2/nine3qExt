@@ -19,15 +19,15 @@ export class LegacyIdentity
         if (url != '' && digest != '' && url != this.url || digest != this.digest) {
             this.url = url;
             this.digest = digest;
-            this.fetch(this.url);
+            this.fetch(url, digest);
         }
     }
 
-    fetch(url: string): void
+    fetch(url: string, digest: string): void
     {
         if (!this.isFetching) {
             this.isFetching = true;
-            Platform.fetchUrl(url, (ok, status, statusText, data) =>
+            Platform.fetchUrl(url, digest, (ok, status, statusText, data) =>
             {
                 this.isFetching = false;
                 if (ok) {

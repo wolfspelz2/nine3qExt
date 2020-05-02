@@ -22,10 +22,10 @@ export class Platform
 
     // HTTP get
 
-    static fetchUrl(url: string, callback: PlatformFetchUrlCallback)
+    static fetchUrl(url: string, version: string, callback: PlatformFetchUrlCallback)
     {
         try {
-            chrome.runtime?.sendMessage({ 'type': 'fetchUrl', 'url': url }, response =>
+            chrome.runtime?.sendMessage({ 'type': 'fetchUrl', 'url': url, 'version': version }, response =>
             {
                 callback(response.ok, response.status, response.statusText, response.data);
             });

@@ -141,7 +141,7 @@ export class ContentApp
         url.searchParams.set('sDocumentURL', pageUrl);
         url.searchParams.set('Format', 'json');
 
-        Platform.fetchUrl(url.toString(), (ok, status, statusText, data: string) =>
+        Platform.fetchUrl(url.toString(), 'unversioned', (ok, status, statusText, data: string) =>
         {
             if (ok) {
                 try {

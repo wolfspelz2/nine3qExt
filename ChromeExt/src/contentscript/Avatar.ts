@@ -158,7 +158,7 @@ export class Avatar implements IObserver
 
     setAnimations(url: string): void
     {
-        Platform.fetchUrl(url, (ok, status, statusText, data) =>
+        Platform.fetchUrl(url, 'unversioned', (ok, status, statusText, data) =>
         {
             if (ok) {
                 let parsed = AnimationsXml.AnimationsXml.parseXml(url, data);

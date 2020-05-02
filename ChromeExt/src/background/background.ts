@@ -67,40 +67,53 @@ activate();
 //     });
 // })
 
+const httpCache: Map<string, string> = new Map<string, string>();
+
 chrome.runtime?.onMessage.addListener(
     function (message, sender, sendResponse)
     {
         switch (message.type) {
             case 'fetchUrl': {
                 var url = message.url;
-                console.debug('background fetchUrl', url);
-                try {
+                var version = message.version;
 
-                    fetch(url)
-                        .then(httpResponse =>
-                        {
-                            log.trace('background fetchUrl response', httpResponse);
-                            if (httpResponse.ok) {
-                                return httpResponse.text();
-                            } else {
-                                throw { 'ok': false, 'status': httpResponse.status, 'statusText': httpResponse.statusText };
+                let key = version + url;
+                let isCached = (httpCache[key] != undefined);
+
+                log.debug('background fetchUrl', 'cached=', isCached, url, 'version=', version);
+
+                if (isCached) {
+                    return sendResponse({ 'ok': true, 'data': httpCache[key] });
+                } else {
+                    try {
+
+                        fetch(url)
+                            .then(httpResponse =>
+                            {
+                                log.trace('background fetchUrl response', httpResponse);
+                                if (httpResponse.ok) {
+                                    return httpResponse.text();
+                                } else {
+                                    throw { 'ok': false, 'status': httpResponse.status, 'statusText': httpResponse.statusText };
+                                }
+                            })
+                            .then(text =>
+                            {
+                                httpCache[key] = text;
+                                log.trace('background fetchUrl text', text);
+                                return sendResponse({ 'ok': true, 'data': text });
+                            })
+                            .catch(ex =>
+                            {
+                                log.trace('background fetchUrl catch', ex);
+                                return sendResponse({ 'ok': false, 'status': ex.status, 'statusText': ex.statusText });
                             }
-                        })
-                        .then(text =>
-                        {
-                            log.trace('background fetchUrl text', text);
-                            return sendResponse({ 'ok': true, 'data': text });
-                        })
-                        .catch(ex =>
-                        {
-                            log.trace('background fetchUrl catch', ex);
-                            return sendResponse({ 'ok': false, 'status': ex.status, 'statusText': ex.statusText });
-                        }
-                        );
+                            );
 
-                } catch (error) {
-                    log.trace('background fetchUrl', error);
-                    return sendResponse({ 'ok': false, 'status': error.status, 'statusText': error.statusText });
+                    } catch (error) {
+                        log.trace('background fetchUrl', error);
+                        return sendResponse({ 'ok': false, 'status': error.status, 'statusText': error.statusText });
+                    }
                 }
             } break;
 
