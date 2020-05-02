@@ -35,7 +35,7 @@ export class Chatout
             ev.stopPropagation();
         });
         this.elem.appendChild(this.closeElem);
-        //hw later this.app.translateElem(this.closeElem);
+        this.app.translateElem(this.closeElem);
 
         display.appendChild(this.elem);
     }
