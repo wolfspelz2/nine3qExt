@@ -190,7 +190,7 @@ export class Avatar implements IObserver
         if (group == '') { group = this.defaultGroup; }
 
         var animation = this.getAnimationByGroup(group);
-        if (animation == null || typeof animation == typeof undefined) {
+        if (animation == null || animation == undefined) {
             return;
         }
 
@@ -243,7 +243,7 @@ export class Avatar implements IObserver
             }
         }
 
-        if (typeof groupAnimations[idx] !== typeof undefined) {
+        if (groupAnimations[idx] !== undefined) {
             return new AvatarGetAnimationResult(groupAnimations[idx].url, groupAnimations[idx].weight, groupAnimations[idx].dx, groupAnimations[idx].duration, groupAnimations[idx].loop);
         }
 

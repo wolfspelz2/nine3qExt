@@ -180,7 +180,7 @@ export class ContentApp
         let from = jid(stanza.attrs.from);
         let roomOrUser = from.bare();
 
-        if (typeof this.rooms[roomOrUser] != typeof undefined) {
+        if (this.rooms[roomOrUser] != undefined) {
             this.rooms[roomOrUser].onPresence(stanza);
         }
     }
@@ -190,7 +190,7 @@ export class ContentApp
         let from = jid(stanza.attrs.from);
         let roomOrUser = from.bare();
 
-        if (typeof this.rooms[roomOrUser] != typeof undefined) {
+        if (this.rooms[roomOrUser] != undefined) {
             this.rooms[roomOrUser].onMessage(stanza);
         }
     }

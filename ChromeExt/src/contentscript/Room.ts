@@ -102,7 +102,7 @@ export class Room
 
         switch (type) {
             case 'available':
-                if (typeof this.participants[nick] === typeof undefined) {
+                if (this.participants[nick] === undefined) {
                     this.participants[nick] = new Participant(this.app, this, this.display, nick, isSelf);
                 }
                 this.participants[nick].onPresenceAvailable(stanza);
@@ -115,7 +115,7 @@ export class Room
                 break;
 
             case 'unavailable':
-                if (typeof this.participants[nick] != typeof undefined) {
+                if (this.participants[nick] != undefined) {
                     this.participants[nick].onPresenceUnavailable(stanza);
                     delete this.participants[nick];
                 }
@@ -185,7 +185,7 @@ export class Room
 
         switch (type) {
             case 'groupchat':
-                if (typeof this.participants[nick] != typeof undefined) {
+                if (this.participants[nick] != undefined) {
                     this.participants[nick].onMessageGroupchat(stanza);
                 }
                 break;
