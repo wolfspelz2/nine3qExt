@@ -15,7 +15,7 @@ export class Chatin
         this.elem = <HTMLElement>$('<div class="n3q-base n3q-chatin n3q-shadow" data-translate="children" />').get(0);
         this.setVisibility(false);
 
-        this.textElem = <HTMLElement>$('<input type="text" class="n3q-base n3q-input n3q-text" style="position: relative; line-height: 14px; padding: 4px; outline: none; font-family: Arial, sans-serif; font-size: 11px; font-weight: normal; font-style: normal; border: none; box-shadow: unset;" placeholder="Enter chat here..." data-translate="attr:placeholder:Chatin" />').get(0);
+        this.textElem = <HTMLElement>$('<input type="text" class="n3q-base n3q-input n3q-text" placeholder="Enter chat here..." data-translate="attr:placeholder:Chatin" />').get(0);
         $(this.textElem).bind('keydown', ev =>
         {
             var keycode = (ev.keyCode ? ev.keyCode : (ev.which ? ev.which : ev.charCode));

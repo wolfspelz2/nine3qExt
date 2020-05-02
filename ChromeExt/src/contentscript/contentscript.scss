@@ -43,6 +43,34 @@ $z-index: (
     box-shadow: none;
 }
 
+input[type=text].n3q-base {
+    all: initial;
+    font: normal 11px/11px Arial, sans-serif;
+    display: inline;
+    color: black;
+    background-color: unset;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    border-radius: unset;
+    border: none; 
+    box-shadow: none;
+}
+
+input[type=text].n3q-base:focus {
+    all: initial;
+    font: normal 11px/11px Arial, sans-serif;
+    display: inline;
+    color: black;
+    background-color: unset;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    border-radius: unset;
+    border: none; 
+    box-shadow: none;
+}
+
 input.n3q-base {
     display: inline;
 }
@@ -193,14 +221,25 @@ input.n3q-base:focus {
     padding: 1px 2px 1px 2px;
     background-color: #f5f5f5;
     white-space: nowrap;
-    max-width: 80px;
     z-index: z-index(ParticipantNickname);
     pointer-events: auto;
 }
 
 .n3q-nickname .n3q-text {
+    display: inline-block;
+    vertical-align: middle;
+    max-width: 80px;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.n3q-nickname .n3q-menu {
+    display: inline-block;
+    vertical-align: middle;
+    width: 14px;
+    height: 14px;
+    margin-right: 4px;
+    background: url('https://api.iconify.design/ic:baseline-menu.svg') no-repeat center center / contain;
 }
 
 // Chatout
@@ -209,7 +248,8 @@ input.n3q-base:focus {
     position: absolute;
     left: -50px;
     bottom: 110px;
-    width: 100px;
+    max-width: 140px;
+    max-height: 200px;
     z-index: z-index(ParticipantChatout);
     pointer-events: auto;
 }
@@ -228,8 +268,7 @@ input.n3q-base:focus {
 }
 
 .n3q-chatout .n3q-text {
-    max-width: 100px;
-    max-height: 200px;
+    line-height: 14px;
     text-align: left;
     overflow: auto;
     padding: 2px 2px;
@@ -274,13 +313,8 @@ input.n3q-base:focus {
     z-index: z-index(ParticipantChatin);
 }
 
-.n3q-chatin .n3q-text {
-    position: relative;
-    line-height: 14px;
-    padding: 4px;
-    outline: none;
-    border: none; 
-    box-shadow: unset;
+.n3q-chatin input[type=text].n3q-text {
+    margin: 6px;
 }
 
 // Thing

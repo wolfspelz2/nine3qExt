@@ -9,6 +9,7 @@ export class Nickname implements IObserver
 {
     private elem: HTMLDivElement;
     private textElem: HTMLElement;
+    private menuElem: HTMLElement;
 
     constructor(private app: ContentApp, private participant: Participant, private display: HTMLElement)
     {
@@ -17,6 +18,10 @@ export class Nickname implements IObserver
 
         $(this.elem).on('mouseenter', ev => this.participant.onMouseEnterAvatar(ev));
         $(this.elem).on('mouseleave', ev => this.participant.onMouseLeaveAvatar(ev));
+
+        this.menuElem = <HTMLElement>$('<div class="n3q-base n3q-menu" />').get(0);
+        $(this.menuElem).click(ev => { this.participant.onMenu(ev); });
+        this.elem.appendChild(this.menuElem);
 
         this.textElem = <HTMLElement>$('<div class="n3q-base n3q-text" />').get(0);
         this.elem.appendChild(this.textElem);
