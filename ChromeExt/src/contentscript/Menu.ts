@@ -3,56 +3,70 @@ import 'jqueryui';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 
-export interface IMenuEvents
+interface MenuClickHandler { (ev: JQuery.Event): void }
+
+export class MenuItem
 {
-    [menuId: string]: (ev: JQuery.Event) => void;
+    constructor(public id: string, public text: string, public hasIcon: boolean, public onClickCloseMenu: boolean, public onClick: MenuClickHandler)
+    {
+
+    }
+}
+
+export class MenuColumn
+{
+    constructor(public id: string, public items: Array<MenuItem>)
+    {
+
+    }
 }
 
 export class Menu
 {
-    private isClosed: boolean = false;
-
-    constructor(private app: ContentApp, private entity: Entity, private elem: HTMLElement, private events: IMenuEvents, ev: JQuery.Event, private closedHandler: () => void)
+    constructor(private app: ContentApp, public domId: string, public columns: Array<MenuColumn>)
     {
-        var blurTimer;
-        this.entity.getElem().appendChild(elem);
-        $(elem)
-            // .position({ my: 'left-20 top', of: ev })
-            .menu({
-                create: (ev, ui) => { },
-                blur: (ev, ui) =>
-                {
-                    blurTimer = setTimeout(() =>
-                    {
-                        this.close();
-                    }, 50);
-                },
-                focus: (ev, ui) => { clearTimeout(blurTimer); },
-                // select: (ev: JQuery.Event, ui) =>
-                // {
-                //     var selected = ui.item.data('menuid');
-                //     if (typeof this.events[selected] !== typeof undefined) {
-                //         this.close();
-                //         this.events[selected](ev);
-                //     }
-                // },
-            });
-        this.app.translateElem(elem);
+
     }
 
-    private close(): void
+    render(): HTMLElement
     {
-        if (!this.isClosed) {
-            this.isClosed = true;
+        let menu = <HTMLElement>$('<div id="' + this.domId + '" class="n3q-base n3q-menu" data-translate="children">').get(0);
+        let checkbox = <HTMLElement>$('<input type="checkbox" href="#" class="n3q-base n3q-menu-open" name="n3q-id-menu-open-avatarmenu" id="n3q-id-menu-open-avatarmenu" />').get(0);
+        $(menu).append(checkbox);
+        let label = <HTMLElement>$('<label for="n3q-id-menu-open-avatarmenu" class="n3q-base n3q-menu-open-button"></label>').get(0);
+        $(menu).append(label);
 
-            if (typeof this.entity.getElem() != typeof undefined) {
-                // Just in case the entity disappears before the menu closes
-                this.entity.getElem().removeChild(this.elem);
-            }
+        this.columns.forEach(column =>
+        {
+            column.items.forEach(item =>
+            {
+                let itemElem = <HTMLElement>$('<div class="n3q-base n3q-menu-item n3q-menu-column-' + column.id + ' n3q-item-' + item.id + ' n3q-shadow" data-translate="children" />').get(0);
+                if (item.hasIcon) {
+                    let icon = <HTMLElement>$('<div class="n3q-base n3q-menu-icon"></div>').get(0);
+                    $(itemElem).append(icon);
+                }
+                let text = <HTMLElement>$('<div class="n3q-base n3q-text">' + item.text + '</div>').get(0);
+                $(itemElem).append(text);
+                $(itemElem).on('click', ev =>
+                {
+                    item.onClick(ev);
+                    if (item.onClickCloseMenu) {
+                        $(checkbox).prop('checked', false);
+                    }
+                });
+                $(menu).append(itemElem);
+            });
+        });
 
-            if (this.closedHandler != null) {
-                this.closedHandler();
-            }
-        }
+        this.app.translateElem(menu);
+
+        return menu;
     }
 }
+/*
+<div class="n3q-base n3q-menu-item n3q-menu-column-main n3q-item-chat n3q-shadow" data-translate="text:Menu" style="
+    text-align: left;
+">
+    <div class="n3q-base" style="width:14px;height:14px;background: url('https://api.iconify.design/ic:baseline-chat-bubble-outline.svg') no-repeat center center / contain;display: inline-block;vertical-align:middle;"></div>
+    <div class="n3q-base n3q-text" style="display: inline-block;vertical-align:middle;">Chat</div>
+</div>*/

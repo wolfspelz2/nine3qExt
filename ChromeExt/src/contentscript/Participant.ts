@@ -9,7 +9,6 @@ import { Avatar } from './Avatar';
 import { Nickname } from './Nickname';
 import { Chatout } from './Chatout';
 import { Chatin } from './Chatin';
-import { Menu, IMenuEvents } from './Menu';
 
 export class Participant extends Entity
 {
@@ -229,7 +228,7 @@ export class Participant extends Entity
         switch (cmd) {
             case '/do':
                 if (parts.length < 2) { return; }
-                this.chatoutDisplay.setText(text);
+                // this.chatoutDisplay.setText(text);
                 this.avatarDisplay.setAction(parts[1]);
                 break;
         }
@@ -341,8 +340,7 @@ export class Participant extends Entity
         super.quickSlide(newX);
     }
 
-    //#endregion
-    //#region Mouse
+    // Mouse
 
     select(): void
     {
@@ -366,60 +364,6 @@ export class Participant extends Entity
     {
         this.select()
         this.toggleChatin();
-    }
-
-    private menu: Menu = null;
-    onMenu(ev: JQuery.Event): void
-    {
-        this.select()
-
-        // if (this.isSelf) {
-        //     var elem = $(''
-        //         + '<ul data-translate="children">'
-        //         + '<li data-menuid="chat" data-translate="children"><span class="glyphicon glyphicon-font" /><span data-translate="text:Menu">Chat</span></li>'
-        //         + '<li data-translate="children"><span class="glyphicon glyphicon-asterisk" /><span data-translate="text:Menu">Emotion</span>'
-        //             + '<ul data-translate="children">'
-        //             + '<li data-menuid="do-wave" data-translate="text:Menu">wave</li>'
-        //             + '<li data-menuid="do-dance" data-translate="text:Menu">dance</li>'
-        //             + '<li data-menuid="do-cheer" data-translate="text:Menu">cheer</li>'
-        //             + '<li data-menuid="do-kiss" data-translate="text:Menu">kiss</li>'
-        //             + '<li data-menuid="do-clap" data-translate="text:Menu">clap</li>'
-        //             + '<li data-menuid="do-laugh" data-translate="text:Menu">laugh</li>'
-        //             + '<li data-menuid="do-angry" data-translate="text:Menu">angry</li>'
-        //             + '<li data-menuid="do-deny" data-translate="text:Menu">deny</li>'
-        //             + '<li data-menuid="do-yawn" data-translate="text:Menu">yawn</li>'
-        //             + '</ul>'
-        //         + '</li>'
-        //         + '</ul>'
-        //     ).get(0);
-        //     var actions: IMenuEvents = {
-        //         'chat': (ev: JQuery.Event) => { this.toggleChatin(); },
-        //         'do-wave': (ev: JQuery.Event) => { this.do('wave'); },
-        //         'do-dance': (ev: JQuery.Event) => { this.do('dance'); },
-        //         'do-cheer': (ev: JQuery.Event) => { this.do('cheer'); },
-        //         'do-kiss': (ev: JQuery.Event) => { this.do('kiss'); },
-        //         'do-clap': (ev: JQuery.Event) => { this.do('clap'); },
-        //         'do-laugh': (ev: JQuery.Event) => { this.do('laugh'); },
-        //         'do-angry': (ev: JQuery.Event) => { this.do('angry'); },
-        //         'do-deny': (ev: JQuery.Event) => { this.do('deny'); },
-        //         'do-yawn': (ev: JQuery.Event) => { this.do('yawn'); },
-        //     };
-        //     if (this.menu == null) {
-        //         this.menu = new Menu(this.app, this, elem, actions, ev, () => this.menu = null);
-        //     }
-        // } else {
-        //     var elem = $(''
-        //         + '<ul data-translate="children">'
-        //         + '<li data-menuid="chatout" data-translate="children"><span class="glyphicon glyphicon-font" /><span data-translate="text:Menu">Chat</span></li>'
-        //         + '</ul>'
-        //     ).get(0);
-        //     var actions: IMenuEvents = {
-        //         'chatout': (ev: JQuery.Event) => { this.toggleChatout(); },
-        //     };
-        //     if (this.menu == null) {
-        //         this.menu = new Menu(this.app, this, elem, actions, ev, () => this.menu = null);
-        //     }
-        // }
     }
 
     do(what: string): void
