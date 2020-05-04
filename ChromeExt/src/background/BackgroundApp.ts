@@ -25,6 +25,14 @@ export class BackgroundApp
 
     async start(): Promise<void>
     {
+        let devConfig = await Config.getSync('dev.config', '{}');
+        try {
+            let parsed = JSON.parse(devConfig);
+            Config.setAllDev(parsed);
+        } catch (error) {
+            
+        }
+
         this.configUpdater = new ConfigUpdater();
         await this.configUpdater.getUpdate();
         await this.configUpdater.startUpdateTimer()

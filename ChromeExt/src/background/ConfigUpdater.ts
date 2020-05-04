@@ -49,7 +49,7 @@ export class ConfigUpdater
 
     private async fetchConfig(): Promise<any>
     {
-        let url = Config.get('config.seviceUrl', 'https://config.weblin.sui.li/');
+        let url = Config.get('config.serviceUrl', 'https://config.weblin.sui.li/');
         log.info('ConfigUpdater.fetchConfig', url);
 
         return new Promise((resolve, reject) =>

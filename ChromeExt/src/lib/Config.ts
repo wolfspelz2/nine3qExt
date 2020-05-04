@@ -9,6 +9,8 @@ export class Config
 {
     private static tempConfig: any = {};
 
+    private static devConfig: any = {};
+
     private static onlineConfig: any = {};
 
     private static staticConfig: any = {
@@ -21,7 +23,7 @@ export class Config
             'deferPageEnterSec': 2,
         },
         'config': {
-            'seviceUrl': 'https://config.weblin.sui.li/',
+            'serviceUrl': 'https://config.weblin.sui.li/',
             'updateIntervalSec': Utils.randomInt(60000, 80000),
             'checkUpdateIntervalSec': 600,
         },
@@ -113,6 +115,9 @@ export class Config
     {
         let result = Config.getTemp(key);
         if (result == undefined || result == null) {
+            result = Config.getDev(key);
+        }
+        if (result == undefined || result == null) {
             result = Config.getOnline(key);
         }
         if (result == undefined || result == null) {
@@ -141,6 +146,11 @@ export class Config
     static getTemp(key: string): any
     {
         return this.tempConfig[key];
+    }
+
+    static getDev(key: string): any
+    {
+        return Config.getFromTree(this.devConfig, key);
     }
 
     static getOnline(key: string): any
@@ -246,5 +256,10 @@ export class Config
     {
         log.debug('Config.setAllOnline');
         this.onlineConfig = values;
+    }
+
+    static setAllDev(values: any)
+    {
+        this.devConfig = values;
     }
 }
