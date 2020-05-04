@@ -310,6 +310,7 @@ input.n3q-base:focus {
         .n3q-menu-item.n3q-menu-column-main { transform: translate3d(-3px, -35px, 0); }
         .n3q-menu-item.n3q-menu-column-action { transform: translate3d(60px, -35px, 0); }
         
+        input[type=checkbox].n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-test    { transform: translate3d(-3px,  -75px, 0); } 
         input[type=checkbox].n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-chat    { transform: translate3d(-3px,  -50px, 0); } 
         input[type=checkbox].n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-Actions { transform: translate3d(60px, -275px, 0); }
         input[type=checkbox].n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-wave    { transform: translate3d(60px, -250px, 0); }

@@ -19,37 +19,43 @@ if (debug) {
 
 var app = null;
 
-function activate()
-{
-    if (app == null) {
-        app = new ContentApp($('body').get(0));
-        app.start();
+try {
+
+    function activate()
+    {
+        if (app == null) {
+            app = new ContentApp($('body').get(0));
+            app.start();
+        }
     }
-}
 
-function deactivate()
-{
-    if (app != null) {
-        app.stop();
-        app = null;
+    function deactivate()
+    {
+        if (app != null) {
+            app.stop();
+            app = null;
+        }
     }
-}
 
-Panic.onNow(deactivate);
+    Panic.onNow(deactivate);
 
-window.addEventListener('onbeforeunload', deactivate);
+    window.addEventListener('onbeforeunload', deactivate);
 
-window.addEventListener('visibilitychange', function ()
-{
+    window.addEventListener('visibilitychange', function ()
+    {
+        if (document.visibilityState === 'visible') {
+            activate();
+        } else {
+            deactivate();
+        }
+    });
+
     if (document.visibilityState === 'visible') {
         activate();
-    } else {
-        deactivate();
     }
-});
 
-if (document.visibilityState === 'visible') {
-    activate();
+} catch (error) {
+    log.info(error);
 }
 
 // iframe test

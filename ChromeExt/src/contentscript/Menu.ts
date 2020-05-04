@@ -5,28 +5,29 @@ import { Entity } from './Entity';
 
 interface MenuClickHandler { (ev: JQuery.Event): void }
 
+export enum MenuHasIcon {
+    No,
+    Yes,
+}
+
+export enum MenuOnClickClose {
+    No,
+    Yes,
+}
+
 export class MenuItem
 {
-    constructor(public id: string, public text: string, public hasIcon: boolean, public onClickCloseMenu: boolean, public onClick: MenuClickHandler)
-    {
-
-    }
+    constructor(public id: string, public text: string, public hasIcon: MenuHasIcon, public onClickClose: MenuOnClickClose, public onClick: MenuClickHandler) { }
 }
 
 export class MenuColumn
 {
-    constructor(public id: string, public items: Array<MenuItem>)
-    {
-
-    }
+    constructor(public id: string, public items: Array<MenuItem>) { }
 }
 
 export class Menu
 {
-    constructor(private app: ContentApp, public id: string, public columns: Array<MenuColumn>)
-    {
-
-    }
+    constructor(private app: ContentApp, public id: string, public columns: Array<MenuColumn>) { }
 
     render(): HTMLElement
     {
@@ -45,7 +46,7 @@ export class Menu
                     $(itemElem).addClass('n3q-menu-item-disabled');
                 }
                 let icon = <HTMLElement>$('<div class="n3q-base n3q-menu-icon"></div>').get(0);
-                if (!item.hasIcon) {
+                if (item.hasIcon == MenuHasIcon.No) {
                     $(icon).addClass('n3q-menu-icon-noicon');
                 }
                 $(itemElem).append(icon);
@@ -56,7 +57,7 @@ export class Menu
                     if (typeof item.onClick == 'function') {
                         item.onClick(ev);
                     }
-                    if (item.onClickCloseMenu) {
+                    if (item.onClickClose == MenuOnClickClose.Yes) {
                         $(checkbox).prop('checked', false);
                     }
                 });

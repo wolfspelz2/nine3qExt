@@ -77,6 +77,17 @@ export class ContentApp
         this.display = null;
     }
 
+    test()
+    {
+        // let dialog = $(`
+        //     <div id="dialog" title="Basic dialog">
+        //         <p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
+        //     </div>
+        //       `).get(0);
+        // $(this.display).append(dialog);
+        // $('#dialog').dialog();
+    }
+
     createPageControl()
     {
         let controlElem: HTMLElement = $('<div class="n3q-base n3q-ctrl" id="n3q-hello"></div>').get(0);

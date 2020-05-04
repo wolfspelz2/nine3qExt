@@ -5,7 +5,7 @@ import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
 import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
-import { Menu, MenuColumn, MenuItem } from './Menu';
+import { Menu, MenuColumn, MenuItem, MenuHasIcon, MenuOnClickClose } from './Menu';
 
 export class Nickname implements IObserver
 {
@@ -25,25 +25,26 @@ export class Nickname implements IObserver
         {
             let items = new Array<MenuItem>();
             if (this.isSelf) {
-                items.push(new MenuItem('chat', 'Chat', true, true, ev => { this.participant.toggleChatin(); }));
+                items.push(new MenuItem('chat', 'Chat', MenuHasIcon.Yes, MenuOnClickClose.Yes, ev => { this.participant.toggleChatin(); }));
+                items.push(new MenuItem('test', 'Test', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.app.test(); }));
             } else {
-                items.push(new MenuItem('chat', 'Chat', true, true, ev => { this.participant.toggleChatout(); }));
+                items.push(new MenuItem('chat', 'Chat', MenuHasIcon.Yes, MenuOnClickClose.Yes, ev => { this.participant.toggleChatout(); }));
             }
             columns.push(new MenuColumn('main', items));
         }
         if (this.isSelf) {
             let items = new Array<MenuItem>();
-            items.push(new MenuItem('Actions', 'Actions:', false, false, null));
-            items.push(new MenuItem('wave', 'wave', false, true, ev => { this.participant.do('wave'); }));
-            items.push(new MenuItem('dance', 'dance', false, true, ev => { this.participant.do('dance') }));
-            items.push(new MenuItem('cheer', 'cheer', false, true, ev => { this.participant.do('wave'); }));
+            items.push(new MenuItem('Actions', 'Actions:', MenuHasIcon.No, MenuOnClickClose.No, null));
+            items.push(new MenuItem('wave', 'wave', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.do('wave'); }));
+            items.push(new MenuItem('dance', 'dance', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.do('dance') }));
+            items.push(new MenuItem('cheer', 'cheer', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.do('wave'); }));
 
-            items.push(new MenuItem('kiss', 'kiss', false, true, ev => { this.participant.do('kiss'); }));
-            items.push(new MenuItem('clap', 'clap', false, true, ev => { this.participant.do('clap'); }));
-            items.push(new MenuItem('laugh', 'laugh', false, true, ev => { this.participant.do('laugh'); }));
-            items.push(new MenuItem('angry', 'angry', false, true, ev => { this.participant.do('angry'); }));
-            items.push(new MenuItem('deny', 'deny', false, true, ev => { this.participant.do('deny'); }));
-            items.push(new MenuItem('yawn', 'yawn', false, true, ev => { this.participant.do('yawn'); }));
+            items.push(new MenuItem('kiss', 'kiss', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.do('kiss'); }));
+            items.push(new MenuItem('clap', 'clap', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.do('clap'); }));
+            items.push(new MenuItem('laugh', 'laugh', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.do('laugh'); }));
+            items.push(new MenuItem('angry', 'angry', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.do('angry'); }));
+            items.push(new MenuItem('deny', 'deny', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.do('deny'); }));
+            items.push(new MenuItem('yawn', 'yawn', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.do('yawn'); }));
 
             columns.push(new MenuColumn('action', items));
         }
