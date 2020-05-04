@@ -67,6 +67,7 @@ export class Config
                     'Popup.Save': 'Save',
 
                     'Menu.Chat': 'Chat',
+                    'Menu.Actions': 'Actions:',
                     'Menu.wave': 'Wave',
                     'Menu.dance': 'Dance',
                     'Menu.cheer': 'Cheer',
@@ -91,6 +92,7 @@ export class Config
                     'Popup.Save': 'Speichern',
 
                     'Menu.Chat': 'Chat',
+                    'Menu.Actions': 'Aktionen:',
                     'Menu.wave': 'Winken',
                     'Menu.dance': 'Tanzen',
                     'Menu.cheer': 'Jubeln',

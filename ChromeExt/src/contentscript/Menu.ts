@@ -23,17 +23,17 @@ export class MenuColumn
 
 export class Menu
 {
-    constructor(private app: ContentApp, public domId: string, public columns: Array<MenuColumn>)
+    constructor(private app: ContentApp, public id: string, public columns: Array<MenuColumn>)
     {
 
     }
 
     render(): HTMLElement
     {
-        let menu = <HTMLElement>$('<div id="' + this.domId + '" class="n3q-base n3q-menu" data-translate="children">').get(0);
-        let checkbox = <HTMLElement>$('<input type="checkbox" href="#" class="n3q-base n3q-menu-open" name="n3q-id-menu-open-avatarmenu" id="n3q-id-menu-open-avatarmenu" />').get(0);
+        let menu = <HTMLElement>$('<div class="n3q-base n3q-menu n3q-menu-avatar" data-translate="children">').get(0);
+        let checkbox = <HTMLElement>$('<input type="checkbox" href="#" class="n3q-base n3q-menu-open" name="n3q-id-menu-open-avatarmenu-' + this.id + '" id="n3q-id-menu-open-avatarmenu-' + this.id + '" />').get(0);
         $(menu).append(checkbox);
-        let label = <HTMLElement>$('<label for="n3q-id-menu-open-avatarmenu" class="n3q-base n3q-menu-open-button"></label>').get(0);
+        let label = <HTMLElement>$('<label for="n3q-id-menu-open-avatarmenu-' + this.id + '" class="n3q-base n3q-menu-open-button"></label>').get(0);
         $(menu).append(label);
 
         this.columns.forEach(column =>
@@ -41,15 +41,20 @@ export class Menu
             column.items.forEach(item =>
             {
                 let itemElem = <HTMLElement>$('<div class="n3q-base n3q-menu-item n3q-menu-column-' + column.id + ' n3q-item-' + item.id + ' n3q-shadow" data-translate="children" />').get(0);
+                if (item.onClick == undefined || item.onClick == null) {
+                    $(itemElem).addClass('n3q-menu-item-disabled');
+                }
                 if (item.hasIcon) {
                     let icon = <HTMLElement>$('<div class="n3q-base n3q-menu-icon"></div>').get(0);
                     $(itemElem).append(icon);
                 }
-                let text = <HTMLElement>$('<div class="n3q-base n3q-text">' + item.text + '</div>').get(0);
+                let text = <HTMLElement>$('<div class="n3q-base n3q-text" data-translate="text:Menu.' + item.id + '">' + item.text + '</div>').get(0);
                 $(itemElem).append(text);
                 $(itemElem).on('click', ev =>
                 {
-                    item.onClick(ev);
+                    if (typeof item.onClick == 'function') {
+                        item.onClick(ev);
+                    }
                     if (item.onClickCloseMenu) {
                         $(checkbox).prop('checked', false);
                     }

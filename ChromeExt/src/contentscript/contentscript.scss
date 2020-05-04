@@ -287,21 +287,28 @@ input.n3q-base:focus {
     
     .n3q-menu-open:checked ~ .n3q-menu-item { opacity: 1.0; } 
     
-    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-chat  { transform: translate3d(-3px, -50px, 0); } 
-    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-wave  { transform: translate3d(60px, -50px, 0); }
-    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-dance { transform: translate3d(60px, -75px, 0); } 
-    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-cheer { transform: translate3d(60px, -100px, 0); } 
-    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-kiss  { transform: translate3d(60px, -125px, 0); } 
-    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-clap  { transform: translate3d(60px, -150px, 0); } 
-    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-laugh { transform: translate3d(60px, -175px, 0); } 
-    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-angry { transform: translate3d(60px, -200px, 0); } 
-    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-deny  { transform: translate3d(60px, -225px, 0); } 
-    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-yawn  { transform: translate3d(60px, -250px, 0); } 
+    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-chat    { transform: translate3d(-3px,  -50px, 0); } 
+    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-Actions { transform: translate3d(60px, -275px, 0); }
+    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-wave    { transform: translate3d(60px, -250px, 0); }
+    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-dance   { transform: translate3d(60px, -225px, 0); } 
+    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-cheer   { transform: translate3d(60px, -200px, 0); } 
+    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-kiss    { transform: translate3d(60px, -175px, 0); } 
+    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-clap    { transform: translate3d(60px, -150px, 0); } 
+    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-laugh   { transform: translate3d(60px, -125px, 0); } 
+    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-angry   { transform: translate3d(60px, -100px, 0); } 
+    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-deny    { transform: translate3d(60px,  -75px, 0); } 
+    .n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-yawn    { transform: translate3d(60px,  -50px, 0); } 
     
     .n3q-menu-item:hover { filter: brightness(0.9); }
     .n3q-menu-item:active { filter: brightness(0.8); }   
 
-// Chatout
+    .n3q-menu-item.n3q-menu-item-disabled { background-color: #808080; }
+    .n3q-menu-item.n3q-menu-item-disabled .n3q-text { color: #ffffff; }
+
+    .n3q-menu-item.n3q-menu-item-disabled:hover { filter: unset; }
+    .n3q-menu-item.n3q-menu-item-disabled:active { filter: unset; }   
+
+    // Chatout
 
 .n3q-chatout {
     position: absolute;

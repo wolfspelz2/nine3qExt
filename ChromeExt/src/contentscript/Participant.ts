@@ -139,7 +139,7 @@ export class Participant extends Entity
             }
 
             {
-                this.nicknameDisplay = new Nickname(this.app, this, this.getElem());
+                this.nicknameDisplay = new Nickname(this.app, this, this.isSelf, this.getElem());
                 var shownNickname = xmppNickname;
                 if (vpNickname != '') {
                     shownNickname = vpNickname;
