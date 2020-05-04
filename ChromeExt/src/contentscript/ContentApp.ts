@@ -11,6 +11,9 @@ import { Translator } from '../lib/Translator';
 import { Room } from './Room';
 import { PropertyStorage } from './PropertyStorage';
 import { HelloWorld } from './HelloWorld';
+require('webpack-jquery-ui');
+require('webpack-jquery-ui/css')
+require('webpack-jquery-ui/dialog');
 
 interface ILocationMapperResponse
 {
@@ -79,13 +82,14 @@ export class ContentApp
 
     test()
     {
-        // let dialog = $(`
-        //     <div id="dialog" title="Basic dialog">
-        //         <p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
-        //     </div>
-        //       `).get(0);
-        // $(this.display).append(dialog);
-        // $('#dialog').dialog();
+        let dialog = $(`
+            <div id="dialog" title="Basic dialog">
+                <p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
+            </div>
+              `).get(0);
+        $(this.display).append(dialog);
+        $('#dialog').dialog();
+        $($(dialog).parentsUntil(this.display).get(0)).addClass('n3q-ui-dialog');
     }
 
     createPageControl()

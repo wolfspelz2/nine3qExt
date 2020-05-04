@@ -26,7 +26,7 @@ export class Nickname implements IObserver
             let items = new Array<MenuItem>();
             if (this.isSelf) {
                 items.push(new MenuItem('chat', 'Chat', MenuHasIcon.Yes, MenuOnClickClose.Yes, ev => { this.participant.toggleChatin(); }));
-                items.push(new MenuItem('test', 'Test', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.app.test(); }));
+                // items.push(new MenuItem('test', 'Test', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.app.test(); }));
             } else {
                 items.push(new MenuItem('chat', 'Chat', MenuHasIcon.Yes, MenuOnClickClose.Yes, ev => { this.participant.toggleChatout(); }));
             }
