@@ -18,8 +18,8 @@ function activate()
 {
     if (app == null) {
         app = new PopupApp($('body').get(0));
-        app.start();
-        // app.dev_start();
+        // app.start();
+        app.dev_start();
     }
 }
 

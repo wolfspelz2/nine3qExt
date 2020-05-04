@@ -44,10 +44,11 @@ export class Menu
                 if (item.onClick == undefined || item.onClick == null) {
                     $(itemElem).addClass('n3q-menu-item-disabled');
                 }
-                if (item.hasIcon) {
-                    let icon = <HTMLElement>$('<div class="n3q-base n3q-menu-icon"></div>').get(0);
-                    $(itemElem).append(icon);
+                let icon = <HTMLElement>$('<div class="n3q-base n3q-menu-icon"></div>').get(0);
+                if (!item.hasIcon) {
+                    $(icon).addClass('n3q-menu-icon-noicon');
                 }
+                $(itemElem).append(icon);
                 let text = <HTMLElement>$('<div class="n3q-base n3q-text" data-translate="text:Menu.' + item.id + '">' + item.text + '</div>').get(0);
                 $(itemElem).append(text);
                 $(itemElem).on('click', ev =>
