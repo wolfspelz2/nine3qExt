@@ -61,7 +61,7 @@ export class ContentApp
             let config = await Platform.getConfig();
             Config.setAllOnline(config);
         } catch (error) {
-            log.error(error);
+            log.warn(error);
             Panic.now();
         }
 
@@ -234,14 +234,19 @@ export class ContentApp
                 await Config.setSync('me.nickname', 'Your name');
             }
         } catch (error) {
-            log.error(error);
+            log.warn(error);
             Panic.now();
         }
     }
 
     async getUserNickname(): Promise<string>
     {
-        return await Config.getSync('me.nickname', 'no name');
+        try {
+            return await Config.getSync('me.nickname', 'no name');
+        } catch (error) {
+            log.warn(error);
+            return 'no name';
+        }
     }
 
     // my avatar
@@ -255,14 +260,19 @@ export class ContentApp
                 await Config.setSync('me.avatar', avatar);
             }
         } catch (error) {
-            log.error(error);
+            log.warn(error);
             Panic.now();
         }
     }
 
     async getUserAvatar(): Promise<string>
     {
-        return await Config.getSync('me.avatar', '004/pinguin');
+        try {
+            return await Config.getSync('me.avatar', '004/pinguin');
+        } catch (error) {
+            log.warn(error);
+            return '004/pinguin';
+        }
     }
 
     // my x
@@ -276,7 +286,7 @@ export class ContentApp
                 await this.savePosition(x);
             }
         } catch (error) {
-            log.error(error);
+            log.warn(error);
         }
     }
 
