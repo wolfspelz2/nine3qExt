@@ -32,7 +32,7 @@ export class ConfigUpdater
                 await this.getUpdate()
             }
         } catch (error) {
-            log.error(error);
+            log.info(error);
         }
     }
 

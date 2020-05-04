@@ -150,7 +150,7 @@ export class ContentApp
                     let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);
                     this.enterRoomByJid(roomJid);
                 } catch (error) {
-                    log.error(error);
+                    log.info(error);
                 }
             }
         });

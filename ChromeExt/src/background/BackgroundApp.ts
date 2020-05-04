@@ -103,7 +103,7 @@ export class BackgroundApp
             this.sendStanza(xmlStanza);
 
         } catch (error) {
-            log.error('BackgroundApp.handle_sendStanza', error);
+            log.info('BackgroundApp.handle_sendStanza', error);
         }
     }
 
@@ -182,7 +182,7 @@ export class BackgroundApp
 
             this.xmpp.start().catch(log.info);
         } catch (error) {
-            log.error(error);
+            log.info(error);
         }
     }
 
