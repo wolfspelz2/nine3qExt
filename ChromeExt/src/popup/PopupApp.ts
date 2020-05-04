@@ -75,12 +75,12 @@ export class PopupApp
                 if (ev.ctrlKey) {
                     let dev = $('#n3q-popup-dev').get(0);
                     if (dev == null) {
-                        let dev = $('<div id="n3q-popup-dev" class="n3q-base n3q-popup-hidden" style="" />').get(0);
+                        dev = $('<div id="n3q-popup-dev" class="n3q-base n3q-popup-hidden" style="" />').get(0);
                         let text = $('<textarea class="n3q-base" style="width: 100%; height: 100px; margin-top: 1em;" />').get(0);
                         let data = await Config.getSync('dev.config', this.defaultDevConfig);
                         $(text).val(data);
                         $(dev).append(text);
-                        let apply = $('<button class="n3q-base" style="margin-top: 0.5em;">Apply</button>').get(0);
+                        let apply = $('<button class="n3q-base" style="margin-top: 0.5em;">Save</button>').get(0);
                         $(apply).on('click', async ev =>
                         {
                             let data = $(text).val();
@@ -89,7 +89,7 @@ export class PopupApp
                         $(dev).append(apply);
                         $(group).append(dev);
                     }
-                    if (dev == null) {
+                    if (dev != null) {
                         if ($(dev).hasClass('n3q-popup-hidden')) {
                             $(dev).removeClass('n3q-popup-hidden');
                         } else {
