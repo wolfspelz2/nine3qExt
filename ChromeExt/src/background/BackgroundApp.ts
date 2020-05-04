@@ -153,7 +153,7 @@ export class BackgroundApp
 
             this.xmpp.on('error', (err: any) =>
             {
-                log.error('BackgroundApp xmpp.on.error', err);
+                log.info('BackgroundApp xmpp.on.error', err);
             });
 
             this.xmpp.on('offline', () =>
@@ -180,7 +180,7 @@ export class BackgroundApp
 
             this.xmpp.on('stanza', (stanza: any) => this.recvStanza(stanza));
 
-            this.xmpp.start().catch(log.error);
+            this.xmpp.start().catch(log.info);
         } catch (error) {
             log.error(error);
         }

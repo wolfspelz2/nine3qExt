@@ -38,7 +38,7 @@ export class Room
             this.nickname = await this.app.getUserNickname();
             this.avatar = await this.app.getUserAvatar();
         } catch (error) {
-            log.error(error);
+            log.info(error);
             this.nickname = 'new-user';
             this.avatar = '004/pinguin';
         }
@@ -134,7 +134,7 @@ export class Room
     {
         this.enterRetryCount++;
         if (this.enterRetryCount > this.maxEnterRetries) {
-            log.error('Too many retries ', this.enterRetryCount, 'giving up on room', this.jid);
+            log.info('Too many retries ', this.enterRetryCount, 'giving up on room', this.jid);
             return;
         } else {
             this.nickname = this.getNextNick(this.nickname);

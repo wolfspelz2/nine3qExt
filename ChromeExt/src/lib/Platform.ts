@@ -31,7 +31,7 @@ export class Platform
             });
         } catch (error) {
             Panic.now();
-            // log.error(ex);
+            // log.info(ex);
         }
     }
 

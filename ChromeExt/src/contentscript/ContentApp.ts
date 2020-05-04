@@ -36,32 +36,13 @@ export class ContentApp
     {
     }
 
-    createPageControl()
-    {
-        let controlElem: HTMLElement = $('<div class="n3q-base n3q-ctrl" id="n3q-hello"></div>').get(0);
-        this.display.append(controlElem);
-
-        $('#n3q-hello').text(HelloWorld.getText());
-
-        let enterButton: HTMLElement = $('<button class="n3q-base">enter</button>').get(0);
-        controlElem.append(enterButton);
-        $(enterButton).click(() =>
-        {
-            // this.enterRoomByJid('d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org');
-            // this.enterRoomByPageUrl('https://www.galactic-developments.de/');
-            this.enterPage();
-        });
-    }
-
-    // Connection
-
     async start()
     {
         try {
             let config = await Platform.getConfig();
             Config.setAllOnline(config);
         } catch (error) {
-            log.warn(error);
+            log.info(error);
             Panic.now();
         }
 
@@ -74,7 +55,7 @@ export class ContentApp
         await this.assertUserAvatar();
         await this.assertSavedPosition();
 
-        let page = $('<div id="n3q-id-page" class="n3q-base" />').get(0);
+        let page = $('<div id="n3q-id-page" class="n3q-base n3q-hidden-print" />').get(0);
         this.display = $('<div class="n3q-base n3q-display" />').get(0);
         $(page).append(this.display);
         this.appendToMe.append(page);
@@ -94,6 +75,23 @@ export class ContentApp
 
         $(this.display).remove();
         this.display = null;
+    }
+
+    createPageControl()
+    {
+        let controlElem: HTMLElement = $('<div class="n3q-base n3q-ctrl" id="n3q-hello"></div>').get(0);
+        this.display.append(controlElem);
+
+        $('#n3q-hello').text(HelloWorld.getText());
+
+        let enterButton: HTMLElement = $('<button class="n3q-base">enter</button>').get(0);
+        controlElem.append(enterButton);
+        $(enterButton).click(() =>
+        {
+            // this.enterRoomByJid('d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org');
+            // this.enterRoomByPageUrl('https://www.galactic-developments.de/');
+            this.enterPage();
+        });
     }
 
     runtimeOnMessage(message, sender: chrome.runtime.MessageSender, sendResponse): any
@@ -203,7 +201,7 @@ export class ContentApp
             chrome.runtime.sendMessage({ 'type': 'sendStanza', 'stanza': stanza });
         } catch (error) {
             Panic.now();
-            // log.error(ex);
+            // log.info(ex);
         }
     }
 
@@ -234,7 +232,7 @@ export class ContentApp
                 await Config.setSync('me.nickname', 'Your name');
             }
         } catch (error) {
-            log.warn(error);
+            log.info(error);
             Panic.now();
         }
     }
@@ -244,7 +242,7 @@ export class ContentApp
         try {
             return await Config.getSync('me.nickname', 'no name');
         } catch (error) {
-            log.warn(error);
+            log.info(error);
             return 'no name';
         }
     }
@@ -260,7 +258,7 @@ export class ContentApp
                 await Config.setSync('me.avatar', avatar);
             }
         } catch (error) {
-            log.warn(error);
+            log.info(error);
             Panic.now();
         }
     }
@@ -270,7 +268,7 @@ export class ContentApp
         try {
             return await Config.getSync('me.avatar', '004/pinguin');
         } catch (error) {
-            log.warn(error);
+            log.info(error);
             return '004/pinguin';
         }
     }
@@ -286,7 +284,7 @@ export class ContentApp
                 await this.savePosition(x);
             }
         } catch (error) {
-            log.warn(error);
+            log.info(error);
         }
     }
 
@@ -295,7 +293,7 @@ export class ContentApp
         try {
             await Platform.setLocalStorage('me.x', x);
         } catch (error) {
-            log.warn(error);
+            log.info(error);
         }
     }
 
@@ -306,7 +304,7 @@ export class ContentApp
         try {
             x = as.Int(await Platform.getLocalStorage('me.x', -1), -1);
         } catch (error) {
-            log.warn(error);
+            log.info(error);
         }
 
         if (x <= 0) {

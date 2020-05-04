@@ -69,10 +69,3 @@ export class Menu
         return menu;
     }
 }
-/*
-<div class="n3q-base n3q-menu-item n3q-menu-column-main n3q-item-chat n3q-shadow" data-translate="text:Menu" style="
-    text-align: left;
-">
-    <div class="n3q-base" style="width:14px;height:14px;background: url('https://api.iconify.design/ic:baseline-chat-bubble-outline.svg') no-repeat center center / contain;display: inline-block;vertical-align:middle;"></div>
-    <div class="n3q-base n3q-text" style="display: inline-block;vertical-align:middle;">Chat</div>
-</div>*/
