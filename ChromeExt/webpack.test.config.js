@@ -17,11 +17,11 @@ module.exports = {
                 use: 'awesome-typescript-loader?{configFileName: "tsconfig.json"}',
             },
             {
-                test: /\.scss$/,
+                test: /\.(scss|css)$/,
                 use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
             },
             {
-                test: /\.(png|jpg)$/,
+                test: /\.(png|jpg|gif)$/,
                 use: 'url-loader',
             },
         ]

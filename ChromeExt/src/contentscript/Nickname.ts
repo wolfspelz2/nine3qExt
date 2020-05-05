@@ -5,6 +5,7 @@ import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
 import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
+import { Environment } from '../lib/Environment';
 import { Menu, MenuColumn, MenuItem, MenuHasIcon, MenuOnClickClose } from './Menu';
 
 export class Nickname implements IObserver
@@ -26,7 +27,7 @@ export class Nickname implements IObserver
             let items = new Array<MenuItem>();
             if (this.isSelf) {
                 items.push(new MenuItem('chat', 'Chat', MenuHasIcon.Yes, MenuOnClickClose.Yes, ev => { this.participant.toggleChatin(); }));
-                // items.push(new MenuItem('test', 'Test', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.app.test(); }));
+                if (Environment.isDevelopment()) { items.push(new MenuItem('test', 'Test', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.app.test(); })); }
             } else {
                 items.push(new MenuItem('chat', 'Chat', MenuHasIcon.Yes, MenuOnClickClose.Yes, ev => { this.participant.toggleChatout(); }));
             }

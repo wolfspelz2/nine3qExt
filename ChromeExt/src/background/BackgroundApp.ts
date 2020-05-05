@@ -37,9 +37,6 @@ export class BackgroundApp
         await this.configUpdater.getUpdate();
         await this.configUpdater.startUpdateTimer()
 
-        chrome.tabs.onActivated.addListener(activeInfo => { return this.tabsOnActivated(activeInfo); });
-        // chrome.tabs.onUpdated.addListener(this.tabsOnUpdated);
-
         chrome.tabs.query({ active: true }, (result: Array<chrome.tabs.Tab>) => { this.activeTabId = result[0].id; });
 
         try {
@@ -53,29 +50,8 @@ export class BackgroundApp
     {
         this.configUpdater.stopUpdateTimer();
 
-        // chrome.tabs.onUpdated.removeListener(this.tabsOnUpdated);
-        chrome.tabs.onActivated.removeListener(activeInfo => { this.tabsOnActivated(activeInfo); });
-
         this.stopXmpp();
     }
-
-    private tabsOnActivated(activeInfo: chrome.tabs.TabActiveInfo): void
-    {
-        log.debug('BackgroundApp.tabsOnActivated', 'tab=', activeInfo.tabId, 'window=', activeInfo.windowId);
-        this.activeTabId = activeInfo.tabId;
-    }
-
-    // private tabsOnUpdated(tabId: number, changeInfo: any, tab: chrome.tabs.Tab): void
-    // {
-    //     if (tabId == this.tabId) {
-    //         if (changeInfo.url != undefined) {
-    //             if (this.pageUrl != changeInfo.url) {
-    //                 this.leaveCurrentRoom();
-    //                 this.enterRoomByPageUrl(this.pageUrl);
-    //             }
-    //         }
-    //     }
-    // }
 
     // IPC
 
@@ -109,7 +85,7 @@ export class BackgroundApp
 
     private recvStanza(stanza: any)
     {
-        log.debug('BackgroundApp.recvStanza', stanza);
+        log.info('BackgroundApp.recvStanza', stanza);
 
         if (stanza.name == 'presence' || stanza.name == 'message') {
             let from = jid(stanza.attrs.from);
@@ -162,7 +138,7 @@ export class BackgroundApp
                 this.xmppConnected = false;
             });
 
-            this.xmpp.on('online', async (address: any) =>
+            this.xmpp.on('online', (address: any) =>
             {
                 log.info('BackgroundApp xmpp.on.online', address);
 

@@ -3,11 +3,14 @@ import * as $ from 'jquery';
 import log = require('loglevel');
 import { Panic } from '../lib/Panic';
 import { Config } from '../lib/Config';
+import { Environment } from '../lib/Environment';
 import { ContentApp } from './ContentApp';
 
 console.log('Contentscript');
 
-let debug = true;
+let debug = Environment.isDevelopment();
+console.log('Contentscript', 'debug', debug);
+
 log.setLevel(log.levels.INFO);
 
 if (debug) {

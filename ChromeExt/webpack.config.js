@@ -14,7 +14,7 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
     mode: process.env.NODE_ENV,
-    devtool: 'inline-source-map',
+    devtool: (process.env.NODE_ENV === 'development') ? 'inline-source-map' : '',
     entry: {
         contentscript: join(__dirname, 'src/contentscript/contentscript.ts'),
         background: join(__dirname, 'src/background/background.ts'),
@@ -35,7 +35,7 @@ module.exports = {
                 use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
             },
             {
-                test: /\.(png|jp?g|gif)$/,
+                test: /\.(png|jpg|gif)$/,
                 use: 'url-loader',
             },
         ],

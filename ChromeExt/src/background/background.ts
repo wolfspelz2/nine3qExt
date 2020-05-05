@@ -1,11 +1,13 @@
 import log = require('loglevel');
 import { Config } from '../lib/Config';
-import { Panic } from '../lib/Panic';
+import { Environment } from '../lib/Environment';
 import { BackgroundApp } from './BackgroundApp';
 
 console.log('Background');
 
-let debug = true;
+let debug = Environment.isDevelopment();
+console.log('Background', 'debug', debug);
+
 log.setLevel(log.levels.INFO);
 
 if (debug) {

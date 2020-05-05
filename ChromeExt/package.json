@@ -1,7 +1,7 @@
 {
   "name": "nine3q-chrome-extension-avatars-and-things-on-web-pages",
   "version": "1.0.0",
-  "description": "Nine3q Extension: avatars and things on web pages",
+  "description": "Weblin: Avatars and Things on Web Pages",
   "homepage": "https://github.com/wolfspelz/nine3q/blob/master/ChromeExt/README.md",
   "scripts": {
     "clean": "rimraf -rf dist && cpy manifest.json dist && cpy src/assets/* dist/assets",
