@@ -9,6 +9,7 @@ import { Avatar } from './Avatar';
 import { Nickname } from './Nickname';
 import { Chatout } from './Chatout';
 import { Chatin } from './Chatin';
+import { ChatHistory } from './ChatHistory';
 
 export class Participant extends Entity
 {
@@ -22,14 +23,18 @@ export class Participant extends Entity
     private userId: string;
     private inMove: boolean = false;
     private condition_: string = '';
+    private chatHistory: ChatHistory;
 
     constructor(private app: ContentApp, room: Room, display: HTMLElement, private nick: string, private isSelf: boolean)
     {
         super(room, display);
+
+        this.chatHistory = new ChatHistory(app, display, this, isSelf)
+
         $(this.getElem()).addClass('n3q-participant');
     }
 
-    //#region presence
+    // presence
 
     async onPresenceAvailable(stanza: any): Promise<void>
     {
@@ -178,43 +183,83 @@ export class Participant extends Entity
         this.remove();
     }
 
-    //#endregion
-    //#region message
+    // message
 
     onMessageGroupchat(stanza: any): void
     {
-        let delaySec = 0;
+        let now = Date.now();
+        let timestamp = 0;
 
-        // {
-        //     let node = stanza.getChildren('delay').find(stanzaChild => stanzaChild.attrs.xmlns === 'urn:xmpp:delay').first();
-        //     if (node != undefined) {
-        //         let dateStr = as.String(node.attrs.stamp, ''); // 2020-04-24T06:53:46Z
-        //         if (dateStr != '') {
-        //             var date = new Date(dateStr);
-        //         }
-        //     }
-        // }
-
-        // {
-        //     let node = stanza.getChildren('x').find(stanzaChild => stanzaChild.attrs.xmlns === 'jabber:x:delay').first();
-        //     if (node != undefined) {
-        //         let dateStr = as.String(node.attrs.stamp, ''); // 20200424T06:53:46
-        //         if (dateStr != '') {
-        //             var date = new Date(dateStr);
-        //         }
-        //     }
-        // }
-
-        if (delaySec < as.Float(Config.get('room.maxChatAgeSec', 60))) {
-            let bodyNode = stanza.getChild('body');
-            if (bodyNode != undefined) {
-                let text = bodyNode.getText();
-
-                if (text.substring(0, 1) == '/') {
-                    return this.onChatCommand(text);
+        {
+            let node = stanza.getChildren('delay').find(stanzaChild => stanzaChild.attrs.xmlns === 'urn:xmpp:delay');
+            if (node != undefined) {
+                let dateStr = as.String(node.attrs.stamp, ''); // 2020-04-24T06:53:46Z
+                if (dateStr != '') {
+                    try {
+                        var date = new Date(dateStr);
+                        let time = date.getTime();
+                        if (!isNaN(time)) {
+                            timestamp = time;
+                        }
+                    } catch (error) {
+                        //
+                    }
                 }
+            }
+        }
 
-                this.chatoutDisplay.setText(text);
+        {
+            let node = stanza.getChildren('x').find(stanzaChild => stanzaChild.attrs.xmlns === 'jabber:x:delay');
+            if (node != undefined) {
+                let dateStr = as.String(node.attrs.stamp, ''); // 20200424T06:53:46
+                try {
+                    var date = new Date(dateStr);
+                    let time = date.getTime();
+                    if (!isNaN(time)) {
+                        timestamp = time;
+                    }
+                } catch (error) {
+                    //
+                }
+            }
+        }
+
+        let text = '';
+        let nick = '';
+
+        let bodyNode = stanza.getChild('body');
+        if (bodyNode != undefined) {
+            text = bodyNode.getText();
+        }
+
+        if (stanza.attrs != undefined) {
+            let from = jid(stanza.attrs.from);
+            let room = from.bare().toString();
+            nick = from.getResource();
+            if (this.nicknameDisplay != undefined) {
+                nick = this.nicknameDisplay.getNickname();
+            }
+        }
+
+        if (text == '') { return; }
+
+        if (timestamp == 0) {
+            timestamp = now;
+        }
+        let delayMSec = now - timestamp;
+
+        // always
+        this.chatHistory.addLine(nick + timestamp, nick, text);
+
+        // recent
+        if (delayMSec * 1000 < as.Float(Config.get('room.maxChatAgeSec', 60))) {
+            this.chatoutDisplay.setText(text);
+        }
+
+        // new only
+        if (delayMSec <= 100) {
+            if (text.substring(0, 1) == '/') {
+                return this.onChatCommand(text);
             }
         }
     }
@@ -379,6 +424,11 @@ export class Participant extends Entity
     toggleChatout(): void
     {
         this.chatoutDisplay.toggleVisibility();
+    }
+
+    showChatWindow(): void
+    {
+        this.chatHistory.showWindow();
     }
 
 }

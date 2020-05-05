@@ -5,33 +5,19 @@ import { Participant } from './Participant';
 
 export class Chatin
 {
-    elem: HTMLElement;
-    textElem: HTMLElement;
-    sendElem: HTMLElement;
-    closeElem: HTMLElement;
+    private elem: HTMLElement;
+    private chatinInputElem: HTMLElement;
+    private sendElem: HTMLElement;
+    private closeElem: HTMLElement;
 
     constructor(private app: ContentApp, private participant: Participant, private display: HTMLElement)
     {
         this.elem = <HTMLElement>$('<div class="n3q-base n3q-chatin n3q-shadow" data-translate="children" />').get(0);
         this.setVisibility(false);
 
-        this.textElem = <HTMLElement>$('<input type="text" class="n3q-base n3q-input n3q-text" placeholder="Enter chat here..." data-translate="attr:placeholder:Chatin" />').get(0);
-        $(this.textElem).bind('keydown', ev =>
-        {
-            var keycode = (ev.keyCode ? ev.keyCode : (ev.which ? ev.which : ev.charCode));
-            switch (keycode) {
-                case 13:
-                    this.sendChat();
-                    return false;
-                case 27:
-                    this.setVisibility(false);
-                    ev.stopPropagation();
-                    return false;
-                default:
-                    return true;
-            }
-        });
-        this.elem.appendChild(this.textElem);
+        this.chatinInputElem = <HTMLElement>$('<input type="text" class="n3q-base n3q-input n3q-text" placeholder="Enter chat here..." data-translate="attr:placeholder:Chatin" />').get(0);
+        $(this.chatinInputElem).on('keydown', ev => { this.onKeydown(ev); });
+        this.elem.appendChild(this.chatinInputElem);
 
         this.sendElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-sendchat" title="SendChat" data-translate="attr:title:Chatin" />').get(0);
         $(this.sendElem).click(ev =>
@@ -53,12 +39,28 @@ export class Chatin
         display.appendChild(this.elem);
     }
 
+    onKeydown(ev: JQuery.Event)
+    {
+        var keycode = (ev.keyCode ? ev.keyCode : (ev.which ? ev.which : ev.charCode));
+        switch (keycode) {
+            case 13:
+                this.sendChat();
+                return false;
+            case 27:
+                this.setVisibility(false);
+                ev.stopPropagation();
+                return false;
+            default:
+                return true;
+        }
+    }
+
     sendChat(): void
     {
-        var text: string = as.String($(this.textElem).val(), '');
+        var text: string = as.String($(this.chatinInputElem).val(), '');
         if (text != '') {
             this.participant.sendGroupChat(text);
-            $(this.textElem).val('').focus();
+            $(this.chatinInputElem).val('').focus();
         }
     }
 
@@ -69,7 +71,7 @@ export class Chatin
         this.isVisible = visible;
         if (visible) {
             $(this.elem).removeClass('n3q-hidden');
-            $(this.textElem).focus();
+            $(this.chatinInputElem).focus();
         } else {
             $(this.elem).addClass('n3q-hidden');
         }

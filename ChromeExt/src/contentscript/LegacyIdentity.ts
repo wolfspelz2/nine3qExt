@@ -67,7 +67,8 @@ export class LegacyIdentity
     {
         switch (id) {
             case 'avatar':
-                this.storage.setProperty(this.entity, 'ImageUrl', as.String(props.src, '')); break;
+                this.storage.setProperty(this.entity, 'ImageUrl', as.String(props.src, '')); 
+                break;
             case 'avatar2':
                 {
                     let animationsUrl = as.String(props.src, '');
@@ -75,9 +76,11 @@ export class LegacyIdentity
                         let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', animationsUrl);
                         this.storage.setProperty(this.entity, 'AnimationsUrl', proxiedAnimationsUrl);
                     }
-                } break;
+                } 
+                break;
             case 'profilepage':
-                this.storage.setProperty(this.entity, 'ProfileUrl', as.String(props.src, '')); break;
+                this.storage.setProperty(this.entity, 'ProfileUrl', as.String(props.src, '')); 
+                break;
             case 'properties':
                 {
                     if (as.String(props.mimetype, '') == 'text/plain' || as.String(props.encoding, '') == 'plain') {

@@ -74,7 +74,7 @@ export class Room
         if (!this.isEntered) {
             presence.append(
                 xml('x', { xmlns: 'http://jabber.org/protocol/muc' })
-                    .append(xml('history', { seconds: '60', maxchars: '1000', maxstanzas: '1' }))
+                    .append(xml('history', { seconds: '180', maxchars: '3000', maxstanzas: '10' }))
             );
         }
 
@@ -111,7 +111,6 @@ export class Room
                     this.isEntered = true;
                     this.keepAlive();
                 }
-
                 break;
 
             case 'unavailable':

@@ -13,6 +13,7 @@ export class Nickname implements IObserver
     private elem: HTMLDivElement;
     private textElem: HTMLElement;
     private menuElem: HTMLElement;
+    private nickname: string;
 
     constructor(private app: ContentApp, private participant: Participant, private isSelf: boolean, private display: HTMLElement)
     {
@@ -31,6 +32,7 @@ export class Nickname implements IObserver
             } else {
                 items.push(new MenuItem('chat', 'Chat', MenuHasIcon.Yes, MenuOnClickClose.Yes, ev => { this.participant.toggleChatout(); }));
             }
+            items.push(new MenuItem('chatwin', 'Chat Window', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.showChatWindow(); }));
             columns.push(new MenuColumn('main', items));
         }
         if (this.isSelf) {
@@ -65,10 +67,16 @@ export class Nickname implements IObserver
 
     setNickname(nickname: string): void
     {
+        this.nickname = nickname;
         $(this.textElem).html(as.Html(nickname));
         if (Config.get('room.showNicknameTooltip', true)) {
             $(this.textElem).prop('title', nickname);;
         }
+    }
+
+    getNickname(): string
+    {
+        return this.nickname;
     }
 
     onCloseButtonPressed(): void

@@ -50,6 +50,20 @@ $z-index: (
     user-select: none;
 }
 
+span.n3q-base {
+    all: initial;
+    font: normal 11px/11px Arial, sans-serif;
+    display: inline;
+    color: black;
+    background-color: unset;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    border-radius: unset;
+    border: none; 
+    box-shadow: none;
+}
+
 input[type=text].n3q-base {
     all: initial;
     font: normal 11px/11px Arial, sans-serif;
@@ -275,8 +289,7 @@ input.n3q-base:focus {
         white-space: nowrap;
         border: 1px solid #888;
         //border-radius: 5px;
-        min-width: 50px;
-        max-width: 60px;
+        width: 50px;
         min-height: 14px;
         padding: 3px 6px 3px 3px;
         position: absolute;
@@ -310,7 +323,8 @@ input.n3q-base:focus {
         .n3q-menu-item.n3q-menu-column-main { transform: translate3d(-3px, -35px, 0); }
         .n3q-menu-item.n3q-menu-column-action { transform: translate3d(60px, -35px, 0); }
         
-        input[type=checkbox].n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-test    { transform: translate3d(-3px,  -75px, 0); } 
+        input[type=checkbox].n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-test    { transform: translate3d(-3px, -100px, 0); } 
+        input[type=checkbox].n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-chatwin { transform: translate3d(-3px,  -75px, 0); } 
         input[type=checkbox].n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-chat    { transform: translate3d(-3px,  -50px, 0); } 
         input[type=checkbox].n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-Actions { transform: translate3d(60px, -275px, 0); }
         input[type=checkbox].n3q-menu-open:checked ~ .n3q-menu-item.n3q-item-wave    { transform: translate3d(60px, -250px, 0); }
@@ -388,7 +402,73 @@ input.n3q-base:focus {
     border-color: #fff transparent transparent #fff;
 }
 
-// Chatin
+// Chat Window
+
+.n3q-ui-dialog .ui-dialog-title
+{
+    font: bold 13px/13px Arial, sans-serif;
+}
+
+    .n3q-ui-dialog .ui-dialog-content
+    {
+        padding: 0;
+    }
+
+    .n3q-chatwindow-out {
+        position: absolute;
+        left: 6px;
+        right: 6px;
+        top: 6px;
+        bottom: 26px;
+        padding: 4px;
+        overflow-y: scroll;
+        bottom: 36px;
+    }
+
+    .n3q-chatwindow-in {
+        position: absolute;
+        left: 6px;
+        right: 6px;
+        height: 13px;
+        bottom: 6px;
+        padding: 4px;
+        border: 1px solid rgb(197, 197, 197);
+        border-radius: 5px;
+        display: flex;
+    }
+
+    .n3q-chatwindow-in input.n3q-text {
+        flex: 1 1 auto;
+    }
+    
+    .n3q-chatwindow-in .n3q-button-sendchat {
+        display: none;
+        margin: 0 0 0 6px;
+        flex: 0 0 14px;
+    }
+    
+    .n3q-chatwindow-line {
+        font-size: 12px;
+        line-height: 13px;
+        margin: 0 0 0.3em 2em;
+        text-indent: -2em;
+    }
+
+        .n3q-chatwindow-line span.n3q-nick {
+            font-weight: bold;
+            margin: 0 0.4em 0 0;
+            user-select: auto;
+        }
+
+            .n3q-chatwindow-line span.n3q-nick:after {
+                content: ':';
+            }
+
+        .n3q-chatwindow-line span.n3q-text {
+            user-select: auto;
+        }
+
+    // Chatin
 
 .n3q-chatin {
     position: absolute;

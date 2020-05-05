@@ -34,6 +34,9 @@ export class Config
             'showNicknameTooltip': true,
             'avatarDoubleClickDelaySec': 0.1,
             'maxChatAgeSec': 60,
+            'chatWindowWidth': 400,
+            'chatWindowHeight': 250,
+            'chatWindowMaxHeight': 800,
         },
         'xmpp': {
             'service': 'wss://xmpp.weblin.sui.li/xmpp-websocket',
@@ -69,6 +72,7 @@ export class Config
                     'Popup.Save': 'Save',
 
                     'Menu.Chat': 'Chat',
+                    'Menu.Chat Window': 'History',
                     'Menu.Actions': 'Actions:',
                     'Menu.wave': 'Wave',
                     'Menu.dance': 'Dance',
@@ -79,6 +83,8 @@ export class Config
                     'Menu.angry': 'Angry',
                     'Menu.deny': 'Deny',
                     'Menu.yawn': 'Yawn',
+
+                    'Chatwindow.Chat History': 'Chat',
                 },
                 'de-DE': {
                     'Common.Close': 'Schließen',
@@ -94,6 +100,7 @@ export class Config
                     'Popup.Save': 'Speichern',
 
                     'Menu.Chat': 'Chat',
+                    'Menu.Chat Window': 'Verlauf',
                     'Menu.Actions': 'Aktionen:',
                     'Menu.wave': 'Winken',
                     'Menu.dance': 'Tanzen',
@@ -104,6 +111,8 @@ export class Config
                     'Menu.angry': 'Ärgern',
                     'Menu.deny': 'Ablehnen',
                     'Menu.yawn': 'Gähnen',
+
+                    'Chatwindow.Chat History': 'Chat',
                 },
             },
             'serviceUrl': '',
