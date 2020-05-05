@@ -20,7 +20,7 @@ export class Config
         },
         'vp': {
             'locationMappingServiceUrl': 'http://lms.virtual-presence.org/api/',
-            'deferPageEnterSec': 2,
+            'deferPageEnterSec': 1.0,
         },
         'config': {
             'serviceUrl': 'https://config.weblin.sui.li/',

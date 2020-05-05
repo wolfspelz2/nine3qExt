@@ -30,8 +30,8 @@ export class Platform
                 callback(response.ok, response.status, response.statusText, response.data);
             });
         } catch (error) {
+            log.info(error);
             Panic.now();
-            // log.info(ex);
         }
     }
 

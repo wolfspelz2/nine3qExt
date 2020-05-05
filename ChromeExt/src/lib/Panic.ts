@@ -17,7 +17,7 @@ export class Panic
         if (!Panic.inCallback) {
             Panic.inCallback = true;
             if (Panic.callback != undefined) {
-                log.info('Panic.now');
+                log.info('I am not feeling well');
                 Panic.callback();
             }
         }

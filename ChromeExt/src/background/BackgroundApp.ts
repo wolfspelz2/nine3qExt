@@ -16,7 +16,6 @@ interface ILocationMapperResponse
 export class BackgroundApp
 {
     private xmpp: any;
-    private activeTabId: number;
     private roomJid2tabId: Map<string, number> = new Map<string, number>();
     private roomJid2selfNick: Map<string, string> = new Map<string, string>();
     private xmppConnected = false;
@@ -36,8 +35,6 @@ export class BackgroundApp
         this.configUpdater = new ConfigUpdater();
         await this.configUpdater.getUpdate();
         await this.configUpdater.startUpdateTimer()
-
-        chrome.tabs.query({ active: true }, (result: Array<chrome.tabs.Tab>) => { this.activeTabId = result[0].id; });
 
         try {
             await this.startXmpp();
@@ -134,7 +131,7 @@ export class BackgroundApp
 
             this.xmpp.on('offline', () =>
             {
-                log.warn('BackgroundApp xmpp.on.offline');
+                log.info('BackgroundApp xmpp.on.offline');
                 this.xmppConnected = false;
             });
 
@@ -172,7 +169,7 @@ export class BackgroundApp
         try {
             this.xmpp.send(stanza);
         } catch (error) {
-            log.warn('BackgroundApp.sendStanza', error.message ?? '');
+            log.info('BackgroundApp.sendStanza', error.message ?? '');
         }
     }
 

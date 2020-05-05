@@ -43,7 +43,7 @@ export class ConfigUpdater
             Config.setAllOnline(data);
             await Config.setSync('config.lastUpdateTime', Date.now());
         } catch (error) {
-            log.warn('ConfigUpdater.checkUpdate', 'fetchConfig failed')
+            log.info('ConfigUpdater.checkUpdate', 'fetchConfig failed')
         }
     }
 

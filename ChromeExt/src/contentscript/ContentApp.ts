@@ -161,7 +161,7 @@ export class ContentApp
                 try {
                     let mappingResponse: ILocationMapperResponse = JSON.parse(data);
                     let locationUrl = mappingResponse.sLocationURL;
-                    log.info('Mapped', pageUrl, ' => ', locationUrl);
+                    log.debug('Mapped', pageUrl, ' => ', locationUrl);
                     let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);
                     this.enterRoomByJid(roomJid);
                 } catch (error) {
@@ -176,13 +176,13 @@ export class ContentApp
         if (this.rooms[roomJid] === undefined) {
             this.rooms[roomJid] = new Room(this, this.display, roomJid, await this.getSavedPosition());
         }
-        log.info('ContentApp.enterRoomByJid', roomJid);
+        log.debug('ContentApp.enterRoomByJid', roomJid);
         this.rooms[roomJid].enter();
     }
 
     leaveRoomByJid(roomJid: string): void
     {
-        log.info('ContentApp.leaveRoomByJid', roomJid);
+        log.debug('ContentApp.leaveRoomByJid', roomJid);
         if (this.rooms[roomJid] != undefined) {
             this.rooms[roomJid].leave();
             delete this.rooms[roomJid];
@@ -215,8 +215,8 @@ export class ContentApp
         try {
             chrome.runtime.sendMessage({ 'type': 'sendStanza', 'stanza': stanza });
         } catch (error) {
+            log.info(error);
             Panic.now();
-            // log.info(ex);
         }
     }
 
