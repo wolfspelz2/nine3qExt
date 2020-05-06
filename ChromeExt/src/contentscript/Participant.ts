@@ -347,8 +347,7 @@ export class Participant extends Entity
         this.room?.sendGroupChat(text, this.nick);
     }
 
-    //#endregion
-    //#region Do stuff
+    // drag/move
 
     move(newX: number): void
     {
