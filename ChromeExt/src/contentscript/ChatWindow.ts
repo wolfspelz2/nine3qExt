@@ -51,7 +51,7 @@ export class ChatWindow
                         <span class="n3q-base n3q-text">`+ text + `</span>
                     <div>`
         ).get(0);
-        $(chatout).append(lineElem).scrollTop($(chatout).get(0).scrollHeight;
+        $(chatout).append(lineElem).scrollTop($(chatout).get(0).scrollHeight);
     }
 
     show()
