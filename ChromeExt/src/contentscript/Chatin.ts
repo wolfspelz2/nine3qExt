@@ -64,7 +64,7 @@ export class Chatin
     {
         var text: string = as.String($(this.chatinInputElem).val(), '');
         if (text != '') {
-            this.participant.sendGroupChat(text);
+            this.participant?.sendGroupChat(text);
             $(this.chatinInputElem).val('').focus();
         }
     }

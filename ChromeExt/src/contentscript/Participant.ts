@@ -18,9 +18,8 @@ export class Participant extends Entity
     private nicknameDisplay: Nickname;
     private chatoutDisplay: Chatout;
     private chatinDisplay: Chatin;
-    private firstPresence: boolean = true;
+    private isFirstPresence: boolean = true;
     private defaultSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
-    private identityUrl: string;
     private userId: string;
     private inMove: boolean = false;
     private condition_: string = '';
@@ -73,7 +72,7 @@ export class Participant extends Entity
         }
 
         {
-            let stateNode = stanza.getChildren('x').find(stanzaChild => stanzaChild.attrs.xmlns === 'firebat:avatar:state');
+            let stateNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'firebat:avatar:state');
             let positionNode = stateNode.getChild('position');
             if (positionNode != undefined) {
                 newX = as.Int(positionNode.attrs.x, -1);
@@ -88,7 +87,7 @@ export class Participant extends Entity
         }
 
         {
-            let identityNode = stanza.getChildren('x').find(stanzaChild => stanzaChild.attrs.xmlns === 'firebat:user:identity');
+            let identityNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'firebat:user:identity');
             if (identityNode != undefined) {
                 let attrs = identityNode.attrs;
                 let url = as.String(attrs.src, '');
@@ -97,14 +96,13 @@ export class Participant extends Entity
                 this.userId = as.String(attrs.id, jid);
 
                 if (url != '' && digest != '') {
-                    this.identityUrl = url;
                     this.app.getStorage().setIdentity(this.userId, url, digest);
                 }
             }
         }
 
         {
-            let vpNode = stanza.getChildren('x').find(stanzaChild => stanzaChild.attrs.xmlns === 'vp:props');
+            let vpNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
             if (vpNode != undefined) {
                 let attrs = vpNode.attrs;
                 let nickname = as.String(attrs.nickname, '');
@@ -138,8 +136,8 @@ export class Participant extends Entity
             }
         }
 
-        if (this.firstPresence) {
-            this.firstPresence = false;
+        if (this.isFirstPresence) {
+            this.isFirstPresence = false;
 
             if (!presenceHasPosition) {
                 newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition();
@@ -152,7 +150,7 @@ export class Participant extends Entity
                 if (vpAvatar != '') {
                     let animationsUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', vpAvatar);
                     let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(animationsUrl));
-                    this.avatarDisplay.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
+                    this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
                 } else {
                     //this.app.getStorage().watch(this.userId, 'ImageUrl', this.avatarDisplay);
                     this.app.getStorage().watch(this.userId, 'AnimationsUrl', this.avatarDisplay);
@@ -165,7 +163,7 @@ export class Participant extends Entity
                 if (vpNickname != '') {
                     shownNickname = vpNickname;
                 }
-                this.nicknameDisplay.setNickname(shownNickname);
+                this.nicknameDisplay?.setNickname(shownNickname);
                 if (vpNickname == '') {
                     this.app.getStorage().watch(this.userId, 'Nickname', this.nicknameDisplay);
                 }
@@ -190,7 +188,7 @@ export class Participant extends Entity
 
         this.condition_ = newCondition;
         if (!this.inMove) {
-            this.avatarDisplay.setState(this.condition_);
+            this.avatarDisplay?.setState(this.condition_);
         }
     }
 
@@ -207,7 +205,7 @@ export class Participant extends Entity
         let timestamp = 0;
 
         {
-            let node = stanza.getChildren('delay').find(stanzaChild => stanzaChild.attrs.xmlns === 'urn:xmpp:delay');
+            let node = stanza.getChildren('delay').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'urn:xmpp:delay');
             if (node != undefined) {
                 let dateStr = as.String(node.attrs.stamp, ''); // 2020-04-24T06:53:46Z
                 if (dateStr != '') {
@@ -225,7 +223,7 @@ export class Participant extends Entity
         }
 
         {
-            let node = stanza.getChildren('x').find(stanzaChild => stanzaChild.attrs.xmlns === 'jabber:x:delay');
+            let node = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'jabber:x:delay');
             if (node != undefined) {
                 let dateStr = as.String(node.attrs.stamp, ''); // 20200424T06:53:46
                 try {
@@ -253,7 +251,7 @@ export class Participant extends Entity
             let room = from.bare().toString();
             nick = from.getResource();
             if (this.nicknameDisplay != undefined) {
-                nick = this.nicknameDisplay.getNickname();
+                nick = this.nicknameDisplay?.getNickname();
             }
         }
 
@@ -270,7 +268,7 @@ export class Participant extends Entity
         // recent
         if (delayMSec * 1000 < as.Float(Config.get('room.maxChatAgeSec', 60))) {
             if (!this.isChatCommand(text)) {
-                this.chatoutDisplay.setText(text);
+                this.chatoutDisplay?.setText(text);
             }
         }
 
@@ -293,8 +291,8 @@ export class Participant extends Entity
         switch (cmd) {
             case '/do':
                 if (parts.length < 2) { return; }
-                // this.chatoutDisplay.setText(text);
-                this.avatarDisplay.setAction(parts[1]);
+                // this.chatoutDisplay?.setText(text);
+                this.avatarDisplay?.setAction(parts[1]);
                 break;
         }
     }
@@ -342,7 +340,7 @@ export class Participant extends Entity
         //     }
         // }
 
-        this.room.sendGroupChat(text, this.nick);
+        this.room?.sendGroupChat(text, this.nick);
     }
 
     //#endregion
@@ -360,12 +358,12 @@ export class Participant extends Entity
         var diffX = newX - oldX;
         if (diffX < 0) {
             diffX = -diffX;
-            this.avatarDisplay.setState('moveleft');
+            this.avatarDisplay?.setState('moveleft');
         } else {
-            this.avatarDisplay.setState('moveright');
+            this.avatarDisplay?.setState('moveright');
         }
 
-        let speedPixelPerSec = as.Float(this.avatarDisplay.getSpeedPixelPerSec(), this.defaultSpeedPixelPerSec);
+        let speedPixelPerSec = as.Float(this.avatarDisplay?.getSpeedPixelPerSec(), this.defaultSpeedPixelPerSec);
         var durationSec = diffX / speedPixelPerSec;
 
         $(this.getElem())
@@ -382,7 +380,7 @@ export class Participant extends Entity
     {
         this.inMove = false;
         this.setPosition(newX);
-        this.avatarDisplay.setState(this.condition_);
+        this.avatarDisplay?.setState(this.condition_);
     }
 
     onDraggedBy(dX: number, dY: number): void
@@ -392,7 +390,7 @@ export class Participant extends Entity
         if (this.getPosition() != newX) {
             if (this.isSelf) {
                 this.app.savePosition(newX);
-                this.room.sendMoveMessage(newX);
+                this.room?.sendMoveMessage(newX);
             } else {
                 this.quickSlide(newX);
             }
@@ -401,7 +399,7 @@ export class Participant extends Entity
 
     quickSlide(newX: number): void
     {
-        this.avatarDisplay.setState('');
+        this.avatarDisplay?.setState('');
         super.quickSlide(newX);
     }
 
@@ -415,13 +413,13 @@ export class Participant extends Entity
 
     onMouseEnterAvatar(ev: JQuery.Event): void
     {
-        this.avatarDisplay.hilite(true);
+        this.avatarDisplay?.hilite(true);
         //this.nickname.setVisible(true);
     }
 
     onMouseLeaveAvatar(ev: JQuery.Event): void
     {
-        this.avatarDisplay.hilite(false);
+        this.avatarDisplay?.hilite(false);
         //this.nickname.setVisible(false);
     }
 
@@ -433,22 +431,22 @@ export class Participant extends Entity
 
     do(what: string): void
     {
-        this.room.sendGroupChat('/do ' + what, this.nick);
+        this.room?.sendGroupChat('/do ' + what, this.nick);
     }
 
     toggleChatin(): void
     {
-        this.chatinDisplay.toggleVisibility();
+        this.chatinDisplay?.toggleVisibility();
     }
 
     toggleChatout(): void
     {
-        this.chatoutDisplay.toggleVisibility();
+        this.chatoutDisplay?.toggleVisibility();
     }
 
     showChatWindow(): void
     {
-        this.chatHistory.show();
+        this.chatHistory?.show();
     }
 
 }

@@ -17,7 +17,7 @@ export class Chatout
         $(this.elem).click(() =>
         {
             $(this.elem).stop(true).fadeTo('fast', 1);
-            this.participant.select();
+            this.participant?.select();
         });
 
         var speechBubble = <HTMLElement>$('<div class="n3q-base n3q-speech n3q-shadow" />').get(0);

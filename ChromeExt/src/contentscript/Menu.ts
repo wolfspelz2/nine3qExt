@@ -5,12 +5,14 @@ import { Entity } from './Entity';
 
 interface MenuClickHandler { (ev: JQuery.Event): void }
 
-export enum MenuHasIcon {
+export enum MenuHasIcon
+{
     No,
     Yes,
 }
 
-export enum MenuOnClickClose {
+export enum MenuOnClickClose
+{
     No,
     Yes,
 }
@@ -27,14 +29,20 @@ export class MenuColumn
 
 export class Menu
 {
+    private checkboxElem: HTMLElement;
+
     constructor(private app: ContentApp, public id: string, public columns: Array<MenuColumn>) { }
 
     render(): HTMLElement
     {
         let menu = <HTMLElement>$('<div class="n3q-base n3q-menu n3q-menu-avatar" data-translate="children">').get(0);
-        let checkbox = <HTMLElement>$('<input type="checkbox" href="#" class="n3q-base n3q-menu-open" name="n3q-id-menu-open-avatarmenu-' + this.id + '" id="n3q-id-menu-open-avatarmenu-' + this.id + '" />').get(0);
-        $(menu).append(checkbox);
+        this.checkboxElem = <HTMLElement>$('<input type="checkbox" href="#" class="n3q-base n3q-menu-open" name="n3q-id-menu-open-avatarmenu-' + this.id + '" id="n3q-id-menu-open-avatarmenu-' + this.id + '" />').get(0);
+        $(this.checkboxElem).on('keydown', ev => { this.onKeydown(ev); });
+
+        $(menu).append(this.checkboxElem);
         let label = <HTMLElement>$('<label for="n3q-id-menu-open-avatarmenu-' + this.id + '" class="n3q-base n3q-menu-open-button"></label>').get(0);
+        $(label).on('keydown', ev => { this.onKeydown(ev); });
+        $(label).on('click', ev => { $(label).focus(); });
         $(menu).append(label);
 
         this.columns.forEach(column =>
@@ -58,7 +66,7 @@ export class Menu
                         item.onClick(ev);
                     }
                     if (item.onClickClose == MenuOnClickClose.Yes) {
-                        $(checkbox).prop('checked', false);
+                        this.close();
                     }
                 });
                 $(menu).append(itemElem);
@@ -68,5 +76,28 @@ export class Menu
         this.app.translateElem(menu);
 
         return menu;
+    }
+
+    private onKeydown(ev: JQuery.Event)
+    {
+        var keycode = (ev.keyCode ? ev.keyCode : (ev.which ? ev.which : ev.charCode));
+        switch (keycode) {
+            case 13:
+                // this.sendChat();
+                return false;
+            case 27:
+                this.close();
+                ev.stopPropagation();
+                return false;
+            default:
+                return true;
+        }
+    }
+
+    close()
+    {
+        if (this.checkboxElem != null) {
+            $(this.checkboxElem).prop('checked', false);
+        }
     }
 }

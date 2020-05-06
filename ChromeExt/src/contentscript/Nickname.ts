@@ -18,38 +18,38 @@ export class Nickname implements IObserver
     constructor(private app: ContentApp, private participant: Participant, private isSelf: boolean, private display: HTMLElement)
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-nickname n3q-shadow" />').get(0);
-        $(this.elem).click(() => { this.participant.select(); });
+        $(this.elem).click(() => { this.participant?.select(); });
 
-        // $(this.elem).on('mouseenter', ev => this.participant.onMouseEnterAvatar(ev));
-        // $(this.elem).on('mouseleave', ev => this.participant.onMouseLeaveAvatar(ev));
+        // $(this.elem).on('mouseenter', ev => this.participant?.onMouseEnterAvatar(ev));
+        // $(this.elem).on('mouseleave', ev => this.participant?.onMouseLeaveAvatar(ev));
 
         let columns = new Array<MenuColumn>();
         {
             let items = new Array<MenuItem>();
             if (this.isSelf) {
-                items.push(new MenuItem('chat', 'Chat', MenuHasIcon.Yes, MenuOnClickClose.Yes, ev => { this.participant.toggleChatin(); }));
+                items.push(new MenuItem('chat', 'Chat', MenuHasIcon.Yes, MenuOnClickClose.Yes, ev => { this.participant?.toggleChatin(); }));
                 if (Environment.isDevelopment()) { items.push(new MenuItem('test', 'Test', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.app.test(); })); }
             } else {
-                items.push(new MenuItem('chat', 'Chat', MenuHasIcon.Yes, MenuOnClickClose.Yes, ev => { this.participant.toggleChatout(); }));
+                items.push(new MenuItem('chat', 'Chat', MenuHasIcon.Yes, MenuOnClickClose.Yes, ev => { this.participant?.toggleChatout(); }));
             }
             if (this.isSelf) {
-                items.push(new MenuItem('chatwin', 'Chat Window', MenuHasIcon.Yes, MenuOnClickClose.Yes, ev => { this.participant.showChatWindow(); }));
+                items.push(new MenuItem('chatwin', 'Chat Window', MenuHasIcon.Yes, MenuOnClickClose.Yes, ev => { this.participant?.showChatWindow(); }));
             }
             columns.push(new MenuColumn('main', items));
         }
         if (this.isSelf) {
             let items = new Array<MenuItem>();
             items.push(new MenuItem('Actions', 'Actions:', MenuHasIcon.No, MenuOnClickClose.No, null));
-            items.push(new MenuItem('wave', 'wave', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.do('wave'); }));
-            items.push(new MenuItem('dance', 'dance', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.do('dance') }));
-            items.push(new MenuItem('cheer', 'cheer', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.do('wave'); }));
+            items.push(new MenuItem('wave', 'wave', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant?.do('wave'); }));
+            items.push(new MenuItem('dance', 'dance', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant?.do('dance') }));
+            items.push(new MenuItem('cheer', 'cheer', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant?.do('wave'); }));
 
-            items.push(new MenuItem('kiss', 'kiss', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.do('kiss'); }));
-            items.push(new MenuItem('clap', 'clap', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.do('clap'); }));
-            items.push(new MenuItem('laugh', 'laugh', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.do('laugh'); }));
-            items.push(new MenuItem('angry', 'angry', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.do('angry'); }));
-            items.push(new MenuItem('deny', 'deny', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.do('deny'); }));
-            items.push(new MenuItem('yawn', 'yawn', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.do('yawn'); }));
+            items.push(new MenuItem('kiss', 'kiss', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant?.do('kiss'); }));
+            items.push(new MenuItem('clap', 'clap', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant?.do('clap'); }));
+            items.push(new MenuItem('laugh', 'laugh', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant?.do('laugh'); }));
+            items.push(new MenuItem('angry', 'angry', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant?.do('angry'); }));
+            items.push(new MenuItem('deny', 'deny', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant?.do('deny'); }));
+            items.push(new MenuItem('yawn', 'yawn', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant?.do('yawn'); }));
 
             columns.push(new MenuColumn('action', items));
         }
