@@ -78,7 +78,12 @@ export class ContentApp
 
         chrome.runtime?.onMessage.removeListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
 
-        $(this.display).remove();
+        // Remove all jquery dialogs (they are appended to <body> and appendTo:#n3q-id-page wont work)
+        $('.n3q-ui-dialog').remove();
+
+        // Remove our own top element
+        $('#n3q-id-page').remove();
+
         this.display = null;
     }
 

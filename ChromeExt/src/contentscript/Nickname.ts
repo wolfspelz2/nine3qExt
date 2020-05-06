@@ -32,7 +32,9 @@ export class Nickname implements IObserver
             } else {
                 items.push(new MenuItem('chat', 'Chat', MenuHasIcon.Yes, MenuOnClickClose.Yes, ev => { this.participant.toggleChatout(); }));
             }
-            items.push(new MenuItem('chatwin', 'Chat Window', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant.showChatWindow(); }));
+            if (this.isSelf) {
+                items.push(new MenuItem('chatwin', 'Chat Window', MenuHasIcon.Yes, MenuOnClickClose.Yes, ev => { this.participant.showChatWindow(); }));
+            }
             columns.push(new MenuColumn('main', items));
         }
         if (this.isSelf) {

@@ -9,7 +9,7 @@ import { Avatar } from './Avatar';
 import { Nickname } from './Nickname';
 import { Chatout } from './Chatout';
 import { Chatin } from './Chatin';
-import { ChatHistory } from './ChatHistory';
+import { ChatWindow } from './ChatWindow';
 
 export class Participant extends Entity
 {
@@ -23,15 +23,21 @@ export class Participant extends Entity
     private userId: string;
     private inMove: boolean = false;
     private condition_: string = '';
-    private chatHistory: ChatHistory;
+    private chatHistory: ChatWindow;
 
     constructor(private app: ContentApp, room: Room, display: HTMLElement, private nick: string, private isSelf: boolean)
     {
         super(room, display);
 
-        this.chatHistory = new ChatHistory(app, display, this, isSelf)
+        this.chatHistory = new ChatWindow(app, display, this, isSelf)
 
         $(this.getElem()).addClass('n3q-participant');
+        if (isSelf) {
+            $(this.getElem()).addClass('n3q-participant-self');
+        }
+        else {
+            $(this.getElem()).addClass('n3q-participant-other');
+        }
     }
 
     // presence
@@ -253,16 +259,20 @@ export class Participant extends Entity
 
         // recent
         if (delayMSec * 1000 < as.Float(Config.get('room.maxChatAgeSec', 60))) {
-            this.chatoutDisplay.setText(text);
+            if (!this.isChatCommand(text)) {
+                this.chatoutDisplay.setText(text);
+            }
         }
 
         // new only
         if (delayMSec <= 100) {
-            if (text.substring(0, 1) == '/') {
+            if (this.isChatCommand(text)) {
                 return this.onChatCommand(text);
             }
         }
     }
+
+    isChatCommand(text: string) { return text.substring(0, 1) == '/'; }
 
     onChatCommand(text: string): void
     {
@@ -428,7 +438,7 @@ export class Participant extends Entity
 
     showChatWindow(): void
     {
-        this.chatHistory.showWindow();
+        this.chatHistory.show();
     }
 
 }

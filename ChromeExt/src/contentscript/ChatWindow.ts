@@ -6,9 +6,8 @@ import { as } from '../lib/as';
 import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
 import { Config } from '../lib/Config';
-import { Utils } from '../lib/Utils';
 
-class ChatHistoryLine
+class ChatLine
 {
     private contentElem: HTMLElement;
     private windowElem: HTMLElement;
@@ -18,13 +17,13 @@ class ChatHistoryLine
     }
 }
 
-export class ChatHistory
+export class ChatWindow
 {
     private dialogElem: HTMLElement;
     private windowElem: HTMLElement;
     private chatoutElem: HTMLElement;
     private chatinInputElem: HTMLElement;
-    private lines: Record<string, ChatHistoryLine> = {};
+    private lines: Record<string, ChatLine> = {};
 
     constructor(private app: ContentApp, private display: HTMLElement, private participant: Participant, private isSelf: boolean)
     {
@@ -35,7 +34,7 @@ export class ChatHistory
 
     addLine(id: string, nick: string, text: string)
     {
-        let line = new ChatHistoryLine(nick, text);
+        let line = new ChatLine(nick, text);
         if (this.lines[id] == undefined) {
             this.lines[id] = line;
             if (this.chatoutElem != null) {
@@ -52,10 +51,10 @@ export class ChatHistory
                         <span class="n3q-base n3q-text">`+ text + `</span>
                     <div>`
         ).get(0);
-        $(chatout).append(lineElem);
+        $(chatout).append(lineElem).scrollTop($(chatout).get(0).scrollHeight;
     }
 
-    showWindow()
+    show()
     {
         if (this.windowElem == null) {
             {
@@ -87,7 +86,8 @@ export class ChatHistory
                 width: Config.get('chatWindowWidth', 400),
                 height: Config.get('chatWindowHeight', 250),
                 maxHeight: Config.get('chatWindowMaxHeight', 800),
-            }).on('dialogclose', ev => { this.onCloseWindow(ev) });
+                // appendTo: '#n3q-id-page', // makes the dialog undraggable
+            }).on('dialogclose', ev => { this.onClose(ev) });
 
             this.windowElem = $(this.dialogElem).parentsUntil(this.display).get(0);
             $(this.windowElem).addClass('n3q-ui-dialog');
@@ -101,7 +101,7 @@ export class ChatHistory
             }
         }
 
-        this.pushWindowToTop();
+        this.pushToTop();
     }
 
     private sendChat()
@@ -113,8 +113,9 @@ export class ChatHistory
         }
     }
 
-    private closeWindow()
+    private close()
     {
+        $(this.dialogElem).dialog('close');
     }
 
     private onChatinKeydown(ev: JQuery.Event)
@@ -125,7 +126,7 @@ export class ChatHistory
                 this.sendChat();
                 return false;
             case 27:
-                this.closeWindow();
+                this.close();
                 ev.stopPropagation();
                 return false;
             default:
@@ -133,7 +134,7 @@ export class ChatHistory
         }
     }
 
-    private onCloseWindow(ev: JQuery.Event)
+    private onClose(ev: JQuery.Event)
     {
         this.dialogElem = null;
         this.windowElem = null;
@@ -141,7 +142,7 @@ export class ChatHistory
         this.chatinInputElem = null;
     }
 
-    private pushWindowToTop()
+    private pushToTop()
     {
     }
 }
