@@ -27,6 +27,7 @@ export class ContentAppNotification
 {
     static type_onTabChangeStay: string = 'onTabChangeStay';
     static type_onTabChangeLeave: string = 'onTabChangeLeave';
+    static type_stopBecauseDisabled: string = 'stopBecauseDisabled';
 }
 
 interface ContentAppNotificationCallback { (msg: any): void }
@@ -51,6 +52,11 @@ export class ContentApp
 
     async start()
     {
+        if (!await this.getActive()) {
+            this.messageHandler({ 'type': ContentAppNotification.type_stopBecauseDisabled });
+            return;
+        }
+
         try {
             let config = await Platform.getConfig();
             Config.setAllOnline(config);
@@ -73,8 +79,6 @@ export class ContentApp
         if (Panic.isOn) { return; }
         await this.assertSavedPosition();
         if (Panic.isOn) { return; }
-
-        if (!await this.getActive()) { return; }
 
         let page = $('<div id="n3q-id-page" class="n3q-base n3q-hidden-print" />').get(0);
         this.display = $('<div class="n3q-base n3q-display" />').get(0);
@@ -308,7 +312,7 @@ export class ContentApp
     async getActive(): Promise<boolean>
     {
         try {
-            let active = await Config.getSync('me.active', false);
+            let active = await Config.getSync('me.active', 'true');
             return as.Bool(active, false);
         } catch (error) {
             log.info(error);

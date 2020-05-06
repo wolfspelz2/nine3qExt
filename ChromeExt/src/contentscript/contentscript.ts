@@ -33,13 +33,16 @@ try {
             {
                 switch (msg.type) {
                     case ContentAppNotification.type_onTabChangeStay: {
+                        log.debug('Contentscript msg', ContentAppNotification.type_onTabChangeStay);
                         onTabChangeStay = true;
-                    }
-                        break;
+                    }break;
                     case ContentAppNotification.type_onTabChangeLeave: {
+                        log.debug('Contentscript msg', ContentAppNotification.type_onTabChangeLeave);
                         onTabChangeStay = false;
-                    }
-                        break;
+                    }break;
+                    case ContentAppNotification.type_stopBecauseDisabled: {
+                        log.debug('Contentscript msg', ContentAppNotification.type_stopBecauseDisabled);
+                    }break;
                 }
             });
             app.start();
