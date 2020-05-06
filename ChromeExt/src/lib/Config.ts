@@ -37,6 +37,7 @@ export class Config
             'chatWindowWidth': 400,
             'chatWindowHeight': 250,
             'chatWindowMaxHeight': 800,
+            'keepAliveSec': 120,
         },
         'xmpp': {
             'service': 'wss://xmpp.weblin.sui.li/xmpp-websocket',

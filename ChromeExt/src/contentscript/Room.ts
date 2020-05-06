@@ -173,7 +173,7 @@ export class Room
 
     // Keepalive
 
-    private keepAliveSec: number = 180;
+    private keepAliveSec: number = Config.get('room.keepAliveSec', 180);
     private keepAliveTimer: number = undefined;
     private keepAlive()
     {
