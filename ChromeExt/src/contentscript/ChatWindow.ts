@@ -85,7 +85,7 @@ export class ChatWindow
             $(this.dialogElem).dialog({
                 width: Config.get('chatWindowWidth', 400),
                 height: Config.get('chatWindowHeight', 250),
-                maxHeight: Config.get('chatWindowMaxHeight', 800),
+                // maxHeight: Config.get('chatWindowMaxHeight', 800),
                 // appendTo: '#n3q-id-page', // makes the dialog undraggable
             }).on('dialogclose', ev => { this.onClose(ev) });
 
