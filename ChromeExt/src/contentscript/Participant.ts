@@ -95,7 +95,7 @@ export class Participant extends Entity
                 let jid = as.String(attrs.jid, url);
                 this.userId = as.String(attrs.id, jid);
 
-                if (url != '' && digest != '') {
+                if (url != '') {
                     this.app.getStorage().setIdentity(this.userId, url, digest);
                 }
             }

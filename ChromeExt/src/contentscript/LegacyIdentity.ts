@@ -16,7 +16,7 @@ export class LegacyIdentity
 
     changed(url: string, digest: string): void
     {
-        if (url != '' && digest != '' && url != this.url || digest != this.digest) {
+        if (url != '' && url != this.url || digest != this.digest) {
             this.url = url;
             this.digest = digest;
             this.fetch(url, digest);
