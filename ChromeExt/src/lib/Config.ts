@@ -69,7 +69,10 @@ export class Config
                     'Popup.Random': 'Random',
                     'Popup.Avatar': 'Avatar',
                     'Popup.Save': 'Save',
+                    'Popup.Saving': 'Saving',
                     'Popup.Saved': 'Saved',
+                    'Popup.Show avatar': 'Show avatar on pages',
+                    'Popup.Uncheck to hide': 'Uncheck to hide avatar on pages',
 
                     'Menu.Chat': 'Chat',
                     'Menu.Chat Window': 'History',
@@ -99,7 +102,10 @@ export class Config
                     'Popup.Random': 'Zufallsname',
                     'Popup.Avatar': 'Avatar',
                     'Popup.Save': 'Speichern',
+                    'Popup.Saving': 'Speichern',
                     'Popup.Saved': 'Gespeichert',
+                    'Popup.Show avatar': 'Avatar auf Seiten anzeigen',
+                    'Popup.Uncheck to hide': 'Abschalten, um das Avatar auf Webseiten nicht anzuzeigen',
 
                     'Menu.Chat': 'Chat',
                     'Menu.Chat Window': 'Verlauf',

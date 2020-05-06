@@ -56,6 +56,7 @@ export class PopupApp
 
         let nickname = as.String(await Config.getSync('me.nickname', 'Your name'));
         let avatar = as.String(await Config.getSync('me.avatar', ''));
+        let active = as.Bool(await Config.getSync('me.active', 'false'));
 
         {
             let group = $('<div class="n3q-base n3q-popup-header" data-translate="children"/>').get(0);
@@ -179,6 +180,19 @@ export class PopupApp
         }
 
         {
+            let group = $('<div class="n3q-base n3q-popup-group n3q-popup-group-active" data-translate="children"/>').get(0);
+
+            let label = $('<div class="n3q-base n3q-popup-label" data-translate="text:Popup">Show avatar</div>').get(0);
+            group.append(label);
+
+            let checkbox = $('<input type="checkbox" id="n3q-id-popup-active" name="n3q-id-popup-active" class="n3q-base n3q-popup-active" title="Uncheck to hide" data-translate="attr:title:Popup"></input>').get(0);
+            $(checkbox).prop('checked', as.Bool(active, false));
+            group.append(checkbox);
+
+            this.display.append(group);
+        }
+
+        {
             let group = $('<div class="n3q-base n3q-popup-group n3q-popup-group-save" data-translate="children"/>').get(0);
 
             let saving = $('<div class="n3q-base n3q-popup-save-saving" data-translate="text:Popup">Saving</div>').get(0);
@@ -188,14 +202,28 @@ export class PopupApp
             $(save).bind('click', async ev =>
             {
                 $(saving).fadeTo(200, 1.0);
-                await Config.setSync('me.nickname', $('#n3q-id-popup-nickname').val());
-                await Config.setSync('me.avatar', $('#n3q-id-popup-avatar').val());
-                $(saving).fadeTo(200, 0.0);
+                let nickname2Save = $('#n3q-id-popup-nickname').val();
+                await Config.setSync('me.nickname', nickname2Save);
 
-                var nickname = await Config.getSync('me.nickname', '');
-                var avatar = await Config.getSync('me.avatar', '');
-                if (nickname != '' && avatar != '') {
-                    $(saved).fadeTo(300, 1.0).fadeTo(2000, 0.0);
+                let avatar2Save = $('#n3q-id-popup-avatar').val();
+                await Config.setSync('me.avatar', avatar2Save);
+
+                let isActive = $('#n3q-id-popup-active').prop('checked');
+                let active2Save = as.String(isActive, 'false');
+                await Config.setSync('me.active', active2Save);
+
+                // Verify
+                {
+                    let nickname2Verify = await Config.getSync('me.nickname', '');
+                    let avatar2Verify = await Config.getSync('me.avatar', '');
+                    let active2Verify = await Config.getSync('me.active', '');
+                    $(saving).fadeTo(100, 0.0);
+                    if (nickname2Verify == nickname2Save && avatar2Verify == avatar2Save && active2Verify == active2Save) {
+                        $(saved).fadeTo(100, 1.0).fadeTo(1000, 0.0, () =>
+                        {
+                            this.close();
+                        });
+                    }
                 }
             });
             group.append(save);
@@ -206,7 +234,7 @@ export class PopupApp
             let close = $('<button class="n3q-base n3q-popup-close" data-translate="text:Common">Close</button>').get(0);
             $(close).bind('click', async ev =>
             {
-                window.close();
+                this.close();
             });
             group.append(close);
 
@@ -215,6 +243,11 @@ export class PopupApp
 
         this.babelfish.translateElem(this.display);
         this.appendToMe.append(this.display);
+    }
+
+    close()
+    {
+        window.close();
     }
 
     private setCurrentAvatar(id: string, displayElem: HTMLImageElement, hiddenElem: HTMLElement, nameElem: HTMLElement)

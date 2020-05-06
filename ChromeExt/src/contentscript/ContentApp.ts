@@ -65,12 +65,16 @@ export class ContentApp
         let language: string = Translator.mapLanguage(navigator.language, lang => { return Config.get('i18n.languageMapping', {})[lang]; }, Config.get('i18n.defaultLanguage', 'en-US'));
         this.babelfish = new Translator(Config.get('i18n.translations', {})[language], language, Config.get('i18n.serviceUrl', ''));
 
+        await this.assertActive();
+        if (Panic.isOn) { return; }
         await this.assertUserNickname();
         if (Panic.isOn) { return; }
         await this.assertUserAvatar();
         if (Panic.isOn) { return; }
         await this.assertSavedPosition();
         if (Panic.isOn) { return; }
+
+        if (!await this.getActive()) { return; }
 
         let page = $('<div id="n3q-id-page" class="n3q-base n3q-hidden-print" />').get(0);
         this.display = $('<div class="n3q-base n3q-display" />').get(0);
@@ -284,6 +288,32 @@ export class ContentApp
     translateElem(elem: HTMLElement): void
     {
         this.babelfish.translateElem(elem);
+    }
+
+    // my active
+
+    async assertActive()
+    {
+        try {
+            let active = await Config.getSync('me.active', '');
+            if (active == '') {
+                await Config.setSync('me.active', 'true');
+            }
+        } catch (error) {
+            log.info(error);
+            Panic.now();
+        }
+    }
+
+    async getActive(): Promise<boolean>
+    {
+        try {
+            let active = await Config.getSync('me.active', false);
+            return as.Bool(active, false);
+        } catch (error) {
+            log.info(error);
+            return false;
+        }
     }
 
     // my nickname
