@@ -20,7 +20,7 @@ export class Config
         },
         'vp': {
             'locationMappingServiceUrl': 'http://lms.virtual-presence.org/api/',
-            'deferPageEnterSec': 1.0,
+            'deferPageEnterSec': 0.5,
         },
         'config': {
             'serviceUrl': 'https://config.weblin.sui.li/',
@@ -70,6 +70,7 @@ export class Config
                     'Popup.Random': 'Random',
                     'Popup.Avatar': 'Avatar',
                     'Popup.Save': 'Save',
+                    'Popup.Saved': 'Saved',
 
                     'Menu.Chat': 'Chat',
                     'Menu.Chat Window': 'History',
@@ -98,6 +99,7 @@ export class Config
                     'Popup.Random': 'Zufallsname',
                     'Popup.Avatar': 'Avatar',
                     'Popup.Save': 'Speichern',
+                    'Popup.Saved': 'Gespeichert',
 
                     'Menu.Chat': 'Chat',
                     'Menu.Chat Window': 'Verlauf',

@@ -181,13 +181,27 @@ export class PopupApp
         {
             let group = $('<div class="n3q-base n3q-popup-group n3q-popup-group-save" data-translate="children"/>').get(0);
 
+            let saving = $('<div class="n3q-base n3q-popup-save-saving" data-translate="text:Popup">Saving</div>').get(0);
+            let saved = $('<div class="n3q-base n3q-popup-save-saved" data-translate="text:Popup">Saved</div>').get(0);
+
             let save = $('<button class="n3q-base n3q-popup-save" data-translate="text:Popup">Save</button>').get(0);
             $(save).bind('click', async ev =>
             {
-                await Config.setSync('me.nickname', $('#n3q-id-popup-nickname').val())
-                await Config.setSync('me.avatar', $('#n3q-id-popup-avatar').val())
+                $(saving).fadeTo(200, 1.0);
+                await Config.setSync('me.nickname', $('#n3q-id-popup-nickname').val());
+                await Config.setSync('me.avatar', $('#n3q-id-popup-avatar').val());
+                $(saving).fadeTo(200, 0.0);
+
+                var nickname = await Config.getSync('me.nickname', '');
+                var avatar = await Config.getSync('me.avatar', '');
+                if (nickname != '' && avatar != '') {
+                    $(saved).fadeTo(300, 1.0).fadeTo(2000, 0.0);
+                }
             });
             group.append(save);
+
+            group.append(saving);
+            group.append(saved);
 
             let close = $('<button class="n3q-base n3q-popup-close" data-translate="text:Common">Close</button>').get(0);
             $(close).bind('click', async ev =>

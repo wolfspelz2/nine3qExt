@@ -107,7 +107,7 @@ input.n3q-base {
     background-color: #b1c032;
     display: inline;
     border: 1px solid grey;
-    padding: 2px 2em;
+    padding: 2px 1em;
 }
 
 .n3q-popup-save:hover {
@@ -116,6 +116,22 @@ input.n3q-base {
   
 .n3q-popup-save:active {
     filter: brightness(0.8);
+}
+
+.n3q-popup-save-saving {
+    display: inline;
+    margin-left: 0.5em;
+    background-color: lightgray;
+    padding: 3px 1em;
+    opacity: 0;
+}
+
+.n3q-popup-save-saved {
+    display: inline;
+    margin-left: 0.5em;
+    background-color: #b1c032;
+    padding: 3px 1em;
+    opacity: 0;
 }
 
 .n3q-popup-close {
