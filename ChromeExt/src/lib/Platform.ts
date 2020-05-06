@@ -2,7 +2,6 @@ import log = require('loglevel');
 import { Panic } from './Panic';
 
 interface PlatformFetchUrlCallback { (ok: boolean, status: string, statusText: string, data: string): void }
-interface PlatformGetConfigCallback { (config: any): void }
 
 export class Platform
 {

@@ -4,7 +4,7 @@ import * as $ from 'jquery';
 import { Panic } from '../lib/Panic';
 import { Config } from '../lib/Config';
 import { Environment } from '../lib/Environment';
-import { ContentApp } from './ContentApp';
+import { ContentApp, ContentAppNotification } from './ContentApp';
 
 console.log('Contentscript');
 
@@ -21,6 +21,7 @@ if (debug) {
 }
 
 var app = null;
+let onTabChangeStay = false;
 
 try {
 
@@ -28,7 +29,19 @@ try {
     {
         if (app == null) {
             log.debug('Contentscript.activate');
-            app = new ContentApp($('body').get(0));
+            app = new ContentApp($('body').get(0), msg =>
+            {
+                switch (msg.type) {
+                    case ContentAppNotification.type_onTabChangeStay: {
+                        onTabChangeStay = true;
+                    }
+                        break;
+                    case ContentAppNotification.type_onTabChangeLeave: {
+                        onTabChangeStay = false;
+                    }
+                        break;
+                }
+            });
             app.start();
         }
     }
@@ -37,7 +50,7 @@ try {
     {
         if (app != null) {
             log.debug('Contentscript.deactivate');
-             app.stop();
+            app.stop();
             app = null;
         }
     }
@@ -60,7 +73,11 @@ try {
         if (document.visibilityState === 'visible') {
             activate();
         } else {
-            deactivate();
+            if (onTabChangeStay) {
+                log.debug('staying');
+            } else {
+                deactivate();
+            }
         }
     });
 

@@ -6,7 +6,7 @@ import { Participant } from './Participant';
 import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { Environment } from '../lib/Environment';
-import { Menu, MenuColumn, MenuItem, MenuHasIcon, MenuOnClickClose } from './Menu';
+import { Menu, MenuColumn, MenuItem, MenuHasIcon, MenuOnClickClose, MenuHasCheckbox } from './Menu';
 
 export class Nickname implements IObserver
 {
@@ -23,37 +23,50 @@ export class Nickname implements IObserver
         // $(this.elem).on('mouseenter', ev => this.participant?.onMouseEnterAvatar(ev));
         // $(this.elem).on('mouseleave', ev => this.participant?.onMouseLeaveAvatar(ev));
 
-        let columns = new Array<MenuColumn>();
+        let menu = new Menu(this.app, Utils.randomString(10));
+
         {
-            let items = new Array<MenuItem>();
+            let column = new MenuColumn(menu, 'main');
             if (this.isSelf) {
-                items.push(new MenuItem('chat', 'Chat', MenuHasIcon.Yes, MenuOnClickClose.Yes, ev => { this.participant?.toggleChatin(); }));
-                if (Environment.isDevelopment()) { items.push(new MenuItem('test', 'Test', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.app.test(); })); }
+                column.addItem('chat', 'Chat', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.toggleChatin(); });
+                if (Environment.isDevelopment()) { column.addItem('test', 'Test', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.app.test(); }); }
             } else {
-                items.push(new MenuItem('chat', 'Chat', MenuHasIcon.Yes, MenuOnClickClose.Yes, ev => { this.participant?.toggleChatout(); }));
+                column.addItem('chat', 'Chat', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.toggleChatout(); });
             }
             if (this.isSelf) {
-                items.push(new MenuItem('chatwin', 'Chat Window', MenuHasIcon.Yes, MenuOnClickClose.Yes, ev => { this.participant?.showChatWindow(); }));
+                column.addItem('chatwin', 'Chat Window', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showChatWindow(); });
+                column.addItem(
+                    'tabstay',
+                    'Stay Here',
+                    MenuHasIcon.Yes,
+                    app.getStayOnTabChange() ? MenuHasCheckbox.YesChecked : MenuHasCheckbox.YesUnchecked,
+                    MenuOnClickClose.Yes,
+                    ev =>
+                    {
+                        this.app.toggleStayOnTabChange();
+                        menu.setCheckbox('main', 'tabstay', app.getStayOnTabChange() ? MenuHasCheckbox.YesChecked : MenuHasCheckbox.YesUnchecked);
+                    }
+                );
             }
-            columns.push(new MenuColumn('main', items));
+            menu.addColumn(column);
         }
+
         if (this.isSelf) {
-            let items = new Array<MenuItem>();
-            items.push(new MenuItem('Actions', 'Actions:', MenuHasIcon.No, MenuOnClickClose.No, null));
-            items.push(new MenuItem('wave', 'wave', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant?.do('wave'); }));
-            items.push(new MenuItem('dance', 'dance', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant?.do('dance') }));
-            items.push(new MenuItem('cheer', 'cheer', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant?.do('wave'); }));
-
-            items.push(new MenuItem('kiss', 'kiss', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant?.do('kiss'); }));
-            items.push(new MenuItem('clap', 'clap', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant?.do('clap'); }));
-            items.push(new MenuItem('laugh', 'laugh', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant?.do('laugh'); }));
-            items.push(new MenuItem('angry', 'angry', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant?.do('angry'); }));
-            items.push(new MenuItem('deny', 'deny', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant?.do('deny'); }));
-            items.push(new MenuItem('yawn', 'yawn', MenuHasIcon.No, MenuOnClickClose.Yes, ev => { this.participant?.do('yawn'); }));
-
-            columns.push(new MenuColumn('action', items));
+            let column = new MenuColumn(menu, 'action');
+            column.addItem('Actions', 'Actions:', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.No, null);
+            column.addItem('wave', 'wave', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.do('wave'); });
+            column.addItem('dance', 'dance', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.do('dance') });
+            column.addItem('cheer', 'cheer', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.do('wave'); });
+            column.addItem('kiss', 'kiss', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.do('kiss'); });
+            column.addItem('clap', 'clap', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.do('clap'); });
+            column.addItem('laugh', 'laugh', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.do('laugh'); });
+            column.addItem('angry', 'angry', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.do('angry'); });
+            column.addItem('deny', 'deny', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.do('deny'); });
+            column.addItem('yawn', 'yawn', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.do('yawn'); });
+            menu.addColumn(column);
         }
-        this.menuElem = new Menu(this.app, Utils.randomString(10), columns).render();
+
+        this.menuElem = menu.render();
         $(this.elem).append(this.menuElem);
 
         this.textElem = <HTMLElement>$('<div class="n3q-base n3q-text" />').get(0);

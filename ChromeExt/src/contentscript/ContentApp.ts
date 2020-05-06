@@ -23,6 +23,14 @@ interface ILocationMapperResponse
     sLocationURL: string;
 }
 
+export class ContentAppNotification
+{
+    static type_onTabChangeStay: string = 'onTabChangeStay';
+    static type_onTabChangeLeave: string = 'onTabChangeLeave';
+}
+
+interface ContentAppNotificationCallback { (msg: any): void }
+
 export class ContentApp
 {
     private display: HTMLElement;
@@ -30,13 +38,14 @@ export class ContentApp
     private rooms: { [roomJid: string]: Room; } = {};
     private storage: PropertyStorage = new PropertyStorage();
     private babelfish: Translator;
+    private stayOnTabChange: boolean = false;
 
     // Getter
 
     getStorage(): PropertyStorage { return this.storage; }
     getAssetUrl(filePath: string) { return Platform.getAssetUrl(filePath); }
 
-    constructor(private appendToMe: HTMLElement)
+    constructor(private appendToMe: HTMLElement, private messageHandler: ContentAppNotificationCallback)
     {
     }
 
@@ -96,8 +105,22 @@ export class ContentApp
         this.display = null;
     }
 
+    toggleStayOnTabChange(): void
+    {
+        this.stayOnTabChange = !this.stayOnTabChange;
+        if (this.stayOnTabChange) {
+            this.messageHandler({ 'type': ContentAppNotification.type_onTabChangeStay });
+        } else {
+            this.messageHandler({ 'type': ContentAppNotification.type_onTabChangeLeave });
+        }
+    }
+
+    getStayOnTabChange(): boolean { return this.stayOnTabChange; }
+
     test()
     {
+        this.toggleStayOnTabChange();
+
         // let dialog = $(`
         //     <div id="dialog" title="Basic dialog">
         //         <p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
@@ -181,7 +204,7 @@ export class ContentApp
         url.searchParams.set('sDocumentURL', pageUrl);
         url.searchParams.set('Format', 'json');
 
-        Platform.fetchUrl(url.toString(), 'none', (ok, status, statusText, data: string) =>
+        Platform.fetchUrl(url.toString(), '', (ok, status, statusText, data: string) =>
         {
             if (ok) {
                 try {

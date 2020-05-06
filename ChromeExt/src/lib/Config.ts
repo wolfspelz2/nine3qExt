@@ -73,6 +73,7 @@ export class Config
 
                     'Menu.Chat': 'Chat',
                     'Menu.Chat Window': 'History',
+                    'Menu.Stay Here': 'Stay Here',
                     'Menu.Actions': 'Actions:',
                     'Menu.wave': 'Wave',
                     'Menu.dance': 'Dance',
@@ -102,6 +103,7 @@ export class Config
 
                     'Menu.Chat': 'Chat',
                     'Menu.Chat Window': 'Verlauf',
+                    'Menu.Stay Here': 'Hier bleiben',
                     'Menu.Actions': 'Aktionen:',
                     'Menu.wave': 'Winken',
                     'Menu.dance': 'Tanzen',
