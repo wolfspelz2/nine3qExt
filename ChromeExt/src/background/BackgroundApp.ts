@@ -2,9 +2,7 @@ import log = require('loglevel');
 import { client, xml, jid } from '@xmpp/client';
 import { Utils } from '../lib/Utils';
 import { ConfigUpdater } from './ConfigUpdater';
-import { timingSafeEqual } from 'crypto';
 import { Config } from '../lib/Config';
-import { Panic } from '../lib/Panic';
 import { as } from '../lib/as';
 
 interface ILocationMapperResponse

@@ -1,6 +1,6 @@
+import log = require('loglevel');
 import './contentscript.scss';
 import * as $ from 'jquery';
-import log = require('loglevel');
 import { Panic } from '../lib/Panic';
 import { Config } from '../lib/Config';
 import { Environment } from '../lib/Environment';
@@ -27,6 +27,7 @@ try {
     function activate()
     {
         if (app == null) {
+            log.debug('Contentscript.activate');
             app = new ContentApp($('body').get(0));
             app.start();
         }
@@ -35,12 +36,22 @@ try {
     function deactivate()
     {
         if (app != null) {
-            app.stop();
+            log.debug('Contentscript.deactivate');
+             app.stop();
             app = null;
         }
     }
 
-    Panic.onNow(deactivate);
+    function kill()
+    {
+        if (app != null) {
+            log.debug('Contentscript.kill');
+            app.kill();
+            app = null;
+        }
+    }
+
+    Panic.onNow(kill);
 
     window.addEventListener('onbeforeunload', deactivate);
 

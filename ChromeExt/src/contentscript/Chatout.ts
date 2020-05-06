@@ -40,6 +40,11 @@ export class Chatout
         display.appendChild(this.elem);
     }
 
+    stop()
+    {
+        // Nothing to do
+    }
+
     setText(text: string): void
     {
         if (text == null || text == '') {

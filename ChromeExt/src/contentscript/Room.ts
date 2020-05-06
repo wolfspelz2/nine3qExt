@@ -1,5 +1,5 @@
-import { xml, jid } from '@xmpp/client';
 import log = require('loglevel');
+import { xml, jid } from '@xmpp/client';
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
@@ -51,14 +51,20 @@ export class Room
     {
         this.sendPresenceUnavailable();
         this.removeAllParticipants();
+        this.kill();
+    }
+
+    kill()
+    {
+        this.stopKeepAlive();
     }
 
     private async sendPresence(): Promise<void>
     {
         let avatarUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', this.avatar);
         let identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}'))
-            .replace('{nickname}', this.nickname)
-            .replace('{avatarUrl}', avatarUrl)
+            .replace('{nickname}', encodeURIComponent(this.nickname))
+            .replace('{avatarUrl}', encodeURIComponent(avatarUrl))
             ;
 
         let presence = xml('presence', { to: this.jid + '/' + this.nickname })
@@ -70,6 +76,13 @@ export class Room
                 xml('x', { xmlns: 'firebat:avatar:state', jid: this.userJid, })
                     .append(xml('position', { x: this.posX }))
             );
+
+        if (!this.isEntered) {
+            presence.append(
+                xml('x', { xmlns: 'http://jabber.org/protocol/muc' })
+                    .append(xml('history', { seconds: '180', maxchars: '3000', maxstanzas: '10' }))
+            );
+        }
 
         if (!this.isEntered) {
             presence.append(
@@ -171,6 +184,14 @@ export class Room
                 this.keepAliveTimer = undefined;
                 this.keepAlive();
             }, this.keepAliveSec * 1000);
+        }
+    }
+
+    private stopKeepAlive()
+    {
+        if (this.keepAliveTimer != undefined) {
+            clearTimeout(this.keepAliveTimer);
+            this.keepAliveTimer = undefined;
         }
     }
 

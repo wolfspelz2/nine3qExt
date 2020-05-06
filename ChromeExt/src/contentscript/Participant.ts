@@ -10,6 +10,7 @@ import { Nickname } from './Nickname';
 import { Chatout } from './Chatout';
 import { Chatin } from './Chatin';
 import { ChatWindow } from './ChatWindow';
+import { basename } from 'path';
 
 export class Participant extends Entity
 {
@@ -38,6 +39,15 @@ export class Participant extends Entity
         else {
             $(this.getElem()).addClass('n3q-participant-other');
         }
+    }
+
+    remove(): void
+    {
+        this.avatarDisplay?.stop();
+        this.nicknameDisplay?.stop();
+        this.chatoutDisplay?.stop();
+        this.chatinDisplay?.stop();
+        super.remove();
     }
 
     // presence
@@ -141,7 +151,7 @@ export class Participant extends Entity
                 this.avatarDisplay = new Avatar(this.app, this, this.getCenterElem(), this.isSelf);
                 if (vpAvatar != '') {
                     let animationsUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', vpAvatar);
-                    let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', animationsUrl);
+                    let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(animationsUrl));
                     this.avatarDisplay.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
                 } else {
                     //this.app.getStorage().watch(this.userId, 'ImageUrl', this.avatarDisplay);

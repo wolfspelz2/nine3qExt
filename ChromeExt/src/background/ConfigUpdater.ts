@@ -1,5 +1,5 @@
-import * as $ from 'jquery';
 import log = require('loglevel');
+import * as $ from 'jquery';
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 

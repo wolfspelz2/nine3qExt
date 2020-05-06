@@ -1,3 +1,4 @@
+import log = require('loglevel');
 import * as $ from 'jquery';
 import 'jqueryui';
 import { as } from '../lib/as';
@@ -102,6 +103,14 @@ export class Avatar implements IObserver
 
     }
 
+    stop()
+    {
+        if (this.animationTimer != undefined) {
+            clearTimeout(this.animationTimer);
+            this.animationTimer = undefined;
+        }
+    }
+
     a_hack_otherwise_draggable_clicks_x: number;
     a_hack_otherwise_draggable_clicks_start(ev: JQueryMouseEventObject): void
     {
@@ -158,11 +167,15 @@ export class Avatar implements IObserver
 
     setAnimations(url: string): void
     {
-        Platform.fetchUrl(url, 'unversioned', (ok, status, statusText, data) =>
+        Platform.fetchUrl(url, 'none', (ok, status, statusText, data) =>
         {
             if (ok) {
-                let parsed = AnimationsXml.AnimationsXml.parseXml(url, data);
-                this.onAnimations(parsed);
+                try {
+                    let parsed = AnimationsXml.AnimationsXml.parseXml(url, data);
+                    this.onAnimations(parsed);
+                } catch (error) {
+                    log.info(error);
+                }
             }
         });
     }

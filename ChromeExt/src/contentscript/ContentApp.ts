@@ -1,6 +1,6 @@
+import log = require('loglevel');
 import * as $ from 'jquery';
 import { xml, jid } from '@xmpp/client';
-import log = require('loglevel');
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Platform } from '../lib/Platform';
@@ -29,7 +29,6 @@ export class ContentApp
     private xmpp: any;
     private rooms: { [roomJid: string]: Room; } = {};
     private storage: PropertyStorage = new PropertyStorage();
-    private keepAliveSec: number = 180;
     private babelfish: Translator;
 
     // Getter
@@ -47,9 +46,10 @@ export class ContentApp
             let config = await Platform.getConfig();
             Config.setAllOnline(config);
         } catch (error) {
-            log.info(error);
+            log.debug(error.message);
             Panic.now();
         }
+        if (Panic.isOn) { return; }
 
         await Utils.sleep(as.Float(Config.get('vp.deferPageEnterSec', 1)) * 1000);
 
@@ -57,8 +57,11 @@ export class ContentApp
         this.babelfish = new Translator(Config.get('i18n.translations', {})[language], language, Config.get('i18n.serviceUrl', ''));
 
         await this.assertUserNickname();
+        if (Panic.isOn) { return; }
         await this.assertUserAvatar();
+        if (Panic.isOn) { return; }
         await this.assertSavedPosition();
+        if (Panic.isOn) { return; }
 
         let page = $('<div id="n3q-id-page" class="n3q-base n3q-hidden-print" />').get(0);
         this.display = $('<div class="n3q-base n3q-display" />').get(0);
@@ -75,6 +78,12 @@ export class ContentApp
     stop()
     {
         this.leavePage();
+        this.kill();
+    }
+
+    kill()
+    {
+        this.killRooms();
 
         chrome.runtime?.onMessage.removeListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
 
@@ -148,6 +157,16 @@ export class ContentApp
         }
     }
 
+    killRooms()
+    {
+        for (let roomJid in this.rooms) {
+            if (this.rooms[roomJid] != undefined) {
+                this.rooms[roomJid].kill();
+                delete this.rooms[roomJid];
+            }
+        }
+    }
+
     static getRoomJidFromLocationUrl(locationUrl: string): string
     {
         let jid = '';
@@ -162,7 +181,7 @@ export class ContentApp
         url.searchParams.set('sDocumentURL', pageUrl);
         url.searchParams.set('Format', 'json');
 
-        Platform.fetchUrl(url.toString(), 'unversioned', (ok, status, statusText, data: string) =>
+        Platform.fetchUrl(url.toString(), 'none', (ok, status, statusText, data: string) =>
         {
             if (ok) {
                 try {

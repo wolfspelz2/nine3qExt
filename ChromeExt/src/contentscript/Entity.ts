@@ -1,6 +1,6 @@
+import log = require('loglevel');
 import * as $ from 'jquery';
 import 'jqueryui';
-import log = require('loglevel');
 import { Room } from './Room';
 
 export class Entity

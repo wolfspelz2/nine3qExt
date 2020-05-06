@@ -73,7 +73,7 @@ export class LegacyIdentity
                 {
                     let animationsUrl = as.String(props.src, '');
                     if (animationsUrl != '') {
-                        let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', animationsUrl);
+                        let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(animationsUrl));
                         this.storage.setProperty(this.entity, 'AnimationsUrl', proxiedAnimationsUrl);
                     }
                 } 

@@ -1,4 +1,3 @@
-import { xml } from '@xmpp/client';
 import log = require('loglevel');
 import { Utils } from './Utils';
 

@@ -39,6 +39,11 @@ export class Chatin
         display.appendChild(this.elem);
     }
 
+    stop()
+    {
+        // Nothing to do
+    }
+
     onKeydown(ev: JQuery.Event)
     {
         var keycode = (ev.keyCode ? ev.keyCode : (ev.which ? ev.which : ev.charCode));

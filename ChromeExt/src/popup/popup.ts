@@ -1,6 +1,6 @@
+import log = require('loglevel');
 import './popup.scss';
 import * as $ from 'jquery';
-import log = require('loglevel');
 import { Environment } from '../lib/Environment';
 import { PopupApp } from './PopupApp';
 
