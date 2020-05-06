@@ -34,7 +34,9 @@ export class ChatWindow
 
     addLine(id: string, nick: string, text: string)
     {
-        let line = new ChatLine(nick, text);
+        let translated = this.app.translateText(text, 'Chatwindow.' + text);
+
+        let line = new ChatLine(nick, translated);
         if (this.lines[id] == undefined) {
             this.lines[id] = line;
             if (this.chatoutElem != null) {

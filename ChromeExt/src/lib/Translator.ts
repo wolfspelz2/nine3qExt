@@ -65,6 +65,15 @@ export class Translator
     {
     }
 
+    translateText(text: string, key: any): string
+    {
+        if (this.translations[key] != undefined) {
+            return this.translations[key];
+        } else {
+            return text;
+        }
+    }
+
     translateElem(elem: HTMLElement): void
     {
         var translate: string = $(elem).data('translate');

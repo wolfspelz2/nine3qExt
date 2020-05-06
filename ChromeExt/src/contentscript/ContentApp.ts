@@ -289,6 +289,11 @@ export class ContentApp
         // }
     }
 
+    translateText(text: string, key: string): string
+    {
+        return this.babelfish.translateText(text, key);
+    }
+
     translateElem(elem: HTMLElement): void
     {
         this.babelfish.translateElem(elem);

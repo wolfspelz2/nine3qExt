@@ -23,13 +23,13 @@ export class Participant extends Entity
     private userId: string;
     private inMove: boolean = false;
     private condition_: string = '';
-    private chatHistory: ChatWindow;
+    private chatWindow: ChatWindow;
 
     constructor(private app: ContentApp, room: Room, display: HTMLElement, private nick: string, private isSelf: boolean)
     {
         super(room, display);
 
-        this.chatHistory = new ChatWindow(app, display, this, isSelf)
+        this.chatWindow = new ChatWindow(app, display, this, isSelf)
 
         $(this.getElem()).addClass('n3q-participant');
         if (isSelf) {
@@ -177,6 +177,8 @@ export class Participant extends Entity
 
             this.show(true);
 
+            this.chatWindow.addLine(this.nick + Date.now(), this.nick, '*entered the room*');
+
         } else {
 
             if (presenceHasPosition) {
@@ -195,6 +197,8 @@ export class Participant extends Entity
     onPresenceUnavailable(stanza: any): void
     {
         this.remove();
+
+        this.chatWindow.addLine(this.nick + Date.now(), this.nick, '*left the room*');
     }
 
     // message
@@ -263,7 +267,7 @@ export class Participant extends Entity
         let delayMSec = now - timestamp;
 
         // always
-        this.chatHistory.addLine(nick + timestamp, nick, text);
+        this.chatWindow.addLine(nick + timestamp, nick, text);
 
         // recent
         if (delayMSec * 1000 < as.Float(Config.get('room.maxChatAgeSec', 60))) {
@@ -446,7 +450,7 @@ export class Participant extends Entity
 
     showChatWindow(): void
     {
-        this.chatHistory?.show();
+        this.chatWindow?.show();
     }
 
 }
