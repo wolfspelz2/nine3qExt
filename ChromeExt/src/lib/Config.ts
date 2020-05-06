@@ -16,6 +16,7 @@ export class Config
         'me': {
             'nickname': '',//'新しいアバター',//'new-avatar',
             'avatar': '',
+            'active': '',
         },
         'vp': {
             'locationMappingServiceUrl': 'http://lms.virtual-presence.org/api/',
@@ -41,6 +42,7 @@ export class Config
             'service': 'wss://xmpp.weblin.sui.li/xmpp-websocket',
             'domain': 'xmpp.weblin.sui.li',
             'maxMucEnterRetries': 4,
+            'keepAliveSec': 10,
         },
         'avatars': {
             'animationsUrlTemplate': 'http://avatar.zweitgeist.com/gif/{id}/config.xml',

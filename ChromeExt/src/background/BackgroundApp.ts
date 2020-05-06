@@ -182,7 +182,7 @@ export class BackgroundApp
 
     // keepalive
 
-    private keepAliveSec: number = 180;
+    private keepAliveSec: number = Config.get('xmpp.keepAliveSec', 180);
     private keepAliveTimer: number = undefined;
     private keepAlive()
     {
