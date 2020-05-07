@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-var markdown = require('markdown').markdown;
+import markdown = require('markdown');
 
 export class TestMisc
 {
@@ -13,7 +13,7 @@ export class TestMisc
 
     markdown()
     {
-        let md = markdown.toHTML('Hello **World**');
+        let md = markdown.markdown.toHTML('Hello **World**');
         expect(md).to.equal('<p>Hello <strong>World</strong></p>');
     }
 }
