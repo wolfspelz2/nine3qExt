@@ -60,7 +60,7 @@ export class MenuItem
 
     render(): HTMLElement
     {
-        this.elem = <HTMLElement>$('<div class="n3q-base n3q-menu-item n3q-menu-column-' + this.column.id + ' n3q-item-' + this.id + ' n3q-shadow" data-translate="children" />').get(0);
+        this.elem = <HTMLElement>$('<div class="n3q-base n3q-menu-item n3q-menu-column-' + this.column.id + ' n3q-item-' + this.id + ' n3q-shadow-small" data-translate="children" />').get(0);
         if (this.onClick == undefined || this.onClick == null) {
             $(this.elem).addClass('n3q-menu-item-disabled');
         }

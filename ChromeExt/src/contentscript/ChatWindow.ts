@@ -88,6 +88,7 @@ export class ChatWindow
             this.app.translateElem(this.dialogElem);
 
             $(this.dialogElem).dialog({
+                create: function () { $(this).parent().css({ position: 'fixed' }); },
                 width: Config.get('chatWindowWidth', 400),
                 height: Config.get('chatWindowHeight', 250),
                 // maxHeight: Config.get('chatWindowMaxHeight', 800),
@@ -96,7 +97,7 @@ export class ChatWindow
 
             this.windowElem = $(this.dialogElem).parentsUntil(this.display).get(0);
             $(this.windowElem).addClass('n3q-ui-dialog');
-            $(this.windowElem).addClass('n3q-shadow');
+            $(this.windowElem).addClass('n3q-shadow-medium');
 
             for (let id in this.lines) {
                 let line = this.lines[id];

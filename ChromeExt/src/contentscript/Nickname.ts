@@ -17,7 +17,7 @@ export class Nickname implements IObserver
 
     constructor(private app: ContentApp, private participant: Participant, private isSelf: boolean, private display: HTMLElement)
     {
-        this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-nickname n3q-shadow" />').get(0);
+        this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-nickname n3q-shadow-small" />').get(0);
         $(this.elem).click(() => { this.participant?.select(); });
 
         // $(this.elem).on('mouseenter', ev => this.participant?.onMouseEnterAvatar(ev));

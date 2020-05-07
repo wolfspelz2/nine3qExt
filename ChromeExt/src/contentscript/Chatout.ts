@@ -20,14 +20,14 @@ export class Chatout
             this.participant?.select();
         });
 
-        var speechBubble = <HTMLElement>$('<div class="n3q-base n3q-speech n3q-shadow" />').get(0);
+        var speechBubble = <HTMLElement>$('<div class="n3q-base n3q-speech n3q-shadow-small" />').get(0);
 
         this.textElem = <HTMLElement>$('<p class="n3q-base n3q-text" />').get(0);
 
         speechBubble.appendChild(this.textElem);
         this.elem.appendChild(speechBubble);
 
-        this.closeElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-overlay n3q-shadow" title="Close" data-translate="attr:title:Common"><div class="n3q-base n3q-button-symbol n3q-button-close-small" />').get(0);
+        this.closeElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-overlay n3q-shadow-small" title="Close" data-translate="attr:title:Common"><div class="n3q-base n3q-button-symbol n3q-button-close-small" />').get(0);
         $(this.closeElem).click(ev =>
         {
             $(this.elem).stop(true);

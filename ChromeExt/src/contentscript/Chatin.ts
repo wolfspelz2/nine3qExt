@@ -12,7 +12,7 @@ export class Chatin
 
     constructor(private app: ContentApp, private participant: Participant, private display: HTMLElement)
     {
-        this.elem = <HTMLElement>$('<div class="n3q-base n3q-chatin n3q-shadow" data-translate="children" />').get(0);
+        this.elem = <HTMLElement>$('<div class="n3q-base n3q-chatin n3q-shadow-small" data-translate="children" />').get(0);
         this.setVisibility(false);
 
         this.chatinInputElem = <HTMLElement>$('<input type="text" class="n3q-base n3q-input n3q-text" placeholder="Enter chat here..." data-translate="attr:placeholder:Chatin" />').get(0);
@@ -26,7 +26,7 @@ export class Chatin
         });
         this.elem.appendChild(this.sendElem);
 
-        this.closeElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-overlay n3q-shadow" title="Close" data-translate="attr:title:Common"><div class="n3q-base n3q-button-symbol n3q-button-close-small" />').get(0);
+        this.closeElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-overlay n3q-shadow-small" title="Close" data-translate="attr:title:Common"><div class="n3q-base n3q-button-symbol n3q-button-close-small" />').get(0);
         $(this.closeElem).click(ev =>
         {
             $(this.elem).stop(true);
