@@ -2,7 +2,7 @@ import * as $ from 'jquery';
 import 'webpack-jquery-ui';
 import 'webpack-jquery-ui/css';
 import 'webpack-jquery-ui/dialog';
-import markdown = require('markdown');
+// import markdown = require('markdown');
 import { as } from '../lib/as';
 import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
@@ -40,10 +40,11 @@ export class ChatWindow
     {
         let translated = this.app.translateText(text, 'Chatwindow.' + text);
 
-        // Beware: without markdown in showLine: as.Html(text)
-        let markdowned = markdown.markdown.toHTML(translated);
+        // // Beware: without markdown in showLine: as.Html(text)
+        // let markdowned = markdown.markdown.toHTML(translated);
+        // let line = new ChatLine(nick, markdowned);
 
-        let line = new ChatLine(nick, markdowned);
+        let line = new ChatLine(nick, translated);
         if (this.lines[id] == undefined) {
             this.lines[id] = line;
             if (this.chatoutElem != null) {
@@ -56,8 +57,8 @@ export class ChatWindow
     {
         let lineElem = <HTMLElement>$(
             `<div class="n3q-base n3q-chatwindow-line">
-                <span class="n3q-base n3q-nick">`+ as.Html(text) + `</span>
-                <span class="n3q-base n3q-text">`+ text + `</span>
+                <span class="n3q-base n3q-nick">`+ as.Html(nick) + `</span>
+                <span class="n3q-base n3q-text">`+ as.Html(text) + `</span>
             <div>`
         ).get(0);
         $(chatout).append(lineElem).scrollTop($(chatout).get(0).scrollHeight);
