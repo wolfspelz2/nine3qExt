@@ -3,6 +3,7 @@ import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 import { Environment } from '../lib/Environment';
 import { BackgroundApp } from './BackgroundApp';
+import { Platform } from '../lib/Platform';
 
 console.log('Background');
 
@@ -121,7 +122,7 @@ chrome.runtime?.onMessage.addListener(
             } break;
 
             case 'getConfig': {
-                log.debug('background getConfig');
+                log.debug('background getConfig', message.name);
                 switch (as.String(message.name, Config.onlineConfigName)) {
                     case Config.devConfigName:
                         return sendResponse(Config.getAllDev());
@@ -150,16 +151,22 @@ chrome.runtime?.onMessage.addListener(
                 } catch (error) {
                     log.warn('background setLocalStorage', error);
                 }
-                return sendResponse({});
             } break;
 
             case 'sendStanza': {
                 if (app != null) {
-                    return app.handle_sendStanza(message.stanza, sender.tab.id, sendResponse);
+                    app.handle_sendStanza(message.stanza, sender.tab.id, sendResponse);
+                }
+            } break;
+
+            case Platform.type_pingBackground: {
+                log.debug('background pingBackground');
+                if (app != null) {
+                    app.handle_pingBackground();
                 }
             } break;
         }
 
-        return true;
+        return sendResponse({});
     }
 );

@@ -17,49 +17,49 @@ export class Config
 
     public static staticConfigName = 'static';
     private static staticConfig: any = {
-        'me': {
-            'nickname': '',//'新しいアバター',//'new-avatar',
-            'avatar': '',
-            'active': '',
+        me: {
+            nickname: '',//'新しいアバター',//'new-avatar',
+            avatar: '',
+            active: '',
         },
-        'vp': {
-            'locationMappingServiceUrl': 'http://lms.virtual-presence.org/api/',
-            'deferPageEnterSec': 0.5,
+        vp: {
+            locationMappingServiceUrl: 'http://lms.virtual-presence.org/api/',
+            deferPageEnterSec: 0.5,
         },
-        'config': {
-            'serviceUrl': 'https://config.weblin.sui.li/',
-            'updateIntervalSec': Utils.randomInt(60000, 80000),
-            'checkUpdateIntervalSec': 600,
+        config: {
+            serviceUrl: 'https://config.weblin.sui.li/',
+            updateIntervalSec: Utils.randomInt(60000, 80000),
+            checkUpdateIntervalSec: 600,
         },
-        'room': {
-            'defaultAvatarSpeedPixelPerSec': 100,
-            'randomEnterPosXMin': 300,
-            'randomEnterPosXMax': 600,
-            'showNicknameTooltip': true,
-            'avatarDoubleClickDelaySec': 0.1,
-            'maxChatAgeSec': 60,
-            'chatWindowWidth': 400,
-            'chatWindowHeight': 250,
-            'chatWindowMaxHeight': 800,
-            'keepAliveSec': 120,
+        room: {
+            defaultAvatarSpeedPixelPerSec: 100,
+            randomEnterPosXMin: 300,
+            randomEnterPosXMax: 600,
+            showNicknameTooltip: true,
+            avatarDoubleClickDelaySec: 0.1,
+            maxChatAgeSec: 60,
+            chatWindowWidth: 400,
+            chatWindowHeight: 250,
+            chatWindowMaxHeight: 800,
+            keepAliveSec: 120,
         },
-        'xmpp': {
-            'service': 'wss://xmpp.weblin.sui.li/xmpp-websocket',
-            'domain': 'xmpp.weblin.sui.li',
-            'maxMucEnterRetries': 4,
-            'keepAliveSec': 10,
+        xmpp: {
+            service: 'wss://xmpp.weblin.sui.li/xmpp-websocket',
+            domain: 'xmpp.weblin.sui.li',
+            maxMucEnterRetries: 4,
+            pingBackgroundToKeepConnectionAliveSec: 12,
         },
-        'avatars': {
-            'animationsUrlTemplate': 'http://avatar.zweitgeist.com/gif/{id}/config.xml',
-            'animationsProxyUrlTemplate': 'https://avatar.weblin.sui.li/avatar/?url={url}',
-            'list': ['002/sportive03_m', '002/business03_m', '002/child02_m', '002/sportive01_m', '002/business06_m', '002/casual04_f', '002/business01_f', '002/casual30_m', '002/sportive03_f', '002/casual16_m', '002/casual10_f', '002/business03_f', '002/casual03_m', '002/sportive07_m', '002/casual13_f', '002/casual09_m', '002/casual16_f', '002/child02_f', '002/sportive08_m', '002/casual15_m', '002/casual15_f', '002/casual01_f', '002/casual11_f', '002/sportive09_m', '002/casual20_f', '002/sportive02_f', '002/business05_m', '002/casual06_m', '002/casual10_m', '002/casual02_f',],
-            'randomList': ['002/sportive03_m', '002/business03_m', '002/child02_m', '002/sportive01_m', '002/business06_m', '002/casual04_f', '002/business01_f', '002/casual30_m', '002/sportive03_f', '002/casual16_m', '002/casual10_f', '002/business03_f', '002/casual03_m', '002/sportive07_m', '002/casual13_f', '002/casual09_m', '002/casual16_f', '002/child02_f', '002/sportive08_m', '002/casual15_m', '002/casual15_f', '002/casual01_f', '002/casual11_f', '002/sportive09_m', '002/casual20_f', '002/sportive02_f', '002/business05_m', '002/casual06_m', '002/casual10_m', '002/casual02_f',],
+        avatars: {
+            animationsUrlTemplate: 'http://avatar.zweitgeist.com/gif/{id}/config.xml',
+            animationsProxyUrlTemplate: 'https://avatar.weblin.sui.li/avatar/?url={url}',
+            list: ['002/sportive03_m', '002/business03_m', '002/child02_m', '002/sportive01_m', '002/business06_m', '002/casual04_f', '002/business01_f', '002/casual30_m', '002/sportive03_f', '002/casual16_m', '002/casual10_f', '002/business03_f', '002/casual03_m', '002/sportive07_m', '002/casual13_f', '002/casual09_m', '002/casual16_f', '002/child02_f', '002/sportive08_m', '002/casual15_m', '002/casual15_f', '002/casual01_f', '002/casual11_f', '002/sportive09_m', '002/casual20_f', '002/sportive02_f', '002/business05_m', '002/casual06_m', '002/casual10_m', '002/casual02_f',],
+            randomList: ['002/sportive03_m', '002/business03_m', '002/child02_m', '002/sportive01_m', '002/business06_m', '002/casual04_f', '002/business01_f', '002/casual30_m', '002/sportive03_f', '002/casual16_m', '002/casual10_f', '002/business03_f', '002/casual03_m', '002/sportive07_m', '002/casual13_f', '002/casual09_m', '002/casual16_f', '002/child02_f', '002/sportive08_m', '002/casual15_m', '002/casual15_f', '002/casual01_f', '002/casual11_f', '002/sportive09_m', '002/casual20_f', '002/sportive02_f', '002/business05_m', '002/casual06_m', '002/casual10_m', '002/casual02_f',],
         },
-        'identity': {
-            'url': '',
-            'identificatorUrlTemplate': 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}',
+        identity: {
+            url: '',
+            identificatorUrlTemplate: 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}',
         },
-        'i18n': {
+        i18n: {
             'defaultLanguage': 'en-US',
             'languageMapping': {
                 'de': 'de-DE',

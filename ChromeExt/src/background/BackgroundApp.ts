@@ -27,7 +27,7 @@ export class BackgroundApp
             let parsed = JSON.parse(devConfig);
             Config.setAllDev(parsed);
         } catch (error) {
-            
+
         }
 
         this.configUpdater = new ConfigUpdater();
@@ -48,35 +48,7 @@ export class BackgroundApp
         this.stopXmpp();
     }
 
-    // IPC
-
-    handle_sendStanza(stanza: any, tabId: number, sendResponse: any): any
-    {
-        log.info('BackgroundApp.handle_sendStanza', stanza, tabId);
-
-        try {
-            let xmlStanza = Utils.jsObject2xmlObject(stanza);
-
-            if (stanza.name == 'presence') {
-                let to = jid(stanza.attrs.to);
-                let room = to.bare().toString();
-                let nick = to.getResource();
-
-                if (as.String(stanza.attrs['type'], 'available') == 'available') {
-                    if (this.roomJid2tabId[room] == undefined) {
-                        log.debug('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId);
-                    }
-                    this.roomJid2tabId[room] = tabId;
-                    this.roomJid2selfNick[room] = nick;
-                }
-            }
-
-            this.sendStanza(xmlStanza);
-
-        } catch (error) {
-            log.info('BackgroundApp.handle_sendStanza', error);
-        }
-    }
+    // send/recv stanza
 
     private recvStanza(stanza: any)
     {
@@ -103,6 +75,58 @@ export class BackgroundApp
                 }
             }
         }
+    }
+
+    handle_sendStanza(stanza: any, tabId: number, sendResponse: any): void
+    {
+        // log.info('BackgroundApp.handle_sendStanza', stanza, tabId);
+
+        try {
+            let xmlStanza = Utils.jsObject2xmlObject(stanza);
+
+            if (stanza.name == 'presence') {
+                let to = jid(stanza.attrs.to);
+                let room = to.bare().toString();
+                let nick = to.getResource();
+
+                if (as.String(stanza.attrs['type'], 'available') == 'available') {
+                    if (this.roomJid2tabId[room] == undefined) {
+                        log.debug('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId);
+                    }
+                    this.roomJid2tabId[room] = tabId;
+                    this.roomJid2selfNick[room] = nick;
+                }
+            }
+
+            this.sendStanza(xmlStanza);
+
+        } catch (error) {
+            log.info('BackgroundApp.handle_sendStanza', error);
+        }
+    }
+
+    private sendStanza(stanza: any): void
+    {
+        if (!this.xmppConnected) {
+            this.stanzaQ.push(stanza);
+        } else {
+            this.sendStanzaUnbuffered(stanza);
+        }
+    }
+
+    private sendStanzaUnbuffered(stanza: any): void
+    {
+        try {
+            log.info('BackgroundApp.sendStanza', stanza);
+            this.xmpp.send(stanza);
+        } catch (error) {
+            log.info('BackgroundApp.sendStanza', error.message ?? '');
+        }
+    }
+
+    private sendPresence()
+    {
+        this.sendStanza(xml('presence'));
     }
 
     // xmpp
@@ -138,7 +162,6 @@ export class BackgroundApp
                 log.info('BackgroundApp xmpp.on.online', address);
 
                 this.sendPresence();
-                this.keepAlive();
 
                 if (!this.xmppConnected) {
                     this.xmppConnected = true;
@@ -162,42 +185,21 @@ export class BackgroundApp
         //hw todo
     }
 
-    private sendStanzaUnbuffered(stanza: any): void
+    // Keep connection alive
+
+    private lastPingTime: number = 0;
+    handle_pingBackground(): void
     {
+        log.trace('BackgroundApp.handle_pingBackground');
+
         try {
-            this.xmpp.send(stanza);
-        } catch (error) {
-            log.info('BackgroundApp.sendStanza', error.message ?? '');
-        }
-    }
-
-    private sendStanza(stanza: any): void
-    {
-        if (!this.xmppConnected) {
-            this.stanzaQ.push(stanza);
-        } else {
-            this.sendStanzaUnbuffered(stanza);
-        }
-    }
-
-    // keepalive
-
-    private keepAliveSec: number = Config.get('xmpp.keepAliveSec', 180);
-    private keepAliveTimer: number = undefined;
-    private keepAlive()
-    {
-        if (this.keepAliveTimer == undefined) {
-            this.keepAliveTimer = <number><unknown>setTimeout(() =>
-            {
+            let now = Date.now();
+            if (now - this.lastPingTime > 10000) {
+                this.lastPingTime = now;
                 this.sendPresence();
-                this.keepAliveTimer = undefined;
-                this.keepAlive();
-            }, this.keepAliveSec * 1000);
+            }
+        } catch (error) {
+            //
         }
-    }
-
-    private sendPresence()
-    {
-        this.sendStanza(xml('presence'));
     }
 }

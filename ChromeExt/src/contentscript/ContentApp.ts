@@ -97,10 +97,12 @@ export class ContentApp
         chrome.runtime?.onMessage.addListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
 
         this.enterPage();
+        this.pingBackgroundToKeepConnectionAlive();
     }
 
     stop()
     {
+        this.stop_pingBackgroundToKeepConnectionAlive();
         this.leavePage();
         this.kill();
     }
@@ -161,6 +163,36 @@ export class ContentApp
             // this.enterRoomByPageUrl('https://www.galactic-developments.de/');
             this.enterPage();
         });
+    }
+
+    // Backgound pages dont allow timers 
+    // and alerts were unreliable on first test.
+    // So ,let the content script call the background
+    private pingBackgroundToKeepConnectionAliveSec: number = Config.get('xmpp.pingBackgroundToKeepConnectionAliveSec', 180);
+    private pingBackgroundToKeepConnectionAliveTimer: number = undefined;
+    private pingBackgroundToKeepConnectionAlive()
+    {
+        if (this.pingBackgroundToKeepConnectionAliveTimer == undefined) {
+            this.pingBackgroundToKeepConnectionAliveTimer = <number><unknown>setTimeout(async () =>
+            {
+                try {
+                    await Platform.pingBackground();
+                } catch (error) {
+                    //
+                }
+
+                this.pingBackgroundToKeepConnectionAliveTimer = undefined;
+                this.pingBackgroundToKeepConnectionAlive();
+            }, this.pingBackgroundToKeepConnectionAliveSec * 1000);
+        }
+    }
+
+    private stop_pingBackgroundToKeepConnectionAlive()
+    {
+        if (this.pingBackgroundToKeepConnectionAliveTimer != undefined) {
+            clearTimeout(this.pingBackgroundToKeepConnectionAliveTimer);
+            this.pingBackgroundToKeepConnectionAliveTimer = undefined;
+        }
     }
 
     runtimeOnMessage(message, sender: chrome.runtime.MessageSender, sendResponse): any

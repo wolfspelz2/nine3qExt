@@ -84,4 +84,20 @@ export class Platform
         });
     }
 
+    static type_pingBackground = 'pingBackground';
+    static pingBackground(): Promise<void>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            try {
+                chrome.runtime?.sendMessage({ 'type': this.type_pingBackground}, response =>
+                {
+                    resolve(response);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
 }
