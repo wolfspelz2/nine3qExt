@@ -58,13 +58,20 @@ export class ContentApp
         }
 
         try {
-            let config = await Platform.getConfig();
+            let config = await Platform.getConfig(Config.onlineConfigName);
             Config.setAllOnline(config);
         } catch (error) {
             log.debug(error.message);
             Panic.now();
         }
         if (Panic.isOn) { return; }
+
+        try {
+            let config = await Platform.getConfig(Config.devConfigName);
+            Config.setAllDev(config);
+        } catch (error) {
+            log.debug(error.message);
+        }
 
         await Utils.sleep(as.Float(Config.get('vp.deferPageEnterSec', 1)) * 1000);
 

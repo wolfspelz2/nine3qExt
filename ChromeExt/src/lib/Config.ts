@@ -6,12 +6,16 @@ interface ConfigSetCallback { (): void }
 
 export class Config
 {
-    private static tempConfig: any = {};
+    public static sessionConfigName = 'session';
+    private static sessionConfig: any = {};
 
+    public static devConfigName = 'dev';
     private static devConfig: any = {};
 
+    public static onlineConfigName = 'online';
     private static onlineConfig: any = {};
 
+    public static staticConfigName = 'static';
     private static staticConfig: any = {
         'me': {
             'nickname': '',//'新しいアバター',//'new-avatar',
@@ -52,6 +56,7 @@ export class Config
             'randomList': ['002/sportive03_m', '002/business03_m', '002/child02_m', '002/sportive01_m', '002/business06_m', '002/casual04_f', '002/business01_f', '002/casual30_m', '002/sportive03_f', '002/casual16_m', '002/casual10_f', '002/business03_f', '002/casual03_m', '002/sportive07_m', '002/casual13_f', '002/casual09_m', '002/casual16_f', '002/child02_f', '002/sportive08_m', '002/casual15_m', '002/casual15_f', '002/casual01_f', '002/casual11_f', '002/sportive09_m', '002/casual20_f', '002/sportive02_f', '002/business05_m', '002/casual06_m', '002/casual10_m', '002/casual02_f',],
         },
         'identity': {
+            'url': '',
             'identificatorUrlTemplate': 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}',
         },
         'i18n': {
@@ -138,7 +143,7 @@ export class Config
 
     static get(key: string, defaultValue: any): any
     {
-        let result = Config.getTemp(key);
+        let result = Config.getSession(key);
         if (result == undefined || result == null) {
             result = Config.getDev(key);
         }
@@ -156,7 +161,7 @@ export class Config
 
     static set(key: string, value: any): void
     {
-        this.tempConfig[key] = value;
+        this.sessionConfig[key] = value;
     }
 
     static async getPreferSync(key: string, defaultValue: any)
@@ -168,9 +173,9 @@ export class Config
         return result;
     }
 
-    static getTemp(key: string): any
+    static getSession(key: string): any
     {
-        return this.tempConfig[key];
+        return this.sessionConfig[key];
     }
 
     static getDev(key: string): any
@@ -261,20 +266,13 @@ export class Config
         });
     }
 
-    static getAllStatic(): any
-    {
-        return this.staticConfig;
-    }
+    static getAllDev(): any { return this.devConfig; }
+    static getAllOnline(): any { return this.onlineConfig; }
+    static getAllStatic(): any { return this.staticConfig; }
 
-    static getAllOnline(): any
+    static setAllDev(values: any)
     {
-        return this.onlineConfig;
-    }
-
-    static setAllStatic(values: any): void
-    {
-        log.debug('Config.setAllStatic');
-        this.staticConfig = values;
+        this.devConfig = values;
     }
 
     static setAllOnline(values: any): void
@@ -283,8 +281,10 @@ export class Config
         this.onlineConfig = values;
     }
 
-    static setAllDev(values: any)
+    static setAllStatic(values: any): void
     {
-        this.devConfig = values;
+        log.debug('Config.setAllStatic');
+        this.staticConfig = values;
     }
+
 }

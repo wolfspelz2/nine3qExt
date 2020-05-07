@@ -61,11 +61,14 @@ export class Room
 
     private async sendPresence(): Promise<void>
     {
-        let avatarUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', this.avatar);
-        let identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}'))
-            .replace('{nickname}', encodeURIComponent(this.nickname))
-            .replace('{avatarUrl}', encodeURIComponent(avatarUrl))
-            ;
+        let identityUrl = Config.get('identity.url', '');
+        if (identityUrl == '') {
+            let avatarUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', this.avatar);
+            identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}'))
+                .replace('{nickname}', encodeURIComponent(this.nickname))
+                .replace('{avatarUrl}', encodeURIComponent(avatarUrl))
+                ;
+        }
 
         let presence = xml('presence', { to: this.jid + '/' + this.nickname })
             .append(

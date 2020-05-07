@@ -59,6 +59,7 @@ export class Participant extends Entity
         let xmppNickname = '';
         let vpNickname = '';
         let vpAvatar = '';
+        let hasIdentityUrl = false;
 
         {
             let from = stanza.attrs.from
@@ -98,6 +99,7 @@ export class Participant extends Entity
                 this.userId = as.String(attrs.id, jid);
 
                 if (url != '') {
+                    hasIdentityUrl = true;
                     this.app.getStorage().setIdentity(this.userId, url, digest);
                 }
             }
@@ -149,26 +151,29 @@ export class Participant extends Entity
 
             {
                 this.avatarDisplay = new Avatar(this.app, this, this.getCenterElem(), this.isSelf);
-                if (vpAvatar != '') {
-                    let animationsUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', vpAvatar);
-                    let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(animationsUrl));
-                    this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
-                } else {
+                if (hasIdentityUrl) {
                     //this.app.getStorage().watch(this.userId, 'ImageUrl', this.avatarDisplay);
                     this.app.getStorage().watch(this.userId, 'AnimationsUrl', this.avatarDisplay);
+                } else {
+                    if (vpAvatar != '') {
+                        let animationsUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', vpAvatar);
+                        let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(animationsUrl));
+                        this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
+                    }
                 }
             }
 
             {
                 this.nicknameDisplay = new Nickname(this.app, this, this.isSelf, this.getElem());
                 var shownNickname = xmppNickname;
-                if (vpNickname != '') {
-                    shownNickname = vpNickname;
+                if (hasIdentityUrl) {
+                    this.app.getStorage().watch(this.userId, 'Nickname', this.nicknameDisplay);
+                } else {
+                    if (vpNickname != '') {
+                        shownNickname = vpNickname;
+                    }
                 }
                 this.nicknameDisplay?.setNickname(shownNickname);
-                if (vpNickname == '') {
-                    this.app.getStorage().watch(this.userId, 'Nickname', this.nicknameDisplay);
-                }
             }
 
             this.chatoutDisplay = new Chatout(this.app, this, this.getElem());

@@ -1,4 +1,5 @@
 import log = require('loglevel');
+import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 import { Environment } from '../lib/Environment';
 import { BackgroundApp } from './BackgroundApp';
@@ -121,6 +122,10 @@ chrome.runtime?.onMessage.addListener(
 
             case 'getConfig': {
                 log.debug('background getConfig');
+                switch (as.String(message.name, Config.onlineConfigName)) {
+                    case Config.devConfigName:
+                        return sendResponse(Config.getAllDev());
+                    }
                 return sendResponse(Config.getAllOnline());
             } break;
 

@@ -1,5 +1,6 @@
 import log = require('loglevel');
 import { Panic } from './Panic';
+import { Config } from './Config';
 
 interface PlatformFetchUrlCallback { (ok: boolean, status: string, statusText: string, data: string): void }
 
@@ -34,12 +35,12 @@ export class Platform
         }
     }
 
-    static async getConfig(): Promise<any>
+    static async getConfig(name: string): Promise<any>
     {
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': 'getConfig' }, response =>
+                chrome.runtime?.sendMessage({ 'type': 'getConfig', 'name': name }, response =>
                 {
                     resolve(response);
                 });
