@@ -56,7 +56,7 @@ export class Nickname implements IObserver
             column.addItem('Actions', 'Actions:', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.No, null);
             column.addItem('wave', 'wave', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.do('wave'); });
             column.addItem('dance', 'dance', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.do('dance') });
-            column.addItem('cheer', 'cheer', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.do('wave'); });
+            column.addItem('cheer', 'cheer', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.do('cheer'); });
             column.addItem('kiss', 'kiss', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.do('kiss'); });
             column.addItem('clap', 'clap', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.do('clap'); });
             column.addItem('laugh', 'laugh', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.do('laugh'); });
