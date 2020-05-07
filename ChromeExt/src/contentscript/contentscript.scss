@@ -214,6 +214,35 @@ input.n3q-base:focus {
     height: 14px;
 }
 
+// 4 markdown
+
+.n3q-text p {
+    font: normal 11px/12px Arial, sans-serif;
+    display: inline;
+    color: black;
+    background-color: unset;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    border-radius: unset;
+    border: none; 
+    box-shadow: none;
+}
+
+.n3q-text strong {
+    font: normal 11px/12px Arial, sans-serif;
+    display: inline;
+    color: black;
+    background-color: unset;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    border-radius: unset;
+    border: none; 
+    box-shadow: none;
+    font-weight: bold;
+}
+
 // Participant
 
 .n3q-participant {
@@ -495,6 +524,13 @@ input.n3q-base:focus {
             user-select: auto;
         }
 
+    .n3q-ui-dialog,
+    .n3q-chatwindow,
+    .n3q-chatwindow-out,
+    .n3q-chatwindow-line {
+        user-select: auto;
+    }
+        
 // Chatin
 
 .n3q-chatin {

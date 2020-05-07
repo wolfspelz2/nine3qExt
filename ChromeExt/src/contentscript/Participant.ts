@@ -184,7 +184,7 @@ export class Participant extends Entity
 
             this.show(true);
 
-            this.chatWindow.addLine(this.nick + Date.now(), this.nick, '*entered the room*');
+            this.chatWindow.addLine(this.nick + Date.now(), this.nick, 'entered the room');
 
         } else {
 
@@ -205,7 +205,7 @@ export class Participant extends Entity
     {
         this.remove();
 
-        this.chatWindow.addLine(this.nick + Date.now(), this.nick, '*left the room*');
+        this.chatWindow.addLine(this.nick + Date.now(), this.nick, 'left the room');
     }
 
     // message

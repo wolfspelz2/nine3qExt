@@ -2,6 +2,7 @@ import * as $ from 'jquery';
 import 'webpack-jquery-ui';
 import 'webpack-jquery-ui/css';
 import 'webpack-jquery-ui/dialog';
+import markdown = require('markdown');
 import { as } from '../lib/as';
 import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
@@ -38,12 +39,13 @@ export class ChatWindow
     addLine(id: string, nick: string, text: string)
     {
         let translated = this.app.translateText(text, 'Chatwindow.' + text);
+        let markdowned = markdown.markdown.toHTML(translated);
 
-        let line = new ChatLine(nick, translated);
+        let line = new ChatLine(nick, markdowned);
         if (this.lines[id] == undefined) {
             this.lines[id] = line;
             if (this.chatoutElem != null) {
-                this.showLine(this.chatoutElem, nick, text);
+                this.showLine(this.chatoutElem, line.nick, line.text);
             }
         }
     }
