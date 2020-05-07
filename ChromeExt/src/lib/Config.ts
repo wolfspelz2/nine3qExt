@@ -97,8 +97,8 @@ export class Config
                     'Menu.yawn': 'Yawn',
 
                     'Chatwindow.Chat History': 'Chat',
-                    'Chatwindow.*entered the room*': 'entered the room',
-                    'Chatwindow.*left the room*': 'left the room',
+                    'Chatwindow.entered the room': '**entered the room**',
+                    'Chatwindow.left the room': '**left the room**',
                 },
                 'de-DE': {
                     'Common.Close': 'Schließen',
@@ -132,8 +132,8 @@ export class Config
                     'Menu.yawn': 'Gähnen',
 
                     'Chatwindow.Chat History': 'Chat',
-                    'Chatwindow.*entered the room*': 'hat den Raum betreten',
-                    'Chatwindow.*left the room*': 'hat den Raum verlassen',
+                    'Chatwindow.entered the room': '**hat den Raum betreten**',
+                    'Chatwindow.*left the room*': '**hat den Raum verlassen**',
                 },
             },
             'serviceUrl': '',
