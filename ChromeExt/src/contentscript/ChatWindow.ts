@@ -4,10 +4,10 @@ import 'webpack-jquery-ui/css';
 import 'webpack-jquery-ui/dialog';
 // import markdown = require('markdown');
 import { as } from '../lib/as';
-import { ContentApp } from './ContentApp';
-import { Participant } from './Participant';
 import { Config } from '../lib/Config';
 import { Environment } from '../lib/Environment';
+import { ContentApp } from './ContentApp';
+import { Room } from './Room';
 
 class ChatLine
 {
@@ -27,7 +27,7 @@ export class ChatWindow
     private chatinInputElem: HTMLElement;
     private lines: Record<string, ChatLine> = {};
 
-    constructor(private app: ContentApp, private display: HTMLElement, private participant: Participant, private isSelf: boolean)
+    constructor(private app: ContentApp, private display: HTMLElement, private room: Room)
     {
         if (Environment.isDevelopment()) {
             this.addLine('1', 'Nickname', 'Lorem');
@@ -47,13 +47,11 @@ export class ChatWindow
         let line = new ChatLine(nick, translated);
         if (this.lines[id] == undefined) {
             this.lines[id] = line;
-            if (this.chatoutElem != null) {
-                this.showLine(this.chatoutElem, line.nick, line.text);
-            }
+            this.showLine(line.nick, line.text);
         }
     }
 
-    private showLine(chatout: HTMLElement, nick: string, text: string)
+    private showLine(nick: string, text: string)
     {
         let lineElem = <HTMLElement>$(
             `<div class="n3q-base n3q-chatwindow-line">
@@ -61,7 +59,10 @@ export class ChatWindow
                 <span class="n3q-base n3q-text">`+ as.Html(text) + `</span>
             <div>`
         ).get(0);
-        $(chatout).append(lineElem).scrollTop($(chatout).get(0).scrollHeight);
+
+        if (this.chatoutElem != null) {
+            $(this.chatoutElem).append(lineElem).scrollTop($(this.chatoutElem).get(0).scrollHeight);
+        }
     }
 
     show()
@@ -106,9 +107,7 @@ export class ChatWindow
 
             for (let id in this.lines) {
                 let line = this.lines[id];
-                if (this.chatoutElem != null) {
-                    this.showLine(this.chatoutElem, line.nick, line.text);
-                }
+                this.showLine(line.nick, line.text);
             }
         }
 
@@ -119,7 +118,7 @@ export class ChatWindow
     {
         var text: string = as.String($(this.chatinInputElem).val(), '');
         if (text != '') {
-            this.participant?.sendGroupChat(text);
+            this.room?.sendGroupChat(text);
             $(this.chatinInputElem).val('').focus();
         }
     }

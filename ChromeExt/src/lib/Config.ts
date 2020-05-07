@@ -133,7 +133,7 @@ export class Config
 
                     'Chatwindow.Chat History': 'Chat',
                     'Chatwindow.entered the room': '**hat den Raum betreten**',
-                    'Chatwindow.*left the room*': '**hat den Raum verlassen**',
+                    'Chatwindow.left the room': '**hat den Raum verlassen**',
                 },
             },
             'serviceUrl': '',

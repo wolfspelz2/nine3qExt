@@ -9,8 +9,6 @@ import { Avatar } from './Avatar';
 import { Nickname } from './Nickname';
 import { Chatout } from './Chatout';
 import { Chatin } from './Chatin';
-import { ChatWindow } from './ChatWindow';
-import { basename } from 'path';
 
 export class Participant extends Entity
 {
@@ -23,13 +21,10 @@ export class Participant extends Entity
     private userId: string;
     private inMove: boolean = false;
     private condition_: string = '';
-    private chatWindow: ChatWindow;
 
     constructor(private app: ContentApp, room: Room, display: HTMLElement, private nick: string, private isSelf: boolean)
     {
         super(room, display);
-
-        this.chatWindow = new ChatWindow(app, display, this, isSelf)
 
         $(this.getElem()).addClass('n3q-participant');
         if (isSelf) {
@@ -184,7 +179,7 @@ export class Participant extends Entity
 
             this.show(true);
 
-            this.chatWindow.addLine(this.nick + Date.now(), this.nick, 'entered the room');
+            this.room?.showChatMessage(this.nick , 'entered the room');
 
         } else {
 
@@ -205,7 +200,7 @@ export class Participant extends Entity
     {
         this.remove();
 
-        this.chatWindow.addLine(this.nick + Date.now(), this.nick, 'left the room');
+        this.room?.showChatMessage(this.nick , 'left the room');
     }
 
     // message
@@ -274,7 +269,7 @@ export class Participant extends Entity
         let delayMSec = now - timestamp;
 
         // always
-        this.chatWindow.addLine(nick + timestamp, nick, text);
+        this.room?.showChatMessage(nick , text);
 
         // recent
         if (delayMSec * 1000 < as.Float(Config.get('room.maxChatAgeSec', 60))) {
@@ -351,7 +346,7 @@ export class Participant extends Entity
         //     }
         // }
 
-        this.room?.sendGroupChat(text, this.nick);
+        this.room?.sendGroupChat(text);
     }
 
     // drag/move
@@ -441,7 +436,7 @@ export class Participant extends Entity
 
     do(what: string): void
     {
-        this.room?.sendGroupChat('/do ' + what, this.nick);
+        this.room?.sendGroupChat('/do ' + what);
     }
 
     toggleChatin(): void
@@ -456,7 +451,6 @@ export class Participant extends Entity
 
     showChatWindow(): void
     {
-        this.chatWindow?.show();
+        this.room?.showChatWindow();
     }
-
 }

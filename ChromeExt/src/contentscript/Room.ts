@@ -6,6 +6,7 @@ import { Utils } from '../lib/Utils';
 import { Panic } from '../lib/Panic';
 import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
+import { ChatWindow } from './ChatWindow';
 
 export class Room
 {
@@ -16,6 +17,8 @@ export class Room
     private maxEnterRetries: number = as.Int(Config.get('xmpp.maxMucEnterRetries', 4));
     private participants: { [nick: string]: Participant; } = {};
     private isEntered = false;
+    private chatWindow: ChatWindow;
+    private myNick: any;
 
     constructor(private app: ContentApp, private display: HTMLElement, private jid: string, private posX: number) 
     {
@@ -25,6 +28,8 @@ export class Room
             Panic.now();
         }
         this.userJid = user + '@' + domain;
+
+        this.chatWindow = new ChatWindow(app, display, this);
 
         // this.participants['dummy'] = new Participant(this.app, this, this.display, 'dummy', false);
         // this.participants['dummy'].onPresenceAvailable(xml('presence', { from: jid + '/dummy' }).append(xml('x', { xmlns: 'firebat:avatar:state' }).append(xml('position', { x: 100 }))));
@@ -125,6 +130,7 @@ export class Room
 
                 if (isSelf && !this.isEntered) {
                     this.isEntered = true;
+                    this.myNick = nick;
                     this.keepAlive();
                 }
                 break;
@@ -230,12 +236,22 @@ export class Room
       <body>Harpier cries: 'tis time, 'tis time.</body>
     </message>
     */
-    sendGroupChat(text: string, fromNick: string)
+    sendGroupChat(text: string)
     {
-        let message = xml('message', { type: 'groupchat', to: this.jid, from: this.jid + '/' + fromNick })
+        let message = xml('message', { type: 'groupchat', to: this.jid, from: this.jid + '/' + this.myNick })
             .append(xml('body', {}, text))
             ;
         this.app.sendStanza(message);
+    }
+
+    showChatWindow(): void
+    {
+        this.chatWindow?.show();
+    }
+
+    showChatMessage(nick: string, text: string)
+    {
+        this.chatWindow.addLine(nick + Date.now(), nick, text);
     }
 
     sendMoveMessage(newX: number): void
