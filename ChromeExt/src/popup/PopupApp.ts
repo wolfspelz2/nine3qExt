@@ -46,7 +46,7 @@ export class PopupApp
     async start()
     {
         try {
-            let config = await Platform.getConfig();
+            let config = await Platform.getConfig(Config.onlineConfigName);
             Config.setAllOnline(config);
         } catch (error) {
             log.warn(error);
