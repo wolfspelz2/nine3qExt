@@ -73,22 +73,24 @@ export class Participant extends Entity
 
         {
             let stateNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'firebat:avatar:state');
-            let positionNode = stateNode.getChild('position');
-            if (positionNode != undefined) {
-                newX = as.Int(positionNode.attrs.x, -1);
-                if (newX != -1) {
-                    presenceHasPosition = true;
+            if (stateNode != null) {
+                let positionNode = stateNode.getChild('position');
+                if (positionNode != undefined) {
+                    newX = as.Int(positionNode.attrs.x, -1);
+                    if (newX != -1) {
+                        presenceHasPosition = true;
+                    }
                 }
-            }
-            let conditionNode = stateNode.getChild('condition');
-            if (conditionNode != undefined) {
-                newCondition = as.String(conditionNode.attrs.status, '');
+                let conditionNode = stateNode.getChild('condition');
+                if (conditionNode != undefined) {
+                    newCondition = as.String(conditionNode.attrs.status, '');
+                }
             }
         }
 
         {
             let identityNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'firebat:user:identity');
-            if (identityNode != undefined) {
+            if (identityNode != null) {
                 let attrs = identityNode.attrs;
                 let url = as.String(attrs.src, '');
                 let digest = as.String(attrs.digest, '');
@@ -103,7 +105,7 @@ export class Participant extends Entity
 
         {
             let vpNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
-            if (vpNode != undefined) {
+            if (vpNode != null) {
                 let attrs = vpNode.attrs;
                 let nickname = as.String(attrs.nickname, '');
                 if (nickname != '') { vpNickname = nickname; }
@@ -115,7 +117,7 @@ export class Participant extends Entity
         { // <show>: dnd, away, xa
             let showAvailability: string = 'available';
             let showNode = stanza.getChild('show');
-            if (showNode != undefined) {
+            if (showNode != null) {
                 showAvailability = showNode.getText();
                 switch (showAvailability) {
                     case 'chat': newCondition = ''; break;
