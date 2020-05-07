@@ -181,16 +181,16 @@ input.n3q-base:focus {
     cursor: default;
 }
 
-    .n3q-button:hover {
-        opacity: 0.5;
-    }
-
 .n3q-button-overlay {
     position: absolute;
     right: -7px;
     top: -7px;
     background-color: #FFF;
     border-radius: 100%;
+}
+
+.n3q-button-symbol:hover {
+    opacity: 0.6;
 }
 
 .n3q-button-sendchat {

@@ -26,7 +26,7 @@ export class Chatin
         });
         this.elem.appendChild(this.sendElem);
 
-        this.closeElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-overlay n3q-shadow" title="Close" data-translate="attr:title:Common"><div class="n3q-base n3q-button-close-small" />').get(0);
+        this.closeElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-overlay n3q-shadow" title="Close" data-translate="attr:title:Common"><div class="n3q-base n3q-button-symbol n3q-button-close-small" />').get(0);
         $(this.closeElem).click(ev =>
         {
             $(this.elem).stop(true);
