@@ -6,6 +6,7 @@ import { as } from '../lib/as';
 import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
 import { Config } from '../lib/Config';
+import { Environment } from '../lib/Environment';
 
 class ChatLine
 {
@@ -27,9 +28,11 @@ export class ChatWindow
 
     constructor(private app: ContentApp, private display: HTMLElement, private participant: Participant, private isSelf: boolean)
     {
-        this.addLine('1', 'nickname', 'text');
-        this.addLine('2', 'nickname2', 'text text text text text text text text text text');
-        this.addLine('3', 'nick name', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum');
+        if (Environment.isDevelopment()) {
+            this.addLine('1', 'Nickname', 'Lorem');
+            this.addLine('2', 'ThisIsALongerNickname', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.');
+            this.addLine('3', 'Long name with intmediate spaces', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum');
+        }
     }
 
     addLine(id: string, nick: string, text: string)
