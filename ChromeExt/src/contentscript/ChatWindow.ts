@@ -39,6 +39,8 @@ export class ChatWindow
     addLine(id: string, nick: string, text: string)
     {
         let translated = this.app.translateText(text, 'Chatwindow.' + text);
+
+        // Beware: without markdown in showLine: as.Html(text)
         let markdowned = markdown.markdown.toHTML(translated);
 
         let line = new ChatLine(nick, markdowned);
@@ -54,9 +56,9 @@ export class ChatWindow
     {
         let lineElem = <HTMLElement>$(
             `<div class="n3q-base n3q-chatwindow-line">
-                        <span class="n3q-base n3q-nick">`+ nick + `</span>
-                        <span class="n3q-base n3q-text">`+ text + `</span>
-                    <div>`
+                <span class="n3q-base n3q-nick">`+ as.Html(text) + `</span>
+                <span class="n3q-base n3q-text">`+ text + `</span>
+            <div>`
         ).get(0);
         $(chatout).append(lineElem).scrollTop($(chatout).get(0).scrollHeight);
     }
