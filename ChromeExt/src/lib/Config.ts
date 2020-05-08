@@ -266,24 +266,24 @@ export class Config
         });
     }
 
-    static getAllDev(): any { return this.devConfig; }
-    static getAllOnline(): any { return this.onlineConfig; }
-    static getAllStatic(): any { return this.staticConfig; }
+    static getDevTree(): any { return this.devConfig; }
+    static getOnlineTree(): any { return this.onlineConfig; }
+    static getStaticTree(): any { return this.staticConfig; }
 
-    static setAllDev(values: any)
+    static setDevTree(values: any)
     {
         this.devConfig = values;
     }
 
-    static setAllOnline(values: any): void
+    static setOnlineTree(values: any): void
     {
-        log.debug('Config.setAllOnline');
+        log.debug('Config.setOnlineTree');
         this.onlineConfig = values;
     }
 
-    static setAllStatic(values: any): void
+    static setStaticTree(values: any): void
     {
-        log.debug('Config.setAllStatic');
+        log.debug('Config.setStaticTree');
         this.staticConfig = values;
     }
 

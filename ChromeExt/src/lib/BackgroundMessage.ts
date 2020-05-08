@@ -18,13 +18,13 @@ export class BackgroundMessage
         }
     }
 
-    static type_getConfig = 'getConfig';
-    static async getConfig(name: string): Promise<any>
+    static type_getConfigTree = 'getConfigTree';
+    static async getConfigTree(name: string): Promise<any>
     {
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_getConfig, 'name': name }, response =>
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_getConfigTree, 'name': name }, response =>
                 {
                     resolve(response);
                 });

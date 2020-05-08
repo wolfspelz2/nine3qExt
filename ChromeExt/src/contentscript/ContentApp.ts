@@ -57,8 +57,8 @@ export class ContentApp
         }
 
         try {
-            let config = await BackgroundMessage.getConfig(Config.onlineConfigName);
-            Config.setAllOnline(config);
+            let config = await BackgroundMessage.getConfigTree(Config.onlineConfigName);
+            Config.setOnlineTree(config);
         } catch (error) {
             log.debug(error.message);
             Panic.now();
@@ -66,8 +66,8 @@ export class ContentApp
         if (Panic.isOn) { return; }
 
         try {
-            let config = await BackgroundMessage.getConfig(Config.devConfigName);
-            Config.setAllDev(config);
+            let config = await BackgroundMessage.getConfigTree(Config.devConfigName);
+            Config.setDevTree(config);
         } catch (error) {
             log.debug(error.message);
         }

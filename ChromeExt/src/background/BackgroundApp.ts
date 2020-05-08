@@ -26,7 +26,7 @@ export class BackgroundApp
         let devConfig = await Config.getSync('dev.config', '{}');
         try {
             let parsed = JSON.parse(devConfig);
-            Config.setAllDev(parsed);
+            Config.setDevTree(parsed);
         } catch (error) {
 
         }

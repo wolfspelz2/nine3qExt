@@ -29,7 +29,7 @@ export class ConfigUpdater
     {
         try {
             let data = await this.fetchConfig();
-            Config.setAllOnline(data);
+            Config.setOnlineTree(data);
             Config.set('config.lastUpdateTime', Date.now());
         } catch (error) {
             log.info('ConfigUpdater.checkUpdate', 'fetchConfig failed')

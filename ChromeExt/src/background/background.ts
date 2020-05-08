@@ -123,14 +123,14 @@ chrome.runtime?.onMessage.addListener(
                 }
             } break;
 
-            case BackgroundMessage.type_getConfig: {
+            case BackgroundMessage.type_getConfigTree: {
                 log.debug('background', message.type, message.name);
                 switch (as.String(message.name, Config.onlineConfigName)) {
                     case Config.devConfigName:
-                        sendResponse(Config.getAllDev());
+                        sendResponse(Config.getDevTree());
                         break;
                     default:
-                        sendResponse(Config.getAllOnline());
+                        sendResponse(Config.getOnlineTree());
                         break;
                 }
             } break;
