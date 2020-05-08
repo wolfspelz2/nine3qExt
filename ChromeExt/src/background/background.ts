@@ -135,7 +135,7 @@ chrome.runtime?.onMessage.addListener(
                 }
             } break;
 
-            case BackgroundMessage.type_getLocalStorage: {
+            case BackgroundMessage.type_getSessionConfig: {
                 let response = {};
                 try {
                     let value = Config.get(message.key, undefined); // return true; if async
@@ -150,7 +150,7 @@ chrome.runtime?.onMessage.addListener(
                 // return true; 
             } break;
 
-            case BackgroundMessage.type_setLocalStorage: {
+            case BackgroundMessage.type_setSessionConfig: {
                 log.debug('background', message.type, message.key, message.value);
                 try {
                     Config.set(message.key, message.value); // return true; if async

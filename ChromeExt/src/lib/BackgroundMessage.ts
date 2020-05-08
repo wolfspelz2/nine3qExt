@@ -34,13 +34,13 @@ export class BackgroundMessage
         });
     }
 
-    static type_getLocalStorage = 'getLocalStorage';
-    static async getLocalStorage(key: string, defaultValue: any): Promise<any>
+    static type_getSessionConfig = 'getSessionConfig';
+    static async getSessionConfig(key: string, defaultValue: any): Promise<any>
     {
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_getLocalStorage, 'key': key }, response =>
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_getSessionConfig, 'key': key }, response =>
                 {
                     if (response != undefined && response[key] != undefined) {
                         resolve(response[key]);
@@ -54,13 +54,13 @@ export class BackgroundMessage
         });
     }
 
-    static type_setLocalStorage = 'setLocalStorage';
-    static setLocalStorage(key: string, value: any): Promise<void>
+    static type_setSessionConfig = 'setSessionConfig';
+    static setSessionConfig(key: string, value: any): Promise<void>
     {
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_setLocalStorage, 'key': key, 'value': value }, response =>
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_setSessionConfig, 'key': key, 'value': value }, response =>
                 {
                     resolve(response);
                 });

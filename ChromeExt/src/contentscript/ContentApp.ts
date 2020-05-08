@@ -422,7 +422,7 @@ export class ContentApp
     async assertSavedPosition()
     {
         try {
-            let x = as.Int(await BackgroundMessage.getLocalStorage('me.x', -1), -1);
+            let x = as.Int(await BackgroundMessage.getSessionConfig('me.x', -1), -1);
             if (x < 0) {
                 x = Utils.randomInt(as.Int(Config.get('room.randomEnterPosXMin', 400)), as.Int(Config.get('room.randomEnterPosXMax', 700)))
                 await this.savePosition(x);
@@ -435,7 +435,7 @@ export class ContentApp
     async savePosition(x: number): Promise<void>
     {
         try {
-            await BackgroundMessage.setLocalStorage('me.x', x);
+            await BackgroundMessage.setSessionConfig('me.x', x);
         } catch (error) {
             log.info(error);
         }
@@ -446,7 +446,7 @@ export class ContentApp
         let x = 0;
 
         try {
-            x = as.Int(await BackgroundMessage.getLocalStorage('me.x', -1), -1);
+            x = as.Int(await BackgroundMessage.getSessionConfig('me.x', -1), -1);
         } catch (error) {
             log.info(error);
         }
