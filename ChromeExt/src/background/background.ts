@@ -129,8 +129,9 @@ chrome.runtime?.onMessage.addListener(
                     case Config.devConfigName:
                         sendResponse(Config.getAllDev());
                         break;
+                    default:
                         sendResponse(Config.getAllOnline());
-                        default:
+                        break;
                 }
             } break;
 
