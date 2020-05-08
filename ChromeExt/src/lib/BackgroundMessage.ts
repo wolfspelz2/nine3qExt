@@ -1,27 +1,16 @@
 import log = require('loglevel');
 import { Panic } from './Panic';
-import { Config } from './Config';
 
 interface PlatformFetchUrlCallback { (ok: boolean, status: string, statusText: string, data: string): void }
 
-export class Platform
+export class BackgroundMessage
 {
-    // Browser
-
-    static getCurrentPageUrl(): string
-    {
-        return document.location.toString();
-    }
-
-    // HTTP get
-
     static type_fetchUrl = 'fetchUrl';
     static fetchUrl(url: string, version: string, callback: PlatformFetchUrlCallback)
     {
         try {
-            chrome.runtime?.sendMessage({ 'type': Platform.type_fetchUrl, 'url': url, 'version': version }, response =>
+            chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_fetchUrl, 'url': url, 'version': version }, response =>
             {
-                log.debug('Platform.fetchUrl response', response);
                 callback(response.ok, response.status, response.statusText, response.data);
             });
         } catch (error) {
@@ -36,7 +25,7 @@ export class Platform
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': Platform.type_getConfig, 'name': name }, response =>
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_getConfig, 'name': name }, response =>
                 {
                     resolve(response);
                 });
@@ -52,7 +41,7 @@ export class Platform
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': Platform.type_getLocalStorage, 'key': key }, response =>
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_getLocalStorage, 'key': key }, response =>
                 {
                     if (response != undefined && response[key] != undefined) {
                         resolve(response[key]);
@@ -72,7 +61,7 @@ export class Platform
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': Platform.type_setLocalStorage, 'key': key, 'value': value }, response =>
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_setLocalStorage, 'key': key, 'value': value }, response =>
                 {
                     resolve(response);
                 });
@@ -88,7 +77,7 @@ export class Platform
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': Platform.type_sendStanza, 'stanza': stanza }, response =>
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_sendStanza, 'stanza': stanza }, response =>
                 {
                     resolve(response);
                 });
@@ -104,7 +93,7 @@ export class Platform
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': Platform.type_pingBackground }, response =>
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_pingBackground }, response =>
                 {
                     resolve(response);
                 });

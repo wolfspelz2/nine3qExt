@@ -3,14 +3,15 @@ import * as $ from 'jquery';
 import { xml, jid } from '@xmpp/client';
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
-import { Platform } from '../lib/Platform';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Panic } from '../lib/Panic';
 import { Config } from '../lib/Config';
 import { AvatarGallery } from '../lib/AvatarGallery';
 import { Translator } from '../lib/Translator';
-import { Room } from './Room';
-import { PropertyStorage } from './PropertyStorage';
+import { Browser } from '../lib/Browser';
 import { HelloWorld } from './HelloWorld';
+import { PropertyStorage } from './PropertyStorage';
+import { Room } from './Room';
 
 // Test
 // import 'webpack-jquery-ui';
@@ -57,7 +58,7 @@ export class ContentApp
         }
 
         try {
-            let config = await Platform.getConfig(Config.onlineConfigName);
+            let config = await BackgroundMessage.getConfig(Config.onlineConfigName);
             Config.setAllOnline(config);
         } catch (error) {
             log.debug(error.message);
@@ -66,7 +67,7 @@ export class ContentApp
         if (Panic.isOn) { return; }
 
         try {
-            let config = await Platform.getConfig(Config.devConfigName);
+            let config = await BackgroundMessage.getConfig(Config.devConfigName);
             Config.setAllDev(config);
         } catch (error) {
             log.debug(error.message);
@@ -175,7 +176,7 @@ export class ContentApp
             this.pingBackgroundToKeepConnectionAliveTimer = <number><unknown>setTimeout(async () =>
             {
                 try {
-                    await Platform.pingBackground();
+                    await BackgroundMessage.pingBackground();
                 } catch (error) {
                     //
                 }
@@ -215,7 +216,7 @@ export class ContentApp
 
     enterPage()
     {
-        this.enterRoomByPageUrl(Platform.getCurrentPageUrl());
+        this.enterRoomByPageUrl(Browser.getCurrentPageUrl());
     }
 
     leavePage()
@@ -250,7 +251,7 @@ export class ContentApp
         url.searchParams.set('sDocumentURL', pageUrl);
         url.searchParams.set('Format', 'json');
 
-        Platform.fetchUrl(url.toString(), '', (ok, status, statusText, data: string) =>
+        BackgroundMessage.fetchUrl(url.toString(), '', (ok, status, statusText, data: string) =>
         {
             if (ok) {
                 try {
@@ -308,7 +309,7 @@ export class ContentApp
     {
         log.debug('ContentApp.sendStanza', stanza);
         try {
-            await Platform.sendStanza(stanza);
+            await BackgroundMessage.sendStanza(stanza);
         } catch (error) {
             log.info(error);
             Panic.now();
@@ -419,7 +420,7 @@ export class ContentApp
     async assertSavedPosition()
     {
         try {
-            let x = as.Int(await Platform.getLocalStorage('me.x', -1), -1);
+            let x = as.Int(await BackgroundMessage.getLocalStorage('me.x', -1), -1);
             if (x < 0) {
                 x = Utils.randomInt(as.Int(Config.get('room.randomEnterPosXMin', 400)), as.Int(Config.get('room.randomEnterPosXMax', 700)))
                 await this.savePosition(x);
@@ -432,7 +433,7 @@ export class ContentApp
     async savePosition(x: number): Promise<void>
     {
         try {
-            await Platform.setLocalStorage('me.x', x);
+            await BackgroundMessage.setLocalStorage('me.x', x);
         } catch (error) {
             log.info(error);
         }
@@ -443,7 +444,7 @@ export class ContentApp
         let x = 0;
 
         try {
-            x = as.Int(await Platform.getLocalStorage('me.x', -1), -1);
+            x = as.Int(await BackgroundMessage.getLocalStorage('me.x', -1), -1);
         } catch (error) {
             log.info(error);
         }

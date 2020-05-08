@@ -1,5 +1,5 @@
 const $ = require('jquery');
-import { Platform } from '../lib/Platform';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { PropertyStorage } from './PropertyStorage';
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';
@@ -27,7 +27,7 @@ export class LegacyIdentity
     {
         if (!this.isFetching) {
             this.isFetching = true;
-            Platform.fetchUrl(url, digest, (ok, status, statusText, data) =>
+            BackgroundMessage.fetchUrl(url, digest, (ok, status, statusText, data) =>
             {
                 this.isFetching = false;
                 if (ok) {

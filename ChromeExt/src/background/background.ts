@@ -3,7 +3,7 @@ import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 import { Environment } from '../lib/Environment';
 import { BackgroundApp } from './BackgroundApp';
-import { Platform } from '../lib/Platform';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 
 console.log('Background');
 
@@ -79,7 +79,7 @@ chrome.runtime?.onMessage.addListener(
     function (message, sender, sendResponse)
     {
         switch (message.type) {
-            case Platform.type_fetchUrl: {
+            case BackgroundMessage.type_fetchUrl: {
                 var url = message.url;
                 var version = message.version;
 
@@ -123,7 +123,7 @@ chrome.runtime?.onMessage.addListener(
                 }
             } break;
 
-            case Platform.type_getConfig: {
+            case BackgroundMessage.type_getConfig: {
                 log.debug('background', message.type, message.name);
                 switch (as.String(message.name, Config.onlineConfigName)) {
                     case Config.devConfigName:
@@ -134,7 +134,7 @@ chrome.runtime?.onMessage.addListener(
                 }
             } break;
 
-            case Platform.type_getLocalStorage: {
+            case BackgroundMessage.type_getLocalStorage: {
                 let response = {};
                 try {
                     let value = Config.get(message.key, undefined); // return true; if async
@@ -149,30 +149,30 @@ chrome.runtime?.onMessage.addListener(
                 // return true; 
             } break;
 
-            case Platform.type_setLocalStorage: {
+            case BackgroundMessage.type_setLocalStorage: {
                 log.debug('background', message.type, message.key, message.value);
                 try {
                     Config.set(message.key, message.value); // return true; if async
                 } catch (error) {
                     log.warn('background setLocalStorage', error);
                 }
-                sendResponse({});
+                // sendResponse({});
                 // return true; 
             } break;
 
-            case Platform.type_sendStanza: {
+            case BackgroundMessage.type_sendStanza: {
                 if (app != null) {
                     app.handle_sendStanza(message.stanza, sender.tab.id, sendResponse);
                 }
-                sendResponse({});
+                // sendResponse({});
             } break;
 
-            case Platform.type_pingBackground: {
+            case BackgroundMessage.type_pingBackground: {
                 log.debug('background', message.type);
                 if (app != null) {
                     app.handle_pingBackground();
                 }
-                sendResponse({});
+                // sendResponse({});
             } break;
 
             default: {

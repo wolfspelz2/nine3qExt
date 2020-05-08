@@ -4,7 +4,7 @@ import 'jqueryui';
 import { as } from '../lib/as';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
-import { Platform } from '../lib/Platform';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Config } from '../lib/Config';
 import { IObserver, IObservable } from '../lib/ObservableProperty';
 import * as AnimationsXml from './AnimationsXml';
@@ -167,7 +167,7 @@ export class Avatar implements IObserver
 
     setAnimations(url: string): void
     {
-        Platform.fetchUrl(url, '', (ok, status, statusText, data) =>
+        BackgroundMessage.fetchUrl(url, '', (ok, status, statusText, data) =>
         {
             if (ok) {
                 try {
