@@ -19,6 +19,7 @@ export class BackgroundApp
     private xmppConnected = false;
     private stanzaQ: Array<xml> = [];
     private configUpdater: ConfigUpdater;
+    private resource: string;
 
     async start(): Promise<void>
     {
@@ -52,7 +53,17 @@ export class BackgroundApp
 
     private recvStanza(stanza: any)
     {
-        log.info('BackgroundApp.recvStanza', stanza);
+        let isConnectionPresence = false;
+        if (stanza.name == 'presence' || stanza.name == 'message') {
+            let from = jid(stanza.attrs.from);
+            let resource = from.getResource();
+            if (resource == this.resource) {
+                isConnectionPresence = true;
+            }
+        }
+        if (!isConnectionPresence) {
+            log.info('BackgroundApp.recvStanza', stanza);
+        }
 
         if (stanza.name == 'presence' || stanza.name == 'message') {
             let from = jid(stanza.attrs.from);
@@ -68,9 +79,9 @@ export class BackgroundApp
                     let nick = from.getResource();
                     let isSelf = this.roomJid2selfNick[room] == nick;
                     if (isSelf) {
-                        log.debug('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', this.roomJid2tabId[room]);
                         delete this.roomJid2tabId[room];
                         delete this.roomJid2selfNick[room];
+                        log.debug('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', this.roomJid2tabId[room], 'now', this.roomJid2tabId);
                     }
                 }
             }
@@ -90,11 +101,11 @@ export class BackgroundApp
                 let nick = to.getResource();
 
                 if (as.String(stanza.attrs['type'], 'available') == 'available') {
-                    if (this.roomJid2tabId[room] == undefined) {
-                        log.debug('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId);
-                    }
+                    let thisIsNew = false;
+                    if (this.roomJid2tabId[room] == undefined) { thisIsNew = true; }
                     this.roomJid2tabId[room] = tabId;
                     this.roomJid2selfNick[room] = nick;
+                    if (thisIsNew) { log.debug('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now', this.roomJid2tabId); }
                 }
             }
 
@@ -124,6 +135,11 @@ export class BackgroundApp
         }
     }
 
+    private sendPresenceNoLog()
+    {
+        this.xmpp.send(xml('presence'));
+    }
+
     private sendPresence()
     {
         this.sendStanza(xml('presence'));
@@ -133,11 +149,13 @@ export class BackgroundApp
 
     private async startXmpp()
     {
+        this.resource = Utils.randomString(10);
+
         try {
             var conf = {
                 service: Config.get('xmpp.service', 'wss://xmpp.weblin.sui.li/xmpp-websocket'),// service: 'wss://xmpp.dev.sui.li/xmpp-websocket',
                 domain: Config.get('xmpp.domain', 'xmpp.weblin.sui.li'),
-                resource: Config.get('xmpp.resource', 'web'),
+                resource: Config.get('xmpp.resource', this.resource),
                 username: await Config.getPreferSync('xmpp.user', ''),
                 password: await Config.getPreferSync('xmpp.pass', ''),
             };
@@ -190,13 +208,11 @@ export class BackgroundApp
     private lastPingTime: number = 0;
     handle_pingBackground(): void
     {
-        log.trace('BackgroundApp.handle_pingBackground');
-
         try {
             let now = Date.now();
             if (now - this.lastPingTime > 10000) {
                 this.lastPingTime = now;
-                this.sendPresence();
+                this.sendPresenceNoLog();
             }
         } catch (error) {
             //

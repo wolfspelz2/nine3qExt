@@ -13,7 +13,8 @@ console.log('Background', 'debug', debug);
 log.setLevel(log.levels.INFO);
 
 if (debug) {
-    log.setLevel(log.levels.DEBUG);
+   log.setLevel(log.levels.DEBUG);
+    // log.setLevel(log.levels.TRACE);
 }
 
 var app = null;
@@ -94,7 +95,7 @@ chrome.runtime?.onMessage.addListener(
                         fetch(url)
                             .then(httpResponse =>
                             {
-                                log.trace('background fetchUrl response', httpResponse);
+                                log.debug('background fetchUrl response', url, httpResponse);
                                 if (httpResponse.ok) {
                                     return httpResponse.text();
                                 } else {
@@ -104,18 +105,18 @@ chrome.runtime?.onMessage.addListener(
                             .then(text =>
                             {
                                 httpCache[key] = text;
-                                log.trace('background fetchUrl text', text);
+                                log.debug('background fetchUrl text', url, text.length, text.substr(0, 1000));
                                 return sendResponse({ 'ok': true, 'data': text });
                             })
                             .catch(ex =>
                             {
-                                log.trace('background fetchUrl catch', ex);
+                                log.debug('background fetchUrl catch', url, ex);
                                 return sendResponse({ 'ok': false, 'status': ex.status, 'statusText': ex.statusText });
                             }
                             );
 
                     } catch (error) {
-                        log.trace('background fetchUrl', error);
+                        log.debug('background fetchUrl', url, error);
                         return sendResponse({ 'ok': false, 'status': error.status, 'statusText': error.statusText });
                     }
                 }
