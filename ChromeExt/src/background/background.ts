@@ -13,7 +13,7 @@ console.log('Background', 'debug', debug);
 log.setLevel(log.levels.INFO);
 
 if (debug) {
-   log.setLevel(log.levels.DEBUG);
+    log.setLevel(log.levels.DEBUG);
     // log.setLevel(log.levels.TRACE);
 }
 
@@ -72,30 +72,30 @@ activate();
 //     });
 // })
 
-const httpCache: Map<string, string> = new Map<string, string>();
+const httpCacheData: Map<string, string> = new Map<string, string>();
+const httpCacheTime: Map<string, number> = new Map<string, number>();
 
 chrome.runtime?.onMessage.addListener(
     function (message, sender, sendResponse)
     {
         switch (message.type) {
-            case 'fetchUrl': {
+            case Platform.type_fetchUrl: {
                 var url = message.url;
                 var version = message.version;
 
                 let key = version + url;
-                let isCached = (httpCache[key] != undefined);
+                let isCached = (httpCacheData[key] != undefined);
 
-                log.debug('background fetchUrl', 'cached=', isCached, url, 'version=', version);
+                log.debug('background', message.type, 'cached=', isCached, url, 'version=', version);
 
                 if (isCached) {
-                    return sendResponse({ 'ok': true, 'data': httpCache[key] });
+                    sendResponse({ 'ok': true, 'data': httpCacheData[key] });
                 } else {
                     try {
-
                         fetch(url)
                             .then(httpResponse =>
                             {
-                                log.debug('background fetchUrl response', url, httpResponse);
+                                // log.debug('background', message.type, 'httpResponse', url, httpResponse);
                                 if (httpResponse.ok) {
                                     return httpResponse.text();
                                 } else {
@@ -104,70 +104,80 @@ chrome.runtime?.onMessage.addListener(
                             })
                             .then(text =>
                             {
-                                httpCache[key] = text;
-                                log.debug('background fetchUrl text', url, text.length, text.substr(0, 1000));
-                                return sendResponse({ 'ok': true, 'data': text });
+                                httpCacheData[key] = text;
+                                httpCacheTime[key] = Date.now();
+                                let response = { 'ok': true, 'data': text };
+                                log.debug('background', message.type, 'response', url, text.length, response);
+                                sendResponse(response);
                             })
                             .catch(ex =>
                             {
-                                log.debug('background fetchUrl catch', url, ex);
-                                return sendResponse({ 'ok': false, 'status': ex.status, 'statusText': ex.statusText });
-                            }
-                            );
-
+                                log.debug('background', message.type, 'catch', url, ex);
+                                sendResponse({ 'ok': false, 'status': ex.status, 'statusText': ex.statusText });
+                            });
                     } catch (error) {
-                        log.debug('background fetchUrl', url, error);
-                        return sendResponse({ 'ok': false, 'status': error.status, 'statusText': error.statusText });
+                        log.debug('background', message.type, 'exception', url, error);
+                        sendResponse({ 'ok': false, 'status': error.status, 'statusText': error.statusText });
                     }
+                    return true;
                 }
             } break;
 
-            case 'getConfig': {
-                log.debug('background getConfig', message.name);
+            case Platform.type_getConfig: {
+                log.debug('background', message.type, message.name);
                 switch (as.String(message.name, Config.onlineConfigName)) {
                     case Config.devConfigName:
-                        return sendResponse(Config.getAllDev());
-                    }
-                return sendResponse(Config.getAllOnline());
+                        sendResponse(Config.getAllDev());
+                        break;
+                        sendResponse(Config.getAllOnline());
+                        default:
+                }
             } break;
 
-            case 'getLocalStorage': {
+            case Platform.type_getLocalStorage: {
                 let response = {};
                 try {
-                    let value = Config.get(message.key, undefined);
+                    let value = Config.get(message.key, undefined); // return true; if async
                     if (value != undefined) {
                         response[message.key] = value;
                     }
                 } catch (error) {
-                    log.warn('background getLocalStorage', error);
+                    log.warn('background', message.type, error);
                 }
-                log.debug('background getLocalStorage', message.key, 'response', response);
-                return sendResponse(response);
+                log.debug('background', message.type, message.key, 'response', response);
+                sendResponse(response);
+                // return true; 
             } break;
 
-            case 'setLocalStorage': {
-                log.debug('background setLocalStorage', message.key, message.value);
+            case Platform.type_setLocalStorage: {
+                log.debug('background', message.type, message.key, message.value);
                 try {
-                    Config.set(message.key, message.value);
+                    Config.set(message.key, message.value); // return true; if async
                 } catch (error) {
                     log.warn('background setLocalStorage', error);
                 }
+                sendResponse({});
+                // return true; 
             } break;
 
-            case 'sendStanza': {
+            case Platform.type_sendStanza: {
                 if (app != null) {
                     app.handle_sendStanza(message.stanza, sender.tab.id, sendResponse);
                 }
+                sendResponse({});
             } break;
 
             case Platform.type_pingBackground: {
-                log.debug('background pingBackground');
+                log.debug('background', message.type);
                 if (app != null) {
                     app.handle_pingBackground();
                 }
+                sendResponse({});
+            } break;
+
+            default: {
+                log.debug('background unhandled', message);
             } break;
         }
-
-        return sendResponse({});
     }
 );

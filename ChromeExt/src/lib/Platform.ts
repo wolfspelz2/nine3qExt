@@ -13,20 +13,15 @@ export class Platform
         return document.location.toString();
     }
 
-    // Paths
-
-    static getAssetUrl(filePath: string)
-    {
-        chrome.runtime?.getURL('assets/' + filePath);
-    }
-
     // HTTP get
 
+    static type_fetchUrl = 'fetchUrl';
     static fetchUrl(url: string, version: string, callback: PlatformFetchUrlCallback)
     {
         try {
-            chrome.runtime?.sendMessage({ 'type': 'fetchUrl', 'url': url, 'version': version }, response =>
+            chrome.runtime?.sendMessage({ 'type': Platform.type_fetchUrl, 'url': url, 'version': version }, response =>
             {
+                log.debug('Platform.fetchUrl response', response);
                 callback(response.ok, response.status, response.statusText, response.data);
             });
         } catch (error) {
@@ -35,12 +30,13 @@ export class Platform
         }
     }
 
+    static type_getConfig = 'getConfig';
     static async getConfig(name: string): Promise<any>
     {
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': 'getConfig', 'name': name }, response =>
+                chrome.runtime?.sendMessage({ 'type': Platform.type_getConfig, 'name': name }, response =>
                 {
                     resolve(response);
                 });
@@ -50,12 +46,13 @@ export class Platform
         });
     }
 
+    static type_getLocalStorage = 'getLocalStorage';
     static async getLocalStorage(key: string, defaultValue: any): Promise<any>
     {
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': 'getLocalStorage', 'key': key }, response =>
+                chrome.runtime?.sendMessage({ 'type': Platform.type_getLocalStorage, 'key': key }, response =>
                 {
                     if (response != undefined && response[key] != undefined) {
                         resolve(response[key]);
@@ -69,12 +66,29 @@ export class Platform
         });
     }
 
+    static type_setLocalStorage = 'setLocalStorage';
     static setLocalStorage(key: string, value: any): Promise<void>
     {
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': 'setLocalStorage', 'key': key, 'value': value }, response =>
+                chrome.runtime?.sendMessage({ 'type': Platform.type_setLocalStorage, 'key': key, 'value': value }, response =>
+                {
+                    resolve(response);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    static type_sendStanza = 'sendStanza';
+    static sendStanza(stanza: any): Promise<void>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            try {
+                chrome.runtime?.sendMessage({ 'type': Platform.type_sendStanza, 'stanza': stanza }, response =>
                 {
                     resolve(response);
                 });
@@ -90,7 +104,7 @@ export class Platform
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': this.type_pingBackground}, response =>
+                chrome.runtime?.sendMessage({ 'type': Platform.type_pingBackground }, response =>
                 {
                     resolve(response);
                 });

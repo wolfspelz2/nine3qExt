@@ -37,14 +37,13 @@ export class ContentApp
     private display: HTMLElement;
     private xmpp: any;
     private rooms: { [roomJid: string]: Room; } = {};
-    private storage: PropertyStorage = new PropertyStorage();
+    private propertyStorage: PropertyStorage = new PropertyStorage();
     private babelfish: Translator;
     private stayOnTabChange: boolean = false;
 
     // Getter
 
-    getStorage(): PropertyStorage { return this.storage; }
-    getAssetUrl(filePath: string) { return Platform.getAssetUrl(filePath); }
+    getPropertyStorage(): PropertyStorage { return this.propertyStorage; }
 
     constructor(private appendToMe: HTMLElement, private messageHandler: ContentAppNotificationCallback)
     {
@@ -305,11 +304,11 @@ export class ContentApp
         }
     }
 
-    sendStanza(stanza: xml): void
+    async sendStanza(stanza: xml): Promise<void>
     {
         log.debug('ContentApp.sendStanza', stanza);
         try {
-            chrome.runtime.sendMessage({ 'type': 'sendStanza', 'stanza': stanza });
+            await Platform.sendStanza(stanza);
         } catch (error) {
             log.info(error);
             Panic.now();

@@ -53,16 +53,14 @@ export class BackgroundApp
 
     private recvStanza(stanza: any)
     {
-        let isConnectionPresence = false;
-        if (stanza.name == 'presence' || stanza.name == 'message') {
-            let from = jid(stanza.attrs.from);
-            let resource = from.getResource();
-            if (resource == this.resource) {
-                isConnectionPresence = true;
+        {
+            let isConnectionPresence = false;
+            if (stanza.name == 'presence') {
+                isConnectionPresence = (jid(stanza.attrs.from).getResource() == this.resource);
             }
-        }
-        if (!isConnectionPresence) {
-            log.info('BackgroundApp.recvStanza', stanza);
+            if (!isConnectionPresence) {
+                log.info('BackgroundApp.recvStanza', stanza);
+            }
         }
 
         if (stanza.name == 'presence' || stanza.name == 'message') {
@@ -128,16 +126,20 @@ export class BackgroundApp
     private sendStanzaUnbuffered(stanza: any): void
     {
         try {
-            log.info('BackgroundApp.sendStanza', stanza);
+            {
+                let isConnectionPresence = false;
+                if (stanza.name == 'presence') {
+                    isConnectionPresence = (stanza.attrs == undefined || stanza.attrs.to == undefined || jid(stanza.attrs.to).getResource() == this.resource);
+                }
+                if (!isConnectionPresence) {
+                    log.info('BackgroundApp.sendStanza', stanza);
+                }
+            }
+    
             this.xmpp.send(stanza);
         } catch (error) {
             log.info('BackgroundApp.sendStanza', error.message ?? '');
         }
-    }
-
-    private sendPresenceNoLog()
-    {
-        this.xmpp.send(xml('presence'));
     }
 
     private sendPresence()
@@ -212,7 +214,7 @@ export class BackgroundApp
             let now = Date.now();
             if (now - this.lastPingTime > 10000) {
                 this.lastPingTime = now;
-                this.sendPresenceNoLog();
+                this.sendPresence();
             }
         } catch (error) {
             //
