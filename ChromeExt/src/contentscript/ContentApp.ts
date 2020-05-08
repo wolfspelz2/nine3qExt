@@ -28,7 +28,7 @@ export class ContentAppNotification
 {
     static type_onTabChangeStay: string = 'onTabChangeStay';
     static type_onTabChangeLeave: string = 'onTabChangeLeave';
-    static type_stopBecauseDisabled: string = 'stopBecauseDisabled';
+    static type_stopped: string = 'stopped';
 }
 
 interface ContentAppNotificationCallback { (msg: any): void }
@@ -36,7 +36,6 @@ interface ContentAppNotificationCallback { (msg: any): void }
 export class ContentApp
 {
     private display: HTMLElement;
-    private xmpp: any;
     private rooms: { [roomJid: string]: Room; } = {};
     private propertyStorage: PropertyStorage = new PropertyStorage();
     private babelfish: Translator;
@@ -53,7 +52,7 @@ export class ContentApp
     async start()
     {
         if (!await this.getActive()) {
-            this.messageHandler({ 'type': ContentAppNotification.type_stopBecauseDisabled });
+            this.messageHandler({ 'type': ContentAppNotification.type_stopped });
             return;
         }
 
@@ -198,7 +197,10 @@ export class ContentApp
     runtimeOnMessage(message, sender: chrome.runtime.MessageSender, sendResponse): any
     {
         switch (message.type) {
-            case 'recvStanza': return this.handle_recvStanza(message.stanza); break;
+            case 'recvStanza': {
+                this.handle_recvStanza(message.stanza);
+                sendResponse();
+            } break;
         }
         return true;
     }

@@ -40,8 +40,8 @@ try {
                         log.debug('Contentscript msg', ContentAppNotification.type_onTabChangeLeave);
                         onTabChangeStay = false;
                     }break;
-                    case ContentAppNotification.type_stopBecauseDisabled: {
-                        log.debug('Contentscript msg', ContentAppNotification.type_stopBecauseDisabled);
+                    case ContentAppNotification.type_stopped: {
+                        log.debug('Contentscript msg', ContentAppNotification.type_stopped);
                     }break;
                 }
             });

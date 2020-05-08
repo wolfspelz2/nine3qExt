@@ -15,7 +15,6 @@ export class BackgroundMessage
             });
         } catch (error) {
             log.info(error);
-            Panic.now();
         }
     }
 

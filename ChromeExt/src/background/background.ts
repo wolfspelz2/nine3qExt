@@ -156,7 +156,7 @@ chrome.runtime?.onMessage.addListener(
                 } catch (error) {
                     log.warn('background setLocalStorage', error);
                 }
-                // sendResponse({});
+                sendResponse({});
                 // return true; 
             } break;
 
@@ -164,7 +164,7 @@ chrome.runtime?.onMessage.addListener(
                 if (app != null) {
                     app.handle_sendStanza(message.stanza, sender.tab.id, sendResponse);
                 }
-                // sendResponse({});
+                sendResponse({});
             } break;
 
             case BackgroundMessage.type_pingBackground: {
@@ -172,7 +172,7 @@ chrome.runtime?.onMessage.addListener(
                 if (app != null) {
                     app.handle_pingBackground();
                 }
-                // sendResponse({});
+                sendResponse({});
             } break;
 
             default: {
