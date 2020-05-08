@@ -1,9 +1,10 @@
 import log = require('loglevel');
 import { client, xml, jid } from '@xmpp/client';
+import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { ConfigUpdater } from './ConfigUpdater';
 import { Config } from '../lib/Config';
-import { as } from '../lib/as';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 
 interface ILocationMapperResponse
 {
@@ -14,12 +15,15 @@ interface ILocationMapperResponse
 export class BackgroundApp
 {
     private xmpp: any;
-    private roomJid2tabId: Map<string, number> = new Map<string, number>();
-    private roomJid2selfNick: Map<string, string> = new Map<string, string>();
     private xmppConnected = false;
-    private stanzaQ: Array<xml> = [];
     private configUpdater: ConfigUpdater;
     private resource: string;
+
+    private readonly stanzaQ: Array<xml> = [];
+    private readonly roomJid2tabId: Map<string, number> = new Map<string, number>();
+    private readonly roomJid2selfNick: Map<string, string> = new Map<string, string>();
+    private readonly httpCacheData: Map<string, string> = new Map<string, string>();
+    private readonly httpCacheTime: Map<string, number> = new Map<string, number>();
 
     async start(): Promise<void>
     {
@@ -30,6 +34,8 @@ export class BackgroundApp
         } catch (error) {
 
         }
+
+        chrome.runtime?.onMessage.addListener((message, sender, sendResponse) => { return this.onRuntimeMessage(message, sender, sendResponse); });
 
         this.configUpdater = new ConfigUpdater();
         await this.configUpdater.getUpdate();
@@ -46,7 +52,132 @@ export class BackgroundApp
     {
         this.configUpdater.stopUpdateTimer();
 
+        // Does not work that way
+        // chrome.runtime?.onMessage.removeListener((message, sender, sendResponse) => { return this.onRuntimeMessage(message, sender, sendResponse); });
+
         this.stopXmpp();
+    }
+
+    // IPC
+
+    private onRuntimeMessage(message, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void): boolean
+    {
+        switch (message.type) {
+            case BackgroundMessage.type_fetchUrl: {
+                return this.handle_fetchUrl(message.url, message.version, sendResponse);
+            } break;
+
+            case BackgroundMessage.type_getConfigTree: {
+                sendResponse(this.handle_getConfigTree(message.name));
+                return false;
+            } break;
+
+            case BackgroundMessage.type_getSessionConfig: {
+                sendResponse( this.handle_getSessionConfig(message.key));
+                return false; // true if async
+            } break;
+
+            case BackgroundMessage.type_setSessionConfig: {
+                sendResponse(this.handle_setSessionConfig(message.key, message.value));
+                return false; // true if async
+            } break;
+
+            case BackgroundMessage.type_sendStanza: {
+                sendResponse(this.handle_sendStanza(message.stanza, sender.tab.id, sendResponse));
+                return false;
+            } break;
+
+            case BackgroundMessage.type_pingBackground: {
+                sendResponse(this.handle_pingBackground());
+                return false;
+            } break;
+
+            default: {
+                log.debug('BackgroundApp.onRuntimeMessage unhandled', message);
+                sendResponse({});
+                return false;
+            } break;
+        }
+    }
+
+    handle_fetchUrl(url: any, version: any, sendResponse: (response?: any) => void): boolean
+    {
+        let key = version + url;
+        let isCached = (this.httpCacheData[key] != undefined);
+
+        log.debug('BackgroundApp.handle_fetchUrl', 'cached=', isCached, url, 'version=', version);
+
+        if (isCached) {
+            sendResponse({ 'ok': true, 'data': this.httpCacheData[key] });
+        } else {
+            try {
+                fetch(url)
+                    .then(httpResponse =>
+                    {
+                        // log.debug('BackgroundApp.handle_fetchUrl', 'httpResponse', url, httpResponse);
+                        if (httpResponse.ok) {
+                            return httpResponse.text();
+                        } else {
+                            throw { 'ok': false, 'status': httpResponse.status, 'statusText': httpResponse.statusText };
+                        }
+                    })
+                    .then(text =>
+                    {
+                        this.httpCacheData[key] = text;
+                        this.httpCacheTime[key] = Date.now();
+                        let response = { 'ok': true, 'data': text };
+                        log.debug('BackgroundApp.handle_fetchUrl', 'response', url, text.length, response);
+                        sendResponse(response);
+                    })
+                    .catch(ex =>
+                    {
+                        log.debug('BackgroundApp.handle_fetchUrl', 'catch', url, ex);
+                        sendResponse({ 'ok': false, 'status': ex.status, 'statusText': ex.statusText });
+                    });
+                return true;
+            } catch (error) {
+                log.debug('BackgroundApp.handle_fetchUrl', 'exception', url, error);
+                sendResponse({ 'ok': false, 'status': error.status, 'statusText': error.statusText });
+            }
+        }
+        return false;
+    }
+
+    handle_getConfigTree(name: any)
+    {
+        log.debug('BackgroundApp.handle_getConfigTree', name);
+        switch (as.String(name, Config.onlineConfigName)) {
+            case Config.devConfigName:
+                return Config.getDevTree();
+                break;
+        }
+        return Config.getOnlineTree();
+    }
+
+    handle_getSessionConfig(key: string): any
+    {
+        let response = {};
+        try {
+            let value = Config.get(key, undefined);
+            if (value != undefined) {
+                response[key] = value;
+            }
+        } catch (error) {
+            log.info('BackgroundApp.handle_getSessionConfig', error);
+        }
+
+        log.debug('BackgroundApp.handle_getSessionConfig', key, 'response', response);
+        return response;
+    }
+
+    handle_setSessionConfig(key: string, value: string): any
+    {
+        log.debug('BackgroundApp.handle_setSessionConfig', key, value);
+        try {
+            Config.set(key, value);
+        } catch (error) {
+            log.info('BackgroundApp.handle_setSessionConfig', error);
+        }
     }
 
     // send/recv stanza
@@ -88,7 +219,7 @@ export class BackgroundApp
 
     handle_sendStanza(stanza: any, tabId: number, sendResponse: any): void
     {
-        // log.info('BackgroundApp.handle_sendStanza', stanza, tabId);
+        // log.debug('BackgroundApp.handle_sendStanza', stanza, tabId);
 
         try {
             let xmlStanza = Utils.jsObject2xmlObject(stanza);
@@ -135,7 +266,7 @@ export class BackgroundApp
                     log.info('BackgroundApp.sendStanza', stanza);
                 }
             }
-    
+
             this.xmpp.send(stanza);
         } catch (error) {
             log.info('BackgroundApp.sendStanza', error.message ?? '');
@@ -210,6 +341,7 @@ export class BackgroundApp
     private lastPingTime: number = 0;
     handle_pingBackground(): void
     {
+        log.debug('BackgroundApp.handle_pingBackground');
         try {
             let now = Date.now();
             if (now - this.lastPingTime > 10000) {

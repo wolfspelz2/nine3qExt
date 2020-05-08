@@ -1,7 +1,5 @@
 import * as $ from 'jquery';
-import 'jqueryui';
 import { ContentApp } from './ContentApp';
-import { Entity } from './Entity';
 
 interface MenuClickHandler { (ev: JQuery.Event): void }
 

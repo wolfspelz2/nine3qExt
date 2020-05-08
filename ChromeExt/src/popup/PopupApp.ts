@@ -3,7 +3,7 @@ import * as $ from 'jquery';
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
-import { Platform } from '../lib/Platform';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Translator } from '../lib/Translator';
 import { AvatarGallery } from '../lib/AvatarGallery';
 
@@ -46,8 +46,8 @@ export class PopupApp
     async start()
     {
         try {
-            let config = await Platform.getConfig(Config.onlineConfigName);
-            Config.setAllOnline(config);
+            let config = await BackgroundMessage.getConfigTree(Config.onlineConfigName);
+            Config.setOnlineTree(config);
         } catch (error) {
             log.warn(error);
         }

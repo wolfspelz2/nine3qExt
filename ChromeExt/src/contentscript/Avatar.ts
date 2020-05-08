@@ -1,6 +1,5 @@
 import log = require('loglevel');
 import * as $ from 'jquery';
-import 'jqueryui';
 import { as } from '../lib/as';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';

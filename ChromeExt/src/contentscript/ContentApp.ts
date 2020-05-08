@@ -13,11 +13,6 @@ import { HelloWorld } from './HelloWorld';
 import { PropertyStorage } from './PropertyStorage';
 import { Room } from './Room';
 
-// Test
-// import 'webpack-jquery-ui';
-// import 'webpack-jquery-ui/css';
-// import 'webpack-jquery-ui/dialog';
-
 interface ILocationMapperResponse
 {
     //    sMessage: string;
@@ -135,16 +130,6 @@ export class ContentApp
 
     test()
     {
-        this.toggleStayOnTabChange();
-
-        // let dialog = $(`
-        //     <div id="dialog" title="Basic dialog">
-        //         <p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
-        //     </div>
-        //       `).get(0);
-        // $(this.display).append(dialog);
-        // $('#dialog').dialog();
-        // $($(dialog).parentsUntil(this.display).get(0)).addClass('n3q-ui-dialog');
     }
 
     createPageControl()
@@ -208,7 +193,7 @@ export class ContentApp
     handle_recvStanza(jsStanza: any): any
     {
         let stanza: xml = Utils.jsObject2xmlObject(jsStanza);
-        log.debug('ContentApp.handle_recvStanza', stanza);
+        log.debug('ContentApp.recvStanza', stanza);
 
         switch (stanza.name) {
             case 'presence': this.onPresence(stanza); break;
