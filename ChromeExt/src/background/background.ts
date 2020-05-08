@@ -1,6 +1,4 @@
 import log = require('loglevel');
-import { as } from '../lib/as';
-import { Config } from '../lib/Config';
 import { Environment } from '../lib/Environment';
 import { BackgroundApp } from './BackgroundApp';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
