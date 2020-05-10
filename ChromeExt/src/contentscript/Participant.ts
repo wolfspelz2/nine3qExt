@@ -178,7 +178,7 @@ export class Participant extends Entity
             }
 
             this.show(true);
-            if (this.isSelf) { this.showChatWindow(); }
+            // if (this.isSelf) { this.showChatWindow(); }
             this.room?.showChatMessage(this.nick, 'entered the room');
 
         } else {
