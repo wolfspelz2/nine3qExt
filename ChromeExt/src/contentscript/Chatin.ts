@@ -19,7 +19,7 @@ export class Chatin
         $(this.chatinInputElem).on('keydown', ev => { this.onKeydown(ev); });
         this.elem.appendChild(this.chatinInputElem);
 
-        this.sendElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-sendchat" title="SendChat" data-translate="attr:title:Chatin" />').get(0);
+        this.sendElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-inline" title="SendChat" data-translate="attr:title:Chatin"><div class="n3q-base n3q-button-symbol n3q-button-sendchat" />').get(0);
         $(this.sendElem).click(ev =>
         {
             this.sendChat();
