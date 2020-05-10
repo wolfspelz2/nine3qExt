@@ -65,7 +65,7 @@ $z-index: (
 }
 
 #n3q textarea.n3q-base {
-    all: initial !important;
+    all: revert !important;
     font: normal 11px/12px Arial, sans-serif;
     display: inline;
     color: black;
@@ -457,6 +457,7 @@ $z-index: (
     left: 50%;
     top: 50%;
     background-color: #ffffff;
+    pointer-events: auto;
 }
     
     #n3q div.n3q-window-title-bar {
@@ -520,7 +521,7 @@ $z-index: (
             left: 4px;
             right: 4px;
             bottom: 34px;
-            border: 1px solid #000000;
+            border: 1px solid #808080;
         }
         
         #n3q div.n3q-chatwindow-chatin {
@@ -529,19 +530,21 @@ $z-index: (
             left: 4px;
             right: 4px;
             bottom: 4px;
-            border: 1px solid rgb(136, 136, 136);
+            border: 1px solid #808080;
             border-radius: 5px;
             display: flex;
         }
         
         #n3q textarea.n3q-chatwindow-chatin-input {
-            flex: 1 0 auto;
-            // position: absolute;
-            // left: 4px;
-            // right: 22px;
-            // top: 4px;
-            // bottom: 4px;
-            margin: 5px 0px 5px 6px;
+            // flex: 1 0 auto;
+            // margin: 5px 0px 5px 6px;
+            position: absolute;
+            left: 4px;
+            right: 22px;
+            top: 4px;
+            bottom: 4px;
+            box-sizing: border-box;
+
             height: 14px;
             padding-top: 1px;
             overflow: hidden;
@@ -552,17 +555,18 @@ $z-index: (
             // border-color: #000000;
         }
 
-        #n3q textarea.n3q-chatwindow-chatin-input:focus {
-                outline: 0;
-        }
+            #n3q textarea.n3q-chatwindow-chatin-input:focus {
+                    outline: 0;
+            }
 
         #n3q div.n3q-chatwindow-chatin div.n3q-button-sendchat {
-            flex: 0 1 14px;
-            margin: 4px 4px 0 4px;
-            // position: absolute;
-            // right: 4px;
-            // top: 4px;
-            // bottom: 4px;
+            // flex: 0 1 14px;
+            // margin: 4px 4px 0 4px;
+            position: absolute;
+            right: 4px;
+            top: 4px;
+            bottom: 4px;
+
             width: 14px;
             height: 14px;
         }

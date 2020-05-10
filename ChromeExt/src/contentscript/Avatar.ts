@@ -99,7 +99,6 @@ export class Avatar implements IObserver
                 this.app.enableScreen(false);
             }
         });
-
     }
 
     stop()

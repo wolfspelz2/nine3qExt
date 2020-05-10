@@ -178,8 +178,8 @@ export class Participant extends Entity
             }
 
             this.show(true);
-
-            this.room?.showChatMessage(this.nick , 'entered the room');
+            if (this.isSelf) { this.showChatWindow(); }
+            this.room?.showChatMessage(this.nick, 'entered the room');
 
         } else {
 
@@ -200,7 +200,7 @@ export class Participant extends Entity
     {
         this.remove();
 
-        this.room?.showChatMessage(this.nick , 'left the room');
+        this.room?.showChatMessage(this.nick, 'left the room');
     }
 
     // message
@@ -269,7 +269,7 @@ export class Participant extends Entity
         let delayMSec = now - timestamp;
 
         // always
-        this.room?.showChatMessage(nick , text);
+        this.room?.showChatMessage(nick, text);
 
         // recent
         if (delayMSec * 1000 < as.Float(Config.get('room.maxChatAgeSec', 60))) {
