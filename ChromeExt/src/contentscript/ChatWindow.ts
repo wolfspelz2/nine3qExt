@@ -36,38 +36,41 @@ export class ChatWindow
         }
     }
 
-    addLine(id: string, nick: string, text: string)
-    {
-        let translated = this.app.translateText(text, 'Chatwindow.' + text);
-
-        // // Beware: without markdown in showLine: as.Html(text)
-        // let markdowned = markdown.markdown.toHTML(translated);
-        // let line = new ChatLine(nick, markdowned);
-
-        let line = new ChatLine(nick, translated);
-        if (this.lines[id] == undefined) {
-            this.lines[id] = line;
-            this.showLine(line.nick, line.text);
-        }
-    }
-
-    private showLine(nick: string, text: string)
-    {
-        let lineElem = <HTMLElement>$(
-            `<div class="n3q-base n3q-chatwindow-line">
-                <span class="n3q-base n3q-nick">`+ as.Html(nick) + `</span>
-                <span class="n3q-base n3q-text">`+ as.Html(text) + `</span>
-            <div>`
-        ).get(0);
-
-        if (this.chatoutElem != null) {
-            $(this.chatoutElem).append(lineElem).scrollTop($(this.chatoutElem).get(0).scrollHeight);
-        }
-    }
-
     show()
     {
-        if (this.windowElem == null) {
+        if (!this.windowElem) {
+            let window = <HTMLElement>$('<div class="n3q-base n3q-window n3q-chatwindow n3q-shadow-medium" data-translate="children" />').get(0);
+            let titleBar = <HTMLElement>$('<div class="n3q-base n3q-window-title-bar" data-translate="children" />').get(0);
+            let title = <HTMLElement>$('<div class="n3q-base n3q-window-title" data-translate="text:Chatwindow">Chat History</div>').get(0);
+            let close = <HTMLElement>$(
+                `<div class="n3q-base n3q-window-button" title="Close" data-translate="attr:title:Common">
+                    <div class="n3q-base n3q-button-symbol n3q-button-close" />
+                </div>`
+            ).get(0);
+            let content = <HTMLElement>$('<div class="n3q-base n3q-window-content" data-translate="children" />').get(0);
+            let chatout = <HTMLElement>$('<div class="n3q-base n3q-chatwindow-chatout" data-translate="children" />').get(0);
+            let chatin = <HTMLElement>$('<div class="n3q-base n3q-chatwindow-chatin" data-translate="children" />').get(0);
+            let chatinText = <HTMLElement>$('<textarea class="n3q-base n3q-chatwindow-chatin-input n3q-input n3q-text" rows="1" placeholder="Enter chat here..." data-translate="attr:placeholder:Chatin" />').get(0);
+            let chatinSend = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-sendchat" title="SendChat" data-translate="attr:title:Chatin" />').get(0);
+
+            $(titleBar).append(title);
+            $(titleBar).append(close);
+            $(window).append(titleBar);
+
+            $(chatin).append(chatinText);
+            $(chatin).append(chatinSend);
+
+            $(content).append(chatout);
+            $(content).append(chatin);
+
+            $(window).append(content);
+
+            this.app.translateElem(window);
+
+            $(this.display).append(window);
+        }
+
+        if (false) {
             {
                 this.dialogElem = <HTMLElement>$('<div class="n3q-base n3q-chatwindow" title="Chat History" data-translate="attr:title:Chatwindow" />').get(0);
                 this.chatoutElem = <HTMLElement>$('<div class="n3q-base n3q-chatwindow-out" />').get(0);
@@ -112,6 +115,35 @@ export class ChatWindow
         }
 
         this.pushToTop();
+    }
+
+    addLine(id: string, nick: string, text: string)
+    {
+        let translated = this.app.translateText(text, 'Chatwindow.' + text);
+
+        // // Beware: without markdown in showLine: as.Html(text)
+        // let markdowned = markdown.markdown.toHTML(translated);
+        // let line = new ChatLine(nick, markdowned);
+
+        let line = new ChatLine(nick, translated);
+        if (this.lines[id] == undefined) {
+            this.lines[id] = line;
+            this.showLine(line.nick, line.text);
+        }
+    }
+
+    private showLine(nick: string, text: string)
+    {
+        let lineElem = <HTMLElement>$(
+            `<div class="n3q-base n3q-chatwindow-line">
+                <span class="n3q-base n3q-nick">`+ as.Html(nick) + `</span>
+                <span class="n3q-base n3q-text">`+ as.Html(text) + `</span>
+            <div>`
+        ).get(0);
+
+        if (this.chatoutElem != null) {
+            $(this.chatoutElem).append(lineElem).scrollTop($(this.chatoutElem).get(0).scrollHeight);
+        }
     }
 
     private sendChat()
