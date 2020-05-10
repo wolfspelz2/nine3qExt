@@ -247,7 +247,7 @@ $z-index: (
     z-index: z-index(Participant);
 }
 
-    #n3q div.n3q-avatar {
+    #n3q img.n3q-avatar {
         position: absolute;
         bottom: 0;
         filter: drop-shadow(1px 1px 3px #707070);
@@ -261,7 +261,7 @@ $z-index: (
         z-index: z-index(ParticipantAvatar);
     }
 
-        #n3q div.n3q-avatar-hilite {
+        #n3q img.n3q-avatar-hilite {
             filter: drop-shadow(1px 1px 4px #505050);
         }
 
