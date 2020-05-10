@@ -79,6 +79,8 @@ export class ChatWindow
             $(this.display).append(window);
 
             $(window).resizable({
+                minWidth: 180,
+                minHeight: 30,
                 handles: {
                     'se': '#n3q #' + windowId + ' .n3q-window-resize-se',
                 }
