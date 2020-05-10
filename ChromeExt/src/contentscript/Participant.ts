@@ -452,6 +452,6 @@ export class Participant extends Entity
 
     showChatWindow(): void
     {
-        this.room?.showChatWindow();
+        this.room?.showChatWindow(this.getElem());
     }
 }

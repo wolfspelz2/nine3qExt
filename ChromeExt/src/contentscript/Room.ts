@@ -244,9 +244,9 @@ export class Room
         this.app.sendStanza(message);
     }
 
-    showChatWindow(): void
+    showChatWindow(relativeToElem: HTMLElement): void
     {
-        this.chatWindow?.show();
+        this.chatWindow?.show(relativeToElem);
     }
 
     showChatMessage(nick: string, text: string)

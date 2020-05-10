@@ -1,6 +1,7 @@
 import * as $ from 'jquery';
 import 'webpack-jquery-ui';
 // import markdown = require('markdown');
+import log = require('loglevel');
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 import { Environment } from '../lib/Environment';
@@ -32,10 +33,10 @@ export class ChatWindow
             this.addLine('2', 'ThisIsALongerNickname', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.');
             this.addLine('3', 'Long name with intmediate spaces', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum');
             this.addLine('4', 'Long text no spaces', 'mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm');
-       }
+        }
     }
 
-    show()
+    show(relativeToElem: HTMLElement)
     {
         if (!this.windowElem) {
             let windowId = Utils.randomString(10);
@@ -77,6 +78,10 @@ export class ChatWindow
             this.windowElem = window;
 
             $(this.display).append(window);
+
+            let x = relativeToElem.offsetLeft - 180;
+            if (x < 0) { x = 0; }
+            $(window).css({ left: x + 'px', bottom: '200px' });
 
             $(window).resizable({
                 minWidth: 180,
