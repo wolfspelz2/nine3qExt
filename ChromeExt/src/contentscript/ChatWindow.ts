@@ -66,7 +66,7 @@ export class ChatWindow
 
             this.app.translateElem(window);
 
-            $(this.chatinInputElem).on('keydown', ev =>
+            $(chatinText).on('keydown', ev =>
             {
                 this.onKeydown(ev);
             });
@@ -84,12 +84,12 @@ export class ChatWindow
             $(window).draggable({
                 scroll: false,
                 stack: '.n3q-entity',
-                opacity: 0.5,
+                // opacity: 0.5,
                 distance: 4,
                 containment: 'document',
             });
 
-            this.chatinInputElem = chatinSend;
+            this.chatinInputElem = chatinText;
             this.chatoutElem = chatout;
             this.windowElem = window;
 

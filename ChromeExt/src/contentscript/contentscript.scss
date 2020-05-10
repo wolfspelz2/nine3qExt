@@ -510,7 +510,7 @@ $z-index: (
         left: 4px;
         right: 4px;
         bottom: 4px;
-        // border: 1px solid #000000;
+        border-top: 1px solid #c0c0c0;
     }
     
     // #n3q div.n3q-chatwindow {}
@@ -520,10 +520,34 @@ $z-index: (
             top: 4px;
             left: 4px;
             right: 4px;
-            bottom: 34px;
-            border: 1px solid #808080;
+            bottom: 36px;
+            // border: 1px solid #808080;
+            overflow-y: scroll;
+            // box-shadow: 1px 1px 5px #555 inset;
+            // padding: 4px;
         }
         
+        #n3q div.n3q-chatwindow-line {
+                font-size: 12px;
+                line-height: 13px;
+                margin: 0 0 0.3em 2em;
+                text-indent: -2em;
+            }
+
+            #n3q div.n3q-chatwindow-line span.n3q-nick {
+                    font-weight: bold;
+                    margin: 0 0.4em 0 0;
+                    user-select: auto;
+                }
+
+                #n3q div.n3q-chatwindow-line span.n3q-nick:after {
+                        content: ':';
+                    }
+
+                    #n3q div.n3q-chatwindow-line span.n3q-chat {
+                    user-select: auto;
+                }
+
         #n3q div.n3q-chatwindow-chatin {
             position: absolute;
             height: 24px;
