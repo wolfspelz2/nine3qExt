@@ -22,7 +22,7 @@ export class Chatout
 
         var speechBubble = <HTMLElement>$('<div class="n3q-base n3q-speech n3q-shadow-small" />').get(0);
 
-        this.textElem = <HTMLElement>$('<p class="n3q-base n3q-text" />').get(0);
+        this.textElem = <HTMLElement>$('<div class="n3q-base n3q-text" />').get(0);
 
         speechBubble.appendChild(this.textElem);
         this.elem.appendChild(speechBubble);
