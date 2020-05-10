@@ -118,7 +118,7 @@ export class Config
                     'Popup.Uncheck to hide': 'Abschalten, um das Avatar auf Webseiten nicht anzuzeigen',
 
                     'Menu.Chat': 'Chat',
-                    'Menu.Chat Window': 'Verlauf',
+                    'Menu.Chat Window': 'Chatverlauf',
                     'Menu.Stay Here': 'Hier bleiben',
                     'Menu.Actions': 'Aktionen:',
                     'Menu.wave': 'Winken',
