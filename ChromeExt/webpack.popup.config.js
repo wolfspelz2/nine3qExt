@@ -46,7 +46,7 @@ module.exports = {
         }),
         new HtmlWebpackPlugin({
             filename: "popup.html",
-            title: "Configure your avatar",
+            title: "Your Weblin",
         })
     ],
     resolve: {

@@ -65,7 +65,7 @@ export class PopupApp
             icon.src = imgPopupIcon;
             group.append(icon);
 
-            let title = $('<div class="n3q-base n3q-popup-title" data-translate="text:Popup.title">Configure your avatar</div>').get(0);
+            let title = $('<div class="n3q-base n3q-popup-title" data-translate="text:Popup.title">Your Weblin</div>').get(0);
             group.append(title);
 
             let description = $('<div class="n3q-base n3q-popup-description" data-translate="text:Popup.description">Change name and avatar, then reload the page.</div>').get(0);
