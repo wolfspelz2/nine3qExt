@@ -81,7 +81,7 @@ export class ContentApp
         await this.assertSavedPosition();
         if (Panic.isOn) { return; }
 
-        let page = $('<div id="n3q-id-page" class="n3q-base n3q-hidden-print" />').get(0);
+        let page = $('<div id="n3q" class="n3q-base n3q-hidden-print" />').get(0);
         this.display = $('<div class="n3q-base n3q-display" />').get(0);
         $(page).append(this.display);
         this.appendToMe.append(page);
@@ -107,11 +107,11 @@ export class ContentApp
 
         chrome.runtime?.onMessage.removeListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
 
-        // Remove all jquery dialogs (they are appended to <body> and appendTo:#n3q-id-page wont work)
+        // Remove all jquery dialogs (they are appended to <body> and appendTo:#n3q wont work)
         $('.n3q-ui-dialog').remove();
 
         // Remove our own top element
-        $('#n3q-id-page').remove();
+        $('#n3q').remove();
 
         this.display = null;
     }
