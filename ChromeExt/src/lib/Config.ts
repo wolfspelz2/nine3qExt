@@ -23,7 +23,7 @@ export class Config
             active: '',
         },
         vp: {
-            locationMappingServiceUrl: 'http://lms.virtual-presence.org/api/',
+            locationMappingServiceUrl: 'https://lms.virtual-presence.org/api/',
             deferPageEnterSec: 0.5,
         },
         config: {
