@@ -102,4 +102,20 @@ export class BackgroundMessage
         });
     }
 
+    static type_userSettingsChanged = 'userSettingsChanged';
+    static userSettingsChanged(): Promise<void>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            try {
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_userSettingsChanged }, response =>
+                {
+                    resolve(response);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
 }

@@ -56,7 +56,7 @@ export class PopupApp
 
         let nickname = as.String(await Config.getSync('me.nickname', 'Your name'));
         let avatar = as.String(await Config.getSync('me.avatar', ''));
-        let active = as.Bool(await Config.getSync('me.active', 'true'));
+        let active = as.String(await Config.getSync('me.active', 'true'));
 
         {
             let group = $('<div class="n3q-base n3q-popup-header" data-translate="children"/>').get(0);
@@ -219,7 +219,20 @@ export class PopupApp
                     let active2Verify = await Config.getSync('me.active', '');
                     $(saving).fadeTo(100, 0.0);
                     
-                    if (nickname2Verify == nickname2Save && avatar2Verify == avatar2Save && active2Verify == active2Save) {
+                    if (true
+                        && nickname2Verify == nickname2Save
+                        && avatar2Verify == avatar2Save
+                        && active2Verify == active2Save
+                        ) {
+                            if (false
+                                || nickname != nickname2Save
+                                || avatar != avatar2Save
+                                || active != active2Save
+                                ) {
+                                    await BackgroundMessage.userSettingsChanged();
+                                }
+
+
                         $(saved).fadeTo(100, 1.0).fadeTo(1000, 0.0, () =>
                         {
                             this.close();

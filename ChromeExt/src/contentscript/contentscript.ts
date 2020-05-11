@@ -31,18 +31,22 @@ try {
             log.debug('Contentscript.activate');
             app = new ContentApp($('body').get(0), msg =>
             {
+                log.debug('Contentscript msg', msg.type);
                 switch (msg.type) {
                     case ContentAppNotification.type_onTabChangeStay: {
-                        log.debug('Contentscript msg', ContentAppNotification.type_onTabChangeStay);
                         onTabChangeStay = true;
-                    }break;
+                    } break;
+
                     case ContentAppNotification.type_onTabChangeLeave: {
-                        log.debug('Contentscript msg', ContentAppNotification.type_onTabChangeLeave);
                         onTabChangeStay = false;
-                    }break;
+                    } break;
+
                     case ContentAppNotification.type_stopped: {
-                        log.debug('Contentscript msg', ContentAppNotification.type_stopped);
-                    }break;
+                    } break;
+
+                    case ContentAppNotification.type_restart: {
+                        restart();
+                    } break;
                 }
             });
             app.start();
@@ -56,6 +60,22 @@ try {
             app.stop();
             app = null;
         }
+    }
+
+    function restart()
+    {
+        setTimeout(restart_deactivate, 100);
+    }
+
+    function restart_deactivate()
+    {
+        deactivate();
+        setTimeout(restart_activate, 100);
+    }
+
+    function restart_activate()
+    {
+        activate();
     }
 
     function kill()

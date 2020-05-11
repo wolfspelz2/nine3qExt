@@ -24,6 +24,7 @@ export class ContentAppNotification
     static type_onTabChangeStay: string = 'onTabChangeStay';
     static type_onTabChangeLeave: string = 'onTabChangeLeave';
     static type_stopped: string = 'stopped';
+    static type_restart: string = 'restart';
 }
 
 interface ContentAppNotificationCallback { (msg: any): void }
@@ -186,8 +187,13 @@ export class ContentApp
                 this.handle_recvStanza(message.stanza);
                 sendResponse();
             } break;
+
+            case 'userSettingsChanged': {
+                this.handle_userSettingsChanged();
+                sendResponse();
+            } break;
         }
-        return true;
+        return false;
     }
 
     handle_recvStanza(jsStanza: any): any
@@ -199,6 +205,11 @@ export class ContentApp
             case 'presence': this.onPresence(stanza); break;
             case 'message': this.onMessage(stanza); break;
         }
+    }
+
+    handle_userSettingsChanged(): any
+    {
+        this.messageHandler({ 'type': ContentAppNotification.type_restart });
     }
 
     enterPage()

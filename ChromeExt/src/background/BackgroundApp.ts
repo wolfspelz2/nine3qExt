@@ -73,7 +73,7 @@ export class BackgroundApp
             } break;
 
             case BackgroundMessage.type_getSessionConfig: {
-                sendResponse( this.handle_getSessionConfig(message.key));
+                sendResponse(this.handle_getSessionConfig(message.key));
                 return false; // true if async
             } break;
 
@@ -89,6 +89,11 @@ export class BackgroundApp
 
             case BackgroundMessage.type_pingBackground: {
                 sendResponse(this.handle_pingBackground());
+                return false;
+            } break;
+
+            case BackgroundMessage.type_userSettingsChanged: {
+                sendResponse(this.handle_userSettingsChanged());
                 return false;
             } break;
 
@@ -348,6 +353,24 @@ export class BackgroundApp
                 this.lastPingTime = now;
                 this.sendPresence();
             }
+        } catch (error) {
+            //
+        }
+    }
+
+    // 
+
+    handle_userSettingsChanged(): void
+    {
+        log.debug('BackgroundApp.handle_userSettingsChanged');
+        try {
+            for (let room in this.roomJid2tabId) {
+                let tabId = this.roomJid2tabId[room];
+                if (tabId != undefined) {
+                    chrome.tabs.sendMessage(tabId, { 'type': 'userSettingsChanged' });
+                }
+            }
+
         } catch (error) {
             //
         }
