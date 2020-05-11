@@ -68,8 +68,8 @@ export class ChatWindow
             $(content).append(chatout);
             $(content).append(chatin);
 
-            $(window).append(resize);
             $(window).append(content);
+            $(window).append(resize);
 
             this.app.translateElem(window);
 
