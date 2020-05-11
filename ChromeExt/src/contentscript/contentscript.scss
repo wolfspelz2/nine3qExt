@@ -55,9 +55,13 @@ $z-index: (
 
 #n3q span.n3q-base,
 #n3q label.n3q-base,
+#n3q label.n3q-base:not([class=checkbox])
 #n3q textarea.n3q-base,
 #n3q input[type=text].n3q-base,
-#n3q input[type=text].n3q-base:focus
+#n3q input[type=text].n3q-base:focus,
+#n3q input[type=checkbox].n3q-base,
+#n3q input[type=checkbox].n3q-base:checked,
+#n3q input[type=checkbox].n3q-base:not(:checked)
 {
     all: revert;
     font: normal 11px/12px Arial, sans-serif;
