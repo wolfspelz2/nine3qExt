@@ -64,7 +64,6 @@
     "jquery": "^3.5.0",
     "jqueryui": "^1.11.1",
     "loglevel": "^1.6.8",
-    "markdown": "^0.5.0",
     "rimraf": "^3.0.2",
     "unique-names-generator": "^4.2.0",
     "webpack-jquery-ui": "^2.0.1"
