@@ -54,6 +54,7 @@ $z-index: (
 }
 
 #n3q span.n3q-base,
+#n3q label.n3q-base,
 #n3q textarea.n3q-base,
 #n3q input[type=text].n3q-base,
 #n3q input[type=text].n3q-base:focus
@@ -84,10 +85,10 @@ $z-index: (
 //     height: unset;
 // }
 
-#n3q label.n3q-base {
-    all: initial;
-    display: inline;
-}
+// #n3q label.n3q-base {
+//     all: initial;
+//     display: inline;
+// }
 
 #n3q input.n3q-base {
     display: inline;
