@@ -79,9 +79,11 @@ export class ChatWindow
 
             $(this.display).append(window);
 
-            let x = relativeToElem.offsetLeft - 180;
-            if (x < 0) { x = 0; }
-            $(window).css({ left: x + 'px', bottom: '200px' });
+            let left = relativeToElem.offsetLeft - 180;
+            if (left < 0) { left = 0; }
+            let screenHeight = this.display.offsetHeight;
+            let top = this.display.offsetHeight - 500;
+            $(window).css({ left: left + 'px', top: top + 'px' });
 
             $(window).resizable({
                 minWidth: 180,
