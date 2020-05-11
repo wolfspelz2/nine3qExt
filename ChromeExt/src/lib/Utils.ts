@@ -38,7 +38,11 @@ export class Utils
 
     static randomInt(min: number, max: number): number
     {
-        return Math.trunc(Math.random() * (max - min) + min);
+        let f = Math.random() * (max - min) + min);
+        f = Math.min(max - 0.001, f);
+        f = Math.max(min, f);
+        let i = Math.trunc(f);
+        return i;
     }
 
     static randomNickname(): string

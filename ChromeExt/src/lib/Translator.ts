@@ -65,6 +65,16 @@ export class Translator
     {
     }
 
+    getLanguage(): string
+    {
+        return this.language;
+    }
+    
+    static getShortLanguageCode(language: string): string
+    {
+        return language.substr(0, 2);
+    }
+    
     translateText(text: string, key: any): string
     {
         if (this.translations[key] != undefined) {

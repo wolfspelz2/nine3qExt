@@ -107,7 +107,11 @@ export class ContentApp
     {
         this.killRooms();
 
-        chrome.runtime?.onMessage.removeListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
+        try {
+            chrome.runtime?.onMessage.removeListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
+        } catch (error) {
+            //            
+        }
 
         // Remove all jquery dialogs (they are appended to <body> and appendTo:#n3q wont work)
         $('.n3q-ui-dialog').remove();
@@ -245,8 +249,8 @@ export class ContentApp
 
     async enterRoomByPageUrl(pageUrl: string): Promise<void>
     {
-        if (Config.get('vp.useLocationMappingServiceUrl', false)) {
-            
+        if (Config.get('vp.useLocationMappingService', false)) {
+
             let url = new URL(Config.get('vp.locationMappingServiceUrl', 'https://lms.virtual-presence.org/api/'));
             url.searchParams.set('Method', 'VPI.Info');
             url.searchParams.set('sDocumentURL', pageUrl);
@@ -269,6 +273,8 @@ export class ContentApp
 
             try {
                 let vpi = new VpiResolver(BackgroundMessage, Config);
+                vpi.language = Translator.getShortLanguageCode(this.babelfish.getLanguage());
+
                 let locationUrl = await vpi.map(pageUrl);
                 log.debug('Mapped', pageUrl, ' => ', locationUrl);
                 let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);

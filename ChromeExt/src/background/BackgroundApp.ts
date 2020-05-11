@@ -105,12 +105,44 @@ export class BackgroundApp
         }
     }
 
+    maintainHttpCache(): void
+    {
+        log.debug('BackgroundApp.maintainHttpCache');
+        let cacheTimeout = Config.get('httpCache.maxAgeSec', 3600);
+        let now = Date.now();
+        let deleteKeys = new Array<string>();
+        for (let key in this.httpCacheTime) {
+            if (now - this.httpCacheTime[key] > cacheTimeout * 1000) {
+                deleteKeys.push(key);
+            }
+        }
+
+        deleteKeys.forEach(key =>
+        {
+            log.debug('BackgroundApp.maintainHttpCache', (now - this.httpCacheTime[key]) / 1000, 'sec', 'delete', key);
+            delete this.httpCacheData[key];
+            delete this.httpCacheTime[key];
+        });
+    }
+
+    lastCacheMaintenanceTime: number = 0;
     handle_fetchUrl(url: any, version: any, sendResponse: (response?: any) => void): boolean
     {
+        let now = Date.now();
+        let maintenanceIntervalSec = Config.get('httpCache.maintenanceIntervalSec', 60);
+        if (now - this.lastCacheMaintenanceTime > maintenanceIntervalSec * 1000) {
+            this.maintainHttpCache();
+            this.lastCacheMaintenanceTime = now;
+        }
+
         let key = version + url;
         let isCached = (this.httpCacheData[key] != undefined);
 
-        log.debug('BackgroundApp.handle_fetchUrl', 'cached=', isCached, url, 'version=', version);
+        if (isCached) {
+            log.debug('BackgroundApp.handle_fetchUrl', 'cache-age', (now - this.httpCacheTime[key]) / 1000, url, 'version=', version);
+        } else {
+            log.debug('BackgroundApp.handle_fetchUrl', 'not-cached', url, 'version=', version);
+        }
 
         if (isCached) {
             sendResponse({ 'ok': true, 'data': this.httpCacheData[key] });
@@ -129,7 +161,7 @@ export class BackgroundApp
                     .then(text =>
                     {
                         this.httpCacheData[key] = text;
-                        this.httpCacheTime[key] = Date.now();
+                        this.httpCacheTime[key] = now;
                         let response = { 'ok': true, 'data': text };
                         log.debug('BackgroundApp.handle_fetchUrl', 'response', url, text.length, response);
                         sendResponse(response);
@@ -215,7 +247,7 @@ export class BackgroundApp
                     if (isSelf) {
                         delete this.roomJid2tabId[room];
                         delete this.roomJid2selfNick[room];
-                        log.debug('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', this.roomJid2tabId[room], 'now', this.roomJid2tabId);
+                        log.debug('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', this.roomJid2tabId[room], 'now:', this.roomJid2tabId);
                     }
                 }
             }
@@ -239,7 +271,7 @@ export class BackgroundApp
                     if (this.roomJid2tabId[room] == undefined) { thisIsNew = true; }
                     this.roomJid2tabId[room] = tabId;
                     this.roomJid2selfNick[room] = nick;
-                    if (thisIsNew) { log.debug('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now', this.roomJid2tabId); }
+                    if (thisIsNew) { log.debug('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId); }
                 }
             }
 

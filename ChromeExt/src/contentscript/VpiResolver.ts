@@ -4,6 +4,7 @@ import * as crypto from 'crypto';
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 import { BackgroundMessage, FetchUrlResponse } from '../lib/BackgroundMessage';
+import { Utils } from '../lib/Utils';
 
 export enum VpiResolverEvaluateResultType
 {
@@ -40,6 +41,8 @@ export class VpiResolverConfigInstance implements VpiResolverConfigProvider
 
 export class VpiResolver
 {
+    language: string = '';
+
     constructor(private urlFetcher: VpiResolverUrlFetcher, private config: VpiResolverConfigProvider = new VpiResolverConfigInstance())
     {
     }
@@ -54,7 +57,7 @@ export class VpiResolver
             iterationCounter--;
             let response = await this.urlFetcher.fetchUrl(vpiUrl, '');
             if (response.ok) {
-                let result = this.evaluate(documentUrl, vpiUrl, response.data);
+                let result = this.evaluate(documentUrl, vpiUrl, response.data, this.language);
                 switch (result.status) {
 
                     case VpiResolverEvaluateResultType.Error: {
@@ -78,7 +81,7 @@ export class VpiResolver
         return locationUrl;
     }
 
-    evaluate(documentUrl: string, dataSrc: string, data: string): VpiResolverEvaluateResult
+    evaluate(documentUrl: string, dataSrc: string, data: string, language: string = ''): VpiResolverEvaluateResult
     {
         try {
             let resultType = VpiResolverEvaluateResultType.Error;
@@ -100,7 +103,7 @@ export class VpiResolver
                 if (matchResult) {
                     if (vpiChild.tagName == 'delegate') {
 
-                        let nextVpiExpr = vpiChild.firstElementChild.textContent;
+                        let nextVpiExpr = as.String(vpiChild.firstElementChild?.textContent, '');
                         let nextVpi = this.replaceMatch(nextVpiExpr, matchResult);
 
                         let nextVpiUrl = new URL(nextVpi, dataSrc);
@@ -113,6 +116,7 @@ export class VpiResolver
                         let protocol = 'xmpp';
                         let server = '';
                         let room = '';
+                        let suffix = '';
                         for (let locationChildIndex = 0; locationChildIndex < vpiChild.children.length; locationChildIndex++) {
                             let locationChild = vpiChild.children[locationChildIndex];
                             switch (locationChild.tagName) {
@@ -122,6 +126,7 @@ export class VpiResolver
                                         let colonIndex = locationServiceText.indexOf(':');
                                         server = locationServiceText.substr(colonIndex + 1);
                                     } break;
+
                                 case 'name': // The same: '<name hash="true">\5</name>' | '<name hash="SHA1">\5</name>' BUT: '<name>\5</name>' does not hash
                                     {
                                         let hash = locationChild.attributes.hash ? as.String(locationChild.attributes.hash.value, 'SHA1') : '';
@@ -139,9 +144,41 @@ export class VpiResolver
                                         }
                                         room = prefix + name;
                                     } break;
+
+                                case 'select': // see https://lms.virtual-presence.org/v7/name/f/a/facebook.xml
+                                    {
+                                        let defaultTag = locationChild.attributes.tag ? as.String(locationChild.attributes.tag.value, '') : '';
+
+                                        let options: Array<{ tag: string, suffix: string }> = [];
+                                        for (let selectChildIndex = 0; selectChildIndex < locationChild.children.length; selectChildIndex++) {
+                                            let selectChild = locationChild.children[selectChildIndex];
+                                            switch (selectChild.tagName) {
+                                                case 'option':
+                                                    {
+                                                        let suffix = selectChild.attributes.suffix ? as.String(selectChild.attributes.suffix.value, '') : '';
+                                                        let tag = as.String(selectChild.firstElementChild?.textContent, '');
+                                                        if (tag != '' && suffix != '') {
+                                                            options.push({ 'tag': tag, 'suffix': suffix });
+                                                        }
+                                                    } break;
+                                            }
+                                        }
+
+                                        let langTag = 'lang:' + language;
+                                        let candidates = options.filter(option => { return option.tag == langTag; });
+                                        if (candidates.length == 0) {
+                                            candidates = options.filter(option => { return option.tag == defaultTag; });
+                                        }
+                                        if (candidates.length > 0) {
+                                            let rndIndex = Utils.randomInt(0, candidates.length);
+                                            suffix = candidates[rndIndex].suffix;
+                                        }
+
+                                    } break;
+
                             }
                         }
-                        location = protocol + ':' + room + '@' + server;
+                        location = protocol + ':' + room + suffix + '@' + server;
                         resultType = VpiResolverEvaluateResultType.Location;
                         break;
                     }

@@ -23,7 +23,7 @@ export class Config
             active: '',
         },
         vp: {
-            useLocationMappingServiceUrl: false,
+            useLocationMappingService: false,
             locationMappingServiceUrl: 'https://lms.virtual-presence.org/api/',
             deferPageEnterSec: 0.5,
             vpiRoot: 'https://lms.virtual-presence.org/v7/root.xml',
@@ -33,6 +33,10 @@ export class Config
             serviceUrl: 'https://config.weblin.sui.li/',
             updateIntervalSec: Utils.randomInt(60000, 80000),
             checkUpdateIntervalSec: 600,
+        },
+        httpCache: {
+            maxAgeSec: 3600,
+            maintenanceIntervalSec: 60,
         },
         room: {
             defaultAvatarSpeedPixelPerSec: 100,

@@ -34,16 +34,38 @@ export class TestVpiResolver
 
     async VpiResolver_map_weblin()
     {
-        let resolver = new VpiResolver(new TestDataProvider(), new TestConfigInstance_map_galdev());
-        let mapped = await resolver.map('https://www.weblin.com/home.php?room=de2');
+        let vpi = new VpiResolver(new TestDataProvider(), new TestConfigInstance_map_galdev());
+        let mapped = await vpi.map('https://www.weblin.com/home.php?room=de2');
         expect(mapped).to.equal('xmpp:zweitgeistde2@muc4.virtual-presence.org');
     }
 
     async VpiResolver_map_galdev()
     {
-        let resolver = new VpiResolver(new TestDataProvider(), new TestConfigInstance_map_galdev());
-        let mapped = await resolver.map('https://www.galactic-developments.de/');
+        let vpi = new VpiResolver(new TestDataProvider(), new TestConfigInstance_map_galdev());
+        let mapped = await vpi.map('https://www.galactic-developments.de/');
         expect(mapped).to.equal('xmpp:d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org');
+    }
+
+    // async VpiResolver_map_facebook_de()
+    // {
+    //     let vpi = new VpiResolver(new TestDataProvider(), new TestConfigInstance_map_galdev());
+    //     vpi.language = 'de';
+    //     let mapped = await vpi.map('https://www.facebook.com/');
+    //     expect(mapped).to.equal('xmpp:b7c70898d90f5bb3a32353817e451b646b40299a-de01@muc4.virtual-presence.org');
+    // }
+
+    async VpiResolver_map_facebook_international()
+    {
+        let vpi = new VpiResolver(new TestDataProvider(), new TestConfigInstance_map_galdev());
+        vpi.language = 'xx';
+        let mapped = await vpi.map('https://www.facebook.com/');
+        expect([ 
+            'xmpp:b7c70898d90f5bb3a32353817e451b646b40299a-01@muc4.virtual-presence.org',
+            'xmpp:b7c70898d90f5bb3a32353817e451b646b40299a-02@muc4.virtual-presence.org',
+            'xmpp:b7c70898d90f5bb3a32353817e451b646b40299a-03@muc4.virtual-presence.org',
+            'xmpp:b7c70898d90f5bb3a32353817e451b646b40299a-04@muc4.virtual-presence.org',
+            'xmpp:b7c70898d90f5bb3a32353817e451b646b40299a-05@muc4.virtual-presence.org',
+         ]).to.include(mapped)
     }
 }
 
@@ -121,6 +143,93 @@ class TestDataProvider implements VpiResolverUrlFetcher
         
           <delegate>
             <uri>default.xml</uri>
+          </delegate>
+        
+        </vpi>`,
+
+        'https://lms.virtual-presence.org/v7/name/f/index.xml': `<?xml version="1.0" encoding="UTF-8"?>
+        <vpi xmlns='http://virtual-presence.org/schemas/vpi'>
+        
+          <delegate match='^https?://([^/]+\\.)?(f(a|r)[^.]*)\\.([^.]+)(:[0-9]+)?($|/.*$)'>
+            <uri>\\3/index.xml</uri>
+          </delegate>
+        
+          <delegate>
+            <uri>../default.xml</uri>
+          </delegate>
+        
+        </vpi>`,
+
+        'https://lms.virtual-presence.org/v7/name/f/a/index.xml': `<?xml version="1.0" encoding="UTF-8"?>
+        <vpi xmlns='http://virtual-presence.org/schemas/vpi'>
+        
+          <delegate match='^https?://([^/]+\\.)?(facebook)\\.([^.]+)(:[0-9]+)?($|/.*$)'>
+            <uri>\\2.xml</uri>
+          </delegate>
+        
+          <delegate>
+            <uri>../../default.xml</uri>
+          </delegate>
+        
+        </vpi>`,
+
+        'https://lms.virtual-presence.org/v7/name/f/a/facebook.xml': `<?xml version="1.0" encoding="UTF-8"?>
+        <vpi xmlns='http://virtual-presence.org/schemas/vpi'>
+        
+          <!-- 
+          http://www.facebook.com/
+          http://www.facebook.com/home.php
+          http://www.facebook.com/home.php?ref=logo
+          http://www.facebook.com/profile.php?id=601213600
+          http://de.www.facebook.com/profile.php?id=601213600
+          http://de.www.facebook.com:80/profile.php?id=601213600
+          http://www.facebook.com/home.php#/profile.php?id=645254151
+          http://www.facebook.com/home.php#/profile.php?id=522911397&ref=nf
+          http://apps.facebook.com/weblinloca/
+          -->
+        
+          <!-- disable per category group
+          <location match='^https?://(apps.facebook\\.[a-zA-Z]+)(:[0-9]+)?/([^/]+)/'>
+            <service>jabber:muc4.virtual-presence.org</service>
+            <name hash="SHA1">\\1-\\3</name>
+            <destination>http://facebook.com/</destination>
+            <topology level="category"/>
+          </location>
+          -->
+        
+          <!-- disable per profile group
+          <location match='^https?://(.+\\.)?(facebook\\.[a-zA-Z]+)(:[0-9]+)?/.*id=([a-z0-9]+).*'>
+            <service>jabber:muc4.virtual-presence.org</service>
+            <name hash="SHA1">\\2-\\4</name>
+            <destination>http://facebook.com/</destination>
+            <topology level="article"/>
+          </location>
+          -->
+        
+          <location match='^https?://(.+\\.)?(facebook\\.[a-zA-Z]+)(:[0-9]+)?'>
+            <service>jabber:muc4.virtual-presence.org</service>
+            <name hash="SHA1">\\2</name>
+            <destination>http://facebook.com/</destination>
+            <topology level="language"/>
+            <select tag="random">
+              <option suffix='-01' title='International 1'><tag>random</tag></option>
+              <option suffix='-02' title='International 2'><tag>random</tag></option>
+              <option suffix='-03' title='International 3'><tag>random</tag></option>
+              <option suffix='-04' title='International 4'><tag>random</tag></option>
+              <option suffix='-05' title='International 5'><tag>random</tag></option>
+              <!--option suffix='-zh01' title='中文'><tag>lang:zh</tag></option-->
+              <option suffix='-de01' title='Deutsch'><tag>lang:de</tag></option>
+              <option suffix='-es01' title='Español'><tag>lang:es</tag></option>
+              <option suffix='-fr01' title='Français'><tag>lang:fr</tag></option>
+              <option suffix='-it01' title='Italiano'><tag>lang:it</tag></option>
+              <!--option suffix='-ja01' title='日本語'><tag>lang:ja</tag></option-->
+              <option suffix='-pl01' title='Polski'><tag>lang:pl</tag></option>
+              <option suffix='-pt01' title='Português'><tag>lang:pt</tag></option>
+            </select>
+          </location>
+        
+          <delegate>
+            <uri>../../default.xml</uri>
           </delegate>
         
         </vpi>`,
