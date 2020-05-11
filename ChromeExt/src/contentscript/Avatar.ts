@@ -163,19 +163,17 @@ export class Avatar implements IObserver
         this.startNextAnimation();
     }
 
-    setAnimations(url: string): void
+    async setAnimations(url: string): Promise<void>
     {
-        BackgroundMessage.fetchUrl(url, '', (ok, status, statusText, data) =>
-        {
-            if (ok) {
+        let response = await BackgroundMessage.fetchUrl(url, '');
+            if (response.ok) {
                 try {
-                    let parsed = AnimationsXml.AnimationsXml.parseXml(url, data);
+                    let parsed = AnimationsXml.AnimationsXml.parseXml(url, response.data);
                     this.onAnimations(parsed);
                 } catch (error) {
                     log.info(error);
                 }
-            }
-        });
+        }
     }
 
     onAnimations(data: any): void

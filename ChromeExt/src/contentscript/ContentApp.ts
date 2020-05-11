@@ -242,27 +242,25 @@ export class ContentApp
         return url.pathname;
     }
 
-    enterRoomByPageUrl(pageUrl: string): void
+    async enterRoomByPageUrl(pageUrl: string): Promise<void>
     {
         let url = new URL(Config.get('vp.locationMappingServiceUrl', 'https://lms.virtual-presence.org/api/'));
         url.searchParams.set('Method', 'VPI.Info');
         url.searchParams.set('sDocumentURL', pageUrl);
         url.searchParams.set('Format', 'json');
 
-        BackgroundMessage.fetchUrl(url.toString(), '', (ok, status, statusText, data: string) =>
-        {
-            if (ok) {
-                try {
-                    let mappingResponse: ILocationMapperResponse = JSON.parse(data);
-                    let locationUrl = mappingResponse.sLocationURL;
-                    log.debug('Mapped', pageUrl, ' => ', locationUrl);
-                    let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);
-                    this.enterRoomByJid(roomJid);
-                } catch (error) {
-                    log.info(error);
-                }
+        let response = await BackgroundMessage.fetchUrl(url.toString(), '');
+        if (response.ok) {
+            try {
+                let mappingResponse: ILocationMapperResponse = JSON.parse(response.data);
+                let locationUrl = mappingResponse.sLocationURL;
+                log.debug('Mapped', pageUrl, ' => ', locationUrl);
+                let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);
+                this.enterRoomByJid(roomJid);
+            } catch (error) {
+                log.info(error);
             }
-        });
+        }
     }
 
     async enterRoomByJid(roomJid: string): Promise<void>

@@ -1,21 +1,30 @@
 import log = require('loglevel');
 import { Panic } from './Panic';
 
-interface PlatformFetchUrlCallback { (ok: boolean, status: string, statusText: string, data: string): void }
+export class FetchUrlResponse
+{
+    ok: boolean;
+    data: string;
+    status: string;
+    statusText: string;
+}
 
 export class BackgroundMessage
 {
     static type_fetchUrl = 'fetchUrl';
-    static fetchUrl(url: string, version: string, callback: PlatformFetchUrlCallback)
+    static fetchUrl(url: string, version: string): Promise<FetchUrlResponse>
     {
-        try {
-            chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_fetchUrl, 'url': url, 'version': version }, response =>
-            {
-                callback(response.ok, response.status, response.statusText, response.data);
-            });
-        } catch (error) {
-            log.info(error);
-        }
+        return new Promise((resolve, reject) =>
+        {
+            try {
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_fetchUrl, 'url': url, 'version': version }, response =>
+                {
+                    resolve(response);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     static type_getConfigTree = 'getConfigTree';

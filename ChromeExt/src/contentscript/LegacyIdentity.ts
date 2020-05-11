@@ -8,32 +8,21 @@ export class LegacyIdentity
 {
     private url: string = '';
     private digest: string = '';
-    private isFetching: boolean = false;
 
     constructor(private storage: PropertyStorage, private entity: string)
     {
     }
 
-    changed(url: string, digest: string): void
+    async changed(url: string, digest: string): Promise<void>
     {
         if (url != '' && url != this.url || digest != this.digest) {
             this.url = url;
             this.digest = digest;
-            this.fetch(url, digest);
-        }
-    }
 
-    fetch(url: string, digest: string): void
-    {
-        if (!this.isFetching) {
-            this.isFetching = true;
-            BackgroundMessage.fetchUrl(url, digest, (ok, status, statusText, data) =>
-            {
-                this.isFetching = false;
-                if (ok) {
-                    this.evaluate(data);
-                }
-            });
+            let response = await BackgroundMessage.fetchUrl(url, digest);
+            if (response.ok) {
+                this.evaluate(response.data);
+            }
         }
     }
 
@@ -67,7 +56,7 @@ export class LegacyIdentity
     {
         switch (id) {
             case 'avatar':
-                this.storage.setProperty(this.entity, 'ImageUrl', as.String(props.src, '')); 
+                this.storage.setProperty(this.entity, 'ImageUrl', as.String(props.src, ''));
                 break;
             case 'avatar2':
                 {
@@ -76,10 +65,10 @@ export class LegacyIdentity
                         let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(animationsUrl));
                         this.storage.setProperty(this.entity, 'AnimationsUrl', proxiedAnimationsUrl);
                     }
-                } 
+                }
                 break;
             case 'profilepage':
-                this.storage.setProperty(this.entity, 'ProfileUrl', as.String(props.src, '')); 
+                this.storage.setProperty(this.entity, 'ProfileUrl', as.String(props.src, ''));
                 break;
             case 'properties':
                 {
