@@ -33,7 +33,7 @@ module.exports = {
         }),
         new HtmlWebpackPlugin({
             filename: "test.html",
-            title: "Browser Tests",
+            title: "Unit Tests",
         })
     ],
     resolve: {

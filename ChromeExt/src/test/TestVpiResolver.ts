@@ -34,29 +34,29 @@ export class TestVpiResolver
 
     async VpiResolver_map_weblin()
     {
-        let vpi = new VpiResolver(new TestDataProvider(), new TestConfigInstance_map_galdev());
+        let vpi = new VpiResolver(new TestDataProvider(), new TestConfigInstance());
         let mapped = await vpi.map('https://www.weblin.com/home.php?room=de2');
         expect(mapped).to.equal('xmpp:zweitgeistde2@muc4.virtual-presence.org');
     }
 
     async VpiResolver_map_galdev()
     {
-        let vpi = new VpiResolver(new TestDataProvider(), new TestConfigInstance_map_galdev());
+        let vpi = new VpiResolver(new TestDataProvider(), new TestConfigInstance());
         let mapped = await vpi.map('https://www.galactic-developments.de/');
         expect(mapped).to.equal('xmpp:d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org');
     }
 
-    // async VpiResolver_map_facebook_de()
-    // {
-    //     let vpi = new VpiResolver(new TestDataProvider(), new TestConfigInstance_map_galdev());
-    //     vpi.language = 'de';
-    //     let mapped = await vpi.map('https://www.facebook.com/');
-    //     expect(mapped).to.equal('xmpp:b7c70898d90f5bb3a32353817e451b646b40299a-de01@muc4.virtual-presence.org');
-    // }
+    async VpiResolver_map_facebook_de()
+    {
+        let vpi = new VpiResolver(new TestDataProvider(), new TestConfigInstance());
+        vpi.language = 'de';
+        let mapped = await vpi.map('https://www.facebook.com/');
+        expect(mapped).to.equal('xmpp:b7c70898d90f5bb3a32353817e451b646b40299a-de01@muc4.virtual-presence.org');
+    }
 
     async VpiResolver_map_facebook_international()
     {
-        let vpi = new VpiResolver(new TestDataProvider(), new TestConfigInstance_map_galdev());
+        let vpi = new VpiResolver(new TestDataProvider(), new TestConfigInstance());
         vpi.language = 'xx';
         let mapped = await vpi.map('https://www.facebook.com/');
         expect([ 
@@ -66,6 +66,18 @@ export class TestVpiResolver
             'xmpp:b7c70898d90f5bb3a32353817e451b646b40299a-04@muc4.virtual-presence.org',
             'xmpp:b7c70898d90f5bb3a32353817e451b646b40299a-05@muc4.virtual-presence.org',
          ]).to.include(mapped)
+    }
+}
+
+class TestConfigInstance implements VpiResolverConfigProvider
+{
+    get(key: string, defaultValue: any): any
+    {
+        switch (key) {
+            case 'vp.vpiRoot': return 'https://lms.virtual-presence.org/v7/root.xml'; break;
+            case 'vp.vpiMaxIterations': return 10; break;
+        }
+        return defaultValue;
     }
 }
 
@@ -379,17 +391,5 @@ class TestDataProvider implements VpiResolverUrlFetcher
                 reject('No data for ' + url);
             }
         });
-    }
-}
-
-class TestConfigInstance_map_galdev implements VpiResolverConfigProvider
-{
-    get(key: string, defaultValue: any): any
-    {
-        switch (key) {
-            case 'vp.vpiRoot': return 'https://lms.virtual-presence.org/v7/root.xml'; break;
-            case 'vp.vpiMaxIterations': return 10; break;
-        }
-        return defaultValue;
     }
 }
