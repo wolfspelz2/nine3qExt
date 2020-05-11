@@ -53,54 +53,17 @@ $z-index: (
     box-shadow: none;
 }
 
-#n3q span.n3q-base {
-    all: initial !important;
+#n3q span.n3q-base,
+#n3q textarea.n3q-base,
+#n3q input[type=text].n3q-base,
+#n3q input[type=text].n3q-base:focus
+{
+    all: revert;
     font: normal 11px/12px Arial, sans-serif;
     display: inline;
     color: black;
     background-color: unset;
-    padding: 0;
-    margin: 0;
-    outline: none;
-    border-radius: unset;
-    border: none; 
-    box-shadow: none;
-}
-
-#n3q textarea.n3q-base {
-    all: revert !important;
-    font: normal 11px/12px Arial, sans-serif;
-    display: inline;
-    color: black;
-    background-color: unset;
-    padding: 0;
-    margin: 0;
-    outline: none;
-    border-radius: unset;
-    border: none; 
-    box-shadow: none;
-}
-
-#n3q input[type=text].n3q-base {
-    all: initialcheco;
-    font: normal 11px/12px Arial, sans-serif;
-    display: inline;
-    color: black;
-    background-color: unset;
-    padding: 0;
-    margin: 0;
-    outline: none;
-    border-radius: unset;
-    border: none; 
-    box-shadow: none;
-}
-
-#n3q input[type=text].n3q-base:focus {
-    all: initial;
-    font: normal 11px/12px Arial, sans-serif;
-    display: inline;
-    color: black;
-    background-color: unset;
+    background-image: unset;
     padding: 0;
     margin: 0;
     outline: none;
