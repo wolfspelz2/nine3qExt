@@ -249,7 +249,7 @@ $z-index: (
     #n3q img.n3q-avatar {
         position: absolute;
         bottom: 0;
-        filter: drop-shadow(1px 1px 3px #707070);
+        filter: drop-shadow(1px 1px 2px #707070);
 
         // position: relative; // centers the image in the div, but elevates the avatar on some pages
         // left: unset;
@@ -261,7 +261,7 @@ $z-index: (
     }
 
         #n3q img.n3q-avatar-hilite {
-            filter: drop-shadow(1px 1px 4px #505050);
+            filter: drop-shadow(1px 1px 3px #505050);
         }
 
     #n3q div.n3q-nickname {
