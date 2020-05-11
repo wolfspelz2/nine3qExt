@@ -61,10 +61,11 @@ $z-index: (
 {
     all: revert;
     font: normal 11px/12px Arial, sans-serif;
-    display: inline;
     color: black;
     background-color: unset;
     background-image: unset;
+    width: unset;
+    height: unset;
     padding: 0;
     margin: 0;
     outline: none;
