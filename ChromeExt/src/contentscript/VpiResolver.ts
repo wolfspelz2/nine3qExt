@@ -106,6 +106,7 @@ export class VpiResolver
                         let nextVpiUrl = new URL(nextVpi, dataSrc);
                         delegate = nextVpiUrl.toString();
                         resultType = VpiResolverEvaluateResultType.Delegate;
+                        break;
 
                     } else if (vpiChild.tagName == 'location') {
 
@@ -121,9 +122,9 @@ export class VpiResolver
                                         let colonIndex = locationServiceText.indexOf(':');
                                         server = locationServiceText.substr(colonIndex + 1);
                                     } break;
-                                case 'name': // All the same: <name hash="true">\5</name> | <name hash="SHA1">\5</name> | <name>\5</name>
+                                case 'name': // The same: '<name hash="true">\5</name>' | '<name hash="SHA1">\5</name>' BUT: '<name>\5</name>' does not hash
                                     {
-                                        let hash = locationChild.attributes.hash ? as.String(locationChild.attributes.hash.value, 'SHA1') : 'SHA1';
+                                        let hash = locationChild.attributes.hash ? as.String(locationChild.attributes.hash.value, 'SHA1') : '';
                                         if (hash == 'true') { hash = 'SHA1'; }
 
                                         let prefix = locationChild.attributes.prefix ? as.String(locationChild.attributes.prefix.value, '') : '';
@@ -131,17 +132,19 @@ export class VpiResolver
                                         let nameExpr = locationChild.textContent;
                                         let name = this.replaceMatch(nameExpr, matchResult);
 
-                                        let hasher = crypto.createHash(hash);
-                                        hasher.update(name);
-                                        room = prefix + hasher.digest('hex');
+                                        if (hash && hash != '') {
+                                            let hasher = crypto.createHash(hash);
+                                            hasher.update(name);
+                                            name = hasher.digest('hex');
+                                        }
+                                        room = prefix + name;
                                     } break;
                             }
                         }
                         location = protocol + ':' + room + '@' + server;
                         resultType = VpiResolverEvaluateResultType.Location;
-
+                        break;
                     }
-                    break;
                 }
             }
 
@@ -155,7 +158,7 @@ export class VpiResolver
     {
         let replaced = '';
 
-        for (let charIndex = 0; charIndex < replaceExpression.length; ) {
+        for (let charIndex = 0; charIndex < replaceExpression.length;) {
             if (replaceExpression[charIndex] == '\\') {
                 charIndex++;
                 let numberStr = '';

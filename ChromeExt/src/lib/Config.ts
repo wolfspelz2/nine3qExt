@@ -23,10 +23,11 @@ export class Config
             active: '',
         },
         vp: {
+            useLocationMappingServiceUrl: false,
             locationMappingServiceUrl: 'https://lms.virtual-presence.org/api/',
             deferPageEnterSec: 0.5,
             vpiRoot: 'https://lms.virtual-presence.org/v7/root.xml',
-            vpiMaxIterations: 10,
+            vpiMaxIterations: 15,
         },
         config: {
             serviceUrl: 'https://config.weblin.sui.li/',

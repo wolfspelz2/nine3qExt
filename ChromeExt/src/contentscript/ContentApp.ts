@@ -12,6 +12,7 @@ import { Browser } from '../lib/Browser';
 import { HelloWorld } from './HelloWorld';
 import { PropertyStorage } from './PropertyStorage';
 import { Room } from './Room';
+import { VpiResolver } from './VpiResolver';
 
 interface ILocationMapperResponse
 {
@@ -244,22 +245,38 @@ export class ContentApp
 
     async enterRoomByPageUrl(pageUrl: string): Promise<void>
     {
-        let url = new URL(Config.get('vp.locationMappingServiceUrl', 'https://lms.virtual-presence.org/api/'));
-        url.searchParams.set('Method', 'VPI.Info');
-        url.searchParams.set('sDocumentURL', pageUrl);
-        url.searchParams.set('Format', 'json');
+        if (Config.get('vp.useLocationMappingServiceUrl', false)) {
+            
+            let url = new URL(Config.get('vp.locationMappingServiceUrl', 'https://lms.virtual-presence.org/api/'));
+            url.searchParams.set('Method', 'VPI.Info');
+            url.searchParams.set('sDocumentURL', pageUrl);
+            url.searchParams.set('Format', 'json');
 
-        let response = await BackgroundMessage.fetchUrl(url.toString(), '');
-        if (response.ok) {
+            let response = await BackgroundMessage.fetchUrl(url.toString(), '');
+            if (response.ok) {
+                try {
+                    let mappingResponse: ILocationMapperResponse = JSON.parse(response.data);
+                    let locationUrl = mappingResponse.sLocationURL;
+                    log.debug('Mapped', pageUrl, ' => ', locationUrl);
+                    let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);
+                    this.enterRoomByJid(roomJid);
+                } catch (error) {
+                    log.info(error);
+                }
+            }
+
+        } else {
+
             try {
-                let mappingResponse: ILocationMapperResponse = JSON.parse(response.data);
-                let locationUrl = mappingResponse.sLocationURL;
+                let vpi = new VpiResolver(BackgroundMessage, Config);
+                let locationUrl = await vpi.map(pageUrl);
                 log.debug('Mapped', pageUrl, ' => ', locationUrl);
                 let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);
                 this.enterRoomByJid(roomJid);
             } catch (error) {
                 log.info(error);
             }
+
         }
     }
 

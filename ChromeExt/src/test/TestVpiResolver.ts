@@ -4,105 +4,50 @@ import { FetchUrlResponse } from '../lib/BackgroundMessage';
 
 export class TestVpiResolver
 {
-        VpiResolver_evaluate_firstMatched_delegate()
-        {
-            let documentUrl = 'https://www.weblin.com/';
-            let vpiUrl = 'https://lms.virtual-presence.org/v7/root.xml';
-            let vpiData = `<?xml version="1.0" encoding="UTF-8"?>
-            <vpi xmlns='http://virtual-presence.org/schemas/vpi'>
+    // VpiResolver_evaluate_firstMatched_delegate()
+    // {
+    //     let documentUrl = 'https://www.weblin.com/';
+    //     let vpiUrl = 'https://lms.virtual-presence.org/v7/root.xml';
+    //     let vpiData = `<?xml version="1.0" encoding="UTF-8"?> <vpi xmlns='http://virtual-presence.org/schemas/vpi'> <delegate match='^(http://test[^.]*\\.weblin\\.com)($|/.*$)'> <uri>test.xml</uri> </delegate> <delegate match='^(https?://([^/]*[.])?((zweitgeist|weblin)\\.(com|de)))($|/.*$)'> <uri>weblin.xml</uri> </delegate> <!-- handle IP4 addresses --> <delegate match='^https?://[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+(:[0-9]+)?($|/.*$)'> <uri>ip4/index.xml</uri> </delegate> <!-- pipe everything thru the brand name handler --> <delegate> <uri>name/index.xml</uri> </delegate> </vpi>`;
+    //     expect(new VpiResolver(null).evaluate(documentUrl, vpiUrl, vpiData).status).to.equal(VpiResolverEvaluateResultType.Delegate);
+    //     expect(new VpiResolver(null).evaluate(documentUrl, vpiUrl, vpiData).delegate).to.equal('https://lms.virtual-presence.org/v7/weblin.xml');
+    // }
 
-              <delegate match='^(http://test[^.]*\\.weblin\\.com)($|/.*$)'>
-                <uri>test.xml</uri>
-              </delegate>
-
-              <delegate match='^(https?://([^/]*[.])?((zweitgeist|weblin)\\.(com|de)))($|/.*$)'>
-                <uri>weblin.xml</uri>
-              </delegate>
-
-              <!-- handle IP4 addresses -->
-              <delegate match='^https?://[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+(:[0-9]+)?($|/.*$)'>
-                <uri>ip4/index.xml</uri>
-              </delegate>
-
-              <!-- pipe everything thru the brand name handler -->
-              <delegate>
-                <uri>name/index.xml</uri>
-              </delegate>
-
-            </vpi>`;
-
-            expect(new VpiResolver(null).evaluate(documentUrl, vpiUrl, vpiData).status).to.equal(VpiResolverEvaluateResultType.Delegate);
-            expect(new VpiResolver(null).evaluate(documentUrl, vpiUrl, vpiData).delegate).to.equal('https://lms.virtual-presence.org/v7/weblin.xml');
-        }
-
-        VpiResolver_evaluate_default_delegate()
-        {
-            let documentUrl = 'https://www.galactic-developments.de/';
-            let vpiUrl = 'https://lms.virtual-presence.org/v7/root.xml';
-            let vpiData = `<?xml version="1.0" encoding="UTF-8"?>
-            <vpi xmlns='http://virtual-presence.org/schemas/vpi'>
-
-              <delegate match='^(http://test[^.]*\\.weblin\\.com)($|/.*$)'>
-                <uri>test.xml</uri>
-              </delegate>
-
-              <delegate match='^(https?://([^/]*[.])?((zweitgeist|weblin)\\.(com|de)))($|/.*$)'>
-                <uri>weblin.xml</uri>
-              </delegate>
-
-              <!-- handle IP4 addresses -->
-              <delegate match='^https?://[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+(:[0-9]+)?($|/.*$)'>
-                <uri>ip4/index.xml</uri>
-              </delegate>
-
-              <!-- pipe everything thru the brand name handler -->
-              <delegate>
-                <uri>name/index.xml</uri>
-              </delegate>
-
-            </vpi>`;
-
-            expect(new VpiResolver(null).evaluate(documentUrl, vpiUrl, vpiData).status).to.equal(VpiResolverEvaluateResultType.Delegate);
-            expect(new VpiResolver(null).evaluate(documentUrl, vpiUrl, vpiData).delegate).to.equal('https://lms.virtual-presence.org/v7/name/index.xml');
-        }
+    // VpiResolver_evaluate_default_delegate()
+    // {
+    //     let documentUrl = 'https://www.galactic-developments.de/';
+    //     let vpiUrl = 'https://lms.virtual-presence.org/v7/root.xml';
+    //     let vpiData = `<?xml version="1.0" encoding="UTF-8"?> <vpi xmlns='http://virtual-presence.org/schemas/vpi'> <delegate match='^(http://test[^.]*\\.weblin\\.com)($|/.*$)'> <uri>test.xml</uri> </delegate> <delegate match='^(https?://([^/]*[.])?((zweitgeist|weblin)\\.(com|de)))($|/.*$)'> <uri>weblin.xml</uri> </delegate> <!-- handle IP4 addresses --> <delegate match='^https?://[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+(:[0-9]+)?($|/.*$)'> <uri>ip4/index.xml</uri> </delegate> <!-- pipe everything thru the brand name handler --> <delegate> <uri>name/index.xml</uri> </delegate> </vpi>`;
+    //     expect(new VpiResolver(null).evaluate(documentUrl, vpiUrl, vpiData).status).to.equal(VpiResolverEvaluateResultType.Delegate);
+    //     expect(new VpiResolver(null).evaluate(documentUrl, vpiUrl, vpiData).delegate).to.equal('https://lms.virtual-presence.org/v7/name/index.xml');
+    // }
 
 
-        VpiResolver_evaluate_catchall_location()
-        {
-            let documentUrl = 'https://www.galactic-developments.de/';
-            let vpiUrl = 'https://lms.virtual-presence.org/v7/default.xml';
-            let vpiData = `<?xml version="1.0" encoding="UTF-8"?>
-            <vpi xmlns='http://virtual-presence.org/schemas/vpi'>
+    // VpiResolver_evaluate_catchall_location()
+    // {
+    //     let documentUrl = 'https://www.galactic-developments.de/';
+    //     let vpiUrl = 'https://lms.virtual-presence.org/v7/default.xml';
+    //     let vpiData = `<?xml version="1.0" encoding="UTF-8"?> <vpi xmlns='http://virtual-presence.org/schemas/vpi'> <location match='^(https?://((w)+([0-9]*)\\.)?([^/]+\\.([a-zA-Z]+)))($|/.*$)'> <service>jabber:muc4.virtual-presence.org</service> <name hash="true">\\5</name> <destination>\\1</destination> <topology level="domain"/> <displayoptions><usercount multiple='15' crowd='40' massive='80'/></displayoptions> </location> <location match='.*'> <service>jabber:muc4.virtual-presence.org</service> <ignore/> <!--name>nirvana</name--> </location> </vpi>`;
+    //     expect(new VpiResolver(null).evaluate(documentUrl, vpiUrl, vpiData).status).to.equal(VpiResolverEvaluateResultType.Location);
+    //     expect(new VpiResolver(null).evaluate(documentUrl, vpiUrl, vpiData).location).to.equal('xmpp:d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org');
+    // }
 
-              <location match='^(https?://((w)+([0-9]*)\\.)?([^/]+\\.([a-zA-Z]+)))($|/.*$)'>
-                <service>jabber:muc4.virtual-presence.org</service>
-                <name hash="true">\\5</name>
-                <destination>\\1</destination>
-                <topology level="domain"/>
-                <displayoptions><usercount multiple='15' crowd='40' massive='80'/></displayoptions>
-              </location>
-
-              <location match='.*'>
-                <service>jabber:muc4.virtual-presence.org</service>
-                <ignore/>
-                <!--name>nirvana</name-->
-              </location>
-
-            </vpi>`;
-
-            expect(new VpiResolver(null).evaluate(documentUrl, vpiUrl, vpiData).status).to.equal(VpiResolverEvaluateResultType.Location);
-            expect(new VpiResolver(null).evaluate(documentUrl, vpiUrl, vpiData).location).to.equal('xmpp:d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org');
-        }
+    async VpiResolver_map_weblin()
+    {
+        let resolver = new VpiResolver(new TestDataProvider(), new TestConfigInstance_map_galdev());
+        let mapped = await resolver.map('https://www.weblin.com/home.php?room=de2');
+        expect(mapped).to.equal('xmpp:zweitgeistde2@muc4.virtual-presence.org');
+    }
 
     async VpiResolver_map_galdev()
     {
-        let resolver = new VpiResolver(new TestDataProvider_map_galdev(), new TestConfigInstance_map_galdev());
+        let resolver = new VpiResolver(new TestDataProvider(), new TestConfigInstance_map_galdev());
         let mapped = await resolver.map('https://www.galactic-developments.de/');
         expect(mapped).to.equal('xmpp:d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org');
     }
 }
 
-class TestDataProvider_map_galdev implements VpiResolverUrlFetcher
+class TestDataProvider implements VpiResolverUrlFetcher
 {
     private data = {
         'https://lms.virtual-presence.org/v7/root.xml': `<?xml version="1.0" encoding="UTF-8"?>
@@ -125,6 +70,41 @@ class TestDataProvider_map_galdev implements VpiResolverUrlFetcher
             <delegate>
             <uri>name/index.xml</uri>
             </delegate>
+        
+        </vpi>`,
+
+        'https://lms.virtual-presence.org/v7/weblin.xml': `<?xml version="1.0" encoding="utf-8"?>
+        <vpi xmlns='http://virtual-presence.org/schemas/vpi'>
+        
+          <Info
+           Version="1"
+           Description="This is the mapping for the weblin domains"
+           AdminContact="admin@weblin.com"
+           TechContact="admin@weblin.com"
+           TimeToLive="3600"
+           />
+        
+          <location match='^(https?://blog\\.weblin\\.(com|de))($|/.*$)'>
+            <service>jabber:muc4.virtual-presence.org</service>
+            <name>zweitgeist-blog</name>
+            <destination>http://blog.weblin.com/</destination>
+          </location>
+          <location match='^(https?://de\\.blog\\.weblin\\.com)($|/.*$)'>
+            <service>jabber:muc4.virtual-presence.org</service>
+            <name>zweitgeist-blog</name>
+            <destination>http://de.blog.weblin.com/</destination>
+          </location>
+        
+          <location match='^(https?://(.*[.])?((zweitgeist|weblin)\\.(com|de)))($|/.*room=([a-z0-9]+).*|.*$)'>
+            <service>jabber:muc4.virtual-presence.org</service>
+            <name>zweitgeist\\7</name>
+            <destination>http://www.weblin.com/</destination>
+            <topology level="selection"/>
+          </location>
+        
+          <delegate>
+            <uri>default.xml</uri>
+          </delegate>
         
         </vpi>`,
 
