@@ -3,10 +3,12 @@ import { Panic } from './Panic';
 
 export class FetchUrlResponse
 {
-    ok: boolean;
-    data: string;
-    status: string;
-    statusText: string;
+    constructor(
+        public ok: boolean,
+        public status: string,
+        public statusText: string,
+        public data: string
+    ) { }
 }
 
 export class BackgroundMessage

@@ -7,9 +7,10 @@ import { TestHelloWorld } from './TestHelloWorld'; s.addTestClass(TestHelloWorld
 import { TestAnimationsXml } from './TestAnimationsXml'; s.addTestClass(TestAnimationsXml);
 import { TestContentApp } from './TestContentApp'; s.addTestClass(TestContentApp);
 import { TestUtils } from './TestUtils'; s.addTestClass(TestUtils);
-import { TestConfig} from './TestConfig'; s.addTestClass(TestConfig);
-import { TestTranslator} from './TestTranslator'; s.addTestClass(TestTranslator);
-import { TestMisc} from './TestMisc'; s.addTestClass(TestMisc);
+import { TestConfig } from './TestConfig'; s.addTestClass(TestConfig);
+import { TestTranslator } from './TestTranslator'; s.addTestClass(TestTranslator);
+import { TestVpiResolver } from './TestVpiResolver'; s.addTestClass(TestVpiResolver);
+import { TestMisc } from './TestMisc'; s.addTestClass(TestMisc);
 
 s.ignoreFailureForClass(TestHelloWorld);
 s.run();
