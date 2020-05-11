@@ -93,15 +93,22 @@ export class VpiResolver
                 if (matchAttr) {
                     matchExpr = matchAttr.value;
                 }
+
                 let regex = new RegExp(matchExpr);
                 let matchResult = regex.exec(documentUrl);
+
                 if (matchResult) {
                     if (vpiChild.tagName == 'delegate') {
-                        let nextVpi = vpiChild.firstElementChild.textContent;
+
+                        let nextVpiExpr = vpiChild.firstElementChild.textContent;
+                        let nextVpi = this.replaceMatch(nextVpiExpr, matchResult);
+
                         let nextVpiUrl = new URL(nextVpi, dataSrc);
                         delegate = nextVpiUrl.toString();
                         resultType = VpiResolverEvaluateResultType.Delegate;
+
                     } else if (vpiChild.tagName == 'location') {
+
                         let protocol = 'xmpp';
                         let server = '';
                         let room = '';
@@ -122,21 +129,7 @@ export class VpiResolver
                                         let prefix = locationChild.attributes.prefix ? as.String(locationChild.attributes.prefix.value, '') : '';
 
                                         let nameExpr = locationChild.textContent;
-                                        let name = '';
-                                        for (let nameExprCharIndex = 0; nameExprCharIndex < nameExpr.length; nameExprCharIndex++) {
-                                            if (nameExpr[nameExprCharIndex] == '\\') {
-                                                nameExprCharIndex++;
-                                                let numberStr = '';
-                                                while (nameExpr[nameExprCharIndex] >= '0' && nameExpr[nameExprCharIndex] <= 9 && nameExprCharIndex < nameExpr.length) {
-                                                    numberStr += nameExpr[nameExprCharIndex];
-                                                    nameExprCharIndex++;
-                                                }
-                                                let number = as.Int(numberStr, 1);
-                                                if (number < matchResult.length) {
-                                                    name += matchResult[number];
-                                                }
-                                            }
-                                        }
+                                        let name = this.replaceMatch(nameExpr, matchResult);
 
                                         let hasher = crypto.createHash(hash);
                                         hasher.update(name);
@@ -146,13 +139,38 @@ export class VpiResolver
                         }
                         location = protocol + ':' + room + '@' + server;
                         resultType = VpiResolverEvaluateResultType.Location;
+
                     }
                     break;
                 }
             }
+
             return new VpiResolverEvaluateResult(resultType, '', delegate, location);
         } catch (error) {
             return new VpiResolverEvaluateResult(VpiResolverEvaluateResultType.Error, error, '', '');
         }
+    }
+
+    replaceMatch(replaceExpression: string, matches: Array<string>): string
+    {
+        let replaced = '';
+
+        for (let charIndex = 0; charIndex < replaceExpression.length; ) {
+            if (replaceExpression[charIndex] == '\\') {
+                charIndex++;
+                let numberStr = '';
+                while (replaceExpression[charIndex] >= '0' && replaceExpression[charIndex] <= '9' && charIndex < replaceExpression.length) {
+                    numberStr += replaceExpression[charIndex++];
+                }
+                let number = as.Int(numberStr, 0);
+                if (number < matches.length) {
+                    replaced += matches[number];
+                }
+            } else {
+                replaced += replaceExpression[charIndex++];
+            }
+        }
+
+        return replaced;
     }
 }
