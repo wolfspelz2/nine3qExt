@@ -34,8 +34,7 @@ export class Avatar implements IObserver
     private currentSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
     private defaultSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
 
-    private preventNextClick_a_hack_otherwise_draggable_clicks = false;
-    private clickTimer: number = undefined;
+    private clickDblClickSeparationTimer: number;
 
     constructor(private app: ContentApp, private entity: Entity, private display: HTMLElement, private isSelf: boolean)
     {
@@ -47,21 +46,17 @@ export class Avatar implements IObserver
 
         $(this.elem).on('click', ev =>
         {
-            if (this.clickTimer == undefined) {
-                if (this.preventNextClick_a_hack_otherwise_draggable_clicks) {
-                    this.preventNextClick_a_hack_otherwise_draggable_clicks = false;
-                } else {
-                    this.clickTimer = <number><unknown>setTimeout(() =>
-                    {
-                        this.clickTimer = undefined;
-                        this.entity.onMouseClickAvatar(ev);
-                        //hw later app.zIndexTop(this.elem);
-                    }, as.Float(Config.get('avatarDoubleClickDelaySec', 0.25)) * 1000);
-                }
+            if (!this.clickDblClickSeparationTimer) {
+                this.clickDblClickSeparationTimer = <number><unknown>setTimeout(() =>
+                {
+                    this.clickDblClickSeparationTimer = null;
+                    this.entity.onMouseClickAvatar(ev);
+                    //hw later app.zIndexTop(this.elem);
+                }, as.Float(Config.get('avatarDoubleClickDelaySec', 0.25)) * 1000);
             } else {
-                if (this.clickTimer != undefined) {
-                    clearTimeout(this.clickTimer);
-                    this.clickTimer = undefined;
+                if (this.clickDblClickSeparationTimer) {
+                    clearTimeout(this.clickDblClickSeparationTimer);
+                    this.clickDblClickSeparationTimer = null;
                     this.entity.onMouseDoubleClickAvatar(ev);
                 }
             }
@@ -84,7 +79,6 @@ export class Avatar implements IObserver
             {
                 this.app.enableScreen(true);
                 this.inDrag = true;
-                this.a_hack_otherwise_draggable_clicks_start(ev);
                 this.entity.onStartDragAvatar(ev, ui);
             },
             drag: (ev: JQueryMouseEventObject, ui) =>
@@ -94,7 +88,6 @@ export class Avatar implements IObserver
             stop: (ev: JQueryMouseEventObject, ui) =>
             {
                 this.entity.onStopDragAvatar(ev, ui);
-                this.a_hack_otherwise_draggable_clicks_stop(ev);
                 this.inDrag = false;
                 this.app.enableScreen(false);
             }
@@ -106,18 +99,6 @@ export class Avatar implements IObserver
         if (this.animationTimer != undefined) {
             clearTimeout(this.animationTimer);
             this.animationTimer = undefined;
-        }
-    }
-
-    a_hack_otherwise_draggable_clicks_x: number;
-    a_hack_otherwise_draggable_clicks_start(ev: JQueryMouseEventObject): void
-    {
-        this.a_hack_otherwise_draggable_clicks_x = $(this.elem).offset().left;
-    }
-    a_hack_otherwise_draggable_clicks_stop(ev: JQueryMouseEventObject): void
-    {
-        if (ev.clientX > this.a_hack_otherwise_draggable_clicks_x && ev.clientX <= this.a_hack_otherwise_draggable_clicks_x + this.elem.width) {
-            this.preventNextClick_a_hack_otherwise_draggable_clicks = true;
         }
     }
 
@@ -166,13 +147,13 @@ export class Avatar implements IObserver
     async setAnimations(url: string): Promise<void>
     {
         let response = await BackgroundMessage.fetchUrl(url, '');
-            if (response.ok) {
-                try {
-                    let parsed = AnimationsXml.AnimationsXml.parseXml(url, response.data);
-                    this.onAnimations(parsed);
-                } catch (error) {
-                    log.info(error);
-                }
+        if (response.ok) {
+            try {
+                let parsed = AnimationsXml.AnimationsXml.parseXml(url, response.data);
+                this.onAnimations(parsed);
+            } catch (error) {
+                log.info(error);
+            }
         }
     }
 
