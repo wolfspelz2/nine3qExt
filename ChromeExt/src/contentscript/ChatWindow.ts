@@ -54,7 +54,7 @@ export class ChatWindow
             let resize = <HTMLElement>$('<div class="n3q-base n3q-window-resize n3q-window-resize-se"/>').get(0);
             let chatout = <HTMLElement>$('<div class="n3q-base n3q-chatwindow-chatout" data-translate="children" />').get(0);
             let chatin = <HTMLElement>$('<div class="n3q-base n3q-chatwindow-chatin" data-translate="children" />').get(0);
-            let chatinText = <HTMLElement>$('<textarea class="n3q-base n3q-chatwindow-chatin-input n3q-input n3q-text" rows="1" placeholder="Enter chat here..." data-translate="attr:placeholder:Chatin" />').get(0);
+            let chatinText = <HTMLElement>$('<input type="text" class="n3q-base n3q-chatwindow-chatin-input n3q-input n3q-text" rows="1" placeholder="Enter chat here..." data-translate="attr:placeholder:Chatin" />').get(0);
             let chatinSend = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-inline" title="SendChat" data-translate="attr:title:Chatin"><div class="n3q-base n3q-button-symbol n3q-button-sendchat" />').get(0);
 
             $(title).append(titleText);
@@ -85,12 +85,19 @@ export class ChatWindow
             let top = this.display.offsetHeight - 500;
             $(window).css({ left: left + 'px', top: top + 'px' });
 
+            this.fixChatInTextWidth(chatinText, 38, chatin);
+
             $(window).resizable({
                 minWidth: 180,
                 minHeight: 30,
                 handles: {
                     'se': '#n3q #' + windowId + ' .n3q-window-resize-se',
-                }
+                },
+                resize: (ev: JQueryEventObject) =>
+                {
+                    this.fixChatInTextWidth(chatinText, 38, chatin);
+                    // $(chatinText).focus();
+                },
             });
 
             $(chatinText).on('keydown', ev =>
@@ -116,15 +123,28 @@ export class ChatWindow
                 // opacity: 0.5,
                 distance: 4,
                 containment: 'document',
+                stop: (ev: JQueryEventObject) =>
+                {
+                    // $(chatinText).focus();
+                },
             });
 
             for (let id in this.lines) {
                 let line = this.lines[id];
                 this.showLine(line.nick, line.text);
             }
+
+            $(chatinText).focus();
         }
 
         this.pushToTop();
+    }
+
+    fixChatInTextWidth(chatinText: HTMLElement, delta: number, chatin: HTMLElement)
+    {
+        let parentWidth = chatin.offsetWidth;
+        let width = parentWidth - delta;
+        $(chatinText).css({ 'width': width });
     }
 
     addLine(id: string, nick: string, text: string)
