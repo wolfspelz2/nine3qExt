@@ -110,7 +110,7 @@ export class Config
                 'de-DE': {
                     'Common.Close': 'Schließen',
 
-                    'Chatin.Enter chat here...': 'Chat Text hier eingeben...',
+                    'Chatin.Enter chat here...': 'Chat Text hier...',
                     'Chatin.SendChat': 'Chat abschicken',
 
                     'Popup.title': 'Dein Weblin',
