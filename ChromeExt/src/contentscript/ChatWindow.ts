@@ -140,6 +140,11 @@ export class ChatWindow
         this.pushToTop();
     }
 
+    isOpen(): boolean
+    {
+        return this.windowElem != null;
+    }
+
     fixChatInTextWidth(chatinText: HTMLElement, delta: number, chatin: HTMLElement)
     {
         let parentWidth = chatin.offsetWidth;
@@ -205,7 +210,7 @@ export class ChatWindow
     {
     }
 
-    private close(): void
+    close(): void
     {
         $(this.windowElem).remove();
         this.windowElem = null;

@@ -249,6 +249,17 @@ export class Room
         this.chatWindow?.show(relativeToElem);
     }
 
+    toggleChatWindow(relativeToElem: HTMLElement): void
+    {
+        if (this.chatWindow) {
+            if (this.chatWindow.isOpen()) {
+                this.chatWindow.close();
+            } else {
+                this.chatWindow.show(relativeToElem);
+            }
+        }
+    }
+
     showChatMessage(nick: string, text: string)
     {
         this.chatWindow.addLine(nick + Date.now(), nick, text);

@@ -435,6 +435,11 @@ export class Participant extends Entity
         this.toggleChatin();
     }
 
+    onMouseDoubleClickAvatar(ev: JQuery.Event): void
+    {
+        this.toggleChatWindow();
+    }
+
     do(what: string): void
     {
         this.room?.sendGroupChat('/do ' + what);
@@ -448,6 +453,11 @@ export class Participant extends Entity
     toggleChatout(): void
     {
         this.chatoutDisplay?.toggleVisibility();
+    }
+
+    toggleChatWindow(): void
+    {
+        this.room?.toggleChatWindow(this.getElem());
     }
 
     showChatWindow(): void
