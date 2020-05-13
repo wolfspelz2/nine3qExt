@@ -82,7 +82,7 @@ export class Room
                 xml('x', { xmlns: 'firebat:user:identity', jid: this.userJid, src: identityUrl, digest: '1' }))
             .append(
                 xml('x', { xmlns: 'firebat:avatar:state', jid: this.userJid, })
-                    .append(xml('position', { x: this.posX }))
+                    .append(xml('position', { x: as.Int(this.posX) }))
             );
 
         if (!this.isEntered) {
