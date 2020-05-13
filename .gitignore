@@ -8,3 +8,14 @@ ChromeExt/extension.zip
 ChromeExt/dist.zip
 /nine3q/obj
 /nine3q/bin
+/Backend/.vs
+/Backend/src/GrainInterfaces/bin
+/Backend/src/GrainInterfaces/obj
+/Backend/src/Grains/bin
+/Backend/src/Grains/obj
+/Backend/src/Grains/obj
+/Backend/src/LocalSilo/bin
+/Backend/src/LocalSilo/obj
+/Backend/src/TestClient/bin
+/Backend/src/TestClient/obj
+*.user
