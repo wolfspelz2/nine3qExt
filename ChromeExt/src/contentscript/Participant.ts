@@ -9,6 +9,7 @@ import { Avatar } from './Avatar';
 import { Nickname } from './Nickname';
 import { Chatout } from './Chatout';
 import { Chatin } from './Chatin';
+import { Environment } from '../lib/Environment';
 
 export class Participant extends Entity
 {
@@ -178,7 +179,7 @@ export class Participant extends Entity
             }
 
             this.show(true);
-            // if (this.isSelf) { this.showChatWindow(); }
+            // if (this.isSelf && Environment.isDevelopment()) { this.showChatWindow(); }
             this.room?.showChatMessage(this.nick, 'entered the room');
 
         } else {

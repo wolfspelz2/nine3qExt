@@ -13,6 +13,7 @@ import { HelloWorld } from './HelloWorld';
 import { PropertyStorage } from './PropertyStorage';
 import { Room } from './Room';
 import { VpiResolver } from './VpiResolver';
+import { SettingsWindow } from './SettingsWindow';
 
 interface ILocationMapperResponse
 {
@@ -153,6 +154,11 @@ export class ContentApp
             // this.enterRoomByPageUrl('https://www.galactic-developments.de/');
             this.enterPage();
         });
+    }
+
+    showSettings(aboveElem: HTMLElement)
+    {
+        new SettingsWindow(this, this.display).show({ 'above': aboveElem });
     }
 
     // Backgound pages dont allow timers 
@@ -347,9 +353,9 @@ export class ContentApp
         // }
     }
 
-    translateText(text: string, key: string): string
+    translateText(key: string, text: string): string
     {
-        return this.babelfish.translateText(text, key);
+        return this.babelfish.translateText(key, text);
     }
 
     translateElem(elem: HTMLElement): void

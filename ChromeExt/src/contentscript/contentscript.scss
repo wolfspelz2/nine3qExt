@@ -300,10 +300,9 @@ $z-index: (
         background-color: white;
         white-space: nowrap;
         border: 1px solid #888;
-        //border-radius: 5px;
         min-width: 50px;
         min-height: 14px;
-        padding: 3px 6px 3px 3px;
+        padding: 2px 4px 2px 2px;
         position: absolute;
         transition: transform ease-out 200ms;
         transition-duration: 200ms; 
@@ -316,7 +315,6 @@ $z-index: (
             vertical-align: middle;
             width:14px;
             height:14px;
-            margin-right: 3px;
         }
 
         #n3q div.n3q-menu-item div.n3q-menu-icon.n3q-menu-icon-noicon { width:1px; height:14px; }
@@ -324,6 +322,7 @@ $z-index: (
         #n3q div.n3q-menu-item div.n3q-text {
             display: inline-block;
             vertical-align: middle;
+            margin-left: 3px;
         }
 
         #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item {
@@ -333,33 +332,39 @@ $z-index: (
         // background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" focusable="false" width="1em" height="1em" style="-ms-transform: rotate(360deg); -webkit-transform: rotate(360deg); transform: rotate(360deg);" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" fill="#626262"/></svg>') no-repeat center center / contain;
         // background: url('https://api.iconify.design/ic:baseline-chat-bubble-outline.svg') no-repeat center center / contain;
         #n3q div.n3q-item-chat div.n3q-menu-icon { background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgd2lkdGg9IjFlbSIgaGVpZ2h0PSIxZW0iIHN0eWxlPSItbXMtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgLXdlYmtpdC10cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyB0cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMjAgMkg0Yy0xLjEgMC0yIC45LTIgMnYxOGw0LTRoMTRjMS4xIDAgMi0uOSAyLTJWNGMwLTEuMS0uOS0yLTItMnptMCAxNEg2bC0yIDJWNGgxNnYxMnoiIGZpbGw9IiM2MjYyNjIiLz48L3N2Zz4') no-repeat center center / contain; }
-        // background: url('https://api.iconify.design/ic:outline-chat.svg') no-repeat center center / contain;
-        #n3q div.n3q-item-chatwin div.n3q-menu-icon { background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgd2lkdGg9IjFlbSIgaGVpZ2h0PSIxZW0iIHN0eWxlPSItbXMtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgLXdlYmtpdC10cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyB0cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNCA0aDE2djEySDUuMTdMNCAxNy4xN1Y0bTAtMmMtMS4xIDAtMS45OS45LTEuOTkgMkwyIDIybDQtNGgxNGMxLjEgMCAyLS45IDItMlY0YzAtMS4xLS45LTItMi0ySDR6bTIgMTBoOHYySDZ2LTJ6bTAtM2gxMnYySDZWOXptMC0zaDEydjJINlY2eiIgZmlsbD0iIzYyNjI2MiIvPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0icmdiYSgwLCAwLCAwLCAwKSIgLz48L3N2Zz4K') no-repeat center center / contain; }
-        // background: url('https://api.iconify.design/ic-outline-check-box-outline-blank.svg') no-repeat center center / contain;
-        #n3q div.n3q-item-tabstay div.n3q-menu-icon-unchecked { background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMWVtIiBoZWlnaHQ9IjFlbSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0IiBzdHlsZT0iLW1zLXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7IC13ZWJraXQtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsiPjxwYXRoIGQ9Ik0xOSA1djE0SDVWNWgxNG0wLTJINWMtMS4xIDAtMiAuOS0yIDJ2MTRjMCAxLjEuOSAyIDIgMmgxNGMxLjEgMCAyLS45IDItMlY1YzAtMS4xLS45LTItMi0yeiIgZmlsbD0iY3VycmVudENvbG9yIi8+PC9zdmc+Cg') no-repeat center center / contain; }
-        // background: url('https://api.iconify.design/ic-outline-check-box.svg') no-repeat center center / contain;
-        #n3q div.n3q-item-tabstay div.n3q-menu-icon-checked { background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMWVtIiBoZWlnaHQ9IjFlbSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0IiBzdHlsZT0iLW1zLXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7IC13ZWJraXQtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsiPjxwYXRoIGQ9Ik0xOSAzSDVjLTEuMSAwLTIgLjktMiAydjE0YzAgMS4xLjkgMiAyIDJoMTRjMS4xIDAgMi0uOSAyLTJWNWMwLTEuMS0uOS0yLTItMnptMCAxNkg1VjVoMTR2MTR6TTE3Ljk5IDlsLTEuNDEtMS40MmwtNi41OSA2LjU5bC0yLjU4LTIuNTdsLTEuNDIgMS40MWw0IDMuOTl6IiBmaWxsPSJjdXJyZW50Q29sb3IiLz48L3N2Zz4K') no-repeat center center / contain; }
+
+            // background: url('https://api.iconify.design/ic:outline-chat.svg') no-repeat center center / contain;
+            #n3q div.n3q-item-chatwin div.n3q-menu-icon { background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgd2lkdGg9IjFlbSIgaGVpZ2h0PSIxZW0iIHN0eWxlPSItbXMtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgLXdlYmtpdC10cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyB0cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNCA0aDE2djEySDUuMTdMNCAxNy4xN1Y0bTAtMmMtMS4xIDAtMS45OS45LTEuOTkgMkwyIDIybDQtNGgxNGMxLjEgMCAyLS45IDItMlY0YzAtMS4xLS45LTItMi0ySDR6bTIgMTBoOHYySDZ2LTJ6bTAtM2gxMnYySDZWOXptMC0zaDEydjJINlY2eiIgZmlsbD0iIzYyNjI2MiIvPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0icmdiYSgwLCAwLCAwLCAwKSIgLz48L3N2Zz4K') no-repeat center center / contain; }
+
+            // background: url('https://api.iconify.design/ic:baseline-settings.svg') no-repeat center center / contain;
+            #n3q div.n3q-item-settings div.n3q-menu-icon { background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgd2lkdGg9IjFlbSIgaGVpZ2h0PSIxZW0iIHN0eWxlPSItbXMtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgLXdlYmtpdC10cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyB0cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTkuMTQgMTIuOTRjLjA0LS4zLjA2LS42MS4wNi0uOTRjMC0uMzItLjAyLS42NC0uMDctLjk0bDIuMDMtMS41OGEuNDkuNDkgMCAwIDAgLjEyLS42MWwtMS45Mi0zLjMyYS40ODguNDg4IDAgMCAwLS41OS0uMjJsLTIuMzkuOTZjLS41LS4zOC0xLjAzLS43LTEuNjItLjk0bC0uMzYtMi41NGEuNDg0LjQ4NCAwIDAgMC0uNDgtLjQxaC0zLjg0Yy0uMjQgMC0uNDMuMTctLjQ3LjQxbC0uMzYgMi41NGMtLjU5LjI0LTEuMTMuNTctMS42Mi45NGwtMi4zOS0uOTZjLS4yMi0uMDgtLjQ3IDAtLjU5LjIyTDIuNzQgOC44N2MtLjEyLjIxLS4wOC40Ny4xMi42MWwyLjAzIDEuNThjLS4wNS4zLS4wOS42My0uMDkuOTRzLjAyLjY0LjA3Ljk0bC0yLjAzIDEuNThhLjQ5LjQ5IDAgMCAwLS4xMi42MWwxLjkyIDMuMzJjLjEyLjIyLjM3LjI5LjU5LjIybDIuMzktLjk2Yy41LjM4IDEuMDMuNyAxLjYyLjk0bC4zNiAyLjU0Yy4wNS4yNC4yNC40MS40OC40MWgzLjg0Yy4yNCAwIC40NC0uMTcuNDctLjQxbC4zNi0yLjU0Yy41OS0uMjQgMS4xMy0uNTYgMS42Mi0uOTRsMi4zOS45NmMuMjIuMDguNDcgMCAuNTktLjIybDEuOTItMy4zMmMuMTItLjIyLjA3LS40Ny0uMTItLjYxbC0yLjAxLTEuNTh6TTEyIDE1LjZjLTEuOTggMC0zLjYtMS42Mi0zLjYtMy42czEuNjItMy42IDMuNi0zLjZzMy42IDEuNjIgMy42IDMuNnMtMS42MiAzLjYtMy42IDMuNnoiIGZpbGw9IiM2MjYyNjIiLz48L3N2Zz4') no-repeat center center / contain; }
+
+            // background: url('https://api.iconify.design/ic-outline-check-box-outline-blank.svg') no-repeat center center / contain;
+            #n3q div.n3q-item-tabstay div.n3q-menu-icon-unchecked { background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMWVtIiBoZWlnaHQ9IjFlbSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0IiBzdHlsZT0iLW1zLXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7IC13ZWJraXQtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsiPjxwYXRoIGQ9Ik0xOSA1djE0SDVWNWgxNG0wLTJINWMtMS4xIDAtMiAuOS0yIDJ2MTRjMCAxLjEuOSAyIDIgMmgxNGMxLjEgMCAyLS45IDItMlY1YzAtMS4xLS45LTItMi0yeiIgZmlsbD0iY3VycmVudENvbG9yIi8+PC9zdmc+Cg') no-repeat center center / contain; }
+            // background: url('https://api.iconify.design/ic-outline-check-box.svg') no-repeat center center / contain;
+            #n3q div.n3q-item-tabstay div.n3q-menu-icon-checked { background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMWVtIiBoZWlnaHQ9IjFlbSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0IiBzdHlsZT0iLW1zLXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7IC13ZWJraXQtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsiPjxwYXRoIGQ9Ik0xOSAzSDVjLTEuMSAwLTIgLjktMiAydjE0YzAgMS4xLjkgMiAyIDJoMTRjMS4xIDAgMi0uOSAyLTJWNWMwLTEuMS0uOS0yLTItMnptMCAxNkg1VjVoMTR2MTR6TTE3Ljk5IDlsLTEuNDEtMS40MmwtNi41OSA2LjU5bC0yLjU4LTIuNTdsLTEuNDIgMS40MWw0IDMuOTl6IiBmaWxsPSJjdXJyZW50Q29sb3IiLz48L3N2Zz4K') no-repeat center center / contain; }
 
         #n3q div.n3q-menu-item.n3q-menu-column-main { transform: translate3d(60px, -35px, 0); }
         #n3q div.n3q-menu-item.n3q-menu-column-action { transform: translate3d(-3px, -35px, 0); }
 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-test    { transform: translate3d(60px, -125px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-tabstay { transform: translate3d(60px, -100px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-chatwin { transform: translate3d(60px,  -75px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-chat    { transform: translate3d(60px,  -50px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-Actions { transform: translate3d(-3px, -275px, 0); }
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-wave    { transform: translate3d(-3px, -250px, 0); }
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-dance   { transform: translate3d(-3px, -225px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-cheer   { transform: translate3d(-3px, -200px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-kiss    { transform: translate3d(-3px, -175px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-clap    { transform: translate3d(-3px, -150px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-laugh   { transform: translate3d(-3px, -125px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-angry   { transform: translate3d(-3px, -100px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-deny    { transform: translate3d(-3px,  -75px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-yawn    { transform: translate3d(-3px,  -50px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-test     { transform: translate3d(60px, -132px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-settings { transform: translate3d(60px, -110px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-tabstay  { transform: translate3d(60px,  -88px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-chatwin  { transform: translate3d(60px,  -66px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-chat     { transform: translate3d(60px,  -44px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-Actions  { transform: translate3d(-3px, -242px, 0); }
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-wave     { transform: translate3d(-3px, -220px, 0); }
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-dance    { transform: translate3d(-3px, -198px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-cheer    { transform: translate3d(-3px, -176px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-kiss     { transform: translate3d(-3px, -154px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-clap     { transform: translate3d(-3px, -132px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-laugh    { transform: translate3d(-3px, -110px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-angry    { transform: translate3d(-3px,  -88px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-deny     { transform: translate3d(-3px,  -66px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-yawn     { transform: translate3d(-3px,  -44px, 0); } 
         
         #n3q div.n3q-participant-other div.n3q-menu-item.n3q-menu-column-main { transform: translate3d(-3px, -35px, 0); }
-        #n3q div.n3q-participant-other input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-chat    { transform: translate3d(-3px,  -50px, 0); } 
+        #n3q div.n3q-participant-other input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-chat    { transform: translate3d(-3px, -44px, 0); } 
 
         #n3q div.n3q-menu-item:hover { filter: brightness(0.9); }
         #n3q div.n3q-menu-item:active { filter: brightness(0.8); }   
@@ -390,9 +395,7 @@ $z-index: (
         padding: 2px;
         background-color: #fff;
         border: 1px solid #888;
-        -webkit-border-radius: 5px;
-        -moz-border-radius: 5px;
-        border-radius: 5px;
+        border-radius: 8px;
     }
 
     #n3q div.n3q-chatout div.n3q-text {
@@ -428,70 +431,69 @@ $z-index: (
 // Chat Window
 
 #n3q div.n3q-window {
-    width: 400px;
-    height: 300px;
+    // width: 400px;
+    // height: 300px;
     position: absolute;
     background-color: #ffffff;
     pointer-events: auto;
 }
     
     #n3q div.n3q-window-title-bar {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
+        display: block;
+        position: relative;
         height: 28px;
+        // width: 400px;
         background-color: #ffffff;
+        border-bottom: 1px solid rgb(128, 128, 128);
     }
     
-    #n3q div.n3q-window-title {
-        display: inline-block;
-        position: absolute;
-        left: 0px;
-        right: 22px;
-        top: 0px;
-        bottom: 0px;
-    }
-    
-    #n3q div.n3q-window-title-text {
-        display: inline-block;
-        position: absolute;
-        left: 8px;
-        top: 8px;
-        height: 16px;
-        font-size: 14px;
-        font-weight: bold;
-    }
-    
-    #n3q div.n3q-window-button {
-        display: inline-block;
-        position: absolute;
-        height: 20px;
-        width: 20px;
-        background: #ffffff;
-        right: 4px;
-        top: 4px;
-    }
-    
-    #n3q div.n3q-window-button:hover { filter: brightness(1.2); }
-    #n3q div.n3q-window-button:active { filter: brightness(0.8); }   
-
-        #n3q div.n3q-window-button div.n3q-button-close {
-            // // background: url('https://api.iconify.design/ic:baseline-close.svg') no-repeat center center / contain;
-            // background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgd2lkdGg9IjFlbSIgaGVpZ2h0PSIxZW0iIHN0eWxlPSItbXMtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgLXdlYmtpdC10cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyB0cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTkgNi40MUwxNy41OSA1TDEyIDEwLjU5TDYuNDEgNUw1IDYuNDFMMTAuNTkgMTJMNSAxNy41OUw2LjQxIDE5TDEyIDEzLjQxTDE3LjU5IDE5TDE5IDE3LjU5TDEzLjQxIDEyeiIgZmlsbD0iIzYyNjI2MiIvPjwvc3ZnPg') no-repeat center center / contain;
-            // background: url('https://api.iconify.design/carbon:close-outline.svg') no-repeat center center / contain;
-            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgd2lkdGg9IjFlbSIgaGVpZ2h0PSIxZW0iIHN0eWxlPSItbXMtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgLXdlYmtpdC10cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyB0cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDMyIDMyIj48cGF0aCBkPSJNMTYgMkM4LjIgMiAyIDguMiAyIDE2czYuMiAxNCAxNCAxNHMxNC02LjIgMTQtMTRTMjMuOCAyIDE2IDJ6bTAgMjZDOS40IDI4IDQgMjIuNiA0IDE2UzkuNCA0IDE2IDRzMTIgNS40IDEyIDEycy01LjQgMTItMTIgMTJ6IiBmaWxsPSJibGFjayIvPjxwYXRoIGQ9Ik0yMS40IDIzTDE2IDE3LjZMMTAuNiAyM0w5IDIxLjRsNS40LTUuNEw5IDEwLjZMMTAuNiA5bDUuNCA1LjRMMjEuNCA5bDEuNiAxLjZsLTUuNCA1LjRsNS40IDUuNHoiIGZpbGw9ImJsYWNrIi8+PC9zdmc+') no-repeat center center / contain;
-            width: 20px;
-            height: 20px;
+        #n3q div.n3q-window-title {
+            display: block;
+            position: absolute;
+            left: 0px;
+            right: 22px;
+            top: 0px;
+            bottom: 0px;
+            // height: 28px;
         }
         
-        #n3q div.n3q-window-content {
+        #n3q div.n3q-window-title-text {
+            display: inline-block;
             position: absolute;
-            top: 28px;
-            left: 4px;
+            left: 8px;
+            top: 8px;
+            height: 16px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        #n3q div.n3q-window-button {
+            display: inline-block;
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            background: #ffffff;
             right: 4px;
-            bottom: 4px;
-            border-top: 1px solid #808080;
+            top: 4px;
+        }
+        
+        #n3q div.n3q-window-button:hover { filter: brightness(1.2); }
+        #n3q div.n3q-window-button:active { filter: brightness(0.8); }   
+
+            #n3q div.n3q-window-button div.n3q-button-close {
+                // // background: url('https://api.iconify.design/ic:baseline-close.svg') no-repeat center center / contain;
+                // background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgd2lkdGg9IjFlbSIgaGVpZ2h0PSIxZW0iIHN0eWxlPSItbXMtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgLXdlYmtpdC10cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyB0cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTkgNi40MUwxNy41OSA1TDEyIDEwLjU5TDYuNDEgNUw1IDYuNDFMMTAuNTkgMTJMNSAxNy41OUw2LjQxIDE5TDEyIDEzLjQxTDE3LjU5IDE5TDE5IDE3LjU5TDEzLjQxIDEyeiIgZmlsbD0iIzYyNjI2MiIvPjwvc3ZnPg') no-repeat center center / contain;
+                // background: url('https://api.iconify.design/carbon:close-outline.svg') no-repeat center center / contain;
+                background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgd2lkdGg9IjFlbSIgaGVpZ2h0PSIxZW0iIHN0eWxlPSItbXMtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgLXdlYmtpdC10cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyB0cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDMyIDMyIj48cGF0aCBkPSJNMTYgMkM4LjIgMiAyIDguMiAyIDE2czYuMiAxNCAxNCAxNHMxNC02LjIgMTQtMTRTMjMuOCAyIDE2IDJ6bTAgMjZDOS40IDI4IDQgMjIuNiA0IDE2UzkuNCA0IDE2IDRzMTIgNS40IDEyIDEycy01LjQgMTItMTIgMTJ6IiBmaWxsPSJibGFjayIvPjxwYXRoIGQ9Ik0yMS40IDIzTDE2IDE3LjZMMTAuNiAyM0w5IDIxLjRsNS40LTUuNEw5IDEwLjZMMTAuNiA5bDUuNCA1LjRMMjEuNCA5bDEuNiAxLjZsLTUuNCA1LjRsNS40IDUuNHoiIGZpbGw9ImJsYWNrIi8+PC9zdmc+') no-repeat center center / contain;
+                width: 20px;
+                height: 20px;
+            }
+            
+        #n3q div.n3q-window-content {
+            // width: 400px;
+            // height: 300px;
+            display: block;
+            pointer-events: auto;
         }
     
         #n3q div.n3q-window-resize {
@@ -509,15 +511,24 @@ $z-index: (
             cursor: se-resize;
         }
     
-// #n3q div.n3q-chatwindow {}
+    // #n3q div.n3q-settingswindow {}
+
+        #n3q div.n3q-settingswindow-content {
+            top: 36px;
+            left: 8px;
+            right: 8px;
+            bottom: 38px;
+                pointer-events: auto;
+        }
+
+        // #n3q div.n3q-chatwindow {}
 
     #n3q div.n3q-chatwindow-chatout {
         position: absolute;
-        top: 4px;
-        left: 4px;
-        right: 4px;
-        bottom: 34px;
-        // border: 1px solid #808080;
+        top: 36px;
+        left: 8px;
+        right: 8px;
+        bottom: 38px;
         overflow-y: scroll;
         // box-shadow: 1px 1px 5px #555 inset;
         // padding: 4px;
@@ -547,11 +558,11 @@ $z-index: (
     #n3q div.n3q-chatwindow-chatin {
         position: absolute;
         height: 22px;
-        left: 4px;
-        right: 4px;
-        bottom: 4px;
+        left: 8px;
+        right: 8px;
+        bottom: 8px;
         border: 1px solid #808080;
-        border-radius: 5px;
+        border-radius: 4px;
         display: flex;
     }
     
@@ -602,7 +613,7 @@ $z-index: (
     bottom: 30px;
     background-color: #FFFFFF;
     border: 1px solid #888;
-    border-radius: 5px;
+    border-radius: 4px;
     -webkit-border-radius: 5px;
     white-space: nowrap;
     padding: 0px 2px 0px 4px;

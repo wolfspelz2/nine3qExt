@@ -244,9 +244,9 @@ export class Room
         this.app.sendStanza(message);
     }
 
-    showChatWindow(relativeToElem: HTMLElement): void
+    showChatWindow(aboveElem: HTMLElement): void
     {
-        this.chatWindow?.show(relativeToElem);
+        this.chatWindow?.show({ 'above': aboveElem });
     }
 
     toggleChatWindow(relativeToElem: HTMLElement): void
@@ -255,7 +255,7 @@ export class Room
             if (this.chatWindow.isOpen()) {
                 this.chatWindow.close();
             } else {
-                this.chatWindow.show(relativeToElem);
+                this.showChatWindow(relativeToElem);
             }
         }
     }

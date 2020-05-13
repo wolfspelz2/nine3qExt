@@ -1,8 +1,14 @@
 * { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 12px; }
 
+body {
+    margin: 0;
+    padding: 0;
+    background-color: white;
+}
+
 #n3q-id-popup {
-    width: 30em;
-    margin: 1em;
+    width: 400px;
+    padding: 10px;
 }
 
 .n3q-base {
@@ -20,13 +26,13 @@ input.n3q-base {
 .n3q-popup-title {
     font-size: 24px;
     font-weight: bold;
-    max-width: 20em;
+    max-width: 300px;
 }
 
 .n3q-popup-description {
-    margin-top: 1em;
+    margin-top: 10px;
     font-size: 14px;
-    max-width: 20em;
+    max-width: 300px;
 }
 
 .n3q-popup-icon {
@@ -38,8 +44,8 @@ input.n3q-base {
 // }
 
 .n3q-popup-group {
-    margin-top: 1.5em;
-    padding-top: 1em;
+    margin-top: 15px;
+    padding-top: 10px;
     border-color: #a9a9a9;
     border-style: dashed;
     border-width: 1px 0 0 0;
@@ -47,7 +53,7 @@ input.n3q-base {
 
 .n3q-popup-label {
     display: inline;
-    margin-right: 1em;
+    margin-right: 10px;
 }
 
 // .n3q-popup-group-nickname {
@@ -65,7 +71,7 @@ input.n3q-base {
 
     .n3q-popup-random { 
         display: inline;
-        margin-left: 1em;
+        margin-left: 10px;
     }
 
 // .n3q-popup-group-avatar {
@@ -81,7 +87,7 @@ input.n3q-base {
     }
 
     .n3q-popup-avatar-name { 
-        margin-left: 1em;
+        margin-left: 10px;
     }
 
     .n3q-popup-avatar-arrow { 
@@ -116,15 +122,15 @@ input.n3q-base {
 
 
 .n3q-popup-group-save {
-    padding: 1.5em 0 0 0;    
-    margin: 1.5em 0 0.5em 0;    
+    padding: 15px 0 0 0;    
+    margin: 15px 0 5px 0;    
 }
 
     .n3q-popup-save {
         background-color: #b1c032;
         display: inline;
         border: 1px solid grey;
-        padding: 2px 1em;
+        padding: 2px 10px;
     }
 
     .n3q-popup-save:hover {
@@ -137,9 +143,9 @@ input.n3q-base {
 
     .n3q-popup-save-saving {
         display: inline;
-        margin-left: 0.5em;
+        margin-left: 5px;
         background-color: lightgray;
-        padding: 3px 1em;
+        padding: 3px 10px;
         opacity: 0;
     }
 
@@ -152,6 +158,7 @@ input.n3q-base {
     }
 
     .n3q-popup-close {
+        display: none;
         float: right;
     }
 

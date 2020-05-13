@@ -75,12 +75,12 @@ export class Translator
         return language.substr(0, 2);
     }
     
-    translateText(text: string, key: any): string
+    translateText(key: any, defaultText: string): string
     {
         if (this.translations[key] != undefined) {
             return this.translations[key];
         } else {
-            return text;
+            return defaultText;
         }
     }
 

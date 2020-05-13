@@ -7,27 +7,26 @@ import { Config } from '../lib/Config';
 import { Environment } from '../lib/Environment';
 import { ContentApp } from './ContentApp';
 import { Room } from './Room';
+import { Window } from './Window';
 import { Utils } from '../lib/Utils';
 
 class ChatLine
 {
-    private contentElem: HTMLElement;
-    private windowElem: HTMLElement;
-
     constructor(public nick: string, public text: string)
     {
     }
 }
 
-export class ChatWindow
+export class ChatWindow extends Window
 {
-    private windowElem: HTMLElement;
     private chatoutElem: HTMLElement;
     private chatinInputElem: HTMLElement;
     private lines: Record<string, ChatLine> = {};
 
-    constructor(private app: ContentApp, private display: HTMLElement, private room: Room)
+    constructor(app: ContentApp, display: HTMLElement, private room: Room)
     {
+        super(app, display);
+
         if (Environment.isDevelopment()) {
             this.addLine('1', 'Nickname', 'Lorem');
             this.addLine('2', 'ThisIsALongerNickname', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.');
@@ -36,105 +35,81 @@ export class ChatWindow
         }
     }
 
-    show(relativeToElem: HTMLElement)
+    show(options: any)
     {
-        if (!this.windowElem) {
-            let windowId = Utils.randomString(10);
+        options.titleText = this.app.translateText('Chatwindow.Chat History', 'Chat');
+        options.resizable = true;
+        
+        super.show(options);
 
-            let window = <HTMLElement>$('<div id="' + windowId + '" class="n3q-base n3q-window n3q-chatwindow n3q-shadow-medium" data-translate="children" />').get(0);
-            let titleBar = <HTMLElement>$('<div class="n3q-base n3q-window-title-bar" data-translate="children" />').get(0);
-            let title = <HTMLElement>$('<div class="n3q-base n3q-window-title" data-translate="children" />').get(0);
-            let titleText = <HTMLElement>$('<div class="n3q-base n3q-window-title-text" data-translate="text:Chatwindow">Chat History</div>').get(0);
-            let close = <HTMLElement>$(
-                `<div class="n3q-base n3q-window-button" title="Close" data-translate="attr:title:Common">
-                    <div class="n3q-base n3q-button-symbol n3q-button-close" />
-                </div>`
-            ).get(0);
-            let content = <HTMLElement>$('<div class="n3q-base n3q-window-content" data-translate="children" />').get(0);
-            let resize = <HTMLElement>$('<div class="n3q-base n3q-window-resize n3q-window-resize-se"/>').get(0);
-            let chatout = <HTMLElement>$('<div class="n3q-base n3q-chatwindow-chatout" data-translate="children" />').get(0);
-            let chatin = <HTMLElement>$('<div class="n3q-base n3q-chatwindow-chatin" data-translate="children" />').get(0);
-            let chatinText = <HTMLElement>$('<input type="text" class="n3q-base n3q-chatwindow-chatin-input n3q-input n3q-text" rows="1" placeholder="Enter chat here..." data-translate="attr:placeholder:Chatin" />').get(0);
-            let chatinSend = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-inline" title="SendChat" data-translate="attr:title:Chatin"><div class="n3q-base n3q-button-symbol n3q-button-sendchat" />').get(0);
+        let aboveElem: HTMLElement = options.above;
 
-            $(title).append(titleText);
-            $(titleBar).append(title);
-            $(titleBar).append(close);
-            $(window).append(titleBar);
+        if (this.windowElem) {
+            let windowElem = this.windowElem;
+            let contentElem = this.contentElem;
+            $(windowElem).addClass('n3q-chatwindow');
+            $(windowElem).css({ 'width': '400px', 'height': '300px' });
 
-            $(chatin).append(chatinText);
-            $(chatin).append(chatinSend);
+            let chatoutElem = <HTMLElement>$('<div class="n3q-base n3q-chatwindow-chatout" data-translate="children" />').get(0);
+            let chatinElem = <HTMLElement>$('<div class="n3q-base n3q-chatwindow-chatin" data-translate="children" />').get(0);
+            let chatinTextElem = <HTMLElement>$('<input type="text" class="n3q-base n3q-chatwindow-chatin-input n3q-input n3q-text" rows="1" placeholder="Enter chat here..." data-translate="attr:placeholder:Chatin" />').get(0);
+            let chatinSendElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-inline" title="SendChat" data-translate="attr:title:Chatin"><div class="n3q-base n3q-button-symbol n3q-button-sendchat" />').get(0);
 
-            $(content).append(chatout);
-            $(content).append(chatin);
+            $(chatinElem).append(chatinTextElem);
+            $(chatinElem).append(chatinSendElem);
 
-            $(window).append(content);
-            $(window).append(resize);
+            $(contentElem).append(chatoutElem);
+            $(contentElem).append(chatinElem);
 
-            this.app.translateElem(window);
+            this.app.translateElem(windowElem);
 
-            this.chatinInputElem = chatinText;
-            this.chatoutElem = chatout;
-            this.windowElem = window;
+            this.chatinInputElem = chatinTextElem;
+            this.chatoutElem = chatoutElem;
 
-            $(this.display).append(window);
+            if (aboveElem) {
+                let left = aboveElem.offsetLeft - 180;
+                if (left < 0) { left = 0; }
+                let screenHeight = this.display.offsetHeight;
+                let top = this.display.offsetHeight - 500;
+                $(windowElem).css({ left: left + 'px', top: top + 'px' });
+            }
 
-            let left = relativeToElem.offsetLeft - 180;
-            if (left < 0) { left = 0; }
-            let screenHeight = this.display.offsetHeight;
-            let top = this.display.offsetHeight - 500;
-            $(window).css({ left: left + 'px', top: top + 'px' });
+            this.fixChatInTextWidth(chatinTextElem, 38, chatinElem);
 
-            this.fixChatInTextWidth(chatinText, 38, chatin);
+            this.onResize = (ev: JQueryEventObject) =>
+            {
+                this.fixChatInTextWidth(chatinTextElem, 38, chatinElem);
+                // $(chatinText).focus();
+            };
 
-            $(window).resizable({
-                minWidth: 180,
-                minHeight: 30,
-                handles: {
-                    'se': '#n3q #' + windowId + ' .n3q-window-resize-se',
-                },
-                resize: (ev: JQueryEventObject) =>
-                {
-                    this.fixChatInTextWidth(chatinText, 38, chatin);
-                    // $(chatinText).focus();
-                },
-            });
-
-            $(chatinText).on('keydown', ev =>
+            $(chatinTextElem).on('keydown', ev =>
             {
                 return this.onChatinKeydown(ev);
             });
 
-            $(chatinSend).click(ev =>
+            $(chatinSendElem).click(ev =>
             {
                 this.sendChat();
                 ev.stopPropagation();
             });
 
-            $(close).click(ev =>
+            this.onClose = () =>
             {
-                this.close();
-            });
+                this.chatoutElem = null;
+                this.chatinInputElem = null;
+            };
 
-            $(window).draggable({
-                handle: '.n3q-window-title',
-                scroll: false,
-                stack: '.n3q-entity',
-                // opacity: 0.5,
-                distance: 4,
-                containment: 'document',
-                stop: (ev: JQueryEventObject) =>
-                {
-                    // $(chatinText).focus();
-                },
-            });
+            this.onDragStop = (ev: JQueryEventObject) =>
+            {
+                // $(chatinText).focus();
+            };
 
             for (let id in this.lines) {
                 let line = this.lines[id];
                 this.showLine(line.nick, line.text);
             }
 
-            $(chatinText).focus();
+            $(chatinTextElem).focus();
         }
 
         this.pushToTop();
@@ -154,7 +129,7 @@ export class ChatWindow
 
     addLine(id: string, nick: string, text: string)
     {
-        let translated = this.app.translateText(text, 'Chatwindow.' + text);
+        let translated = this.app.translateText('Chatwindow.' + text, text);
 
         // // Beware: without markdown in showLine: as.Html(text)
         // let markdowned = markdown.markdown.toHTML(translated);
@@ -208,13 +183,5 @@ export class ChatWindow
 
     private pushToTop()
     {
-    }
-
-    close(): void
-    {
-        $(this.windowElem).remove();
-        this.windowElem = null;
-        this.chatoutElem = null;
-        this.chatinInputElem = null;
     }
 }

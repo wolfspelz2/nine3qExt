@@ -79,7 +79,7 @@ export class Config
                     'Chatin.SendChat': 'Send chat',
 
                     'Popup.title': 'Your Weblin',
-                    'Popup.description': 'Change name and avatar, press [save], and then reload the page.',
+                    'Popup.description': 'Change name and avatar, then press [save].',
                     'Popup.Name': 'Name',
                     'Popup.Random': 'Random',
                     'Popup.Avatar': 'Avatar',
@@ -89,10 +89,11 @@ export class Config
                     'Popup.Show avatar': 'Show avatar on pages',
                     'Popup.Uncheck to hide': 'Uncheck to hide avatar on pages',
 
-                    'Menu.Chat': 'Chat',
-                    'Menu.Chat Window': 'History',
+                    'Menu.Settings': 'Settings',
                     'Menu.Stay Here': 'Stay Here',
-                    'Menu.Actions': 'Actions:',
+                    'Menu.Chat Window': 'History',
+                    'Menu.Chat': 'Chat',
+                    'Menu.Actions:': 'Actions:',
                     'Menu.wave': 'Wave',
                     'Menu.dance': 'Dance',
                     'Menu.cheer': 'Cheer',
@@ -106,6 +107,8 @@ export class Config
                     'Chatwindow.Chat History': 'Chat',
                     'Chatwindow.entered the room': '**entered the room**',
                     'Chatwindow.left the room': '**left the room**',
+
+                    'Settingswindow.Settings': 'Settings',
                 },
                 'de-DE': {
                     'Common.Close': 'Schließen',
@@ -114,7 +117,7 @@ export class Config
                     'Chatin.SendChat': 'Chat abschicken',
 
                     'Popup.title': 'Dein Weblin',
-                    'Popup.description': 'Wähle Name und Avatar, dann drücke [Speichern] und lade die Seite neu.',
+                    'Popup.description': 'Wähle Name und Avatar, dann drücke [Speichern].',
                     'Popup.Name': 'Name',
                     'Popup.Random': 'Zufallsname',
                     'Popup.Avatar': 'Avatar',
@@ -124,10 +127,11 @@ export class Config
                     'Popup.Show avatar': 'Avatar auf Seiten anzeigen',
                     'Popup.Uncheck to hide': 'Abschalten, um das Avatar auf Webseiten nicht anzuzeigen',
 
-                    'Menu.Chat': 'Chat',
-                    'Menu.Chat Window': 'Chatverlauf',
+                    'Menu.Settings': 'Einstellungen',
                     'Menu.Stay Here': 'Hier bleiben',
-                    'Menu.Actions': 'Aktionen:',
+                    'Menu.Chat Window': 'Chatverlauf',
+                    'Menu.Chat': 'Sprechblase',
+                    'Menu.Actions:': 'Aktionen:',
                     'Menu.wave': 'Winken',
                     'Menu.dance': 'Tanzen',
                     'Menu.cheer': 'Jubeln',
@@ -141,6 +145,8 @@ export class Config
                     'Chatwindow.Chat History': 'Chat',
                     'Chatwindow.entered the room': '**hat den Raum betreten**',
                     'Chatwindow.left the room': '**hat den Raum verlassen**',
+
+                    'Settingswindow.Settings': 'Einstellungen',
                 },
             },
             'serviceUrl': '',
