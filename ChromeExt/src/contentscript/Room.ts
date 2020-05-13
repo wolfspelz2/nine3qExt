@@ -92,13 +92,6 @@ export class Room
             );
         }
 
-        if (!this.isEntered) {
-            presence.append(
-                xml('x', { xmlns: 'http://jabber.org/protocol/muc' })
-                    .append(xml('history', { seconds: '180', maxchars: '3000', maxstanzas: '10' }))
-            );
-        }
-
         this.app.sendStanza(presence);
     }
 
