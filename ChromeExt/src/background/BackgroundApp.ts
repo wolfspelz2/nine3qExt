@@ -224,7 +224,7 @@ export class BackgroundApp
         {
             let isConnectionPresence = false;
             if (stanza.name == 'presence') {
-                isConnectionPresence = (jid(stanza.attrs.from).getResource() == this.resource);
+                isConnectionPresence = stanza.attrs.from && (jid(stanza.attrs.from).getResource() == this.resource);
             }
             if (!isConnectionPresence) {
                 log.info('BackgroundApp.recvStanza', stanza);
