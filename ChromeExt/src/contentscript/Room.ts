@@ -82,15 +82,8 @@ export class Room
                 xml('x', { xmlns: 'firebat:user:identity', jid: this.userJid, src: identityUrl, digest: '1' }))
             .append(
                 xml('x', { xmlns: 'firebat:avatar:state', jid: this.userJid, })
-                    .append(xml('position', { x: this.posX }))
+                    .append(xml('position', { x: as.Int(this.posX) }))
             );
-
-        if (!this.isEntered) {
-            presence.append(
-                xml('x', { xmlns: 'http://jabber.org/protocol/muc' })
-                    .append(xml('history', { seconds: '180', maxchars: '3000', maxstanzas: '10' }))
-            );
-        }
 
         if (!this.isEntered) {
             presence.append(
