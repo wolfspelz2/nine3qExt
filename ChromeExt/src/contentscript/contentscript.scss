@@ -347,7 +347,8 @@ $z-index: (
         #n3q div.n3q-menu-item.n3q-menu-column-main { transform: translate3d(60px, -35px, 0); }
         #n3q div.n3q-menu-item.n3q-menu-column-action { transform: translate3d(-3px, -35px, 0); }
 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-test     { transform: translate3d(60px, -132px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-test     { transform: translate3d(80px, -16px, 0); } 
+
         #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-settings { transform: translate3d(60px, -110px, 0); } 
         #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-tabstay  { transform: translate3d(60px,  -88px, 0); } 
         #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-chatwin  { transform: translate3d(60px,  -66px, 0); } 
