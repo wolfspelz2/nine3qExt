@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "_Wolfspelz.OrleansSample.SiloHost": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=wolfspelzorleans;AccountKey=U+UcKlplgW10o0SMPL89T0IyEEKEKEttqzcV4i4a2vJASFBD8fRzd+ELhwmkxj9ipEFqF2+XJpc857IyTbTwKw==;EndpointSuffix=core.windows.net"
+      }
+    }
+  }
+}
