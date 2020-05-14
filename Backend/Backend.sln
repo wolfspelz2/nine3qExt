@@ -11,10 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grains", "src\Grains\Grains
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_LocalSilo", "src\LocalSilo\_LocalSilo.csproj", "{4E48002B-EFC0-4925-BCE1-17C3DA96DB9C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{BE23181D-CC2B-4260-8967-B8EA984FFC62} = {BE23181D-CC2B-4260-8967-B8EA984FFC62}
-		{E878EA71-2441-49EA-9A8A-7D4500E10067} = {E878EA71-2441-49EA-9A8A-7D4500E10067}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestClient", "src\TestClient\TestClient.csproj", "{E878EA71-2441-49EA-9A8A-7D4500E10067}"
 EndProject

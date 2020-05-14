@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -11,12 +10,8 @@ using System.Xml;
 
 namespace XmppComponent
 {
-    public class Connection: IDisposable
+    public partial class Connection: IDisposable
     {
-        public class Command : Dictionary<string, string>
-        {
-        }
-
         private static NetworkStream _networkStream;
 
         private static string _host;
@@ -36,7 +31,7 @@ namespace XmppComponent
         {
             using (var tcpClient = new TcpClient()) {
                 Log.Info("Connecting to server");
-                await tcpClient.ConnectAsync(_host, _port).ConfigureAwait(false);
+                await tcpClient.ConnectAsync(_host, _port);
                 Log.Info("Connected to server");
 
                 _networkStream = tcpClient.GetStream();
@@ -112,11 +107,11 @@ namespace XmppComponent
         {
             Send($"<presence to='item1@{_host}' from='item1@{_host}/backend' />");
 
-            Send(@$"<presence to='ef1b96243dd54a4f245896a38bcdfb8fdf67b33b@muc4.virtual-presence.org/item1' from='item1@{_host}/backend'>
-                      <x xmlns='http://jabber.org/protocol/muc'>
-                        <history seconds='0' maxchars='0' maxstanzas='0'/>
-                      </x>
-                   </presence>");
+            //Send(@$"<presence to='ef1b96243dd54a4f245896a38bcdfb8fdf67b33b@muc4.virtual-presence.org/item1' from='item1@{_host}/backend'>
+            //          <x xmlns='http://jabber.org/protocol/muc'>
+            //            <history seconds='0' maxchars='0' maxstanzas='0'/>
+            //          </x>
+            //       </presence>");
         }
 
         private void OnXmppComponentConnectionStopped()
@@ -215,7 +210,7 @@ x=345
             }
         }
 
-        private void Send(string text)
+        public void Send(string text)
         {
             Log.Verbose($"-> {text}");
             var bytes = Encoding.UTF8.GetBytes(text);

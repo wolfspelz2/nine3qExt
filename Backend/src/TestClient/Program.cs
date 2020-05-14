@@ -7,9 +7,9 @@ using Orleans.Runtime;
 using Orleans.Configuration;
 using Orleans.Hosting;
 using Orleans.Streams;
-using Nine3Q.GrainInterfaces;
+using GrainInterfaces;
 
-namespace Nine3Q.Client
+namespace TestClient
 {
     //public class StringCacheObserver : IAsyncObserver<string>
     //{
@@ -146,8 +146,8 @@ namespace Nine3Q.Client
 
                     case "sub":
                         {
-                            var streamProvider = client.GetStreamProvider(StringCacheStream.Provider);
-                            var stream = streamProvider.GetStream<string>(await grain.GetStreamId(), StringCacheStream.Namespace);
+                            var streamProvider = client.GetStreamProvider(TestStringStream.Provider);
+                            var stream = streamProvider.GetStream<string>(await grain.GetStreamId(), TestStringStream.Namespace);
                             if (subscriptionHandles.ContainsKey(key))
                             {
                                 await subscriptionHandles[key].UnsubscribeAsync();

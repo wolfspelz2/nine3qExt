@@ -24,7 +24,7 @@ namespace XmppComponent
         private static async Task<int> RunMainAsync()
         {
             try {
-                using (var client = await StartClientWithRetries().ConfigureAwait(false)) {
+                using (var client = await StartClientWithRetries()) {
                     await DoClientWork(client);
                 }
 
@@ -76,27 +76,10 @@ namespace XmppComponent
 
         private static async Task DoClientWork(IClusterClient client)
         {
-           var conn = new Connection(_componentHost, _port, _sharedSecret, cmd => { HandleCommand(cmd); });
-           await conn.Start();
-        }
-
-        private static void HandleCommand(Connection.Command cmd)
-        {
-            try {
-                var method = cmd.ContainsKey("method") ? cmd["method"] : "";
-                switch (method) {
-                    case "rez": HandleRez(cmd); break;
-                }
-            } catch (Exception ex) {
-                Log.Error(ex);
-            }
-        }
-
-        private static void HandleRez(Connection.Command cmd)
-        {
-            var user = cmd.ContainsKey("user") ? cmd["user"] : "";
-            if (!string.IsNullOrEmpty(user)) {
-            }
+            var cmdHandler = new CommandHandler(_componentHost, client);
+            var conn = new Connection(_componentHost, _port, _sharedSecret, async cmd => { await cmdHandler.HandleCommand(cmd); });
+            cmdHandler.Connection = conn;
+            await conn.Start();
         }
     }
 }

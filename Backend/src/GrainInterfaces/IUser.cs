@@ -4,16 +4,15 @@ using Orleans;
 
 namespace GrainInterfaces
 {
-    public class TestStringStream
+    public class UserStream
     {
         public const string Provider = "SMSProvider";
-        public const string Namespace = "Value";
+        public const string Namespace = "Properties";
     }
 
-    public interface ITestString : IGrainWithStringKey
+    public interface IUser : IGrainWithStringKey
     {
-        Task Set(string value);
-        Task<string> Get();
         Task<Guid> GetStreamId();
+        Task DropItem(long itemId, string roomId, int x);
     }
 }
