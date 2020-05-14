@@ -5,7 +5,12 @@ VisualStudioVersion = 16.0.29519.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrainInterfaces", "src\GrainInterfaces\GrainInterfaces.csproj", "{566DC69A-E7F5-4AD7-96FA-E0536BDA5AED}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_XmppComponent", "src\XmppComponent\XmppComponent.csproj", "{BE23181D-CC2B-4260-8967-B8EA984FFC62}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XmppComponent", "src\XmppComponent\XmppComponent.csproj", "{BE23181D-CC2B-4260-8967-B8EA984FFC62}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1C83364A-A39F-4830-A22F-ABA9FE1441D6}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
