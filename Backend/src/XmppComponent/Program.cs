@@ -46,17 +46,13 @@ namespace Nine3Q.Client
 
         private static async Task<int> RunMainAsync()
         {
-            try
-            {
-                using (var client = await StartClientWithRetries())
-                {
+            try {
+                using (var client = await StartClientWithRetries()) {
                     await DoClientWork(client);
                 }
 
                 return 0;
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 Console.WriteLine(e);
                 Console.ReadKey();
                 return 1;
@@ -69,8 +65,7 @@ namespace Nine3Q.Client
             IClusterClient client;
             client = new ClientBuilder()
                 .UseLocalhostClustering()
-                .Configure<ClusterOptions>(options =>
-                {
+                .Configure<ClusterOptions>(options => {
                     options.ClusterId = "dev";
                     options.ServiceId = "Sample";
                 })
@@ -85,15 +80,13 @@ namespace Nine3Q.Client
 
         private static async Task<bool> RetryFilter(Exception exception)
         {
-            if (exception.GetType() != typeof(SiloUnavailableException))
-            {
+            if (exception.GetType() != typeof(SiloUnavailableException)) {
                 Console.WriteLine($"Cluster client failed to connect to cluster with unexpected error.  Exception: {exception}");
                 return false;
             }
             attempt++;
             Console.WriteLine($"Cluster client attempt {attempt} of {initializeAttemptsBeforeFailing} failed to connect to cluster.  Exception: {exception}");
-            if (attempt > initializeAttemptsBeforeFailing)
-            {
+            if (attempt > initializeAttemptsBeforeFailing) {
                 return false;
             }
             await Task.Delay(TimeSpan.FromSeconds(4));
@@ -109,61 +102,76 @@ namespace Nine3Q.Client
         {
             //await Task.CompletedTask;
 
-            using (var tcpClient = new TcpClient())
-            {
+            using (var tcpClient = new TcpClient()) {
                 Console.WriteLine("Connecting to server");
                 await tcpClient.ConnectAsync(_componentHost, _port);
                 Console.WriteLine("Connected to server");
                 _networkStream = tcpClient.GetStream();
                 {
-                    {
-                        var textToSend = "<stream:stream xmlns='jabber:component:accept' xmlns:stream='http://etherx.jabber.org/streams' to='items.xmpp.dev.sui.li'>";
-                        Console.WriteLine($"-> {textToSend}");
-                        var bytesToSend = Encoding.UTF8.GetBytes(textToSend);
-                        await _networkStream.WriteAsync(bytesToSend, 0, bytesToSend.Length);
-                    }
-
-                    //var buffer = new byte[4096];
-                    //var byteCount = await networkStream.ReadAsync(buffer, 0, buffer.Length);
-                    //var received = Encoding.UTF8.GetString(buffer, 0, byteCount);
-                    //Console.WriteLine($"<- {received}");
+                    Send($"<stream:stream xmlns='jabber:component:accept' xmlns:stream='http://etherx.jabber.org/streams' to='items.xmpp.dev.sui.li'>");
 
                     using (var streamReader = new StreamReader(_networkStream))
-                    using (var xmlReader = XmlReader.Create(streamReader))
-                    {
-                        while (xmlReader.Read())
-                        {
-                            switch (xmlReader.NodeType)
-                            {
+                    using (var xmlReader = XmlReader.Create(streamReader)) {
+                        while (xmlReader.Read()) {
+                            switch (xmlReader.NodeType) {
                                 case XmlNodeType.XmlDeclaration:
-                                    Console.WriteLine($"<- {xmlReader.NodeType.ToString()}");
-                                    break;
+                                Console.WriteLine($"<- {xmlReader.NodeType.ToString()}");
+                                break;
+
                                 case XmlNodeType.Element:
-                                    Console.WriteLine($"<- {xmlReader.NodeType.ToString()} {xmlReader.Name}");
-
-                                    switch (xmlReader.Name)
-                                    {
-                                        case "stream:stream":
-                                            var id = xmlReader.GetAttribute("id");
-                                            var data = id + _sharedSecret;
-                                            var sha1 = SHA1(data);
-                                            await SendStanza($"<handshake>{sha1}</handshake>");
-                                            break;
-
-                                        case "handshake":
-                                            await OnXmppComponentConnectionStartedAsync();
-                                            break;
-
-                                        case "presence":
-                                            OnPresence(XElement.ReadFrom(xmlReader));
-                                            break;
-
-                                        case "message":
-                                            OnMessage(XElement.ReadFrom(xmlReader));
-                                            break;
+                                switch (xmlReader.Name) {
+                                    case "stream:stream": {
+                                        Console.WriteLine($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
+                                        var id = xmlReader.GetAttribute("id");
+                                        var data = id + _sharedSecret;
+                                        var sha1 = SHA1(data);
+                                        Send($"<handshake>{sha1}</handshake>");
                                     }
-
                                     break;
+
+                                    case "handshake": {
+                                        Console.WriteLine($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
+                                        OnXmppComponentConnectionStarted();
+                                    }
+                                    break;
+
+                                    case "presence": {
+                                        if (xmlReader.Depth == 1) {
+                                            //var x = XNode.ReadFrom(xmlReader);
+                                            //Console.WriteLine($"<- {x.ToString()}");
+                                            Console.WriteLine($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
+                                            OnPresence(xmlReader);
+                                        } else {
+                                            Console.WriteLine($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
+                                        }
+                                    }
+                                    break;
+
+                                    case "message": {
+                                        if (xmlReader.Depth == 1) {
+                                            //var x = XNode.ReadFrom(xmlReader);
+                                            //Console.WriteLine($"<- {x.ToString()}");
+                                            Console.WriteLine($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
+                                            OnMessage(xmlReader);
+                                        } else {
+                                            Console.WriteLine($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
+                                        }
+                                    }
+                                    break;
+
+                                    default: {
+                                        if (xmlReader.Depth == 1) {
+                                            //var x = XNode.ReadFrom(xmlReader);
+                                            //Console.WriteLine($"<- {x.ToString()}");
+                                            Console.WriteLine($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
+                                        } else {
+                                            Console.WriteLine($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
+                                        }
+                                    }
+                                    break;
+                                }
+
+                                break;
                             }
                         }
                     }
@@ -173,35 +181,120 @@ namespace Nine3Q.Client
             }
         }
 
-        private static async Task OnXmppComponentConnectionStartedAsync()
+        private static void OnXmppComponentConnectionStarted()
         {
-            await SendStanza($"<presence to='ef1b96243dd54a4f245896a38bcdfb8fdf67b33b@muc4.virtual-presence.org/item1' from='item1@{_componentHost}' />");
+            Send($"<presence to='item1@{_componentHost}' from='item1@{_componentHost}/backend' />");
+
+            Send(@$"<presence to='ef1b96243dd54a4f245896a38bcdfb8fdf67b33b@muc4.virtual-presence.org/item1' from='item1@{_componentHost}/backend'>
+                      <x xmlns='http://jabber.org/protocol/muc'>
+                        <history seconds='0' maxchars='0' maxstanzas='0'/>
+                      </x>
+                   </presence>");
         }
 
         private static void OnXmppComponentConnectionStopped()
         {
         }
 
-        private static void OnPresence(XNode stanzaNode)
+        private static void OnPresence(XmlReader xmlReader)
         {
-            //if (stanzaNode is XElement stanza)
-            //{
-            //    var from = stanza.Attribute("from").Value;
-            //    Console.WriteLine($"-> presence of {from}");
-            //}
+            var from = xmlReader.GetAttribute("from");
+            Console.WriteLine($"<-     from={from}");
         }
 
-        private static void OnMessage(XNode stanzaNode)
+        /*
+            <presence to='xmpp.dev.sui.li/nick'>
+              <x xmlns='vp:props'
+                nickame="yyyyyyy"
+		        avatar="xxxxxxx"
+	          />
+            </presence>
+
+        -->  <message to='items.xmpp.dev.sui.li'>
+        -->    <x xmlns='vp:cmd'
+        -->      method="rez"
+		-->      user="user-12345@users.virtual-presence.org"
+		-->      room="ef1b96243dd54a4f245896a38bcdfb8fdf67b33b@muc4.virtual-presence.org"
+		-->      destination="http://www.mypage.com/index.html"
+		-->      x="345"
+	    -->    />
+        -->  </message>
+
+
+            <message to='items.xmpp.dev.sui.li'>
+              <x xmlns='vp:json'>
+              {
+		        method: "rez",
+		        user: "user-12345@users.virtual-presence.org",
+		        room: "ef1b96243dd54a4f245896a38bcdfb8fdf67b33b@muc4.virtual-presence.org",
+		        destination: "http://www.mypage.com/index.html",
+		        x: 345
+              }
+	        </x>
+            </message>
+
+
+            <message to='items.xmpp.dev.sui.li'>
+              <x xmlns='vp:yaml'>
+method: rez
+user: user-12345@users.virtual-presence.org
+room: ef1b96243dd54a4f245896a38bcdfb8fdf67b33b@muc4.virtual-presence.org
+destination: http://www.mypage.com/index.html
+x: 345
+	        </x>
+            </message>
+
+
+            <message to='items.xmpp.dev.sui.li'>
+              <x xmlns='vp:srpc'>
+method=rez
+user=user-12345@users.virtual-presence.org
+room=ef1b96243dd54a4f245896a38bcdfb8fdf67b33b@muc4.virtual-presence.org
+destination=http=//www.mypage.com/index.html
+x=345
+	        </x>
+            </message>
+        */
+        private static void OnMessage(XmlReader xmlReader)
         {
+            var cmd = new Dictionary<string, string>();
+            var from = xmlReader.GetAttribute("from");
+            Console.WriteLine($"<-     from={from}");
+            var nodeReader = xmlReader.ReadSubtree();
+            while (nodeReader.Read()) {
+                switch (nodeReader.NodeType) {
+                    case XmlNodeType.Element:
+                    if (nodeReader.Depth == 1 && nodeReader.Name == "x" && nodeReader.GetAttribute("xmlns") == "vp:cmd") {
+                        nodeReader.MoveToFirstAttribute();
+                        var cnt = nodeReader.AttributeCount;
+                        while (cnt > 0) {
+                            cmd[nodeReader.Name] = nodeReader.Value;
+                            nodeReader.MoveToNextAttribute();
+                            cnt--;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            cmd.Select(pair => $"{pair.Key}={pair.Value}").ToList().ForEach(line => Console.WriteLine($"<-     {line}"));
+
+            if (cmd.Count > 0) {
+            }
         }
 
-        // ---
-
-        private static async Task SendStanza(string text)
+        private static void Send(string text)
         {
             Console.WriteLine($"-> {text}");
             var bytes = Encoding.UTF8.GetBytes(text);
-            await _networkStream.WriteAsync(bytes, 0, bytes.Length);
+            _networkStream.WriteAsync(bytes, 0, bytes.Length).PerformAsyncTaskWithoutAwait(t => Console.WriteLine(t.Exception));
+        }
+
+        static string Serialize(XNode node)
+        {
+            using StringWriter sw = new StringWriter();
+            (node as XElement).Save(sw);
+            return sw.ToString();
         }
 
         static string SHA1(string input)
@@ -210,5 +303,13 @@ namespace Nine3Q.Client
             return string.Concat(hash.Select(b => b.ToString("x2")));
         }
 
+    }
+
+    public static class AsyncUtility
+    {
+        public static void PerformAsyncTaskWithoutAwait(this Task task, Action<Task> exceptionHandler)
+        {
+            var dummy = task.ContinueWith(t => exceptionHandler(t), TaskContinuationOptions.OnlyOnFaulted);
+        }
     }
 }
