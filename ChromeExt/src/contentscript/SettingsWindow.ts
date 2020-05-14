@@ -24,26 +24,29 @@ export class SettingsWindow extends Window
         super.show(options);
 
         let aboveElem: HTMLElement = options.above;
+        let bottom = as.Int(options.bottom, 200);
+        let width = as.Int(options.width, 430);
+        let height = as.Int(options.height, 410);
 
         if (this.windowElem) {
-            let window = this.windowElem;
-            let content = this.contentElem;
-            $(window).addClass('n3q-settingswindow');
-            $(window).css({ 'width': '430px', 'height': '410px' });
+            let windowElem = this.windowElem;
+            let contentElem = this.contentElem;
+            $(windowElem).addClass('n3q-settingswindow');
+            $(windowElem).css({ 'width': width + 'px', 'height': height + 'px' });
 
             let uri = 'chrome-extension://' + chrome.runtime.id + '/popup.html';
-            let iframe = <HTMLElement>$('<iframe class="n3q-base n3q-settingswindow-content" style="width: 430px; height: 380px;" src="' + uri + ' " frameborder="0"></iframe>').get(0);
+            let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-settingswindow-content" style="width: 430px; height: 380px;" src="' + uri + ' " frameborder="0"></iframe>').get(0);
 
-            $(content).append(iframe);
+            $(contentElem).append(iframeElem);
 
-            this.app.translateElem(window);
+            this.app.translateElem(windowElem);
 
             if (aboveElem) {
                 let left = aboveElem.offsetLeft - 180;
                 if (left < 0) { left = 0; }
                 let screenHeight = this.display.offsetHeight;
-                let top = this.display.offsetHeight - 600;
-                $(window).css({ left: left + 'px', top: top + 'px' });
+                let top = screenHeight - height - bottom;
+                $(windowElem).css({ left: left + 'px', top: top + 'px' });
             }
         }
     }

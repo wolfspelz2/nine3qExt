@@ -521,10 +521,73 @@ $z-index: (
             left: 8px;
             right: 8px;
             bottom: 38px;
-                pointer-events: auto;
+            pointer-events: auto;
         }
 
-        // #n3q div.n3q-chatwindow {}
+    // #n3q div.n3q-xmppwindow {}
+
+        #n3q div.n3q-xmppwindow-chatout {
+            position: absolute;
+            top: 36px;
+            left: 8px;
+            right: 8px;
+            bottom: 338px;
+            overflow-y: scroll;
+            // box-shadow: 1px 1px 5px #555 inset;
+            // padding: 4px;
+        }
+        
+            #n3q div.n3q-xmppwindow-line-error {
+                font-size: 12px;
+                line-height: 13px;
+                color: white;
+                background-color: darkred;
+            }
+
+        #n3q div.n3q-xmppwindow-chatin {
+            position: absolute;
+            height: 322px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            border: 1px solid #808080;
+            border-radius: 4px;
+        }
+
+        #n3q textarea.n3q-xmppwindow-chatin-input, 
+        #n3q input[type=text].n3q-xmppwindow-chatin-input
+        {
+            position: absolute;
+            left: 8px;
+            right: 22px;
+            top: 4px;
+            bottom: 4px;
+            box-sizing: border-box;
+
+            height: 314px;
+            resize: none;
+            border-width: 0;
+            font: normal 11px/12px Arial, sans-serif;
+        }
+    
+            #n3q textarea.n3q-xmppwindow-chatin-input:focus,
+            #n3q input[type=text].n3q-xmppwindow-chatin-input:focus
+            {
+                outline: 0;
+            }
+    
+        #n3q div.n3q-xmppwindow-chatin div.n3q-button-sendchat {
+            position: absolute;
+            right: 4px;
+            top: 4px;
+            bottom: 4px;
+    
+            width: 14px;
+            height: 314px;
+            background-color: lightgrey;
+        }
+
+    // #n3q div.n3q-chatwindow {}
 
     #n3q div.n3q-chatwindow-chatout {
         position: absolute;
@@ -537,7 +600,7 @@ $z-index: (
         // padding: 4px;
     }
     
-    #n3q div.n3q-chatwindow-line {
+        #n3q div.n3q-chatwindow-line {
             font-size: 12px;
             line-height: 13px;
             margin: 0 0 0.3em 2em;
@@ -566,7 +629,7 @@ $z-index: (
         bottom: 8px;
         border: 1px solid #808080;
         border-radius: 4px;
-        display: flex;
+        // display: flex;
     }
     
     #n3q textarea.n3q-chatwindow-chatin-input, 

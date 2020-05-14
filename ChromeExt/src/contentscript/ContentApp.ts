@@ -14,6 +14,7 @@ import { PropertyStorage } from './PropertyStorage';
 import { Room } from './Room';
 import { VpiResolver } from './VpiResolver';
 import { SettingsWindow } from './SettingsWindow';
+import { XmppWindow } from './XmppWindow';
 
 interface ILocationMapperResponse
 {
@@ -137,6 +138,7 @@ export class ContentApp
 
     test()
     {
+        let xmppWindow = new XmppWindow(this, this.display).show({ });
     }
 
     createPageControl()
