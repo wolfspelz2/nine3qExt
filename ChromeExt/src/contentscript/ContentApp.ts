@@ -139,6 +139,10 @@ export class ContentApp
 
     test()
     {
+    }
+
+    showXmppWindow()
+    {
         this.xmppWindow = new XmppWindow(this, this.display);
         this.xmppWindow.show({ onClose: () => { this.xmppWindow = null; } });
     }

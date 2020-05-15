@@ -114,8 +114,6 @@ export class ChatWindow extends Window
 
             $(chatinTextElem).focus();
         }
-
-        this.pushToTop();
     }
 
     isOpen(): boolean
@@ -179,12 +177,44 @@ export class ChatWindow extends Window
     {
         var text: string = as.String($(this.chatinInputElem).val(), '');
         if (text != '') {
+
+            if (text.substring(0, 1) == '/') {
+                var isHandled = this.chatCommand(text);
+                if (isHandled) {
+                    $(this.chatinInputElem).val('');
+                    return;
+                }
+            }
+
             this.room?.sendGroupChat(text);
-            $(this.chatinInputElem).val('').focus();
+
+            $(this.chatinInputElem)
+                .val('')
+                .focus()
+                ;
         }
     }
 
-    private pushToTop()
+    private chatCommand(text: string): boolean
     {
+        let isHandled = false;
+
+        var parts: string[] = text.split(' ');
+        if (parts.length < 1) { return; }
+        var cmd: string = parts[0];
+
+        switch (cmd) {
+            case '/help':
+            case '/?':
+                this.showLine('?', '/xmpp');
+                isHandled = true;
+                break;
+            case '/xmpp':
+                this.app.showXmppWindow();
+                isHandled = true;
+                break;
+        }
+
+        return isHandled;
     }
 }

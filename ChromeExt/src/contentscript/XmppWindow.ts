@@ -21,7 +21,7 @@ export class XmppWindow extends Window
 
     async show(options: any)
     {
-        options.titleText = this.app.translateText('XmppConsole.Xmpp Console', 'Xmpp Console');
+        options.titleText = this.app.translateText('Console.Console', 'Console');
         options.resizable = true;
 
         super.show(options);
@@ -112,7 +112,7 @@ export class XmppWindow extends Window
 
     showHistory()
     {
-        _Changes.getLines().forEach(line => { this.showLine('', line); });
+        _Changes.getLines().reverse().forEach(line => { this.showLine('', line); });
     }
 
     fixChatInTextWidth(chatinText: HTMLElement, delta: number, chatin: HTMLElement)
@@ -166,12 +166,12 @@ export class XmppWindow extends Window
 
     async storeText(text: string)
     {
-        await Config.setSync('dev.xmppWindow', text);
+        await Config.setSync('dev.scratchPad', text);
     }
 
     async getStoredText(): Promise<string>
     {
-        return await Config.getSync('dev.xmppWindow', '');
+        return await Config.getSync('dev.scratchPad', '');
     }
 
     test2Stanza(text: string): xml
