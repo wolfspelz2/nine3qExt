@@ -218,7 +218,7 @@ export class ContentApp
 
         if (this.xmppWindow) {
             let stanzaText = stanza.toString();
-            this.xmppWindow.showLine('in: ' + stanzaText);
+            this.xmppWindow.showLine('IN', stanzaText);
         }
 
         switch (stanza.name) {
@@ -345,7 +345,7 @@ export class ContentApp
         try {
             if (this.xmppWindow) {
                 let stanzaText = stanza.toString();
-                this.xmppWindow.showLine('out: ' + stanzaText);
+                this.xmppWindow.showLine('OUT', stanzaText);
             }
 
             await BackgroundMessage.sendStanza(stanza);

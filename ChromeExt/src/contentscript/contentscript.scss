@@ -536,13 +536,25 @@ $z-index: (
             user-select: auto;
         }
         
-            // #n3q div.n3q-xmppwindow-line {}
+        #n3q div.n3q-xmppwindow-line span.n3q-xmppwindow-label {
+            font-weight: bold;
+            margin: 0 0.4em 0 0;
+            user-select: auto;
+        }
 
-            #n3q div.n3q-xmppwindow-line-error {
-                font-size: 12px;
-                line-height: 13px;
+        #n3q div.n3q-xmppwindow-line span.n3q-xmppwindow-text {
+            user-select: auto;
+        }
+
+        #n3q div.n3q-xmppwindow-line { 
+            font-size: 12px;
+            line-height: 13px;
+            margin: 0 0 0.3em 0;
+        }
+
+            #n3q div.n3q-xmppwindow-line-error span.n3q-xmppwindow-label {
                 color: white;
-                background-color: darkred;
+                background-color: red;
             }
 
         #n3q div.n3q-xmppwindow-in {
@@ -577,7 +589,7 @@ $z-index: (
                 outline: 0;
             }
 
-        #n3q div.n3q-window-content div.n3q-button {
+        #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-button {
             position: absolute;
             width: 50px;
             color: #000000;
@@ -587,12 +599,12 @@ $z-index: (
             padding: 4px;
         }
 
-            #n3q div.n3q-window-content div.n3q-button:hover { filter: brightness(0.9); }
-            #n3q div.n3q-window-content div.n3q-button:active { filter: brightness(0.8); }   
-                    
-            #n3q div.n3q-window-content div.n3q-xmppwindow-in-send { right: 4px; top: 4px; }
-            #n3q div.n3q-window-content div.n3q-xmppwindow-in-save { right: 4px; top: 28px; }
-            #n3q div.n3q-window-content div.n3q-xmppwindow-out-clear { right: 4px; top: 4px; }
+            #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-button:hover { filter: brightness(0.9); }
+            #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-button:active { filter: brightness(0.8); }   
+ 
+            #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-xmppwindow-in-send { right: 4px; top: 4px; }
+            #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-xmppwindow-in-save { right: 4px; top: 30px; }
+            #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-xmppwindow-out-clear { right: 4px; top: 4px; }
 
     // #n3q div.n3q-chatwindow {}
 

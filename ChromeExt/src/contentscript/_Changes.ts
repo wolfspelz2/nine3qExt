@@ -32,7 +32,7 @@ export class _Changes
             {
                 { lines.push(change[0] + ' ' + change[1]); }
             });
-            lines.push('-');
+            lines.push('');
         });
 
         return lines;

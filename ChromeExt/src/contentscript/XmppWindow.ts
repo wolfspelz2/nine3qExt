@@ -26,7 +26,7 @@ export class XmppWindow extends Window
 
         super.show(options);
 
-        let bottom = as.Int(options.bottom, 300);
+        let bottom = as.Int(options.bottom, 400);
         let width = as.Int(options.width, 600);
         let height = as.Int(options.height, 600);
         let onClose = options.onClose;
@@ -112,7 +112,7 @@ export class XmppWindow extends Window
 
     showHistory()
     {
-        _Changes.getLines().forEach(line => { this.showLine(line); });
+        _Changes.getLines().forEach(line => { this.showLine('', line); });
     }
 
     fixChatInTextWidth(chatinText: HTMLElement, delta: number, chatin: HTMLElement)
@@ -181,9 +181,16 @@ export class XmppWindow extends Window
         return stanza;
     }
 
-    public showLine(text: string)
+    private label_errpr = 'error';
+    public showLine(label: string, text: string)
     {
-        let lineElem = <HTMLElement>$('<div class="n3q-base n3q-xmppwindow-line">' + as.Html(text) + '</div>').get(0);
+        let lineElem = <HTMLElement>$(
+            `<div class="n3q-base n3q-xmppwindow-line` + (label == this.label_errpr ? ' n3q-xmppwindow-line-error' : '') + `">
+                <span class="n3q-base n3q-text n3q-xmppwindow-label">` + as.Html(label) + `</span>
+                <span class="n3q-base n3q-text n3q-xmppwindow-text">`+ as.Html(text) + `</span>
+            <div>`
+        ).get(0);
+
         if (this.chatoutElem) {
             $(this.chatoutElem).append(lineElem).scrollTop($(this.chatoutElem).get(0).scrollHeight);
         }
@@ -191,10 +198,6 @@ export class XmppWindow extends Window
 
     public showError(text: string)
     {
-        let lineElem = <HTMLElement>$('<div class="n3q-base n3q-xmppwindow-line n3q-xmppwindow-line-error">' + as.Html(text) + '</div>').get(0);
-        if (this.chatoutElem) {
-            $(this.chatoutElem).append(lineElem).scrollTop($(this.chatoutElem).get(0).scrollHeight);
-        }
+        this.showLine(this.label_errpr, text);
     }
-
 }
