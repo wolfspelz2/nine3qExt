@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using Orleans;
-using Nine3Q.GrainInterfaces;
+using GrainInterfaces;
 
-namespace Nine3Q.Grains
+namespace Grains
 {
     public class TestString : Grain, ITestString
     {
@@ -16,8 +16,8 @@ namespace Nine3Q.Grains
         {
             _data = value;
 
-            var streamProvider = GetStreamProvider(StringCacheStream.Provider);
-            var stream = streamProvider.GetStream<string>(_streamId, StringCacheStream.Namespace);
+            var streamProvider = GetStreamProvider(TestStringStream.Provider);
+            var stream = streamProvider.GetStream<string>(_streamId, TestStringStream.Namespace);
             await stream.OnNextAsync(_data);
         }
 

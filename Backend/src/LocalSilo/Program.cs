@@ -6,9 +6,9 @@ using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
 using Orleans.Statistics;
-using Nine3Q.Grains;
+using Grains;
 
-namespace Nine3Q.LocalSilo
+namespace LocalSilo
 {
     public class Program
     {

@@ -39,16 +39,19 @@ export class ChatWindow extends Window
     {
         options.titleText = this.app.translateText('Chatwindow.Chat History', 'Chat');
         options.resizable = true;
-        
+
         super.show(options);
 
         let aboveElem: HTMLElement = options.above;
+        let bottom = as.Int(options.bottom, 200);
+        let width = as.Int(options.width, 400);
+        let height = as.Int(options.height, 300);
 
         if (this.windowElem) {
             let windowElem = this.windowElem;
             let contentElem = this.contentElem;
             $(windowElem).addClass('n3q-chatwindow');
-            $(windowElem).css({ 'width': '400px', 'height': '300px' });
+            $(windowElem).css({ 'width': width + 'px', 'height': height + 'px' });
 
             let chatoutElem = <HTMLElement>$('<div class="n3q-base n3q-chatwindow-chatout" data-translate="children" />').get(0);
             let chatinElem = <HTMLElement>$('<div class="n3q-base n3q-chatwindow-chatin" data-translate="children" />').get(0);
@@ -70,7 +73,7 @@ export class ChatWindow extends Window
                 let left = aboveElem.offsetLeft - 180;
                 if (left < 0) { left = 0; }
                 let screenHeight = this.display.offsetHeight;
-                let top = this.display.offsetHeight - 500;
+                let top = screenHeight - height - bottom;
                 $(windowElem).css({ left: left + 'px', top: top + 'px' });
             }
 
