@@ -7,6 +7,7 @@ import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { Window } from './Window';
+import { _Changes } from './_Changes';
 
 export class XmppWindow extends Window
 {
@@ -28,6 +29,7 @@ export class XmppWindow extends Window
         let bottom = as.Int(options.bottom, 300);
         let width = as.Int(options.width, 600);
         let height = as.Int(options.height, 600);
+        let onClose = options.onClose;
 
         if (this.windowElem) {
             let windowElem = this.windowElem;
@@ -35,21 +37,26 @@ export class XmppWindow extends Window
             $(windowElem).addClass('n3q-xmppwindow');
             $(windowElem).css({ 'width': width + 'px', 'height': height + 'px' });
 
-            let chatoutElem = <HTMLElement>$('<div class="n3q-base n3q-xmppwindow-chatout" data-translate="children" />').get(0);
-            let chatinElem = <HTMLElement>$('<div class="n3q-base n3q-xmppwindow-chatin" data-translate="children" />').get(0);
-            let chatinInputElem = <HTMLElement>$('<textarea class="n3q-base n3q-xmppwindow-chatin-input n3q-input n3q-text" />').get(0);
-            let chatinSendElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-inline" title="SendXml"><div class="n3q-base n3q-button-symbol n3q-button-sendchat" />').get(0);
+            let outElem = <HTMLElement>$('<div class="n3q-base n3q-xmppwindow-out" data-translate="children" />').get(0);
+            let inElem = <HTMLElement>$('<div class="n3q-base n3q-xmppwindow-in" data-translate="children" />').get(0);
+            let inInputElem = <HTMLElement>$('<textarea class="n3q-base n3q-xmppwindow-in-input n3q-input n3q-text" />').get(0);
+            let inSendElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-xmppwindow-in-send" title="Send">Send</div>').get(0);
+            let inSaveElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-xmppwindow-in-save" title="Save">Save</div>').get(0);
+            let outClearElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-xmppwindow-out-clear" title="Clear">Clear</div>').get(0);
 
-            $(chatinElem).append(chatinInputElem);
-            $(chatinElem).append(chatinSendElem);
+            $(outElem).append(outClearElem);
 
-            $(contentElem).append(chatoutElem);
-            $(contentElem).append(chatinElem);
+            $(inElem).append(inInputElem);
+            $(inElem).append(inSendElem);
+            $(inElem).append(inSaveElem);
+
+            $(contentElem).append(outElem);
+            $(contentElem).append(inElem);
 
             this.app.translateElem(windowElem);
 
-            this.chatinInputElem = chatinInputElem;
-            this.chatoutElem = chatoutElem;
+            this.chatinInputElem = inInputElem;
+            this.chatoutElem = outElem;
 
             {
                 let left = 50;
@@ -57,25 +64,37 @@ export class XmppWindow extends Window
                 $(windowElem).css({ left: left + 'px', top: top + 'px' });
             }
 
-            this.fixChatInTextWidth(chatinInputElem, 38, chatinElem);
+            this.fixChatInTextWidth(inInputElem, 38, inElem);
 
             this.onResize = (ev: JQueryEventObject) =>
             {
-                this.fixChatInTextWidth(chatinInputElem, 38, chatinElem);
+                this.fixChatInTextWidth(inInputElem, 38, inElem);
                 // $(chatinText).focus();
             };
 
-            $(chatinSendElem).click(ev =>
+            $(inSendElem).click(ev =>
             {
                 this.sendText();
             });
 
+            $(inSaveElem).click(ev =>
+            {
+                this.saveText();
+            });
+
+            $(outClearElem).click(ev =>
+            {
+                $('#n3q .n3q-xmppwindow-out .n3q-xmppwindow-line').remove();
+            });
+
             this.onClose = async () =>
             {
-                await this.saveText(this.getText());
+                await this.saveText();
 
                 this.chatoutElem = null;
                 this.chatinInputElem = null;
+
+                if (onClose) { onClose(); }
             };
 
             this.onDragStop = (ev: JQueryEventObject) =>
@@ -83,10 +102,17 @@ export class XmppWindow extends Window
                 // $(chatinText).focus();
             };
 
-            this.setText(await this.getSavedText());
+            this.setText(await this.getStoredText());
 
-            $(chatinInputElem).focus();
+            this.showHistory();
+
+            $(inInputElem).focus();
         }
+    }
+
+    showHistory()
+    {
+        _Changes.getLines().forEach(line => { this.showLine(line); });
     }
 
     fixChatInTextWidth(chatinText: HTMLElement, delta: number, chatin: HTMLElement)
@@ -96,19 +122,21 @@ export class XmppWindow extends Window
         $(chatinText).css({ 'width': width });
     }
 
-    private showLine(text: string)
+    private sendText(): void
     {
-        let lineElem = <HTMLElement>$('<div class="n3q-base n3q-xmppwindow-line">' + as.Html(text) + '<div>').get(0);
-        if (this.chatoutElem) {
-            $(this.chatoutElem).append(lineElem).scrollTop($(this.chatoutElem).get(0).scrollHeight);
-        }
-    }
+        this.saveText();
 
-    private showError(text: string)
-    {
-        let lineElem = <HTMLElement>$('<div class="n3q-base n3q-xmppwindow-line n3q-xmppwindow-line-error">' + as.Html(text) + '<div>').get(0);
-        if (this.chatoutElem) {
-            $(this.chatoutElem).append(lineElem).scrollTop($(this.chatoutElem).get(0).scrollHeight);
+        let text = this.getSelectedText();
+        if (text == '') {
+            text = this.getText();
+        }
+        if (text != '') {
+            try {
+                let stanza = this.test2Stanza(text);
+                this.app.sendStanza(stanza);
+            } catch (error) {
+                this.showError(error.message);
+            }
         }
     }
 
@@ -131,30 +159,17 @@ export class XmppWindow extends Window
         return selectedText;
     }
 
-    private sendText(): void
+    async saveText()
     {
-        let text = this.getSelectedText();
-        if (text == '') {
-            text = this.getText();
-        }
-        if (text != '') {
-            this.saveText(text);
-
-            try {
-                let stanza = this.test2Stanza(text);
-                this.app.sendStanza(stanza);
-            } catch (error) {
-                this.showError(error.message);
-            }
-        }
+        await this.storeText(this.getText());
     }
 
-    async saveText(text: string)
+    async storeText(text: string)
     {
         await Config.setSync('dev.xmppWindow', text);
     }
 
-    async getSavedText(): Promise<string>
+    async getStoredText(): Promise<string>
     {
         return await Config.getSync('dev.xmppWindow', '');
     }
@@ -165,4 +180,21 @@ export class XmppWindow extends Window
         let stanza = Utils.jsObject2xmlObject(json);
         return stanza;
     }
+
+    public showLine(text: string)
+    {
+        let lineElem = <HTMLElement>$('<div class="n3q-base n3q-xmppwindow-line">' + as.Html(text) + '</div>').get(0);
+        if (this.chatoutElem) {
+            $(this.chatoutElem).append(lineElem).scrollTop($(this.chatoutElem).get(0).scrollHeight);
+        }
+    }
+
+    public showError(text: string)
+    {
+        let lineElem = <HTMLElement>$('<div class="n3q-base n3q-xmppwindow-line n3q-xmppwindow-line-error">' + as.Html(text) + '</div>').get(0);
+        if (this.chatoutElem) {
+            $(this.chatoutElem).append(lineElem).scrollTop($(this.chatoutElem).get(0).scrollHeight);
+        }
+    }
+
 }

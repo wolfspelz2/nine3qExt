@@ -39,6 +39,7 @@ export class ContentApp
     private propertyStorage: PropertyStorage = new PropertyStorage();
     private babelfish: Translator;
     private stayOnTabChange: boolean = false;
+    private xmppWindow: XmppWindow;
 
     // Getter
 
@@ -138,7 +139,8 @@ export class ContentApp
 
     test()
     {
-        let xmppWindow = new XmppWindow(this, this.display).show({ });
+        this.xmppWindow = new XmppWindow(this, this.display);
+        this.xmppWindow.show({ onClose: () => { this.xmppWindow = null; } });
     }
 
     createPageControl()
@@ -213,6 +215,11 @@ export class ContentApp
     {
         let stanza: xml = Utils.jsObject2xmlObject(jsStanza);
         log.debug('ContentApp.recvStanza', stanza);
+
+        if (this.xmppWindow) {
+            let stanzaText = stanza.toString();
+            this.xmppWindow.showLine('in: ' + stanzaText);
+        }
 
         switch (stanza.name) {
             case 'presence': this.onPresence(stanza); break;
@@ -336,6 +343,11 @@ export class ContentApp
     {
         log.debug('ContentApp.sendStanza', stanza);
         try {
+            if (this.xmppWindow) {
+                let stanzaText = stanza.toString();
+                this.xmppWindow.showLine('out: ' + stanzaText);
+            }
+
             await BackgroundMessage.sendStanza(stanza);
         } catch (error) {
             log.info(error);

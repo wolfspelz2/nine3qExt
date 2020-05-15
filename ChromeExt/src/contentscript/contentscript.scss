@@ -526,17 +526,18 @@ $z-index: (
 
     // #n3q div.n3q-xmppwindow {}
 
-        #n3q div.n3q-xmppwindow-chatout {
+        #n3q div.n3q-xmppwindow-out {
             position: absolute;
             top: 36px;
             left: 8px;
             right: 8px;
             bottom: 338px;
             overflow-y: scroll;
-            // box-shadow: 1px 1px 5px #555 inset;
-            // padding: 4px;
+            user-select: auto;
         }
         
+            // #n3q div.n3q-xmppwindow-line {}
+
             #n3q div.n3q-xmppwindow-line-error {
                 font-size: 12px;
                 line-height: 13px;
@@ -544,7 +545,7 @@ $z-index: (
                 background-color: darkred;
             }
 
-        #n3q div.n3q-xmppwindow-chatin {
+        #n3q div.n3q-xmppwindow-in {
             position: absolute;
             height: 322px;
             left: 8px;
@@ -554,12 +555,12 @@ $z-index: (
             border-radius: 4px;
         }
 
-        #n3q textarea.n3q-xmppwindow-chatin-input, 
-        #n3q input[type=text].n3q-xmppwindow-chatin-input
+        #n3q textarea.n3q-xmppwindow-in-input, 
+        #n3q input[type=text].n3q-xmppwindow-in-input
         {
             position: absolute;
             left: 8px;
-            right: 22px;
+            right: 8px;
             top: 4px;
             bottom: 4px;
             box-sizing: border-box;
@@ -570,22 +571,28 @@ $z-index: (
             font: normal 11px/12px Arial, sans-serif;
         }
     
-            #n3q textarea.n3q-xmppwindow-chatin-input:focus,
-            #n3q input[type=text].n3q-xmppwindow-chatin-input:focus
+            #n3q textarea.n3q-xmppwindow-in-input:focus,
+            #n3q input[type=text].n3q-xmppwindow-in-input:focus
             {
                 outline: 0;
             }
-    
-        #n3q div.n3q-xmppwindow-chatin div.n3q-button-sendchat {
+
+        #n3q div.n3q-window-content div.n3q-button {
             position: absolute;
-            right: 4px;
-            top: 4px;
-            bottom: 4px;
-    
-            width: 14px;
-            height: 314px;
+            width: 50px;
+            color: #000000;
             background-color: #f0f0f0;
+            border: 1px solid #808080;
+            text-align: center;
+            padding: 4px;
         }
+
+            #n3q div.n3q-window-content div.n3q-button:hover { filter: brightness(0.9); }
+            #n3q div.n3q-window-content div.n3q-button:active { filter: brightness(0.8); }   
+                    
+            #n3q div.n3q-window-content div.n3q-xmppwindow-in-send { right: 4px; top: 4px; }
+            #n3q div.n3q-window-content div.n3q-xmppwindow-in-save { right: 4px; top: 28px; }
+            #n3q div.n3q-window-content div.n3q-xmppwindow-out-clear { right: 4px; top: 4px; }
 
     // #n3q div.n3q-chatwindow {}
 
