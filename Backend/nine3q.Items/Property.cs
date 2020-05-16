@@ -52,13 +52,13 @@ namespace nine3q.Items
             Add(Pid.NoProperty, Type.Unknown, Use.Unknown, Group.Unknown, Access.Internal, Persistence.Unknown, "", "");
 
             Add(Pid.FirstOperation, Type.Unknown, Use.Unknown, Group.Unknown, Access.Internal, Persistence.Fixed, "", "");
-            //Add(Pid.Item, Type.Item, Use.Item, Group.Operation, Access.Internal, Persistence.Unknown, "ItemId(1)", "Passive item of item action.");
+            Add(Pid.Item, Type.Item, Use.Item, Group.Operation, Access.Internal, Persistence.Unknown, "ItemId(1)", "Passive item of item action.");
             //Add(Pid.StaleTemplate, Type.Bool, Use.Bool, Group.Operation, Access.Internal, Persistence.Unknown, "false", "Tells if this is a cached template, which is missing its original in the templates inventory.");
-            //Add(Pid.PublicAccess, Type.Bool, Use.Bool, Group.Operation, Access.Internal, Persistence.Unknown, "", "Dummy property for declaring a PropertyIdList with only this Pid as indicator for GetItemProperties.");
-            //Add(Pid.OwnerAccess, Type.Bool, Use.Bool, Group.Operation, Access.Internal, Persistence.Unknown, "", "Dummy property for declaring a PropertyIdList with only this Pid as indicator for GetItemProperties.");
-            //Add(Pid.TransferState, Type.String, Use.String, Group.Operation, Access.Internal, Persistence.Transient, PropertyValue.TransferState.Source.ToString(), "Indicates, that item is in transfer, either at source (Begin) oder at dest (Received).");
-            //Add(Pid.TransferContainer, Type.Item, Use.Item, Group.Operation, Access.Internal, Persistence.Transient, "ItemId(1)", "Container of item before removed from container for transfer to other inventory.");
-            //Add(Pid.TransferSlot, Type.Int, Use.Int, Group.Operation, Access.Internal, Persistence.Transient, "1", "Slot of item before removed from container for transfer to other inventory.");
+            Add(Pid.PublicAccess, Type.Bool, Use.Bool, Group.Operation, Access.Internal, Persistence.Unknown, "", "Dummy property for declaring a PropertyIdList with only this Pid as indicator for GetItemProperties.");
+            Add(Pid.OwnerAccess, Type.Bool, Use.Bool, Group.Operation, Access.Internal, Persistence.Unknown, "", "Dummy property for declaring a PropertyIdList with only this Pid as indicator for GetItemProperties.");
+            Add(Pid.TransferState, Type.String, Use.String, Group.Operation, Access.Internal, Persistence.Transient, PropertyValue.TransferState.Source.ToString(), "Indicates, that item is in transfer, either at source (Begin) oder at dest (Received).");
+            Add(Pid.TransferContainer, Type.Item, Use.Item, Group.Operation, Access.Internal, Persistence.Transient, "ItemId(1)", "Container of item before removed from container for transfer to other inventory.");
+            Add(Pid.TransferSlot, Type.Int, Use.Int, Group.Operation, Access.Internal, Persistence.Transient, "1", "Slot of item before removed from container for transfer to other inventory.");
 
             Add(Pid.FirstTest, Type.Unknown, Use.Unknown, Group.Unknown, Access.Internal, Persistence.Fixed, "", "");
             Add(Pid.TestInt, Type.Int, Use.Int, Group.Test, Access.Internal, Persistence.Persistent, "42", "");
@@ -95,17 +95,17 @@ namespace nine3q.Items
             Add(Pid.TestInternal, Type.Int, Use.Int, Group.Test, Access.Internal, Persistence.Persistent, "42", "");
 
             Add(Pid.FirstGeneric, Type.Unknown, Use.Unknown, Group.Unknown, Access.Internal, Persistence.Fixed, "", "");
-            //Add(Pid.Id, Type.Item, Use.Item, Group.Generic, Access.Public, Persistence.Persistent, "10000000001", "");
-            //Add(Pid.Name, Type.String, Use.String, Group.Generic, Access.Public, Persistence.Persistent, "Avatar", "");
-            //Add(Pid.TemplateName, Type.String, Use.String, Group.Generic, Access.Internal, Persistence.Persistent, "WaterBottleTemplate", "Template provides additional properties.");
+            Add(Pid.Id, Type.Item, Use.Item, Group.Generic, Access.Public, Persistence.Persistent, "10000000001", "");
+            Add(Pid.Name, Type.String, Use.String, Group.Generic, Access.Public, Persistence.Persistent, "Avatar", "");
+            Add(Pid.TemplateName, Type.String, Use.String, Group.Generic, Access.Internal, Persistence.Persistent, "WaterBottleTemplate", "Template provides additional properties.");
             //Add(Pid.Label, Type.String, Use.String, Group.Generic, Access.Public, Persistence.Persistent, "WaterBottle", "Used in public displays as primary designation. Will be translated.");
             //Add(Pid.Owner, Type.String, Use.UserId, Group.Generic, Access.Public, Persistence.Persistent, "9c0a5e6d-1278-4e14-8981-e3909d9e7a4b", "User Id of the item owner (when rezzed in room).");
-            //Add(Pid.Container, Type.Item, Use.Item, Group.Generic, Access.Owner, Persistence.Persistent, "10000000001", "Id of container item.");
-            //Add(Pid.Contains, Type.ItemSet, Use.ItemList, Group.Generic, Access.Owner, Persistence.Persistent, "10000000001 10000000002", "Container: list of child items.");
-            //Add(Pid.Slots, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "3", "Number of solts in container.");
-            //Add(Pid.Slot, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "0", "Slot of item in slotted container.");
+            Add(Pid.Container, Type.Item, Use.Item, Group.Generic, Access.Owner, Persistence.Persistent, "10000000001", "Id of container item.");
+            Add(Pid.Contains, Type.ItemSet, Use.ItemList, Group.Generic, Access.Owner, Persistence.Persistent, "10000000001 10000000002", "Container: list of child items.");
+            Add(Pid.Slots, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "3", "Number of solts in container.");
+            Add(Pid.Slot, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "0", "Slot of item in slotted container.");
             //Add(Pid.GridWidth, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "5", "Width of repository container.");
-            //Add(Pid.Stacksize, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "3", "Number of items item stacked in one place.");
+            Add(Pid.Stacksize, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "3", "Number of items item stacked in one place.");
             //Add(Pid.ImageUrl, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "");
             //Add(Pid.Icon16Url, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "Small representations");
             //Add(Pid.Icon32Url, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "Medium images");
@@ -113,7 +113,7 @@ namespace nine3q.Items
             //Add(Pid.Image100Url, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "");
             //Add(Pid.AnimationsUrl, Type.String, Use.Url, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "");
             //Add(Pid.AnimationsMime, Type.String, Use.String, Group.Generic, Access.Public, Persistence.Persistent, "text/xml", "");
-            //Add(Pid.Actions, Type.String, Use.Json, Group.Generic, Access.Public, Persistence.Fixed, "{MakeCoffee:'Produce',GetCoffee:'EjectItem'}", "Maps external (app specific) actions to internal (Aspect) actions/methods.");
+            Add(Pid.Actions, Type.String, Use.Json, Group.Generic, Access.Public, Persistence.Fixed, "{MakeCoffee:'Produce',GetCoffee:'EjectItem'}", "Maps external (app specific) actions to internal (Aspect) actions/methods.");
             //Add(Pid.PassiveActions, Type.String, Use.Json, Group.Generic, Access.Public, Persistence.Fixed, "['PutWater']", $"Supports these actions as passive item. You may 'PutWater' into a {Pid.IsSink}=true/{Pid.Resource}={Pid.WaterLevel} item");
             //Add(Pid.IsRezable, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Persistent, "true", "True if item can be rezzed to room.");
             //Add(Pid.Rezzed, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Persistent, "true", "True if rezzed to room.");
@@ -135,9 +135,9 @@ namespace nine3q.Items
             //Add(Pid.Condition, Type.Float, Use.Percent, Group.Generic, Access.Public, Persistence.Persistent, "0.5", "Item condition between 0.0 and 1.0.");
 
             Add(Pid.FirstAspect, Type.Unknown, Use.Unknown, Group.Unknown, Access.Internal, Persistence.Fixed, "", "");
-            //Add(Pid.IsTest1, Type.Bool, Use.Bool, Group.Aspect, Access.Internal, Persistence.Fixed, "true", "For unit testing of aspects.");
-            //Add(Pid.IsTest2, Type.Bool, Use.Bool, Group.Aspect, Access.Internal, Persistence.Fixed, "true", "For unit testing of aspects.");
-            //Add(Pid.IsContainer, Type.Bool, Use.Bool, Group.Aspect, Access.Internal, Persistence.Fixed, "true", "Item is a container for other items.");
+            Add(Pid.IsTest1, Type.Bool, Use.Bool, Group.Aspect, Access.Internal, Persistence.Fixed, "true", "For unit testing of aspects.");
+            Add(Pid.IsTest2, Type.Bool, Use.Bool, Group.Aspect, Access.Internal, Persistence.Fixed, "true", "For unit testing of aspects.");
+            Add(Pid.IsContainer, Type.Bool, Use.Bool, Group.Aspect, Access.Internal, Persistence.Fixed, "true", "Item is a container for other items.");
             //Add(Pid.IsTrashCan, Type.Bool, Use.Bool, Group.Aspect, Access.Public, Persistence.Fixed, "true", "Item is a trash repository, can be emptied.");
             //Add(Pid.IsSource, Type.Bool, Use.Bool, Group.Aspect, Access.Internal, Persistence.Fixed, "true", "IsSource provides a resource (a property which can be extracted by an Extractor).");
             //Add(Pid.IsSink, Type.Bool, Use.Bool, Group.Aspect, Access.Internal, Persistence.Fixed, "true", "IsSink takes a resource (a property which can be filled by a Supplier).");
@@ -155,17 +155,17 @@ namespace nine3q.Items
             //Add(Pid.SoilLevel, Type.Float, Use.Gram, Group.Level, Access.Public, Persistence.Persistent, "2", "Amount of Soil, dirt.");
 
             Add(Pid.FirstApp, Type.Unknown, Use.Unknown, Group.Unknown, Access.Internal, Persistence.Fixed, "", "");
-            //Add(Pid.ContainerCanExport, Type.Bool, Use.Bool, Group.App, Access.Public, Persistence.Fixed, "true", "Container can export items via drag/drop.");
-            //Add(Pid.ContainerCanImport, Type.Bool, Use.Bool, Group.App, Access.Public, Persistence.Fixed, "true", "Container can import items via drag/drop.");
+            Add(Pid.ContainerCanExport, Type.Bool, Use.Bool, Group.App, Access.Public, Persistence.Fixed, "true", "Container can export items via drag/drop.");
+            Add(Pid.ContainerCanImport, Type.Bool, Use.Bool, Group.App, Access.Public, Persistence.Fixed, "true", "Container can import items via drag/drop.");
             //Add(Pid.ContainerCanReplace, Type.Bool, Use.Bool, Group.App, Access.Public, Persistence.Fixed, "true", "Container can replace items via drag/drop with items from other repository.");
-            //Add(Pid.ContainerCanShuffle, Type.Bool, Use.Bool, Group.App, Access.Public, Persistence.Fixed, "true", "Container can move items around inside via drag/drop.");
+            Add(Pid.ContainerCanShuffle, Type.Bool, Use.Bool, Group.App, Access.Public, Persistence.Fixed, "true", "Container can move items around inside via drag/drop.");
             //Add(Pid.ContainerCanRez, Type.Bool, Use.Bool, Group.App, Access.Public, Persistence.Fixed, "true", "Container can rez items to room via drag/drop.");
             //Add(Pid.ContainerCanDerez, Type.Bool, Use.Bool, Group.App, Access.Public, Persistence.Fixed, "true", "Container can derez items from room.");
             //Add(Pid.Resource, Type.String, Use.String, Group.App, Access.Public, Persistence.Fixed, "WaterLevel", "The name of the resource provided by the source.");
             //Add(Pid.DeleteExtractedResource, Type.Bool, Use.Bool, Group.App, Access.Public, Persistence.Fixed, "true", "Delete item if extractor changed resource level to 0.");
             //Add(Pid.DeleteTime, Type.Float, Use.Delay, Group.App, Access.Internal, Persistence.Fixed, "true", "Delete IsDeletee after seconds.");
 
-            Add(Pid.ConditionResource, Type.String, Use.String, Group.App, Access.Internal, Persistence.Fixed, "WaterLevel", "The name of the resource which is used up over time.");
+            //Add(Pid.ConditionResource, Type.String, Use.String, Group.App, Access.Internal, Persistence.Fixed, "WaterLevel", "The name of the resource which is used up over time.");
             //Add(Pid.ConditionUse, Type.Float, Use.Float, Group.App, Access.Internal, Persistence.Fixed, "1.0", "Amount of used resource.");
             //Add(Pid.ConditionInterval, Type.Float, Use.Float, Group.App, Access.Internal, Persistence.Fixed, "300", "Interval in seconds.");
             //Add(Pid.ConditionTimer, Type.String, Use.String, Group.App, Access.Internal, Persistence.Persistent, "Leaker.Leak", "The name of the timer, if set.");

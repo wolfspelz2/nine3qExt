@@ -2,7 +2,7 @@
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
-//using Nine3Q.Items.Aspects;
+using nine3q.Items.Aspects;
 using nine3q.Lib;
 
 namespace nine3q.Items
@@ -91,62 +91,62 @@ namespace nine3q.Items
             OnPropertyChange(change);
         }
 
-        //public bool Delete(Pid pid)
-        //{
-        //    if (Properties.ContainsKey(pid)) {
+        public bool Delete(Pid pid)
+        {
+            if (Properties.ContainsKey(pid)) {
 
-        //        if (pid == Pid.Name) {
-        //            var name = GetString(Pid.Name);
-        //            if (!string.IsNullOrEmpty(name)) {
-        //                Inventory.UnsetName(name, Id);
-        //            }
-        //        }
+                if (pid == Pid.Name) {
+                    var name = GetString(Pid.Name);
+                    if (!string.IsNullOrEmpty(name)) {
+                        Inventory.UnsetName(name, Id);
+                    }
+                }
 
-        //        OnPropertyChange(
-        //        new ItemChange() {
-        //            What = ItemChange.Variant.DeleteProperty,
-        //            ItemId = Id,
-        //            Pid = pid,
-        //            PreviousValue = Properties.ContainsKey(pid) ? Properties[pid] : null,
-        //        });
+                OnPropertyChange(
+                new ItemChange() {
+                    What = ItemChange.Variant.DeleteProperty,
+                    ItemId = Id,
+                    Pid = pid,
+                    PreviousValue = Properties.ContainsKey(pid) ? Properties[pid] : null,
+                });
 
-        //        Properties.Delete(pid);
-        //        return true;
-        //    }
-        //    return false;
-        //}
+                Properties.Delete(pid);
+                return true;
+            }
+            return false;
+        }
 
-        //public void AddToItemSet(Pid nProperty, ItemId nItemId)
-        //{
-        //    if (Property.Get(nProperty).Type != Property.Type.ItemSet) { throw new Exceptions.WrongItemPropertyTypeException(Inventory.Name, Id, nProperty, Property.Type.ItemSet); }
+        public void AddToItemSet(Pid nProperty, ItemId nItemId)
+        {
+            if (Property.Get(nProperty).Type != Property.Type.ItemSet) { throw new Exceptions.WrongItemPropertyTypeException(Inventory.Name, Id, nProperty, Property.Type.ItemSet); }
 
-        //    OnPropertyChange(
-        //      new ItemChange() {
-        //          What = ItemChange.Variant.AddItemToCollection,
-        //          ItemId = Id,
-        //          Pid = nProperty,
-        //          ChildId = nItemId
-        //      }
-        //    );
+            OnPropertyChange(
+              new ItemChange() {
+                  What = ItemChange.Variant.AddItemToCollection,
+                  ItemId = Id,
+                  Pid = nProperty,
+                  ChildId = nItemId
+              }
+            );
 
-        //    Properties.AddToItemSet(nProperty, nItemId);
-        //}
+            Properties.AddToItemSet(nProperty, nItemId);
+        }
 
-        //public void RemoveFromItemSet(Pid nProperty, ItemId nItemId)
-        //{
-        //    if (Property.Get(nProperty).Type != Property.Type.ItemSet) { throw new Exceptions.WrongItemPropertyTypeException(Inventory.Name, Id, nProperty, Property.Type.ItemSet); }
+        public void RemoveFromItemSet(Pid nProperty, ItemId nItemId)
+        {
+            if (Property.Get(nProperty).Type != Property.Type.ItemSet) { throw new Exceptions.WrongItemPropertyTypeException(Inventory.Name, Id, nProperty, Property.Type.ItemSet); }
 
-        //    OnPropertyChange(
-        //      new ItemChange() {
-        //          What = ItemChange.Variant.RemoveItemFromCollection,
-        //          ItemId = Id,
-        //          Pid = nProperty,
-        //          ChildId = nItemId
-        //      }
-        //    );
+            OnPropertyChange(
+              new ItemChange() {
+                  What = ItemChange.Variant.RemoveItemFromCollection,
+                  ItemId = Id,
+                  Pid = nProperty,
+                  ChildId = nItemId
+              }
+            );
 
-        //    Properties.RemoveFromItemSet(nProperty, nItemId);
-        //}
+            Properties.RemoveFromItemSet(nProperty, nItemId);
+        }
 
         #endregion
 
@@ -158,13 +158,13 @@ namespace nine3q.Items
             return value != null;
         }
 
-        //// Generic getter
-        //public void SetInt(Pid pid, long value) { Set(pid, value); }
-        //public void SetString(Pid pid, string value) { Set(pid, value); }
-        //public void SetFloat(Pid pid, double value) { Set(pid, value); }
-        //public void SetBool(Pid pid, bool value) { Set(pid, value); }
-        //public void SetItem(Pid pid, ItemId value) { Set(pid, value); }
-        //public void SetItemSet(Pid pid, ItemIdSet value) { Set(pid, value); }
+        // Generic getter
+        public void SetInt(Pid pid, long value) { Set(pid, value); }
+        public void SetString(Pid pid, string value) { Set(pid, value); }
+        public void SetFloat(Pid pid, double value) { Set(pid, value); }
+        public void SetBool(Pid pid, bool value) { Set(pid, value); }
+        public void SetItem(Pid pid, ItemId value) { Set(pid, value); }
+        public void SetItemSet(Pid pid, ItemIdSet value) { Set(pid, value); }
 
         public object Get(Pid pid)
         {
@@ -213,15 +213,15 @@ namespace nine3q.Items
 
         //// Advanced getter
 
-        //public T GetEnum<T>(Pid pid, T defaultValue) where T : struct
-        //{
-        //    var value = (string)Get(pid);
-        //    T result;
-        //    if (!Enum.TryParse(value, out result)) {
-        //        result = defaultValue;
-        //    }
-        //    return result;
-        //}
+        public T GetEnum<T>(Pid pid, T defaultValue) where T : struct
+        {
+            var value = (string)Get(pid);
+            T result;
+            if (!Enum.TryParse(value, out result)) {
+                result = defaultValue;
+            }
+            return result;
+        }
 
         public Item GetTemplate()
         {
@@ -236,14 +236,14 @@ namespace nine3q.Items
             return null;
         }
 
-        //public JsonNode GetJson(Pid pid)
-        //{
-        //    try {
-        //        return new JsonNode(GetString(pid));
-        //    } catch (Exception ex) {
-        //        throw new Exceptions.JsonConfigPropertyFormatException(Inventory.Name, Id, pid, ex.Message);
-        //    }
-        //}
+        public JsonPath.Node GetJson(Pid pid)
+        {
+            try {
+                return new JsonPath.Node(GetString(pid));
+            } catch (Exception ex) {
+                throw new Exceptions.JsonConfigPropertyFormatException(Inventory.Name, Id, pid, ex.Message);
+            }
+        }
 
         public PropertySet GetProperties(PidList pids, bool native = false)
         {
@@ -346,26 +346,26 @@ namespace nine3q.Items
 
         #region Events
 
-        //internal void OnCreate()
-        //{
-        //    ForeachAspect(aspect => aspect.OnAspectCreate());
+        internal void OnCreate()
+        {
+            ForeachAspect(aspect => aspect.OnAspectCreate());
 
-        //    var change = new ItemChange() { What = ItemChange.Variant.CreateItem, ItemId = Id };
-        //    Inventory.OnCreateItem(change);
-        //}
+            var change = new ItemChange() { What = ItemChange.Variant.CreateItem, ItemId = Id };
+            Inventory.OnCreateItem(change);
+        }
 
-        //internal void OnDelete()
-        //{
-        //    var containerId = GetItem(Pid.Container);
-        //    if (containerId != ItemId.NoItem) {
-        //        Inventory.Item(containerId).AsContainer().RemoveChild(this);
-        //    }
+        internal void OnDelete()
+        {
+            var containerId = GetItem(Pid.Container);
+            if (containerId != ItemId.NoItem) {
+                Inventory.Item(containerId).AsContainer().RemoveChild(this);
+            }
 
-        //    ForeachAspect(aspect => aspect.OnAspectDelete());
+            ForeachAspect(aspect => aspect.OnAspectDelete());
 
-        //    var change = new ItemChange() { What = ItemChange.Variant.DeleteItem, ItemId = Id, Item = this };
-        //    Inventory.OnDeleteItem(change);
-        //}
+            var change = new ItemChange() { What = ItemChange.Variant.DeleteItem, ItemId = Id, Item = this };
+            Inventory.OnDeleteItem(change);
+        }
 
         internal void OnPropertyChange(ItemChange change)
         {
@@ -409,30 +409,30 @@ namespace nine3q.Items
             }
         }
 
-        //public int ExecuteAction(string action, PropertySet arguments)
-        //{
-        //    int countExecuted = 0;
+        public int ExecuteAction(string action, PropertySet arguments)
+        {
+            int countExecuted = 0;
 
-        //    var passiveId = arguments.GetItem(Pid.Item);
+            var passiveId = arguments.GetItem(Pid.Item);
 
-        //    var actionMap = GetJson(Pid.Actions);
-        //    var mappedActionName = actionMap.Get(action, action);
-        //    if (mappedActionName != action) {
-        //        action = mappedActionName;
-        //    }
+            var actionMap = GetJson(Pid.Actions);
+            var mappedActionName = actionMap.Get(action, action);
+            if (mappedActionName != action) {
+                action = mappedActionName;
+            }
 
-        //    ForeachAspect(aspect => {
-        //        if (aspect.ExecuteAspectAction(action, arguments)) {
-        //            countExecuted++;
-        //        }
-        //    });
+            ForeachAspect(aspect => {
+                if (aspect.ExecuteAspectAction(action, arguments)) {
+                    countExecuted++;
+                }
+            });
 
-        //    if (countExecuted == 0) {
-        //        throw new Exceptions.ActionNotAvailableException(Inventory.Name, Id, action);
-        //    }
+            if (countExecuted == 0) {
+                throw new Exceptions.ActionNotAvailableException(Inventory.Name, Id, action);
+            }
 
-        //    return countExecuted;
-        //}
+            return countExecuted;
+        }
 
         #endregion
 
@@ -475,12 +475,12 @@ namespace nine3q.Items
         //    }
         //}
 
-        //internal void OnTimer(string name)
-        //{
-        //    if (Inventory.IsActive) {
-        //        ForeachAspect(aspect => aspect.OnAspectTimer(name));
-        //    }
-        //}
+        internal void OnTimer(string name)
+        {
+            if (Inventory.IsActive) {
+                ForeachAspect(aspect => aspect.OnAspectTimer(name));
+            }
+        }
 
         #endregion
     }

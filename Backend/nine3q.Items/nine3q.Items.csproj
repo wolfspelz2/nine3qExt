@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\JsonPath\JsonPath.csproj" />
     <ProjectReference Include="..\nine3q.Lib\nine3q.Lib.csproj" />
   </ItemGroup>
 
