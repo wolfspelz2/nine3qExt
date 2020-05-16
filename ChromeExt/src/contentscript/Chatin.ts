@@ -67,28 +67,33 @@ export class Chatin
         var text: string = as.String($(this.chatinInputElem).val(), '');
         if (text != '') {
 
-            let handledByChatCommand = ChatConsole.isChatCommand(text, {
-                app: this.app,
-                room: this.participant?.getRoom(),
-                out: (data) =>
-                {
-                    if (typeof data == typeof '') {
-                        this.participant?.getChatout().setText(data);
-                    } else if (Array.isArray(data)) {
-                        if (Array.isArray(data[0])) {
-                            if (this.participant) {
-                                this.participant.getRoom().showChatWindow(this.participant.getCenterElem());
-                                data.forEach(line =>
-                                {
-                                    this.participant.getRoom().showChatMessage(line[0], line[1]);
-                                });
+            let handledByChatCommand = false;
+            try {
+                handledByChatCommand = ChatConsole.isChatCommand(text, {
+                    app: this.app,
+                    room: this.participant?.getRoom(),
+                    out: (data) =>
+                    {
+                        if (typeof data == typeof '') {
+                            this.participant?.getChatout().setText(data);
+                        } else if (Array.isArray(data)) {
+                            if (Array.isArray(data[0])) {
+                                if (this.participant) {
+                                    this.participant.getRoom().showChatWindow(this.participant.getCenterElem());
+                                    data.forEach(line =>
+                                    {
+                                        this.participant.getRoom().showChatMessage(line[0], line[1]);
+                                    });
+                                }
+                            } else {
+                                this.participant?.getChatout().setText(data[0] + ': ' + data[1]);
                             }
                         }
-                    } else {
-                        this.participant?.getChatout().setText(data[0] + ': ' + data[1]);
                     }
-                }
-            });
+                });
+            } catch (error) {
+                //
+            }
 
             if (!handledByChatCommand) {
                 this.participant?.sendGroupChat(text);

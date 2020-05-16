@@ -179,26 +179,32 @@ export class ChatWindow extends Window
         var text: string = as.String($(this.chatinInputElem).val(), '');
         if (text != '') {
 
-            let handledByChatCommand = ChatConsole.isChatCommand(text, {
-                app: this.app,
-                room: this.room,
-                out: (data) =>
-                {
-                    if (typeof data == typeof '') {
-                        this.showLine('', data[0]);
-                    } else if (Array.isArray(data)) {
-                        if (Array.isArray(data[0])) {
-                            let text = '';
-                            data.forEach(line =>
-                            {
-                                this.showLine(line[0], line[1]);
-                            });
-                        } else {
-                            this.showLine(data[0], data[1]);
+            let handledByChatCommand = false;
+            try {
+                handledByChatCommand = ChatConsole.isChatCommand(text, {
+                    app: this.app,
+                    room: this.room,
+                    out: (data) =>
+                    {
+                        if (typeof data == typeof '') {
+                            this.showLine('', data[0]);
+                        } else if (Array.isArray(data)) {
+                            if (Array.isArray(data[0])) {
+                                let text = '';
+                                data.forEach(line =>
+                                {
+                                    this.showLine(line[0], line[1]);
+                                });
+                            } else {
+                                this.showLine(data[0], data[1]);
+                            }
                         }
                     }
-                }
-            });
+                });
+            } catch (error) {
+                //
+            }
+
             if (handledByChatCommand) {
                 $(this.chatinInputElem).val('');
                 return;
