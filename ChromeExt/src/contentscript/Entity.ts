@@ -27,6 +27,7 @@ export class Entity
         this.display.appendChild(this.elem);
     }
 
+    getRoom(): Room { return this.room; }
     getElem(): HTMLElement { return this.elem; }
     getCenterElem(): HTMLElement { return this.centerElem; }
 

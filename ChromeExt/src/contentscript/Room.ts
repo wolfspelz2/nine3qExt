@@ -7,6 +7,10 @@ import { Panic } from '../lib/Panic';
 import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
 import { ChatWindow } from './ChatWindow';
+import { stringify } from 'querystring';
+
+export interface IRoomInfoLine extends Array<string | string> { 0: string, 1: string }
+export interface IRoomInfo extends Array<IRoomInfoLine> { }
 
 export class Room
 {
@@ -33,6 +37,13 @@ export class Room
 
         // this.participants['dummy'] = new Participant(this.app, this, this.display, 'dummy', false);
         // this.participants['dummy'].onPresenceAvailable(xml('presence', { from: jid + '/dummy' }).append(xml('x', { xmlns: 'firebat:avatar:state' }).append(xml('position', { x: 100 }))));
+    }
+
+    getInfo(): IRoomInfo
+    {
+        return [
+            ['jid', this.jid]
+        ];
     }
 
     // presence
@@ -239,7 +250,11 @@ export class Room
 
     showChatWindow(aboveElem: HTMLElement): void
     {
-        this.chatWindow?.show({ 'above': aboveElem });
+        if (this.chatWindow) {
+            if (!this.chatWindow.isOpen()) {
+                this.chatWindow.show({ 'above': aboveElem });
+            }
+        }
     }
 
     toggleChatWindow(relativeToElem: HTMLElement): void

@@ -6,17 +6,22 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
-        ['1.0.X', 'TestWindow', [
-            ['Add', 'Test window'],
+        ['1.0.3', 'XmppWindow SettingsDialog', [
+            ['Add', 'Change history'],
+            ['Add', 'Xmpp console window'],
+            ['Add', 'Chat console'],
+            ['Add', 'In-screen settings dialog + menu entry'],
+            ['Fix', 'Duplicate presence-x-history'],
+            ['Fix', 'Avatar position in presence may be float value instead of int'],
         ]],
         ['1.0.2', 'StoreFix', [
             ['Change', 'Remove http request'],
             ['Add', 'VPI resolver'],
         ]],
-        ['1.0.1', 'Dispatcher', [
+        ['1.0.1', 'BackgoundDispatcher', [
             ['Change', 'Backgound room/tab dispatcher'],
         ]],
-        ['1.0.0', 'First release', [
+        ['1.0.0', 'MVP', [
             ['Add', 'Basic function'],
         ]],
     ];

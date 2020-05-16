@@ -2,6 +2,8 @@ import * as $ from 'jquery';
 import { as } from '../lib/as';
 import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
+import { ChatConsole } from './ChatConsole';
+import { isArray } from 'util';
 
 export class Chatin
 {
@@ -64,8 +66,38 @@ export class Chatin
     {
         var text: string = as.String($(this.chatinInputElem).val(), '');
         if (text != '') {
-            this.participant?.sendGroupChat(text);
-            $(this.chatinInputElem).val('').focus();
+
+            let handledByChatCommand = ChatConsole.isChatCommand(text, {
+                app: this.app,
+                room: this.participant?.getRoom(),
+                out: (data) =>
+                {
+                    if (typeof data == typeof '') {
+                        this.participant?.getChatout().setText(data);
+                    } else if (Array.isArray(data)) {
+                        if (Array.isArray(data[0])) {
+                            if (this.participant) {
+                                this.participant.getRoom().showChatWindow(this.participant.getCenterElem());
+                                data.forEach(line =>
+                                {
+                                    this.participant.getRoom().showChatMessage(line[0], line[1]);
+                                });
+                            }
+                        }
+                    } else {
+                        this.participant?.getChatout().setText(data[0] + ': ' + data[1]);
+                    }
+                }
+            });
+
+            if (!handledByChatCommand) {
+                this.participant?.sendGroupChat(text);
+            }
+
+            $(this.chatinInputElem)
+                .val('')
+                .focus()
+                ;
         }
     }
 

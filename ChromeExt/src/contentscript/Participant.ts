@@ -36,6 +36,8 @@ export class Participant extends Entity
         }
     }
 
+    getChatout(): Chatout { return this.chatoutDisplay; }
+    
     remove(): void
     {
         this.avatarDisplay?.stop();

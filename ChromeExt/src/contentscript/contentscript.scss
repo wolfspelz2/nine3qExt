@@ -33,7 +33,7 @@ $z-index: (
     //background-color: rgba(70, 201, 70, 0.05);
     // background-image: url("page-bg.png");
     pointer-events: none;
-    user-select: none;
+    // user-select: none;
     z-index: z-index(Page);
 }
 
@@ -169,14 +169,14 @@ $z-index: (
     font: normal 11px/12px Arial, sans-serif;
     margin: 0;
     padding: 0;
-    user-select: auto;    
+    // user-select: auto;    
 }
 
 #n3q p.n3q-text {
     font: normal 11px/12px Arial, sans-serif;
     margin: 0;
     padding: 0;
-    user-select: auto;    
+    // user-select: auto;    
 }
 
 #n3q div.n3q-shadow-small {
@@ -496,7 +496,6 @@ $z-index: (
             // width: 400px;
             // height: 300px;
             display: block;
-            pointer-events: auto;
         }
     
         #n3q div.n3q-window-resize {
@@ -521,7 +520,6 @@ $z-index: (
             left: 8px;
             right: 8px;
             bottom: 38px;
-            pointer-events: auto;
         }
 
     // #n3q div.n3q-xmppwindow {}
@@ -533,23 +531,23 @@ $z-index: (
             right: 8px;
             bottom: 338px;
             overflow-y: scroll;
-            user-select: auto;
+            // user-select: auto;
         }
         
         #n3q div.n3q-xmppwindow-line span.n3q-xmppwindow-label {
-            font-weight: bold;
+            color: white;
+            background-color: #808080;
             margin: 0 0.4em 0 0;
-            user-select: auto;
+            // user-select: auto;
         }
 
-        #n3q div.n3q-xmppwindow-line span.n3q-xmppwindow-text {
-            user-select: auto;
-        }
+        // #n3q div.n3q-xmppwindow-line span.n3q-xmppwindow-text {
+        //     // user-select: auto;
+        // }
 
         #n3q div.n3q-xmppwindow-line { 
             font-size: 12px;
             line-height: 13px;
-            margin: 0 0 0.3em 0;
         }
 
             #n3q div.n3q-xmppwindow-line-error span.n3q-xmppwindow-label {
@@ -622,23 +620,22 @@ $z-index: (
         #n3q div.n3q-chatwindow-line {
             font-size: 12px;
             line-height: 13px;
-            margin: 0 0 0.3em 2em;
-            text-indent: -2em;
+            margin-left: 20px; text-indent: -20px;
         }
 
         #n3q div.n3q-chatwindow-line span.n3q-nick {
                 font-weight: bold;
                 margin: 0 0.4em 0 0;
-                user-select: auto;
+                // user-select: auto;
             }
 
             #n3q div.n3q-chatwindow-line span.n3q-nick:after {
                     content: ':';
                 }
 
-                #n3q div.n3q-chatwindow-line span.n3q-chat {
-                user-select: auto;
-            }
+        // #n3q div.n3q-chatwindow-line span.n3q-chat {
+        // // user-select: auto;
+        // }
 
     #n3q div.n3q-chatwindow-chatin {
         position: absolute;

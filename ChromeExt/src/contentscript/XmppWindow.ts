@@ -21,7 +21,7 @@ export class XmppWindow extends Window
 
     async show(options: any)
     {
-        options.titleText = this.app.translateText('Console.Console', 'Console');
+        options.titleText = this.app.translateText('XmppWindow.Xmpp', 'XMPP');
         options.resizable = true;
 
         super.show(options);

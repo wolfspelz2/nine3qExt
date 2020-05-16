@@ -3,12 +3,13 @@ import 'webpack-jquery-ui';
 // import markdown = require('markdown');
 import log = require('loglevel');
 import { as } from '../lib/as';
+import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
 import { Environment } from '../lib/Environment';
 import { ContentApp } from './ContentApp';
 import { Room } from './Room';
 import { Window } from './Window';
-import { Utils } from '../lib/Utils';
+import { ChatConsole } from './ChatConsole';
 
 class ChatLine
 {
@@ -178,12 +179,29 @@ export class ChatWindow extends Window
         var text: string = as.String($(this.chatinInputElem).val(), '');
         if (text != '') {
 
-            if (text.substring(0, 1) == '/') {
-                var isHandled = this.chatCommand(text);
-                if (isHandled) {
-                    $(this.chatinInputElem).val('');
-                    return;
+            let handledByChatCommand = ChatConsole.isChatCommand(text, {
+                app: this.app,
+                room: this.room,
+                out: (data) =>
+                {
+                    if (typeof data == typeof '') {
+                        this.showLine('', data[0]);
+                    } else if (Array.isArray(data)) {
+                        if (Array.isArray(data[0])) {
+                            let text = '';
+                            data.forEach(line =>
+                            {
+                                this.showLine(line[0], line[1]);
+                            });
+                        } else {
+                            this.showLine(data[0], data[1]);
+                        }
+                    }
                 }
+            });
+            if (handledByChatCommand) {
+                $(this.chatinInputElem).val('');
+                return;
             }
 
             this.room?.sendGroupChat(text);
@@ -193,28 +211,5 @@ export class ChatWindow extends Window
                 .focus()
                 ;
         }
-    }
-
-    private chatCommand(text: string): boolean
-    {
-        let isHandled = false;
-
-        var parts: string[] = text.split(' ');
-        if (parts.length < 1) { return; }
-        var cmd: string = parts[0];
-
-        switch (cmd) {
-            case '/help':
-            case '/?':
-                this.showLine('?', '/xmpp');
-                isHandled = true;
-                break;
-            case '/xmpp':
-                this.app.showXmppWindow();
-                isHandled = true;
-                break;
-        }
-
-        return isHandled;
     }
 }
