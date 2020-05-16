@@ -29,7 +29,7 @@
     "typescript",
     "react"
   ],
-  "author": "Guibert Thomas",
+  "author": "Wolfspelz",
   "license": "ISC",
   "devDependencies": {
     "@types/chrome": "0.0.91",

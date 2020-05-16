@@ -1,9 +1,9 @@
 {
     "manifest_version": 2,
-    "name": "Weblin: Avatars and Things on Web Pages",
+    "name": "Weblin",
     "short_name": "Weblin",
-    "version": "1.0.2",
-    "description": "Weblin: Avatars and Things on Web Pages",
+    "version": "1.0.3",
+    "description": "Avatars and Things on Web Pages",
     "permissions": [
         "storage"
     ],
