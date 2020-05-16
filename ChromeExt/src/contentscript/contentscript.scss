@@ -244,6 +244,7 @@ $z-index: (
         // bottom: unset;
 
         z-index: z-index(ParticipantAvatar);
+        user-select: none;
     }
 
         #n3q img.n3q-avatar-hilite {
@@ -310,6 +311,7 @@ $z-index: (
         transition-duration: 200ms; 
         opacity: 0.0;
         transform: translate3d(-3px, -35px, 0);
+        user-select: none;
     }
 
     #n3q div.n3q-menu-item div.n3q-menu-icon {
@@ -468,6 +470,7 @@ $z-index: (
             height: 16px;
             font-size: 14px;
             font-weight: bold;
+            user-select: none;
         }
         
         #n3q div.n3q-window-button {
