@@ -8,7 +8,7 @@ namespace nine3q.Items
     public class ItemIdSet : HashSet<ItemId>
     {
         const string JoinSeparator = " ";
-        static char[] SplitSeparator = new[] { JoinSeparator[0] };
+        static readonly char[] SplitSeparator = new[] { JoinSeparator[0] };
 
         public ItemIdSet() { }
 
@@ -28,8 +28,7 @@ namespace nine3q.Items
         {
             var parts = listOfLong.Split(SplitSeparator, StringSplitOptions.RemoveEmptyEntries);
             foreach (string part in parts) {
-                long value;
-                if (long.TryParse(part, out value)) {
+                if (long.TryParse(part, out long value)) {
                     Add(new ItemId(value));
                 }
             }

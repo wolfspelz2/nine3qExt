@@ -4,7 +4,7 @@ namespace nine3q.Lib
 {
     public static class JsonPathExtensions
     {
-        public static string ToJson<T>(this List<T> self, JsonPath.Serializer.Options options = null)
+        public static string ToJson<T>(this List<T> self, JsonPath.SerializerOptions options = null)
         {
             var node = new JsonPath.Node(JsonPath.Node.Type.List);
             foreach (T elem in self) {

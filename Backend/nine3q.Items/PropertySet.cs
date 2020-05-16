@@ -20,8 +20,7 @@ namespace nine3q.Items
 
         public object GetMaybeNull(Pid key)
         {
-            object value = null;
-            TryGetValue(key, out value);
+            TryGetValue(key, out object value);
             return value;
         }
 
@@ -54,7 +53,7 @@ namespace nine3q.Items
 
         public void RemoveFromItemSet(Pid pid, ItemId id)
         {
-            var list = GetItemSet(pid).Remove(id);
+            _ = GetItemSet(pid).Remove(id);
         }
 
         public long GetInt(Pid key, long defaultValue)
@@ -125,8 +124,7 @@ namespace nine3q.Items
         {
             var value = GetString(pid);
             if (!string.IsNullOrEmpty(value)) {
-                T parsed;
-                if (Enum.TryParse(value, out parsed)) {
+                if (Enum.TryParse(value, out T parsed)) {
                     return parsed;
                 }
             }
@@ -151,7 +149,7 @@ namespace nine3q.Items
         const string KeyNamesAttribute = "__Properties";
         const string AttributePrefix = "_";
         const string Separator = " ";
-        static char[] SeparatorSplitArg = new[] { Separator[0] };
+        static readonly char[] SeparatorSplitArg = new[] { Separator[0] };
 
         protected PropertySet(SerializationInfo info, StreamingContext context)
         {

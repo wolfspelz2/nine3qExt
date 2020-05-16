@@ -3,14 +3,18 @@ using Newtonsoft.Json.Linq;
 
 namespace JsonPath
 {
-    public class Deserializer
+    public class DeserializerOptions
     {
-        public class Options
-        {
-        }
+    }
 
-        public static Node FromJson(string json, Options options = null)
+    public static class Deserializer
+    {
+        public static Action Dont { get; set; }
+
+        public static Node FromJson(string json, DeserializerOptions options = null)
         {
+            Dont = () => { var x = options; };
+
             if (string.IsNullOrEmpty(json)) {
                 return new Node(Node.Type.Empty);
             }
@@ -25,8 +29,7 @@ namespace JsonPath
                 return new Node(Node.Type.Empty);
             }
 
-            var value = obj as JValue;
-            if (value != null) {
+            if (obj is JValue value) {
                 switch (value.Type) {
                     case JTokenType.Comment: return new Node(Node.Type.Empty);
                     case JTokenType.Integer: return new Node(Node.Type.Int) { Value = (long)value.Value };
@@ -59,8 +62,7 @@ namespace JsonPath
                 }
             }
 
-            var list = obj as JArray;
-            if (list != null) {
+            if (obj is JArray list) {
                 var node = new Node(Node.Type.List);
                 foreach (var item in list) {
                     node.List.Add(NodeFromJsonObject(item));
@@ -68,8 +70,7 @@ namespace JsonPath
                 return node;
             }
 
-            var dict = obj as JObject;
-            if (dict != null) {
+            if (obj is JObject dict) {
                 var node = new Node(Node.Type.Dictionary);
                 foreach (var pair in dict) {
                     node.Dictionary.Add(pair.Key, NodeFromJsonObject(pair.Value));

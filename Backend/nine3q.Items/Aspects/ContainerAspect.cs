@@ -94,7 +94,7 @@ namespace nine3q.Items.Aspects
             var childrenIds = GetItemSet(Pid.Contains).Clone(); // Clone to change list while looping
             if (childrenIds.Count > 0) {
                 foreach (var childId in childrenIds) {
-                    var child = Inventory.Item(childId);
+                    _ = Inventory.Item(childId);
                     Inventory.DeleteItem(childId);
                 }
             }

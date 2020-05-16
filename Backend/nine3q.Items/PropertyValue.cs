@@ -1,6 +1,6 @@
 ﻿namespace nine3q.Items
 {
-    public class PropertyValue
+    public static class PropertyValue
     {
         public enum AccessLevel
         {
@@ -23,6 +23,7 @@
             Execute,
         }
 
+        [System.Flags]
         public enum Access
         {
             NoAccess = 0,

@@ -57,7 +57,7 @@ namespace JsonPath
         public object Value;
         // ReSharper disable once MemberInitializerValueIgnored
         private readonly Type _type = Type.Empty;
-        private bool _throwExceptionIfConversionFails = false;
+        private readonly bool _throwExceptionIfConversionFails = false;
 
         public bool IsEmpty => _type == Type.Empty;
         public bool IsList => _type == Type.List;
@@ -128,9 +128,7 @@ namespace JsonPath
                 }
                 else if (IsString)
                 {
-                    long result;
-                    if (Int64.TryParse(AsString, out result))
-                    {
+                    if (Int64.TryParse(AsString, out long result)) {
                         return result;
                     }
                 }
@@ -247,7 +245,7 @@ namespace JsonPath
                 }
                 else if (IsString)
                 {
-                    if (Double.TryParse(AsString, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
+                    if (Double.TryParse(AsString, NumberStyles.Any, CultureInfo.InvariantCulture, out _))
                     {
                         return Double.Parse(AsString, CultureInfo.InvariantCulture);
                     }
@@ -372,7 +370,7 @@ namespace JsonPath
             }
         }
 
-        public Node(string sJson, Deserializer.Options options = null)
+        public Node(string sJson, DeserializerOptions options = null)
         {
             var node = Deserializer.FromJson(sJson, options);
             _type = node._type;
@@ -423,7 +421,7 @@ namespace JsonPath
             }
         }
 
-        public string ToJson(Serializer.Options options)
+        public string ToJson(SerializerOptions options)
         {
             return Serializer.ToJson(this, options);
         }
@@ -435,11 +433,11 @@ namespace JsonPath
 
         public override string ToString()
         {
-            var options = new Serializer.Options(bFormatted: true) { EncapsulateKeys = "", EncapsulateStrings = "'" };
+            var options = new SerializerOptions(bFormatted: true) { EncapsulateKeys = "", EncapsulateStrings = "'" };
             return _type.ToString() + ": \"" + Serializer.ToJson(this, options) + "\"";
         }
 
-        public class PatchAction
+        public static class PatchAction
         {
             public const string Delete = "delete";
             public const string Replace = "replace";

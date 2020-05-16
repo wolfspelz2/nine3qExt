@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace nine3q.Lib
 {
@@ -29,7 +30,7 @@ namespace nine3q.Lib
 
         public static bool IsTrue(this string self)
         {
-            string s = self.ToLower();
+            string s = self.ToLower(CultureInfo.InvariantCulture);
             return s == "true" || s == "1" || s == "on" || s == "yes" || s == "ja" || s == "oui" || s == "ok" || s == "sure" || s == "yessir" || s == "youbet";
         }
 

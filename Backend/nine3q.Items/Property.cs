@@ -6,7 +6,7 @@ using nine3q.Lib;
 
 namespace nine3q.Items
 {
-    public class PropertyName
+    public static class PropertyName
     {
         public enum Modifier
         {
@@ -15,9 +15,9 @@ namespace nine3q.Items
         }
     }
 
-    public class Property
+    public static class Property
     {
-        static object _mutex = new object();
+        static readonly object _mutex = new object();
         public static Dictionary<Pid, Definition> _definitions = null;
         public static Dictionary<Pid, Definition> Definitions
         {
@@ -369,44 +369,47 @@ namespace nine3q.Items
 
         public static object FromString(Property.Type type, string s)
         {
-            switch (type) {
-                case Property.Type.Unknown: throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface.");
-                case Property.Type.Int: return Convert.ToInt64(s);
-                case Property.Type.String: return s;
-                case Property.Type.Float: return Convert.ToDouble(s, CultureInfo.InvariantCulture);
-                case Property.Type.Bool: return s.IsTrue();
-                case Property.Type.Item: return new ItemId(s);
-                case Property.Type.ItemSet: return new ItemIdSet(s);
-                default: throw new NotImplementedException("Property type=" + type.ToString() + " not yet implemented.");
-            }
+            return type switch
+            {
+                Property.Type.Unknown => throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface."),
+                Property.Type.Int => Convert.ToInt64(s),
+                Property.Type.String => s,
+                Property.Type.Float => Convert.ToDouble(s, CultureInfo.InvariantCulture),
+                Property.Type.Bool => s.IsTrue(),
+                Property.Type.Item => new ItemId(s),
+                Property.Type.ItemSet => new ItemIdSet(s),
+                _ => throw new NotImplementedException("Property type=" + type.ToString() + " not yet implemented."),
+            };
         }
 
         public static object Clone(Property.Type type, object value)
         {
-            switch (type) {
-                case Property.Type.Unknown: throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface.");
-                case Property.Type.Int: return (long)value;
-                case Property.Type.String: return (string)value;
-                case Property.Type.Float: return (double)value;
-                case Property.Type.Bool: return (bool)value;
-                case Property.Type.Item: return ((ItemId)value).Clone();
-                case Property.Type.ItemSet: return ((ItemIdSet)value).Clone();
-                default: throw new NotImplementedException("Property type=" + type.ToString() + " not yet implemented.");
-            }
+            return type switch
+            {
+                Property.Type.Unknown => throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface."),
+                Property.Type.Int => (long)value,
+                Property.Type.String => (string)value,
+                Property.Type.Float => (double)value,
+                Property.Type.Bool => (bool)value,
+                Property.Type.Item => ((ItemId)value).Clone(),
+                Property.Type.ItemSet => ((ItemIdSet)value).Clone(),
+                _ => throw new NotImplementedException("Property type=" + type.ToString() + " not yet implemented."),
+            };
         }
 
         public static object Default(Property.Type type)
         {
-            switch (type) {
-                case Property.Type.Unknown: throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface.");
-                case Property.Type.Int: return 0L;
-                case Property.Type.String: return "";
-                case Property.Type.Float: return 0.0D;
-                case Property.Type.Bool: return false;
-                case Property.Type.Item: return ItemId.NoItem;
-                case Property.Type.ItemSet: return new ItemIdSet();
-                default: throw new NotImplementedException("Property type=" + type.ToString() + " not yet implemented.");
-            }
+            return type switch
+            {
+                Property.Type.Unknown => throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface."),
+                Property.Type.Int => 0L,
+                Property.Type.String => "",
+                Property.Type.Float => 0.0D,
+                Property.Type.Bool => false,
+                Property.Type.Item => ItemId.NoItem,
+                Property.Type.ItemSet => new ItemIdSet(),
+                _ => throw new NotImplementedException("Property type=" + type.ToString() + " not yet implemented."),
+            };
         }
 
         public static bool AreEquivalent(Property.Type type, object value1, object value2)
@@ -433,7 +436,7 @@ namespace nine3q.Items
             }
         }
 
-        static object _nameIndexMutex = new object();
+        static readonly object _nameIndexMutex = new object();
         static Dictionary<string, Definition> NameIndex = null;
         public static Definition Get(string name)
         {

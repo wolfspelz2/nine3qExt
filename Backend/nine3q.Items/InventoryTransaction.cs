@@ -6,16 +6,16 @@ namespace nine3q.Items
 {
     public sealed class InventoryTransaction : IDisposable
     {
-        string _name = "";
+        readonly string _name = "";
         public string Name { get { return _name; } }
 
         bool _canceled = false;
-        Inventory _inventory { get; set; }
+        Inventory Inventory { get; set; }
         List<ItemChange> _changes = new List<ItemChange>();
 
         public InventoryTransaction(Inventory inv, string name = null)
         {
-            _inventory = inv;
+            Inventory = inv;
             _name = name ?? Utils.GetMethodName(2, fullName: true);
         }
 
@@ -31,12 +31,12 @@ namespace nine3q.Items
         public void Cancel()
         {
             _canceled = true;
-            _inventory.CancelTransaction(this);
+            Inventory.CancelTransaction(this);
         }
 
         public void Commit()
         {
-            _inventory.CommitTransaction(this);
+            Inventory.CommitTransaction(this);
         }
 
         internal List<ItemChange> GetChanges()

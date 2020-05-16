@@ -6,8 +6,7 @@ namespace nine3q.Items
     public class ItemId : IEquatable<ItemId>, IComparable<ItemId>
     {
         public const ItemId NoItem = null;
-
-        long Value = 0;
+        readonly long Value = 0;
 
         public ItemId(long nValue)
         {
@@ -110,6 +109,26 @@ namespace nine3q.Items
         public int CompareTo(ItemId other)
         {
             return Value.CompareTo(other.Value);
+        }
+
+        public static bool operator <(ItemId left, ItemId right)
+        {
+            return left is null ? right is object : left.CompareTo(right) < 0;
+        }
+
+        public static bool operator <=(ItemId left, ItemId right)
+        {
+            return left is null || left.CompareTo(right) <= 0;
+        }
+
+        public static bool operator >(ItemId left, ItemId right)
+        {
+            return left is object && left.CompareTo(right) > 0;
+        }
+
+        public static bool operator >=(ItemId left, ItemId right)
+        {
+            return left is null ? right is null : left.CompareTo(right) >= 0;
         }
 
         #endregion

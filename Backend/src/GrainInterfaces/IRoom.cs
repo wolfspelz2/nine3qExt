@@ -5,7 +5,7 @@ using Orleans;
 
 namespace GrainInterfaces
 {
-    public class RoomStream
+    public static class RoomStream
     {
         public const string Provider = "SMSProvider";
         public const string NamespaceProperties = "Properties";

@@ -216,8 +216,7 @@ namespace nine3q.Items
         public T GetEnum<T>(Pid pid, T defaultValue) where T : struct
         {
             var value = (string)Get(pid);
-            T result;
-            if (!Enum.TryParse(value, out result)) {
+            if (!Enum.TryParse(value, out T result)) {
                 result = defaultValue;
             }
             return result;

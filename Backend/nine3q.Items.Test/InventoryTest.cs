@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using nine3q.Items.Aspects;
 
 namespace nine3q.Items.Test
@@ -87,6 +86,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0059:Unnecessary assignment of a value", Justification = "<Pending>")]
         public void Inventory_GetItemByName_with_path_loops_through_containers()
         {
             // Arrange
@@ -246,8 +246,9 @@ namespace nine3q.Items.Test
         public void Inventory_get_public_properties_with_template()
         {
             // Arrange
-            var inv = new Inventory();
-            inv.Templates = new Inventory();
+            var inv = new Inventory {
+                Templates = new Inventory()
+            };
             inv.Templates.CreateItem(new PropertySet { [Pid.Name] = "TestTemplate", [Pid.TestPublic] = 1, [Pid.TestOwner] = 2, [Pid.TestInternal] = 3 });
             var item = inv.CreateItem(new PropertySet { [Pid.TemplateName] = "TestTemplate" });
 

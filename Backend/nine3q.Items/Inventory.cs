@@ -34,9 +34,9 @@ namespace nine3q.Items
 
         public ITimerManager Timers { get; set; } = new DummyTimerManager();
 
-        Dictionary<string, ItemId> Names = new Dictionary<string, ItemId>();
-
-        int MaxItemsPerInventory = 1000;
+        readonly Dictionary<string, ItemId> Names = new Dictionary<string, ItemId>();
+        
+        readonly int MaxItemsPerInventory = 1000;
 
         public Inventory(string name = "")
         {
@@ -64,8 +64,7 @@ namespace nine3q.Items
 
         public Item Item(ItemId id)
         {
-            Item item = null;
-            if (!Items.TryGetValue(id, out item)) {
+            if (!Items.TryGetValue(id, out Item item)) {
                 throw new ItemException(Name, id, "No such item");
             }
             return item;
@@ -73,12 +72,10 @@ namespace nine3q.Items
 
         public Item Item(string name)
         {
-            Item item = null;
-            var id = ItemId.NoItem;
-            if (!Names.TryGetValue(name, out id)) {
+            if (!Names.TryGetValue(name, out ItemId id)) {
                 throw new ItemException(Name, ItemId.NoItem, $"No such item: name={name}");
             }
-            if (!Items.TryGetValue(id, out item)) {
+            if (!Items.TryGetValue(id, out Item item)) {
                 throw new ItemException(Name, id, $"No such item: name={name}");
             }
             return item;
@@ -94,7 +91,7 @@ namespace nine3q.Items
             if (Names.ContainsKey(name)) {
                 Names.Remove(name);
             }
-            Utils.Dont = () => { var x = id; };
+            Utils.Dont  = () => { var x = id; };
         }
 
         #endregion
@@ -137,17 +134,6 @@ namespace nine3q.Items
             }
             _currentItemId++;
             return new ItemId(_currentItemId);
-        }
-
-        ItemId GetNextItemId_ReUse()
-        {
-            var numbers = Items.Keys.ToList().ConvertAll(x => (long)x);
-            for (long id = 1; id < MaxItemsPerInventory; id++) {
-                if (!numbers.Contains(id)) {
-                    return new ItemId(id);
-                }
-            }
-            return ItemId.NoItem;
         }
 
         ItemId GetNextItemId()
@@ -353,14 +339,13 @@ namespace nine3q.Items
 
         public void Transaction(TransactionWrappedCode code)
         {
-            using (var t = BeginTransaction()) {
-                try {
-                    code();
-                } catch (Exception ex) {
-                    t.Cancel();
-                    Utils.Dont = () => { var m = ex.Message; };
-                    throw;
-                }
+            using var t = BeginTransaction();
+            try {
+                code();
+            } catch (Exception ex) {
+                t.Cancel();
+                Utils.Dont = () => { var m = ex.Message; };
+                throw;
             }
         }
 
