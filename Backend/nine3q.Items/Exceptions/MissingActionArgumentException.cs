@@ -14,6 +14,6 @@ namespace nine3q.Items.Exceptions
         public MissingActionArgumentException(string message, Exception innerException) : base(message, innerException) { }
         [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter = true)]
         private MissingActionArgumentException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-        public override void GetObjectData(SerializationInfo info, StreamingContext context) { if (info == null) { throw new ArgumentNullException("info"); } base.GetObjectData(info, context); }
+        public override void GetObjectData(SerializationInfo info, StreamingContext context) { if (info == null) { throw new ArgumentNullException(nameof(info)); } base.GetObjectData(info, context); }
     }
 }

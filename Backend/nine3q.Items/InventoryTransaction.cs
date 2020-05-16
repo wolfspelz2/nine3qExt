@@ -4,7 +4,7 @@ using nine3q.Lib;
 
 namespace nine3q.Items
 {
-    public class Transaction : IDisposable
+    public sealed class InventoryTransaction : IDisposable
     {
         string _name = "";
         public string Name { get { return _name; } }
@@ -13,7 +13,7 @@ namespace nine3q.Items
         Inventory _inventory { get; set; }
         List<ItemChange> _changes = new List<ItemChange>();
 
-        public Transaction(Inventory inv, string name = null)
+        public InventoryTransaction(Inventory inv, string name = null)
         {
             _inventory = inv;
             _name = name ?? Utils.GetMethodName(2, fullName: true);
@@ -31,12 +31,12 @@ namespace nine3q.Items
         public void Cancel()
         {
             _canceled = true;
-            _inventory._CancelTransaction(this);
+            _inventory.CancelTransaction(this);
         }
 
         public void Commit()
         {
-            _inventory._CommitTransaction(this);
+            _inventory.CommitTransaction(this);
         }
 
         internal List<ItemChange> GetChanges()

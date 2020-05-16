@@ -344,6 +344,7 @@ namespace nine3q.Items
 
         public static string ToString(Property.Type type, object value)
         {
+            Utils.Dont = () => { var x = type; };
             if (value is string) {
                 return (string)value;
             } else if (value is int) {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using nine3q.Lib;
 
 namespace nine3q.Items
 {
@@ -89,9 +90,7 @@ namespace nine3q.Items
             };
         }
 
-        public void Nop()
-        {
-        }
+        public void Nop() => Utils.Dont = () => { var x = Get(Pid.TestBool); };
 
         internal void SetTestInt42()
         {
@@ -130,7 +129,7 @@ namespace nine3q.Items
             };
         }
 
-        public void Nop() { }
+        public void Nop() => Utils.Dont = () => { var x = Get(Pid.TestBool); };
     }
 
     #endregion

@@ -21,7 +21,7 @@ namespace nine3q.Items
 
         public Dictionary<ItemId, Item> Items { get; set; } = new Dictionary<ItemId, Item>();
 
-        Transaction CurrentTransaction = null;
+        InventoryTransaction CurrentTransaction = null;
 
         List<ItemChange> _changes = null;
         public List<ItemChange> Changes
@@ -94,6 +94,7 @@ namespace nine3q.Items
             if (Names.ContainsKey(name)) {
                 Names.Remove(name);
             }
+            Utils.Dont = () => { var x = id; };
         }
 
         #endregion
@@ -363,9 +364,9 @@ namespace nine3q.Items
             }
         }
 
-        public Transaction BeginTransaction()
+        public InventoryTransaction BeginTransaction()
         {
-            var t = new Transaction(this);
+            var t = new InventoryTransaction(this);
 
             if (CurrentTransaction == null) {
                 CurrentTransaction = t;
@@ -375,7 +376,7 @@ namespace nine3q.Items
             return t;
         }
 
-        public void _CommitTransaction(Transaction t)
+        public void CommitTransaction(InventoryTransaction t)
         {
             if (t == CurrentTransaction) {
                 CurrentTransaction = null;
@@ -384,7 +385,7 @@ namespace nine3q.Items
             }
         }
 
-        public void _CancelTransaction(Transaction t)
+        public void CancelTransaction(InventoryTransaction t)
         {
             if (t == CurrentTransaction) {
                 CurrentTransaction = null;

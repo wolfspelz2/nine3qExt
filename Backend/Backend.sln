@@ -29,6 +29,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nine3q.Items.Test", "nine3q
 		{6BF00691-4D1B-4C65-A76E-D3D972ADD879} = {6BF00691-4D1B-4C65-A76E-D3D972ADD879}
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{6503DF54-D6AC-48CB-B0C5-CF39F0240AF0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution", "Solution", "{C71D1543-290E-4CF1-A5DE-E01CA7A11A25}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -78,6 +85,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E878EA71-2441-49EA-9A8A-7D4500E10067} = {6503DF54-D6AC-48CB-B0C5-CF39F0240AF0}
+		{4ED5697B-9E04-4E5A-A919-16AA3F9E3CBE} = {6503DF54-D6AC-48CB-B0C5-CF39F0240AF0}
+		{6EE33E87-6EC8-491C-A94D-AEEDB63E5040} = {6503DF54-D6AC-48CB-B0C5-CF39F0240AF0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4C58E6A4-A93F-488F-BA4E-EF1D570CEF2B}

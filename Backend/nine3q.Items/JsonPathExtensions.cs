@@ -13,66 +13,66 @@ namespace nine3q.Lib
             return node.ToJson(options);
         }
 
-        public static JsonPath.Node Add(this JsonPath.Node _this, JsonPath.Node value)
+        public static JsonPath.Node Add(this JsonPath.Node self, JsonPath.Node value)
         {
-            _this.AsList.Add(value);
-            return _this;
+            self.AsList.Add(value);
+            return self;
         }
 
-        public static JsonPath.Node Set(this JsonPath.Node _this, string key, JsonPath.Node value)
+        public static JsonPath.Node Set(this JsonPath.Node self, string key, JsonPath.Node value)
         {
-            _this.AsDictionary[key] = value;
-            return _this;
+            self.AsDictionary[key] = value;
+            return self;
         }
 
-        public static JsonPath.Node Set(this JsonPath.Node _this, string key, string value)
+        public static JsonPath.Node Set(this JsonPath.Node self, string key, string value)
         {
-            _this.AsDictionary[key] = new JsonPath.Node(JsonPath.Node.Type.String, value);
-            return _this;
+            self.AsDictionary[key] = new JsonPath.Node(JsonPath.Node.Type.String, value);
+            return self;
         }
 
-        public static JsonPath.Node Set(this JsonPath.Node _this, string key, long value)
+        public static JsonPath.Node Set(this JsonPath.Node self, string key, long value)
         {
-            _this.AsDictionary[key] = new JsonPath.Node(JsonPath.Node.Type.Int, value);
-            return _this;
+            self.AsDictionary[key] = new JsonPath.Node(JsonPath.Node.Type.Int, value);
+            return self;
         }
 
-        public static JsonPath.Node Set(this JsonPath.Node _this, string key, bool value)
+        public static JsonPath.Node Set(this JsonPath.Node self, string key, bool value)
         {
-            _this.AsDictionary[key] = new JsonPath.Node(JsonPath.Node.Type.Bool, value);
-            return _this;
+            self.AsDictionary[key] = new JsonPath.Node(JsonPath.Node.Type.Bool, value);
+            return self;
         }
 
-        public static string Get(this JsonPath.Node _this, string key)
+        public static string Get(this JsonPath.Node self, string key)
         {
-            return Get(_this, key, "");
+            return Get(self, key, "");
         }
 
-        public static string Get(this JsonPath.Node _this, string key, string defaultValue)
+        public static string Get(this JsonPath.Node self, string key, string defaultValue)
         {
-            if (_this.AsDictionary.ContainsKey(key)) {
-                return _this.AsDictionary[key].AsString;
+            if (self.AsDictionary.ContainsKey(key)) {
+                return self.AsDictionary[key].AsString;
             }
             return defaultValue;
         }
 
-        public static JsonPath.Node GetNode(this JsonPath.Node _this, string key)
+        public static JsonPath.Node GetNode(this JsonPath.Node self, string key)
         {
-            if (_this.AsDictionary.ContainsKey(key)) {
-                return _this.AsDictionary[key];
+            if (self.AsDictionary.ContainsKey(key)) {
+                return self.AsDictionary[key];
             }
             return new JsonPath.Node(JsonPath.Node.Type.Dictionary);
         }
 
-        public static bool ContainsKey(this JsonPath.Node _this, string key)
+        public static bool ContainsKey(this JsonPath.Node self, string key)
         {
-            return _this.AsDictionary.ContainsKey(key);
+            return self.AsDictionary.ContainsKey(key);
         }
 
-        public static JsonPath.Node Remove(this JsonPath.Node _this, string key)
+        public static JsonPath.Node Remove(this JsonPath.Node self, string key)
         {
-            _this.AsDictionary.Remove(key);
-            return _this;
+            self.AsDictionary.Remove(key);
+            return self;
         }
 
     }

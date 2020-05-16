@@ -154,7 +154,7 @@ namespace nine3q.Items
 
         public bool Has(Pid pid)
         {
-            var value = Properties.Get_maybe_null(pid);
+            var value = Properties.GetMaybeNull(pid);
             return value != null;
         }
 
@@ -168,7 +168,7 @@ namespace nine3q.Items
 
         public object Get(Pid pid)
         {
-            var value = Properties.Get_maybe_null(pid);
+            var value = Properties.GetMaybeNull(pid);
 
             // Still null: get from template
             if (value == null) {
@@ -248,16 +248,16 @@ namespace nine3q.Items
         public PropertySet GetProperties(PidList pids, bool native = false)
         {
             if (pids == PidList.All) {
-                return GetProperties_All(native);
+                return GetPropertiesAll(native);
             } else if (pids.Count == 1 && pids[0] == Pid.PublicAccess) {
-                return GetProperties_Public(native);
+                return GetPropertiesPublic(native);
             } else if (pids.Count == 1 && pids[0] == Pid.OwnerAccess) {
-                return GetProperties_Owner(native);
+                return GetPropertiesOwner(native);
             }
-            return GetProperties_ByPid(pids, native);
+            return GetPropertiesByPid(pids, native);
         }
 
-        public PropertySet GetProperties_All(bool native = false)
+        public PropertySet GetPropertiesAll(bool native = false)
         {
             Item template = native ? null : GetTemplate();
 
@@ -275,17 +275,17 @@ namespace nine3q.Items
             return props;
         }
 
-        public PropertySet GetProperties_Public(bool native = false)
+        public PropertySet GetPropertiesPublic(bool native = false)
         {
-            return GetProperties_ByAccess(Property.Access.Public, native);
+            return GetPropertiesByAccess(Property.Access.Public, native);
         }
 
-        public PropertySet GetProperties_Owner(bool native = false)
+        public PropertySet GetPropertiesOwner(bool native = false)
         {
-            return GetProperties_ByAccess(Property.Access.Owner, native);
+            return GetPropertiesByAccess(Property.Access.Owner, native);
         }
 
-        public PropertySet GetProperties_ByAccess(Property.Access access, bool native = false)
+        public PropertySet GetPropertiesByAccess(Property.Access access, bool native = false)
         {
             Item template = native ? null : GetTemplate();
 
@@ -307,7 +307,7 @@ namespace nine3q.Items
             return props;
         }
 
-        public PropertySet GetProperties_ByPid(PidList pids, bool native = false)
+        public PropertySet GetPropertiesByPid(PidList pids, bool native = false)
         {
             Item template = native ? null : GetTemplate();
 

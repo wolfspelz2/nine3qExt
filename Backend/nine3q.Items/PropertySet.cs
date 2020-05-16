@@ -18,7 +18,7 @@ namespace nine3q.Items
             this[key] = Property.Normalize(Property.Get(key).Type, value);
         }
 
-        public object Get_maybe_null(Pid key)
+        public object GetMaybeNull(Pid key)
         {
             object value = null;
             TryGetValue(key, out value);

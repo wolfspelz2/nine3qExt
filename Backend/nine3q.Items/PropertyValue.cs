@@ -27,7 +27,7 @@
         {
             NoAccess = 0,
             ReadOwner = 1 << (AccessLevel.Owner + AccessMode.Read * AccessLevel.ModeMultiplier),
-            ReadTeam = 1 << (AccessLevel.Group + AccessMode.Read * AccessLevel.ModeMultiplier),
+            ReadTeam = 1 << (AccessLevel.Team + AccessMode.Read * AccessLevel.ModeMultiplier),
             ReadGroup = 1 << (AccessLevel.Group + AccessMode.Read * AccessLevel.ModeMultiplier),
             ReadDepartment = 1 << (AccessLevel.Department + AccessMode.Read * AccessLevel.ModeMultiplier),
             ReadOrganization = 1 << (AccessLevel.Organization + AccessMode.Read * AccessLevel.ModeMultiplier),
@@ -36,7 +36,7 @@
             ReadEveryone = 1 << (AccessLevel.Everyone + AccessMode.Read * AccessLevel.ModeMultiplier),
 
             WriteOwner = 1 << (AccessLevel.Owner + AccessMode.Write * AccessLevel.ModeMultiplier),
-            WriteTeam = 1 << (AccessLevel.Group + AccessMode.Write * AccessLevel.ModeMultiplier),
+            WriteTeam = 1 << (AccessLevel.Team + AccessMode.Write * AccessLevel.ModeMultiplier),
             WriteGroup = 1 << (AccessLevel.Group + AccessMode.Write * AccessLevel.ModeMultiplier),
             WriteDepartment = 1 << (AccessLevel.Department + AccessMode.Write * AccessLevel.ModeMultiplier),
             WriteOrganization = 1 << (AccessLevel.Organization + AccessMode.Write * AccessLevel.ModeMultiplier),
@@ -45,7 +45,7 @@
             WriteEveryone = 1 << (AccessLevel.Everyone + AccessMode.Write * AccessLevel.ModeMultiplier),
 
             ExecuteOwner = 1 << (AccessLevel.Owner + AccessMode.Execute * AccessLevel.ModeMultiplier),
-            ExecuteTeam = 1 << (AccessLevel.Group + AccessMode.Execute * AccessLevel.ModeMultiplier),
+            ExecuteTeam = 1 << (AccessLevel.Team + AccessMode.Execute * AccessLevel.ModeMultiplier),
             ExecuteGroup = 1 << (AccessLevel.Group + AccessMode.Execute * AccessLevel.ModeMultiplier),
             ExecuteDepartment = 1 << (AccessLevel.Department + AccessMode.Execute * AccessLevel.ModeMultiplier),
             ExecuteOrganization = 1 << (AccessLevel.Organization + AccessMode.Execute * AccessLevel.ModeMultiplier),
