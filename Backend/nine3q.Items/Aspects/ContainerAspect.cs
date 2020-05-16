@@ -49,7 +49,7 @@ namespace nine3q.Items.Aspects
             item.Set(Pid.Container, this.Id);
         }
 
-        public void AssigneSlotCore(Item item, long slot = NoSlot)
+        public void AssignSlotCore(Item item, long slot = NoSlot)
         {
             item.Delete(Pid.Slot);
             if (slot != NoSlot) {
@@ -63,7 +63,7 @@ namespace nine3q.Items.Aspects
         public void AddChild(Item item, long slot = NoSlot)
         {
             AddChildCore(item);
-            AssigneSlotCore(item, slot);
+            AssignSlotCore(item, slot);
         }
 
         public void SetChild(Item item, long slot = NoSlot)
