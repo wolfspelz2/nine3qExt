@@ -16,18 +16,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestClient", "src\TestClien
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XmppComponent", "src\XmppComponent\XmppComponent.csproj", "{BE23181D-CC2B-4260-8967-B8EA984FFC62}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nine3q.Items", "nine3q.Items\nine3q.Items.csproj", "{6BF00691-4D1B-4C65-A76E-D3D972ADD879}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nine3q.Lib", "nine3q.Lib\nine3q.Lib.csproj", "{85D1A9CE-EA47-44DC-A295-35D25269E23A}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JsonPath", "JsonPath\JsonPath.csproj", "{E7E5FB7A-C222-432D-8FFC-6A1FEC704F32}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonPath.Test", "JsonPath.Test\JsonPath.Test.csproj", "{4ED5697B-9E04-4E5A-A919-16AA3F9E3CBE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JsonPath.Test", "JsonPath.Test\JsonPath.Test.csproj", "{4ED5697B-9E04-4E5A-A919-16AA3F9E3CBE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nine3q.Items.Test", "nine3q.Items.Test\nine3q.Items.Test.csproj", "{6EE33E87-6EC8-491C-A94D-AEEDB63E5040}"
-	ProjectSection(ProjectDependencies) = postProject
-		{6BF00691-4D1B-4C65-A76E-D3D972ADD879} = {6BF00691-4D1B-4C65-A76E-D3D972ADD879}
-	EndProjectSection
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nine3q.Items.Test", "nine3q.Items.Test\nine3q.Items.Test.csproj", "{6EE33E87-6EC8-491C-A94D-AEEDB63E5040}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{6503DF54-D6AC-48CB-B0C5-CF39F0240AF0}"
 EndProject
@@ -35,6 +28,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution", "Solution", "{C7
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nine3q.Items", "nine3q.Items\nine3q.Items.csproj", "{C4B34CF5-39E2-431D-A627-F1B832E58F22}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "nine3q.Tools", "nine3q.Tools\nine3q.Tools.csproj", "{ECF8416D-B712-416F-BDDC-AE8CF7D9AF7C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,14 +59,6 @@ Global
 		{BE23181D-CC2B-4260-8967-B8EA984FFC62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE23181D-CC2B-4260-8967-B8EA984FFC62}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE23181D-CC2B-4260-8967-B8EA984FFC62}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6BF00691-4D1B-4C65-A76E-D3D972ADD879}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6BF00691-4D1B-4C65-A76E-D3D972ADD879}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6BF00691-4D1B-4C65-A76E-D3D972ADD879}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6BF00691-4D1B-4C65-A76E-D3D972ADD879}.Release|Any CPU.Build.0 = Release|Any CPU
-		{85D1A9CE-EA47-44DC-A295-35D25269E23A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{85D1A9CE-EA47-44DC-A295-35D25269E23A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{85D1A9CE-EA47-44DC-A295-35D25269E23A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{85D1A9CE-EA47-44DC-A295-35D25269E23A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E7E5FB7A-C222-432D-8FFC-6A1FEC704F32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E7E5FB7A-C222-432D-8FFC-6A1FEC704F32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E7E5FB7A-C222-432D-8FFC-6A1FEC704F32}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -82,6 +71,14 @@ Global
 		{6EE33E87-6EC8-491C-A94D-AEEDB63E5040}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6EE33E87-6EC8-491C-A94D-AEEDB63E5040}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6EE33E87-6EC8-491C-A94D-AEEDB63E5040}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4B34CF5-39E2-431D-A627-F1B832E58F22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4B34CF5-39E2-431D-A627-F1B832E58F22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4B34CF5-39E2-431D-A627-F1B832E58F22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4B34CF5-39E2-431D-A627-F1B832E58F22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECF8416D-B712-416F-BDDC-AE8CF7D9AF7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECF8416D-B712-416F-BDDC-AE8CF7D9AF7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECF8416D-B712-416F-BDDC-AE8CF7D9AF7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECF8416D-B712-416F-BDDC-AE8CF7D9AF7C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
