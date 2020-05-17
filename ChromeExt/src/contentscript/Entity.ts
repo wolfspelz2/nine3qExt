@@ -31,10 +31,18 @@ export class Entity
     getElem(): HTMLElement { return this.elem; }
     getCenterElem(): HTMLElement { return this.centerElem; }
 
-    show(visible: boolean): void
+    show(visible: boolean, durationSec: number = 0.0): void
     {
         if (visible != this.visible) {
-            this.elem.style.display = visible ? 'block' : 'none';
+            if (visible) {
+                if (durationSec > 0) {
+                    $(this.elem).fadeIn(durationSec * 1000);
+                } else {
+                    this.elem.style.display = 'block';
+                }
+            } else {
+                this.elem.style.display = 'none';
+            }
             this.visible = visible;
         }
     }

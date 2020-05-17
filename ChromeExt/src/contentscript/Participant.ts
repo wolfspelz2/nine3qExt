@@ -180,7 +180,11 @@ export class Participant extends Entity
                 this.chatinDisplay = new Chatin(this.app, this, this.getElem());
             }
 
-            this.show(true);
+            if (this.isSelf) {
+                this.show(true, Config.get('room.fadeInSec', 0.3));
+            } else {
+                this.show(true);
+            }
             // if (this.isSelf && Environment.isDevelopment()) { this.showChatWindow(); }
             this.room?.showChatMessage(this.nick, 'entered the room');
 
