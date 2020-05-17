@@ -29,7 +29,7 @@ namespace IntegrationTests
         }
 
             [TestMethod]
-            public void Received_and_sent_properties_are_identical()
+            public void Sent_and_received_properties_are_identical()
             {
                 // Arrange
                 var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Utils.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));

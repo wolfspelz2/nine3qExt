@@ -23,7 +23,7 @@ namespace IntegrationTests
                         { Pid.TestEnum, PropertyValue.TestEnum.Value1 },
                     };
                 var set2 = new PropertySet {
-                        { Pid.TestInt, (long)42 },
+                        { Pid.TestInt, 42L },
                     };
                 var id1 = inv.CreateItem(set1).Result;
                 var id2 = inv.CreateItem(set2).Result;
