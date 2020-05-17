@@ -133,8 +133,8 @@ namespace nine3q.Items.Test
                 { Pid.TestFloat, (double)3.14 },
                 { Pid.TestString, "fourtytwo" },
                 { Pid.TestBool, true },
-                { Pid.TestItem, new ItemId(10000000001) },
-                { Pid.TestItemSet, new ItemIdSet { new ItemId(42), new ItemId(10000000001) } },
+                { Pid.TestItem, new long(10000000001) },
+                { Pid.TestItemSet, new longSet { new long(42), new long(10000000001) } },
             };
             var item = inv.CreateItem(props);
 
@@ -147,7 +147,7 @@ namespace nine3q.Items.Test
             Assert.AreEqual(props[Pid.TestString], item.GetString(Pid.TestString));
             Assert.AreEqual(false, item.GetBool(Pid.TestBool));
             Assert.AreEqual(props[Pid.TestItem], item.GetItem(Pid.TestItem));
-            Assert.AreEqual((ItemIdSet)props[Pid.TestItemSet], item.GetItemSet(Pid.TestItemSet));
+            Assert.AreEqual((longSet)props[Pid.TestItemSet], item.GetItemSet(Pid.TestItemSet));
         }
 
         [TestMethod]
@@ -160,8 +160,8 @@ namespace nine3q.Items.Test
                 { Pid.TestFloat, (double)3.14 },
                 { Pid.TestString, "fourtytwo" },
                 { Pid.TestBool, true },
-                { Pid.TestItem, new ItemId(10000000001) },
-                { Pid.TestItemSet, new ItemIdSet { new ItemId(42), new ItemId(10000000001) } },
+                { Pid.TestItem, new long(10000000001) },
+                { Pid.TestItemSet, new longSet { new long(42), new long(10000000001) } },
                 { Pid.TestEnum, PropertyValue.TestEnum.Value1 },
             };
             var item = inv.CreateItem(props);
@@ -176,7 +176,7 @@ namespace nine3q.Items.Test
             Assert.AreEqual(props[Pid.TestString], item.GetString(Pid.TestString));
             Assert.AreEqual(true, receivedProps.GetBool(Pid.TestBool));
             Assert.AreEqual(props[Pid.TestItem], item.GetItem(Pid.TestItem));
-            Assert.AreEqual((ItemIdSet)props[Pid.TestItemSet], item.GetItemSet(Pid.TestItemSet));
+            Assert.AreEqual((longSet)props[Pid.TestItemSet], item.GetItemSet(Pid.TestItemSet));
             Assert.AreEqual(props[Pid.TestEnum], item.GetEnum(Pid.TestEnum, PropertyValue.TestEnum.Unknown));
             Assert.AreEqual(props[Pid.TestEnum].ToString(), item.GetString(Pid.TestEnum));
         }
@@ -191,8 +191,8 @@ namespace nine3q.Items.Test
                 { Pid.TestFloat, (double)3.14 },
                 { Pid.TestString, "fourtytwo" },
                 { Pid.TestBool, true },
-                { Pid.TestItem, new ItemId(10000000001) },
-                { Pid.TestItemSet, new ItemIdSet { new ItemId(42), new ItemId(10000000001) } },
+                { Pid.TestItem, new long(10000000001) },
+                { Pid.TestItemSet, new longSet { new long(42), new long(10000000001) } },
             };
             var item = inv.CreateItem(props);
 
@@ -286,7 +286,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void GetItemIdsAndValuesByProperty()
+        public void GetlongsAndValuesByProperty()
         {
             // Arrange
             var inv = new Inventory();
@@ -295,7 +295,7 @@ namespace nine3q.Items.Test
             var item3 = inv.CreateItem(new PropertySet { { Pid.TestInt2, 32 }, { Pid.TestInt3, 33 }, });
 
             // Act
-            var idValues = inv.GetItemIdsAndValuesByProperty(Pid.TestInt, new PidList { Pid.TestInt, Pid.TestInt2 });
+            var idValues = inv.GetlongsAndValuesByProperty(Pid.TestInt, new PidList { Pid.TestInt, Pid.TestInt2 });
 
             // Assert
             Assert.AreEqual(2, idValues.Count);
@@ -307,7 +307,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void GetItemIdsAndValuesByPropertyValue()
+        public void GetlongsAndValuesByPropertyValue()
         {
             // Arrange
             var inv = new Inventory();
@@ -316,7 +316,7 @@ namespace nine3q.Items.Test
             var item3 = inv.CreateItem(new PropertySet { { Pid.TestInt2, 32 }, { Pid.TestInt3, 33 }, });
 
             // Act
-            var idValues = inv.GetItemIdsAndValuesByPropertyValue(new PropertySet { [Pid.TestInt] = 11 }, new PidList { Pid.TestInt, Pid.TestInt2 });
+            var idValues = inv.GetlongsAndValuesByPropertyValue(new PropertySet { [Pid.TestInt] = 11 }, new PidList { Pid.TestInt, Pid.TestInt2 });
 
             // Assert
             Assert.AreEqual(1, idValues.Count);
@@ -326,7 +326,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void GetItemIdsAndValuesByPropertyValue_with_multiple_filter_pairs()
+        public void GetlongsAndValuesByPropertyValue_with_multiple_filter_pairs()
         {
             // Arrange
             var inv = new Inventory();
@@ -336,7 +336,7 @@ namespace nine3q.Items.Test
             var item4 = inv.CreateItem(new PropertySet { { Pid.TestInt, 11 }, { Pid.TestString, "s1" }, { Pid.TestInt2, 24 }, });
 
             // Act
-            var idValues = inv.GetItemIdsAndValuesByPropertyValue(new PropertySet { [Pid.TestInt] = 11, [Pid.TestString] = "s1" }, new PidList { Pid.TestInt2 });
+            var idValues = inv.GetlongsAndValuesByPropertyValue(new PropertySet { [Pid.TestInt] = 11, [Pid.TestString] = "s1" }, new PidList { Pid.TestInt2 });
 
             // Assert
             Assert.AreEqual(2, idValues.Count);
@@ -574,13 +574,13 @@ namespace nine3q.Items.Test
 
             // Act
             var transfer = source.BeginItemTransfer(item100.Id);
-            var map = dest.ReceiveItemTransfer(item100.Id, ItemId.NoItem, 0, transfer, new PropertySet(), new PidList());
+            var map = dest.ReceiveItemTransfer(item100.Id, long.NoItem, 0, transfer, new PropertySet(), new PidList());
             source.EndItemTransfer(item100.Id);
             dest.EndItemTransfer(map[item100.Id]);
 
             // Assert
-            var sourceProps = source.GetItemIdsAndValuesByProperty(Pid.Id, PidList.All);
-            var destProps = dest.GetItemIdsAndValuesByProperty(Pid.Id, PidList.All);
+            var sourceProps = source.GetlongsAndValuesByProperty(Pid.Id, PidList.All);
+            var destProps = dest.GetlongsAndValuesByProperty(Pid.Id, PidList.All);
             Assert.AreEqual(1, sourceProps.Count);
             Assert.AreEqual(8, destProps.Count);
             Assert.AreEqual(item100PropCount, destProps[map[item100.Id]].Count);
@@ -600,11 +600,11 @@ namespace nine3q.Items.Test
             Assert.AreEqual(112, destProps[map[item112.Id]].GetInt(Pid.TestInt1));
             Assert.AreEqual(113, destProps[map[item113.Id]].GetInt(Pid.TestInt1));
             Assert.AreEqual(121, destProps[map[item121.Id]].GetInt(Pid.TestInt1));
-            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet { map[item110.Id], map[item120.Id], map[item130.Id] }, destProps[map[item100.Id]].GetItemSet(Pid.Contains)));
-            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet { map[item111.Id], map[item112.Id], map[item113.Id] }, destProps[map[item110.Id]].GetItemSet(Pid.Contains)));
-            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet { map[item121.Id] }, destProps[map[item120.Id]].GetItemSet(Pid.Contains)));
-            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet { }, destProps[map[item130.Id]].GetItemSet(Pid.Contains)));
-            Assert.AreEqual(ItemId.NoItem, destProps[map[item100.Id]].GetItem(Pid.Container));
+            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new longSet { map[item110.Id], map[item120.Id], map[item130.Id] }, destProps[map[item100.Id]].GetItemSet(Pid.Contains)));
+            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new longSet { map[item111.Id], map[item112.Id], map[item113.Id] }, destProps[map[item110.Id]].GetItemSet(Pid.Contains)));
+            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new longSet { map[item121.Id] }, destProps[map[item120.Id]].GetItemSet(Pid.Contains)));
+            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new longSet { }, destProps[map[item130.Id]].GetItemSet(Pid.Contains)));
+            Assert.AreEqual(long.NoItem, destProps[map[item100.Id]].GetItem(Pid.Container));
             Assert.AreEqual(map[item100.Id], destProps[map[item110.Id]].GetItem(Pid.Container));
             Assert.AreEqual(map[item100.Id], destProps[map[item120.Id]].GetItem(Pid.Container));
             Assert.AreEqual(map[item100.Id], destProps[map[item130.Id]].GetItem(Pid.Container));
@@ -629,7 +629,7 @@ namespace nine3q.Items.Test
             _ = source.BeginItemTransfer(item.Id);
 
             // Assert
-            Assert.AreEqual(ItemId.NoItem, item.GetItem(Pid.Container));
+            Assert.AreEqual(long.NoItem, item.GetItem(Pid.Container));
 
             // Act
             source.CancelItemTransfer(item.Id);
@@ -652,7 +652,7 @@ namespace nine3q.Items.Test
 
             // Act
             var transfer = source.BeginItemTransfer(item.Id);
-            var map = dest.ReceiveItemTransfer(item.Id, ItemId.NoItem, 0, transfer, new PropertySet(), new PidList());
+            var map = dest.ReceiveItemTransfer(item.Id, long.NoItem, 0, transfer, new PropertySet(), new PidList());
             source.CancelItemTransfer(item.Id);
             dest.CancelItemTransfer(map[item.Id]);
 
@@ -720,7 +720,7 @@ namespace nine3q.Items.Test
 
             // Act
             var transfer = source.BeginItemTransfer(item.Id);
-            var map = dest.ReceiveItemTransfer(item.Id, ItemId.NoItem, 0, transfer, new PropertySet { [Pid.TestInt3] = 43 }, new PidList { Pid.TestInt2 });
+            var map = dest.ReceiveItemTransfer(item.Id, long.NoItem, 0, transfer, new PropertySet { [Pid.TestInt3] = 43 }, new PidList { Pid.TestInt2 });
             source.EndItemTransfer(item.Id);
             dest.EndItemTransfer(map[item.Id]);
 
@@ -733,7 +733,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void GetItemIdsAndValuesByProperty_returns_only_select_properties_of_containers()
+        public void GetlongsAndValuesByProperty_returns_only_select_properties_of_containers()
         {
             // Arrange
             var inv = new Inventory();
@@ -741,7 +741,7 @@ namespace nine3q.Items.Test
             var item2 = inv.CreateItem(new PropertySet { [Pid.TestInt] = 42, [Pid.TestString] = "two", [Pid.IsContainer] = true, });
 
             // Act
-            var idValues = inv.GetItemIdsAndValuesByProperty(Pid.IsContainer, new PidList { Pid.TestInt });
+            var idValues = inv.GetlongsAndValuesByProperty(Pid.IsContainer, new PidList { Pid.TestInt });
 
             // Assert
             Assert.AreEqual(1, idValues.Count);
@@ -750,7 +750,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void GetItemIdsAndValuesByProperty_can_return_all_properties()
+        public void GetlongsAndValuesByProperty_can_return_all_properties()
         {
             // Arrange
             var inv = new Inventory();
@@ -759,13 +759,13 @@ namespace nine3q.Items.Test
                 { Pid.TestFloat, (double)3.14 },
                 { Pid.TestString, "fourtytwo" },
                 { Pid.TestBool, true },
-                { Pid.TestItem, new ItemId(10000000001) },
-                { Pid.TestItemSet, new ItemIdSet { new ItemId(42), new ItemId(10000000001) } },
+                { Pid.TestItem, new long(10000000001) },
+                { Pid.TestItemSet, new longSet { new long(42), new long(10000000001) } },
             };
             var item = inv.CreateItem(props);
 
             // Act
-            var idValues = inv.GetItemIdsAndValuesByProperty(Pid.Id, PidList.All);
+            var idValues = inv.GetlongsAndValuesByProperty(Pid.Id, PidList.All);
 
             // Assert
             var receivedProps = idValues[item.Id];
@@ -775,7 +775,7 @@ namespace nine3q.Items.Test
             Assert.AreEqual(props[Pid.TestString], item.GetString(Pid.TestString));
             Assert.AreEqual(true, receivedProps.GetBool(Pid.TestBool));
             Assert.AreEqual(props[Pid.TestItem], item.GetItem(Pid.TestItem));
-            Assert.AreEqual((ItemIdSet)props[Pid.TestItemSet], item.GetItemSet(Pid.TestItemSet));
+            Assert.AreEqual((longSet)props[Pid.TestItemSet], item.GetItemSet(Pid.TestItemSet));
         }
 
         //[TestMethod]
@@ -783,19 +783,19 @@ namespace nine3q.Items.Test
         //{
         //    // Arrange
         //    var inv = new Inventory();
-        //    inv.CreateItem(new PropertySet { [Pid.Id] = new ItemId(3) });
+        //    inv.CreateItem(new PropertySet { [Pid.Id] = new long(3) });
 
         //    // Act
         //    // Assert
-        //    Assert.AreEqual(new ItemId(1), inv.CreateItem(new PropertySet { }).Id);
+        //    Assert.AreEqual(new long(1), inv.CreateItem(new PropertySet { }).Id);
 
         //    // Act
         //    // Assert
-        //    Assert.AreEqual(new ItemId(2), inv.CreateItem(new PropertySet { }).Id);
+        //    Assert.AreEqual(new long(2), inv.CreateItem(new PropertySet { }).Id);
 
         //    // Act
         //    // Assert
-        //    Assert.AreEqual(new ItemId(4), inv.CreateItem(new PropertySet { }).Id);
+        //    Assert.AreEqual(new long(4), inv.CreateItem(new PropertySet { }).Id);
         //}
 
         [TestMethod]
@@ -803,14 +803,14 @@ namespace nine3q.Items.Test
         {
             // Arrange
             var inv = new Inventory();
-            inv.CreateItem(new PropertySet { [Pid.Id] = new ItemId(1) });
-            inv.CreateItem(new PropertySet { [Pid.Id] = new ItemId(2) });
-            inv.CreateItem(new PropertySet { [Pid.Id] = new ItemId(3) });
-            inv.DeleteItem(new ItemId(2));
+            inv.CreateItem(new PropertySet { [Pid.Id] = new long(1) });
+            inv.CreateItem(new PropertySet { [Pid.Id] = new long(2) });
+            inv.CreateItem(new PropertySet { [Pid.Id] = new long(3) });
+            inv.DeleteItem(new long(2));
 
             // Act
             // Assert
-            Assert.AreNotEqual(new ItemId(2), inv.CreateItem(new PropertySet { }).Id);
+            Assert.AreNotEqual(new long(2), inv.CreateItem(new PropertySet { }).Id);
         }
 
     }

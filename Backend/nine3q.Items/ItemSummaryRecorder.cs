@@ -4,9 +4,9 @@ namespace nine3q.Items
 {
     public class ItemSummaryRecorder : IInventoryChanges
     {
-        public ItemIdSet AddedItems = new ItemIdSet();
-        public ItemIdSet ChangedItems = new ItemIdSet();
-        public ItemIdSet DeletedItems = new ItemIdSet();
+        public longSet AddedItems = new longSet();
+        public longSet ChangedItems = new longSet();
+        public longSet DeletedItems = new longSet();
 
         public List<string> NewTemplates = new List<string>();
 
@@ -20,25 +20,25 @@ namespace nine3q.Items
             foreach (var change in inv.Changes) {
                 switch (change.What) {
                     case ItemChange.Variant.CreateItem:
-                        AddedItems.Add(change.ItemId);
-                        ChangedItems.Add(change.ItemId);
-                        DeletedItems.Remove(change.ItemId);
+                        AddedItems.Add(change.long);
+                        ChangedItems.Add(change.long);
+                        DeletedItems.Remove(change.long);
                         break;
                     case ItemChange.Variant.TouchItem:
-                        ChangedItems.Add(change.ItemId);
-                        DeletedItems.Remove(change.ItemId);
+                        ChangedItems.Add(change.long);
+                        DeletedItems.Remove(change.long);
                         break;
                     case ItemChange.Variant.DeleteItem:
-                        AddedItems.Remove(change.ItemId);
-                        ChangedItems.Remove(change.ItemId);
-                        DeletedItems.Add(change.ItemId);
+                        AddedItems.Remove(change.long);
+                        ChangedItems.Remove(change.long);
+                        DeletedItems.Add(change.long);
                         break;
                     case ItemChange.Variant.AddProperty:
                     case ItemChange.Variant.SetProperty: {
                         var prop = Property.Get(change.Pid);
                         if (prop.Group == Property.Group.Operation) { break; }
                         if (Property.AreEquivalent(prop.Type, change.PreviousValue, change.Value)) { break; }
-                        ChangedItems.Add(change.ItemId);
+                        ChangedItems.Add(change.long);
                         if (change.Pid == Pid.TemplateName) {
                             NewTemplates.Add(change.Value as string);
                         }
@@ -49,7 +49,7 @@ namespace nine3q.Items
                     case ItemChange.Variant.RemoveItemFromCollection: {
                         var prop = Property.Get(change.Pid);
                         if (prop.Group == Property.Group.Operation) { break; }
-                        ChangedItems.Add(change.ItemId);
+                        ChangedItems.Add(change.long);
                     }
                     break;
                 }

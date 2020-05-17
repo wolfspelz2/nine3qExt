@@ -7,7 +7,7 @@ namespace nine3q.Items.Exceptions
     [Serializable]
     public sealed class ActionNotAvailableException : ItemException
     {
-        public ActionNotAvailableException(string inventory, ItemId id, string action) : base(inventory, id, "does not have action=" + action) { Detail = "No action " + action; }
+        public ActionNotAvailableException(string inventory, long id, string action) : base(inventory, id, "does not have action=" + action) { Detail = "No action " + action; }
 
         public ActionNotAvailableException() { }
         public ActionNotAvailableException(string message) : base(message) { }

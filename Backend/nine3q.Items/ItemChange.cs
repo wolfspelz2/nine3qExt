@@ -16,12 +16,12 @@
         }
 
         public Variant What { get; set; }
-        public ItemId ItemId { get; set; }
+        public long long { get; set; }
         public Item Item { get; set; } // Used by DeleteItem, to keep the last reference of undo
         public Pid Pid { get; set; }
         public object Value { get; set; }
         public object PreviousValue { get; set; }
-        public ItemId ChildId { get; set; }
+        public long ChildId { get; set; }
 
         public override string ToString()
         {
@@ -29,7 +29,7 @@
                 case Variant.NoChange:
                     return ""
                       + What + ": "
-                      + ItemId + " "
+                      + long + " "
                       + "[" + Item + "] "
                       ;
 
@@ -38,14 +38,14 @@
                 case Variant.DeleteItem:
                     return ""
                       + What + ": "
-                      + ItemId + " "
+                      + long + " "
                       + "[" + Item + "] "
                       ;
 
                 default:
                     return ""
                       + What + ": "
-                      + ItemId + " "
+                      + long + " "
                       + "[" + Item + "] "
                       + Pid + " "
                       + PreviousValue + " -> "

@@ -7,7 +7,7 @@ namespace nine3q.Items.Exceptions
     [Serializable]
     public sealed class MissingItemPropertyException : ItemException
     {
-        public MissingItemPropertyException(string inventory, ItemId id, Pid pid) : base(inventory, id, "needs property=" + pid + " for this operation") { }
+        public MissingItemPropertyException(string inventory, long id, Pid pid) : base(inventory, id, "needs property=" + pid + " for this operation") { }
 
         public MissingItemPropertyException() { }
         public MissingItemPropertyException(string message) : base(message) { }

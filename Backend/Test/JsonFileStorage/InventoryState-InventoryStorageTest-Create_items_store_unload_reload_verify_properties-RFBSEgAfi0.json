@@ -1,0 +1,36 @@
+﻿{
+  "State": {
+    "Items": {
+      "1": {
+        "TestInt": 41,
+        "TestString": "42",
+        "TestFloat": 3.141592653589793,
+        "TestBool": true,
+        "TestItem": {
+          "Value": 42
+        },
+        "TestItemSet": [
+          {
+            "Value": 42
+          },
+          {
+            "Value": 10000000043
+          }
+        ],
+        "TestEnum": "Value1",
+        "Id": {
+          "Value": 1
+        }
+      },
+      "2": {
+        "TestInt": 42,
+        "Id": {
+          "Value": 2
+        }
+      }
+    },
+    "Name": "InventoryStorageTest-Create_items_store_unload_reload_verify_properties-RFBSEgAfi0"
+  },
+  "Type": "nine3q.Grains.InventoryState, nine3q.Grains, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+  "ETag": null
+}

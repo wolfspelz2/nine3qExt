@@ -7,7 +7,7 @@ namespace nine3q.Items.Exceptions
     [Serializable]
     public sealed class JsonConfigPropertyFormatException : ItemException
     {
-        public JsonConfigPropertyFormatException(string inventory, ItemId id, Pid pid, string text) : base(inventory, id, "invalid format of property=" + pid + ": " + text) { Detail = text; }
+        public JsonConfigPropertyFormatException(string inventory, long id, Pid pid, string text) : base(inventory, id, "invalid format of property=" + pid + ": " + text) { Detail = text; }
 
         public JsonConfigPropertyFormatException() { }
         public JsonConfigPropertyFormatException(string message) : base(message) { }

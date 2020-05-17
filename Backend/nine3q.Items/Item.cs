@@ -11,13 +11,13 @@ namespace nine3q.Items
     {
         #region Basics
 
-        public ItemId Id { get; set; }
+        public long Id { get; set; }
         public PropertySet Properties { get; set; }
         public Inventory Inventory { get; set; }
 
         bool _active = false;
 
-        public Item(Inventory inventory, ItemId id, PropertySet props = null)
+        public Item(Inventory inventory, long id, PropertySet props = null)
         {
             Inventory = inventory;
             Id = id;
@@ -80,7 +80,7 @@ namespace nine3q.Items
 
             var change = new ItemChange() {
                 What = Has(pid) ? ItemChange.Variant.SetProperty : ItemChange.Variant.AddProperty,
-                ItemId = Id,
+                long = Id,
                 Pid = pid,
                 Value = Property.Clone(prop.Type, value),
                 PreviousValue = Properties.ContainsKey(pid) ? Properties[pid] : null,
@@ -105,7 +105,7 @@ namespace nine3q.Items
                 OnPropertyChange(
                 new ItemChange() {
                     What = ItemChange.Variant.DeleteProperty,
-                    ItemId = Id,
+                    long = Id,
                     Pid = pid,
                     PreviousValue = Properties.ContainsKey(pid) ? Properties[pid] : null,
                 });
@@ -116,36 +116,36 @@ namespace nine3q.Items
             return false;
         }
 
-        public void AddToItemSet(Pid nProperty, ItemId nItemId)
+        public void AddToItemSet(Pid nProperty, long nlong)
         {
             if (Property.Get(nProperty).Type != Property.Type.ItemSet) { throw new Exceptions.WrongItemPropertyTypeException(Inventory.Name, Id, nProperty, Property.Type.ItemSet); }
 
             OnPropertyChange(
               new ItemChange() {
                   What = ItemChange.Variant.AddItemToCollection,
-                  ItemId = Id,
+                  long = Id,
                   Pid = nProperty,
-                  ChildId = nItemId
+                  ChildId = nlong
               }
             );
 
-            Properties.AddToItemSet(nProperty, nItemId);
+            Properties.AddToItemSet(nProperty, nlong);
         }
 
-        public void RemoveFromItemSet(Pid nProperty, ItemId nItemId)
+        public void RemoveFromItemSet(Pid nProperty, long nlong)
         {
             if (Property.Get(nProperty).Type != Property.Type.ItemSet) { throw new Exceptions.WrongItemPropertyTypeException(Inventory.Name, Id, nProperty, Property.Type.ItemSet); }
 
             OnPropertyChange(
               new ItemChange() {
                   What = ItemChange.Variant.RemoveItemFromCollection,
-                  ItemId = Id,
+                  long = Id,
                   Pid = nProperty,
-                  ChildId = nItemId
+                  ChildId = nlong
               }
             );
 
-            Properties.RemoveFromItemSet(nProperty, nItemId);
+            Properties.RemoveFromItemSet(nProperty, nlong);
         }
 
         #endregion
@@ -163,8 +163,8 @@ namespace nine3q.Items
         public void SetString(Pid pid, string value) { Set(pid, value); }
         public void SetFloat(Pid pid, double value) { Set(pid, value); }
         public void SetBool(Pid pid, bool value) { Set(pid, value); }
-        public void SetItem(Pid pid, ItemId value) { Set(pid, value); }
-        public void SetItemSet(Pid pid, ItemIdSet value) { Set(pid, value); }
+        public void SetItem(Pid pid, long value) { Set(pid, value); }
+        public void SetItemSet(Pid pid, longSet value) { Set(pid, value); }
 
         public object Get(Pid pid)
         {
@@ -208,8 +208,8 @@ namespace nine3q.Items
         public string GetString(Pid pid) { return (string)Get(pid); }
         public double GetFloat(Pid pid) { return (double)Get(pid); }
         public bool GetBool(Pid pid) { return (bool)Get(pid); }
-        public ItemId GetItem(Pid pid) { return (ItemId)Get(pid); }
-        public ItemIdSet GetItemSet(Pid pid) { return Get(pid) as ItemIdSet; }
+        public long GetItem(Pid pid) { return (long)Get(pid); }
+        public longSet GetItemSet(Pid pid) { return Get(pid) as longSet; }
 
         //// Advanced getter
 
@@ -349,20 +349,20 @@ namespace nine3q.Items
         {
             ForeachAspect(aspect => aspect.OnAspectCreate());
 
-            var change = new ItemChange() { What = ItemChange.Variant.CreateItem, ItemId = Id };
+            var change = new ItemChange() { What = ItemChange.Variant.CreateItem, long = Id };
             Inventory.OnCreateItem(change);
         }
 
         internal void OnDelete()
         {
             var containerId = GetItem(Pid.Container);
-            if (containerId != ItemId.NoItem) {
+            if (containerId != long.NoItem) {
                 Inventory.Item(containerId).AsContainer().RemoveChild(this);
             }
 
             ForeachAspect(aspect => aspect.OnAspectDelete());
 
-            var change = new ItemChange() { What = ItemChange.Variant.DeleteItem, ItemId = Id, Item = this };
+            var change = new ItemChange() { What = ItemChange.Variant.DeleteItem, long = Id, Item = this };
             Inventory.OnDeleteItem(change);
         }
 

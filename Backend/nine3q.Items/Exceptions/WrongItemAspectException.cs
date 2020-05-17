@@ -7,7 +7,7 @@ namespace nine3q.Items.Exceptions
     [Serializable]
     public sealed class WrongItemAspectException : ItemException
     {
-        public WrongItemAspectException(string inventory, ItemId id, Pid pid) : base(inventory, id, "is not property=" + pid) { }
+        public WrongItemAspectException(string inventory, long id, Pid pid) : base(inventory, id, "is not property=" + pid) { }
 
         public WrongItemAspectException() { }
         public WrongItemAspectException(string message) : base(message) { }

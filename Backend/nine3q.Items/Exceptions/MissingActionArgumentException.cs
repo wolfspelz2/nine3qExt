@@ -7,7 +7,7 @@ namespace nine3q.Items.Exceptions
     [Serializable]
     public sealed class MissingActionArgumentException : ItemException
     {
-        public MissingActionArgumentException(string inventory, ItemId id, string action, Pid pid) : base(inventory, id, "Action=" + action + " needs argument property=" + pid) { }
+        public MissingActionArgumentException(string inventory, long id, string action, Pid pid) : base(inventory, id, "Action=" + action + " needs argument property=" + pid) { }
 
         public MissingActionArgumentException() { }
         public MissingActionArgumentException(string message) : base(message) { }

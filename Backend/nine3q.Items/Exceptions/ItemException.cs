@@ -9,7 +9,7 @@ namespace nine3q.Items.Exceptions
     {
         public string Detail { get; set; } = "";
 
-        public ItemException(string inventory, ItemId id, string message) : base(inventory + " item=" + id + ": " + message) { }
+        public ItemException(string inventory, long id, string message) : base(inventory + " item=" + id + ": " + message) { }
 
         public ItemException() { }
         public ItemException(string message) : base(message) { }

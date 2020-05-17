@@ -13,11 +13,11 @@ namespace nine3q.GrainInterfaces
             Removed,
         }
 
-        public ItemId Id { get; set; }
-        public ItemIdList Parents { get; set; }
+        public long Id { get; set; }
+        public longList Parents { get; set; }
         public Mode What { get; set; }
 
-        public ItemUpdate(ItemId id, ItemIdList parents, Mode mode)
+        public ItemUpdate(long id, longList parents, Mode mode)
         {
             Id = id;
             Parents = parents;

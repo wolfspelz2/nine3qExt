@@ -40,7 +40,7 @@ namespace nine3q.Items
             }
         }
 
-        public void AddToItemSet(Pid pid, ItemId id)
+        public void AddToItemSet(Pid pid, long id)
         {
             var list = GetItemSet(pid);
             if (list.Count == 0) {
@@ -51,7 +51,7 @@ namespace nine3q.Items
             }
         }
 
-        public void RemoveFromItemSet(Pid pid, ItemId id)
+        public void RemoveFromItemSet(Pid pid, long id)
         {
             _ = GetItemSet(pid).Remove(id);
         }
@@ -107,17 +107,17 @@ namespace nine3q.Items
             return (bool)this[key];
         }
 
-        public ItemId GetItem(Pid key)
+        public long GetItem(Pid key)
         {
-            if (!ContainsKey(key)) { return Property.Default(Property.Type.Item) as ItemId; }
+            if (!ContainsKey(key)) { return Property.Default(Property.Type.Item) as long; }
             var value = this[key];
-            return (ItemId)value;
+            return (long)value;
         }
 
-        public ItemIdSet GetItemSet(Pid key)
+        public longSet GetItemSet(Pid key)
         {
-            if (!ContainsKey(key)) { return Property.Default(Property.Type.ItemSet) as ItemIdSet; }
-            return (ItemIdSet)this[key];
+            if (!ContainsKey(key)) { return Property.Default(Property.Type.ItemSet) as longSet; }
+            return (longSet)this[key];
         }
 
         public T GetEnum<T>(Pid pid, T defaultValue) where T : struct
@@ -166,9 +166,9 @@ namespace nine3q.Items
                 } else if (prop.Type == Property.Type.Bool) {
                     Add(prop.Id, info.GetString(attr).IsTrue());
                 } else if (prop.Type == Property.Type.Item) {
-                    Add(prop.Id, new ItemId(info.GetInt64(attr)));
+                    Add(prop.Id, new long(info.GetInt64(attr)));
                 } else if (prop.Type == Property.Type.ItemSet) {
-                    Add(prop.Id, new ItemIdSet(info.GetString(attr)));
+                    Add(prop.Id, new longSet(info.GetString(attr)));
                 } else {
                     throw new NotImplementedException("Property name=" + name + " not yet implemented.");
                 }

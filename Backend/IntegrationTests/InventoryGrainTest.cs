@@ -24,7 +24,7 @@ namespace IntegrationTests
                 Assert.IsTrue(itemId != ItemId.NoItem);
 
             } finally {
-                inv.DeletePermanentStorage().Wait();
+                inv.DeletePersistentStorage().Wait();
             }
         }
 
@@ -59,7 +59,7 @@ namespace IntegrationTests
                     Assert.AreEqual(props.GetEnum(Pid.TestEnum, PropertyValue.TestEnum.Unknown), receivedProps.GetEnum(Pid.TestEnum, PropertyValue.TestEnum.Unknown));
 
                 } finally {
-                    inv.DeletePermanentStorage().Wait();
+                    inv.DeletePersistentStorage().Wait();
                 }
             }
 
@@ -97,7 +97,7 @@ namespace IntegrationTests
                     Assert.AreEqual(props.GetEnum(Pid.TestEnum, PropertyValue.TestEnum.Unknown), receivedProps.GetEnum(Pid.TestEnum, PropertyValue.TestEnum.Unknown));
 
                 } finally {
-                    inv.DeletePermanentStorage().Wait();
+                    inv.DeletePersistentStorage().Wait();
                 }
             }
 
@@ -128,7 +128,7 @@ namespace IntegrationTests
                     Assert.AreEqual(props[Pid.TestBool], receivedProps.GetBool(Pid.TestBool));
 
                 } finally {
-                    inv.DeletePermanentStorage().Wait();
+                    inv.DeletePersistentStorage().Wait();
                 }
             }
 
@@ -147,7 +147,7 @@ namespace IntegrationTests
                     Assert.AreEqual(itemId, namedId);
 
                 } finally {
-                    inv.DeletePermanentStorage().Wait();
+                    inv.DeletePersistentStorage().Wait();
                 }
             }
 
@@ -178,7 +178,7 @@ namespace IntegrationTests
                         Assert.IsTrue(true, ex.Message);
                     }
                 } finally {
-                    inv.DeletePermanentStorage().Wait();
+                    inv.DeletePersistentStorage().Wait();
                 }
             }
 
@@ -209,7 +209,7 @@ namespace IntegrationTests
                 } catch (Exception ex) {
                     throw ex;
                 } finally {
-                    inv.DeletePermanentStorage().Wait();
+                    inv.DeletePersistentStorage().Wait();
                 }
             }
 
@@ -243,7 +243,7 @@ namespace IntegrationTests
                 } catch (Exception ex) {
                     throw ex;
                 } finally {
-                    inv.DeletePermanentStorage().Wait();
+                    inv.DeletePersistentStorage().Wait();
                 }
             }
 
@@ -269,7 +269,7 @@ namespace IntegrationTests
                     Assert.AreEqual((long)42, inv.GetItemProperties(itemId, PidList.All).Result.GetInt(Pid.TestInt));
 
                 } finally {
-                    inv.DeletePermanentStorage().Wait();
+                    inv.DeletePersistentStorage().Wait();
                     templates.DeletePermanentStorage().Wait();
                 }
             }
@@ -297,7 +297,7 @@ namespace IntegrationTests
                     Assert.AreEqual((long)42, inv.GetItemProperties(itemId, PidList.All).Result.GetInt(Pid.TestInt));
 
                 } finally {
-                    inv.DeletePermanentStorage().Wait();
+                    inv.DeletePersistentStorage().Wait();
                     templates.DeletePermanentStorage().Wait();
                 }
             }
@@ -499,7 +499,7 @@ namespace IntegrationTests
                     // Assert
                     Assert.AreEqual(43, inv.GetItemProperties(itemId, PidList.All).Result.GetInt(Pid.TestInt));
                 } finally {
-                    inv.DeletePermanentStorage().Wait();
+                    inv.DeletePersistentStorage().Wait();
                 }
             }
 
@@ -526,7 +526,7 @@ namespace IntegrationTests
                     Assert.IsTrue(inv.GetItemProperties(containerId, new PidList { Pid.Contains }).Result.GetItemSet(Pid.Contains).Contains(itemId));
 
                 } finally {
-                    inv.DeletePermanentStorage().Wait();
+                    inv.DeletePersistentStorage().Wait();
                 }
             }
 
@@ -548,7 +548,7 @@ namespace IntegrationTests
                     Assert.AreEqual(inventorySize, new ItemIdSet(inv.GetItems().Result).Count);
 
                 } finally {
-                    inv.DeletePermanentStorage().Wait();
+                    inv.DeletePersistentStorage().Wait();
                 }
             }
 
@@ -570,7 +570,7 @@ namespace IntegrationTests
                     Assert.AreEqual(0, new ItemIdSet(inv.GetItems().Result).Count);
 
                 } finally {
-                    inv.DeletePermanentStorage().Wait();
+                    inv.DeletePersistentStorage().Wait();
                 }
             }
 
@@ -590,7 +590,7 @@ namespace IntegrationTests
                     Assert.AreEqual(2, new ItemIdSet(inv.GetItems().Result).Count);
 
                 } finally {
-                    inv.DeletePermanentStorage().Wait();
+                    inv.DeletePersistentStorage().Wait();
                 }
             }
 
@@ -612,7 +612,7 @@ namespace IntegrationTests
                     Assert.AreEqual(2, new ItemIdSet(inv.GetItems().Result).Count);
 
                 } finally {
-                    inv.DeletePermanentStorage().Wait();
+                    inv.DeletePersistentStorage().Wait();
                 }
             }
         */

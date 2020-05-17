@@ -13,10 +13,12 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="3.1.6" />
+    <PackageReference Include="Microsoft.Orleans.Runtime.Abstractions" Version="3.1.6" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\nine3q.GrainInterfaces\nine3q.GrainInterfaces.csproj" />
+    <ProjectReference Include="..\nine3q.StorageProviders\nine3q.StorageProviders.csproj" />
     <ProjectReference Include="..\nine3q.Tools\nine3q.Tools.csproj" />
   </ItemGroup>
 

@@ -7,8 +7,8 @@ namespace nine3q.Items.Exceptions
     [Serializable]
     public sealed class OperationIneffectiveException : ItemException
     {
-        public OperationIneffectiveException(string inventory, ItemId id, ItemId passiveId, string text) : base(inventory, id, "passive=" + passiveId + ": " + text) { Detail = text; }
-        public OperationIneffectiveException(string inventory, ItemId id, string text) : base(inventory, id, text) { Detail = text; }
+        public OperationIneffectiveException(string inventory, long id, long passiveId, string text) : base(inventory, id, "passive=" + passiveId + ": " + text) { Detail = text; }
+        public OperationIneffectiveException(string inventory, long id, string text) : base(inventory, id, text) { Detail = text; }
 
         public OperationIneffectiveException() { }
         public OperationIneffectiveException(string message) : base(message) { }

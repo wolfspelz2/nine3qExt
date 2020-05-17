@@ -14,3 +14,6 @@ dotnet_diagnostic.CA1063.severity = silent
 
 # CA1034: Nested types should not be visible
 dotnet_diagnostic.CA1034.severity = silent
+
+# CA2235: Mark all non-serializable fields
+dotnet_diagnostic.CA2235.severity = suggestion

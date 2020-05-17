@@ -7,7 +7,7 @@ namespace nine3q.Items.Exceptions
     [Serializable]
     public sealed class WrongItemPropertyTypeException : ItemException
     {
-        public WrongItemPropertyTypeException(string inventory, ItemId id, Pid pid, Property.Type type) : base(inventory, id, "property=" + pid + " is not type " + type) { }
+        public WrongItemPropertyTypeException(string inventory, long id, Pid pid, Property.Type type) : base(inventory, id, "property=" + pid + " is not type " + type) { }
 
         public WrongItemPropertyTypeException() { }
         public WrongItemPropertyTypeException(string message) : base(message) { }

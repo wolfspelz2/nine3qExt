@@ -15,5 +15,6 @@ namespace nine3q.GrainInterfaces
         Task Set(string value);
         Task<string> Get();
         Task<Guid> GetStreamId();
+        Task DeletePersistentStorage();
     }
 }

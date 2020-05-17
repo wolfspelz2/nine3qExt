@@ -14,14 +14,20 @@ namespace IntegrationTests
         public void SetGet()
         {
             // Arrange 
-            var testString = GrainClient.GrainFactory.GetGrain<ITestString>("Test-" + Utils.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
+            var testString = GrainClient.GrainFactory.GetGrain<ITestString>($"{nameof(TestStringGrainTest)}-{nameof(SetGet)}-{RandomString.Get(10)}");
 
-            // Act 
-            testString.Set("a").Wait();
-            var a = testString.Get().Result;
+            try {
+                // Act 
+                testString.Set("a").Wait();
+                var a = testString.Get().Result;
 
-            // Assert
-            Assert.AreEqual("a", a);
+                // Assert
+                Assert.AreEqual("a", a);
+
+            } finally {
+                // Cleanup
+                testString.DeletePersistentStorage().Wait();
+            }
         }
     }
 }

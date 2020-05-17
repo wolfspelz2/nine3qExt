@@ -8,6 +8,9 @@ namespace nine3q.GrainInterfaces
 {
     public interface IInventory : IGrainWithStringKey
     {
+        Task<string> GetName();
+        Task SetName(string name);
+
         Task<ItemId> CreateItem(PropertySet properties);
         Task<bool> DeleteItem(ItemId id);
 
@@ -16,6 +19,9 @@ namespace nine3q.GrainInterfaces
         Task<ItemId> GetItemByName(string name);
 
         // Test, maintenance
-        Task DeletePermanentStorage();
+        Task Deactivate();
+        Task WritePersistentStorage();
+        Task ReadPersistentStorage();
+        Task DeletePersistentStorage();
     }
 }

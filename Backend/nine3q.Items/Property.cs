@@ -52,12 +52,12 @@ namespace nine3q.Items
             Add(Pid.NoProperty, Type.Unknown, Use.Unknown, Group.Unknown, Access.Internal, Persistence.Unknown, "", "");
 
             Add(Pid.FirstOperation, Type.Unknown, Use.Unknown, Group.Unknown, Access.Internal, Persistence.Fixed, "", "");
-            Add(Pid.Item, Type.Item, Use.Item, Group.Operation, Access.Internal, Persistence.Unknown, "ItemId(1)", "Passive item of item action.");
+            Add(Pid.Item, Type.Item, Use.Item, Group.Operation, Access.Internal, Persistence.Unknown, "long(1)", "Passive item of item action.");
             //Add(Pid.StaleTemplate, Type.Bool, Use.Bool, Group.Operation, Access.Internal, Persistence.Unknown, "false", "Tells if this is a cached template, which is missing its original in the templates inventory.");
             Add(Pid.PublicAccess, Type.Bool, Use.Bool, Group.Operation, Access.Internal, Persistence.Unknown, "", "Dummy property for declaring a PropertyIdList with only this Pid as indicator for GetItemProperties.");
             Add(Pid.OwnerAccess, Type.Bool, Use.Bool, Group.Operation, Access.Internal, Persistence.Unknown, "", "Dummy property for declaring a PropertyIdList with only this Pid as indicator for GetItemProperties.");
             Add(Pid.TransferState, Type.String, Use.String, Group.Operation, Access.Internal, Persistence.Transient, PropertyValue.TransferState.Source.ToString(), "Indicates, that item is in transfer, either at source (Begin) oder at dest (Received).");
-            Add(Pid.TransferContainer, Type.Item, Use.Item, Group.Operation, Access.Internal, Persistence.Transient, "ItemId(1)", "Container of item before removed from container for transfer to other inventory.");
+            Add(Pid.TransferContainer, Type.Item, Use.Item, Group.Operation, Access.Internal, Persistence.Transient, "long(1)", "Container of item before removed from container for transfer to other inventory.");
             Add(Pid.TransferSlot, Type.Int, Use.Int, Group.Operation, Access.Internal, Persistence.Transient, "1", "Slot of item before removed from container for transfer to other inventory.");
 
             Add(Pid.FirstTest, Type.Unknown, Use.Unknown, Group.Unknown, Access.Internal, Persistence.Fixed, "", "");
@@ -322,19 +322,19 @@ namespace nine3q.Items
                     }
                     break;
                 case Property.Type.Item:
-                    if (value is ItemId) {
-                        return value as ItemId;
+                    if (value is long) {
+                        return value as long;
                     } else if (value is long) {
-                        return new ItemId((long)value);
+                        return new long((long)value);
                     } else if (value is string) {
-                        return new ItemId((string)value);
+                        return new long((string)value);
                     }
                     break;
                 case Property.Type.ItemSet:
-                    if (value is ItemIdSet) {
-                        return value as ItemIdSet;
+                    if (value is longSet) {
+                        return value as longSet;
                     } else if (value is string) {
-                        return new ItemIdSet((string)value);
+                        return new longSet((string)value);
                     }
                     break;
                 default: throw new NotImplementedException("Property type=" + type.ToString() + " not yet implemented.");
@@ -359,9 +359,9 @@ namespace nine3q.Items
                 return (bool)value ? "true" : "false";
             } else if (value is Enum) {
                 return value.ToString();
-            } else if (value is ItemId) {
+            } else if (value is long) {
                 return value.ToString();
-            } else if (value is ItemIdSet) {
+            } else if (value is longSet) {
                 return value.ToString();
             }
             return value.ToString();
@@ -376,8 +376,8 @@ namespace nine3q.Items
                 Property.Type.String => s,
                 Property.Type.Float => Convert.ToDouble(s, CultureInfo.InvariantCulture),
                 Property.Type.Bool => s.IsTrue(),
-                Property.Type.Item => new ItemId(s),
-                Property.Type.ItemSet => new ItemIdSet(s),
+                Property.Type.Item => new long(s),
+                Property.Type.ItemSet => new longSet(s),
                 _ => throw new NotImplementedException("Property type=" + type.ToString() + " not yet implemented."),
             };
         }
@@ -391,8 +391,8 @@ namespace nine3q.Items
                 Property.Type.String => (string)value,
                 Property.Type.Float => (double)value,
                 Property.Type.Bool => (bool)value,
-                Property.Type.Item => ((ItemId)value).Clone(),
-                Property.Type.ItemSet => ((ItemIdSet)value).Clone(),
+                Property.Type.Item => ((long)value).Clone(),
+                Property.Type.ItemSet => ((longSet)value).Clone(),
                 _ => throw new NotImplementedException("Property type=" + type.ToString() + " not yet implemented."),
             };
         }
@@ -406,8 +406,8 @@ namespace nine3q.Items
                 Property.Type.String => "",
                 Property.Type.Float => 0.0D,
                 Property.Type.Bool => false,
-                Property.Type.Item => ItemId.NoItem,
-                Property.Type.ItemSet => new ItemIdSet(),
+                Property.Type.Item => long.NoItem,
+                Property.Type.ItemSet => new longSet(),
                 _ => throw new NotImplementedException("Property type=" + type.ToString() + " not yet implemented."),
             };
         }
@@ -421,10 +421,10 @@ namespace nine3q.Items
                 case Property.Type.String: return (string)Normalize(type, value1) == (string)Normalize(type, value2);
                 case Property.Type.Float: return (double)Normalize(type, value1) == (double)Normalize(type, value2);
                 case Property.Type.Bool: return (bool)Normalize(type, value1) == (bool)Normalize(type, value2);
-                case Property.Type.Item: return Normalize(type, value1) as ItemId == Normalize(type, value2) as ItemId;
+                case Property.Type.Item: return Normalize(type, value1) as long == Normalize(type, value2) as long;
                 case Property.Type.ItemSet: {
-                    var set1 = Normalize(type, value1) as ItemIdSet;
-                    var set2 = Normalize(type, value2) as ItemIdSet;
+                    var set1 = Normalize(type, value1) as longSet;
+                    var set2 = Normalize(type, value2) as longSet;
                     if (set1.Count != set1.Count) { return false; }
                     var union = set1.Union(set2);
                     if (union.Count() != set1.Count) { return false; }

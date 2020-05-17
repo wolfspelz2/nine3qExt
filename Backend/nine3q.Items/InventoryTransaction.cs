@@ -31,12 +31,12 @@ namespace nine3q.Items
         public void Cancel()
         {
             _canceled = true;
-            Inventory.CancelTransaction(this);
+            Inventory._CancelTransaction(this);
         }
 
         public void Commit()
         {
-            Inventory.CommitTransaction(this);
+            Inventory._CommitTransaction(this);
         }
 
         internal List<ItemChange> GetChanges()

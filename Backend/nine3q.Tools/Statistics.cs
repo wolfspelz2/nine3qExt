@@ -4,7 +4,7 @@ namespace nine3q.Tools
 {
     public class Statistics
     {
-        object _mutex = new object();
+        readonly object _mutex = new object();
         readonly Dictionary<string, long> _long = new Dictionary<string, long>();
         readonly Dictionary<string, string> _string = new Dictionary<string, string>();
 

@@ -84,7 +84,7 @@ namespace nine3q.Items
                 { Action.AddTestInt.ToString(), new ActionDescription() { Handler = (args) => AddTestInt(Inventory.Item(args.GetItem(Pid.Item))) } },
                 { Action.AddTestIntChangeAndDeletePassive.ToString(), new ActionDescription() { Handler = (args) => {
                     var passiveId = args.GetItem(Pid.Item);
-                    if (passiveId == ItemId.NoItem) { throw new Exceptions.MissingActionArgumentException(Inventory.Name, Id,  Action.AddTestIntChangeAndDeletePassive.ToString(), Pid.Item); }
+                    if (passiveId == long.NoItem) { throw new Exceptions.MissingActionArgumentException(Inventory.Name, Id,  Action.AddTestIntChangeAndDeletePassive.ToString(), Pid.Item); }
                     AddTestIntChangeAndDeletePassive(Inventory.Item(passiveId));
                 }}},
             };

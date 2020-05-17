@@ -7,7 +7,7 @@ namespace nine3q.Items.Exceptions
     [Serializable]
     public sealed class SlotAvailabilityException : ItemException
     {
-        public SlotAvailabilityException(string inventory, ItemId id, ItemId childId, string text) : base(inventory, id, "No slot for " + childId + ": " + text) { }
+        public SlotAvailabilityException(string inventory, long id, long childId, string text) : base(inventory, id, "No slot for " + childId + ": " + text) { }
 
         public SlotAvailabilityException() { }
         public SlotAvailabilityException(string message) : base(message) { }

@@ -7,20 +7,21 @@ using Orleans.Configuration;
 using Orleans.Hosting;
 using Orleans.Statistics;
 using nine3q.Grains;
+using nine3q.StorageProviders;
 
 namespace LocalSilo
 {
-    public class Program
+    public static class Program
     {
-        public static int Main(string[] args)
+//        public static int Main(string[] args)
+        public static int Main()
         {
             return RunMainAsync().Result;
         }
 
         private static async Task<int> RunMainAsync()
         {
-            try
-            {
+            try {
                 var host = await StartSilo();
                 Console.WriteLine("Press Enter to terminate...");
                 Console.ReadLine();
@@ -28,9 +29,7 @@ namespace LocalSilo
                 await host.StopAsync();
 
                 return 0;
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 Console.WriteLine(ex);
                 return 1;
             }
@@ -41,25 +40,31 @@ namespace LocalSilo
             // define the cluster configuration
             var builder = new SiloHostBuilder()
                 .UseLocalhostClustering()
-                .Configure<ClusterOptions>(options =>
-                {
+                .Configure<ClusterOptions>(options => {
                     options.ClusterId = "dev";
                     options.ServiceId = "Sample";
                 })
                 .Configure<EndpointOptions>(options => options.AdvertisedIPAddress = IPAddress.Loopback)
-                .ConfigureLogging(logging =>
-                {
+                .ConfigureLogging(logging => {
                     logging.AddConsole();
                     logging.SetMinimumLevel(LogLevel.Error);
                 })
-                .AddSimpleMessageStreamProvider("SMSProvider", options =>
-                {
+                .AddSimpleMessageStreamProvider("SMSProvider", options => {
                     options.FireAndForgetDelivery = true;
                 })
                 .AddMemoryGrainStorage("PubSubStore")
-                .AddMemoryGrainStorage(InventoryService.StorageProvider)
+
+                //.AddMemoryGrainStorage(InventoryService.StorageProvider)
+                //.AddJsonFileStorage(InventoryService.StorageProvider, new JsonFileStorageOptions())
+
+                .AddJsonFileGrainStorage(
+                    name: JsonFileStorage.StorageProviderName,
+                    configureOptions: options => {
+                        options.RootDirectory = @"C:\Heiner\github-nine3q\Backend\Test\JsonFileStorage";
+                    })
+
                 .UsePerfCounterEnvironmentStatistics()
-                .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(TestString).Assembly).WithReferences())
+                .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(TestStringGrain).Assembly).WithReferences())
                 ;
 
             var host = builder.Build();
