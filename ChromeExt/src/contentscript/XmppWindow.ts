@@ -112,7 +112,7 @@ export class XmppWindow extends Window
 
     showHistory()
     {
-        _Changes.getLines().reverse().forEach(line => { this.showLine('', line); });
+        _Changes.getLines().reverse().forEach(line => { this.showLine('CHANGES', line); });
     }
 
     fixChatInTextWidth(chatinText: HTMLElement, delta: number, chatin: HTMLElement)

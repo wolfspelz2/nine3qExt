@@ -222,7 +222,7 @@ export class ContentApp
 
         if (this.xmppWindow) {
             let stanzaText = stanza.toString();
-            this.xmppWindow.showLine('IN', stanzaText);
+            this.xmppWindow.showLine('_IN_', stanzaText);
         }
 
         switch (stanza.name) {
