@@ -6,7 +6,7 @@ using nine3q.GrainInterfaces;
 
 namespace nine3q.Grains
 {
-    public class Room : Grain, IRoom
+    public class RoomGrain : Grain, IRoom
     {
         private Dictionary<string, string> item2;
 

@@ -6,7 +6,7 @@ using nine3q.GrainInterfaces;
 
 namespace nine3q.Grains
 {
-    public class User : Grain, IUser
+    public class UserGrain : Grain, IUser
     {
         private Dictionary<string, string> item1 = new Dictionary<string, string> {
             ["name"] = "General Sherman",
