@@ -14,6 +14,7 @@ using Orleans.Providers;
 using Orleans.Runtime;
 using Orleans.Hosting;
 using Orleans.Configuration;
+using Orleans.Serialization;
 using System.Threading;
 
 namespace nine3q.StorageProviders
@@ -28,6 +29,10 @@ namespace nine3q.StorageProviders
         public string RootDirectory = @".\JsonFileStorage\";
         public string FileExtension = ".json";
 
+        public bool UseFullAssemblyNames { get; set; } = false;
+        public bool IndentJson { get; set; } = true;
+        public TypeNameHandling? TypeNameHandling { get; set; } = Newtonsoft.Json.TypeNameHandling.All;
+
         public int InitStage { get; set; } = DEFAULT_INIT_STAGE;
         public const int DEFAULT_INIT_STAGE = ServiceLifecycleStage.ApplicationServices;
     }
@@ -38,11 +43,21 @@ namespace nine3q.StorageProviders
         private readonly JsonFileStorageOptions _options;
         private readonly ILogger _logger;
         private readonly ILoggerFactory _loggerFactory;
+        private readonly IGrainFactory _grainFactory;
+        private readonly ITypeResolver _typeResolver;
+        private JsonSerializerSettings _jsonSettings;
 
-        public JsonFileStorageProvider(string name, JsonFileStorageOptions options, ILoggerFactory loggerFactory)
+        public JsonFileStorageProvider(string name,
+            JsonFileStorageOptions options,
+            IGrainFactory grainFactory,
+            ITypeResolver typeResolver,
+            ILoggerFactory loggerFactory
+            )
         {
             _name = name;
             _options = options;
+            _grainFactory = grainFactory;
+            _typeResolver = typeResolver;
             _loggerFactory = loggerFactory;
             _logger = _loggerFactory.CreateLogger($"{typeof(JsonFileStorageProvider).FullName}.{name}");
         }
@@ -69,7 +84,7 @@ namespace nine3q.StorageProviders
             await Task.CompletedTask;
             var filePath = GetFilePath(grainType, grainReference, grainState);
             try {
-                var data = JsonConvert.SerializeObject(grainState, Formatting.Indented);
+                var data = JsonConvert.SerializeObject(grainState, _jsonSettings);
                 File.WriteAllText(filePath, data, Encoding.UTF8);
             } catch (Exception ex) {
                 _logger.Error(0, $"Error writing: filePath={filePath} {ex.Message}");
@@ -85,8 +100,8 @@ namespace nine3q.StorageProviders
                 var fileInfo = new FileInfo(filePath);
                 if (fileInfo.Exists) {
                     var data = File.ReadAllText(filePath, Encoding.UTF8);
-                    var result = JsonConvert.DeserializeObject<object>(data);
-                    grainState.State = result;
+                    var result = JsonConvert.DeserializeObject<object>(data, _jsonSettings);
+                    grainState.State = (result as IGrainState).State;
                 }
             } catch (Exception ex) {
                 _logger.Error(0, $"Error reading: filePath={filePath} {ex.Message}");
@@ -150,6 +165,13 @@ namespace nine3q.StorageProviders
 
         private Task Init(CancellationToken ct)
         {
+            _jsonSettings = OrleansJsonSerializer.UpdateSerializerSettings(
+                OrleansJsonSerializer.GetDefaultSerializerSettings(_typeResolver, _grainFactory), 
+                _options.UseFullAssemblyNames, 
+                _options.IndentJson, 
+                _options.TypeNameHandling
+                );
+
             return Task.CompletedTask;
         }
 

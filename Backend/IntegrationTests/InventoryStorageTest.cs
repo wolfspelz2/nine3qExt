@@ -28,7 +28,7 @@ namespace IntegrationTests
                 var id1 = inv.CreateItem(set1).Result;
                 var id2 = inv.CreateItem(set2).Result;
 
-                inv.WritePersistentStorage().Wait();
+                //inv.WritePersistentStorage().Wait();
                 inv.Deactivate();
 
                 var get1 = inv.GetItemProperties(id1, PidList.All).Result;

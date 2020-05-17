@@ -59,5 +59,18 @@ namespace nine3q.Grains
         {
             await _state.ClearStateAsync();
         }
+
+        public Task Deactivate()
+        {
+            base.DeactivateOnIdle();
+            return Task.CompletedTask;
+        }
+
+        public override async Task OnActivateAsync()
+        {
+            await base.OnActivateAsync();
+            await _state.ReadStateAsync();
+            _data = _state.State.Data;
+        }
     }
 }

@@ -24,7 +24,9 @@ namespace nine3q.Grains
     public class InventoryState
     {
         public string Name;
-        public ItemIdPropertiesCollection Items;
+        public ItemIdPropertiesCollection ItemProperties;
+        public ItemIdSet WriteItems;
+        public ItemIdSet DeleteItems;
     }
 
     class InventoryGrain : Grain, IInventory
@@ -47,21 +49,6 @@ namespace nine3q.Grains
         {
             _state = inventoryState;
         }
-
-        #region Test
-
-        public async Task SetName(string name)
-        {
-            _state.State.Name = name;
-            await _state.WriteStateAsync();
-        }
-
-        public Task<string> GetName()
-        {
-            return Task.FromResult(_state.State.Name);
-        }
-
-        #endregion
 
         #region Interface
 
@@ -154,7 +141,7 @@ namespace nine3q.Grains
 
                 if (IsPersistent) {
                     _stats.Increment($"{nameof(CheckInventoryChanged)}.{nameof(WriteInventoryState)}");
-                    await WriteInventoryState();
+                    await WriteInventoryState(summary);
                 } else {
                     _stats.Increment($"{nameof(CheckInventoryChanged)}.!{nameof(WriteInventoryState)}");
                 }
@@ -183,36 +170,37 @@ namespace nine3q.Grains
             }
         }
 
-        private async Task WriteInventoryState()
-        {
-            Inventory2State();
-            await _state.WriteStateAsync();
-        }
-
-        private void Inventory2State()
+        private async Task WriteInventoryState(ItemSummaryRecorder summary)
         {
             _state.State.Name = this.GetPrimaryKeyString();
 
-            // Evaluate Inventory.Changes and prepare only changed items for storage witha specialized InventoryStorageProvider
-            // Until then, store complete inventory
-            _state.State.Items = new ItemIdPropertiesCollection();
-            var ids = Inventory.GetItems();
-            foreach (var id in ids) {
-                _state.State.Items.Add(id, Inventory.GetItemProperties(id, PidList.All));
+            //_state.State.WriteItems = summary.ChangedItems.Clone();
+            //_state.State.WriteItems.UnionWith(summary.AddedItems);
+            //_state.State.DeleteItems = summary.DeletedItems;
+
+            //var itemIds = _state.State.WriteItems;
+            var itemIds = Inventory.GetItems();
+
+            _state.State.ItemProperties = new ItemIdPropertiesCollection();
+            foreach (var id in itemIds) {
+                _state.State.ItemProperties.Add(id, Inventory.GetItemProperties(id, PidList.All));
             }
+
+            await _state.WriteStateAsync();
         }
 
         private async Task ReadInventoryState()
         {
             await _state.ReadStateAsync();
-            State2Inventory();
-        }
-
-        private void State2Inventory()
-        {
-            //_state.State.Name = this.GetPrimaryKeyString();
 
             Inventory = new Inventory(this.GetPrimaryKeyString());
+
+            var allProps = _state.State.ItemProperties;
+            if (allProps != null) {
+                foreach (var pair in allProps) {
+                    Inventory.CreateItem(pair.Value);
+                }
+            }
         }
 
         #endregion
@@ -251,7 +239,7 @@ namespace nine3q.Grains
 
         public async Task WritePersistentStorage()
         {
-            _stats.Increment("WritePermanentStorage");
+            _stats.Increment(nameof(WritePersistentStorage));
 
             var changes = new List<ItemChange>();
             var ids = Inventory.GetItems();
@@ -260,17 +248,18 @@ namespace nine3q.Grains
             }
             Inventory.Changes = changes;
 
-            await WriteInventoryState();
+            await WriteInventoryState(new ItemSummaryRecorder(Inventory));
         }
 
         public async Task ReadPersistentStorage()
         {
+            _stats.Increment(nameof(ReadPersistentStorage));
             await ReadInventoryState();
         }
 
         public async Task DeletePersistentStorage()
         {
-            _stats.Increment("DeletePermanentStorage");
+            _stats.Increment(nameof(DeletePersistentStorage));
             await _state.ClearStateAsync();
         }
 
