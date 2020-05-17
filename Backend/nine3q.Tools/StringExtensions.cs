@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
 
-namespace nine3q.Lib
+namespace nine3q.Tools
 {
     public static class StringExtensions
     {

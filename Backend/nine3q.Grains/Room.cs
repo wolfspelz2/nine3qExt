@@ -1,10 +1,10 @@
 using System;
 using System.Threading.Tasks;
-using Orleans;
-using GrainInterfaces;
 using System.Collections.Generic;
+using Orleans;
+using nine3q.GrainInterfaces;
 
-namespace Grains
+namespace nine3q.Grains
 {
     public class Room : Grain, IRoom
     {

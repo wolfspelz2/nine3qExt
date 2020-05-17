@@ -7,7 +7,7 @@ namespace nine3q.Items.Test
     public class InventoryTest
     {
         [TestMethod]
-        public void Inventory_GetItemByName()
+        public void GetItemByName()
         {
             // Arrange
             var inv = new Inventory();
@@ -21,7 +21,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_GetItemByName_also_takes_key_value_pairs()
+        public void GetItemByName_also_takes_key_value_pairs()
         {
             // Arrange
             var inv = new Inventory();
@@ -87,7 +87,7 @@ namespace nine3q.Items.Test
 
         [TestMethod]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0059:Unnecessary assignment of a value", Justification = "<Pending>")]
-        public void Inventory_GetItemByName_with_path_loops_through_containers()
+        public void GetItemByName_with_path_loops_through_containers()
         {
             // Arrange
             var inv = new Inventory();
@@ -110,7 +110,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_DeleteItem()
+        public void DeleteItem()
         {
             // Arrange
             var inv = new Inventory();
@@ -124,7 +124,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_DeleteItemProperties()
+        public void DeleteItemProperties()
         {
             // Arrange
             var inv = new Inventory();
@@ -151,7 +151,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_get_all_item_properties()
+        public void Get_all_item_properties()
         {
             // Arrange
             var inv = new Inventory();
@@ -182,7 +182,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_get_subset_of_item_properties()
+        public void Get_subset_of_item_properties()
         {
             // Arrange
             var inv = new Inventory();
@@ -207,7 +207,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_get_public_properties()
+        public void Get_public_properties()
         {
             // Arrange
             var inv = new Inventory();
@@ -225,7 +225,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_get_owner_properties()
+        public void Get_owner_properties()
         {
             // Arrange
             var inv = new Inventory();
@@ -243,7 +243,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_get_public_properties_with_template()
+        public void Get_public_properties_with_template()
         {
             // Arrange
             var inv = new Inventory {
@@ -264,7 +264,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_ExecuteAction()
+        public void ExecuteAction()
         {
             // Arrange
             var inv = new Inventory();
@@ -286,7 +286,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_GetItemIdsAndValuesByProperty()
+        public void GetItemIdsAndValuesByProperty()
         {
             // Arrange
             var inv = new Inventory();
@@ -307,7 +307,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_GetItemIdsAndValuesByPropertyValue()
+        public void GetItemIdsAndValuesByPropertyValue()
         {
             // Arrange
             var inv = new Inventory();
@@ -326,7 +326,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_GetItemIdsAndValuesByPropertyValue_with_multiple_filter_pairs()
+        public void GetItemIdsAndValuesByPropertyValue_with_multiple_filter_pairs()
         {
             // Arrange
             var inv = new Inventory();
@@ -346,7 +346,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_GetParentContainers_returns_parents()
+        public void GetParentContainers_returns_parents()
         {
             // Arrange
             var inv = new Inventory();
@@ -366,7 +366,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_GetParentContainers_without_parents_returns_empty_list()
+        public void GetParentContainers_without_parents_returns_empty_list()
         {
             // Arrange
             var inv = new Inventory();
@@ -380,7 +380,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_GetParentContainers_of_a_3_deep_stack()
+        public void GetParentContainers_of_a_3_deep_stack()
         {
             // Arrange
             var inv = new Inventory();
@@ -415,7 +415,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_GetParentContainers_bails_out_of_ininite_loop()
+        public void GetParentContainers_bails_out_of_ininite_loop()
         {
             // Arrange
             var inv = new Inventory();
@@ -430,7 +430,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_CreateItem_with_conflicting_name_throws()
+        public void CreateItem_with_conflicting_name_throws()
         {
             // Arrange
             var inv = new Inventory();
@@ -442,7 +442,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_CreateItem_with_not_conflicting_name_does_not_throw()
+        public void CreateItem_with_not_conflicting_name_does_not_throw()
         {
             // Arrange
             var inv = new Inventory();
@@ -457,7 +457,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_SetItemProperties_with_conflicting_name_throws()
+        public void SetItemProperties_with_conflicting_name_throws()
         {
             // Arrange
             var inv = new Inventory();
@@ -470,7 +470,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_GetItemAndChildrenProperties_of_a_single_item()
+        public void GetItemAndChildrenProperties_of_a_single_item()
         {
             // Arrange
             var inv = new Inventory();
@@ -485,11 +485,12 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_GetItemAndChildrenProperties_only_native_of_a_single_item_with_template()
+        public void GetItemAndChildrenProperties_only_native_of_a_single_item_with_template()
         {
             // Arrange
-            var inv = new Inventory();
-            inv.Templates = new Inventory();
+            var inv = new Inventory {
+                Templates = new Inventory()
+            };
             inv.Templates.CreateItem(new PropertySet { [Pid.Name] = "TestTemplate", [Pid.TestInt2] = 22 });
             var item1 = inv.CreateItem(new PropertySet { [Pid.TestInt1] = 11, [Pid.TemplateName] = "TestTemplate", });
 
@@ -503,7 +504,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_GetItemAndChildrenProperties_of_a_3_deep_stack()
+        public void GetItemAndChildrenProperties_of_a_3_deep_stack()
         {
             // Arrange
             var inv = new Inventory();
@@ -540,7 +541,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_transfer_of_a_3_deep_stack()
+        public void Transfer_of_a_3_deep_stack()
         {
             // Arrange
             var source = new Inventory();
@@ -614,7 +615,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_BeginItemTransfer_frees_item_from_container_CancelItemTransfer_restores()
+        public void BeginItemTransfer_frees_item_from_container_CancelItemTransfer_restores()
         {
             // Arrange
             var source = new Inventory();
@@ -625,7 +626,7 @@ namespace nine3q.Items.Test
             container.AsContainer().AddChild(item);
 
             // Act
-            var transfer = source.BeginItemTransfer(item.Id);
+            _ = source.BeginItemTransfer(item.Id);
 
             // Assert
             Assert.AreEqual(ItemId.NoItem, item.GetItem(Pid.Container));
@@ -638,7 +639,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_CancelItemTransfer_deletes_received_items_and_resets_source()
+        public void CancelItemTransfer_deletes_received_items_and_resets_source()
         {
             // Arrange
             var source = new Inventory();
@@ -662,7 +663,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_transfer_into_destination_repository()
+        public void Transfer_into_destination_repository()
         {
             // Arrange
             var source = new Inventory();
@@ -689,7 +690,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_transfer_into_destination_repository_throws_due_to_lack_of_space()
+        public void Transfer_into_destination_repository_throws_due_to_lack_of_space()
         {
             // Arrange
             var source = new Inventory();
@@ -710,7 +711,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_transfer_with_set_and_delete_properties()
+        public void Transfer_with_set_and_delete_properties()
         {
             // Arrange
             var source = new Inventory();
@@ -732,7 +733,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_GetItemIdsAndValuesByProperty_returns_only_select_properties_of_containers()
+        public void GetItemIdsAndValuesByProperty_returns_only_select_properties_of_containers()
         {
             // Arrange
             var inv = new Inventory();
@@ -749,7 +750,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Inventory_GetItemIdsAndValuesByProperty_can_return_all_properties()
+        public void GetItemIdsAndValuesByProperty_can_return_all_properties()
         {
             // Arrange
             var inv = new Inventory();
@@ -778,7 +779,7 @@ namespace nine3q.Items.Test
         }
 
         //[TestMethod]
-        //public void Inventory_CreateItem_re_uses_lowest_possible_free_number()
+        //public void CreateItem_re_uses_lowest_possible_free_number()
         //{
         //    // Arrange
         //    var inv = new Inventory();
@@ -798,7 +799,7 @@ namespace nine3q.Items.Test
         //}
 
         [TestMethod]
-        public void Inventory_CreateItem_dont_re_use_id()
+        public void CreateItem_dont_re_use_id()
         {
             // Arrange
             var inv = new Inventory();

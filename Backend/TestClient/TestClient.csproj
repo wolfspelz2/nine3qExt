@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GrainInterfaces\GrainInterfaces.csproj" />
+    <ProjectReference Include="..\nine3q.GrainInterfaces\nine3q.GrainInterfaces.csproj" />
   </ItemGroup>
 
 </Project>

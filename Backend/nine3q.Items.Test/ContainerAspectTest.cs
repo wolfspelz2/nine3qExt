@@ -8,7 +8,7 @@ namespace nine3q.Items.Test
     public class ContainerAspectTest
     {
         [TestMethod]
-        public void Container_adds_child()
+        public void Adds_child()
         {
             // Arrange
             var inv = new Inventory();
@@ -25,7 +25,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Container_AddChild_assigns_desired_slot_to_existing_child()
+        public void AddChild_assigns_desired_slot_to_existing_child()
         {
             // Arrange
             var inv = new Inventory();
@@ -44,7 +44,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Container_SetChild_needs_shuffle_to_assign_desired_slot_to_existing_child()
+        public void SetChild_needs_shuffle_to_assign_desired_slot_to_existing_child()
         {
             // Arrange
             var inv = new Inventory();
@@ -65,7 +65,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Container_AddChild_throws_when_desired_slot_is_occupied_for_existing_child()
+        public void AddChild_throws_when_desired_slot_is_occupied_for_existing_child()
         {
             // Arrange
             var inv = new Inventory();
@@ -81,7 +81,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Container_AddChild_assigns_desired_slot_for_new_child()
+        public void AddChild_assigns_desired_slot_for_new_child()
         {
             // Arrange
             var inv = new Inventory();
@@ -99,7 +99,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Container_AddChild_throws_when_desired_slot_is_occupied_for_new_child()
+        public void AddChild_throws_when_desired_slot_is_occupied_for_new_child()
         {
             // Arrange
             var inv = new Inventory();
@@ -115,7 +115,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Container_SetChild_throws_when_not_ContainerCanImport()
+        public void SetChild_throws_when_not_ContainerCanImport()
         {
             // Arrange
             var inv = new Inventory();
@@ -131,7 +131,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Container_delete_container_removes_child()
+        public void Delete_container_removes_child()
         {
             // Arrange
             var inv = new Inventory();
@@ -148,7 +148,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Container_delete_child_removes_child_from_container()
+        public void Delete_child_removes_child_from_container()
         {
             // Arrange
             var inv = new Inventory();

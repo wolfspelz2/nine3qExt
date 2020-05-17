@@ -6,7 +6,7 @@ namespace nine3q.Items.Test
     public class PropertySetTest
     {
         [TestMethod]
-        public void PropertySet_Normalize_does_not_break_correct_input()
+        public void Normalize_does_not_break_correct_input()
         {
             // Arrange
             var props = new PropertySet {
@@ -33,7 +33,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void PropertySet_Normalize_normalizes_weird_input()
+        public void Normalize_normalizes_weird_input()
         {
             // Arrange
             var props = new PropertySet {

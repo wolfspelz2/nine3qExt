@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using Orleans;
-using GrainInterfaces;
+using nine3q.GrainInterfaces;
 
-namespace Grains
+namespace nine3q.Grains
 {
     public class TestString : Grain, ITestString
     {

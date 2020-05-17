@@ -6,7 +6,7 @@ namespace nine3q.Items.Test
     public class ItemTest
     {
         [TestMethod]
-        public void Item_executes_action_by_aspect()
+        public void Executes_action_by_aspect()
         {
             // Arrange
             var inv = new Inventory();
@@ -22,7 +22,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Item_Delete_returns_true_if_deleted()
+        public void Delete_returns_true_if_deleted()
         {
             // Arrange
             var inv = new Inventory();
@@ -36,7 +36,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Item_Delete_returns_false_if_not_deleted()
+        public void Delete_returns_false_if_not_deleted()
         {
             // Arrange
             var inv = new Inventory();
@@ -50,7 +50,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Item_AddToItemSet()
+        public void AddToItemSet()
         {
             // Arrange
             var inv = new Inventory();
@@ -64,7 +64,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Item_AddToEmptyItemSet()
+        public void AddToEmptyItemSet()
         {
             // Arrange
             var inv = new Inventory();
@@ -78,7 +78,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Item_add_redundant_item_to_ItemSet()
+        public void Add_redundant_item_to_ItemSet()
         {
             // Arrange
             var inv = new Inventory();

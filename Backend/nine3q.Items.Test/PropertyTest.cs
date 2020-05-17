@@ -8,7 +8,7 @@ namespace nine3q.Items.Test
     public class PropertyTest
     {
         [TestMethod]
-        public void Property_all_properties_have_definitions()
+        public void All_properties_have_definitions()
         {
             foreach (var pid in Enum.GetValues(typeof(Pid)).Cast<Pid>()) {
                 var prop = Property.Get(pid);
@@ -23,7 +23,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Property_AreEquivalent()
+        public void AreEquivalent()
         {
             Assert.IsTrue(Property.AreEquivalent(Property.Type.Int, (long)42, (long)42));
             Assert.IsTrue(Property.AreEquivalent(Property.Type.Int, 42, 42));
@@ -40,7 +40,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Property_AreEquivalent_not()
+        public void AreEquivalent_not()
         {
             Assert.IsFalse(Property.AreEquivalent(Property.Type.Int, (long)42, (long)43));
             Assert.IsFalse(Property.AreEquivalent(Property.Type.String, "fourtytwo", "fourtythree"));
@@ -54,7 +54,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Property_AreEquivalent_does_not_sort_ItemIdSet_inplace()
+        public void AreEquivalent_does_not_sort_ItemIdSet_inplace()
         {
             var ids1 = new ItemIdSet("1 2");
             var ids2 = new ItemIdSet("2 1");

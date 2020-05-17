@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GrainInterfaces\GrainInterfaces.csproj" />
-    <ProjectReference Include="..\Grains\Grains.csproj" />
+    <ProjectReference Include="..\nine3q.GrainInterfaces\nine3q.GrainInterfaces.csproj" />
+    <ProjectReference Include="..\nine3q.Grains\nine3q.Grains.csproj" />
   </ItemGroup>
 
 </Project>

@@ -7,7 +7,7 @@ namespace nine3q.Items.Test
     public class TransactionTest
     {
         [TestMethod]
-        public void Transaction_CreateItem_adds_to_Changed_and_Added()
+        public void CreateItem_adds_to_Changed_and_Added()
         {
             // Arrange
             var inv = new Inventory();
@@ -27,7 +27,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Transaction_create_second_item_adds_one_to_Changed_and_Added()
+        public void Create_second_item_adds_one_to_Changed_and_Added()
         {
             // Arrange
             var inv = new Inventory();
@@ -48,7 +48,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Transaction_DeleteItem_adds_to_Deleted()
+        public void DeleteItem_adds_to_Deleted()
         {
             // Arrange
             var inv = new Inventory();
@@ -68,7 +68,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Transaction_SetItemProperties_adds_to_Changed()
+        public void SetItemProperties_adds_to_Changed()
         {
             // Arrange
             var inv = new Inventory();
@@ -86,7 +86,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Transaction_SetItemProperties_and_DeleteItem_just_adds_to_Deleted()
+        public void SetItemProperties_and_DeleteItem_just_adds_to_Deleted()
         {
             // Arrange
             var inv = new Inventory();
@@ -106,7 +106,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Transaction_AddToItemSet_adds_to_Changed()
+        public void AddToItemSet_adds_to_Changed()
         {
             // Arrange
             var inv = new Inventory();
@@ -124,7 +124,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Transaction_RemoveFromItemSet_adds_to_Changed()
+        public void RemoveFromItemSet_adds_to_Changed()
         {
             // Arrange
             var inv = new Inventory();
@@ -142,7 +142,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Transaction_CancelTransaction_restores_changed_property()
+        public void CancelTransaction_restores_changed_property()
         {
             // Arrange
             var inv = new Inventory();
@@ -162,7 +162,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Transaction_CancelTransaction_restores_deleted_property()
+        public void CancelTransaction_restores_deleted_property()
         {
             // Arrange
             var inv = new Inventory();
@@ -182,7 +182,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Transaction_CancelTransaction_restores_deleted_item()
+        public void CancelTransaction_restores_deleted_item()
         {
             // Arrange
             var inv = new Inventory();
@@ -203,7 +203,7 @@ namespace nine3q.Items.Test
         }
 
         [TestMethod]
-        public void Transaction_CancelTransaction_deletes_created_item()
+        public void CancelTransaction_deletes_created_item()
         {
             // Arrange
             var inv = new Inventory();

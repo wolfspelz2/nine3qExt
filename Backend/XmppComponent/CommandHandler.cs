@@ -1,6 +1,6 @@
 ﻿using System;
 using Orleans;
-using GrainInterfaces;
+using nine3q.GrainInterfaces;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Orleans.Streams;

@@ -9,7 +9,7 @@ namespace JsonPath.Test
     public class NodeTest
     {
         [TestMethod]
-        public void JsonPath_deserializes_basic_types()
+        public void Deserializes_basic_types()
         {
             //var since = 43147.85388009260;
             //var date = System.DateTime.Now.AddDays(-since);
@@ -66,25 +66,25 @@ namespace JsonPath.Test
         }
 
         [TestMethod]
-        public void JsonPath_converts_float_from_string_with_InvariantCulture()
+        public void Converts_float_from_string_with_InvariantCulture()
         {
             Assert.AreEqual(3.14159265358979323, new Node("{\"a\":\"3.14159265358979323\"}").Dictionary.First().Value.AsFloat);
         }
 
         [TestMethod]
-        public void JsonPath_returns_empty_node_for_missing_dictionary_key()
+        public void Returns_empty_node_for_missing_dictionary_key()
         {
             Assert.AreEqual(0, new Node("{a:41}").AsDictionary.Get("b").AsInt);
         }
 
         [TestMethod]
-        public void JsonPath_returns_empty_node_for_missing_list_index()
+        public void Returns_empty_node_for_missing_list_index()
         {
             Assert.AreEqual(0, new Node("[41,42]").AsList.Get(2).AsInt);
         }
 
         [TestMethod]
-        public void JsonPath_supports_alternative_notations_for_value_types()
+        public void Supports_alternative_notations_for_value_types()
         {
             // Arrange
             const string data = "{ a: '41', b: 42, c: true, d: 3.14, e: '2017-01-02T03:04:05.678' }";
@@ -119,7 +119,7 @@ namespace JsonPath.Test
         }
 
         [TestMethod]
-        public void JsonPath_supports_alternative_nNotations_for_structures()
+        public void Supports_alternative_nNotations_for_structures()
         {
             // Arrange
             const string data = "{ a: 'b', c: [ 'c0', 'c1' ] }";
@@ -134,7 +134,7 @@ namespace JsonPath.Test
         }
 
         [TestMethod]
-        public void JsonPath_supports_List_enumeration()
+        public void Supports_List_enumeration()
         {
             // Arrange
             const string data = "{ a: 'b', c: [ 'c0', 'c1' ] }";
@@ -149,7 +149,7 @@ namespace JsonPath.Test
         }
 
         [TestMethod]
-        public void JsonPath_supports_Dictionary_enumeration()
+        public void Supports_Dictionary_enumeration()
         {
             // Arrange
             const string data = "{ a: 'b', c: [ 'c0', 'c1' ] }";
@@ -169,7 +169,7 @@ namespace JsonPath.Test
         }
 
         [TestMethod]
-        public void JsonPath_supports_Linq()
+        public void Supports_Linq()
         {
             // Arrange
             const string data = "{ a: 'b', c: [ 'c0', 'c1' ] }";
@@ -183,7 +183,7 @@ namespace JsonPath.Test
         }
 
         [TestMethod]
-        public void JsonPath_deserializes_a_typical_json_structure()
+        public void Deserializes_a_typical_json_structure()
         {
             var data = @"
 [
@@ -285,7 +285,7 @@ namespace JsonPath.Test
         }
 
         [TestMethod]
-        public void JsonPath_Patch()
+        public void Patch()
         {
             var data = @"
 {
@@ -481,7 +481,7 @@ namespace JsonPath.Test
         }
 
         [TestMethod]
-        public void JsonPath_Dictionary_ctor()
+        public void Dictionary_ctor()
         {
             // Arrange
 

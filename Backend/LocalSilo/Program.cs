@@ -6,7 +6,7 @@ using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
 using Orleans.Statistics;
-using Grains;
+using nine3q.Grains;
 
 namespace LocalSilo
 {
@@ -57,6 +57,7 @@ namespace LocalSilo
                     options.FireAndForgetDelivery = true;
                 })
                 .AddMemoryGrainStorage("PubSubStore")
+                .AddMemoryGrainStorage(InventoryService.StorageProvider)
                 .UsePerfCounterEnvironmentStatistics()
                 .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(TestString).Assembly).WithReferences())
                 ;

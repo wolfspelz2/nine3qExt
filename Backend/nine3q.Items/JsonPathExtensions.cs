@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace nine3q.Lib
+namespace nine3q.Tools
 {
     public static class JsonPathExtensions
     {

@@ -8,7 +8,7 @@ namespace JsonPath.Test
     public class SerializerTest
     {
         [TestMethod]
-        public void JsonPath_deserializes_Serializer_output()
+        public void Deserializes_Serializer_output()
         {
             // Arrange
             const string sIn = "{ a: 'a', b: 1, c: true, d: 1.11, e: '2017-01-02T03:04:05.678', f: [ 'f1', 'f2', 'f3' ], g: { g1: 'g1', g2: 'g2' } }";
@@ -29,7 +29,7 @@ namespace JsonPath.Test
         }
 
         [TestMethod]
-        public void JsonPath_serializes_array_of_dictionary()
+        public void Serializes_array_of_dictionary()
         {
             // Arrange
             const string sIn = "[ { 'param': { 'name': 'defaultsequence', 'value': 'idle' }}, { 'sequence': { 'group': 'idle', 'name': 'still', 'type': 'status', 'probability': '1000', 'in': 'standard', 'out': 'standard', 'src': 'idle.gif' }} ]";
@@ -43,7 +43,7 @@ namespace JsonPath.Test
         }
 
         [TestMethod]
-        public void JsonPath_Serializer_ToString_creates_human_readable_JS_with_few_double_quotes()
+        public void ToString_creates_human_readable_JS_with_few_double_quotes()
         {
             // Arrange
             const string sIn = "{ a: 'b\\'c b\"c', b: 1, c: true, d: false, e: 1.11, f: [ 'g', 'h' ], i: { j: 'k', l: 2, m: [ 1, 2 ], n: { o: 3, p: 4, q: { r: 's', t: [ 1, 2, 3 ], u: [ { v: 1, w: 2 }, { x: 3, y: 4 } ] } } } }";
@@ -57,7 +57,7 @@ namespace JsonPath.Test
         }
 
         [TestMethod]
-        public void JsonPath_Serializer_defaults_to_double_quotes_and_quoted_keys_and_no_formatting()
+        public void Defaults_to_double_quotes_and_quoted_keys_and_no_formatting()
         {
             // Arrange
             const string sIn = "{\"a\":\"a\",\"b\":1,\"c\":true,\"d\":1.11,\"e\":[\"e1\",\"e2\"],\"f\":{\"f1\":\"f1\",\"f2\":\"f2\"}}";
@@ -71,7 +71,7 @@ namespace JsonPath.Test
         }
 
         [TestMethod]
-        public void JsonPath_serializes_deserialized_data_with_added_node()
+        public void Serializes_deserialized_data_with_added_node()
         {
             // Arrange
             const string sIn = @"

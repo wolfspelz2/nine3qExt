@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <RootNamespace>Grains</RootNamespace>
+    <RootNamespace>nine3q.Grains</RootNamespace>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
   </PropertyGroup>
@@ -16,7 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GrainInterfaces\GrainInterfaces.csproj" />
+    <ProjectReference Include="..\nine3q.GrainInterfaces\nine3q.GrainInterfaces.csproj" />
+    <ProjectReference Include="..\nine3q.Tools\nine3q.Tools.csproj" />
   </ItemGroup>
 
 </Project>

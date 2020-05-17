@@ -8,7 +8,7 @@ namespace nine3q.Items.Test
     public class AspectTest
     {
         [TestMethod]
-        public void Aspect_all_aspects_are_registered_at_AspectRegistry()
+        public void All_aspects_are_registered_at_AspectRegistry()
         {
             foreach (var pid in Enum.GetValues(typeof(Pid)).Cast<Pid>()) {
                 var prop = Property.Get(pid);

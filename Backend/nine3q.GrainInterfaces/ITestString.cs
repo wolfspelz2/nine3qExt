@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Orleans;
 
-namespace GrainInterfaces
+namespace nine3q.GrainInterfaces
 {
     public class TestStringStream
     {

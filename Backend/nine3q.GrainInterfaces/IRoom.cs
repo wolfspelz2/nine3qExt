@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Orleans;
 
-namespace GrainInterfaces
+namespace nine3q.GrainInterfaces
 {
     public static class RoomStream
     {
