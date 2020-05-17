@@ -4,10 +4,11 @@ using nine3q.GrainInterfaces;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Orleans.Streams;
+using System.Net;
 
 namespace XmppComponent
 {
-    internal class CommandHandler: IAsyncObserver<RoomEvent>
+    internal class CommandHandler : IAsyncObserver<RoomEvent>
     {
         public Connection Connection { get; internal set; }
 
@@ -80,14 +81,30 @@ namespace XmppComponent
                 if (roomEvent.type == RoomEvent.Type.Rez) {
                     var roomId = roomEvent.roomId;
                     var room = _client.GetGrain<IRoom>(roomId);
-                    var nick = await room.GetItemProperty(roomEvent.itemId, "name");
-                    var avatarUrl = await room.GetItemProperty(roomEvent.itemId, "avatarUrl");
 
-                    Connection?.Send(@$"<presence to='{roomId}/{nick}' from='{roomEvent.itemId}@{_host}/backend'>
+                    var nick = await room.GetItemProperty(roomEvent.itemId, "name");
+                    var nickUrlEncoded = WebUtility.UrlEncode(nick);
+
+                    var avatarUrl = await room.GetItemProperty(roomEvent.itemId, "avatarUrl");
+                    var avatarUrlUrlEncoded = WebUtility.UrlEncode(avatarUrl);
+
+                    var to = $"{roomId}/{nick}";
+                    var toXmlEncoded = WebUtility.HtmlEncode(to);
+
+                    var from = $"{roomEvent.itemId}@{_host}/backend";
+                    var fromXmlEncoded = WebUtility.HtmlEncode(from);
+
+                    var userJid = $"{roomEvent.itemId}@{_host}";
+                    var userJidXmlEncoded = WebUtility.HtmlEncode(userJid);
+
+                    var identitySrc = $"https://avatar.weblin.sui.li/identity/?avatarUrl={avatarUrlUrlEncoded}&nickname={nickUrlEncoded}";
+                    var identitySrcXmlEncoded = WebUtility.HtmlEncode(identitySrc);
+
+                    Connection?.Send(@$"<presence to='{toXmlEncoded}' from='{fromXmlEncoded}'>
                        <x xmlns='http://jabber.org/protocol/muc'>
                          <history seconds='0' maxchars='0' maxstanzas='0'/>
                        </x>
-                       <x xmlns='firebat:user:identity' jid='{roomEvent.itemId}@{_host}' src='https://avatar.weblin.sui.li/identity/?avatarUrl={avatarUrl}&amp;nickname={nick}' digest='1' />
+                       <x xmlns='firebat:user:identity' jid='{userJidXmlEncoded}' src='{identitySrcXmlEncoded}' digest='1' />
                     </presence>");
                 }
             } catch (Exception ex) {
