@@ -25,7 +25,7 @@ export class Config
         vp: {
             useLocationMappingService: false,
             locationMappingServiceUrl: 'https://lms.virtual-presence.org/api/',
-            deferPageEnterSec: 0.5,
+            deferPageEnterSec: 0.3,
             vpiRoot: 'https://lms.virtual-presence.org/v7/root.xml',
             vpiMaxIterations: 15,
         },
@@ -39,6 +39,7 @@ export class Config
             maintenanceIntervalSec: 60,
         },
         room: {
+            fadeInSec: 0.3,
             defaultAvatarSpeedPixelPerSec: 100,
             randomEnterPosXMin: 300,
             randomEnterPosXMax: 600,
