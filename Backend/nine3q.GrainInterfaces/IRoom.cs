@@ -17,21 +17,21 @@ namespace nine3q.GrainInterfaces
         public enum Type { Nop, Rez }
         public Type type = Type.Nop;
         public string roomId;
-        public long long;
+        public long itemId;
 
-        public RoomEvent(Type type, string roomId, long long)
+        public RoomEvent(Type type, string roomId, long itemId)
         {
             this.type = type;
             this.roomId = roomId;
-            this.long = long;
+            this.itemId = itemId;
         }
     }
 
     public interface IRoom : IGrainWithStringKey
     {
         Task<Guid> GetStreamId();
-        Task<long> ReceiveItem(long long, Dictionary<string, string> props);
-        Task RezItem(long long);
-        Task<string> GetItemProperty(long long, string key);
+        Task<long> ReceiveItem(long itemId, Dictionary<string, string> props);
+        Task RezItem(long itemId);
+        Task<string> GetItemProperty(long itemId, string key);
     }
 }

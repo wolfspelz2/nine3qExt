@@ -26,7 +26,7 @@ namespace nine3q.Items
     }
 
     [Serializable]
-    public class ItemIdPropertiesCollection : Dictionary<ItemId, PropertySet>
+    public class ItemIdPropertiesCollection : Dictionary<long, PropertySet>
     {
         #region For [Serializable]
 
@@ -50,19 +50,19 @@ namespace nine3q.Items
     }
 
     [Serializable]
-    public class ItemIdList : List<ItemId>
+    public class ItemIdList : List<long>
     {
     }
 
     [Serializable]
-    public class ItemIdMap : Dictionary<ItemId, ItemId>
+    public class ItemIdMap : Dictionary<long, long>
     {
         public ItemIdMap(string s)
         {
             var pairs = s.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var pair in pairs) {
                 var kv = pair.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-                this.Add(new ItemId(kv[0]), new ItemId(kv[1]));
+                this.Add(long.Parse(kv[0]), long.Parse(kv[1]));
             }
         }
 

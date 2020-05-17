@@ -37,7 +37,7 @@ namespace XmppComponent
         private async Task HandleRez(Command cmd)
         {
             var userId = cmd.ContainsKey("user") ? cmd["user"] : "";
-            var haslong = long.TryParse(cmd.ContainsKey("item") ? cmd["item"] : "", out long long);
+            var haslong = long.TryParse(cmd.ContainsKey("item") ? cmd["item"] : "", out long itemId);
             var roomId = cmd.ContainsKey("room") ? cmd["room"] : "";
             var hasX = int.TryParse(cmd.ContainsKey("x") ? cmd["x"] : "", out int x);
 
@@ -50,7 +50,7 @@ namespace XmppComponent
                 }
 
                 var user = _client.GetGrain<IUser>(userId);
-                await user.DropItem(long, roomId, x);
+                await user.DropItem(itemId, roomId, x);
             }
         }
 
@@ -80,14 +80,14 @@ namespace XmppComponent
                 if (roomEvent.type == RoomEvent.Type.Rez) {
                     var roomId = roomEvent.roomId;
                     var room = _client.GetGrain<IRoom>(roomId);
-                    var nick = await room.GetItemProperty(roomEvent.long, "name");
-                    var avatarUrl = await room.GetItemProperty(roomEvent.long, "avatarUrl");
+                    var nick = await room.GetItemProperty(roomEvent.itemId, "name");
+                    var avatarUrl = await room.GetItemProperty(roomEvent.itemId, "avatarUrl");
 
-                    Connection?.Send(@$"<presence to='{roomId}/{nick}' from='{roomEvent.long}@{_host}/backend'>
+                    Connection?.Send(@$"<presence to='{roomId}/{nick}' from='{roomEvent.itemId}@{_host}/backend'>
                        <x xmlns='http://jabber.org/protocol/muc'>
                          <history seconds='0' maxchars='0' maxstanzas='0'/>
                        </x>
-                       <x xmlns='firebat:user:identity' jid='{roomEvent.long}@{_host}' src='https://avatar.weblin.sui.li/identity/?avatarUrl={avatarUrl}&amp;nickname={nick}' digest='1' />
+                       <x xmlns='firebat:user:identity' jid='{roomEvent.itemId}@{_host}' src='https://avatar.weblin.sui.li/identity/?avatarUrl={avatarUrl}&amp;nickname={nick}' digest='1' />
                     </presence>");
                 }
             } catch (Exception ex) {

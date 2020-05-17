@@ -5,21 +5,21 @@ using System.Runtime.Serialization;
 namespace nine3q.Items
 {
     [Serializable]
-    public class longSet : HashSet<long>
+    public class ItemIdSet : HashSet<long>
     {
         const string JoinSeparator = " ";
         static readonly char[] SplitSeparator = new[] { JoinSeparator[0] };
 
-        public longSet() { }
+        public ItemIdSet() { }
 
-        public longSet(string blankSeparatedListOfLong)
+        public ItemIdSet(string blankSeparatedListOfLong)
         {
             FromString(blankSeparatedListOfLong);
         }
 
         #region For [Serializable]
 
-        protected longSet(SerializationInfo info, StreamingContext context) : base(info, context) { }
+        protected ItemIdSet(SerializationInfo info, StreamingContext context) : base(info, context) { }
         public override void GetObjectData(SerializationInfo info, StreamingContext context) { base.GetObjectData(info, context); }
 
         #endregion
@@ -34,9 +34,9 @@ namespace nine3q.Items
             }
         }
 
-        public longSet Clone()
+        public ItemIdSet Clone()
         {
-            var clone = new longSet();
+            var clone = new ItemIdSet();
             foreach (long id in this) {
                 clone.Add(id);
             }

@@ -41,7 +41,7 @@ namespace IntegrationTests
                         { Pid.TestString, "42" },
                         { Pid.TestFloat, 3.141592653589793238462643383270502 },
                         { Pid.TestBool, true },
-                        { Pid.TestItem, new ItemId(42) },
+                        { Pid.TestItem, 42L },
                         { Pid.TestItemSet, new ItemIdSet("42 10000000043") },
                         { Pid.TestEnum, PropertyValue.TestEnum.Value1 },
                     };

@@ -14,8 +14,8 @@ namespace nine3q.Items.Test
                 { Pid.TestFloat, (double)3.14 },
                 { Pid.TestString, "fourtytwo" },
                 { Pid.TestBool, true },
-                { Pid.TestItem, new long(10000000001) },
-                { Pid.TestItemSet, new longSet { new long(42) ,new long(10000000001) } },
+                { Pid.TestItem, (10000000001) },
+                { Pid.TestItemSet, new ItemIdSet { (42), (10000000001) } },
                 { Pid.TestEnum, PropertyValue.TestEnum.Value1.ToString() },
             };
 
@@ -27,8 +27,8 @@ namespace nine3q.Items.Test
             Assert.AreEqual((double)3.14, props.GetFloat(Pid.TestFloat), 0.01);
             Assert.AreEqual("fourtytwo", props.GetString(Pid.TestString));
             Assert.AreEqual(true, props.GetBool(Pid.TestBool));
-            Assert.AreEqual(new long(10000000001), props.GetItem(Pid.TestItem));
-            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new longSet { new long(42), new long(10000000001) }, props.GetItemSet(Pid.TestItemSet)));
+            Assert.AreEqual((10000000001), props.GetItem(Pid.TestItem));
+            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet { (42), (10000000001) }, props.GetItemSet(Pid.TestItemSet)));
             Assert.AreEqual(PropertyValue.TestEnum.Value1, props.GetEnum(Pid.TestEnum, PropertyValue.TestEnum.Unknown));
         }
 
@@ -50,7 +50,7 @@ namespace nine3q.Items.Test
                 { Pid.TestBool2, "true" },
                 { Pid.TestBool3, (int)1 },
                 { Pid.TestBool4, (long)1 },
-                { Pid.TestItem, new long((int)42) },
+                { Pid.TestItem, ((int)42) },
                 { Pid.TestItem2, (long)42 },
                 { Pid.TestItem3, "42" },
                 { Pid.TestItemSet, "42 10000000001" },
@@ -73,10 +73,10 @@ namespace nine3q.Items.Test
             Assert.AreEqual(true, props.GetBool(Pid.TestBool), Pid.TestBool.ToString());
             Assert.AreEqual(true, props.GetBool(Pid.TestBool2), Pid.TestBool2.ToString());
             Assert.AreEqual(true, props.GetBool(Pid.TestBool3), Pid.TestBool3.ToString());
-            Assert.AreEqual(new long((long)42), props.GetItem(Pid.TestItem), Pid.TestItem.ToString());
-            Assert.AreEqual(new long((long)42), props.GetItem(Pid.TestItem2), Pid.TestItem2.ToString());
-            Assert.AreEqual(new long((long)42), props.GetItem(Pid.TestItem3), Pid.TestItem3.ToString());
-            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new longSet { new long((long)42), new long((long)10000000001) }, props.GetItemSet(Pid.TestItemSet)), Pid.TestItemSet.ToString());
+            Assert.AreEqual(((long)42), props.GetItem(Pid.TestItem), Pid.TestItem.ToString());
+            Assert.AreEqual(((long)42), props.GetItem(Pid.TestItem2), Pid.TestItem2.ToString());
+            Assert.AreEqual(((long)42), props.GetItem(Pid.TestItem3), Pid.TestItem3.ToString());
+            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet { ((long)42), ((long)10000000001) }, props.GetItemSet(Pid.TestItemSet)), Pid.TestItemSet.ToString());
             Assert.AreEqual(PropertyValue.TestEnum.Value1, props.GetEnum(Pid.TestEnum, PropertyValue.TestEnum.Unknown));
             Assert.AreEqual(PropertyValue.TestEnum.Value1.ToString(), props.GetString(Pid.TestEnum));
         }

@@ -109,15 +109,17 @@ namespace nine3q.Items
 
         public long GetItem(Pid key)
         {
-            if (!ContainsKey(key)) { return Property.Default(Property.Type.Item) as long; }
+            if (!ContainsKey(key)) { return (long)Property.Default(Property.Type.Item); }
             var value = this[key];
-            return (long)value;
+            if (value is int) return Convert.ToInt64(value);
+            if (value is string) return long.Parse((string)value);
+            return GetInt(key);
         }
 
-        public longSet GetItemSet(Pid key)
+        public ItemIdSet GetItemSet(Pid key)
         {
-            if (!ContainsKey(key)) { return Property.Default(Property.Type.ItemSet) as longSet; }
-            return (longSet)this[key];
+            if (!ContainsKey(key)) { return Property.Default(Property.Type.ItemSet) as ItemIdSet; }
+            return (ItemIdSet)this[key];
         }
 
         public T GetEnum<T>(Pid pid, T defaultValue) where T : struct
@@ -166,9 +168,9 @@ namespace nine3q.Items
                 } else if (prop.Type == Property.Type.Bool) {
                     Add(prop.Id, info.GetString(attr).IsTrue());
                 } else if (prop.Type == Property.Type.Item) {
-                    Add(prop.Id, new long(info.GetInt64(attr)));
+                    Add(prop.Id, info.GetInt64(attr));
                 } else if (prop.Type == Property.Type.ItemSet) {
-                    Add(prop.Id, new longSet(info.GetString(attr)));
+                    Add(prop.Id, new ItemIdSet(info.GetString(attr)));
                 } else {
                     throw new NotImplementedException("Property name=" + name + " not yet implemented.");
                 }

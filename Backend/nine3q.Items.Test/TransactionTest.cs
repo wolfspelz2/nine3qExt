@@ -114,7 +114,7 @@ namespace nine3q.Items.Test
 
             // Act
             inv.Transaction(() => {
-                item.AddToItemSet(Pid.TestItemSet, new long(3));
+                item.AddToItemSet(Pid.TestItemSet, (3));
             });
 
             // Assert
@@ -132,7 +132,7 @@ namespace nine3q.Items.Test
 
             // Act
             inv.Transaction(() => {
-                item.AddToItemSet(Pid.TestItemSet, new long(2));
+                item.AddToItemSet(Pid.TestItemSet, (2));
             });
 
             // Assert

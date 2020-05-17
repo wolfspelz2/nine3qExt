@@ -11,12 +11,12 @@ namespace nine3q.GrainInterfaces
         Task<string> GetName();
         Task SetName(string name);
 
-        Task<ItemId> CreateItem(PropertySet properties);
-        Task<bool> DeleteItem(ItemId id);
+        Task<long> CreateItem(PropertySet properties);
+        Task<bool> DeleteItem(long id);
 
-        Task<PropertySet> GetItemProperties(ItemId id, PidList pids, bool native = false);
+        Task<PropertySet> GetItemProperties(long id, PidList pids, bool native = false);
 
-        Task<ItemId> GetItemByName(string name);
+        Task<long> GetItemByName(string name);
 
         // Test, maintenance
         Task Deactivate();

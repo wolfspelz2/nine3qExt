@@ -73,7 +73,7 @@ namespace nine3q.Items
         public Item Item(string name)
         {
             if (!Names.TryGetValue(name, out long id)) {
-                throw new ItemException(Name, long.NoItem, $"No such item: name={name}");
+                throw new ItemException(Name, ItemId.NoItem, $"No such item: name={name}");
             }
             if (!Items.TryGetValue(id, out Item item)) {
                 throw new ItemException(Name, id, $"No such item: name={name}");
@@ -106,7 +106,7 @@ namespace nine3q.Items
                 var name = properties.GetString(Pid.Name);
                 if (!string.IsNullOrEmpty(name)) {
                     var id = GetItemByName(name);
-                    if (id != long.NoItem) {
+                    if (id != ItemId.NoItem) {
                         if (id == forId) {
                             // ok: just replacing name of an item with same name
                         } else {
@@ -118,7 +118,7 @@ namespace nine3q.Items
 
             {
                 var id = properties.GetItem(Pid.Id);
-                if (id != long.NoItem) {
+                if (id != ItemId.NoItem) {
                     if (IsItem(id)) {
                         throw new WrongItemPropertyException(Name, id, Pid.Id, $"Id={id} already exists");
                     }
@@ -126,34 +126,34 @@ namespace nine3q.Items
             }
         }
 
-        long _currentlong = 0;
-        long GetNextlong_NeverReUse()
+        long _currentItemId = 0;
+        long GetNextItemId_NeverReUse()
         {
-            if (_currentlong == 0 && Items.Count > 0) {
-                _currentlong = (long)Items.Keys.Max();
+            if (_currentItemId == ItemId.NoItem && Items.Count > 0) {
+                _currentItemId = Items.Keys.Max();
             }
-            _currentlong++;
-            return new long(_currentlong);
+            _currentItemId++;
+            return _currentItemId;
         }
 
-        long GetNextlong()
+        long GetNextItemId()
         {
-            return GetNextlong_NeverReUse();
+            return GetNextItemId_NeverReUse();
         }
 
         public Item CreateItem(PropertySet properties)
         {
-            CheckConflictingProperties(properties, long.NoItem);
+            CheckConflictingProperties(properties, ItemId.NoItem);
 
             if (Items.Keys.Count >= MaxItemsPerInventory) {
-                throw new ItemException(Name, long.NoItem, $"Exceeded max items per inventory: {MaxItemsPerInventory}");
+                throw new ItemException(Name, ItemId.NoItem, $"Exceeded max items per inventory: {MaxItemsPerInventory}");
             }
 
             var id = properties.GetItem(Pid.Id);
-            if (id == long.NoItem) {
-                id = GetNextlong();
+            if (id == ItemId.NoItem) {
+                id = GetNextItemId();
             }
-            if (id == long.NoItem) {
+            if (id == ItemId.NoItem) {
                 throw new ItemException(Name, id, "No item ID available");
             }
 
@@ -252,7 +252,7 @@ namespace nine3q.Items
                                 break;
                             } else {
                                 // Not found: intermediate part must be container
-                                return long.NoItem;
+                                return ItemId.NoItem;
                             }
                         }
                     }
@@ -260,21 +260,21 @@ namespace nine3q.Items
 
             } // segments
 
-            return long.NoItem;
+            return ItemId.NoItem;
         }
 
-        public longSet GetItems()
+        public ItemIdSet GetItems()
         {
-            var ids = new longSet();
+            var ids = new ItemIdSet();
             foreach (var id in Items.Keys) {
                 ids.Add(id);
             }
             return ids;
         }
 
-        public longPropertiesCollection GetlongsAndValuesByProperty(Pid filterPid, PidList desiredProperties)
+        public ItemIdPropertiesCollection GetItemIdsAndValuesByProperty(Pid filterPid, PidList desiredProperties)
         {
-            var idValueList = new longPropertiesCollection();
+            var idValueList = new ItemIdPropertiesCollection();
 
             foreach (var pair in Items) {
                 var id = pair.Key;
@@ -289,9 +289,9 @@ namespace nine3q.Items
             return idValueList;
         }
 
-        public longPropertiesCollection GetlongsAndValuesByPropertyValue(PropertySet filterProperties, PidList desiredProperties)
+        public ItemIdPropertiesCollection GetItemIdsAndValuesByPropertyValue(PropertySet filterProperties, PidList desiredProperties)
         {
-            var idValueList = new longPropertiesCollection();
+            var idValueList = new ItemIdPropertiesCollection();
             var filterPids = new PidList();
 
             foreach (var pair in filterProperties) {
@@ -397,35 +397,35 @@ namespace nine3q.Items
             switch (change.What) {
 
                 case ItemChange.Variant.CreateItem:
-                    Items.Remove(change.long);
+                    Items.Remove(change.ItemId);
                     break;
 
                 case ItemChange.Variant.DeleteItem:
-                    Items.Add(change.long, change.Item);
+                    Items.Add(change.ItemId, change.Item);
                     break;
 
                 case ItemChange.Variant.AddProperty:
-                    if (IsItem(change.long)) {
-                        Items[change.long].Delete(change.Pid);
+                    if (IsItem(change.ItemId)) {
+                        Items[change.ItemId].Delete(change.Pid);
                     }
                     break;
 
                 case ItemChange.Variant.SetProperty:
                 case ItemChange.Variant.DeleteProperty:
-                    if (IsItem(change.long)) {
-                        Items[change.long].Set(change.Pid, change.PreviousValue);
+                    if (IsItem(change.ItemId)) {
+                        Items[change.ItemId].Set(change.Pid, change.PreviousValue);
                     }
                     break;
 
                 case ItemChange.Variant.AddItemToCollection:
-                    if (IsItem(change.long)) {
-                        Items[change.long].RemoveFromItemSet(change.Pid, change.ChildId);
+                    if (IsItem(change.ItemId)) {
+                        Items[change.ItemId].RemoveFromItemSet(change.Pid, change.ChildId);
                     }
                     break;
 
                 case ItemChange.Variant.RemoveItemFromCollection:
-                    if (IsItem(change.long)) {
-                        Items[change.long].AddToItemSet(change.Pid, change.ChildId);
+                    if (IsItem(change.ItemId)) {
+                        Items[change.ItemId].AddToItemSet(change.Pid, change.ChildId);
                     }
                     break;
             }
@@ -470,14 +470,14 @@ namespace nine3q.Items
             Item(containerId).AsContainer().RemoveChild(Item(id));
         }
 
-        public longList GetParentContainers(long id)
+        public ItemIdList GetParentContainers(long id)
         {
-            var parents = new longList();
+            var parents = new ItemIdList();
 
             var firstId = id;
-            var lastId = long.NoItem;
+            var lastId = ItemId.NoItem;
             id = Item(id).GetItem(Pid.Container);
-            while (id != long.NoItem) {
+            while (id != ItemId.NoItem) {
                 if (id == lastId || id == firstId) {
                     // A bug in the data, but would loop infinitely
                     break;
@@ -490,7 +490,7 @@ namespace nine3q.Items
             return parents;
         }
 
-        public longSet CollectChildren(long id, longSet list)
+        public ItemIdSet CollectChildren(long id, ItemIdSet list)
         {
             list.Add(id);
             var children = Item(id).GetItemSet(Pid.Contains);
@@ -504,7 +504,7 @@ namespace nine3q.Items
 
         #region Transfer
 
-        public longPropertiesCollection BeginItemTransfer(long id)
+        public ItemIdPropertiesCollection BeginItemTransfer(long id)
         {
             if (IsItem(id)) {
                 var item = Item(id);
@@ -512,7 +512,7 @@ namespace nine3q.Items
 
                 var slot = ContainerAspect.NoSlot;
                 var containerId = item.GetItem(Pid.Container);
-                if (containerId != long.NoItem) {
+                if (containerId != ItemId.NoItem) {
                     slot = item.GetInt(Pid.Slot);
                     RemoveChild(containerId, id);
                 }
@@ -520,22 +520,22 @@ namespace nine3q.Items
                 var idProps = GetItemAndChildrenProperties(id, native: true);
                 idProps[id][Pid.TransferState] = PropertyValue.TransferState.Destination;
 
-                if (containerId != long.NoItem) {
+                if (containerId != ItemId.NoItem) {
                     item.SetItem(Pid.TransferContainer, containerId);
                     item.SetInt(Pid.TransferSlot, slot);
                 }
                 return idProps;
             }
-            return new longPropertiesCollection();
+            return new ItemIdPropertiesCollection();
         }
 
-        public longMap ReceiveItemTransfer(long id, long containerId, long slot, longPropertiesCollection idProps, PropertySet setProperties, PidList removeProperties)
+        public ItemIdMap ReceiveItemTransfer(long id, long containerId, long slot, ItemIdPropertiesCollection idProps, PropertySet setProperties, PidList removeProperties)
         {
             var mapping = SetItemAndChildrenProperties(idProps);
 
             var newId = mapping[id];
             var item = Item(newId);
-            if (containerId != long.NoItem) {
+            if (containerId != ItemId.NoItem) {
                 var container = Item(containerId);
                 container.AsContainer().AddChild(item, slot);
             }
@@ -570,7 +570,7 @@ namespace nine3q.Items
                 var transferState = item.GetEnum(Pid.TransferState, PropertyValue.TransferState.Unknown);
                 if (transferState == PropertyValue.TransferState.Source) {
                     var containerId = item.GetItem(Pid.TransferContainer);
-                    if (containerId != long.NoItem) {
+                    if (containerId != ItemId.NoItem) {
                         AddChild(containerId, id, item.GetInt(Pid.TransferSlot));
                     }
 
@@ -584,24 +584,24 @@ namespace nine3q.Items
             }
         }
 
-        public longPropertiesCollection GetItemAndChildrenProperties(long id, bool native = false)
+        public ItemIdPropertiesCollection GetItemAndChildrenProperties(long id, bool native = false)
         {
-            var idList = new longSet();
+            var idList = new ItemIdSet();
             idList = CollectChildren(id, idList);
 
-            var idProps = new longPropertiesCollection();
-            foreach (var long in idList) {
-                idProps[long] = GetItemProperties(long, PidList.All, native);
+            var idProps = new ItemIdPropertiesCollection();
+            foreach (var itemId in idList) {
+                idProps[itemId] = GetItemProperties(itemId, PidList.All, native);
             }
             return idProps;
         }
 
-        public longMap SetItemAndChildrenProperties(longPropertiesCollection idProps)
+        public ItemIdMap SetItemAndChildrenProperties(ItemIdPropertiesCollection idProps)
         {
-            var old2new = new longMap();
+            var old2new = new ItemIdMap();
 
             foreach (var pair in idProps) {
-                old2new[pair.Key] = GetNextlong();
+                old2new[pair.Key] = GetNextItemId();
             }
 
             foreach (var idPropPair in idProps) {
@@ -615,26 +615,26 @@ namespace nine3q.Items
                     switch (Property.Get(pid).Type) {
                         case Property.Type.Item:
                             if (!(value is long)) {
-                                value = new long(value.ToString());
+                                value = value.ToString();
                             }
-                            var oldlong = value as long;
-                            if (old2new.ContainsKey(oldlong)) {
-                                value = old2new[oldlong];
+                            var oldItemId = (long)value;
+                            if (old2new.ContainsKey(oldItemId)) {
+                                value = old2new[oldItemId];
                             }
                             break;
                         case Property.Type.ItemSet:
-                            if (!(value is longSet)) {
-                                value = new longSet(value.ToString());
+                            if (!(value is ItemIdSet)) {
+                                value = new ItemIdSet(value.ToString());
                             }
-                            var newlongSet = new longSet();
-                            foreach (var idSetElem in value as longSet) {
+                            var newItemIdSet = new ItemIdSet();
+                            foreach (var idSetElem in value as ItemIdSet) {
                                 if (old2new.ContainsKey(idSetElem)) {
-                                    newlongSet.Add(old2new[idSetElem]);
+                                    newItemIdSet.Add(old2new[idSetElem]);
                                 } else {
-                                    newlongSet.Add(idSetElem);
+                                    newItemIdSet.Add(idSetElem);
                                 }
                             }
-                            value = newlongSet;
+                            value = newItemIdSet;
                             break;
                         default:
                             break;

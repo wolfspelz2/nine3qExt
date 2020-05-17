@@ -80,7 +80,7 @@ namespace nine3q.Items
 
             var change = new ItemChange() {
                 What = Has(pid) ? ItemChange.Variant.SetProperty : ItemChange.Variant.AddProperty,
-                long = Id,
+                ItemId = Id,
                 Pid = pid,
                 Value = Property.Clone(prop.Type, value),
                 PreviousValue = Properties.ContainsKey(pid) ? Properties[pid] : null,
@@ -105,7 +105,7 @@ namespace nine3q.Items
                 OnPropertyChange(
                 new ItemChange() {
                     What = ItemChange.Variant.DeleteProperty,
-                    long = Id,
+                    ItemId = Id,
                     Pid = pid,
                     PreviousValue = Properties.ContainsKey(pid) ? Properties[pid] : null,
                 });
@@ -116,36 +116,36 @@ namespace nine3q.Items
             return false;
         }
 
-        public void AddToItemSet(Pid nProperty, long nlong)
+        public void AddToItemSet(Pid nProperty, long nItemId)
         {
             if (Property.Get(nProperty).Type != Property.Type.ItemSet) { throw new Exceptions.WrongItemPropertyTypeException(Inventory.Name, Id, nProperty, Property.Type.ItemSet); }
 
             OnPropertyChange(
               new ItemChange() {
                   What = ItemChange.Variant.AddItemToCollection,
-                  long = Id,
+                  ItemId = Id,
                   Pid = nProperty,
-                  ChildId = nlong
+                  ChildId = nItemId
               }
             );
 
-            Properties.AddToItemSet(nProperty, nlong);
+            Properties.AddToItemSet(nProperty, nItemId);
         }
 
-        public void RemoveFromItemSet(Pid nProperty, long nlong)
+        public void RemoveFromItemSet(Pid nProperty, long nItemId)
         {
             if (Property.Get(nProperty).Type != Property.Type.ItemSet) { throw new Exceptions.WrongItemPropertyTypeException(Inventory.Name, Id, nProperty, Property.Type.ItemSet); }
 
             OnPropertyChange(
               new ItemChange() {
                   What = ItemChange.Variant.RemoveItemFromCollection,
-                  long = Id,
+                  ItemId = Id,
                   Pid = nProperty,
-                  ChildId = nlong
+                  ChildId = nItemId
               }
             );
 
-            Properties.RemoveFromItemSet(nProperty, nlong);
+            Properties.RemoveFromItemSet(nProperty, nItemId);
         }
 
         #endregion
@@ -164,7 +164,7 @@ namespace nine3q.Items
         public void SetFloat(Pid pid, double value) { Set(pid, value); }
         public void SetBool(Pid pid, bool value) { Set(pid, value); }
         public void SetItem(Pid pid, long value) { Set(pid, value); }
-        public void SetItemSet(Pid pid, longSet value) { Set(pid, value); }
+        public void SetItemSet(Pid pid, ItemIdSet value) { Set(pid, value); }
 
         public object Get(Pid pid)
         {
@@ -209,7 +209,7 @@ namespace nine3q.Items
         public double GetFloat(Pid pid) { return (double)Get(pid); }
         public bool GetBool(Pid pid) { return (bool)Get(pid); }
         public long GetItem(Pid pid) { return (long)Get(pid); }
-        public longSet GetItemSet(Pid pid) { return Get(pid) as longSet; }
+        public ItemIdSet GetItemSet(Pid pid) { return Get(pid) as ItemIdSet; }
 
         //// Advanced getter
 
@@ -349,20 +349,20 @@ namespace nine3q.Items
         {
             ForeachAspect(aspect => aspect.OnAspectCreate());
 
-            var change = new ItemChange() { What = ItemChange.Variant.CreateItem, long = Id };
+            var change = new ItemChange() { What = ItemChange.Variant.CreateItem, ItemId = Id };
             Inventory.OnCreateItem(change);
         }
 
         internal void OnDelete()
         {
             var containerId = GetItem(Pid.Container);
-            if (containerId != long.NoItem) {
+            if (containerId != ItemId.NoItem) {
                 Inventory.Item(containerId).AsContainer().RemoveChild(this);
             }
 
             ForeachAspect(aspect => aspect.OnAspectDelete());
 
-            var change = new ItemChange() { What = ItemChange.Variant.DeleteItem, long = Id, Item = this };
+            var change = new ItemChange() { What = ItemChange.Variant.DeleteItem, ItemId = Id, Item = this };
             Inventory.OnDeleteItem(change);
         }
 

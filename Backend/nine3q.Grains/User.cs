@@ -19,12 +19,12 @@ namespace nine3q.Grains
         private readonly Guid _streamId = Guid.NewGuid();
         public Task<Guid> GetStreamId() { return Task.FromResult(_streamId); }
 
-        public async Task DropItem(long long, string roomId, int x)
+        public async Task DropItem(long itemId, string roomId, int x)
         {
             var room = GrainFactory.GetGrain<IRoom>(roomId);
-            var newlong = await room.ReceiveItem(long, item1);
+            var newItemId = await room.ReceiveItem(itemId, item1);
             //item1 = null;
-            await room.RezItem(newlong);
+            await room.RezItem(newItemId);
         }
     }
 }

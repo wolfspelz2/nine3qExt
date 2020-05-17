@@ -38,7 +38,7 @@ namespace nine3q.Items.Aspects
         public void AddChildCore(Item item)
         {
             var currentContainerId = item.GetItem(Pid.Container);
-            if (currentContainerId != long.NoItem) {
+            if (currentContainerId != ItemId.NoItem) {
                 if (currentContainerId == this.Id) {
                     return;
                 } else {
@@ -74,7 +74,7 @@ namespace nine3q.Items.Aspects
             } else {
                 if (!GetBool(Pid.ContainerCanImport)) { throw new MissingItemPropertyException(Inventory.Name, Id, Pid.ContainerCanImport); }
                 var currentContainerId = item.GetItem(Pid.Container);
-                if (currentContainerId != long.NoItem) {
+                if (currentContainerId != ItemId.NoItem) {
                     if (!Inventory.Item(currentContainerId).GetBool(Pid.ContainerCanExport)) { throw new MissingItemPropertyException(Inventory.Name, currentContainerId, Pid.ContainerCanExport); }
                 }
             }

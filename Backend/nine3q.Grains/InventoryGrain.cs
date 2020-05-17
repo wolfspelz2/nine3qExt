@@ -24,7 +24,7 @@ namespace nine3q.Grains
     public class InventoryState
     {
         public string Name;
-        public longPropertiesCollection Items;
+        public ItemIdPropertiesCollection Items;
     }
 
     class InventoryGrain : Grain, IInventory
@@ -79,7 +79,7 @@ namespace nine3q.Grains
 
                 item = Inventory.CreateItem(properties);
 
-                if (containerId != long.NoItem) {
+                if (containerId != ItemId.NoItem) {
                     var container = Inventory.Item(containerId);
                     container.AsContainer().AddChild(item, slot);
                 }
@@ -88,7 +88,7 @@ namespace nine3q.Grains
             return item.Id;
 
             //await Task.CompletedTask;
-            //return long.NoItem;
+            //return ItemId.NoItem;
         }
 
         public Task<bool> DeleteItem(long id)
@@ -175,7 +175,7 @@ namespace nine3q.Grains
                 {
                     var notifyItems = summary.DeletedItems;
                     foreach (var id in notifyItems) {
-                        var update = new ItemUpdate(id, new longList(), ItemUpdate.Mode.Removed);
+                        var update = new ItemUpdate(id, new ItemIdList(), ItemUpdate.Mode.Removed);
                         _stats.Increment($"{nameof(CheckInventoryChanged)}.{nameof(stream.OnNextAsync)} {nameof(ItemUpdate.Mode.Removed)}");
                         stream.OnNextAsync(update).Ignore();
                     }
@@ -195,7 +195,7 @@ namespace nine3q.Grains
 
             // Evaluate Inventory.Changes and prepare only changed items for storage witha specialized InventoryStorageProvider
             // Until then, store complete inventory
-            _state.State.Items = new longPropertiesCollection();
+            _state.State.Items = new ItemIdPropertiesCollection();
             var ids = Inventory.GetItems();
             foreach (var id in ids) {
                 _state.State.Items.Add(id, Inventory.GetItemProperties(id, PidList.All));
@@ -256,7 +256,7 @@ namespace nine3q.Grains
             var changes = new List<ItemChange>();
             var ids = Inventory.GetItems();
             foreach (var id in ids) {
-                changes.Add(new ItemChange() { What = ItemChange.Variant.TouchItem, long = id });
+                changes.Add(new ItemChange() { What = ItemChange.Variant.TouchItem, ItemId = id });
             }
             Inventory.Changes = changes;
 

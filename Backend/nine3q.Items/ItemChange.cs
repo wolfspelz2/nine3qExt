@@ -16,7 +16,7 @@
         }
 
         public Variant What { get; set; }
-        public long long { get; set; }
+        public long ItemId { get; set; }
         public Item Item { get; set; } // Used by DeleteItem, to keep the last reference of undo
         public Pid Pid { get; set; }
         public object Value { get; set; }
@@ -29,7 +29,7 @@
                 case Variant.NoChange:
                     return ""
                       + What + ": "
-                      + long + " "
+                      + ItemId + " "
                       + "[" + Item + "] "
                       ;
 
@@ -38,14 +38,14 @@
                 case Variant.DeleteItem:
                     return ""
                       + What + ": "
-                      + long + " "
+                      + ItemId + " "
                       + "[" + Item + "] "
                       ;
 
                 default:
                     return ""
                       + What + ": "
-                      + long + " "
+                      + ItemId + " "
                       + "[" + Item + "] "
                       + Pid + " "
                       + PreviousValue + " -> "
