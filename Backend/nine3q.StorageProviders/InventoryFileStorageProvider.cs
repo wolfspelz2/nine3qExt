@@ -7,59 +7,46 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Newtonsoft.Json;
 using Orleans;
 using Orleans.Storage;
 using Orleans.Providers;
 using Orleans.Runtime;
 using Orleans.Hosting;
 using Orleans.Configuration;
-using Orleans.Serialization;
 using System.Threading;
 
 namespace nine3q.StorageProviders
 {
-    public class JsonFileStorage
+    public class InventoryFileStorage
     {
-        public const string StorageProviderName = "JsonFileStorage";
+        public const string StorageProviderName = "InventoryFileStorage";
     }
 
-    public class JsonFileStorageOptions
+    public class InventoryFileStorageOptions
     {
-        public string RootDirectory = @".\JsonFileStorage\";
-        public string FileExtension = ".json";
-
-        public bool UseFullAssemblyNames { get; set; } = false;
-        public bool IndentJson { get; set; } = true;
-        public TypeNameHandling? TypeNameHandling { get; set; } = Newtonsoft.Json.TypeNameHandling.All;
+        public string RootDirectory = @".\InventoryFileStorage\";
+        public string FileExtension = ".txt";
 
         public int InitStage { get; set; } = DEFAULT_INIT_STAGE;
         public const int DEFAULT_INIT_STAGE = ServiceLifecycleStage.ApplicationServices;
     }
 
-    public class JsonFileStorageProvider : IGrainStorage, ILifecycleParticipant<ISiloLifecycle>
+    public class InventoryFileStorageProvider : IGrainStorage, ILifecycleParticipant<ISiloLifecycle>
     {
         private readonly string _name;
-        private readonly JsonFileStorageOptions _options;
+        private readonly InventoryFileStorageOptions _options;
         private readonly ILogger _logger;
         private readonly ILoggerFactory _loggerFactory;
-        private readonly IGrainFactory _grainFactory;
-        private readonly ITypeResolver _typeResolver;
-        private JsonSerializerSettings _jsonSettings;
 
-        public JsonFileStorageProvider(string name,
-            JsonFileStorageOptions options,
-            IGrainFactory grainFactory,
-            ITypeResolver typeResolver,
+        public InventoryFileStorageProvider(string name,
+            InventoryFileStorageOptions options,
             ILoggerFactory loggerFactory
             )
         {
             _name = name;
             _options = options;
-            _grainFactory = grainFactory;
-            _typeResolver = typeResolver;
             _loggerFactory = loggerFactory;
-            _logger = _loggerFactory.CreateLogger($"{typeof(JsonFileStorageProvider).FullName}.{name}");
+            _logger = _loggerFactory.CreateLogger($"{typeof(InventoryFileStorageProvider).FullName}.{name}");
         }
 
         #region Interface
@@ -84,7 +71,7 @@ namespace nine3q.StorageProviders
             await Task.CompletedTask;
             var filePath = GetFilePath(grainType, grainReference, grainState);
             try {
-                var data = JsonConvert.SerializeObject(grainState, _jsonSettings);
+                var data = "";
                 File.WriteAllText(filePath, data, Encoding.UTF8);
             } catch (Exception ex) {
                 _logger.Error(0, $"Error writing: filePath={filePath} {ex.Message}");
@@ -100,7 +87,7 @@ namespace nine3q.StorageProviders
                 var fileInfo = new FileInfo(filePath);
                 if (fileInfo.Exists) {
                     var data = File.ReadAllText(filePath, Encoding.UTF8);
-                    var result = JsonConvert.DeserializeObject<object>(data, _jsonSettings);
+                    var result = new object();
                     grainState.State = (result as IGrainState).State;
                 }
             } catch (Exception ex) {
@@ -160,18 +147,11 @@ namespace nine3q.StorageProviders
 
         public void Participate(ISiloLifecycle lifecycle)
         {
-            lifecycle.Subscribe(OptionFormattingUtilities.Name<JsonFileStorageProvider>(_name), _options.InitStage, Init);
+            lifecycle.Subscribe(OptionFormattingUtilities.Name<InventoryFileStorageProvider>(_name), _options.InitStage, Init);
         }
 
         private Task Init(CancellationToken ct)
         {
-            _jsonSettings = OrleansJsonSerializer.UpdateSerializerSettings(
-                OrleansJsonSerializer.GetDefaultSerializerSettings(_typeResolver, _grainFactory), 
-                _options.UseFullAssemblyNames, 
-                _options.IndentJson, 
-                _options.TypeNameHandling
-                );
-
             return Task.CompletedTask;
         }
 
@@ -181,46 +161,46 @@ namespace nine3q.StorageProviders
 
     #region Provider registration
 
-    public class JsonFileStorageOptionsValidator : IConfigurationValidator
+    public class InventoryFileStorageOptionsValidator : IConfigurationValidator
     {
-        public JsonFileStorageOptionsValidator(JsonFileStorageOptions options, string name) { }
+        public InventoryFileStorageOptionsValidator(InventoryFileStorageOptions options, string name) { }
         public void ValidateConfiguration() { }
     }
 
-    public static class JsonFileStorageFactory
+    public static class InventoryFileStorageFactory
     {
         public static IGrainStorage Create(IServiceProvider services, string name)
         {
-            var optionsMonitor = services.GetRequiredService<IOptionsMonitor<JsonFileStorageOptions>>();
-            return ActivatorUtilities.CreateInstance<JsonFileStorageProvider>(services, name, optionsMonitor.Get(name));
+            var optionsMonitor = services.GetRequiredService<IOptionsMonitor<InventoryFileStorageOptions>>();
+            return ActivatorUtilities.CreateInstance<InventoryFileStorageProvider>(services, name, optionsMonitor.Get(name));
         }
     }
 
-    public static class JsonFileStorageSiloBuilderExtensions
+    public static class InventoryFileStorageSiloBuilderExtensions
     {
-        public static ISiloHostBuilder AddJsonFileStorage(this ISiloHostBuilder builder, string name, Action<JsonFileStorageOptions> configureOptions)
+        public static ISiloHostBuilder AddInventoryFileStorage(this ISiloHostBuilder builder, string name, Action<InventoryFileStorageOptions> configureOptions)
         {
-            return builder.ConfigureServices(services => services.AddJsonFileStorage(name, configureOptions));
+            return builder.ConfigureServices(services => services.AddInventoryFileStorage(name, configureOptions));
         }
 
-        public static ISiloBuilder AddJsonFileStorage(this ISiloBuilder builder, string name, Action<JsonFileStorageOptions> configureOptions)
+        public static ISiloBuilder AddInventoryFileStorage(this ISiloBuilder builder, string name, Action<InventoryFileStorageOptions> configureOptions)
         {
-            return builder.ConfigureServices(services => services.AddJsonFileStorage(name, configureOptions));
+            return builder.ConfigureServices(services => services.AddInventoryFileStorage(name, configureOptions));
         }
 
-        public static IServiceCollection AddJsonFileStorage(this IServiceCollection services, string name, Action<JsonFileStorageOptions> configureOptions)
+        public static IServiceCollection AddInventoryFileStorage(this IServiceCollection services, string name, Action<InventoryFileStorageOptions> configureOptions)
         {
-            return services.AddJsonFileStorage(name, ob => ob.Configure(configureOptions));
+            return services.AddInventoryFileStorage(name, ob => ob.Configure(configureOptions));
         }
 
-        public static IServiceCollection AddJsonFileStorage(this IServiceCollection services, string name,
-            Action<OptionsBuilder<JsonFileStorageOptions>> configureOptions = null)
+        public static IServiceCollection AddInventoryFileStorage(this IServiceCollection services, string name,
+            Action<OptionsBuilder<InventoryFileStorageOptions>> configureOptions = null)
         {
-            configureOptions?.Invoke(services.AddOptions<JsonFileStorageOptions>(name));
-            services.AddTransient<IConfigurationValidator>(sp => new JsonFileStorageOptionsValidator(sp.GetRequiredService<IOptionsMonitor<JsonFileStorageOptions>>().Get(name), name));
-            services.ConfigureNamedOptionForLogging<JsonFileStorageOptions>(name);
+            configureOptions?.Invoke(services.AddOptions<InventoryFileStorageOptions>(name));
+            services.AddTransient<IConfigurationValidator>(sp => new InventoryFileStorageOptionsValidator(sp.GetRequiredService<IOptionsMonitor<InventoryFileStorageOptions>>().Get(name), name));
+            services.ConfigureNamedOptionForLogging<InventoryFileStorageOptions>(name);
             services.TryAddSingleton<IGrainStorage>(sp => sp.GetServiceByName<IGrainStorage>(ProviderConstants.DEFAULT_STORAGE_PROVIDER_NAME));
-            return services.AddSingletonNamedService<IGrainStorage>(name, JsonFileStorageFactory.Create)
+            return services.AddSingletonNamedService<IGrainStorage>(name, InventoryFileStorageFactory.Create)
                            .AddSingletonNamedService<ILifecycleParticipant<ISiloLifecycle>>(name, (s, n) => (ILifecycleParticipant<ISiloLifecycle>)s.GetRequiredServiceByName<IGrainStorage>(n));
         }
     }
