@@ -29,6 +29,7 @@ namespace nine3q.Items
 
         public void FromString(string listOfLong)
         {
+            if (listOfLong == null) return;
             var parts = listOfLong.Split(SplitSeparator, StringSplitOptions.RemoveEmptyEntries);
             foreach (string part in parts) {
                 if (long.TryParse(part, out long value)) {
@@ -57,10 +58,8 @@ namespace nine3q.Items
     {
         public const PidList All = null;
 
-        [NonSerialized]
-        public static PidList Public = new PidList { Pid.PublicAccess };
-        [NonSerialized]
-        public static PidList Owner = new PidList { Pid.OwnerAccess };
+        public static PidList Public { get; } = new PidList { Pid.PublicAccess };
+        public static PidList Owner { get; } = new PidList { Pid.OwnerAccess };
 
         //public PidList Clone()
         //{
@@ -97,16 +96,11 @@ namespace nine3q.Items
     }
 
     [Serializable]
-    public class ItemIdList : List<long>
-    {
-    }
-
-    [Serializable]
     public class ItemIdMap : Dictionary<long, long>
     {
         public ItemIdMap(string s)
         {
-            Contract.Requires(s != null);
+            if (s == null) return;
             var pairs = s.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var pair in pairs) {
                 var kv = pair.Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);

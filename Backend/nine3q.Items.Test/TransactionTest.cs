@@ -220,7 +220,7 @@ namespace nine3q.Items.Test
 
             // Assert
             Assert.AreEqual(0, inv.Changes.Count);
-            Assert.AreEqual(1, inv.Items.Count);
+            Assert.AreEqual(1, inv.GetItemIds().Count);
         }
 
     }

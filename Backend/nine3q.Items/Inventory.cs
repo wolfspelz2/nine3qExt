@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using nine3q.Items.Aspects;
 using nine3q.Items.Exceptions;
@@ -19,7 +20,7 @@ namespace nine3q.Items
         public string Name { get; set; }
         public bool IsActive { get; set; } = false;
 
-        public Dictionary<long, Item> Items { get; set; } = new Dictionary<long, Item>();
+        private Dictionary<long, Item> _items { get; set; } = new Dictionary<long, Item>();
 
         InventoryTransaction CurrentTransaction = null;
 
@@ -47,14 +48,14 @@ namespace nine3q.Items
         {
             IsActive = true;
 
-            foreach (var id in Items.Keys.ToList()) {
+            foreach (var id in _items.Keys.ToList()) {
                 Item(id).Activate();
             }
         }
 
         public bool IsItem(long id)
         {
-            return Items.ContainsKey(id);
+            return _items.ContainsKey(id);
         }
 
         public bool IsItem(string name)
@@ -64,7 +65,7 @@ namespace nine3q.Items
 
         public Item Item(long id)
         {
-            if (!Items.TryGetValue(id, out Item item)) {
+            if (!_items.TryGetValue(id, out Item item)) {
                 throw new ItemException(Name, id, "No such item");
             }
             return item;
@@ -75,7 +76,7 @@ namespace nine3q.Items
             if (!Names.TryGetValue(name, out long id)) {
                 throw new ItemException(Name, ItemId.NoItem, $"No such item: name={name}");
             }
-            if (!Items.TryGetValue(id, out Item item)) {
+            if (!_items.TryGetValue(id, out Item item)) {
                 throw new ItemException(Name, id, $"No such item: name={name}");
             }
             return item;
@@ -129,8 +130,8 @@ namespace nine3q.Items
         long _currentItemId = 0;
         long GetNextItemId_NeverReUse()
         {
-            if (_currentItemId == ItemId.NoItem && Items.Count > 0) {
-                _currentItemId = Items.Keys.Max();
+            if (_currentItemId == ItemId.NoItem && _items.Count > 0) {
+                _currentItemId = _items.Keys.Max();
             }
             _currentItemId++;
             return _currentItemId;
@@ -143,9 +144,10 @@ namespace nine3q.Items
 
         public Item CreateItem(PropertySet properties)
         {
+            Contract.Requires(properties != null);
             CheckConflictingProperties(properties, ItemId.NoItem);
 
-            if (Items.Keys.Count >= MaxItemsPerInventory) {
+            if (_items.Keys.Count >= MaxItemsPerInventory) {
                 throw new ItemException(Name, ItemId.NoItem, $"Exceeded max items per inventory: {MaxItemsPerInventory}");
             }
 
@@ -158,7 +160,7 @@ namespace nine3q.Items
             }
 
             var item = new Item(this, id, properties);
-            Items.Add(id, item);
+            _items.Add(id, item);
 
             var name = item.GetString(Pid.Name);
             if (!string.IsNullOrEmpty(name)) {
@@ -181,7 +183,7 @@ namespace nine3q.Items
                     UnsetName(name, id);
                 }
 
-                Items.Remove(id);
+                _items.Remove(id);
                 return true;
             }
             return false;
@@ -189,6 +191,7 @@ namespace nine3q.Items
 
         public void SetItemProperties(long id, PropertySet properties)
         {
+            Contract.Requires(properties != null);
             properties.Delete(Pid.Id);
             CheckConflictingProperties(properties, id);
 
@@ -205,6 +208,7 @@ namespace nine3q.Items
 
         public int DeleteItemProperties(long id, PidList pids)
         {
+            Contract.Requires(pids != null);
             pids.Remove(Pid.Id);
             var count = 0;
 
@@ -221,13 +225,14 @@ namespace nine3q.Items
 
         public long GetItemByName(string path)
         {
+            Contract.Requires(path != null);
             if (Names.ContainsKey(path)) {
                 return Names[path];
             }
 
             var pathSegments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
-            var idList = Items.Keys.ToList();
+            var idList = _items.Keys.ToList();
             while (pathSegments.Count > 0) {
                 var segment = pathSegments[0];
                 pathSegments.RemoveAt(0);
@@ -263,10 +268,10 @@ namespace nine3q.Items
             return ItemId.NoItem;
         }
 
-        public ItemIdSet GetItems()
+        public ItemIdSet GetItemIds()
         {
             var ids = new ItemIdSet();
-            foreach (var id in Items.Keys) {
+            foreach (var id in _items.Keys) {
                 ids.Add(id);
             }
             return ids;
@@ -276,7 +281,7 @@ namespace nine3q.Items
         {
             var idValueList = new ItemIdPropertiesCollection();
 
-            foreach (var pair in Items) {
+            foreach (var pair in _items) {
                 var id = pair.Key;
                 var item = pair.Value;
                 var props = item.GetProperties(new PidList { filterPid });
@@ -291,6 +296,7 @@ namespace nine3q.Items
 
         public ItemIdPropertiesCollection GetItemIdsAndValuesByPropertyValue(PropertySet filterProperties, PidList desiredProperties)
         {
+            Contract.Requires(filterProperties != null);
             var idValueList = new ItemIdPropertiesCollection();
             var filterPids = new PidList();
 
@@ -298,7 +304,7 @@ namespace nine3q.Items
                 filterPids.Add(pair.Key);
             }
 
-            foreach (var pair in Items) {
+            foreach (var pair in _items) {
                 var id = pair.Key;
                 var item = pair.Value;
                 var props = item.GetProperties(filterPids);
@@ -339,6 +345,7 @@ namespace nine3q.Items
 
         public void Transaction(TransactionWrappedCode code)
         {
+            Contract.Requires(code != null);
             using (var t = BeginTransaction()) {
                 try {
                     code();
@@ -362,18 +369,18 @@ namespace nine3q.Items
             return t;
         }
 
-        public void _CommitTransaction(InventoryTransaction t)
+        public void CommitTransaction(InventoryTransaction t)
         {
-            if (t == CurrentTransaction) {
+            if (t != null && t == CurrentTransaction) {
                 CurrentTransaction = null;
                 Changes = t.GetChanges();
                 t.ResetChanges();
             }
         }
 
-        public void _CancelTransaction(InventoryTransaction t)
+        public void CancelTransaction(InventoryTransaction t)
         {
-            if (t == CurrentTransaction) {
+            if (t != null && t == CurrentTransaction) {
                 CurrentTransaction = null;
 
                 // Undo changes in reverse order
@@ -397,35 +404,35 @@ namespace nine3q.Items
             switch (change.What) {
 
                 case ItemChange.Variant.CreateItem:
-                    Items.Remove(change.ItemId);
+                    _items.Remove(change.ItemId);
                     break;
 
                 case ItemChange.Variant.DeleteItem:
-                    Items.Add(change.ItemId, change.Item);
+                    _items.Add(change.ItemId, change.Item);
                     break;
 
                 case ItemChange.Variant.AddProperty:
                     if (IsItem(change.ItemId)) {
-                        Items[change.ItemId].Delete(change.Pid);
+                        _items[change.ItemId].Delete(change.Pid);
                     }
                     break;
 
                 case ItemChange.Variant.SetProperty:
                 case ItemChange.Variant.DeleteProperty:
                     if (IsItem(change.ItemId)) {
-                        Items[change.ItemId].Set(change.Pid, change.PreviousValue);
+                        _items[change.ItemId].Set(change.Pid, change.PreviousValue);
                     }
                     break;
 
                 case ItemChange.Variant.AddItemToCollection:
                     if (IsItem(change.ItemId)) {
-                        Items[change.ItemId].RemoveFromItemSet(change.Pid, change.ChildId);
+                        _items[change.ItemId].RemoveFromItemSet(change.Pid, change.ChildId);
                     }
                     break;
 
                 case ItemChange.Variant.RemoveItemFromCollection:
                     if (IsItem(change.ItemId)) {
-                        Items[change.ItemId].AddToItemSet(change.Pid, change.ChildId);
+                        _items[change.ItemId].AddToItemSet(change.Pid, change.ChildId);
                     }
                     break;
             }
@@ -470,9 +477,9 @@ namespace nine3q.Items
             Item(containerId).AsContainer().RemoveChild(Item(id));
         }
 
-        public ItemIdList GetParentContainers(long id)
+        public ItemIdSet GetParentContainers(long id)
         {
-            var parents = new ItemIdList();
+            var parents = new ItemIdSet();
 
             var firstId = id;
             var lastId = ItemId.NoItem;
@@ -492,6 +499,7 @@ namespace nine3q.Items
 
         public ItemIdSet CollectChildren(long id, ItemIdSet list)
         {
+            Contract.Requires(list != null);
             list.Add(id);
             var children = Item(id).GetItemSet(Pid.Contains);
             foreach (var childId in children) {
@@ -598,6 +606,7 @@ namespace nine3q.Items
 
         public ItemIdMap SetItemAndChildrenProperties(ItemIdPropertiesCollection idProps)
         {
+            Contract.Requires(idProps != null);
             var old2new = new ItemIdMap();
 
             foreach (var pair in idProps) {

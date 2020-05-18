@@ -345,7 +345,7 @@ namespace nine3q.Items
 
         public static string ToString(Property.Type type, object value)
         {
-            Contract.Requires(value != null);
+            if (value == null) return "";
             if (value is string) {
                 return (string)value;
             } else if (value is int) {
@@ -383,7 +383,7 @@ namespace nine3q.Items
 
         public static object Clone(Property.Type type, object value)
         {
-            Contract.Requires(value != null);
+            if (value == null) return null;
             return type switch
             {
                 Property.Type.Unknown => throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface."),

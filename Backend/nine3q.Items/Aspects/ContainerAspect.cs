@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using nine3q.Items.Exceptions;
 
 namespace nine3q.Items.Aspects
 {
     public static class ContainerAspectExtensions
     {
-        public static ContainerAspect AsContainer(this Item self) { self.AssertAspect(Pid.IsContainer); return new ContainerAspect(self); }
-        public static bool IsContainer(this Item self) { return self.IsAspect(Pid.IsContainer); }
+        public static ContainerAspect AsContainer(this Item self) { Contract.Requires(self != null); self.AssertAspect(Pid.IsContainer); return new ContainerAspect(self); }
+        public static bool IsContainer(this Item self) { Contract.Requires(self != null); return self.IsAspect(Pid.IsContainer); }
     }
 
     public class ContainerAspect : Aspect
@@ -37,6 +38,7 @@ namespace nine3q.Items.Aspects
 
         public void AddChildCore(Item item)
         {
+            Contract.Requires(item != null);
             var currentContainerId = item.GetItem(Pid.Container);
             if (currentContainerId != ItemId.NoItem) {
                 if (currentContainerId == this.Id) {
@@ -51,6 +53,7 @@ namespace nine3q.Items.Aspects
 
         public void AssignSlotCore(Item item, long slot = NoSlot)
         {
+            Contract.Requires(item != null);
             item.Delete(Pid.Slot);
             if (slot != NoSlot) {
                 if (!CanPlaceAt(item, slot)) { throw new SlotAvailabilityException(Inventory.Name, Id, item.Id, $"Can not place at desired slot={slot}"); }
@@ -68,6 +71,7 @@ namespace nine3q.Items.Aspects
 
         public void SetChild(Item item, long slot = NoSlot)
         {
+            Contract.Requires(item != null);
             if (this.AsContainer().IsChild(item)) {
                 if (slot != NoSlot && slot == GetInt(Pid.Slot)) { throw new OperationIneffectiveException(Inventory.Name, Id, item.Id, "Same slot"); }
                 if (!GetBool(Pid.ContainerCanShuffle)) { throw new MissingItemPropertyException(Inventory.Name, Id, Pid.ContainerCanShuffle); }
@@ -84,6 +88,7 @@ namespace nine3q.Items.Aspects
 
         public void RemoveChild(Item item)
         {
+            Contract.Requires(item != null);
             this.RemoveFromItemSet(Pid.Contains, item.Id);
             item.Delete(Pid.Container);
             item.Delete(Pid.Slot);
@@ -114,11 +119,13 @@ namespace nine3q.Items.Aspects
 
         public bool IsChild(Item item)
         {
+            Contract.Requires(item != null);
             return GetItemSet(Pid.Contains).Contains(item.Id);
         }
 
         protected bool CanPlaceAt(Item item, long slot)
         {
+            Contract.Requires(item != null);
             if (slot == NoSlot) { throw new SlotAvailabilityException(Inventory.Name, this.Id, item.Id, $"Can not place at slot={slot}"); }
             if (slot > GetInt(Pid.Slots)) { throw new SlotAvailabilityException(Inventory.Name, this.Id, item.Id, $"Can not place at slot={slot} because Repository has only {GetInt(Pid.Slots)} slots"); }
 
@@ -133,6 +140,7 @@ namespace nine3q.Items.Aspects
 
         public long GetFreeSlot(Item item)
         {
+            Contract.Requires(item != null);
             long result = FindFreeSlot(item);
             if (result == NoSlot) { throw new SlotAvailabilityException(Inventory.Name, this.Id, item.Id, "No free slot"); }
             return result;
@@ -140,6 +148,7 @@ namespace nine3q.Items.Aspects
 
         protected long FindFreeSlot(Item item)
         {
+            Contract.Requires(item != null);
             long result = NoSlot;
 
             var orderedUsedSlots = new SortedList<long, long>();

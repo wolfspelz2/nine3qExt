@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using nine3q.Items.Aspects;
 using nine3q.Tools;
+using System.Diagnostics.Contracts;
 
 namespace nine3q.Items
 {
@@ -246,6 +247,7 @@ namespace nine3q.Items
 
         public PropertySet GetProperties(PidList pids, bool native = false)
         {
+            Contract.Requires(pids != null);
             if (pids == PidList.All) {
                 return GetPropertiesAll(native);
             } else if (pids.Count == 1 && pids[0] == Pid.PublicAccess) {
@@ -308,6 +310,7 @@ namespace nine3q.Items
 
         public PropertySet GetPropertiesByPid(PidList pids, bool native = false)
         {
+            Contract.Requires(pids != null);
             Item template = native ? null : GetTemplate();
 
             var props = new PropertySet();
@@ -410,6 +413,7 @@ namespace nine3q.Items
 
         public int ExecuteAction(string action, PropertySet arguments)
         {
+            Contract.Requires(arguments != null);
             int countExecuted = 0;
 
             var passiveId = arguments.GetItem(Pid.Item);

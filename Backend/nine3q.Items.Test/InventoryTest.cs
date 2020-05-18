@@ -361,8 +361,8 @@ namespace nine3q.Items.Test
 
             // Assert
             Assert.AreEqual(2, parentList.Count);
-            Assert.AreEqual(item2.Id, parentList[0]);
-            Assert.AreEqual(item3.Id, parentList[1]);
+            Assert.IsTrue(parentList.Contains(item2.Id));
+            Assert.IsTrue(parentList.Contains(item3.Id));
         }
 
         [TestMethod]
@@ -658,8 +658,8 @@ namespace nine3q.Items.Test
 
             // Assert
             Assert.AreEqual(container.Id, source.Item(item.Id).GetItem(Pid.Container));
-            Assert.AreEqual(3, source.GetItems().Count);
-            Assert.AreEqual(0, dest.GetItems().Count);
+            Assert.AreEqual(3, source.GetItemIds().Count);
+            Assert.AreEqual(0, dest.GetItemIds().Count);
         }
 
         [TestMethod]
@@ -684,8 +684,8 @@ namespace nine3q.Items.Test
             dest.EndItemTransfer(map[item.Id]);
 
             // Assert
-            Assert.AreEqual(1, source.GetItems().Count);
-            Assert.AreEqual(4, dest.GetItems().Count);
+            Assert.AreEqual(1, source.GetItemIds().Count);
+            Assert.AreEqual(4, dest.GetItemIds().Count);
             Assert.IsTrue(destContainer.GetItemSet(Pid.Contains).Contains(map[item.Id]));
         }
 
@@ -725,8 +725,8 @@ namespace nine3q.Items.Test
             dest.EndItemTransfer(map[item.Id]);
 
             // Assert
-            Assert.AreEqual(0, source.GetItems().Count);
-            Assert.AreEqual(1, dest.GetItems().Count);
+            Assert.AreEqual(0, source.GetItemIds().Count);
+            Assert.AreEqual(1, dest.GetItemIds().Count);
             Assert.AreEqual(41, dest.GetItemProperties(map[item.Id], new PidList { Pid.TestInt1 }).GetInt(Pid.TestInt1));
             Assert.AreEqual(0, dest.GetItemProperties(map[item.Id], new PidList { Pid.TestInt2 }).GetInt(Pid.TestInt2));
             Assert.AreEqual(43, dest.GetItemProperties(map[item.Id], new PidList { Pid.TestInt3 }).GetInt(Pid.TestInt3));

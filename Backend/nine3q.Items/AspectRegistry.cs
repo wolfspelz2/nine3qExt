@@ -5,7 +5,7 @@ namespace nine3q.Items
 {
     public static class AspectRegistry
     {
-        public static Dictionary<Pid, Aspect.AspectSpecializer> Aspects = new Dictionary<Pid, Aspect.AspectSpecializer> {
+        public static Dictionary<Pid, Aspect.AspectSpecializer> Aspects { get; } = new Dictionary<Pid, Aspect.AspectSpecializer> {
             { Pid.IsTest1, item => item.AsTest1()},
             { Pid.IsTest2, item => item.AsTest2()},
             { Pid.IsContainer, item => item.AsContainer()},

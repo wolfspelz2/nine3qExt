@@ -162,7 +162,7 @@ namespace nine3q.Grains
                 {
                     var notifyItems = summary.DeletedItems;
                     foreach (var id in notifyItems) {
-                        var update = new ItemUpdate(id, new ItemIdList(), ItemUpdate.Mode.Removed);
+                        var update = new ItemUpdate(id, new ItemIdSet(), ItemUpdate.Mode.Removed);
                         _stats.Increment($"{nameof(CheckInventoryChanged)}.{nameof(stream.OnNextAsync)} {nameof(ItemUpdate.Mode.Removed)}");
                         stream.OnNextAsync(update).Ignore();
                     }
@@ -179,7 +179,7 @@ namespace nine3q.Grains
             //_state.State.DeleteItems = summary.DeletedItems;
 
             //var itemIds = _state.State.WriteItems;
-            var itemIds = Inventory.GetItems();
+            var itemIds = Inventory.GetItemIds();
 
             _state.State.ItemProperties = new ItemIdPropertiesCollection();
             foreach (var id in itemIds) {
@@ -242,7 +242,7 @@ namespace nine3q.Grains
             _stats.Increment(nameof(WritePersistentStorage));
 
             var changes = new List<ItemChange>();
-            var ids = Inventory.GetItems();
+            var ids = Inventory.GetItemIds();
             foreach (var id in ids) {
                 changes.Add(new ItemChange() { What = ItemChange.Variant.TouchItem, ItemId = id });
             }

@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace nine3q.Items
 {
     public class ItemSummaryRecorder : IInventoryChanges
     {
-        public ItemIdSet AddedItems = new ItemIdSet();
-        public ItemIdSet ChangedItems = new ItemIdSet();
-        public ItemIdSet DeletedItems = new ItemIdSet();
+        public ItemIdSet AddedItems { get; } = new ItemIdSet();
+        public ItemIdSet ChangedItems { get; } = new ItemIdSet();
+        public ItemIdSet DeletedItems { get; } = new ItemIdSet();
 
-        public List<string> NewTemplates = new List<string>();
+        public List<string> NewTemplates { get; } = new List<string>();
 
         public bool IsChanged()
         {
@@ -17,6 +18,7 @@ namespace nine3q.Items
 
         public ItemSummaryRecorder(Inventory inv)
         {
+            Contract.Requires(inv != null);
             foreach (var change in inv.Changes) {
                 switch (change.What) {
                     case ItemChange.Variant.CreateItem:

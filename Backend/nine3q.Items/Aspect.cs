@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using nine3q.Tools;
 
 namespace nine3q.Items
@@ -67,8 +68,8 @@ namespace nine3q.Items
 
     public static class Test1AspectExtensions
     {
-        public static Test1Aspect AsTest1(this Item self) { self.AssertAspect(Pid.IsTest1); return new Test1Aspect(self); }
-        public static bool IsTest1(this Item self) { return self.IsAspect(Pid.IsTest1); }
+        public static Test1Aspect AsTest1(this Item self) { Contract.Requires(self != null); self.AssertAspect(Pid.IsTest1); return new Test1Aspect(self); }
+        public static bool IsTest1(this Item self) { Contract.Requires(self != null); return self.IsAspect(Pid.IsTest1); }
     }
 
     public class Test1Aspect : Aspect
@@ -113,8 +114,8 @@ namespace nine3q.Items
 
     public static class Test2AspectExtensions
     {
-        public static Test2Aspect AsTest2(this Item self) { self.AssertAspect(Pid.IsTest2); return new Test2Aspect(self); }
-        public static bool IsTest2(this Item self) { return self.IsAspect(Pid.IsTest2); }
+        public static Test2Aspect AsTest2(this Item self) { Contract.Requires(self != null); self.AssertAspect(Pid.IsTest2); return new Test2Aspect(self); }
+        public static bool IsTest2(this Item self) { Contract.Requires(self != null); return self.IsAspect(Pid.IsTest2); }
     }
 
     public class Test2Aspect : Aspect

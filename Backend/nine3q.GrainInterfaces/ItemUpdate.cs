@@ -14,10 +14,10 @@ namespace nine3q.GrainInterfaces
         }
 
         public long Id { get; set; }
-        public ItemIdList Parents { get; set; }
+        public ItemIdSet Parents { get; set; }
         public Mode What { get; set; }
 
-        public ItemUpdate(long id, ItemIdList parents, Mode mode)
+        public ItemUpdate(long id, ItemIdSet parents, Mode mode)
         {
             Id = id;
             Parents = parents;

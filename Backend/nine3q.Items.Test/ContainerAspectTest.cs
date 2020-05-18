@@ -1,6 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Diagnostics;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using nine3q.Items.Aspects;
-using System;
 
 namespace nine3q.Items.Test
 {
@@ -64,6 +65,7 @@ namespace nine3q.Items.Test
             Assert.AreEqual(4, child2.GetInt(Pid.Slot));
         }
 
+        [DebuggerNonUserCode]
         [TestMethod]
         public void AddChild_throws_when_desired_slot_is_occupied_for_existing_child()
         {
@@ -138,13 +140,13 @@ namespace nine3q.Items.Test
             var container = inv.CreateItem(new PropertySet { [Pid.IsContainer] = true, });
             var child = inv.CreateItem(new PropertySet { });
             container.AsContainer().AddChild(child);
-            Assert.AreEqual(2, inv.GetItems().Count);
+            Assert.AreEqual(2, inv.GetItemIds().Count);
 
             // Act
             inv.DeleteItem(container.Id);
 
             // Assert
-            Assert.AreEqual(0, inv.GetItems().Count);
+            Assert.AreEqual(0, inv.GetItemIds().Count);
         }
 
         [TestMethod]
@@ -155,13 +157,13 @@ namespace nine3q.Items.Test
             var container = inv.CreateItem(new PropertySet { [Pid.IsContainer] = true, });
             var child = inv.CreateItem(new PropertySet { });
             container.AsContainer().AddChild(child);
-            Assert.AreEqual(2, inv.GetItems().Count);
+            Assert.AreEqual(2, inv.GetItemIds().Count);
 
             // Act
             inv.DeleteItem(child.Id);
 
             // Assert
-            Assert.AreEqual(1, inv.GetItems().Count);
+            Assert.AreEqual(1, inv.GetItemIds().Count);
             Assert.AreEqual(0, container.GetItemSet(Pid.Contains).Count);
             Assert.AreEqual(0, container.AsContainer().GetChildren().Count);
         }
