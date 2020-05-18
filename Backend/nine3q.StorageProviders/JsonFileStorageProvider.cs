@@ -19,7 +19,7 @@ using System.Threading;
 
 namespace nine3q.StorageProviders
 {
-    public class JsonFileStorage
+    public static class JsonFileStorage
     {
         public const string StorageProviderName = "JsonFileStorage";
     }

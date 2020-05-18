@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -111,8 +112,8 @@ namespace nine3q.Items
         {
             if (!ContainsKey(key)) { return (long)Property.Default(Property.Type.Item); }
             var value = this[key];
-            if (value is int) return Convert.ToInt64(value);
-            if (value is string) return long.Parse((string)value);
+            if (value is int) return Convert.ToInt64(value, CultureInfo.InvariantCulture);
+            if (value is string) return long.Parse((string)value, CultureInfo.InvariantCulture);
             return GetInt(key);
         }
 
@@ -155,6 +156,7 @@ namespace nine3q.Items
 
         protected PropertySet(SerializationInfo info, StreamingContext context)
         {
+            Contract.Requires(info != null);
             var propertyNames = info.GetString(KeyNamesAttribute).Split(SeparatorSplitArg, StringSplitOptions.RemoveEmptyEntries);
             foreach (var name in propertyNames) {
                 var prop = Property.Get(name);
@@ -179,6 +181,7 @@ namespace nine3q.Items
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
+            Contract.Requires(info != null);
             base.GetObjectData(info, context);
             foreach (var pair in this) {
                 var prop = Property.Get(pair.Key);

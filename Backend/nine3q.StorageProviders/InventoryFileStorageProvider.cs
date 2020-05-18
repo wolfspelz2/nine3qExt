@@ -17,7 +17,7 @@ using System.Threading;
 
 namespace nine3q.StorageProviders
 {
-    public class InventoryFileStorage
+    public static class InventoryFileStorage
     {
         public const string StorageProviderName = "InventoryFileStorage";
     }

@@ -8,7 +8,7 @@ namespace nine3q.Grains
 {
     public class UserGrain : Grain, IUser
     {
-        private Dictionary<string, string> item1 = new Dictionary<string, string> {
+        private readonly Dictionary<string, string> item1 = new Dictionary<string, string> {
             ["name"] = "General Sherman",
             ["avatarUrl"] = "https://weblin-avatar.dev.sui.li/items/baum/avatar.xml",
             ["rezzing"] = "false",

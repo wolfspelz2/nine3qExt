@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Linq;
 using nine3q.Tools;
@@ -18,7 +19,7 @@ namespace nine3q.Items
     public static class Property
     {
         static readonly object _mutex = new object();
-        public static Dictionary<Pid, Definition> _definitions = null;
+        private static Dictionary<Pid, Definition> _definitions = null;
         public static Dictionary<Pid, Definition> Definitions
         {
             private set { }
@@ -283,7 +284,7 @@ namespace nine3q.Items
                     } else if (value is Enum) {
                         return (long)(int)value;
                     } else if (value is string) {
-                        return Convert.ToInt64((string)value);
+                        return Convert.ToInt64((string)value, CultureInfo.InvariantCulture);
                     } else if (value is double) {
                         return (long)(double)value;
                     }
@@ -325,7 +326,7 @@ namespace nine3q.Items
                     if (value is long) {
                         return value;
                     } else if (value is int) {
-                        return Convert.ToInt64(value);
+                        return Convert.ToInt64(value, CultureInfo.InvariantCulture);
                     } else if (value is string) {
                         return (string)value;
                     }
@@ -344,7 +345,7 @@ namespace nine3q.Items
 
         public static string ToString(Property.Type type, object value)
         {
-            Utils.Dont = () => { var x = type; };
+            Contract.Requires(value != null);
             if (value is string) {
                 return (string)value;
             } else if (value is int) {
@@ -370,7 +371,7 @@ namespace nine3q.Items
             return type switch
             {
                 Property.Type.Unknown => throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface."),
-                Property.Type.Int => Convert.ToInt64(s),
+                Property.Type.Int => Convert.ToInt64(s, CultureInfo.InvariantCulture),
                 Property.Type.String => s,
                 Property.Type.Float => Convert.ToDouble(s, CultureInfo.InvariantCulture),
                 Property.Type.Bool => s.IsTrue(),
@@ -382,6 +383,7 @@ namespace nine3q.Items
 
         public static object Clone(Property.Type type, object value)
         {
+            Contract.Requires(value != null);
             return type switch
             {
                 Property.Type.Unknown => throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface."),
