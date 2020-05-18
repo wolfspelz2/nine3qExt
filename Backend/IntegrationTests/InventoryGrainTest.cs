@@ -15,7 +15,7 @@ namespace IntegrationTests
         public void CreateItem()
         {
             // Arrange
-            var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Utils.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
+            var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
             try {
 
                 // Act
@@ -33,7 +33,7 @@ namespace IntegrationTests
         public void Sent_and_received_properties_are_identical()
             {
                 // Arrange
-                var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Utils.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
+                var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
                 try {
 
                     // Act

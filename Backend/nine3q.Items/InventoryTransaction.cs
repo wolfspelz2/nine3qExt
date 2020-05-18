@@ -16,7 +16,7 @@ namespace nine3q.Items
         public InventoryTransaction(Inventory inv, string name = null)
         {
             Inventory = inv;
-            _name = name ?? Utils.GetMethodName(2, fullName: true);
+            _name = name ?? Misc.GetMethodName(2, fullName: true);
         }
 
         internal void AddChange(ItemChange change)

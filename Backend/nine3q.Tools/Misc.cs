@@ -2,7 +2,7 @@
 
 namespace nine3q.Tools
 {
-    public static class Utils
+    public static class Misc
     {
         // Compile, do not execute, but do not complain unreachable statement like "if (false)"
         //public delegate void DoCodeDelegate();

@@ -91,7 +91,7 @@ namespace nine3q.Items
             };
         }
 
-        public void Nop() => Utils.Dont = () => { var x = Get(Pid.TestBool); };
+        public void Nop() => Misc.Dont = () => { var x = Get(Pid.TestBool); };
 
         internal void SetTestInt42()
         {
@@ -130,7 +130,7 @@ namespace nine3q.Items
             };
         }
 
-        public void Nop() => Utils.Dont = () => { var x = Get(Pid.TestBool); };
+        public void Nop() => Misc.Dont = () => { var x = Get(Pid.TestBool); };
     }
 
     #endregion

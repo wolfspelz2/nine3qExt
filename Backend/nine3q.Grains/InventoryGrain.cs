@@ -147,26 +147,28 @@ namespace nine3q.Grains
                 }
 
                 // Notify subscribers
-                var streamProvider = GetStreamProvider(InventoryService.StreamProvider);
-                var stream = streamProvider.GetStream<ItemUpdate>(Guid, InventoryService.StreamNamespaceItemUpdate.ToString());
-                {
-                    var notifyItems = summary.ChangedItems.Clone();
-                    notifyItems.UnionWith(summary.AddedItems);
-                    foreach (var id in notifyItems) {
-                        var parents = Inventory.GetParentContainers(id);
-                        var update = new ItemUpdate(id, parents, ItemUpdate.Mode.Changed);
-                        _stats.Increment($"{nameof(CheckInventoryChanged)}.{nameof(stream.OnNextAsync)} {nameof(ItemUpdate.Mode.Changed)}");
-                        stream.OnNextAsync(update).Ignore();
+                Misc.Dont = () => {
+                    var streamProvider = GetStreamProvider(InventoryService.StreamProvider);
+                    var stream = streamProvider.GetStream<ItemUpdate>(Guid, InventoryService.StreamNamespaceItemUpdate.ToString());
+                    {
+                        var notifyItems = summary.ChangedItems.Clone();
+                        notifyItems.UnionWith(summary.AddedItems);
+                        foreach (var id in notifyItems) {
+                            var parents = Inventory.GetParentContainers(id);
+                            var update = new ItemUpdate(id, parents, ItemUpdate.Mode.Changed);
+                            _stats.Increment($"{nameof(CheckInventoryChanged)}.{nameof(stream.OnNextAsync)} {nameof(ItemUpdate.Mode.Changed)}");
+                            stream.OnNextAsync(update).Ignore();
+                        }
                     }
-                }
-                {
-                    var notifyItems = summary.DeletedItems;
-                    foreach (var id in notifyItems) {
-                        var update = new ItemUpdate(id, new ItemIdSet(), ItemUpdate.Mode.Removed);
-                        _stats.Increment($"{nameof(CheckInventoryChanged)}.{nameof(stream.OnNextAsync)} {nameof(ItemUpdate.Mode.Removed)}");
-                        stream.OnNextAsync(update).Ignore();
+                    {
+                        var notifyItems = summary.DeletedItems;
+                        foreach (var id in notifyItems) {
+                            var update = new ItemUpdate(id, new ItemIdSet(), ItemUpdate.Mode.Removed);
+                            _stats.Increment($"{nameof(CheckInventoryChanged)}.{nameof(stream.OnNextAsync)} {nameof(ItemUpdate.Mode.Removed)}");
+                            stream.OnNextAsync(update).Ignore();
+                        }
                     }
-                }
+                };
             }
         }
 
