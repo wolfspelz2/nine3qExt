@@ -57,6 +57,7 @@ export class Participant extends Entity
         let xmppNickname = '';
         let vpNickname = '';
         let vpAvatar = '';
+        let vpAnimationsUrl = '';
         let vpImageUrl = '';
         let hasIdentityUrl = false;
 
@@ -111,11 +112,19 @@ export class Participant extends Entity
                 if (attrs) {
                     vpNickname = as.String(attrs.nickname, '');
                     vpAvatar = as.String(attrs.avatar, '');
+                    vpAnimationsUrl = as.String(attrs.animationsUrl, '');
                     vpImageUrl = as.String(attrs.imageUrl, '');
-                    // vpAvatar = ''; vpImageUrl = 'https://weblin-avatar.dev.sui.li/items/baum/idle.png';
                 }
             }
         }
+
+        // hasIdentityUrl = false;
+        // vpAvatar = '004/pinguin'; 
+        // vpAvatar = ''; 
+        // vpAnimationsUrl = 'https://weblin-avatar.dev.sui.li/items/baum/avatar.xml';
+        // vpAnimationsUrl = '';
+        // vpImageUrl = 'https://weblin-avatar.dev.sui.li/items/baum/idle.png';
+        // vpImageUrl = '';
 
         { // <show>: dnd, away, xa
             let showAvailability: string = 'available';
@@ -160,6 +169,8 @@ export class Participant extends Entity
                         let animationsUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', vpAvatar);
                         let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(animationsUrl));
                         this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
+                    } else if (vpAnimationsUrl != '') {
+                        this.avatarDisplay?.updateObservableProperty('AnimationsUrl', vpAnimationsUrl);
                     } else if (vpImageUrl != '') {
                         this.avatarDisplay?.updateObservableProperty('ImageUrl', vpImageUrl);
                     }
