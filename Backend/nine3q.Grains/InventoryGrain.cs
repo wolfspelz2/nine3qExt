@@ -33,7 +33,6 @@ namespace nine3q.Grains
     {
         private Guid Guid { get; set; }
 
-        private readonly Statistics _stats = new Statistics();
         private readonly string _templatesInventoryName = Grains.InventoryService.TemplatesInventoryName;
 
         private readonly IPersistentState<InventoryState> _state;
@@ -54,7 +53,6 @@ namespace nine3q.Grains
 
         public async Task<long> CreateItem(PropertySet properties)
         {
-            _stats.Increment(nameof(CreateItem));
             Item item = null;
             Inventory.Transaction(() => {
                 var slot = properties.GetInt(Pid.Slot);
@@ -83,16 +81,48 @@ namespace nine3q.Grains
             throw new NotImplementedException();
         }
 
+        public async Task SetItemProperties(long id, PropertySet properties)
+        {
+            Inventory.Transaction(() => {
+                Inventory.SetItemProperties(id, properties);
+            });
+            await CheckInventoryChanged();
+        }
+
         public Task<PropertySet> GetItemProperties(long id, PidList pids, bool native = false)
         {
-            _stats.Increment(nameof(GetItemProperties));
             return Task.FromResult(Inventory.GetItemProperties(id, pids, native));
         }
 
         public Task<long> GetItemByName(string name)
         {
-            _stats.Increment(nameof(GetItemByName));
             return Task.FromResult(Inventory.GetItemByName(name));
+        }
+
+        public Task<ItemIdSet> GetItems()
+        {
+            return Task.FromResult(Inventory.GetItemIds());
+        }
+
+        public Task<ItemIdPropertiesCollection> GetItemIdsAndValuesByProperty(Pid filterPid, PidList desiredProperties)
+        {
+            return Task.FromResult(Inventory.GetItemIdsAndValuesByProperty(filterPid, desiredProperties));
+        }
+
+        public async Task AddChildToContainer(long id, long containerId, long slot)
+        {
+            Inventory.Transaction(() => {
+                Inventory.AddChild(containerId, id, slot);
+            });
+            await CheckInventoryChanged();
+        }
+
+        public async Task RemoveChildFromContainer(long id, long containerId)
+        {
+            Inventory.Transaction(() => {
+                Inventory.RemoveChild(containerId, id);
+            });
+            await CheckInventoryChanged();
         }
 
         #endregion
@@ -101,10 +131,7 @@ namespace nine3q.Grains
 
         public override async Task OnActivateAsync()
         {
-            _stats.Increment(nameof(OnActivateAsync));
-            _stats.Set("OnActivateAsync.Time", DateTime.UtcNow.ToLong());
             await base.OnActivateAsync();
-            _stats.Set("Name", this.GetPrimaryKeyString());
 
             Guid = NameBasedGuid.Create(NameBasedGuid.UrlNamespace, this.GetPrimaryKeyString());
 
@@ -123,27 +150,20 @@ namespace nine3q.Grains
 
         public override async Task OnDeactivateAsync()
         {
-            _stats.Increment(nameof(OnDeactivateAsync));
             await base.OnDeactivateAsync();
         }
 
         async Task CheckInventoryChanged()
         {
-            _stats.Increment(nameof(CheckInventoryChanged));
             var summary = new ItemSummaryRecorder(Inventory);
 
             if (summary.IsChanged()) {
-                _stats.Increment($"{nameof(CheckInventoryChanged)}.IsChanged");
                 foreach (var id in summary.NewTemplates) {
-                    _stats.Increment($"{nameof(CheckInventoryChanged)}.{nameof(InstallTemplate)}");
                     await InstallTemplate(id);
                 }
 
                 if (IsPersistent) {
-                    _stats.Increment($"{nameof(CheckInventoryChanged)}.{nameof(WriteInventoryState)}");
                     await WriteInventoryState(summary);
-                } else {
-                    _stats.Increment($"{nameof(CheckInventoryChanged)}.!{nameof(WriteInventoryState)}");
                 }
 
                 // Notify subscribers
@@ -156,7 +176,6 @@ namespace nine3q.Grains
                         foreach (var id in notifyItems) {
                             var parents = Inventory.GetParentContainers(id);
                             var update = new ItemUpdate(id, parents, ItemUpdate.Mode.Changed);
-                            _stats.Increment($"{nameof(CheckInventoryChanged)}.{nameof(stream.OnNextAsync)} {nameof(ItemUpdate.Mode.Changed)}");
                             stream.OnNextAsync(update).Ignore();
                         }
                     }
@@ -164,7 +183,6 @@ namespace nine3q.Grains
                         var notifyItems = summary.DeletedItems;
                         foreach (var id in notifyItems) {
                             var update = new ItemUpdate(id, new ItemIdSet(), ItemUpdate.Mode.Removed);
-                            _stats.Increment($"{nameof(CheckInventoryChanged)}.{nameof(stream.OnNextAsync)} {nameof(ItemUpdate.Mode.Removed)}");
                             stream.OnNextAsync(update).Ignore();
                         }
                     }
@@ -207,23 +225,60 @@ namespace nine3q.Grains
 
         #endregion
 
+        #region Transfer
+
+        public async Task<ItemIdPropertiesCollection> BeginItemTransfer(long id)
+        {
+            var idProps = new ItemIdPropertiesCollection();
+            Inventory.Transaction(() => {
+                idProps = Inventory.BeginItemTransfer(id);
+            });
+            await CheckInventoryChanged();
+            return idProps;
+        }
+
+        public async Task<ItemIdMap> ReceiveItemTransfer(long id, long containerId, long slot, ItemIdPropertiesCollection idProps, PropertySet setProperties, PidList removeProperties)
+        {
+            var mapping = new ItemIdMap();
+            Inventory.Transaction(() => {
+                mapping = Inventory.ReceiveItemTransfer(id, containerId, slot, idProps, setProperties, removeProperties);
+            });
+            await CheckInventoryChanged();
+            return mapping;
+        }
+
+        public async Task EndItemTransfer(long id)
+        {
+            Inventory.Transaction(() => {
+                Inventory.EndItemTransfer(id);
+            });
+            await CheckInventoryChanged();
+        }
+
+        public async Task CancelItemTransfer(long id)
+        {
+            Inventory.Transaction(() => {
+                Inventory.CancelItemTransfer(id);
+            });
+            await CheckInventoryChanged();
+        }
+
+        #endregion
+
         #region Internal
 
         private async Task InstallTemplate(string name)
         {
-            _stats.Increment(nameof(InstallTemplate));
             if (!Templates.IsItem(name)) {
                 var inv = GrainFactory.GetGrain<IInventory>(_templatesInventoryName);
                 var id = await inv.GetItemByName(name);
-                _stats.Increment(nameof(InstallTemplate) + ".GetItemProperties");
                 var props = await inv.GetItemProperties(id, PidList.All);
                 Templates.CreateItem(props);
             }
         }
 
-        private Task SetPersistent(bool persistent)
+        public Task SetPersistent(bool persistent)
         {
-            _stats.Increment(nameof(SetPersistent));
             IsPersistent = persistent;
             return Task.CompletedTask;
         }
@@ -234,15 +289,12 @@ namespace nine3q.Grains
 
         public Task Deactivate()
         {
-            _stats.Increment("Deactivate");
             base.DeactivateOnIdle();
             return Task.CompletedTask;
         }
 
         public async Task WritePersistentStorage()
         {
-            _stats.Increment(nameof(WritePersistentStorage));
-
             var changes = new List<ItemChange>();
             var ids = Inventory.GetItemIds();
             foreach (var id in ids) {
@@ -255,13 +307,11 @@ namespace nine3q.Grains
 
         public async Task ReadPersistentStorage()
         {
-            _stats.Increment(nameof(ReadPersistentStorage));
             await ReadInventoryState();
         }
 
         public async Task DeletePersistentStorage()
         {
-            _stats.Increment(nameof(DeletePersistentStorage));
             await _state.ClearStateAsync();
         }
 

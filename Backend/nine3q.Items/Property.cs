@@ -100,7 +100,7 @@ namespace nine3q.Items
             Add(Pid.Name, Type.String, Use.String, Group.Generic, Access.Public, Persistence.Persistent, "Avatar", "");
             Add(Pid.TemplateName, Type.String, Use.String, Group.Generic, Access.Internal, Persistence.Persistent, "WaterBottleTemplate", "Template provides additional properties.");
             //Add(Pid.Label, Type.String, Use.String, Group.Generic, Access.Public, Persistence.Persistent, "WaterBottle", "Used in public displays as primary designation. Will be translated.");
-            //Add(Pid.Owner, Type.String, Use.UserId, Group.Generic, Access.Public, Persistence.Persistent, "9c0a5e6d-1278-4e14-8981-e3909d9e7a4b", "User Id of the item owner (when rezzed in room).");
+            Add(Pid.Owner, Type.String, Use.UserId, Group.Generic, Access.Public, Persistence.Persistent, "9c0a5e6d-1278-4e14-8981-e3909d9e7a4b", "User Id of the item owner (when rezzed in room).");
             Add(Pid.Container, Type.Item, Use.Item, Group.Generic, Access.Owner, Persistence.Persistent, "10000000001", "Id of container item.");
             Add(Pid.Contains, Type.ItemSet, Use.ItemList, Group.Generic, Access.Owner, Persistence.Persistent, "10000000001 10000000002", "Container: list of child items.");
             Add(Pid.Slots, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "3", "Number of solts in container.");
@@ -111,14 +111,15 @@ namespace nine3q.Items
             //Add(Pid.Icon16Url, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "Small representations");
             //Add(Pid.Icon32Url, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "Medium images");
             //Add(Pid.AvatarUrl, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "Live display, minimum transparent area");
-            //Add(Pid.Image100Url, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "");
-            //Add(Pid.AnimationsUrl, Type.String, Use.Url, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "");
+            Add(Pid.Image100Url, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "");
+            Add(Pid.AnimationsUrl, Type.String, Use.Url, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "");
             //Add(Pid.AnimationsMime, Type.String, Use.String, Group.Generic, Access.Public, Persistence.Persistent, "text/xml", "");
             Add(Pid.Actions, Type.String, Use.Json, Group.Generic, Access.Public, Persistence.Fixed, "{MakeCoffee:'Produce',GetCoffee:'EjectItem'}", "Maps external (app specific) actions to internal (Aspect) actions/methods.");
             //Add(Pid.PassiveActions, Type.String, Use.Json, Group.Generic, Access.Public, Persistence.Fixed, "['PutWater']", $"Supports these actions as passive item. You may 'PutWater' into a {Pid.IsSink}=true/{Pid.Resource}={Pid.WaterLevel} item");
-            //Add(Pid.IsRezable, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Persistent, "true", "True if item can be rezzed to room.");
-            //Add(Pid.Rezzed, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Persistent, "true", "True if rezzed to room.");
-            //Add(Pid.RezzedX, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "735", "Position of item in room if rezzed.");
+            Add(Pid.Room, Type.String, Use.String, Group.Generic, Access.Internal, Persistence.Persistent, "d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org", "Room Address.");
+            Add(Pid.IsRezzing, Type.Bool, Use.Int, Group.Generic, Access.Internal, Persistence.Persistent, "true", "True while in the process of being rezzed.");
+            Add(Pid.IsRezzed, Type.Bool, Use.Bool, Group.Generic, Access.Internal, Persistence.Persistent, "true", "True if rezzed to room.");
+            Add(Pid.RezzedX, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "735", "Position of item in room if rezzed.");
             //Add(Pid.IsClaim, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Fixed, "true", "Item claims room ownership.");
             //Add(Pid.Claimed, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Persistent, "true", "True if IsClaim-item rezzed to room.");
             //Add(Pid.IsProxy, Type.Bool, Use.Bool, Group.Generic, Access.Owner, Persistence.Fixed, "true", "Item is a proxy for a rezzed item.");
@@ -139,6 +140,7 @@ namespace nine3q.Items
             Add(Pid.IsTest1, Type.Bool, Use.Bool, Group.Aspect, Access.Internal, Persistence.Fixed, "true", "For unit testing of aspects.");
             Add(Pid.IsTest2, Type.Bool, Use.Bool, Group.Aspect, Access.Internal, Persistence.Fixed, "true", "For unit testing of aspects.");
             Add(Pid.IsContainer, Type.Bool, Use.Bool, Group.Aspect, Access.Internal, Persistence.Fixed, "true", "Item is a container for other items.");
+            Add(Pid.RezableAspect, Type.Bool, Use.Bool, Group.Aspect, Access.Internal, Persistence.Fixed, "true", "True if item can be rezzed to room.");
             //Add(Pid.IsTrashCan, Type.Bool, Use.Bool, Group.Aspect, Access.Public, Persistence.Fixed, "true", "Item is a trash repository, can be emptied.");
             //Add(Pid.IsSource, Type.Bool, Use.Bool, Group.Aspect, Access.Internal, Persistence.Fixed, "true", "IsSource provides a resource (a property which can be extracted by an Extractor).");
             //Add(Pid.IsSink, Type.Bool, Use.Bool, Group.Aspect, Access.Internal, Persistence.Fixed, "true", "IsSink takes a resource (a property which can be filled by a Supplier).");
