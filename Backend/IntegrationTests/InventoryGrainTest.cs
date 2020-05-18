@@ -10,7 +10,8 @@ namespace IntegrationTests
     {
         const int StackFrameNumber = 0;
 
-        [TestMethod]
+       
+        [TestMethod][TestCategory(GrainClient.Category)]
         public void CreateItem()
         {
             // Arrange
@@ -28,8 +29,8 @@ namespace IntegrationTests
             }
         }
 
-            [TestMethod]
-            public void Sent_and_received_properties_are_identical()
+        [TestMethod][TestCategory(GrainClient.Category)]
+        public void Sent_and_received_properties_are_identical()
             {
                 // Arrange
                 var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Utils.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
@@ -64,7 +65,7 @@ namespace IntegrationTests
             }
 
         /*
-            [TestMethod]
+            [TestMethod][TestCategory(GrainClient.Category)]
             public void persists_properties()
             {
                 // Arrange
@@ -101,7 +102,7 @@ namespace IntegrationTests
                 }
             }
 
-            [TestMethod]
+            [TestMethod][TestCategory(GrainClient.Category)]
             public void get_subset_of_item_properties()
             {
                 // Arrange
@@ -132,7 +133,7 @@ namespace IntegrationTests
                 }
             }
 
-            [TestMethod]
+            [TestMethod][TestCategory(GrainClient.Category)]
             public void GetItemByName()
             {
                 // Arrange
@@ -151,7 +152,7 @@ namespace IntegrationTests
                 }
             }
 
-            [TestMethod]
+            [TestMethod][TestCategory(GrainClient.Category)]
             public void check_write_ops_of_multiple_transactions()
             {
                 // Arrange
@@ -182,7 +183,7 @@ namespace IntegrationTests
                 }
             }
 
-            [TestMethod]
+            [TestMethod][TestCategory(GrainClient.Category)]
             public void GetIdsAndValues()
             {
                 // Arrange
@@ -213,7 +214,7 @@ namespace IntegrationTests
                 }
             }
 
-            [TestMethod]
+            [TestMethod][TestCategory(GrainClient.Category)]
             public void GetIdsAndValues_also_useful_to_get_some_properties_of_all_items()
             {
                 // Arrange
@@ -247,7 +248,7 @@ namespace IntegrationTests
                 }
             }
 
-            [TestMethod]
+            [TestMethod][TestCategory(GrainClient.Category)]
             public void just_created_item_gets_updates_of_template_changes()
             {
                 // Arrange
@@ -274,7 +275,7 @@ namespace IntegrationTests
                 }
             }
 
-            [TestMethod]
+            [TestMethod][TestCategory(GrainClient.Category)]
             public void item_with_later_assigned_template_gets_updates_of_template_changes()
             {
                 // Arrange
@@ -302,7 +303,7 @@ namespace IntegrationTests
                 }
             }
 
-            [TestMethod]
+            [TestMethod][TestCategory(GrainClient.Category)]
             public void TransferItem()
             {
                 // Arrange
@@ -367,7 +368,7 @@ namespace IntegrationTests
                 }
             }
 
-            [TestMethod]
+            [TestMethod][TestCategory(GrainClient.Category)]
             public void TransferItem_with_weird_properties()
             {
                 // Arrange
@@ -442,7 +443,7 @@ namespace IntegrationTests
                 }
             }
 
-            [TestMethod]
+            [TestMethod][TestCategory(GrainClient.Category)]
             public void CancelItemTransfer_deletes_received_items_and_resets_source()
             {
                 // Arrange
@@ -474,7 +475,7 @@ namespace IntegrationTests
             }
 
 
-            [TestMethod]
+            [TestMethod][TestCategory(GrainClient.Category)]
             public void ExecuteAction_with_action_map()
             {
                 var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Utils.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
@@ -503,7 +504,7 @@ namespace IntegrationTests
                 }
             }
 
-            [TestMethod]
+            [TestMethod][TestCategory(GrainClient.Category)]
             public void CreateItem_with_slot_and_container_places_item_inside()
             {
                 // Arrange
@@ -530,7 +531,7 @@ namespace IntegrationTests
                 }
             }
 
-            [TestMethod]
+            [TestMethod][TestCategory(GrainClient.Category)]
             public void activate_big_inventory()
             {
                 // Arrange
@@ -552,7 +553,7 @@ namespace IntegrationTests
                 }
             }
 
-            [TestMethod]
+            [TestMethod][TestCategory(GrainClient.Category)]
             public void transient_inventory_does_not_persist_changes()
             {
                 // Arrange
@@ -574,7 +575,7 @@ namespace IntegrationTests
                 }
             }
 
-            [TestMethod]
+            [TestMethod][TestCategory(GrainClient.Category)]
             public void default_persistent_inventory_does_persist()
             {
                 // Arrange
@@ -594,7 +595,7 @@ namespace IntegrationTests
                 }
             }
 
-            [TestMethod]
+            [TestMethod][TestCategory(GrainClient.Category)]
             public void transient_inventory_persist_completely_on_WritePermanentStorage()
             {
                 // Arrange

@@ -9,6 +9,8 @@ namespace IntegrationTests
     [TestClass]
     public static class GrainClient
     {
+        public const string Category = "WithSilo";
+
         public static IClusterClient GrainFactory { get; set; }
 
         private static async Task<IClusterClient> Start()

@@ -10,7 +10,7 @@ namespace IntegrationTests
     {
         const int StackFrameNumber = 0;
 
-        [TestMethod]
+        [TestMethod][TestCategory(GrainClient.Category)]
         public void SetGet()
         {
             // Arrange 
@@ -30,7 +30,7 @@ namespace IntegrationTests
             }
         }
 
-        [TestMethod]
+        [TestMethod][TestCategory(GrainClient.Category)]
         public void Persist_unload_reload()
         {
             // Arrange 
