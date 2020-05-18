@@ -7,12 +7,11 @@ import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { Window } from './Window';
-import { _Changes } from './_Changes';
 
 export class XmppWindow extends Window
 {
-    private chatoutElem: HTMLElement;
-    private chatinInputElem: HTMLElement;
+    private outElem: HTMLElement;
+    private inInputElem: HTMLElement;
 
     constructor(app: ContentApp, display: HTMLElement)
     {
@@ -55,8 +54,8 @@ export class XmppWindow extends Window
 
             this.app.translateElem(windowElem);
 
-            this.chatinInputElem = inInputElem;
-            this.chatoutElem = outElem;
+            this.inInputElem = inInputElem;
+            this.outElem = outElem;
 
             {
                 let left = 50;
@@ -91,8 +90,8 @@ export class XmppWindow extends Window
             {
                 await this.saveText();
 
-                this.chatoutElem = null;
-                this.chatinInputElem = null;
+                this.outElem = null;
+                this.inInputElem = null;
 
                 if (onClose) { onClose(); }
             };
@@ -104,15 +103,8 @@ export class XmppWindow extends Window
 
             this.setText(await this.getStoredText());
 
-            this.showHistory();
-
             $(inInputElem).focus();
         }
-    }
-
-    showHistory()
-    {
-        _Changes.getLines().reverse().forEach(line => { this.showLine('CHANGES', line); });
     }
 
     fixChatInTextWidth(chatinText: HTMLElement, delta: number, chatin: HTMLElement)
@@ -142,17 +134,17 @@ export class XmppWindow extends Window
 
     private setText(text: string): void
     {
-        $(this.chatinInputElem).val(text);
+        $(this.inInputElem).val(text);
     }
 
     getText(): string
     {
-        return as.String($(this.chatinInputElem).val(), '');
+        return as.String($(this.inInputElem).val(), '');
     }
 
     getSelectedText(): string
     {
-        var txtarea = <HTMLTextAreaElement>this.chatinInputElem;
+        var txtarea = <HTMLTextAreaElement>this.inInputElem;
         var start = txtarea.selectionStart;
         var finish = txtarea.selectionEnd;
         var selectedText = this.getText().substring(start, finish);
@@ -191,8 +183,8 @@ export class XmppWindow extends Window
             <div>`
         ).get(0);
 
-        if (this.chatoutElem) {
-            $(this.chatoutElem).append(lineElem).scrollTop($(this.chatoutElem).get(0).scrollHeight);
+        if (this.outElem) {
+            $(this.outElem).append(lineElem).scrollTop($(this.outElem).get(0).scrollHeight);
         }
     }
 

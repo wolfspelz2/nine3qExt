@@ -65,7 +65,8 @@ export class Config
         },
         identity: {
             url: '',
-            identificatorUrlTemplate: 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}',
+            digest: '',
+            identificatorUrlTemplate: 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}&digest={digest}',
         },
         i18n: {
             'defaultLanguage': 'en-US',

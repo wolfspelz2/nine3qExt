@@ -78,11 +78,14 @@ export class Room
     private async sendPresence(): Promise<void>
     {
         let identityUrl = Config.get('identity.url', '');
+        let identityDigest = Config.get('identity.digest', '1');
         if (identityUrl == '') {
             let avatarUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', this.avatar);
-            identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}'))
+            identityDigest = as.String(Utils.hash(this.nickname + avatarUrl));
+            identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}&digest={digest}'))
                 .replace('{nickname}', encodeURIComponent(this.nickname))
                 .replace('{avatarUrl}', encodeURIComponent(avatarUrl))
+                .replace('{digest}', encodeURIComponent(identityDigest))
                 ;
         }
 
@@ -90,11 +93,16 @@ export class Room
             .append(
                 xml('x', { xmlns: 'vp:props', nickname: this.nickname, avatar: this.avatar }))
             .append(
-                xml('x', { xmlns: 'firebat:user:identity', jid: this.userJid, src: identityUrl, digest: '1' }))
-            .append(
                 xml('x', { xmlns: 'firebat:avatar:state', jid: this.userJid, })
                     .append(xml('position', { x: as.Int(this.posX) }))
+            )
+            ;
+
+        if (identityUrl != '') {
+            presence.append(
+                xml('x', { xmlns: 'firebat:user:identity', 'jid': this.userJid, 'src': identityUrl, 'digest': identityDigest })
             );
+        }
 
         if (!this.isEntered) {
             presence.append(

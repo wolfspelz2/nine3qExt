@@ -11,11 +11,13 @@ export class _Changes
             ['Add', 'Xmpp console window'],
             ['Add', 'Chat console'],
             ['Add', 'In-screen settings dialog + menu entry'],
+            ['Add', 'Support for imageUrl in presence-x-vp:props'],
+            ['Add', 'Computed identity digest to presence-x-firebat:...'],
             ['Fix', 'Duplicate presence-x-history'],
             ['Fix', 'Avatar position in presence may be float value instead of int'],
         ]],
         ['1.0.2', 'StoreFix', [
-            ['Change', 'Remove http request'],
+            ['Change', 'VPI query http request to https'],
             ['Add', 'VPI resolver'],
         ]],
         ['1.0.1', 'BackgoundDispatcher', [
@@ -25,21 +27,4 @@ export class _Changes
             ['Add', 'Basic function'],
         ]],
     ];
-
-    static getLines(): Array<string>
-    {
-        let lines = [];
-
-        this.data.forEach(release =>
-        {
-            lines.push(release[0] + ' ' + release[1]);
-            release[2].forEach(change =>
-            {
-                { lines.push(change[0] + ' ' + change[1]); }
-            });
-            lines.push('');
-        });
-
-        return lines;
-    }
 }

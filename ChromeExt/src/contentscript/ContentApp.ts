@@ -15,6 +15,7 @@ import { Room } from './Room';
 import { VpiResolver } from './VpiResolver';
 import { SettingsWindow } from './SettingsWindow';
 import { XmppWindow } from './XmppWindow';
+import { ChangesWindow } from './ChangesWindow';
 
 interface ILocationMapperResponse
 {
@@ -145,6 +146,11 @@ export class ContentApp
     {
         this.xmppWindow = new XmppWindow(this, this.display);
         this.xmppWindow.show({ onClose: () => { this.xmppWindow = null; } });
+    }
+
+    showChangesWindow()
+    {
+        new ChangesWindow(this, this.display).show({ });
     }
 
     createPageControl()

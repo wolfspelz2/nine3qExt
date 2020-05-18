@@ -33,12 +33,17 @@ export class ChatConsole
             case '/?':
                 ChatConsole.out(context, [
                     ['help', '/xmpp'],
-                    ['help', '/roominfo']
+                    ['help', '/roominfo'],
+                    ['help', '/changes']
                 ]);
                 isHandled = true;
                 break;
             case '/xmpp':
                 context.app?.showXmppWindow();
+                isHandled = true;
+                break;
+            case '/changes':
+                context.app?.showChangesWindow();
                 isHandled = true;
                 break;
             case '/roominfo':

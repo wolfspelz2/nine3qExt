@@ -525,6 +525,17 @@ $z-index: (
             bottom: 38px;
         }
 
+    // #n3q div.n3q-changeswindow {}
+
+        #n3q div.n3q-changeswindow-out {
+            position: absolute;
+            top: 36px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            overflow-y: scroll;
+        }
+    
     // #n3q div.n3q-xmppwindow {}
 
         #n3q div.n3q-xmppwindow-out {
