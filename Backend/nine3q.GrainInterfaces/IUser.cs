@@ -14,5 +14,6 @@ namespace nine3q.GrainInterfaces
     {
         Task<Guid> GetStreamId();
         Task DropItem(long itemId, string roomId, long posX, string destinationUrl);
+        Task PickupItem(long itemId, string roomId);
     }
 }

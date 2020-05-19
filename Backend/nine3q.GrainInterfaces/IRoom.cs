@@ -14,7 +14,9 @@ namespace nine3q.GrainInterfaces
 
     public class RoomEvent
     {
-        public enum Type { Nop, RezItem }
+        public enum Type { Nop, RezItem,
+            DerezItem
+        }
         public Type type = Type.Nop;
         public string roomId;
         public long itemId;
@@ -30,6 +32,11 @@ namespace nine3q.GrainInterfaces
     public interface IRoom : IGrainWithStringKey
     {
         Task<Guid> GetStreamId();
+
         Task RezItem(long itemId, long posX, string destinationUrl);
+        Task OnItemRezzed(long itemId);
+
+        Task DerezItem(long itemId);
+        Task OnItemDerezzed(long itemId);
     }
 }

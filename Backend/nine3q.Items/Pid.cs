@@ -75,6 +75,7 @@
         RezzedX,
         IsRezzing,
         IsRezzed,
+        IsDerezzing,
         //IsClaim,
         //Claimed,
         //IsProxy,

@@ -117,8 +117,9 @@ namespace nine3q.Items
             Add(Pid.Actions, Type.String, Use.Json, Group.Generic, Access.Public, Persistence.Fixed, "{MakeCoffee:'Produce',GetCoffee:'EjectItem'}", "Maps external (app specific) actions to internal (Aspect) actions/methods.");
             //Add(Pid.PassiveActions, Type.String, Use.Json, Group.Generic, Access.Public, Persistence.Fixed, "['PutWater']", $"Supports these actions as passive item. You may 'PutWater' into a {Pid.IsSink}=true/{Pid.Resource}={Pid.WaterLevel} item");
             Add(Pid.Room, Type.String, Use.String, Group.Generic, Access.Internal, Persistence.Persistent, "d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org", "Room Address.");
-            Add(Pid.IsRezzing, Type.Bool, Use.Int, Group.Generic, Access.Internal, Persistence.Persistent, "true", "True while in the process of being rezzed.");
+            Add(Pid.IsRezzing, Type.Bool, Use.Int, Group.Generic, Access.Internal, Persistence.Persistent, "true", "True while in the process of being rezzed (precence-available sent).");
             Add(Pid.IsRezzed, Type.Bool, Use.Bool, Group.Generic, Access.Internal, Persistence.Persistent, "true", "True if rezzed to room.");
+            Add(Pid.IsDerezzing, Type.Bool, Use.Int, Group.Generic, Access.Internal, Persistence.Persistent, "true", "True while in the process of being de-rezzed (precence-unavailable sent).");
             Add(Pid.RezzedX, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "735", "Position of item in room if rezzed.");
             //Add(Pid.IsClaim, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Fixed, "true", "Item claims room ownership.");
             //Add(Pid.Claimed, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Persistent, "true", "True if IsClaim-item rezzed to room.");

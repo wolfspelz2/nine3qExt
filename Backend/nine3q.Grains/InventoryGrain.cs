@@ -99,6 +99,25 @@ namespace nine3q.Grains
             return Task.FromResult(Inventory.GetItemProperties(id, pids, native));
         }
 
+        public async Task<int> DeleteItemProperties(long id, PidList pids)
+        {
+            var deleted = 0;
+            Inventory.Transaction(() => {
+                deleted = Inventory.DeleteItemProperties(id, pids);
+            });
+            await CheckInventoryChanged();
+            return deleted;
+        }
+
+        public async Task ModifyItemProperties(long id, PropertySet modified, PidList deleted)
+        {
+            Inventory.Transaction(() => {
+                Inventory.DeleteItemProperties(id, deleted);
+                Inventory.SetItemProperties(id, modified);
+            });
+            await CheckInventoryChanged();
+        }
+
         public Task<long> GetItemByName(string name)
         {
             return Task.FromResult(Inventory.GetItemByName(name));

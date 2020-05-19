@@ -13,6 +13,8 @@ namespace nine3q.GrainInterfaces
 
         Task SetItemProperties(long id, PropertySet properties);
         Task<PropertySet> GetItemProperties(long id, PidList pids, bool native = false);
+        Task<int> DeleteItemProperties(long id, PidList pids);
+        Task ModifyItemProperties(long id, PropertySet modified, PidList deleted);
 
         Task<long> GetItemByName(string name);
         Task<ItemIdSet> GetItemIds();

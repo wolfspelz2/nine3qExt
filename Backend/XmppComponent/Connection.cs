@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using nine3q.Tools;
 
 namespace XmppComponent
 {
@@ -19,16 +20,18 @@ namespace XmppComponent
         private readonly string _componentDomain;
         private readonly int _port;
         private readonly string _secret;
-        private readonly Action<Command> _xmppMessageHandler;
+        private readonly Action<XmppMessage> _xmppMessageHandler;
+        private readonly Action<XmppPresence> _xmppPresenceHandler;
         private readonly Action<Connection> _connectionCloseHandler;
 
-        public Connection(string host, string componentDomain, int port, string secret, Action<Command> xmppMessageHandler, Action<Connection> connectionCloseHandler)
+        public Connection(string host, string componentDomain, int port, string secret, Action<XmppMessage> xmppMessageHandler, Action<XmppPresence> xmppPresenceHandler, Action<Connection> connectionCloseHandler)
         {
             _host = host;
             _componentDomain = componentDomain;
             _port = port;
             _secret = secret;
             _xmppMessageHandler = xmppMessageHandler;
+            _xmppPresenceHandler = xmppPresenceHandler;
             _connectionCloseHandler = connectionCloseHandler;
         }
 
@@ -126,12 +129,6 @@ namespace XmppComponent
             _connectionCloseHandler?.Invoke(this);
         }
 
-        private void OnPresence(XmlReader xmlReader)
-        {
-            var from = xmlReader.GetAttribute("from");
-            Log.Verbose($"<-     from={from}");
-        }
-
         /*
             <presence to='xmpp.dev.sui.li/nick'>
               <x xmlns='vp:props'
@@ -187,10 +184,13 @@ x=345
         */
         private void OnMessage(XmlReader xmlReader)
         {
-            var cmd = new Command();
-            var from = xmlReader.GetAttribute("from");
-            var type = xmlReader.GetAttribute("xx");
-            Log.Verbose($"<-     from={from}");
+            var message = new XmppMessage {
+                MessageType = (xmlReader.GetAttribute("type") ?? "normal") == "groupchat" ? XmppMessageType.Groupchat : XmppMessageType.Normal,
+                From = xmlReader.GetAttribute("from") ?? "",
+                To = xmlReader.GetAttribute("to") ?? ""
+            };
+            Log.Verbose($"<-     from={message.From}");
+
             var nodeReader = xmlReader.ReadSubtree();
             while (nodeReader.Read()) {
                 switch (nodeReader.NodeType) {
@@ -199,7 +199,7 @@ x=345
                             nodeReader.MoveToFirstAttribute();
                             var cnt = nodeReader.AttributeCount;
                             while (cnt > 0) {
-                                cmd[nodeReader.Name] = nodeReader.Value;
+                                message.Cmd[nodeReader.Name] = nodeReader.Value;
                                 nodeReader.MoveToNextAttribute();
                                 cnt--;
                             }
@@ -208,14 +208,43 @@ x=345
                 }
             }
 
-            cmd.Select(pair => $"{pair.Key}={pair.Value}").ToList().ForEach(line => Log.Verbose($"<-     {line}"));
-
-            if (cmd.Count > 0) {
-                cmd["xmppFrom"] = from ?? "";
-                cmd["xmppStanza"] = "message";
-                cmd["xmppType"] = type ?? "";
-                _xmppMessageHandler?.Invoke(cmd);
+            if (message.Cmd.Count > 0) {
+                Log.Verbose($"<-     from={message.From}");
+                message.Cmd.Select(pair => $"{pair.Key}={pair.Value}").ToList().ForEach(line => Log.Verbose($"<-     {line}"));
+                _xmppMessageHandler?.Invoke(message);
             }
+        }
+
+        private void OnPresence(XmlReader xmlReader)
+        {
+            var presence = new XmppPresence {
+                PresenceType = (xmlReader.GetAttribute("type") ?? "normal") == "groupchat" ? XmppPresenceType.Unavailable : XmppPresenceType.Available,
+                From = xmlReader.GetAttribute("from") ?? "",
+            };
+            Log.Verbose($"<-     from={presence.From}");
+
+            Don.t = () => {
+                var nodeReader = xmlReader.ReadSubtree();
+                while (nodeReader.Read()) {
+                    switch (nodeReader.NodeType) {
+                        case XmlNodeType.Element:
+                            if (nodeReader.Depth == 1 && nodeReader.Name == "x" && nodeReader.GetAttribute("xmlns") == "vp:props") {
+                                nodeReader.MoveToFirstAttribute();
+                                var cnt = nodeReader.AttributeCount;
+                                while (cnt > 0) {
+                                    presence.Props[nodeReader.Name] = nodeReader.Value;
+                                    nodeReader.MoveToNextAttribute();
+                                    cnt--;
+                                }
+                            }
+                            break;
+                    }
+                }
+            };
+
+            Log.Verbose($"<-     from={presence.From}");
+            presence.Props.Select(pair => $"{pair.Key}={pair.Value}").ToList().ForEach(line => Log.Verbose($"<-     {line}"));
+            _xmppPresenceHandler?.Invoke(presence);
         }
 
         public void Send(string text)
