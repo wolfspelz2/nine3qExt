@@ -93,7 +93,7 @@ export class Room
             .append(
                 xml('x', { xmlns: 'vp:props', nickname: this.nickname, avatar: this.avatar }))
             .append(
-                xml('x', { xmlns: 'firebat:avatar:state', jid: this.userJid, })
+                xml('x', { xmlns: 'firebat:avatar:state', })
                     .append(xml('position', { x: as.Int(this.posX) }))
             )
             ;

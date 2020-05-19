@@ -92,7 +92,7 @@ namespace nine3q.Items
             if (Names.ContainsKey(name)) {
                 Names.Remove(name);
             }
-            Misc.Dont  = () => { var x = id; };
+            Don.t  = () => { var x = id; };
         }
 
         #endregion
@@ -351,7 +351,7 @@ namespace nine3q.Items
                     code();
                 } catch (Exception ex) {
                     t.Cancel();
-                    Misc.Dont = () => { var m = ex.Message; };
+                    Don.t = () => { var m = ex.Message; };
                     throw;
                 }
             }

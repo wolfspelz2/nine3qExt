@@ -2,126 +2,132 @@
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using nine3q.Tools;
 
 namespace XmppComponent
 {
-    public partial class Connection: IDisposable
+    public partial class Connection : IDisposable
     {
         private static NetworkStream _networkStream;
 
-        private static string _host;
-        private static int _port;
-        private static string _secret;
-        private readonly Action<Command> _commandHandler;
+        private readonly string _host;
+        private readonly string _componentDomain;
+        private readonly int _port;
+        private readonly string _secret;
+        private readonly Action<XmppMessage> _xmppMessageHandler;
+        private readonly Action<XmppPresence> _xmppPresenceHandler;
+        private readonly Action<Connection> _connectionCloseHandler;
 
-        public Connection(string host, int port, string secret, Action<Command> commandHandler)
+        public Connection(string host, string componentDomain, int port, string secret, Action<XmppMessage> xmppMessageHandler, Action<XmppPresence> xmppPresenceHandler, Action<Connection> connectionCloseHandler)
         {
             _host = host;
+            _componentDomain = componentDomain;
             _port = port;
             _secret = secret;
-            _commandHandler = commandHandler;
+            _xmppMessageHandler = xmppMessageHandler;
+            _xmppPresenceHandler = xmppPresenceHandler;
+            _connectionCloseHandler = connectionCloseHandler;
         }
 
-        public async Task Start()
+        public async Task Run()
         {
-            using (var tcpClient = new TcpClient()) {
-                Log.Info("Connecting to server");
-                await tcpClient.ConnectAsync(_host, _port);
-                Log.Info("Connected to server");
+            using var tcpClient = new TcpClient();
 
-                _networkStream = tcpClient.GetStream();
-                {
-                    Send($"<stream:stream xmlns='jabber:component:accept' xmlns:stream='http://etherx.jabber.org/streams' to='items.xmpp.dev.sui.li'>");
+            Log.Info($"Connecting to server {_host}:{_port}", "Connecton.Run");
+            await tcpClient.ConnectAsync(_host, _port);
+            Log.Info("Connected", "Connecton.Run");
 
-                    using (var streamReader = new StreamReader(_networkStream))
-                    using (var xmlReader = XmlReader.Create(streamReader)) {
-                        while (xmlReader.Read()) {
-                            switch (xmlReader.NodeType) {
-                                case XmlNodeType.XmlDeclaration:
-                                Log.Info($"<- {xmlReader.NodeType.ToString()}");
+            _networkStream = tcpClient.GetStream();
+            {
+                Send($"<stream:stream xmlns='jabber:component:accept' xmlns:stream='http://etherx.jabber.org/streams' to='{WebUtility.HtmlEncode(_componentDomain)}'>");
+
+                using var streamReader = new StreamReader(_networkStream);
+                using var xmlReader = XmlReader.Create(streamReader);
+                while (xmlReader.Read()) {
+                    switch (xmlReader.NodeType) {
+                        case XmlNodeType.XmlDeclaration:
+                            Log.Verbose($"<- {xmlReader.NodeType.ToString()}");
+                            break;
+
+                        case XmlNodeType.Element:
+                            switch (xmlReader.Name) {
+                                case "stream:stream": {
+                                    Log.Verbose($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
+                                    var id = xmlReader.GetAttribute("id");
+                                    var data = id + _secret;
+                                    var sha1 = SHA1(data);
+                                    Send($"<handshake>{sha1}</handshake>");
+                                }
                                 break;
 
-                                case XmlNodeType.Element:
-                                switch (xmlReader.Name) {
-                                    case "stream:stream": {
-                                        Log.Verbose($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
-                                        var id = xmlReader.GetAttribute("id");
-                                        var data = id + _secret;
-                                        var sha1 = SHA1(data);
-                                        Send($"<handshake>{sha1}</handshake>");
-                                    }
-                                    break;
-
-                                    case "handshake": {
-                                        Log.Verbose($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
-                                        OnXmppComponentConnectionStarted();
-                                    }
-                                    break;
-
-                                    case "presence": {
-                                        if (xmlReader.Depth == 1) {
-                                            Log.Verbose($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
-                                            OnPresence(xmlReader);
-                                        } else {
-                                            Log.Verbose($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
-                                        }
-                                    }
-                                    break;
-
-                                    case "message": {
-                                        if (xmlReader.Depth == 1) {
-                                            Log.Verbose($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
-                                            OnMessage(xmlReader);
-                                        } else {
-                                            Log.Verbose($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
-                                        }
-                                    }
-                                    break;
-
-                                    default: {
-                                        if (xmlReader.Depth == 1) {
-                                            Log.Verbose($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
-                                        } else {
-                                            Log.Verbose($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
-                                        }
-                                    }
-                                    break;
+                                case "handshake": {
+                                    Log.Verbose($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
+                                    OnXmppComponentConnectionStarted();
                                 }
+                                break;
 
+                                case "presence": {
+                                    if (xmlReader.Depth == 1) {
+                                        Log.Verbose($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
+                                        OnPresence(xmlReader);
+                                    } else {
+                                        Log.Verbose($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
+                                    }
+                                }
+                                break;
+
+                                case "message": {
+                                    if (xmlReader.Depth == 1) {
+                                        Log.Verbose($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
+                                        OnMessage(xmlReader);
+                                    } else {
+                                        Log.Verbose($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
+                                    }
+                                }
+                                break;
+
+                                default: {
+                                    if (xmlReader.Depth == 1) {
+                                        Log.Verbose($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
+                                    } else {
+                                        Log.Verbose($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
+                                    }
+                                }
                                 break;
                             }
-                        }
+                            break;
+
+                        //case XmlNodeType.EndElement:
+                        //    Log.Info($"<- {xmlReader.NodeType.ToString()}");
+                        //    if (xmlReader.Depth == 1) {
+                        //    }
+                        //    break;
+
+                        //default:
+                        //    Log.Info($"<- {xmlReader.NodeType.ToString()}");
+                        //    break;
                     }
-
-
                 }
+
+
             }
+            OnXmppComponentConnectionStopped();
         }
 
         private void OnXmppComponentConnectionStarted()
         {
-            Send($"<presence to='item1@{_host}' from='item1@{_host}/backend' />");
-
-            //Send(@$"<presence to='ef1b96243dd54a4f245896a38bcdfb8fdf67b33b@muc4.virtual-presence.org/item1' from='item1@{_host}/backend'>
-            //          <x xmlns='http://jabber.org/protocol/muc'>
-            //            <history seconds='0' maxchars='0' maxstanzas='0'/>
-            //          </x>
-            //       </presence>");
+            //Send($"<presence to='{_componentDomain}' from='item1@{_componentDomain}/backend' />");
         }
 
         private void OnXmppComponentConnectionStopped()
         {
-        }
-
-        private void OnPresence(XmlReader xmlReader)
-        {
-            var from = xmlReader.GetAttribute("from");
-            Log.Verbose($"<-     from={from}");
+            _connectionCloseHandler?.Invoke(this);
         }
 
         /*
@@ -179,35 +185,67 @@ x=345
         */
         private void OnMessage(XmlReader xmlReader)
         {
-            var cmd = new Command();
-            var from = xmlReader.GetAttribute("from");
-            var type = xmlReader.GetAttribute("xx");
-            Log.Verbose($"<-     from={from}");
+            var message = new XmppMessage {
+                MessageType = (xmlReader.GetAttribute("type") ?? "normal") == "groupchat" ? XmppMessageType.Groupchat : XmppMessageType.Normal,
+                From = xmlReader.GetAttribute("from") ?? "",
+                To = xmlReader.GetAttribute("to") ?? ""
+            };
+            Log.Verbose($"<-     from={message.From}");
+
             var nodeReader = xmlReader.ReadSubtree();
             while (nodeReader.Read()) {
                 switch (nodeReader.NodeType) {
                     case XmlNodeType.Element:
-                    if (nodeReader.Depth == 1 && nodeReader.Name == "x" && nodeReader.GetAttribute("xmlns") == "vp:cmd") {
-                        nodeReader.MoveToFirstAttribute();
-                        var cnt = nodeReader.AttributeCount;
-                        while (cnt > 0) {
-                            cmd[nodeReader.Name] = nodeReader.Value;
-                            nodeReader.MoveToNextAttribute();
-                            cnt--;
+                        if (nodeReader.Depth == 1 && nodeReader.Name == "x" && nodeReader.GetAttribute("xmlns") == "vp:cmd") {
+                            nodeReader.MoveToFirstAttribute();
+                            var cnt = nodeReader.AttributeCount;
+                            while (cnt > 0) {
+                                message.Cmd[nodeReader.Name] = nodeReader.Value;
+                                nodeReader.MoveToNextAttribute();
+                                cnt--;
+                            }
                         }
-                    }
-                    break;
+                        break;
                 }
             }
 
-            cmd.Select(pair => $"{pair.Key}={pair.Value}").ToList().ForEach(line => Log.Verbose($"<-     {line}"));
-
-            if (cmd.Count > 0) {
-                cmd["xmppFrom"] = from ?? "";
-                cmd["xmppStanza"] = "message";
-                cmd["xmppType"] = type ?? "";
-                _commandHandler?.Invoke(cmd);
+            if (message.Cmd.Count > 0) {
+                Log.Verbose($"<-     from={message.From}");
+                message.Cmd.Select(pair => $"{pair.Key}={pair.Value}").ToList().ForEach(line => Log.Verbose($"<-     {line}"));
+                _xmppMessageHandler?.Invoke(message);
             }
+        }
+
+        private void OnPresence(XmlReader xmlReader)
+        {
+            var presence = new XmppPresence {
+                PresenceType = (xmlReader.GetAttribute("type") ?? "available") == "unavailable" ? XmppPresenceType.Unavailable : XmppPresenceType.Available,
+                From = xmlReader.GetAttribute("from") ?? "",
+            };
+            Log.Verbose($"<-     from={presence.From}");
+
+            Don.t = () => {
+                var nodeReader = xmlReader.ReadSubtree();
+                while (nodeReader.Read()) {
+                    switch (nodeReader.NodeType) {
+                        case XmlNodeType.Element:
+                            if (nodeReader.Depth == 1 && nodeReader.Name == "x" && nodeReader.GetAttribute("xmlns") == "vp:props") {
+                                nodeReader.MoveToFirstAttribute();
+                                var cnt = nodeReader.AttributeCount;
+                                while (cnt > 0) {
+                                    presence.Props[nodeReader.Name] = nodeReader.Value;
+                                    nodeReader.MoveToNextAttribute();
+                                    cnt--;
+                                }
+                            }
+                            break;
+                    }
+                }
+            };
+
+            Log.Verbose($"<-     from={presence.From}");
+            presence.Props.Select(pair => $"{pair.Key}={pair.Value}").ToList().ForEach(line => Log.Verbose($"<-     {line}"));
+            _xmppPresenceHandler?.Invoke(presence);
         }
 
         public void Send(string text)
@@ -220,12 +258,9 @@ x=345
 
         static string SHA1(string input)
         {
-#pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms
-            using (var sha1 = new SHA1Managed()) {
-#pragma warning restore CA5350 // Do Not Use Weak Cryptographic Algorithms
-                var hash = sha1.ComputeHash(Encoding.UTF8.GetBytes(input));
-                return string.Concat(hash.Select(b => b.ToString("x2", CultureInfo.InvariantCulture)));
-            }
+            using var sha1 = new SHA1Managed();
+            var hash = sha1.ComputeHash(Encoding.UTF8.GetBytes(input));
+            return string.Concat(hash.Select(b => b.ToString("x2", CultureInfo.InvariantCulture)));
         }
 
         public void Dispose()

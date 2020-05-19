@@ -9,6 +9,7 @@ namespace nine3q.Items
             { Pid.IsTest1, item => item.AsTest1()},
             { Pid.IsTest2, item => item.AsTest2()},
             { Pid.IsContainer, item => item.AsContainer()},
+            { Pid.RezableAspect, item => item.AsRezable()},
             //{ Pid.IsTrashCan, item => item.AsTrash()},
             //{ Pid.IsSource, item => item.AsSource()},
             //{ Pid.IsSink, item => item.AsSink()},

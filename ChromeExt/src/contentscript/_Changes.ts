@@ -6,6 +6,9 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
+        ['1.0.X', 'x', [
+            ['Add', 'Support for animationsUrl in presence-x-vp:props'],
+        ]],
         ['1.0.3', 'XmppWindow SettingsDialog', [
             ['Add', 'Change history'],
             ['Add', 'Xmpp console window'],

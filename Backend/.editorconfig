@@ -26,3 +26,6 @@ csharp_style_unused_value_assignment_preference = discard_variable:silent
 
 # IDE0001: Simplify Names
 dotnet_diagnostic.IDE0001.severity = silent
+
+# CA1822: Mark members as static
+dotnet_diagnostic.CA1822.severity = silent

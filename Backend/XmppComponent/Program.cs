@@ -5,6 +5,7 @@ using Orleans;
 using Orleans.Runtime;
 using Orleans.Configuration;
 using Orleans.Hosting;
+using nine3q.GrainInterfaces;
 
 namespace XmppComponent
 {
@@ -15,7 +16,7 @@ namespace XmppComponent
 
         static int Main(string[] args)
         {
-            Log.LogLevel = Log.Level.Verbose;
+            Log.LogLevel = Log.Level.Info;
             Log.LogHandler = (level, context, message) => { Console.WriteLine($"{Log.LevelFromString(level.ToString())} {context} {message}"); };
 
             return RunMainAsync().Result;
@@ -51,7 +52,8 @@ namespace XmppComponent
                 .Build();
 
             await client.Connect(RetryFilter);
-            Log.Info("Client successfully connect to silo host");
+            Log.Info("Client connected to silo host", "StartClientWithRetries");
+
             return client;
         }
 
@@ -70,16 +72,26 @@ namespace XmppComponent
             return true;
         }
 
-        private static string _componentHost = "items.xmpp.dev.sui.li";
-        private static int _port = 5555;
-        private static string _sharedSecret = "28756a7ff5dce";
+        private const string _componentHost = "items.xmpp.dev.sui.li";
+        private const string _componentDomain = "items.xmpp.dev.sui.li";
+        private const int _componentPort = 5555;
+        private const string _componentSecret = "28756a7ff5dce";
 
         private static async Task DoClientWork(IClusterClient client)
         {
-            var cmdHandler = new CommandHandler(_componentHost, client);
-            var conn = new Connection(_componentHost, _port, _sharedSecret, async cmd => { await cmdHandler.HandleCommand(cmd); });
-            cmdHandler.Connection = conn;
-            await conn.Start();
+
+            var controller = new Controller(client,
+                _componentHost,
+                _componentDomain,
+                _componentPort,
+                _componentSecret
+            );
+            controller.Start();
+
+            Console.WriteLine("Press Enter to terminate...");
+            Console.ReadLine();
+
+            await Task.CompletedTask;
         }
     }
 }

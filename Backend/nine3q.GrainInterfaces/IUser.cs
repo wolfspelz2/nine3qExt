@@ -13,6 +13,7 @@ namespace nine3q.GrainInterfaces
     public interface IUser : IGrainWithStringKey
     {
         Task<Guid> GetStreamId();
-        Task DropItem(long itemId, string roomId, int x);
+        Task DropItem(long itemId, string roomId, long posX, string destinationUrl);
+        Task PickupItem(long itemId, string roomId);
     }
 }

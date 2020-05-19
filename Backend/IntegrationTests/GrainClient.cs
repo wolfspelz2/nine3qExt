@@ -34,5 +34,10 @@ namespace IntegrationTests
         {
             GrainFactory = IntegrationTests.GrainClient.Start().Result;
         }
+
+        [AssemblyCleanup]
+        public static void AssemblyCleanup()
+        {
+        }
     }
 }
