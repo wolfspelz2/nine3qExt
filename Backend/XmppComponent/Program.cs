@@ -16,7 +16,7 @@ namespace XmppComponent
 
         static int Main(string[] args)
         {
-            Log.LogLevel = Log.Level.Verbose;
+            Log.LogLevel = Log.Level.Info;
             Log.LogHandler = (level, context, message) => { Console.WriteLine($"{Log.LevelFromString(level.ToString())} {context} {message}"); };
 
             return RunMainAsync().Result;
@@ -52,7 +52,8 @@ namespace XmppComponent
                 .Build();
 
             await client.Connect(RetryFilter);
-            Log.Info("Client successfully connect to silo host");
+            Log.Info("Client connected to silo host", "StartClientWithRetries");
+
             return client;
         }
 

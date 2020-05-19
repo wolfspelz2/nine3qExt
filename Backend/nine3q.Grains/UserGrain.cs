@@ -3,9 +3,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Orleans;
 using nine3q.GrainInterfaces;
-using nine3q.Tools;
 using nine3q.Items;
-using nine3q.Items.Exceptions;
 
 namespace nine3q.Grains
 {
@@ -52,8 +50,9 @@ namespace nine3q.Grains
 
             await Room(roomId).DerezItem(itemId);
 
+            // Transfer back before confirmation from xmpp rooom
             var setProps = new PropertySet { };
-            var delProps = new PidList { Pid.Owner, Pid.RezzedX, Pid.IsRezzing, Pid.IsDerezzing, };
+            var delProps = new PidList { Pid.Owner, Pid.RezzedX, Pid.IsRezzing, Pid.IsRezzed, Pid.IsDerezzing, };
             var transferredId = await TransferItem(itemId, roomId, Id, ItemId.NoItem, 0, setProps, delProps);
         }
 
@@ -98,9 +97,6 @@ namespace nine3q.Grains
 
         public override async Task OnActivateAsync()
         {
-            //_subscriptions = new ObserverSubscriptionManager<IUserMessageObserver>();
-            //_subscriptionId2Observer = new Dictionary<string, IUserMessageObserver>();
-
             await base.OnActivateAsync();
 
             //await ActivateInventorySubscription();

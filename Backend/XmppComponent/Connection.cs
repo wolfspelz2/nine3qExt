@@ -38,9 +38,10 @@ namespace XmppComponent
         public async Task Run()
         {
             using var tcpClient = new TcpClient();
-            Log.Info("Connecting to server");
+
+            Log.Info($"Connecting to server {_host}:{_port}", "Connecton.Run");
             await tcpClient.ConnectAsync(_host, _port);
-            Log.Info("Connected to server");
+            Log.Info("Connected", "Connecton.Run");
 
             _networkStream = tcpClient.GetStream();
             {
@@ -51,7 +52,7 @@ namespace XmppComponent
                 while (xmlReader.Read()) {
                     switch (xmlReader.NodeType) {
                         case XmlNodeType.XmlDeclaration:
-                            Log.Info($"<- {xmlReader.NodeType.ToString()}");
+                            Log.Verbose($"<- {xmlReader.NodeType.ToString()}");
                             break;
 
                         case XmlNodeType.Element:
@@ -102,15 +103,15 @@ namespace XmppComponent
                             }
                             break;
 
-                        case XmlNodeType.EndElement:
-                            Log.Info($"<- {xmlReader.NodeType.ToString()}");
-                            if (xmlReader.Depth == 1) {
-                            }
-                            break;
+                        //case XmlNodeType.EndElement:
+                        //    Log.Info($"<- {xmlReader.NodeType.ToString()}");
+                        //    if (xmlReader.Depth == 1) {
+                        //    }
+                        //    break;
 
-                        default:
-                            Log.Info($"<- {xmlReader.NodeType.ToString()}");
-                            break;
+                        //default:
+                        //    Log.Info($"<- {xmlReader.NodeType.ToString()}");
+                        //    break;
                     }
                 }
 
@@ -218,7 +219,7 @@ x=345
         private void OnPresence(XmlReader xmlReader)
         {
             var presence = new XmppPresence {
-                PresenceType = (xmlReader.GetAttribute("type") ?? "normal") == "groupchat" ? XmppPresenceType.Unavailable : XmppPresenceType.Available,
+                PresenceType = (xmlReader.GetAttribute("type") ?? "available") == "unavailable" ? XmppPresenceType.Unavailable : XmppPresenceType.Available,
                 From = xmlReader.GetAttribute("from") ?? "",
             };
             Log.Verbose($"<-     from={presence.From}");

@@ -119,51 +119,64 @@ namespace XmppComponent
             var roomId = roomEvent.roomId;
             var itemId = roomEvent.itemId;
 
-            var props = await Inventory(roomId).GetItemProperties(itemId, new PidList { Pid.Name, Pid.AnimationsUrl, Pid.Image100Url });
-
-            var name = props.GetString(Pid.Name);
-            if (string.IsNullOrEmpty(name)) { name = "Item"; }
-
-            var roomItemJid = new RoomItemJid(roomId, itemId, name);
-
-            var animationsUrl = props.GetString(Pid.AnimationsUrl);
-            var imageUrl = string.IsNullOrEmpty(animationsUrl) ? props.GetString(Pid.Image100Url) : "";
-
-            var to = roomItemJid.Full;
-            var from = $"{itemId}@{_componentDomain}/backend";
-            var identityJid = $"{itemId}@{_componentDomain}";
-            var identityDigest = Math.Abs(string.GetHashCode(name + animationsUrl, StringComparison.InvariantCulture)).ToString(CultureInfo.InvariantCulture);
-
-            var name_UrlEncoded = WebUtility.UrlEncode(name);
-            var animationsUrl_UrlEncoded = string.IsNullOrEmpty(animationsUrl) ? "" : WebUtility.UrlEncode(animationsUrl);
-            var digest_UrlEncoded = WebUtility.UrlEncode(identityDigest);
-            var identitySrc = $"https://avatar.weblin.sui.li/identity/?avatarUrl={animationsUrl_UrlEncoded}&nickname={name_UrlEncoded}&digest={digest_UrlEncoded}";
-
-            var to_XmlEncoded = WebUtility.HtmlEncode(to);
-            var from_XmlEncoded = WebUtility.HtmlEncode(from);
-            var name_XmlEncoded = WebUtility.HtmlEncode(name_UrlEncoded);
-            var animationsUrl_XmlEncoded = string.IsNullOrEmpty(animationsUrl) ? "" : WebUtility.HtmlEncode(animationsUrl);
-            var imageUrl_XmlEncoded = string.IsNullOrEmpty(imageUrl) ? "" : WebUtility.HtmlEncode(imageUrl);
-            var identitySrc_XmlEncoded = WebUtility.HtmlEncode(identitySrc);
-            var identityDigest_XmlEncoded = WebUtility.HtmlEncode(identityDigest);
-            var identityJid_XmlEncoded = WebUtility.HtmlEncode(identityJid);
-
-            var animationsUrl_Attribute = $"animationsUrl='{animationsUrl_XmlEncoded}'";
-            var imageUrl_Attribute = $"imageUrl='{imageUrl_XmlEncoded}'";
-
             var roomItem = GetRoomItem(roomId, itemId);
             if (roomItem != null) {
-                roomItem.Resource = roomItemJid.Resource;
-                roomItem.State = RoomItem.RezState.Rezzing;
-            }
+                if (roomItem.State != RoomItem.RezState.Dropping) {
+                    Log.Warning($"Unexpected RoomEvent-rez: room={roomId} item={itemId}");
+                } else {
 
-            _conn?.Send(
+                    var props = await Inventory(roomId).GetItemProperties(itemId, new PidList { Pid.Name, Pid.AnimationsUrl, Pid.Image100Url, Pid.RezzedX });
+
+                    var name = props.GetString(Pid.Name);
+                    if (string.IsNullOrEmpty(name)) { name = $"Item-{itemId}"; }
+
+                    var x = props.GetInt(Pid.RezzedX);
+
+                    var roomItemJid = new RoomItemJid(roomId, itemId, name);
+
+                    var animationsUrl = props.GetString(Pid.AnimationsUrl);
+                    var imageUrl = string.IsNullOrEmpty(animationsUrl) ? props.GetString(Pid.Image100Url) : "";
+
+                    var to = roomItemJid.Full;
+                    var from = $"{itemId}@{_componentDomain}/backend";
+                    var identityJid = $"{itemId}@{_componentDomain}";
+                    var identityDigest = Math.Abs(string.GetHashCode(name + animationsUrl, StringComparison.InvariantCulture)).ToString(CultureInfo.InvariantCulture);
+
+                    var name_UrlEncoded = WebUtility.UrlEncode(name);
+                    var animationsUrl_UrlEncoded = string.IsNullOrEmpty(animationsUrl) ? "" : WebUtility.UrlEncode(animationsUrl);
+                    var digest_UrlEncoded = WebUtility.UrlEncode(identityDigest);
+                    var identitySrc = $"https://avatar.weblin.sui.li/identity/?avatarUrl={animationsUrl_UrlEncoded}&nickname={name_UrlEncoded}&digest={digest_UrlEncoded}";
+
+                    var to_XmlEncoded = WebUtility.HtmlEncode(to);
+                    var from_XmlEncoded = WebUtility.HtmlEncode(from);
+                    var name_XmlEncoded = WebUtility.HtmlEncode(name);
+                    var animationsUrl_XmlEncoded = string.IsNullOrEmpty(animationsUrl) ? "" : WebUtility.HtmlEncode(animationsUrl);
+                    var x_XmlEncoded = (x == 0) ? "" : WebUtility.HtmlEncode(x.ToString(CultureInfo.InvariantCulture));
+                    var imageUrl_XmlEncoded = string.IsNullOrEmpty(imageUrl) ? "" : WebUtility.HtmlEncode(imageUrl);
+                    var identitySrc_XmlEncoded = WebUtility.HtmlEncode(identitySrc);
+                    var identityDigest_XmlEncoded = WebUtility.HtmlEncode(identityDigest);
+                    var identityJid_XmlEncoded = WebUtility.HtmlEncode(identityJid);
+
+                    var animationsUrl_Attribute = $"animationsUrl='{animationsUrl_XmlEncoded}'";
+                    var imageUrl_Attribute = $"imageUrl='{imageUrl_XmlEncoded}'";
+                    var position_Node = $"<position x='{x_XmlEncoded}' />";
+
+                    roomItem.State = RoomItem.RezState.Rezzing;
+                    roomItem.Resource = roomItemJid.Resource;
+
+                    Log.Info($"Rez {roomItemJid.Resource} {roomId} {itemId}");
+
+                    _conn?.Send(
 @$"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}'>
     <x xmlns='vp.props' nickname='{name_XmlEncoded}' {(string.IsNullOrEmpty(animationsUrl) ? "" : animationsUrl_Attribute)} {(string.IsNullOrEmpty(imageUrl) ? "" : imageUrl_Attribute)} />
     <x xmlns='firebat:user:identity' jid='{identityJid_XmlEncoded}' src='{identitySrc_XmlEncoded}' digest='{identityDigest_XmlEncoded}' />
-    <x xmlns='http://jabber.org/protocol/muc'><history seconds='0' maxchars='0' maxstanzas='0'/></x>
+    <x xmlns='firebat:avatar:state'>{position_Node}</x>
+    <x xmlns='http://jabber.org/protocol/muc'><history seconds='0' maxchars='0' maxstanzas='0' /></x>
 </presence>"
             );
+
+                }
+            }
         }
 
         public async Task RoomEventStream_OnDerez(RoomEvent roomEvent)
@@ -173,17 +186,24 @@ namespace XmppComponent
             var roomId = roomEvent.roomId;
             var itemId = roomEvent.itemId;
 
-            var name = "";
+            var roomItem = GetRoomItem(roomId, itemId);
+            if (roomItem != null) {
+                if (roomItem.State != RoomItem.RezState.Pickupping) {
+                    Log.Warning($"Unexpected RoomEvent-derez: room={roomId} item={itemId}");
+                } else {
+                    roomItem.State = RoomItem.RezState.Derezzing;
 
-            var to = new RoomItemJid(roomId, itemId, name).Full;
-            var from = $"{itemId}@{_componentDomain}/backend";
+                    var to = $"{roomId}/{roomItem.Resource}";
+                    var from = $"{itemId}@{_componentDomain}/backend";
 
-            var to_XmlEncoded = WebUtility.HtmlEncode(to);
-            var from_XmlEncoded = WebUtility.HtmlEncode(from);
+                    var to_XmlEncoded = WebUtility.HtmlEncode(to);
+                    var from_XmlEncoded = WebUtility.HtmlEncode(from);
 
-            _conn?.Send($"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}' type='unavailable' />");
+                    Log.Info($"Derez {roomItem.Resource} {roomId} {itemId}");
 
-            await RemoveRoomItem(roomId, itemId);
+                    _conn?.Send($"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}' type='unavailable' />");
+                }
+            }
         }
 
         #endregion
@@ -203,6 +223,7 @@ namespace XmppComponent
                 managedRoom = _rooms[roomId];
                 if (!managedRoom.Items.ContainsKey(itemId)) {
                     managedRoom.Items[itemId] = new RoomItem(itemId);
+                    doSubscribe = true;
                 }
                 roomItem = managedRoom.Items[itemId];
             }
@@ -247,6 +268,7 @@ namespace XmppComponent
                         managedRoom.Items.Remove(itemId);
                         if (managedRoom.Items.Count == 0) {
                             doUnsubscribe = true;
+                            _rooms.Remove(roomId);
                         }
                     }
                 }
@@ -327,11 +349,17 @@ namespace XmppComponent
             var itemId = jid.Item;
 
             var roomItem = GetRoomItem(roomId, itemId);
-            if (roomItem != null) {
-                roomItem.State = RoomItem.RezState.Rezzed;
+            if (roomItem == null) {
+                // Not my item
+            } else {
+                if (roomItem.State != RoomItem.RezState.Rezzing) {
+                    Log.Warning($"Unexpected presence-available: room={roomId} item={itemId}");
+                } else {
+                    Log.Info($"Joined {roomId} {itemId}");
+                    roomItem.State = RoomItem.RezState.Rezzed;
+                    await Room(roomId).OnItemRezzed(itemId);
+                }
             }
-
-            await Room(roomId).OnItemRezzed(itemId);
         }
 
         async Task Connection_OnPresenceUnavailable(XmppPresence stanza)
@@ -342,13 +370,14 @@ namespace XmppComponent
 
             var roomItem = GetRoomItem(roomId, itemId);
             if (roomItem != null) {
-                if (roomItem.State == RoomItem.RezState.Derezzing) {
-                    roomItem.State = RoomItem.RezState.Derezzed;
-
-                    await Room(roomId).OnItemDerezzed(itemId);
-
-                } else {
+                if (roomItem.State != RoomItem.RezState.Derezzing) {
                     Log.Warning($"Unexpected presence-unavailable room={roomId} item={itemId}");
+                } else {
+                    Log.Info($"Left {roomId} {itemId}");
+
+                    roomItem.State = RoomItem.RezState.Derezzed;
+                    await Room(roomId).OnItemDerezzed(itemId);
+                    await RemoveRoomItem(roomId, itemId);
                 }
             }
         }
@@ -368,10 +397,10 @@ namespace XmppComponent
 
                 var roomItem = await AddRoomItem(roomId, itemId);
                 if (roomItem != null) {
+                    Log.Info($"Drop {roomId} {itemId}");
                     roomItem.State = RoomItem.RezState.Dropping;
+                    await User(userId).DropItem(itemId, roomId, posX, destinationUrl);
                 }
-
-                await User(userId).DropItem(itemId, roomId, posX, destinationUrl);
             }
         }
 
@@ -383,7 +412,17 @@ namespace XmppComponent
             var roomId = message.Cmd.ContainsKey("room") ? message.Cmd["room"] : "";
 
             if (!string.IsNullOrEmpty(userId) && itemId != ItemId.NoItem && !string.IsNullOrEmpty(roomId)) {
-                await User(userId).PickupItem(itemId, roomId);
+
+                var roomItem = GetRoomItem(roomId, itemId);
+                if (roomItem != null) {
+                    if (roomItem.State != RoomItem.RezState.Rezzed) {
+                        Log.Warning($"Unexpected message-cmd-pickupItem: room={roomId} item={itemId}");
+                    } else {
+                        Log.Info($"Pickup {roomId} {itemId}");
+                        roomItem.State = RoomItem.RezState.Pickupping;
+                        await User(userId).PickupItem(itemId, roomId);
+                    }
+                }
             }
         }
 

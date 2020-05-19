@@ -29,7 +29,7 @@ namespace nine3q.Grains
             if (!props.GetBool(Pid.RezableAspect)) { throw new SurfaceException(Id, itemId, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemNotRezable); }
             if (props.GetBool(Pid.IsRezzed)) { throw new SurfaceException(Id, itemId, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.NotRezzed); }
 
-            await Inventory.SetItemProperties(itemId, new Items.PropertySet {
+            await Inventory.SetItemProperties(itemId, new PropertySet {
                 [Pid.IsRezzing] = true,
                 [Pid.RezzedX] = posX,
             });
@@ -46,7 +46,7 @@ namespace nine3q.Grains
             if (!props.GetBool(Pid.RezableAspect)) { throw new SurfaceException(Id, itemId, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemNotRezable); }
             if (!props.GetBool(Pid.IsRezzing)) { throw new SurfaceException(Id, itemId, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.NotRezzed); }
 
-            await Inventory.SetItemProperties(itemId, new Items.PropertySet { [Pid.IsRezzed] = true, });
+            await Inventory.SetItemProperties(itemId, new PropertySet { [Pid.IsRezzed] = true, });
         }
 
         public async Task DerezItem(long itemId)
@@ -56,7 +56,7 @@ namespace nine3q.Grains
             if (!props.GetBool(Pid.RezableAspect)) { throw new SurfaceException(Id, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemNotRezable); }
             if (!props.GetBool(Pid.IsRezzed)) { throw new SurfaceException(Id, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.NotRezzed); }
 
-            await Inventory.SetItemProperties(itemId, new Items.PropertySet {
+            await Inventory.SetItemProperties(itemId, new PropertySet {
                 [Pid.IsDerezzing] = true,
             });
 
@@ -65,14 +65,14 @@ namespace nine3q.Grains
 
         public async Task OnItemDerezzed(long itemId)
         {
-            var props = await Inventory.GetItemProperties(itemId, new PidList { Pid.RezableAspect, Pid.IsRezzed });
+            await Task.CompletedTask;
 
-            if (!props.GetBool(Pid.RezableAspect)) { throw new SurfaceException(Id, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemNotRezable); }
-            if (!props.GetBool(Pid.IsRezzed)) { throw new SurfaceException(Id, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.NotRezzed); }
+            // Its already gone, back to the user, before confirmation from xmpp rooom
 
-            await Inventory.SetItemProperties(itemId, new Items.PropertySet {
-                [Pid.IsRezzed] = false,
-            });
+            //var props = await Inventory.GetItemProperties(itemId, new PidList { Pid.RezableAspect, Pid.IsRezzed });
+            //if (!props.GetBool(Pid.RezableAspect)) { throw new SurfaceException(Id, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemNotRezable); }
+            //if (!props.GetBool(Pid.IsRezzed)) { throw new SurfaceException(Id, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.NotRezzed); }
+            //await Inventory.DeleteItemProperties(itemId, new PidList { Pid.IsRezzed });
         }
     }
 }

@@ -8,7 +8,7 @@ namespace XmppComponent
         public long Item { get; set; }
         public string Name { get; set; }
         public string Resource => $"{Name} {Item}";
-        public string Full => $"{Room}/{Full}";
+        public string Full => $"{Room}/{Resource}";
 
         public RoomItemJid(string roomId, long itemId, string itemName)
         {
@@ -27,7 +27,10 @@ namespace XmppComponent
             var itemId = (long)0;
             _ = long.TryParse(itemIdStr, out itemId);
             Item = itemId;
-            Name = itemNameAndId.Substring(0, itemNameAndId.Length - itemIdStr.Length - 1);
+            var len = itemNameAndId.Length - itemIdStr.Length - 1;
+            if (len >= 0) {
+                Name = itemNameAndId.Substring(0, len);
+            }
         }
     }
 }
