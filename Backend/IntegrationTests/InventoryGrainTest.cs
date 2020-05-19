@@ -11,7 +11,7 @@ namespace IntegrationTests
     {
         private string GetRandomInventoryName()
         {
-            return "Test-" + Misc.GetMethodName(1) + "-" + RandomString.Get(10);
+            return "Test-" + Stack.GetMethodName(1) + "-" + RandomString.Get(10);
         }
 
         [TestMethod]

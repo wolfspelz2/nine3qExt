@@ -172,7 +172,7 @@ namespace nine3q.Grains
                 }
 
                 // Notify subscribers
-                Misc.Dont = () => {
+                Don.t = () => {
                     var streamProvider = GetStreamProvider(InventoryService.StreamProvider);
                     var stream = streamProvider.GetStream<ItemUpdate>(Guid, InventoryService.StreamNamespaceItemUpdate.ToString());
                     {
@@ -199,7 +199,7 @@ namespace nine3q.Grains
         {
             _state.State.Name = this.GetPrimaryKeyString();
 
-            Misc.Dont = () => {
+            Don.t = () => {
                 _state.State.WriteIds = summary.ChangedItems.Clone();
                 _state.State.WriteIds.UnionWith(summary.AddedItems);
                 _state.State.DeleteIds = summary.DeletedItems;
