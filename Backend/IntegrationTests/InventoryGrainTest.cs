@@ -9,15 +9,17 @@ namespace IntegrationTests
     [TestClass]
     public class InventoryGrainTest
     {
-        const int StackFrameNumber = 0;
-
+        private string GetRandomInventoryName()
+        {
+            return "Test-" + Misc.GetMethodName(1) + "-" + RandomString.Get(10);
+        }
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
         public void CreateItem()
         {
             // Arrange
-            var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
+            var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
             try {
 
                 // Act
@@ -33,10 +35,31 @@ namespace IntegrationTests
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
+        public void DeleteItem()
+        {
+            // Arrange
+            var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
+            try {
+                var itemId = inv.CreateItem(new PropertySet { { Pid.TestInt, (long)42 } }).Result;
+
+                // Act
+                var isDeleted = inv.DeleteItem(itemId).Result;
+
+                // Assert
+                Assert.IsTrue(isDeleted);
+                Assert.AreEqual(0, inv.GetItemIds().Result.Count);
+
+            } finally {
+                inv.DeletePersistentStorage().Wait();
+            }
+        }
+
+        [TestMethod]
+        [TestCategory(GrainClient.Category)]
         public void Sent_and_received_properties_are_identical()
         {
             // Arrange
-            var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
+            var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
             try {
 
                 // Act
@@ -72,8 +95,8 @@ namespace IntegrationTests
         public void TransferItem()
         {
             // Arrange
-            var source = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10) + "-source");
-            var dest = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10) + "-dest");
+            var source = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName() + "-source");
+            var dest = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName() + "-dest");
             try {
                 // Arrange
                 var item100Id = source.CreateItem(new PropertySet { [Pid.TestInt1] = 100, [Pid.IsContainer] = true, }).Result;
@@ -138,8 +161,8 @@ namespace IntegrationTests
         public void TransferItem_with_weird_properties()
         {
             // Arrange
-            var source = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10) + "-source");
-            var dest = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10) + "-dest");
+            var source = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName() + "-source");
+            var dest = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName() + "-dest");
             try {
                 // Arrange
                 var itemId = source.CreateItem(new PropertySet {
@@ -214,8 +237,8 @@ namespace IntegrationTests
         public void CancelItemTransfer_deletes_received_items_and_resets_source()
         {
             // Arrange
-            var source = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10) + "-source");
-            var dest = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10) + "-dest");
+            var source = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName() + "-source");
+            var dest = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName() + "-dest");
             try {
                 // Arrange
                 var containerId = source.CreateItem(new PropertySet { [Pid.IsContainer] = true, [Pid.ContainerCanImport] = true }).Result;
@@ -232,8 +255,8 @@ namespace IntegrationTests
 
                 // Assert
                 Assert.AreEqual(containerId, source.GetItemProperties(itemId, PidList.All).Result.GetItem(Pid.Container));
-                Assert.AreEqual(3, source.GetItems().Result.Count);
-                Assert.AreEqual(0, dest.GetItems().Result.Count);
+                Assert.AreEqual(3, source.GetItemIds().Result.Count);
+                Assert.AreEqual(0, dest.GetItemIds().Result.Count);
 
             } finally {
                 source.DeletePersistentStorage().Wait();
@@ -246,7 +269,7 @@ namespace IntegrationTests
         public void persists_properties()
         {
             // Arrange
-            var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
+            var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
             try {
 
                 var props = new PropertySet {
@@ -285,8 +308,8 @@ namespace IntegrationTests
         public void get_subset_of_item_properties()
         {
             // Arrange
-            var invName = "Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10);
-            var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
+            var invName = GetRandomInventoryName();
+            var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
             try {
                 var props = new PropertySet {
                     { Pid.TestInt, (long)41 },
@@ -317,7 +340,7 @@ namespace IntegrationTests
         public void GetItemByName()
         {
             // Arrange
-            var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
+            var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
             try {
                 var itemId = inv.CreateItem(new PropertySet { { Pid.Name, "TestItem" } }).Result;
 
@@ -337,7 +360,7 @@ namespace IntegrationTests
         public void GetIdsAndValues()
         {
             // Arrange
-            var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
+            var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
             try {
                 var itemId1 = inv.CreateItem(new PropertySet { { Pid.TestString, "one" }, { Pid.TestInt1, (long)11 }, { Pid.TestInt2, (long)12 }, }).Result;
                 var itemId2 = inv.CreateItem(new PropertySet { { Pid.TestString, "two" }, { Pid.TestInt1, (long)21 }, { Pid.TestInt2, (long)22 }, }).Result;
@@ -369,7 +392,7 @@ namespace IntegrationTests
         public void GetIdsAndValues_also_useful_to_get_some_properties_of_all_items()
         {
             // Arrange
-            var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
+            var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
             try {
                 var itemId1 = inv.CreateItem(new PropertySet { { Pid.TestString, "one" }, { Pid.TestInt1, (long)11 }, { Pid.TestInt2, (long)12 }, }).Result;
                 var itemId2 = inv.CreateItem(new PropertySet { { Pid.TestString, "two" }, { Pid.TestInt1, (long)21 }, { Pid.TestInt2, (long)22 }, }).Result;
@@ -404,7 +427,7 @@ namespace IntegrationTests
         public void CreateItem_with_slot_and_container_places_item_inside()
         {
             // Arrange
-            var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
+            var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
             try {
                 // Arrange
                 var containerId = inv.CreateItem(new PropertySet { [Pid.IsContainer] = true, [Pid.ContainerCanImport] = true, [Pid.Slots] = 3 }).Result;
@@ -432,7 +455,7 @@ namespace IntegrationTests
         public void activate_big_inventory()
         {
             // Arrange
-            var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
+            var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
             try {
                 const int inventorySize = 200;
                 var ids = new ItemIdSet();
@@ -443,7 +466,7 @@ namespace IntegrationTests
 
                 // Act
                 // Assert
-                Assert.AreEqual(inventorySize, inv.GetItems().Result.Count);
+                Assert.AreEqual(inventorySize, inv.GetItemIds().Result.Count);
 
             } finally {
                 inv.DeletePersistentStorage().Wait();
@@ -455,18 +478,18 @@ namespace IntegrationTests
         public void transient_inventory_does_not_persist_changes()
         {
             // Arrange
-            var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
+            var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
             try {
                 inv.SetPersistent(false);
 
                 // Act
                 var itemId1 = inv.CreateItem(new PropertySet { { Pid.TestInt, (long)41 } }).Result;
                 var itemId2 = inv.CreateItem(new PropertySet { { Pid.TestInt, (long)42 } }).Result;
-                Assert.AreEqual(2, inv.GetItems().Result.Count);
+                Assert.AreEqual(2, inv.GetItemIds().Result.Count);
                 inv.Deactivate().Wait();
 
                 // Assert
-                Assert.AreEqual(0, inv.GetItems().Result.Count);
+                Assert.AreEqual(0, inv.GetItemIds().Result.Count);
 
             } finally {
                 inv.DeletePersistentStorage().Wait();
@@ -478,16 +501,16 @@ namespace IntegrationTests
         public void default_persistent_inventory_does_persist()
         {
             // Arrange
-            var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
+            var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
             try {
                 // Act
                 var itemId1 = inv.CreateItem(new PropertySet { { Pid.TestInt, (long)41 } }).Result;
                 var itemId2 = inv.CreateItem(new PropertySet { { Pid.TestInt, (long)42 } }).Result;
-                Assert.AreEqual(2, inv.GetItems().Result.Count);
+                Assert.AreEqual(2, inv.GetItemIds().Result.Count);
                 inv.Deactivate().Wait();
 
                 // Assert
-                Assert.AreEqual(2, inv.GetItems().Result.Count);
+                Assert.AreEqual(2, inv.GetItemIds().Result.Count);
 
             } finally {
                 inv.DeletePersistentStorage().Wait();
@@ -499,7 +522,7 @@ namespace IntegrationTests
         public void transient_inventory_persist_completely_on_WritePermanentStorage()
         {
             // Arrange
-            var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
+            var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
             try {
                 inv.SetPersistent(false);
 
@@ -510,7 +533,7 @@ namespace IntegrationTests
                 inv.Deactivate().Wait();
 
                 // Assert
-                Assert.AreEqual(2, inv.GetItems().Result.Count);
+                Assert.AreEqual(2, inv.GetItemIds().Result.Count);
 
             } finally {
                 inv.DeletePersistentStorage().Wait();
@@ -522,7 +545,7 @@ namespace IntegrationTests
             public void check_write_ops_of_multiple_transactions()
             {
                 // Arrange
-                var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
+                var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
 
                 try {
                     // Act
@@ -553,7 +576,7 @@ namespace IntegrationTests
             public void just_created_item_gets_updates_of_template_changes()
             {
                 // Arrange
-                var uniqueName = "Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10);
+                var uniqueName = GetRandomInventoryName();
                 var inventoryName = uniqueName + "-Inventory";
                 var templatesInventoryName = uniqueName + "-TemplateInventory";
                 var templateName = uniqueName + "-Template";
@@ -580,7 +603,7 @@ namespace IntegrationTests
             public void item_with_later_assigned_template_gets_updates_of_template_changes()
             {
                 // Arrange
-                var uniqueName = "Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10);
+                var uniqueName = GetRandomInventoryName();
                 var inventoryName = uniqueName + "-Inventory";
                 var templatesInventoryName = uniqueName + "-TemplateInventory";
                 var templateName = uniqueName + "-Template";
@@ -607,7 +630,7 @@ namespace IntegrationTests
             [TestMethod][TestCategory(GrainClient.Category)]
             public void ExecuteAction_with_action_map()
             {
-                var inv = GrainClient.GrainFactory.GetGrain<IInventory>("Test-" + Misc.GetMethodName(StackFrameNumber) + "-" + RandomString.Get(10));
+                var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
                 try {
                     // Arrange
                     var itemId = inv.CreateItem(new PropertySet {

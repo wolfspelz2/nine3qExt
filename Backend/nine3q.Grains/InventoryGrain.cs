@@ -24,9 +24,9 @@ namespace nine3q.Grains
     public class InventoryState
     {
         public string Name;
-        public ItemIdPropertiesCollection ItemProperties;
-        public ItemIdSet WriteItems;
-        public ItemIdSet DeleteItems;
+        public ItemIdPropertiesCollection Items;
+        public ItemIdSet WriteIds;
+        public ItemIdSet DeleteIds;
     }
 
     class InventoryGrain : Grain, IInventory
@@ -76,9 +76,14 @@ namespace nine3q.Grains
             //return ItemId.NoItem;
         }
 
-        public Task<bool> DeleteItem(long id)
+        public async Task<bool> DeleteItem(long id)
         {
-            throw new NotImplementedException();
+            var deleted = true;
+            Inventory.Transaction(() => {
+                deleted = Inventory.DeleteItem(id);
+            });
+            await CheckInventoryChanged();
+            return deleted;
         }
 
         public async Task SetItemProperties(long id, PropertySet properties)
@@ -99,7 +104,7 @@ namespace nine3q.Grains
             return Task.FromResult(Inventory.GetItemByName(name));
         }
 
-        public Task<ItemIdSet> GetItems()
+        public Task<ItemIdSet> GetItemIds()
         {
             return Task.FromResult(Inventory.GetItemIds());
         }
@@ -194,16 +199,18 @@ namespace nine3q.Grains
         {
             _state.State.Name = this.GetPrimaryKeyString();
 
-            //_state.State.WriteItems = summary.ChangedItems.Clone();
-            //_state.State.WriteItems.UnionWith(summary.AddedItems);
-            //_state.State.DeleteItems = summary.DeletedItems;
+            Misc.Dont = () => {
+                _state.State.WriteIds = summary.ChangedItems.Clone();
+                _state.State.WriteIds.UnionWith(summary.AddedItems);
+                _state.State.DeleteIds = summary.DeletedItems;
 
-            //var itemIds = _state.State.WriteItems;
+                var itemIds = _state.State.WriteIds;
+            };
             var itemIds = Inventory.GetItemIds();
 
-            _state.State.ItemProperties = new ItemIdPropertiesCollection();
+            _state.State.Items = new ItemIdPropertiesCollection();
             foreach (var id in itemIds) {
-                _state.State.ItemProperties.Add(id, Inventory.GetItemProperties(id, PidList.All));
+                _state.State.Items.Add(id, Inventory.GetItemProperties(id, PidList.All));
             }
 
             await _state.WriteStateAsync();
@@ -215,7 +222,7 @@ namespace nine3q.Grains
 
             Inventory = new Inventory(this.GetPrimaryKeyString());
 
-            var allProps = _state.State.ItemProperties;
+            var allProps = _state.State.Items;
             if (allProps != null) {
                 foreach (var pair in allProps) {
                     Inventory.CreateItem(pair.Value);

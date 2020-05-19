@@ -15,7 +15,7 @@ namespace nine3q.GrainInterfaces
         Task<PropertySet> GetItemProperties(long id, PidList pids, bool native = false);
 
         Task<long> GetItemByName(string name);
-        Task<ItemIdSet> GetItems();
+        Task<ItemIdSet> GetItemIds();
         Task<ItemIdPropertiesCollection> GetItemIdsAndValuesByProperty(Pid filterProperty, PidList desiredProperties);
 
         Task AddChildToContainer(long id, long containerId, long slot);

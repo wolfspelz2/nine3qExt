@@ -46,79 +46,71 @@ namespace XmppComponent
             var destinationUrl = cmd.ContainsKey("room") ? cmd["destination"] : "";
 
             if (!string.IsNullOrEmpty(userId) && hasItemId && !string.IsNullOrEmpty(roomId) && hasX) {
-                var room = _client.GetGrain<IRoom>(roomId);
+
+                itemId = await TestPrepareItemForDrop(userId, roomId);
+
                 var streamProvider = _client.GetStreamProvider(RoomStream.Provider);
-                var stream = streamProvider.GetStream<RoomEvent>(await room.GetStreamId(), RoomStream.NamespaceEvents);
+                var stream = streamProvider.GetStream<RoomEvent>(await _client.GetGrain<IRoom>(roomId).GetStreamId(), RoomStream.NamespaceEvents);
                 if (!roomEventsSubscriptionHandles.ContainsKey(roomId)) {
                     roomEventsSubscriptionHandles[roomId] = await stream.SubscribeAsync(this);
                 }
 
-                var user = _client.GetGrain<IUser>(userId);
-                await user.DropItem(itemId, roomId, posX, destinationUrl);
+                await _client.GetGrain<IUser>(userId).DropItem(itemId, roomId, posX, destinationUrl);
             }
         }
 
-        //private async Task HandleRoomEvent(IRoom room, RoomEvent roomEvent)
-        //{
-        //    try {
-        //        if (roomEvent.type == RoomEvent.Type.Rez) {
-        //            var roomId = room.GetPrimaryKeyString();
-        //            var nick = await room.GetItemProperty(roomEvent.long, "name");
-        //            var avatarUrl = await room.GetItemProperty(roomEvent.long, "avatarUrl");
+        private async Task<long> TestPrepareItemForDrop(string userId, string roomId)
+        {
+            var userItemId = await _client.GetGrain<IInventory>(userId).GetItemByName("General Sherman");
+            var roomItemId = await _client.GetGrain<IInventory>(roomId).GetItemByName("General Sherman");
+            await _client.GetGrain<IInventory>(userId).DeleteItem(userItemId);
+            await _client.GetGrain<IInventory>(roomId).DeleteItem(roomItemId);
 
-        //            Connection?.Send(@$"<presence to='{roomId}/{nick}' from='{roomEvent.long}@{_host}/backend'>
-        //               <x xmlns='http://jabber.org/protocol/muc'>
-        //                 <history seconds='0' maxchars='0' maxstanzas='0'/>
-        //               </x>
-        //               <x xmlns='firebat:user:identity' jid='{roomEvent.long}@{_host}' src='https://avatar.weblin.sui.li/identity/?avatarUrl={avatarUrl}&nickname={nick}' digest='1' />
-        //            </presence>");
-        //        }
-        //    } catch (Exception ex) {
-        //        throw;
-        //    }
-        //}
+            return await _client.GetGrain<IInventory>(userId).CreateItem(new PropertySet {
+                [Pid.Name] = "General Sherman",
+                [Pid.AnimationsUrl] = "https://weblin-avatar.dev.sui.li/items/baum/avatar.xml",
+                [Pid.RezableAspect] = true,
+            });
+        }
 
         public async Task OnNextAsync(RoomEvent roomEvent, StreamSequenceToken token = null)
         {
             try {
                 if (roomEvent.type == RoomEvent.Type.RezItem) {
                     var roomId = roomEvent.roomId;
-                    var inv = _client.GetGrain<IInventory>(roomId);
 
-                    var props = await inv.GetItemProperties(roomEvent.itemId, new PidList { Pid.Name, Pid.AnimationsUrl, Pid.Image100Url });
+                    var props = await _client.GetGrain<IInventory>(roomId).GetItemProperties(roomEvent.itemId, new PidList { Pid.Name, Pid.AnimationsUrl, Pid.Image100Url });
 
                     var nick = props.GetString(Pid.Name);
                     var animationsUrl = props.GetString(Pid.AnimationsUrl);
                     var imageUrl = string.IsNullOrEmpty(animationsUrl) ? props.GetString(Pid.Image100Url) : "";
 
                     var to = $"{roomId}/{nick}";
-                    var toXmlEncoded = WebUtility.HtmlEncode(to);
-
                     var from = $"{roomEvent.itemId}@{_host}/backend";
-                    var fromXmlEncoded = WebUtility.HtmlEncode(from);
-
                     var itemJid = $"{roomEvent.itemId}@{_host}";
-                    var itemJidXmlEncoded = WebUtility.HtmlEncode(itemJid);
-
                     var identityDigest = Math.Abs(string.GetHashCode(nick + animationsUrl, StringComparison.InvariantCulture)).ToString(CultureInfo.InvariantCulture);
 
-                    var nickUrlEncoded = string.IsNullOrEmpty(nick) ? "xx" : WebUtility.UrlEncode(nick);
-                    var animationsUrlUrlEncoded = string.IsNullOrEmpty(animationsUrl) ? "" : WebUtility.UrlEncode(animationsUrl);
-                    var digestUrlEncoded = WebUtility.UrlEncode(identityDigest);
-                    var identitySrc = $"https://avatar.weblin.sui.li/identity/?avatarUrl={animationsUrlUrlEncoded}&nickname={nickUrlEncoded}&digest={digestUrlEncoded}";
+                    var nick_UrlEncoded = string.IsNullOrEmpty(nick) ? "xx" : WebUtility.UrlEncode(nick);
+                    var animationsUrl_UrlEncoded = string.IsNullOrEmpty(animationsUrl) ? "" : WebUtility.UrlEncode(animationsUrl);
+                    var digest_UrlEncoded = WebUtility.UrlEncode(identityDigest);
+                    var identitySrc = $"https://avatar.weblin.sui.li/identity/?avatarUrl={animationsUrl_UrlEncoded}&nickname={nick_UrlEncoded}&digest={digest_UrlEncoded}";
 
-                    var animationsUrlXmlEncoded = string.IsNullOrEmpty(animationsUrl) ? "" : WebUtility.HtmlEncode(animationsUrl);
-                    var imageUrlXmlEncoded = string.IsNullOrEmpty(imageUrl) ? "" : WebUtility.HtmlEncode(imageUrl);
-                    var identitySrcXmlEncoded = WebUtility.HtmlEncode(identitySrc);
-                    var identityDigestXmlEncoded = WebUtility.HtmlEncode(identityDigest);
+                    var to_XmlEncoded = WebUtility.HtmlEncode(to);
+                    var from_XmlEncoded = WebUtility.HtmlEncode(from);
+                    var itemJid_XmlEncoded = WebUtility.HtmlEncode(itemJid);
+                    var nick_XmlEncoded = string.IsNullOrEmpty(nick) ? "" : WebUtility.HtmlEncode(nick);
+                    var animationsUrl_XmlEncoded = string.IsNullOrEmpty(animationsUrl) ? "" : WebUtility.HtmlEncode(animationsUrl);
+                    var imageUrl_XmlEncoded = string.IsNullOrEmpty(imageUrl) ? "" : WebUtility.HtmlEncode(imageUrl);
+                    var identitySrc_XmlEncoded = WebUtility.HtmlEncode(identitySrc);
+                    var identityDigest_XmlEncoded = WebUtility.HtmlEncode(identityDigest);
 
-                    var animationsUrlAttribute = $"animationsUrl='{animationsUrlXmlEncoded}";
-                    var imageUrlAttribute = $"imageUrl='{imageUrlXmlEncoded}";
+                    var animationsUrl_Attribute = $"animationsUrl='{animationsUrl_XmlEncoded}'";
+                    var imageUrl_Attribute = $"imageUrl='{imageUrl_XmlEncoded}'";
 
                     Connection?.Send(
-@$"<presence to='{toXmlEncoded}' from='{fromXmlEncoded}'>
-    <x xmlns='vp.props' nickname='{nickUrlEncoded}' {(string.IsNullOrEmpty(animationsUrl) ? "":animationsUrlAttribute)} {(string.IsNullOrEmpty(imageUrl) ? "" : imageUrlAttribute)} />
-    <x xmlns='firebat:user:identity' jid='{itemJidXmlEncoded}' src='{identitySrcXmlEncoded}' digest='{identityDigestXmlEncoded}' />
+@$"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}'>
+    <x xmlns='vp.props' nickname='{nick_XmlEncoded}' {(string.IsNullOrEmpty(animationsUrl) ? "" : animationsUrl_Attribute)} {(string.IsNullOrEmpty(imageUrl) ? "" : imageUrl_Attribute)} />
+    <x xmlns='firebat:user:identity' jid='{itemJid_XmlEncoded}' src='{identitySrc_XmlEncoded}' digest='{identityDigest_XmlEncoded}' />
     <x xmlns='http://jabber.org/protocol/muc'><history seconds='0' maxchars='0' maxstanzas='0'/></x>
 </presence>"
                     );
