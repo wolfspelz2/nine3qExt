@@ -446,7 +446,7 @@ $z-index: (
     #n3q div.n3q-window-title-bar {
         display: block;
         position: relative;
-        height: 28px;
+        height: 27px;
         // width: 400px;
         background-color: #ffffff;
         border-bottom: 1px solid rgb(128, 128, 128);
@@ -496,9 +496,12 @@ $z-index: (
             }
             
         #n3q div.n3q-window-content {
-            // width: 400px;
-            // height: 300px;
             display: block;
+            position: absolute;
+            top: 28px;
+            left: 0;
+            bottom: 0;
+            right: 0;
         }
     
         #n3q div.n3q-window-resize {
@@ -519,7 +522,7 @@ $z-index: (
     // #n3q div.n3q-settingswindow {}
 
         #n3q div.n3q-settingswindow-content {
-            top: 36px;
+            top: 8px;
             left: 8px;
             right: 8px;
             bottom: 38px;
@@ -529,7 +532,7 @@ $z-index: (
 
         #n3q div.n3q-changeswindow-out {
             position: absolute;
-            top: 36px;
+            top: 8px;
             left: 8px;
             right: 8px;
             bottom: 8px;
@@ -538,16 +541,41 @@ $z-index: (
     
     // #n3q div.n3q-xmppwindow {}
 
+        #n3q div.n3q-xmppwindow div.n3q-window-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        // #n3q div.n3q-xmppwindow-out {
+        //     flex: 1 1 auto;
+        //     overflow-y: scroll;
+        // }
+        
         #n3q div.n3q-xmppwindow-out {
             position: absolute;
-            top: 36px;
+            top: 8px;
             left: 8px;
             right: 8px;
-            bottom: 338px;
+            bottom: 314px;
             overflow-y: scroll;
-            // user-select: auto;
         }
         
+        // #n3q div.n3q-xmppwindow-in {
+        //     flex: 1 1 auto;
+        //     border: 1px solid #808080;
+        //     border-radius: 4px;
+        // }
+
+        #n3q div.n3q-xmppwindow-in {
+            position: absolute;
+            height: 300px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            border: 1px solid #808080;
+            border-radius: 4px;
+        }
+
         #n3q div.n3q-xmppwindow-line span.n3q-xmppwindow-label {
             color: white;
             background-color: #808080;
@@ -569,16 +597,6 @@ $z-index: (
                 background-color: red;
             }
 
-        #n3q div.n3q-xmppwindow-in {
-            position: absolute;
-            height: 322px;
-            left: 8px;
-            right: 8px;
-            bottom: 8px;
-            border: 1px solid #808080;
-            border-radius: 4px;
-        }
-
         #n3q textarea.n3q-xmppwindow-in-input, 
         #n3q input[type=text].n3q-xmppwindow-in-input
         {
@@ -589,7 +607,6 @@ $z-index: (
             bottom: 4px;
             box-sizing: border-box;
 
-            height: 314px;
             resize: none;
             border-width: 0;
             font: normal 11px/12px Arial, sans-serif;
@@ -614,15 +631,15 @@ $z-index: (
             #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-button:hover { filter: brightness(0.9); }
             #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-button:active { filter: brightness(0.8); }   
  
-            #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-xmppwindow-in-send { right: 4px; top: 4px; }
-            #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-xmppwindow-in-save { right: 4px; top: 30px; }
-            #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-xmppwindow-out-clear { right: 4px; top: 0px; }
+            #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-xmppwindow-out-clear { right: 30px; top: 8px; }
+            #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-xmppwindow-in-send { right: 35px; bottom: 13px; border-width: 2px; }
+            #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-xmppwindow-in-save { right: 36px; bottom: 40px; }
 
     // #n3q div.n3q-chatwindow {}
 
     #n3q div.n3q-chatwindow-chatout {
         position: absolute;
-        top: 36px;
+        top: 8px;
         left: 8px;
         right: 8px;
         bottom: 38px;

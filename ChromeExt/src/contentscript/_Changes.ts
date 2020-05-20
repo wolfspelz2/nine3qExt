@@ -8,6 +8,7 @@ export class _Changes
     static data: IHistory = [
         ['1.0.X', 'x', [
             ['Add', 'Support for animationsUrl in presence-x-vp:props'],
+            ['Fix', 'Window position on small screens'],
         ]],
         ['1.0.3', 'XmppWindow SettingsDialog', [
             ['Add', 'Change history'],

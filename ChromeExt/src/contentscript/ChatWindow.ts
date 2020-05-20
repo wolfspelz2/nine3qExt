@@ -52,7 +52,20 @@ export class ChatWindow extends Window
             let windowElem = this.windowElem;
             let contentElem = this.contentElem;
             $(windowElem).addClass('n3q-chatwindow');
-            $(windowElem).css({ 'width': width + 'px', 'height': height + 'px' });
+
+            let left = 50;
+            if (aboveElem) {
+                left = aboveElem.offsetLeft - 180;
+                if (left < 0) { left = 0; }
+            }
+            let top = this.display.offsetHeight - height - bottom;
+            {
+                let minTop = 10;
+                if (top < minTop) {
+                    height -= minTop - top;
+                    top = minTop;
+                }
+            }
 
             let chatoutElem = <HTMLElement>$('<div class="n3q-base n3q-chatwindow-chatout" data-translate="children" />').get(0);
             let chatinElem = <HTMLElement>$('<div class="n3q-base n3q-chatwindow-chatin" data-translate="children" />').get(0);
@@ -70,19 +83,13 @@ export class ChatWindow extends Window
             this.chatinInputElem = chatinTextElem;
             this.chatoutElem = chatoutElem;
 
-            if (aboveElem) {
-                let left = aboveElem.offsetLeft - 180;
-                if (left < 0) { left = 0; }
-                let screenHeight = this.display.offsetHeight;
-                let top = screenHeight - height - bottom;
-                $(windowElem).css({ left: left + 'px', top: top + 'px' });
-            }
+            $(windowElem).css({ 'width': width + 'px', 'height': height + 'px', 'left': left + 'px', 'top': top + 'px' });
 
-            this.fixChatInTextWidth(chatinTextElem, 38, chatinElem);
+            this.fixChatInTextWidth(chatinTextElem, chatinElem);
 
             this.onResize = (ev: JQueryEventObject) =>
             {
-                this.fixChatInTextWidth(chatinTextElem, 38, chatinElem);
+                this.fixChatInTextWidth(chatinTextElem, chatinElem);
                 // $(chatinText).focus();
             };
 
@@ -122,8 +129,9 @@ export class ChatWindow extends Window
         return this.windowElem != null;
     }
 
-    fixChatInTextWidth(chatinText: HTMLElement, delta: number, chatin: HTMLElement)
+    fixChatInTextWidth(chatinText: HTMLElement, chatin: HTMLElement)
     {
+        let delta = 14;
         let parentWidth = chatin.offsetWidth;
         let width = parentWidth - delta;
         $(chatinText).css({ 'width': width });

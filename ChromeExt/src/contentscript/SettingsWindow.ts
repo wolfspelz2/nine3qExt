@@ -24,30 +24,36 @@ export class SettingsWindow extends Window
         super.show(options);
 
         let aboveElem: HTMLElement = options.above;
-        let bottom = as.Int(options.bottom, 200);
-        let width = as.Int(options.width, 430);
+        let bottom = as.Int(options.bottom, 150);
+        let width = as.Int(options.width, 420);
         let height = as.Int(options.height, 410);
 
         if (this.windowElem) {
             let windowElem = this.windowElem;
             let contentElem = this.contentElem;
             $(windowElem).addClass('n3q-settingswindow');
-            $(windowElem).css({ 'width': width + 'px', 'height': height + 'px' });
+
+            let left = 50;
+            if (aboveElem) {
+                left = aboveElem.offsetLeft - 180;
+                if (left < 0) { left = 0; }
+            }
+            let top = this.display.offsetHeight - height - bottom;
+            {
+                let minTop = 10;
+                if (top < minTop) {
+                    top = minTop;
+                }
+            }
 
             let uri = 'chrome-extension://' + chrome.runtime.id + '/popup.html';
-            let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-settingswindow-content" style="width: 430px; height: 380px;" src="' + uri + ' " frameborder="0"></iframe>').get(0);
+            let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-settingswindow-content" style="width: 420px; height: 380px;" src="' + uri + ' " frameborder="0"></iframe>').get(0);
 
             $(contentElem).append(iframeElem);
 
             this.app.translateElem(windowElem);
 
-            if (aboveElem) {
-                let left = aboveElem.offsetLeft - 180;
-                if (left < 0) { left = 0; }
-                let screenHeight = this.display.offsetHeight;
-                let top = screenHeight - height - bottom;
-                $(windowElem).css({ left: left + 'px', top: top + 'px' });
-            }
+            $(windowElem).css({ 'width': width + 'px', 'height': height + 'px', 'left': left + 'px', 'top': top + 'px' });
         }
     }
 

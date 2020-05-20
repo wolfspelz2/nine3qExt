@@ -34,7 +34,16 @@ export class XmppWindow extends Window
             let windowElem = this.windowElem;
             let contentElem = this.contentElem;
             $(windowElem).addClass('n3q-xmppwindow');
-            $(windowElem).css({ 'width': width + 'px', 'height': height + 'px' });
+
+            let left = 10;
+            let top = this.display.offsetHeight - height - bottom;
+            {
+                let minTop = 10;
+                if (top < minTop) {
+                    //height -= minTop - top;
+                    top = minTop;
+                }
+            }
 
             let outElem = <HTMLElement>$('<div class="n3q-base n3q-xmppwindow-out" data-translate="children" />').get(0);
             let inElem = <HTMLElement>$('<div class="n3q-base n3q-xmppwindow-in" data-translate="children" />').get(0);
@@ -43,31 +52,27 @@ export class XmppWindow extends Window
             let inSaveElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-xmppwindow-in-save" title="Save">Save</div>').get(0);
             let outClearElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-xmppwindow-out-clear" title="Clear">Clear</div>').get(0);
 
-            $(outElem).append(outClearElem);
 
             $(inElem).append(inInputElem);
-            $(inElem).append(inSendElem);
-            $(inElem).append(inSaveElem);
 
             $(contentElem).append(outElem);
             $(contentElem).append(inElem);
+            $(contentElem).append(inSendElem);
+            $(contentElem).append(inSaveElem);
+            $(contentElem).append(outClearElem);
 
             this.app.translateElem(windowElem);
 
             this.inInputElem = inInputElem;
             this.outElem = outElem;
 
-            {
-                let left = 50;
-                let top = this.display.offsetHeight - height - bottom;
-                $(windowElem).css({ left: left + 'px', top: top + 'px' });
-            }
+            $(windowElem).css({ 'width': width + 'px', 'height': height + 'px', 'left': left + 'px', 'top': top + 'px' });
 
-            this.fixChatInTextWidth(inInputElem, 38, inElem);
+            this.fixChatInTextWidth(inInputElem, inElem);
 
             this.onResize = (ev: JQueryEventObject) =>
             {
-                this.fixChatInTextWidth(inInputElem, 38, inElem);
+                this.fixChatInTextWidth(inInputElem, inElem);
                 // $(chatinText).focus();
             };
 
@@ -107,8 +112,9 @@ export class XmppWindow extends Window
         }
     }
 
-    fixChatInTextWidth(chatinText: HTMLElement, delta: number, chatin: HTMLElement)
+    fixChatInTextWidth(chatinText: HTMLElement, chatin: HTMLElement)
     {
+        let delta = 14;
         let parentWidth = chatin.offsetWidth;
         let width = parentWidth - delta;
         $(chatinText).css({ 'width': width });

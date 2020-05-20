@@ -34,7 +34,16 @@ export class ChangesWindow extends Window
             let windowElem = this.windowElem;
             let contentElem = this.contentElem;
             $(windowElem).addClass('n3q-changeswindow');
-            $(windowElem).css({ 'width': width + 'px', 'height': height + 'px' });
+
+            let left = 50;
+            let top = this.display.offsetHeight - height - bottom;
+            {
+                let minTop = 10;
+                if (top < minTop) {
+                    //height -= minTop - top;
+                    top = minTop;
+                }
+            }
 
             let outElem = <HTMLElement>$('<div class="n3q-base n3q-changeswindow-out" data-translate="children" />').get(0);
 
@@ -44,11 +53,7 @@ export class ChangesWindow extends Window
 
             this.outElem = outElem;
 
-            {
-                let left = 50;
-                let top = this.display.offsetHeight - height - bottom;
-                $(windowElem).css({ left: left + 'px', top: top + 'px' });
-            }
+            $(windowElem).css({ 'width': width + 'px', 'height': height + 'px', 'left': left + 'px', 'top': top + 'px' });
 
             this.onClose = async () =>
             {
