@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - nine3q.Web</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+
+    <ul>
+        <li><a asp-area="" asp-page="/Index">Home</a></li>
+        <li><a asp-area="" asp-page="/Counter">Counter</a></li>
+        <li><a href="/Sample">SampleController</a></li>
+        <li><a asp-area="" asp-page="/Commandline">Commandline</a></li>
+    </ul>
+
+    @RenderBody()
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
