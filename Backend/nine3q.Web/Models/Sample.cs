@@ -8,7 +8,13 @@ namespace nine3q.Web.Models
 
         public int TemperatureC { get; set; }
 
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        public int TemperatureF
+        {
+            get {
+                //throw new Exception("Hallo Exception");
+                return 32 + (int)(TemperatureC / 0.5556);
+            }
+        }
 
         public string Summary { get; set; }
     }
