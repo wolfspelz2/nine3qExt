@@ -168,7 +168,7 @@ namespace XmppComponent
 
                     _conn?.Send(
 @$"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}'>
-    <x xmlns='vp.props' nickname='{name_XmlEncoded}' {(string.IsNullOrEmpty(animationsUrl) ? "" : animationsUrl_Attribute)} {(string.IsNullOrEmpty(imageUrl) ? "" : imageUrl_Attribute)} />
+    <x xmlns='vp:props' nickname='{name_XmlEncoded}' {(string.IsNullOrEmpty(animationsUrl) ? "" : animationsUrl_Attribute)} {(string.IsNullOrEmpty(imageUrl) ? "" : imageUrl_Attribute)} />
     <x xmlns='firebat:user:identity' jid='{identityJid_XmlEncoded}' src='{identitySrc_XmlEncoded}' digest='{identityDigest_XmlEncoded}' />
     <x xmlns='firebat:avatar:state'>{position_Node}</x>
     <x xmlns='http://jabber.org/protocol/muc'><history seconds='0' maxchars='0' maxstanzas='0' /></x>

@@ -161,33 +161,33 @@ export class Participant extends Entity
 
             {
                 this.avatarDisplay = new Avatar(this.app, this, this.getCenterElem(), this.isSelf);
-                if (hasIdentityUrl) {
-                    //this.app.getStorage().watch(this.userId, 'ImageUrl', this.avatarDisplay);
-                    this.app.getPropertyStorage().watch(this.userId, 'AnimationsUrl', this.avatarDisplay);
+                if (vpAvatar != '') {
+                    let animationsUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', vpAvatar);
+                    let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(animationsUrl));
+                    this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
+                } else if (vpAnimationsUrl != '') {
+                    let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(vpAnimationsUrl));
+                    this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
                 } else {
-                    if (vpAvatar != '') {
-                        let animationsUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', vpAvatar);
-                        let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(animationsUrl));
-                        this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
-                    } else if (vpAnimationsUrl != '') {
-                        this.avatarDisplay?.updateObservableProperty('AnimationsUrl', vpAnimationsUrl);
-                    } else if (vpImageUrl != '') {
+                    if (vpImageUrl != '') {
                         this.avatarDisplay?.updateObservableProperty('ImageUrl', vpImageUrl);
+                    }
+                    if (hasIdentityUrl) {
+                        this.app.getPropertyStorage().watch(this.userId, 'AnimationsUrl', this.avatarDisplay);
                     }
                 }
             }
 
             {
                 this.nicknameDisplay = new Nickname(this.app, this, this.isSelf, this.getElem());
-                var shownNickname = xmppNickname;
-                if (hasIdentityUrl) {
-                    this.app.getPropertyStorage().watch(this.userId, 'Nickname', this.nicknameDisplay);
+                if (vpNickname != '') {
+                    this.nicknameDisplay.setNickname(vpNickname);
                 } else {
-                    if (vpNickname != '') {
-                        shownNickname = vpNickname;
+                    this.nicknameDisplay.setNickname(xmppNickname);
+                    if (hasIdentityUrl) {
+                        this.app.getPropertyStorage().watch(this.userId, 'Nickname', this.nicknameDisplay);
                     }
                 }
-                this.nicknameDisplay?.setNickname(shownNickname);
             }
 
             this.chatoutDisplay = new Chatout(this.app, this, this.getElem());
