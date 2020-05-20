@@ -202,7 +202,16 @@ export class Participant extends Entity
                 this.show(true);
             }
             // if (this.isSelf && Environment.isDevelopment()) { this.showChatWindow(); }
-            this.room?.showChatMessage(this.nick, 'entered the room');
+
+            if (this.isSelf) {
+                this.room?.showChatMessage(this.nick, 'entered the room');
+            } else {
+                if (this.room?.iAmAlreadyHere()) {
+                    this.room?.showChatMessage(this.nick, 'entered the room');
+                } else {
+                    this.room?.showChatMessage(this.nick, 'was already there');
+                }
+            }
 
         } else {
 

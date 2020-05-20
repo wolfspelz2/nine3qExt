@@ -108,6 +108,7 @@ export class Config
 
                     'Chatwindow.Chat History': 'Chat',
                     'Chatwindow.entered the room': '**entered the room**',
+                    'Chatwindow.was already there': '**was already there**',
                     'Chatwindow.left the room': '**left the room**',
 
                     'Settingswindow.Settings': 'Settings',
@@ -146,6 +147,7 @@ export class Config
 
                     'Chatwindow.Chat History': 'Chat',
                     'Chatwindow.entered the room': '**hat den Raum betreten**',
+                    'Chatwindow.was already there': '**war schon da**',
                     'Chatwindow.left the room': '**hat den Raum verlassen**',
 
                     'Settingswindow.Settings': 'Einstellungen',

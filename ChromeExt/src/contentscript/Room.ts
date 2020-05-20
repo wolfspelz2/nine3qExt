@@ -20,7 +20,7 @@ export class Room
     private enterRetryCount: number = 0;
     private maxEnterRetries: number = as.Int(Config.get('xmpp.maxMucEnterRetries', 4));
     private participants: { [nick: string]: Participant; } = {};
-    private isEntered = false;
+    private isEntered = false; // iAmAlreadyHere() needs isEntered=true to be after onPresenceAvailable
     private chatWindow: ChatWindow;
     private myNick: any;
 
@@ -46,6 +46,11 @@ export class Room
         ];
     }
 
+    iAmAlreadyHere()
+    {
+        return this.isEntered;
+    }
+    
     // presence
 
     async enter(): Promise<void>
