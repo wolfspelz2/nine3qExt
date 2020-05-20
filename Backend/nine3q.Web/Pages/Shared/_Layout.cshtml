@@ -8,28 +8,14 @@
 </head>
 <body>
 
-    <div class="header">
-        <ul>
-            <li>
-                <a asp-area="" asp-page="/Index">Home</a>
-            </li>
-            <li >
-                <a asp-area="" asp-page="/Privacy">Privacy</a>
-            </li>
-        </ul>
-    </div>
+    <ul>
+        <li><a asp-area="" asp-page="/Index">Home</a></li>
+        <li><a asp-area="" asp-page="/Counter">Counter</a></li>
+        <li><a href="/Sample">SampleController</a></li>
+        <li><a asp-area="" asp-page="/Commandline">Commandline</a></li>
+    </ul>
 
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <div class="footer">
-        <div class="container">
-            &copy; 2020 - nine3q.Web - <a asp-area="" asp-page="/Privacy">Privacy</a>
-        </div>
-    </div>
+    @RenderBody()
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

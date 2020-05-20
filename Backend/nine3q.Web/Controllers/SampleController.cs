@@ -1,38 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Orleans;
 using nine3q.Web.Models;
+using nine3q.GrainInterfaces;
 
 namespace nine3q.Web.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
     public class SampleController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
         private readonly ILogger<SampleController> _logger;
+        private readonly IClusterClient _clusterClient;
 
-        public SampleController(ILogger<SampleController> logger)
+        public SampleController(ILogger<SampleController> logger, IClusterClient clusterClient)
         {
             _logger = logger;
+            _clusterClient = clusterClient;
         }
 
+        [Route("[controller]")]
         [HttpGet]
-        public IEnumerable<Sample> Get()
+        public async Task<IEnumerable<Sample>> Get()
         {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new Sample {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            })
-            .ToArray();
+            var ids = new[] { "a", "b" };
+            var samples = new List<Sample>();
+            foreach (var id in ids) {
+                samples.Add(new Sample {
+                    Key = id,
+                    Value = await _clusterClient.GetGrain<ITestString>(id).Get()
+                });
+            }
+            return samples;
         }
+
+        [Route("[controller]/{id}")]
+        [HttpGet]
+        public async Task<Sample> Get(string id)
+        {
+            return new Sample {
+                Key = id,
+                Value = await _clusterClient.GetGrain<ITestString>(id).Get()
+            };
+        }
+
     }
 }
