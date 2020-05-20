@@ -5,10 +5,6 @@ VisualStudioVersion = 16.0.29519.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestClient", "TestClient\TestClient.csproj", "{EE9A6537-92F4-4BAB-86E3-E32A4D6B7D2C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrainInterfaces", "nine3q.GrainInterfaces\nine3q.GrainInterfaces.csproj", "{566DC69A-E7F5-4AD7-96FA-E0536BDA5AED}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "IntegrationTests\IntegrationTests.csproj", "{0B9B36CD-3074-47DD-956A-F685E9D47353}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{12E031FF-CD5A-4B7C-A1D9-82AA0C12CC3F}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -24,14 +20,6 @@ Global
 		{EE9A6537-92F4-4BAB-86E3-E32A4D6B7D2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE9A6537-92F4-4BAB-86E3-E32A4D6B7D2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE9A6537-92F4-4BAB-86E3-E32A4D6B7D2C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{566DC69A-E7F5-4AD7-96FA-E0536BDA5AED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{566DC69A-E7F5-4AD7-96FA-E0536BDA5AED}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{566DC69A-E7F5-4AD7-96FA-E0536BDA5AED}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{566DC69A-E7F5-4AD7-96FA-E0536BDA5AED}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0B9B36CD-3074-47DD-956A-F685E9D47353}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0B9B36CD-3074-47DD-956A-F685E9D47353}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0B9B36CD-3074-47DD-956A-F685E9D47353}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0B9B36CD-3074-47DD-956A-F685E9D47353}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -44,7 +44,7 @@ namespace LocalSilo
 
                 .Configure<ClusterOptions>(options => {
                     options.ClusterId = "dev";
-                    options.ServiceId = "Sample";
+                    options.ServiceId = "WeblinItems";
                 })
 
                 .Configure<EndpointOptions>(options => options.AdvertisedIPAddress = IPAddress.Loopback)

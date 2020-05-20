@@ -67,7 +67,7 @@ namespace nine3q.Grains
         {
             await Task.CompletedTask;
 
-            // Its already gone, back to the user, before confirmation from xmpp rooom
+            // It's already gone, fetched by the user, before any confirmation from xmpp rooom
 
             //var props = await Inventory.GetItemProperties(itemId, new PidList { Pid.RezableAspect, Pid.IsRezzed });
             //if (!props.GetBool(Pid.RezableAspect)) { throw new SurfaceException(Id, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemNotRezable); }

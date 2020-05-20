@@ -50,7 +50,7 @@ namespace TestClient
                 .UseLocalhostClustering()
                 .Configure<ClusterOptions>(options => {
                     options.ClusterId = "dev";
-                    options.ServiceId = "Sample";
+                    options.ServiceId = "WeblinItems";
                 })
                 .ConfigureLogging(logging => { logging.AddConsole(); logging.SetMinimumLevel(LogLevel.Error); })
                 .AddSimpleMessageStreamProvider("SMSProvider")
