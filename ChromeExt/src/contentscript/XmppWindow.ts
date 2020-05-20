@@ -136,6 +136,7 @@ export class XmppWindow extends Window
                 this.showError(error.message);
             }
         }
+        $(this.inInputElem).focus();
     }
 
     private setText(text: string): void
