@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Linq;
 using nine3q.Tools;
@@ -109,7 +108,7 @@ namespace nine3q.Items
             Add(Pid.Stacksize, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "3", "Number of items item stacked in one place.");
             //Add(Pid.ImageUrl, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "");
             //Add(Pid.Icon16Url, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "Small representations");
-            //Add(Pid.Icon32Url, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "Medium images");
+            Add(Pid.Icon32Url, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "Medium images");
             //Add(Pid.AvatarUrl, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "Live display, minimum transparent area");
             Add(Pid.Image100Url, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "");
             Add(Pid.AnimationsUrl, Type.String, Use.Url, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "");
@@ -132,8 +131,8 @@ namespace nine3q.Items
             //Add(Pid.IsSettings, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Fixed, "true", "Item contains user settings.");
             //Add(Pid.IsAvatar, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Fixed, "true", "Item contains avatar data.");
             //Add(Pid.IsNickname, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Fixed, "true", "Item contains a nickname for the avatar.");
-            //Add(Pid.IsRole, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Fixed, "true", "Item contains account roles.");
-            //Add(Pid.Roles, Type.String, Use.Json, Group.Generic, Access.Public, Persistence.Persistent, "['Public', 'Admin']", "List of user roles.");
+            Add(Pid.IsRole, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Fixed, "true", "Item contains account roles.");
+            Add(Pid.Roles, Type.String, Use.Json, Group.Generic, Access.Public, Persistence.Persistent, "['Public', 'Admin']", "List of user roles.");
             //Add(Pid.Stats, Type.String, Use.Json, Group.Generic, Access.Public, Persistence.Persistent, "['WaterLevel']", "List of stats visible on rezzed item.");
             //Add(Pid.Condition, Type.Float, Use.Percent, Group.Generic, Access.Public, Persistence.Persistent, "0.5", "Item condition between 0.0 and 1.0.");
 

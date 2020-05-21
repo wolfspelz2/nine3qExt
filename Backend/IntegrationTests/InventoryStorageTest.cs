@@ -8,7 +8,8 @@ namespace IntegrationTests
     [TestClass]
     public class InventoryStorageTest
     {
-        [TestMethod][TestCategory(GrainClient.Category)]
+        [TestMethod]
+        [TestCategory(GrainClient.Category)]
         public void Create_items_store_unload_reload_verify_properties()
         {
             var inv = GrainClient.GrainFactory.GetGrain<IInventory>($"{nameof(InventoryStorageTest)}-{nameof(Create_items_store_unload_reload_verify_properties)}-{RandomString.Get(10)}");
