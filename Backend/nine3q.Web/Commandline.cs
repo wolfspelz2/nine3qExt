@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Http;
 using nine3q.Tools;
 
 namespace nine3q.Web
@@ -17,9 +18,6 @@ namespace nine3q.Web
             public string Arguments { get; set; }
         }
 
-        public Guid CommandlineId { get; private set; }
-        private static readonly object Mutex = new object();
-
         public interface ICommandlineUser
         {
             IEnumerable<string> Roles { get; }
@@ -29,8 +27,9 @@ namespace nine3q.Web
         {
             private IEnumerable<Claim> claims;
 
-            public IEnumerable<string> Roles { get; }
+            public IEnumerable<string> Roles { get; } = new[] { Role.Public.ToString(), Role.Admin.ToString(), Role.Developer.ToString() };
             //public User(IEnumerable<string> roles) { Roles = roles; }
+
             public User(IEnumerable<Claim> claims)
             {
                 this.claims = claims;
@@ -103,28 +102,54 @@ namespace nine3q.Web
 
         public class HandlerMap : Dictionary<string, Handler> { public HandlerMap(IEqualityComparer<string> comparer) : base(comparer) { } }
 
-        public delegate string FormatterFunction(object o);
-        public class FormatterList : List<FormatterFunction> { }
-        public FormatterList GetFormatters()
+        private static readonly object _mutex = new object();
+        private readonly string _path;
+        HandlerMap Handlers = new HandlerMap(StringComparer.OrdinalIgnoreCase);
+        private FormatterList Formatters = new FormatterList();
+        private ArgumentFormatterList ArgumentFormatters = new ArgumentFormatterList();
+        Dictionary<string, string> _vars;
+
+        public Commandline(string path)
         {
-            lock (Mutex) {
-                if (_formatters == null) {
-                    _formatters = InitializeFormatters();
-                }
-            }
-            return _formatters;
+            _path = path;
+
+            Handlers.Add("Echo", new Handler { Name = "Echo", Function = Echo, Role = Role.Public.ToString(), Description = "Return all arguments", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { { "arg1", "first argument" }, { "...", "more arguments" } } });
+            Handlers.Add("Dev_TestTable", new Handler { Name = "Dev_TestTable", Function = Dev_TestTable, Role = Role.Developer.ToString(), Description = "Full table example" });
+            Handlers.Add("Dev_Exception", new Handler { Name = "Dev_Exception", Function = Dev_Exception, Role = Role.Developer.ToString(), Description = "Throw exception" });
+            Handlers.Add("Dev_null", new Handler { Name = "Dev_null", Function = Dev_null, Role = Role.Developer.ToString(), Description = "Do nothing, return null" });
+            Handlers.Add("var", new Handler { Name = "var", Function = GetSetVar, Role = Role.Public.ToString(), Description = "Assign or use variable", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Name[=Value]"] = "Name=Value assigns variable value to name, Name only returns variable value", } });
+            Handlers.Add("//", new Handler { Name = "//", Function = Comment, Role = Role.Public.ToString(), Description = "Ignored and copied to output", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Comment"] = "Comment line", } });
+
+            Formatters.Add(FormatString);
+            Formatters.Add(FormatTable);
+            Formatters.Add(FormatVariableAssignment);
+            Formatters.Add(FormatNull);
+
+            ArgumentFormatters.Add(FormatStringAsArgument);
         }
 
-        public delegate string ArgumentFormatterFunction(object o);
-        public class ArgumentFormatterList : List<ArgumentFormatterFunction> { }
-        public ArgumentFormatterList GetArgumentFormatters()
+        public HandlerMap GetHandlers() => Handlers;
+        public FormatterList GetFormatters() => Formatters;
+        public ArgumentFormatterList GetArgumentFormatters() => ArgumentFormatters;
+
+        public string CheckRole(Commandline.Handler handler, Commandline.ICommandlineUser user)
         {
-            lock (Mutex) {
-                if (_argumentFormatters == null) {
-                    _argumentFormatters = InitializeArgumentFormatters();
-                }
+            if (string.IsNullOrEmpty(handler.Role)) {
+                return "Unauthorized: function role undefined";
             }
-            return _argumentFormatters;
+
+            if (handler.Role == Role.Public.ToString()) { return ""; }
+
+            if (!user.Roles.Contains(handler.Role)) {
+                return $"Unauthorized: function={handler.Name} needs role={handler.Role}";
+            }
+            return "";
+        }
+
+        public class VariableAssignment
+        {
+            public string Name { get; set; }
+            public string Value { get; set; }
         }
 
         public class Table
@@ -157,38 +182,13 @@ namespace nine3q.Web
             public RowList Grid { get { return _grid ?? (_grid = new RowList()); } }
         }
 
-        HandlerMap _handlers;
-        private FormatterList _formatters;
-        private ArgumentFormatterList _argumentFormatters;
-        Dictionary<string, string> _vars;
-
-        public Commandline() : this(Guid.NewGuid())
-        {
-        }
-
-        public Commandline(Guid id)
-        {
-            CommandlineId = id;
-        }
-
-        public HandlerMap GetHandlers()
-        {
-            lock (Mutex) {
-                if (_handlers == null) {
-                    _handlers = InitializeHandlers();
-                }
-            }
-            return _handlers;
-        }
-
-
-        public class VariableAssignment
-        {
-            public string Name { get; set; }
-            public string Value { get; set; }
-        }
-
         #region Infrastructure
+
+        public delegate string FormatterFunction(object o);
+        public class FormatterList : List<FormatterFunction> { }
+
+        public delegate string ArgumentFormatterFunction(object o);
+        public class ArgumentFormatterList : List<ArgumentFormatterFunction> { }
 
         public string Run(string script, ICommandlineUser user)
         {
@@ -262,20 +262,6 @@ namespace nine3q.Web
             if (!string.IsNullOrEmpty(result)) {
                 throw new Exception(result);
             }
-        }
-
-        public string CheckRole(Commandline.Handler handler, Commandline.ICommandlineUser user)
-        {
-            if (string.IsNullOrEmpty(handler.Role)) {
-                return "Unauthorized: function role undefined";
-            }
-
-            if (handler.Role == Role.Public.ToString()) { return ""; }
-
-            if (!user.Roles.Contains(handler.Role)) {
-                return $"Unauthorized: function={handler.Name} needs role={handler.Role}";
-            }
-            return "";
         }
 
         public string GetEmbeddedLine(string line)
@@ -460,44 +446,62 @@ namespace nine3q.Web
 
         #region Handlers
 
-        protected virtual HandlerMap InitializeHandlers()
-        {
-            return new HandlerMap(StringComparer.OrdinalIgnoreCase) {
-                { "Echo", new Handler { Name = "Echo", Function = Echo, Role = Role.Public.ToString(), Description = "Return all arguments", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { { "arg1", "first argument" }, { "...", "more arguments" } } } },
-                //{ "Dev_TestTable", new Handler { Name = "Dev_TestTable", Function = Dev_TestTable, Role = Role.Developer.ToString(), Description = "Full table example" } },
-                //{ "Dev_Exception", new Handler { Name = "Dev_Exception", Function = Dev_Exception, Role = Role.Developer.ToString(), Description = "Throw exception" } },
-                //{ "Dev_null", new Handler { Name = "Dev_null", Function = Dev_null, Role = Role.Developer.ToString(), Description = "Do nothing, return null" } },
-                //{ "var", new Handler { Name = "var", Function = GetSetVar, Role = Role.Public.ToString(), Description = "Assign or use variable", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Name[=Value]"] = "Name=Value assigns variable value to name, Name only returns variable value",  } } },
-                //{ "//", new Handler { Name = "//", Function = Comment, Role = Role.Public.ToString(), Description = "Ignored and copied to output", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Comment"] = "Comment line",  } } },
-            };
-        }
-
-        private object Echo(Arglist args)
+        public object Echo(Arglist args)
         {
             args.RemoveAt(0);
+            return string.Join(" ", args);
+        }
+
+        private object Dev_TestTable(Arglist args)
+        {
+            var cnt = 1;
+            var result = new Table();
+            result.Grid.Add(new Table.Row() { "Id", "Name", "generated HTML" });
+            result.Grid.Add(new Table.Row() { cnt++.ToString(), "URL (no link)", "http://www.lupuslabs.de/" });
+            result.Grid.Add(new Table.Row() { cnt++.ToString(), "Link", Link("http://www.galactic-developments.de/") });
+            result.Grid.Add(new Table.Row() { cnt++.ToString(), "Link (with text)", Link("http://www.galactic-developments.de/", "Galactic Developments") });
+            result.Grid.Add(new Table.Row() { cnt++.ToString(), "Link (new window)", Link("http://www.galactic-developments.de/", "Galactic Developments", new Dictionary<string, string> { { "target", "_blank" } }) });
+            result.Grid.Add(new Table.Row() { cnt++.ToString(), "Image", Image("http://lh5.googleusercontent.com/-wCxDAAgcS2o/AAAAAAAAAAI/AAAAAAAADOw/VyiIhdcYXmg/s80-c/photo.jpg") });
+            result.Grid.Add(new Table.Row() { cnt++.ToString(), "CommandLink", "Execute " + CommandLink("Echo", new List<string> { "a", "b" }, "Echo") });
+            result.Grid.Add(new Table.Row() { cnt++.ToString(), "CommandPrepareLink", "Insert " + CommandPrepareLink("Echo", new List<string> { "a", "b" }, "Echo") });
+            result.Options[Table.Option.TableHeader] = "yes";
+            return result;
+        }
+
+        private object Dev_Exception(Arglist args)
+        {
+            throw new Exception("This is an exception");
+        }
+
+        private object Dev_null(Arglist args)
+        {
+            return null;
+        }
+
+        private object GetSetVar(Arglist args)
+        {
+            args.Next("cmd");
+            var arg = args.Next("Name[=Value]");
+            var parts = arg.Split(new[] { '=' }, 2, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 1) {
+                if (!_vars.ContainsKey(arg)) { throw new Exception("No such variable name=" + arg); }
+                return _vars[arg];
+            }
+            if (parts.Length == 2) {
+                _vars[parts[0]] = parts[1];
+                return new VariableAssignment { Name = parts[0], Value = parts[1] };
+            }
+            throw new Exception("Need Name=Value or Name");
+        }
+
+        private object Comment(Arglist args)
+        {
             return string.Join(" ", args);
         }
 
         #endregion
 
         #region Formatters
-
-        protected virtual FormatterList InitializeFormatters()
-        {
-            return new FormatterList {
-                FormatString,
-                FormatTable,
-                FormatVariableAssignment,
-                FormatNull,
-            };
-        }
-
-        protected virtual ArgumentFormatterList InitializeArgumentFormatters()
-        {
-            return new ArgumentFormatterList {
-                FormatStringAsArgument,
-            };
-        }
 
         public string FormatStringAsArgument(object o)
         {
@@ -578,7 +582,86 @@ namespace nine3q.Web
             }
             return data.ToString();
         }
+
+        public string FormatHtmlAttributes(Dictionary<string, string> htmlAttributes)
+        {
+            if (htmlAttributes != null) {
+                return htmlAttributes.Aggregate(new StringBuilder(), (sb, x) => sb.Append(" " + System.Net.WebUtility.HtmlEncode(x.Key) + "=" + "\"" + System.Net.WebUtility.HtmlEncode(x.Value) + "\""), sbAttr => sbAttr.ToString());
+            }
+            return "";
+        }
+
+        public string Image(string url, Dictionary<string, string> htmlAttributes = null)
+        {
+            var sb = new StringBuilder();
+
+            sb.Append("<img src=\"");
+            sb.Append(url);
+            sb.Append(FormatHtmlAttributes(htmlAttributes));
+            sb.Append("\" />");
+
+            return sb.ToString();
+        }
+
+        public string Link(string url, string text = null, Dictionary<string, string> htmlAttributes = null)
+        {
+            var sb = new StringBuilder();
+
+            if (text == null) { text = url; }
+
+            sb.Append("<a href=\"");
+            sb.Append(url);
+            sb.Append("\" ");
+            sb.Append(FormatHtmlAttributes(htmlAttributes));
+            sb.Append(">");
+            sb.Append(text);
+            sb.Append("</a>");
+
+            return sb.ToString();
+        }
+
+        public string CommandLink(string method, IEnumerable<string> args, string text, Dictionary<string, string> htmlAttributes = null)
+        {
+            htmlAttributes = htmlAttributes ?? new Dictionary<string, string>();
+            htmlAttributes.Add("onclick", "SetInput('" + method + " " + string.Join(" ", args) + "');PostForm();");
+            return Link("#", text, htmlAttributes);
+        }
+
+        public string CommandPrepareLink(string method, IEnumerable<string> args, string text, Dictionary<string, string> htmlAttributes = null)
+        {
+            var sb = new StringBuilder();
+
+            sb.Append("<a href=\"#\"");
+            sb.Append(" onclick=\"SetInput('");
+            sb.Append(System.Net.WebUtility.HtmlEncode(method + " " + string.Join(" ", args)));
+            sb.Append("'); FocusInput(); return false;\"");
+            sb.Append(FormatHtmlAttributes(htmlAttributes));
+            sb.Append(">");
+            sb.Append(System.Net.WebUtility.HtmlEncode(text));
+            sb.Append("</a>");
+
+            return sb.ToString();
+        }
+
         #endregion
 
+        public Runner NewRunner(HttpContext httpContext)
+        {
+            return new Runner(httpContext);
+        }
+
+        public class Runner
+        {
+            HttpContext HttpContext { get; set; }
+
+            public Runner(HttpContext httpContext)
+            {
+                HttpContext = httpContext;
+            }
+
+            public Runner()
+            {
+            }
+        }
     }
 }

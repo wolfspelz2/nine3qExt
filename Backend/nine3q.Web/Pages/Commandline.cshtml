@@ -6,7 +6,7 @@
 
 <h1>@ViewData["Title"]</h1>
 
-<div>
+<div class="cCommandline">
     <div id="iMenu">
         @{
             var commandList = new Dictionary<string, Dictionary<string, CommandlineModel.CommandDetail>>();
@@ -25,16 +25,13 @@
         }
         @foreach (var pair in commandList) {
             var group = pair.Key;
-            <div class="cMenuGroup">
+            <div class="cCommandGroup">
                 <span>@group</span>:
                 @foreach (var pair2 in pair.Value) {
                     var detail = pair2.Value;
                     var cmd = pair2.Key;
-                    <div class="cMenuItem">
+                    <div class="cCommandItem">
                         <a href="#" data-template="@detail.Template" title="@detail.Arguments">@cmd</a>
-                        @if (detail.Arguments.Count() == 0) {
-                            <a href="/Commandline?handler=run&cmd=@detail.Name">&gt></a>
-                        }
                     </div>
                 }
             </div>
@@ -46,13 +43,13 @@
     <div id="iIn">
         <form id="iForm" method="post">
             <div>
-                @Html.TextArea("cmd", "", new { id = "iCommand", @class = "", rows = "3" })
+                @Html.TextArea("cmd", "", new { id = "iCommand", rows = "3", cols ="120"})
+                @Html.Hidden("handler", "Run")
             </div>
             <div>
                 <input type="submit" value="Enter" />
-                <input type="checkbox" id="iSingleline" onclick="SetSingleline($(this).prop('checked')); FocusInput();" /> <label for="iSingleline">Send on ENTER</label>
-                <input type="button" value="Clear Output" onclick="$('#iOut').empty(); FocusInput();" />
-                <div id="iSpinning" style="display:none;">(waiting)</div>
+                <input type="button" id="iClearInput" value="Clear Input" />
+                <input type="button" id="iClearOutput" value="Clear Output" />
             </div>
         </form>
     </div>
@@ -66,19 +63,79 @@
 @section Scripts {
     <script type="text/JavaScript">
 
+        var g_nCnt = 0;
+
+        function SetInput(sText) {
+            $('#iCommand').val(sText);
+        }
+
+        function FocusInput() {
+            $('#iCommand')[0].focus();
+        }
+
+        function AddOutput(text) {
+            g_nCnt++;
+            var sId = 'iTransaction' + g_nCnt;
+            var js = ''
+                + '<div id=' + sId + '" class="cTransaction">'
+                + text
+                + '</div>';
+            $('#iOut').prepend(js);
+            $('#' + sId).slideToggle(100);
+        }
+
+        function ClearInput() {
+            $('#iCommand').val('');
+        }
+
+        function ClearOutput() {
+            $('#iOut').empty();
+        }
+
+        function PostForm() {
+            Execute($('#iForm').serialize());
+        }
+
+        function Execute(postData) {
+            $.ajax({
+                async: true,
+                type: "POST",
+                url: "/Commandline?handler=run",
+                data: postData
+            }).done(function (text) {
+                AddOutput(text);
+                FocusInput();
+            });
+        }
+
         $(function () {
             $('#iForm').on('click', function (evt) {
-                evt.preventDefault();
-                $.post('', $('form').serialize(), function () {
-                    alert('Posted using jQuery');
-                });
+                PostForm();
+                return false;
+            });
+        });
+
+        $(function () {
+            $('#iClearInput').on('click', function (evt) {
+                ClearInput();
+                FocusInput();
+                return false;
+            });
+        });
+
+        $(function () {
+            $('#iClearOutput').on('click', function (evt) {
+                ClearOutput();
+                FocusInput();
+                return false;
             });
         });
 
         $(function () {
             $('.cMenuItem').on('click', function (evt) {
-                evt.preventDefault();
-                $('#iCommand').val($(evt.target).data('template'));
+                SetInput($(evt.target).data('template'));
+                FocusInput();
+                return false;
             });
         });
 

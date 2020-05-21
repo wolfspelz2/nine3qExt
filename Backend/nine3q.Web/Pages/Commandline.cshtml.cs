@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using nine3q.Tools;
 
 namespace nine3q.Web
@@ -18,6 +19,18 @@ namespace nine3q.Web
             public string Description { get; set; }
             public string Template { get; set; }
             public string Arguments { get; set; }
+        }
+
+        public class CommandResult
+        {
+            public string Content { get; set; }
+            public string ContentType { get; set; }
+
+            public CommandResult(string content, string contentType)
+            {
+                Content = content;
+                ContentType = contentType;
+            }
         }
 
         ICommandline _commandline;
@@ -50,16 +63,17 @@ namespace nine3q.Web
             }
         }
 
-        public void OnPostRun(string cmd)
+        public PartialViewResult OnPostRun(string cmd)
         {
             var user = new Commandline.User(User.Claims);
 
             try {
+                //var runner = _commandline.NewRunner(HttpContext);
+                //var html = runner.Run(cmd, user);
                 var html = _commandline.Run(cmd, user);
-                //return Content(html, "text/html");
+                return Partial("_CommandlineResult", new CommandResult(html, "text/html"));
             } catch (Exception ex) {
-                Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                //return Content(string.Join(" | ", ex.GetMessages()), "text/plain");
+                return Partial("_CommandlineResult", new CommandResult("<pre>" + string.Join(" | ", ex.GetMessages()) + "</pre>", "text/html"));
             }
         }
     }
