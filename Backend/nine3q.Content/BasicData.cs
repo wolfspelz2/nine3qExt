@@ -63,8 +63,8 @@ namespace nine3q.Content
             text[BasicDefinition.de][$"ItemProperty.{Pid.Label}"] = "Name";
             text[BasicDefinition.en][$"ItemProperty.{Pid.Label}"] = "Name";
 
-            text[BasicDefinition.de][$"ItemProperty.{Pid.RezableAspect}"] = "Installierbar";
-            text[BasicDefinition.en][$"ItemProperty.{Pid.RezableAspect}"] = "Installable";
+            text[BasicDefinition.de][$"ItemProperty.{Pid.RezableAspect}"] = "Ablegbar";
+            text[BasicDefinition.en][$"ItemProperty.{Pid.RezableAspect}"] = "Droppable";
 
             PropertySet props = null;
 
