@@ -7,7 +7,7 @@ namespace nine3q.Content
 {
     public static class BasicData
     {
-        public static void GetTemplates(string name, NamePropertiesCollection templates, TextSet text)
+        public static void GetTemplates(string name, NamePropertiesCollection templates, BasicDefinition.TextSet text)
         {
             switch (name) {
                 case nameof(BasicDefinition.GroupName.Admin):
@@ -58,7 +58,7 @@ namespace nine3q.Content
         //    return json;
         //}
 
-        public static void GetTemplate(string name, NamePropertiesCollection templates, TextSet text)
+        public static void GetTemplate(string name, NamePropertiesCollection templates, BasicDefinition.TextSet text)
         {
             text[BasicDefinition.de][$"ItemProperty.{Pid.Label}"] = "Name";
             text[BasicDefinition.en][$"ItemProperty.{Pid.Label}"] = "Name";
@@ -141,7 +141,7 @@ namespace nine3q.Content
         {
             var result = new List<string>();
 
-            foreach (var group in BasicDefinition.Group) {
+            foreach (var group in BasicDefinition.Groups) {
                 result.Add(group);
             }
 
@@ -152,7 +152,7 @@ namespace nine3q.Content
         {
             var result = new List<string>();
 
-            var translations = new TextSet();
+            var translations = new BasicDefinition.TextSet();
             var templates = new NamePropertiesCollection();
 
             GetTemplates(name, templates, translations);
@@ -162,16 +162,6 @@ namespace nine3q.Content
             }
 
             return result;
-        }
-
-        public class TextSet : Dictionary<string, Dictionary<string, string>>
-        {
-            public TextSet()
-            {
-                foreach (var lang in BasicDefinition.Languages) {
-                    Add(lang, new Dictionary<string, string>());
-                }
-            }
         }
 
     }

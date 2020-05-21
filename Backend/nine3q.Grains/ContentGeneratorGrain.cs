@@ -17,12 +17,12 @@ namespace nine3q.Grains
             return Task.CompletedTask;
         }
 
-        public void GetTemplates(string name, NamePropertiesCollection templates, BasicData.TextSet text)
+        public void GetTemplates(string name, NamePropertiesCollection templates, BasicDefinition.TextSet text)
         {
             BasicData.GetTemplates(name, templates, text);
         }
 
-        public void GetTemplate(string name, NamePropertiesCollection templates, BasicData.TextSet text)
+        public void GetTemplate(string name, NamePropertiesCollection templates, BasicDefinition.TextSet text)
         {
             BasicData.GetTemplate(name, templates, text);
         }
@@ -39,16 +39,17 @@ namespace nine3q.Grains
 
         public async Task<string> CreateTemplates(string name)
         {
-            var translations = new BasicData.TextSet();
+            var translations = new BasicDefinition.TextSet();
             var templates = new NamePropertiesCollection();
 
             GetTemplates(name, templates, translations);
-            ItemIdSet ids = await PersistTemplates(templates);
+            ItemIdSet ids = await StoreTemplates(templates);
+            await StoreTranslations(translations);
 
             return ids.ToString();
         }
 
-        private async Task<ItemIdSet> PersistTemplates(NamePropertiesCollection templates)
+        private async Task<ItemIdSet> StoreTemplates(NamePropertiesCollection templates)
         {
             var ids = new ItemIdSet();
             var inv = GrainFactory.GetGrain<IInventory>(Name);
@@ -74,6 +75,17 @@ namespace nine3q.Grains
             }
 
             return ids;
+        }
+
+        public async Task StoreTranslations(BasicDefinition.TextSet translations)
+        {
+            foreach (var lang in BasicDefinition.Languages) {
+                foreach (var pair in translations[lang]) {
+                    var cacheKey = BasicDefinition.GetTranslationCacheKey(pair.Key, lang);
+                    var cache = GrainFactory.GetGrain<ITranslation>(cacheKey);
+                    await cache.Set(pair.Value);
+                }
+            }
         }
     }
 }

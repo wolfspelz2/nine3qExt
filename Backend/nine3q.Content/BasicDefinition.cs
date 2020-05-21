@@ -16,11 +16,7 @@ namespace nine3q.Content
             WaterResourceTest,
         }
 
-        public static List<string> Group = new List<string> {
-            nameof(GroupName.User),
-            nameof(GroupName.Room),
-            nameof(GroupName.WaterResourceTest),
-        };
+        public static List<string> Groups = typeof(GroupName).GetEnumNames().ToList();
 
         public enum Template
         {
@@ -75,5 +71,16 @@ namespace nine3q.Content
                 public static string RemoveChild = ContainerAspect.Action.RemoveChild.ToString();
             }
         }
+
+        public class TextSet : Dictionary<string, Dictionary<string, string>>
+        {
+            public TextSet()
+            {
+                foreach (var lang in BasicDefinition.Languages) {
+                    Add(lang, new Dictionary<string, string>());
+                }
+            }
+        }
+
     }
 }
