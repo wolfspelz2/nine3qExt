@@ -1,8 +1,12 @@
+using System;
+using nine3q.Web;
+using nine3q.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Orleans;
 
 namespace nine3q.Web
 {
@@ -20,10 +24,15 @@ namespace nine3q.Web
         {
             services.AddRazorPages();
             services.AddControllers();
+            services.AddSingleton<ICommandlineSingletonInstance>(new Commandline());
+
+            if (!Config.UseIntegratedCluster) {
+                services.AddSingleton<IClusterClient>(new OrleansClient().ClusterClient);
+            }
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+            // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+            public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {

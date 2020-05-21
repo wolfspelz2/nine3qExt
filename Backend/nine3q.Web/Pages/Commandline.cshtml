@@ -3,6 +3,84 @@
 @{
     ViewData["Title"] = "Commandline";
 }
+
 <h1>@ViewData["Title"]</h1>
 
+<div>
+    <div id="iMenu">
+        @{
+            var commandList = new Dictionary<string, Dictionary<string, CommandlineModel.CommandDetail>>();
+            @foreach (var pair in Model.Commands) {
+                var group = "General";
+                var cmd = pair.Key;
+                var parts = pair.Key.Split(new[] { '_', '.' }, 2, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length == 2) {
+                    group = parts[0];
+                    if (group == "Dev") { group = "General"; }
+                    cmd = parts[1];
+                }
+                if (!commandList.ContainsKey(group)) { commandList[group] = new Dictionary<string, CommandlineModel.CommandDetail>(); }
+                commandList[group].Add(cmd, pair.Value);
+            }
+        }
+        @foreach (var pair in commandList) {
+            var group = pair.Key;
+            <div class="cMenuGroup">
+                <span>@group</span>:
+                @foreach (var pair2 in pair.Value) {
+                    var detail = pair2.Value;
+                    var cmd = pair2.Key;
+                    <div class="cMenuItem">
+                        <a href="#" data-template="@detail.Template" title="@detail.Arguments">@cmd</a>
+                        @if (detail.Arguments.Count() == 0) {
+                            <a href="/Commandline?handler=run&cmd=@detail.Name">&gt></a>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
 
+<div>
+    <div id="iIn">
+        <form id="iForm" method="post">
+            <div>
+                @Html.TextArea("cmd", "", new { id = "iCommand", @class = "", rows = "3" })
+            </div>
+            <div>
+                <input type="submit" value="Enter" />
+                <input type="checkbox" id="iSingleline" onclick="SetSingleline($(this).prop('checked')); FocusInput();" /> <label for="iSingleline">Send on ENTER</label>
+                <input type="button" value="Clear Output" onclick="$('#iOut').empty(); FocusInput();" />
+                <div id="iSpinning" style="display:none;">(waiting)</div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <div id="iOut">
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/JavaScript">
+
+        $(function () {
+            $('#iForm').on('click', function (evt) {
+                evt.preventDefault();
+                $.post('', $('form').serialize(), function () {
+                    alert('Posted using jQuery');
+                });
+            });
+        });
+
+        $(function () {
+            $('.cMenuItem').on('click', function (evt) {
+                evt.preventDefault();
+                $('#iCommand').val($(evt.target).data('template'));
+            });
+        });
+
+    </script>
+}
