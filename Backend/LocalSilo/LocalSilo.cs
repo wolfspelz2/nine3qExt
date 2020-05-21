@@ -12,7 +12,7 @@ using nine3q.StorageProviders;
 
 namespace LocalSilo
 {
-    public static class Program
+    public static class LocalSilo
     {
 //        public static int Main(string[] args)
         public static int Main()

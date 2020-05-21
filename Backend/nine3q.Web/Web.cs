@@ -15,7 +15,7 @@ using nine3q.Grains;
 
 namespace nine3q.Web
 {
-    public class Program
+    public class Web
     {
         public static void Main(string[] args)
         {

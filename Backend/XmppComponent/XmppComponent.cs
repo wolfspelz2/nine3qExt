@@ -9,7 +9,7 @@ using nine3q.GrainInterfaces;
 
 namespace XmppComponent
 {
-    public class Program
+    public class XmppComponent
     {
         const int initializeAttemptsBeforeFailing = 5;
         private static int attempt = 0;
