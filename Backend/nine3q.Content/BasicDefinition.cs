@@ -10,20 +10,24 @@ namespace nine3q.Content
     {
         public enum GroupName
         {
-            GenericUser,
-            GenericRoom,
+            Admin,
+            User,
+            Room,
             WaterResourceTest,
         }
 
         public static List<string> Group = new List<string> {
-            nameof(GroupName.GenericUser),
-            nameof(GroupName.GenericRoom),
+            nameof(GroupName.User),
+            nameof(GroupName.Room),
             nameof(GroupName.WaterResourceTest),
         };
 
         public enum Template
         {
             Dummy,
+
+            Admin,
+
             // User
             //Attributes,
             //Backpack,
@@ -31,8 +35,6 @@ namespace nine3q.Content
             //Settings,
             //Nickname,
             //Avatar,
-            Admin,
-            GodMode,
 
             // Room
             PirateFlag,

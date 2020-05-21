@@ -10,7 +10,12 @@ namespace nine3q.Content
         public static void GetTemplates(string name, NamePropertiesCollection templates, TextSet text)
         {
             switch (name) {
-                case nameof(BasicDefinition.GroupName.GenericUser):
+                case nameof(BasicDefinition.GroupName.Admin):
+                    GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.Admin], templates, text);
+                    //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.GodMode], templates, text);
+                    break;
+
+                case nameof(BasicDefinition.GroupName.User):
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.Attributes], templates, text);
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.Backpack], templates, text);
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.TrashCan], templates, text);
@@ -18,10 +23,10 @@ namespace nine3q.Content
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.Nickname], templates, text);
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.Avatar], templates, text);
                     GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.Admin], templates, text);
-                    GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.GodMode], templates, text);
+                    //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.GodMode], templates, text);
                     break;
 
-                case nameof(BasicDefinition.GroupName.GenericRoom):
+                case nameof(BasicDefinition.GroupName.Room):
                     GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.PirateFlag], templates, text);
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.Landmark], templates, text);
                     GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.PageProxy], templates, text);
@@ -85,18 +90,18 @@ namespace nine3q.Content
                 text[BasicDefinition.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Admin";
             }
 
-            if (name == BasicDefinition.TemplateName[BasicDefinition.Template.GodMode]) {
-                props = new PropertySet {
-                    [Pid.Name] = name,
-                    [Pid.Label] = "GodMode",
-                    [Pid.Icon32Url] = "{item.nine3q}Admin/icon32.png",
-                    [Pid.Image100Url] = "{item.nine3q}Admin/image100.jpg",
-                    [Pid.IsRole] = true,
-                    [Pid.Roles] = new JsonPath.Node(typeof(PropertyValue.Roles).GetEnumNames().ToList()).ToJson(bFormatted: true),
-                };
-                text[BasicDefinition.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Admin mit allen Rechten";
-                text[BasicDefinition.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "All Access Admin";
-            }
+            //if (name == BasicDefinition.TemplateName[BasicDefinition.Template.GodMode]) {
+            //    props = new PropertySet {
+            //        [Pid.Name] = name,
+            //        [Pid.Label] = "GodMode",
+            //        [Pid.Icon32Url] = "{item.nine3q}Admin/icon32.png",
+            //        [Pid.Image100Url] = "{item.nine3q}Admin/image100.jpg",
+            //        [Pid.IsRole] = true,
+            //        [Pid.Roles] = new JsonPath.Node(typeof(PropertyValue.Roles).GetEnumNames().ToList()).ToJson(bFormatted: true),
+            //    };
+            //    text[BasicDefinition.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Admin mit allen Rechten";
+            //    text[BasicDefinition.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "All Access Admin";
+            //}
 
             if (name == BasicDefinition.TemplateName[BasicDefinition.Template.PirateFlag]) {
                 props = new PropertySet {
