@@ -13,13 +13,6 @@ using nine3q.StorageProviders;
 
 namespace nine3q.Grains
 {
-    public static class InventoryService
-    {
-        public const string TemplatesInventoryName = "Templates";
-        public const string StreamProvider = "SMSProvider";
-        public const string StreamNamespaceItemUpdate = "ItemUpdate";
-    }
-
     [Serializable]
     public class InventoryState
     {
@@ -37,7 +30,7 @@ namespace nine3q.Grains
         bool _isPersistent = true;
 
         readonly Guid _streamId = Guid.NewGuid();
-        readonly string _templatesInventoryName = Grains.InventoryService.TemplatesInventoryName;
+        readonly string _templatesInventoryName = InventoryService.TemplatesInventoryName;
         readonly IPersistentState<InventoryState> _state;
 
         public InventoryGrain(

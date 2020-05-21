@@ -39,4 +39,12 @@ namespace nine3q.GrainInterfaces
         Task ReadPersistentStorage();
         Task DeletePersistentStorage();
     }
+
+    public static class InventoryService
+    {
+        public const string TemplatesInventoryName = "Templates";
+        public const string StreamProvider = "SMSProvider";
+        public const string StreamNamespaceItemUpdate = "ItemUpdate";
+    }
+
 }

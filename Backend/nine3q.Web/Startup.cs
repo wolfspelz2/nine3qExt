@@ -23,7 +23,6 @@ namespace nine3q.Web
         {
             services.AddRazorPages();
             services.AddControllers();
-            services.AddSingleton<ICommandlineSingletonInstance>(new ItemCommandline("/Commandline"));
 
             if (!Config.UseIntegratedCluster) {
                 services.AddSingleton<IClusterClient>((s) => {
@@ -40,6 +39,8 @@ namespace nine3q.Web
                     return client;
                 });
             }
+
+            services.AddSingleton<ICommandlineSingletonInstance>(new ItemCommandline("/Commandline"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

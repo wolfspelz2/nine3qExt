@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using nine3q.Tools;
+using Orleans;
 
 namespace nine3q.Web
 {
@@ -19,6 +20,7 @@ namespace nine3q.Web
             public string Description { get; set; }
             public string Template { get; set; }
             public string Arguments { get; set; }
+            public bool ImmediateExecute { get; set; }
         }
 
         public class CommandResult
@@ -34,12 +36,17 @@ namespace nine3q.Web
         }
 
         ICommandline _commandline;
-        
+
         public readonly Dictionary<string, CommandDetail> Commands = new Dictionary<string, CommandDetail>();
 
-        public CommandlineModel(ICommandlineSingletonInstance commandline)
+        public CommandlineModel(ICommandlineSingletonInstance commandline, IClusterClient clusterClient)
         {
             _commandline = commandline;
+            if (_commandline is ItemCommandline itemCommandline) {
+                if (itemCommandline.GrainClient == null) {
+                    itemCommandline.GrainClient = clusterClient;
+                }
+            }
         }
 
         public void OnGet()
@@ -58,6 +65,7 @@ namespace nine3q.Web
                             pair.Value.Arguments.Aggregate(new StringBuilder(), (sb, x) => sb.Append(" " + x.Key), sb => sb.ToString())
                             ),
                         Arguments = (pair.Value.Arguments == null ? "" : pair.Value.Arguments.Aggregate(new StringBuilder(), (sb, x) => sb.Append("[" + x.Key + ": " + x.Value + "] "), sb => sb.ToString())),
+                        ImmediateExecute = pair.Value.ImmediateExecute,
                     });
                 }
             }
@@ -68,9 +76,7 @@ namespace nine3q.Web
             var user = new Commandline.User(User.Claims);
 
             try {
-                //var runner = _commandline.NewRunner(HttpContext);
-                //var html = runner.Run(cmd, user);
-                var html = _commandline.Run(cmd, user);
+                var html = string.IsNullOrEmpty(cmd) ? "" : _commandline.Run(cmd, user);
                 return Partial("_CommandlineResult", new CommandResult(html, "text/html"));
             } catch (Exception ex) {
                 return Partial("_CommandlineResult", new CommandResult("<pre>" + string.Join(" | ", ex.GetMessages()) + "</pre>", "text/html"));

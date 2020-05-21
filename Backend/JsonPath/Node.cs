@@ -9,8 +9,7 @@ namespace JsonPath
     {
         public Node Get(string key)
         {
-            if (ContainsKey(key))
-            {
+            if (ContainsKey(key)) {
                 return base[key];
             }
             return new Node(Node.Type.Empty);
@@ -31,8 +30,7 @@ namespace JsonPath
     {
         public Node Get(int index)
         {
-            if (index < Count)
-            {
+            if (index < Count) {
                 return base[index];
             }
             return new Node(Node.Type.Empty);
@@ -108,44 +106,30 @@ namespace JsonPath
         }
         public long Count
         {
-            get
-            {
-                if (IsDictionary)
-                { return AsDictionary.Count; }
-                if (IsList)
-                { return AsList.Count; }
+            get {
+                if (IsDictionary) { return AsDictionary.Count; }
+                if (IsList) { return AsList.Count; }
                 return 0;
             }
         }
 
         public long AsInt
         {
-            get
-            {
-                if (IsInt)
-                {
+            get {
+                if (IsInt) {
                     return (long)Value;
-                }
-                else if (IsString)
-                {
+                } else if (IsString) {
                     if (Int64.TryParse(AsString, out long result)) {
                         return result;
                     }
-                }
-                else if (IsFloat)
-                {
+                } else if (IsFloat) {
                     return Convert.ToInt64(AsFloat);
-                }
-                else if (IsDate)
-                {
+                } else if (IsDate) {
                     return (((DateTime)Value) - new DateTime(1970, 1, 1, 0, 0, 0)).Ticks / TimeSpan.TicksPerSecond;
                 }
-                if (_throwExceptionIfConversionFails)
-                {
+                if (_throwExceptionIfConversionFails) {
                     throw new Exception("Wrong node type: trying to read " + Type.Int.ToString() + " from " + _type.ToString());
-                }
-                else
-                {
+                } else {
                     return 0;
                 }
             }
@@ -153,32 +137,21 @@ namespace JsonPath
 
         public bool AsBool
         {
-            get
-            {
-                if (IsBool)
-                {
+            get {
+                if (IsBool) {
                     return (bool)Value;
-                }
-                else if (IsString)
-                {
+                } else if (IsString) {
                     var s = AsString.ToLower();
                     return s == "true";
-                }
-                else if (IsInt)
-                {
+                } else if (IsInt) {
                     return AsInt != 0;
-                }
-                else if (IsFloat)
-                {
+                } else if (IsFloat) {
                     // ReSharper disable once CompareOfFloatsByEqualityOperator
                     return AsFloat != 0.0;
                 }
-                if (_throwExceptionIfConversionFails)
-                {
+                if (_throwExceptionIfConversionFails) {
                     throw new Exception("Wrong node type: trying to read " + Type.Bool.ToString() + " from " + _type.ToString());
-                }
-                else
-                {
+                } else {
                     return false;
                 }
             }
@@ -186,40 +159,24 @@ namespace JsonPath
 
         public string AsString
         {
-            get
-            {
-                if (IsString)
-                {
+            get {
+                if (IsString) {
                     return (string)Value;
-                }
-                else if (IsInt)
-                {
+                } else if (IsInt) {
                     return AsInt.ToString(CultureInfo.InvariantCulture);
-                }
-                else if (IsFloat)
-                {
+                } else if (IsFloat) {
                     return String.Format(CultureInfo.InvariantCulture, "{0}", (double)Value);
-                }
-                else if (IsDate)
-                {
+                } else if (IsDate) {
                     return ((DateTime)Value).ToString("o");
-                }
-                else if (IsBool)
-                {
+                } else if (IsBool) {
                     return AsBool ? "true" : "false";
                 }
-                if (_throwExceptionIfConversionFails)
-                {
+                if (_throwExceptionIfConversionFails) {
                     throw new Exception("Wrong node type: trying to read " + Type.String.ToString() + " from " + _type.ToString());
-                }
-                else
-                {
-                    if (IsDictionary)
-                    {
+                } else {
+                    if (IsDictionary) {
                         return "<JSObject>";
-                    }
-                    else if (IsList)
-                    {
+                    } else if (IsList) {
                         return "<JSArray>";
                     }
                     return "";
@@ -229,33 +186,21 @@ namespace JsonPath
 
         public double AsFloat
         {
-            get
-            {
-                if (IsFloat)
-                {
+            get {
+                if (IsFloat) {
                     return (double)Value;
-                }
-                else if (IsInt)
-                {
+                } else if (IsInt) {
                     return AsInt;
-                }
-                else if (IsDate)
-                {
+                } else if (IsDate) {
                     return (((DateTime)Value) - new DateTime(1899, 12, 30, 0, 0, 0, 0)).TotalDays;
-                }
-                else if (IsString)
-                {
-                    if (Double.TryParse(AsString, NumberStyles.Any, CultureInfo.InvariantCulture, out _))
-                    {
+                } else if (IsString) {
+                    if (Double.TryParse(AsString, NumberStyles.Any, CultureInfo.InvariantCulture, out _)) {
                         return Double.Parse(AsString, CultureInfo.InvariantCulture);
                     }
                 }
-                if (_throwExceptionIfConversionFails)
-                {
+                if (_throwExceptionIfConversionFails) {
                     throw new Exception("Wrong node type: trying to read " + Type.Float.ToString() + " from " + _type.ToString());
-                }
-                else
-                {
+                } else {
                     return 0.0;
                 }
             }
@@ -263,34 +208,22 @@ namespace JsonPath
 
         public DateTime AsDate
         {
-            get
-            {
-                if (IsDate)
-                {
+            get {
+                if (IsDate) {
                     return (DateTime)Value;
-                }
-                else if (IsFloat)
-                {
+                } else if (IsFloat) {
                     return new DateTime(1899, 12, 30, 0, 0, 0, 0).AddDays(AsFloat);
-                }
-                else if (IsInt)
-                {
+                } else if (IsInt) {
                     return new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(AsInt);
-                }
-                else if (IsString)
-                {
-                    if (DateTime.TryParse(AsString, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
-                    {
+                } else if (IsString) {
+                    if (DateTime.TryParse(AsString, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result)) {
                         // fallthru to 0-Date
                     }
                     return result;
                 }
-                if (_throwExceptionIfConversionFails)
-                {
+                if (_throwExceptionIfConversionFails) {
                     throw new Exception("Wrong node type: trying to read " + Type.Float.ToString() + " from " + _type.ToString());
-                }
-                else
-                {
+                } else {
                     return new DateTime();
                 }
             }
@@ -300,36 +233,24 @@ namespace JsonPath
 
         public Node(Type type, object value = null)
         {
-            if (type == Type.Auto)
-            {
-                if (value is string)
-                {
+            if (type == Type.Auto) {
+                if (value is string) {
                     type = Type.String;
-                }
-                else if (value is int || value is long)
-                {
+                } else if (value is int || value is long) {
                     type = Type.Int;
-                }
-                else if (value is float || value is double)
-                {
+                } else if (value is float || value is double) {
                     type = Type.Float;
-                }
-                else if (value is bool)
-                {
+                } else if (value is bool) {
                     type = Type.Bool;
-                }
-                else if (value is DateTime)
-                {
+                } else if (value is DateTime) {
                     type = Type.Date;
                 }
             }
 
             _type = type;
 
-            if (value != null)
-            {
-                switch (type)
-                {
+            if (value != null) {
+                switch (type) {
                     case Type.Int:
                         Value = Convert.ToInt64(value);
                         break;
@@ -340,11 +261,8 @@ namespace JsonPath
                         Value = value;
                         break;
                 }
-            }
-            else
-            {
-                switch (type)
-                {
+            } else {
+                switch (type) {
                     case Type.List:
                         Value = new List();
                         break;
@@ -382,8 +300,7 @@ namespace JsonPath
             _type = Type.Dictionary;
             Value = new Dictionary();
 
-            foreach (var pair in dict)
-            {
+            foreach (var pair in dict) {
                 AsDictionary.Add(pair.Key, new Node(Type.String, pair.Value));
             }
         }
@@ -393,8 +310,7 @@ namespace JsonPath
             _type = Type.Dictionary;
             Value = new Dictionary();
 
-            foreach (var pair in dict)
-            {
+            foreach (var pair in dict) {
                 AsDictionary.Add(pair.Key, new Node(Type.Auto, pair.Value));
             }
         }
@@ -404,8 +320,7 @@ namespace JsonPath
             _type = Type.List;
             Value = new List();
 
-            foreach (var item in list)
-            {
+            foreach (var item in list) {
                 AsList.Add(new Node(Type.String, item));
             }
         }
@@ -415,8 +330,7 @@ namespace JsonPath
             _type = Type.List;
             Value = new List();
 
-            foreach (var item in list)
-            {
+            foreach (var item in list) {
                 AsList.Add(new Node(Type.Int, item));
             }
         }
@@ -451,70 +365,54 @@ namespace JsonPath
         {
             var node = this;
 
-            foreach (var pair in patch.AsDictionary)
-            {
+            foreach (var pair in patch.AsDictionary) {
                 string action;
                 string key;
                 Node target;
 
                 var parts = pair.Key.Split(new[] { '|', ':' }, StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length > 1)
-                {
+                if (parts.Length > 1) {
                     key = parts[0];
                     target = node[key];
                     action = parts[parts.Length - 1].ToLower();
-                }
-                else
-                {
+                } else {
                     key = pair.Key;
                     target = node[key];
                     action = target.IsDictionary ? PatchAction.Descend : PatchAction.Set;
                 }
 
-                switch (action)
-                {
+                switch (action) {
                     case PatchAction.Replace:
                     case PatchAction.Set:
                         node[key] = pair.Value;
                         break;
                     case PatchAction.Delete:
-                        if (node.IsDictionary)
-                        {
+                        if (node.IsDictionary) {
                             node.AsDictionary.Remove(key);
                         }
                         break;
                     case PatchAction.Add:
-                        if (target.IsList)
-                        {
-                            foreach (var item in pair.Value.AsList)
-                            {
+                        if (target.IsList) {
+                            foreach (var item in pair.Value.AsList) {
                                 target.AsList.Add(item);
                             }
                         }
                         break;
                     case PatchAction.Remove:
-                        if (target.IsList)
-                        {
-                            foreach (var toRemove in pair.Value.AsList)
-                            {
-                                foreach (var item in target.AsList)
-                                {
-                                    if (toRemove.Value.Equals(item.Value))
-                                    {
+                        if (target.IsList) {
+                            foreach (var toRemove in pair.Value.AsList) {
+                                foreach (var item in target.AsList) {
+                                    if (toRemove.Value.Equals(item.Value)) {
                                         target.AsList.Remove(item);
                                         break;
                                     }
                                 }
                             }
                         }
-                        if (target.IsDictionary)
-                        {
-                            foreach (var toRemove in pair.Value.AsList)
-                            {
-                                foreach (var itemPair in target.AsDictionary)
-                                {
-                                    if (itemPair.Key == toRemove)
-                                    {
+                        if (target.IsDictionary) {
+                            foreach (var toRemove in pair.Value.AsList) {
+                                foreach (var itemPair in target.AsDictionary) {
+                                    if (itemPair.Key == toRemove) {
                                         target.AsDictionary.Remove(itemPair.Key);
                                         break;
                                     }
@@ -523,8 +421,7 @@ namespace JsonPath
                         }
                         break;
                     case PatchAction.Descend:
-                        if (target.IsDictionary)
-                        {
+                        if (target.IsDictionary) {
                             target.Patch(pair.Value);
                         }
                         break;

@@ -54,7 +54,7 @@
         Id,
         Name,
         TemplateName,
-        //Label,
+        Label,
         Owner,
         Container,
         Contains,

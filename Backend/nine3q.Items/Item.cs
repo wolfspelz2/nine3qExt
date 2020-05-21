@@ -341,7 +341,7 @@ namespace nine3q.Items
 
             var pids1 = GetProperties(PidList.All).Keys;
             var pids2 = AspectRegistry.Aspects.Keys;
-            return pids1.Intersect(pids2);
+            return pids1.Intersect(pids2).Where(pid => GetBool(pid));
         }
 
         #endregion

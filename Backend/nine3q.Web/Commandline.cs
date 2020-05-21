@@ -14,10 +14,10 @@ namespace nine3q.Web
         {
             _path = path;
 
-            Handlers.Add("Echo", new Handler { Name = "Echo", Function = Echo, Role = Role.Public.ToString(), Description = "Return all arguments", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { { "arg1", "first argument" }, { "...", "more arguments" } } });
-            Handlers.Add("Dev_TestTable", new Handler { Name = "Dev_TestTable", Function = Dev_TestTable, Role = Role.Developer.ToString(), Description = "Full table example" });
-            Handlers.Add("Dev_Exception", new Handler { Name = "Dev_Exception", Function = Dev_Exception, Role = Role.Developer.ToString(), Description = "Throw exception" });
-            Handlers.Add("Dev_null", new Handler { Name = "Dev_null", Function = Dev_null, Role = Role.Developer.ToString(), Description = "Do nothing, return null" });
+            Handlers.Add("Echo", new Handler { Name = "Echo", Function = Echo, Role = Role.Public.ToString(), ImmediateExecute = true, Description = "Return all arguments", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { { "arg1", "first argument" }, { "...", "more arguments" } } });
+            Handlers.Add("Dev_TestTable", new Handler { Name = "Dev_TestTable", Function = Dev_TestTable, ImmediateExecute = true, Role = Role.Developer.ToString(), Description = "Full table example" });
+            Handlers.Add("Dev_Exception", new Handler { Name = "Dev_Exception", Function = Dev_Exception, ImmediateExecute = true, Role = Role.Developer.ToString(), Description = "Throw exception" });
+            Handlers.Add("Dev_null", new Handler { Name = "Dev_null", Function = Dev_null, ImmediateExecute = true, Role = Role.Developer.ToString(), Description = "Do nothing, return null" });
             Handlers.Add("var", new Handler { Name = "var", Function = GetSetVar, Role = Role.Public.ToString(), Description = "Assign or use variable", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Name[=Value]"] = "Name=Value assigns variable value to name, Name only returns variable value", } });
             Handlers.Add("//", new Handler { Name = "//", Function = Comment, Role = Role.Public.ToString(), Description = "Ignored and copied to output", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Comment"] = "Comment line", } });
 
@@ -126,6 +126,7 @@ namespace nine3q.Web
             public string Description { get; set; }
             public ArgumentDescriptionList Arguments { get; set; }
             public ArgumentListType ArgumentList { get; set; } = ArgumentListType.KeyValue;
+            public bool ImmediateExecute { get; set; }
         }
 
         public class HandlerMap : Dictionary<string, Handler> { public HandlerMap(IEqualityComparer<string> comparer) : base(comparer) { } }
@@ -154,10 +155,10 @@ namespace nine3q.Web
         {
             public enum Option
             {
-                TableClass, // default: cl-table
-                OddRowClass, // default: cl-odd
+                TableClass, // default: cTable
+                OddRowClass, // default: cOdd
                 TableHeader, // default: false
-                LinkClass, // default: cl-link
+                LinkClass, // default: cLink
             }
             public class OptionList : Dictionary<Option, string>
             {
@@ -520,12 +521,12 @@ namespace nine3q.Web
             var sb = new StringBuilder();
 
             if (table.Grid != null) {
-                sb.Append("<table class=\"" + table.Options.Get(Table.Option.TableClass, "cl-table") + "\">");
+                sb.Append("<table class=\"" + table.Options.Get(Table.Option.TableClass, "cTable") + "\">");
                 var rowCount = 0;
                 foreach (var row in table.Grid) {
                     var rowClass = "";
                     if (rowCount % 2 == (table.Options.Get(Table.Option.TableHeader, false) ? 0 : 1)) {
-                        rowClass += (string.IsNullOrEmpty(rowClass) ? "" : " ") + table.Options.Get(Table.Option.OddRowClass, "cl-odd");
+                        rowClass += (string.IsNullOrEmpty(rowClass) ? "" : " ") + table.Options.Get(Table.Option.OddRowClass, "cOdd");
                     }
                     sb.Append("<tr" + (string.IsNullOrEmpty(rowClass) ? "" : " class=\"" + rowClass) + "\">");
                     foreach (var cell in row) {
