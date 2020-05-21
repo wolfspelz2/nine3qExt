@@ -79,17 +79,28 @@ namespace nine3q.Items
                 Inventory.SetName(name, Id);
             }
 
-            var change = new ItemChange() {
-                What = Has(pid) ? ItemChange.Variant.SetProperty : ItemChange.Variant.AddProperty,
-                ItemId = Id,
-                Pid = pid,
-                Value = Property.Clone(prop.Type, value),
-                PreviousValue = Properties.ContainsKey(pid) ? Properties[pid] : null,
-            };
+            var isDeleteBecauseTemplateHasIt = false;
+            if (Has(pid)) {
+                var template = GetTemplate();
+                if (template != null) {
+                    var templateValue = template.Get(pid);
+                    isDeleteBecauseTemplateHasIt = Property.AreEquivalent(Property.Get(pid).Type, value, templateValue);
+                }
+            }
 
-            Properties.Set(pid, value);
-
-            OnPropertyChange(change);
+            if (isDeleteBecauseTemplateHasIt) {
+                Delete(pid);
+            } else {
+                var change = new ItemChange() {
+                    What = Has(pid) ? ItemChange.Variant.SetProperty : ItemChange.Variant.AddProperty,
+                    ItemId = Id,
+                    Pid = pid,
+                    Value = Property.Clone(prop.Type, value),
+                    PreviousValue = Properties.ContainsKey(pid) ? Properties[pid] : null,
+                };
+                Properties.Set(pid, value);
+                OnPropertyChange(change);
+            }
         }
 
         public bool Delete(Pid pid)
@@ -104,12 +115,13 @@ namespace nine3q.Items
                 }
 
                 OnPropertyChange(
-                new ItemChange() {
-                    What = ItemChange.Variant.DeleteProperty,
-                    ItemId = Id,
-                    Pid = pid,
-                    PreviousValue = Properties.ContainsKey(pid) ? Properties[pid] : null,
-                });
+                    new ItemChange() {
+                        What = ItemChange.Variant.DeleteProperty,
+                        ItemId = Id,
+                        Pid = pid,
+                        PreviousValue = Properties.ContainsKey(pid) ? Properties[pid] : null,
+                    }
+                );
 
                 Properties.Delete(pid);
                 return true;

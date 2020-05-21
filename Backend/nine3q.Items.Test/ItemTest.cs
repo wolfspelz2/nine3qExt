@@ -90,5 +90,26 @@ namespace nine3q.Items.Test
             // Assert
             Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet("1 2"), item.GetItemSet(Pid.TestItemSet)));
         }
+
+        [TestMethod]
+        public void Set_deletes_property_if_same_as_template()
+        {
+            // Arrange
+            var inv = new Inventory();
+            inv.Templates = new Inventory();
+            var item = inv.CreateItem(new PropertySet { { Pid.TestInt1, 41 }, { Pid.TestInt2, 42 }, { Pid.TemplateName, "TestTemplate" }});
+            var template = inv.Templates.CreateItem(new PropertySet { { Pid.TestInt1, 43 }, { Pid.TestInt2, 44 }, { Pid.Name, "TestTemplate" } });
+
+            // Act
+            item.Set(Pid.TestInt1, 43);
+            // Assert
+            Assert.AreEqual(false, item.Has(Pid.TestInt1));
+
+            // Act
+            item.Set(Pid.TestInt2, 45);
+            // Assert
+            Assert.AreEqual(true, item.Has(Pid.TestInt2));
+        }
+
     }
 }

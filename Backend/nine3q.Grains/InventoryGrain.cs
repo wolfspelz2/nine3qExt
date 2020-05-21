@@ -289,7 +289,7 @@ namespace nine3q.Grains
 
             _state.State.Items = new ItemIdPropertiesCollection();
             foreach (var id in itemIds) {
-                _state.State.Items.Add(id, Inventory.GetItemProperties(id, PidList.All));
+                _state.State.Items.Add(id, Inventory.GetItemProperties(id, PidList.All, native: true));
             }
 
             await _state.WriteStateAsync();
