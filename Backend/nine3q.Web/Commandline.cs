@@ -10,6 +10,34 @@ namespace nine3q.Web
 {
     public class Commandline : ICommandlineSingletonInstance
     {
+        public Commandline(string path)
+        {
+            _path = path;
+
+            Handlers.Add("Echo", new Handler { Name = "Echo", Function = Echo, Role = Role.Public.ToString(), Description = "Return all arguments", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { { "arg1", "first argument" }, { "...", "more arguments" } } });
+            Handlers.Add("Dev_TestTable", new Handler { Name = "Dev_TestTable", Function = Dev_TestTable, Role = Role.Developer.ToString(), Description = "Full table example" });
+            Handlers.Add("Dev_Exception", new Handler { Name = "Dev_Exception", Function = Dev_Exception, Role = Role.Developer.ToString(), Description = "Throw exception" });
+            Handlers.Add("Dev_null", new Handler { Name = "Dev_null", Function = Dev_null, Role = Role.Developer.ToString(), Description = "Do nothing, return null" });
+            Handlers.Add("var", new Handler { Name = "var", Function = GetSetVar, Role = Role.Public.ToString(), Description = "Assign or use variable", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Name[=Value]"] = "Name=Value assigns variable value to name, Name only returns variable value", } });
+            Handlers.Add("//", new Handler { Name = "//", Function = Comment, Role = Role.Public.ToString(), Description = "Ignored and copied to output", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Comment"] = "Comment line", } });
+
+            Formatters.Add(FormatString);
+            Formatters.Add(FormatTable);
+            Formatters.Add(FormatVariableAssignment);
+            Formatters.Add(FormatNull);
+
+            ArgumentFormatters.Add(FormatStringAsArgument);
+        }
+
+        readonly string _path;
+        Dictionary<string, string> _vars;
+
+        public HandlerMap Handlers = new HandlerMap(StringComparer.OrdinalIgnoreCase);
+        public FormatterList Formatters = new FormatterList();
+        public ArgumentFormatterList ArgumentFormatters = new ArgumentFormatterList();
+
+        public HandlerMap GetHandlers() => Handlers;
+
         public class CommandDetail
         {
             public string Name { get; set; }
@@ -101,36 +129,6 @@ namespace nine3q.Web
         }
 
         public class HandlerMap : Dictionary<string, Handler> { public HandlerMap(IEqualityComparer<string> comparer) : base(comparer) { } }
-
-        private static readonly object _mutex = new object();
-        private readonly string _path;
-        HandlerMap Handlers = new HandlerMap(StringComparer.OrdinalIgnoreCase);
-        private FormatterList Formatters = new FormatterList();
-        private ArgumentFormatterList ArgumentFormatters = new ArgumentFormatterList();
-        Dictionary<string, string> _vars;
-
-        public Commandline(string path)
-        {
-            _path = path;
-
-            Handlers.Add("Echo", new Handler { Name = "Echo", Function = Echo, Role = Role.Public.ToString(), Description = "Return all arguments", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { { "arg1", "first argument" }, { "...", "more arguments" } } });
-            Handlers.Add("Dev_TestTable", new Handler { Name = "Dev_TestTable", Function = Dev_TestTable, Role = Role.Developer.ToString(), Description = "Full table example" });
-            Handlers.Add("Dev_Exception", new Handler { Name = "Dev_Exception", Function = Dev_Exception, Role = Role.Developer.ToString(), Description = "Throw exception" });
-            Handlers.Add("Dev_null", new Handler { Name = "Dev_null", Function = Dev_null, Role = Role.Developer.ToString(), Description = "Do nothing, return null" });
-            Handlers.Add("var", new Handler { Name = "var", Function = GetSetVar, Role = Role.Public.ToString(), Description = "Assign or use variable", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Name[=Value]"] = "Name=Value assigns variable value to name, Name only returns variable value", } });
-            Handlers.Add("//", new Handler { Name = "//", Function = Comment, Role = Role.Public.ToString(), Description = "Ignored and copied to output", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Comment"] = "Comment line", } });
-
-            Formatters.Add(FormatString);
-            Formatters.Add(FormatTable);
-            Formatters.Add(FormatVariableAssignment);
-            Formatters.Add(FormatNull);
-
-            ArgumentFormatters.Add(FormatStringAsArgument);
-        }
-
-        public HandlerMap GetHandlers() => Handlers;
-        public FormatterList GetFormatters() => Formatters;
-        public ArgumentFormatterList GetArgumentFormatters() => ArgumentFormatters;
 
         public string CheckRole(Commandline.Handler handler, Commandline.ICommandlineUser user)
         {
@@ -563,7 +561,7 @@ namespace nine3q.Web
 
         public string FormatAsHtml(object data)
         {
-            foreach (var formatter in GetFormatters()) {
+            foreach (var formatter in Formatters) {
                 var result = formatter(data);
                 if (result != null) {
                     return result;
@@ -574,7 +572,7 @@ namespace nine3q.Web
 
         public string FormatAsArgument(object data)
         {
-            foreach (var formatter in GetArgumentFormatters()) {
+            foreach (var formatter in ArgumentFormatters) {
                 var result = formatter(data);
                 if (result != null) {
                     return result;

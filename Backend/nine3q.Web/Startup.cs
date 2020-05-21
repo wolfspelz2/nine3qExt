@@ -23,7 +23,7 @@ namespace nine3q.Web
         {
             services.AddRazorPages();
             services.AddControllers();
-            services.AddSingleton<ICommandlineSingletonInstance>(new Commandline("/Commandline"));
+            services.AddSingleton<ICommandlineSingletonInstance>(new ItemCommandline("/Commandline"));
 
             if (!Config.UseIntegratedCluster) {
                 services.AddSingleton<IClusterClient>((s) => {
