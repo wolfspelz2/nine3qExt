@@ -26,6 +26,27 @@ namespace nine3q.Web
             Host
             .CreateDefaultBuilder(args)
 
+            .ConfigureLogging(logging => {
+                logging.AddConsole();
+                logging.SetMinimumLevel(LogLevel.Warning);
+                logging.AddFilter((provider, category, logLevel) => {
+                    if (category.Contains("Orleans")) {
+                        if (category.Contains(" Orleans.Hosting.SiloHostedService")) {
+                            if (logLevel >= LogLevel.Information) {
+                                return true;
+                            }
+                        } else {
+                            if (logLevel >= LogLevel.Warning) {
+                                return true;
+                            }
+                        }
+                    } else if (logLevel >= LogLevel.Information) {
+                        return true;
+                    }
+                    return false;
+                });
+            })
+
             .ConfigureWebHostDefaults(webBuilder => {
                 webBuilder.UseStartup<Startup>();
             })
@@ -58,11 +79,6 @@ namespace nine3q.Web
 
                 .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(TestStringGrain).Assembly).WithReferences())
                 ;
-            })
-
-            .ConfigureLogging(logging => {
-                logging.AddConsole();
-                logging.SetMinimumLevel(LogLevel.Warning);
             })
             ;
     }
