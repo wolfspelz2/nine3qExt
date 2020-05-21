@@ -3,7 +3,7 @@ using System.Diagnostics.Contracts;
 
 namespace nine3q.Items
 {
-    public class ItemSummaryRecorder : IInventoryChanges
+    public class ItemChangesSummary : IInventoryChanges
     {
         public ItemIdSet AddedItems { get; } = new ItemIdSet();
         public ItemIdSet ChangedItems { get; } = new ItemIdSet();
@@ -16,7 +16,7 @@ namespace nine3q.Items
             return (AddedItems.Count + ChangedItems.Count + DeletedItems.Count) > 0; ;
         }
 
-        public ItemSummaryRecorder(Inventory inv)
+        public ItemChangesSummary(Inventory inv)
         {
             Contract.Requires(inv != null);
             foreach (var change in inv.Changes) {
