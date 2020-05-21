@@ -6,9 +6,10 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
-        ['1.0.X', 'x', [
+        ['1.0.4', 'x', [
             ['Add', 'Support for animationsUrl in presence-x-vp:props'],
             ['Change', 'Prefer presence-x-vp:props attributes over identity'],
+            ['Change', 'Settings title to brand name (lowercase)'],
             ['Fix', 'Window position on small screens'],
         ]],
         ['1.0.3', 'XmppWindow SettingsDialog', [

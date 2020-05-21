@@ -80,7 +80,7 @@ export class Config
                     'Chatin.Enter chat here...': 'Enter chat here...',
                     'Chatin.SendChat': 'Send chat',
 
-                    'Popup.title': 'Your Weblin',
+                    'Popup.title': 'Your weblin',
                     'Popup.description': 'Change name and avatar, then press [save].',
                     'Popup.Name': 'Name',
                     'Popup.Random': 'Random',
@@ -119,7 +119,7 @@ export class Config
                     'Chatin.Enter chat here...': 'Chat Text hier...',
                     'Chatin.SendChat': 'Chat abschicken',
 
-                    'Popup.title': 'Dein Weblin',
+                    'Popup.title': 'Dein weblin',
                     'Popup.description': 'Wähle Name und Avatar, dann drücke [Speichern].',
                     'Popup.Name': 'Name',
                     'Popup.Random': 'Zufallsname',
