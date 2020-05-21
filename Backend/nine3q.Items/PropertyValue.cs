@@ -71,6 +71,7 @@
         {
             Public,
             User,
+            PowerUser,
             Moderator,
             LeadModerator,
             Janitor,

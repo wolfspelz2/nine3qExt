@@ -6,7 +6,7 @@ using nine3q.Items.Aspects;
 
 namespace nine3q.Content
 {
-    public class BasicSetDefinition
+    public class BasicDefinition
     {
         public enum GroupName
         {
@@ -15,10 +15,10 @@ namespace nine3q.Content
             WaterResourceTest,
         }
 
-        public static Dictionary<GroupName, string> Group = new Dictionary<GroupName, string> {
-            [GroupName.GenericUser] = "GenericUser",
-            [GroupName.GenericRoom] = "GenericRoom",
-            [GroupName.WaterResourceTest] = "WaterResourceTest",
+        public static List<string> Group = new List<string> {
+            nameof(GroupName.GenericUser),
+            nameof(GroupName.GenericRoom),
+            nameof(GroupName.WaterResourceTest),
         };
 
         public enum Template
@@ -35,9 +35,9 @@ namespace nine3q.Content
             GodMode,
 
             // Room
-            //PirateFlag,
+            PirateFlag,
             //Landmark,
-            //PageProxy,
+            PageProxy,
 
             // WaterResourceTest
             //WaterCan,

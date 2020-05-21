@@ -120,10 +120,10 @@ namespace nine3q.Items
             Add(Pid.IsRezzed, Type.Bool, Use.Bool, Group.Generic, Access.Internal, Persistence.Persistent, "true", "True if rezzed to room.");
             Add(Pid.IsDerezzing, Type.Bool, Use.Int, Group.Generic, Access.Internal, Persistence.Persistent, "true", "True while in the process of being de-rezzed (precence-unavailable sent).");
             Add(Pid.RezzedX, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "735", "Position of item in room if rezzed.");
-            //Add(Pid.IsClaim, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Fixed, "true", "Item claims room ownership.");
+            Add(Pid.IsClaim, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Fixed, "true", "Item claims room ownership.");
             //Add(Pid.Claimed, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Persistent, "true", "True if IsClaim-item rezzed to room.");
-            //Add(Pid.IsProxy, Type.Bool, Use.Bool, Group.Generic, Access.Owner, Persistence.Fixed, "true", "Item is a proxy for a rezzed item.");
-            //Add(Pid.ProxyTemplate, Type.String, Use.String, Group.Generic, Access.Owner, Persistence.Persistent, "PageProxyTemplate", "Name of proxy item template.");
+            Add(Pid.IsProxy, Type.Bool, Use.Bool, Group.Generic, Access.Owner, Persistence.Fixed, "true", "Item is a proxy for a rezzed item.");
+            Add(Pid.ProxyTemplate, Type.String, Use.String, Group.Generic, Access.Owner, Persistence.Persistent, "PageProxyTemplate", "Name of proxy item template.");
             //Add(Pid.ProxyName, Type.String, Use.String, Group.Generic, Access.Owner, Persistence.Persistent, "83726273-2344-8765-1234-936591538251", "Unique name of the rezzed item / proxy item relationship. Used by derez to find associated proxy.");
             //Add(Pid.ProxyDestination, Type.String, Use.Url, Group.Generic, Access.Owner, Persistence.Persistent, "http://www.heise.de", "The page URL where the proxied item was rezzed.");
             //Add(Pid.ProxyInventory, Type.String, Use.String, Group.Generic, Access.Owner, Persistence.Persistent, "xmpp:0caaf24ab1a0c33440c06afe99df986365b0781f@muc4.virtual-presence.org", "Room ID where the proxied item was rezzed.");

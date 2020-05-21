@@ -18,8 +18,8 @@ namespace nine3q.Web
             Handlers.Add("Dev_TestTable", new Handler { Name = "Dev_TestTable", Function = Dev_TestTable, ImmediateExecute = true, Role = Role.Developer.ToString(), Description = "Full table example" });
             Handlers.Add("Dev_Exception", new Handler { Name = "Dev_Exception", Function = Dev_Exception, ImmediateExecute = true, Role = Role.Developer.ToString(), Description = "Throw exception" });
             Handlers.Add("Dev_null", new Handler { Name = "Dev_null", Function = Dev_null, ImmediateExecute = true, Role = Role.Developer.ToString(), Description = "Do nothing, return null" });
-            Handlers.Add("var", new Handler { Name = "var", Function = GetSetVar, Role = Role.Public.ToString(), Description = "Assign or use variable", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Name[=Value]"] = "Name=Value assigns variable value to name, Name only returns variable value", } });
-            Handlers.Add("//", new Handler { Name = "//", Function = Comment, Role = Role.Public.ToString(), Description = "Ignored and copied to output", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Comment"] = "Comment line", } });
+            Handlers.Add("var", new Handler { Name = "var", Function = GetSetVar, Role = Role.Public.ToString(), ImmediateExecute = false, Description = "Assign or use variable", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Name[=Value]"] = "Name=Value assigns variable value to name, Name only returns variable value", } });
+            Handlers.Add("//", new Handler { Name = "//", Function = Comment, Role = Role.Public.ToString(), ImmediateExecute = false, Description = "Ignored and copied to output", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Comment"] = "Comment line", } });
 
             Formatters.Add(FormatString);
             Formatters.Add(FormatTable);
@@ -55,7 +55,7 @@ namespace nine3q.Web
         {
             private IEnumerable<Claim> claims;
 
-            public IEnumerable<string> Roles { get; } = new[] { Role.Public.ToString(), Role.Admin.ToString(), Role.Developer.ToString() };
+            public IEnumerable<string> Roles { get; } = new[] { Role.Public.ToString(), Role.Admin.ToString(), Role.Developer.ToString(), ItemCommandline.ItemRole.Content.ToString(), ItemCommandline.ItemRole.LeadContent.ToString(), ItemCommandline.ItemRole.SecurityAdmin.ToString() };
             //public User(IEnumerable<string> roles) { Roles = roles; }
 
             public User(IEnumerable<Claim> claims)

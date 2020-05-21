@@ -13,7 +13,7 @@ namespace nine3q.Web
     {
         public IClusterClient GrainClient { get; set; }
 
-        public enum MyRole { Content, LeadContent, SecurityAdmin }
+        public enum ItemRole { Content, LeadContent, SecurityAdmin }
 
         enum Fn
         {
@@ -47,10 +47,10 @@ namespace nine3q.Web
             //Translation_de,
             //Translation_en,
 
-            //Content_Groups,
-            //Content_Templates,
-            //Content_ShowTemplates,
-            //Content_CreateTemplates,
+            Content_Groups,
+            Content_Templates,
+            Content_ShowTemplates,
+            Content_CreateTemplates,
 
             //User_Statistics,
             //User_SetCustomized,
@@ -67,54 +67,54 @@ namespace nine3q.Web
         public ItemCommandline(string path): base(path)
         {
 
-            Handlers.Add("Dev_Item", new Handler { Name = "Dev_Item", Function = Dev_Item, Role = Role.Developer.ToString(), Arguments = new ArgumentDescriptionList { ["ID"] = "Item ID" } });
+            Handlers.Add("Dev_Item", new Handler { Name = "Dev_Item", Function = Dev_Item, Role = nameof(Role.Developer), Arguments = new ArgumentDescriptionList { ["ID"] = "Item ID" } });
 
-            //Handlers.Add(Fn.Admin_TokenLogon.ToString(), new Handler { Name = Fn.Admin_TokenLogon.ToString(), Function = Admin_TokenLogon, Role = Role.Public.ToString(), Description = "Log in as admin with token (for system bootstrap)", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Token"] = "Secret", } });
-            //Handlers.Add(Fn.Admin_TokenLogoff.ToString(), new Handler { Name = Fn.Admin_TokenLogoff.ToString(), Function = Admin_TokenLogoff, Role = Role.Public.ToString(), Description = "Log out as admin", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { } });
-            //Handlers.Add(Fn.Admin_CreateRole.ToString(), new Handler { Name = Fn.Admin_CreateRole.ToString(), Function = Admin_CreateRole, Role = Role.Public.ToString(), Description = "Create role item for accessing user", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Secret", } });
-            Handlers.Add(Fn.Admin_Environment.ToString(), new Handler { Name = Fn.Admin_Environment.ToString(), Function = Admin_Environment, Role = Role.Public.ToString(), ImmediateExecute = true, Description = "Show environment variables", });
-            Handlers.Add(Fn.Admin_Process.ToString(), new Handler { Name = Fn.Admin_Process.ToString(), Function = Admin_Process, Role = Role.Public.ToString(), ImmediateExecute = true, Description = "Show process info", });
-            //Handlers.Add(Fn.Admin_Request.ToString(), new Handler { Name = Fn.Admin_Request.ToString(), Function = Admin_Request, Role = Role.Public.ToString(), Description = "Show HTTPrequest info", });
+            //Handlers.Add(nameof(Fn.Admin_TokenLogon), new Handler { Name = nameof(Fn.Admin_TokenLogon), Function = Admin_TokenLogon, Role = nameof(Role.Public), ImmediateExecute = false, Description = "Log in as admin with token (for system bootstrap)", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Token"] = "Secret", } });
+            //Handlers.Add(nameof(Fn.Admin_TokenLogoff), new Handler { Name = nameof(Fn.Admin_TokenLogoff), Function = Admin_TokenLogoff, Role = nameof(Role.Public), ImmediateExecute = false, Description = "Log out as admin", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { } });
+            //Handlers.Add(nameof(Fn.Admin_CreateRole), new Handler { Name = nameof(Fn.Admin_CreateRole), Function = Admin_CreateRole, Role = nameof(Role.Public), ImmediateExecute = false, Description = "Create role item for accessing user", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Secret", } });
+            Handlers.Add(nameof(Fn.Admin_Environment), new Handler { Name = nameof(Fn.Admin_Environment), Function = Admin_Environment, Role = nameof(Role.Public), ImmediateExecute = true, Description = "Show environment variables", });
+            Handlers.Add(nameof(Fn.Admin_Process), new Handler { Name = nameof(Fn.Admin_Process), Function = Admin_Process, Role = nameof(Role.Public), ImmediateExecute = true, Description = "Show process info", });
+            //Handlers.Add(nameof(Fn.Admin_Request), new Handler { Name = nameof(Fn.Admin_Request), Function = Admin_Request, Role = nameof(Role.Public), ImmediateExecute = false, Description = "Show HTTPrequest info", });
 
-            //Handlers.Add(Fn.Inventory_Statistics.ToString(), new Handler { Name = Fn.Inventory_Statistics.ToString(), Function = Inventory_Statistics, Role = Role.Admin.ToString(), Description = "Show statistics", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
-            Handlers.Add(Fn.Inventory_Items.ToString(), new Handler { Name = Fn.Inventory_Items.ToString(), Function = Inventory_GetItems, Role = Role.Admin.ToString(), Description = "Get all item IDs of inventory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
-            Handlers.Add(Fn.Inventory_DeleteAll.ToString(), new Handler { Name = Fn.Inventory_DeleteAll.ToString(), Function = Inventory_DeleteAllItems, Role = Role.Admin.ToString(), Description = "Delete all item from inventory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
-            Handlers.Add(Fn.Inventory_DeleteStorage.ToString(), new Handler { Name = Fn.Inventory_DeleteStorage.ToString(), Function = Inventory_DeletePermanentStorage, Role = Role.Admin.ToString(), Description = "Delete permanent storage of inventory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
-            Handlers.Add(Fn.Inventory_Deactivate.ToString(), new Handler { Name = Fn.Inventory_Deactivate.ToString(), Function = Inventory_Deactivate, Role = Role.Admin.ToString(), Description = "Deactivate inventory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
-            Handlers.Add(Fn.Inventory_Reload.ToString(), new Handler { Name = Fn.Inventory_Reload.ToString(), Function = Inventory_Reload, Role = Role.Admin.ToString(), Description = "Reload inventory data", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
+            //Handlers.Add(nameof(Fn.Inventory_Statistics), new Handler { Name = nameof(Fn.Inventory_Statistics), Function = Inventory_Statistics, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Show statistics", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
+            Handlers.Add(nameof(Fn.Inventory_Items), new Handler { Name = nameof(Fn.Inventory_Items), Function = Inventory_GetItems, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Get all item IDs of inventory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
+            Handlers.Add(nameof(Fn.Inventory_DeleteAll), new Handler { Name = nameof(Fn.Inventory_DeleteAll), Function = Inventory_DeleteAllItems, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Delete all item from inventory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
+            Handlers.Add(nameof(Fn.Inventory_DeleteStorage), new Handler { Name = nameof(Fn.Inventory_DeleteStorage), Function = Inventory_DeletePermanentStorage, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Delete permanent storage of inventory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
+            Handlers.Add(nameof(Fn.Inventory_Deactivate), new Handler { Name = nameof(Fn.Inventory_Deactivate), Function = Inventory_Deactivate, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Deactivate inventory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
+            Handlers.Add(nameof(Fn.Inventory_Reload), new Handler { Name = nameof(Fn.Inventory_Reload), Function = Inventory_Reload, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Reload inventory data", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
            
-            Handlers.Add(Fn.Item_Create.ToString(), new Handler { Name = Fn.Item_Create.ToString(), Function = Inventory_CreateItem, Role = Role.Admin.ToString(), Description = "Add item to inventory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["Properties"] = "Item properties as JSON dictionary or as PropertyName=Value pairs", } });
-            Handlers.Add(Fn.Item_Delete.ToString(), new Handler { Name = Fn.Item_Delete.ToString(), Function = Inventory_DeleteItem, Role = Role.Admin.ToString(), Description = "Delete item", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["ItemId"] = "Item ID", } });
-            Handlers.Add(Fn.Item_ByName.ToString(), new Handler { Name = Fn.Item_ByName.ToString(), Function = Inventory_GetItemByName, Role = Role.Admin.ToString(), Description = "Get item with given name", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["Name"] = "Item name", } });
-            Handlers.Add(Fn.Item_SetProperties.ToString(), new Handler { Name = Fn.Item_SetProperties.ToString(), Function = Inventory_SetItemProperties, Role = Role.Admin.ToString(), Description = "Set (some or all) item properties", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["ItemId"] = "Item ID", ["Properties"] = "Item properties as JSON dictionary or as PropertyName=Value pairs", } });
-            Handlers.Add(Fn.Item_GetProperties.ToString(), new Handler { Name = Fn.Item_GetProperties.ToString(), Function = Inventory_GetItemProperties, Role = Role.Admin.ToString(), Description = "Show item", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["ItemId"] = "Item ID", ["Format"] = "Output format [table|json] (optional, default:table)", } });
-            Handlers.Add(Fn.Item_DeleteProperties.ToString(), new Handler { Name = Fn.Item_DeleteProperties.ToString(), Function = Inventory_DeleteItemProperties, Role = Role.Admin.ToString(), Description = "Delete one or more properties", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["ItemId"] = "Item ID", ["PropertyName"] = "Property (on or more)", } });
-            //Handlers.Add(Fn.Item_Action.ToString(), new Handler { Name = Fn.Item_Action.ToString(), Function = Inventory_ExecuteItemAction, Role = Role.Admin.ToString(), Description = "Execute item aspect action", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["ItemId"] = "Item ID", ["Action"] = "Action verb", ["Properties"] = "Action arguments as JSON dictionary or as PropertyName=Value pairs", } });
-            Handlers.Add(Fn.Item_AddToContainer.ToString(), new Handler { Name = Fn.Item_AddToContainer.ToString(), Function = Inventory_AddChildToContainer, Role = Role.Admin.ToString(), Description = "Make item a child of the container", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["ItemId"] = "Item ID", ["ContainerId"] = "Container item ID", } });
-            Handlers.Add(Fn.Item_RemoveFromContainer.ToString(), new Handler { Name = Fn.Item_RemoveFromContainer.ToString(), Function = Inventory_RemoveChildFromContainer, Role = Role.Admin.ToString(), Description = "Remove item from container", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["ItemId"] = "Item ID", ["ContainerId"] = "Container item ID", } });
-            Handlers.Add(Fn.Item_Transfer.ToString(), new Handler { Name = Fn.Item_Transfer.ToString(), Function = Inventory_TransferItem, Role = Role.Admin.ToString(), Description = "Transfer item between inventories including children", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["ItemId"] = "Item ID", ["SourceInventory"] = "Source inventory name", ["DestinationInventory"] = "Destination inventory name", ["DestinationContainer"] = "Destination container name", } });
+            Handlers.Add(nameof(Fn.Item_Create), new Handler { Name = nameof(Fn.Item_Create), Function = Inventory_CreateItem, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Add item to inventory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["Properties"] = "Item properties as JSON dictionary or as PropertyName=Value pairs", } });
+            Handlers.Add(nameof(Fn.Item_Delete), new Handler { Name = nameof(Fn.Item_Delete), Function = Inventory_DeleteItem, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Delete item", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["ItemId"] = "Item ID", } });
+            Handlers.Add(nameof(Fn.Item_ByName), new Handler { Name = nameof(Fn.Item_ByName), Function = Inventory_GetItemByName, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Get item with given name", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["Name"] = "Item name", } });
+            Handlers.Add(nameof(Fn.Item_SetProperties), new Handler { Name = nameof(Fn.Item_SetProperties), Function = Inventory_SetItemProperties, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Set (some or all) item properties", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["ItemId"] = "Item ID", ["Properties"] = "Item properties as JSON dictionary or as PropertyName=Value pairs", } });
+            Handlers.Add(nameof(Fn.Item_GetProperties), new Handler { Name = nameof(Fn.Item_GetProperties), Function = Inventory_GetItemProperties, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Show item", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["ItemId"] = "Item ID", ["Format"] = "Output format [table|json] (optional, default:table)", } });
+            Handlers.Add(nameof(Fn.Item_DeleteProperties), new Handler { Name = nameof(Fn.Item_DeleteProperties), Function = Inventory_DeleteItemProperties, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Delete one or more properties", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["ItemId"] = "Item ID", ["PropertyName"] = "Property (on or more)", } });
+            //Handlers.Add(nameof(Fn.Item_Action), new Handler { Name = nameof(Fn.Item_Action), Function = Inventory_ExecuteItemAction, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Execute item aspect action", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["ItemId"] = "Item ID", ["Action"] = "Action verb", ["Properties"] = "Action arguments as JSON dictionary or as PropertyName=Value pairs", } });
+            Handlers.Add(nameof(Fn.Item_AddToContainer), new Handler { Name = nameof(Fn.Item_AddToContainer), Function = Inventory_AddChildToContainer, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Make item a child of the container", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["ItemId"] = "Item ID", ["ContainerId"] = "Container item ID", } });
+            Handlers.Add(nameof(Fn.Item_RemoveFromContainer), new Handler { Name = nameof(Fn.Item_RemoveFromContainer), Function = Inventory_RemoveChildFromContainer, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Remove item from container", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["ItemId"] = "Item ID", ["ContainerId"] = "Container item ID", } });
+            Handlers.Add(nameof(Fn.Item_Transfer), new Handler { Name = nameof(Fn.Item_Transfer), Function = Inventory_TransferItem, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Transfer item between inventories including children", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["ItemId"] = "Item ID", ["SourceInventory"] = "Source inventory name", ["DestinationInventory"] = "Destination inventory name", ["DestinationContainer"] = "Destination container name", } });
 
-            //Handlers.Add(Fn.Translation_Set.ToString(), new Handler { Name = Fn.Translation_Set.ToString(), Function = Translation_Set, Role = Role.Admin.ToString(), Description = "Add translation", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Text to translate, format: context.text", ["Language"] = "Language [de_DE|en_US|...]", ["Translated"] = "Translated text (omitting context)", } });
-            //Handlers.Add(Fn.Translation_Get.ToString(), new Handler { Name = Fn.Translation_Get.ToString(), Function = Translation_Get, Role = Role.Admin.ToString(), Description = "Show translation", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Text to translate, format: context.text", ["Language"] = "Language [de_DE|en_US|...]", } });
-            //Handlers.Add(Fn.Translation_Unset.ToString(), new Handler { Name = Fn.Translation_Unset.ToString(), Function = Translation_Unset, Role = Role.Admin.ToString(), Description = "Delete translation", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Text to translate, format: context.text", ["Language"] = "Language [de_DE|en_US|...]", } });
-            //Handlers.Add(Fn.Translation_de.ToString(), new Handler { Name = Fn.Translation_de.ToString(), Function = Translation_Set_de, Role = Role.Admin.ToString(), Description = "Add translation", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Text to translate, format: context.text", ["Translated"] = "Translated text (omitting context)", } });
-            //Handlers.Add(Fn.Translation_en.ToString(), new Handler { Name = Fn.Translation_en.ToString(), Function = Translation_Set_en, Role = Role.Admin.ToString(), Description = "Add translation", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Text to translate, format: context.text", ["Translated"] = "Translated text (omitting context)", } });
+            //Handlers.Add(nameof(Fn.Translation_Set), new Handler { Name = nameof(Fn.Translation_Set), Function = Translation_Set, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Add translation", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Text to translate, format: context.text", ["Language"] = "Language [de_DE|en_US|...]", ["Translated"] = "Translated text (omitting context)", } });
+            //Handlers.Add(nameof(Fn.Translation_Get), new Handler { Name = nameof(Fn.Translation_Get), Function = Translation_Get, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Show translation", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Text to translate, format: context.text", ["Language"] = "Language [de_DE|en_US|...]", } });
+            //Handlers.Add(nameof(Fn.Translation_Unset), new Handler { Name = nameof(Fn.Translation_Unset), Function = Translation_Unset, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Delete translation", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Text to translate, format: context.text", ["Language"] = "Language [de_DE|en_US|...]", } });
+            //Handlers.Add(nameof(Fn.Translation_de), new Handler { Name = nameof(Fn.Translation_de), Function = Translation_Set_de, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Add translation", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Text to translate, format: context.text", ["Translated"] = "Translated text (omitting context)", } });
+            //Handlers.Add(nameof(Fn.Translation_en), new Handler { Name = nameof(Fn.Translation_en), Function = Translation_Set_en, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Add translation", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Text to translate, format: context.text", ["Translated"] = "Translated text (omitting context)", } });
 
-            //Handlers.Add(Fn.Content_Groups.ToString(), new Handler { Name = Fn.Content_Groups.ToString(), Function = Content_Groups, Role = MyRole.Content.ToString(), Description = "List available template groups" });
-            //Handlers.Add(Fn.Content_Templates.ToString(), new Handler { Name = Fn.Content_Templates.ToString(), Function = Content_Templates, Role = MyRole.Content.ToString(), Description = "List available templates in group", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Name"] = "Group name", } });
-            //Handlers.Add(Fn.Content_CreateTemplates.ToString(), new Handler { Name = Fn.Content_CreateTemplates.ToString(), Function = Content_CreateTemplates, Role = MyRole.LeadContent.ToString(), Description = "Create or update template(s)" });
-            //Handlers.Add(Fn.Content_ShowTemplates.ToString(), new Handler { Name = Fn.Content_ShowTemplates.ToString(), Function = Content_ShowTemplates, Role = MyRole.Content.ToString(), Description = "Get all item IDs of templates inventory" });
+            Handlers.Add(nameof(Fn.Content_Groups), new Handler { Name = nameof(Fn.Content_Groups), Function = Content_Groups, Role = nameof(ItemRole.Content), ImmediateExecute = true, Description = "List available template groups" });
+            Handlers.Add(nameof(Fn.Content_Templates), new Handler { Name = nameof(Fn.Content_Templates), Function = Content_Templates, Role = nameof(ItemRole.Content), ImmediateExecute = false, Description = "List available templates in group", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Name"] = "Group name", } });
+            Handlers.Add(nameof(Fn.Content_CreateTemplates), new Handler { Name = nameof(Fn.Content_CreateTemplates), Function = Content_CreateTemplates, Role = nameof(ItemRole.LeadContent), ImmediateExecute = false, Description = "Create or update template(s)" });
+            Handlers.Add(nameof(Fn.Content_ShowTemplates), new Handler { Name = nameof(Fn.Content_ShowTemplates), Function = Content_ShowTemplates, Role = nameof(ItemRole.Content), ImmediateExecute = false, Description = "Get all item IDs of templates inventory" });
 
-            //Handlers.Add(Fn.User_Statistics.ToString(), new Handler { Name = Fn.User_Statistics.ToString(), Function = User_Statistics, Role = Role.Admin.ToString(), Description = "Show user statistics", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["User"] = "User name", } });
-            //Handlers.Add(Fn.User_SetCustomized.ToString(), new Handler { Name = Fn.User_SetCustomized.ToString(), Function = User_SetCustomized, Role = MyRole.SecurityAdmin.ToString(), Description = "Make user persistent", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["User"] = "User name", } });
-            //Handlers.Add(Fn.User_ReceiveFromFrontend.ToString(), new Handler { Name = Fn.User_ReceiveFromFrontend.ToString(), Function = User_ReceiveFromFrontend, Role = MyRole.SecurityAdmin.ToString(), Description = "Send data from frontend to user", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["User"] = "User name", ["Data"] = "Protocol data", } });
-            //Handlers.Add(Fn.User_ReceiveFromRoom.ToString(), new Handler { Name = Fn.User_ReceiveFromRoom.ToString(), Function = User_ReceiveFromRoom, Role = MyRole.SecurityAdmin.ToString(), Description = "Send data from roomto user", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["User"] = "User name", ["Data"] = "Protocol data", } });
-            //Handlers.Add(Fn.User_Deactivate.ToString(), new Handler { Name = Fn.User_Deactivate.ToString(), Function = User_Deactivate, Role = MyRole.SecurityAdmin.ToString(), Description = "Deactivate user", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["User"] = "User name", } });
+            //Handlers.Add(nameof(Fn.User_Statistics), new Handler { Name = nameof(Fn.User_Statistics), Function = User_Statistics, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Show user statistics", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["User"] = "User name", } });
+            //Handlers.Add(nameof(Fn.User_SetCustomized), new Handler { Name = nameof(Fn.User_SetCustomized), Function = User_SetCustomized, Role = nameof(MyRoleSecurityAdmin), ImmediateExecute = false, Description = "Make user persistent", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["User"] = "User name", } });
+            //Handlers.Add(nameof(Fn.User_ReceiveFromFrontend), new Handler { Name = nameof(Fn.User_ReceiveFromFrontend), Function = User_ReceiveFromFrontend, Role = nameof(MyRoleSecurityAdmin), ImmediateExecute = false, Description = "Send data from frontend to user", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["User"] = "User name", ["Data"] = "Protocol data", } });
+            //Handlers.Add(nameof(Fn.User_ReceiveFromRoom), new Handler { Name = nameof(Fn.User_ReceiveFromRoom), Function = User_ReceiveFromRoom, Role = nameof(MyRoleSecurityAdmin), ImmediateExecute = false, Description = "Send data from roomto user", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["User"] = "User name", ["Data"] = "Protocol data", } });
+            //Handlers.Add(nameof(Fn.User_Deactivate), new Handler { Name = nameof(Fn.User_Deactivate), Function = User_Deactivate, Role = nameof(MyRoleSecurityAdmin), ImmediateExecute = false, Description = "Deactivate user", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["User"] = "User name", } });
 
-            //Handlers.Add(Fn.Room_Statistics.ToString(), new Handler { Name = Fn.Room_Statistics.ToString(), Function = Room_Statistics, Role = Role.Admin.ToString(), Description = "Show room statistics", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Room"] = "Room name", } });
-            //Handlers.Add(Fn.Room_ReceiveFromUser.ToString(), new Handler { Name = Fn.Room_ReceiveFromUser.ToString(), Function = Room_ReceiveFromUser, Role = MyRole.SecurityAdmin.ToString(), Description = "Send data to room", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Room"] = "Room name", ["Data"] = "Protocol data", } });
-            //Handlers.Add(Fn.Room_Deactivate.ToString(), new Handler { Name = Fn.Room_Deactivate.ToString(), Function = Room_Deactivate, Role = MyRole.SecurityAdmin.ToString(), Description = "Deactivate room", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Room"] = "Room name", } });
-            //Handlers.Add(Fn.Room_DeleteStorage.ToString(), new Handler { Name = Fn.Room_DeleteStorage.ToString(), Function = Room_DeleteStorage, Role = MyRole.SecurityAdmin.ToString(), Description = "Delete permanent storage of room", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Room"] = "Room name", } });
+            //Handlers.Add(nameof(Fn.Room_Statistics), new Handler { Name = nameof(Fn.Room_Statistics), Function = Room_Statistics, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Show room statistics", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Room"] = "Room name", } });
+            //Handlers.Add(nameof(Fn.Room_ReceiveFromUser), new Handler { Name = nameof(Fn.Room_ReceiveFromUser), Function = Room_ReceiveFromUser, Role = nameof(MyRoleSecurityAdmin), ImmediateExecute = false, Description = "Send data to room", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Room"] = "Room name", ["Data"] = "Protocol data", } });
+            //Handlers.Add(nameof(Fn.Room_Deactivate), new Handler { Name = nameof(Fn.Room_Deactivate), Function = Room_Deactivate, Role = nameof(MyRoleSecurityAdmin), ImmediateExecute = false, Description = "Deactivate room", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Room"] = "Room name", } });
+            //Handlers.Add(nameof(Fn.Room_DeleteStorage), new Handler { Name = nameof(Fn.Room_DeleteStorage), Function = Room_DeleteStorage, Role = nameof(MyRoleSecurityAdmin), ImmediateExecute = false, Description = "Delete permanent storage of room", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Room"] = "Room name", } });
 
             Formatters.Add(FormatItem);
             Formatters.Add(FormatItemList);
@@ -704,7 +704,7 @@ namespace nine3q.Web
         //    var key = args.Next("key");
         //    var lang = args.Next("language");
         //    var translated = args.Next("translated");
-            
+
         //    var cacheKey = GrainInterfaces.Content.GetTranslationCacheKey(key, lang);
         //    GrainClient.GetGrain<ICachedString>(cacheKey).Set(translated, CachedStringOptions.Infinite, CachedStringOptions.Persistent).Wait();
         //    return GrainClient.GetGrain<ICachedString>(cacheKey).Get().Result;
@@ -715,7 +715,7 @@ namespace nine3q.Web
         //    args.Next("cmd");
         //    var key = args.Next("key");
         //    var lang = args.Next("language");
-            
+
         //    var cacheKey = GrainInterfaces.Content.GetTranslationCacheKey(key, lang);
         //    var translated = GrainClient.GetGrain<ICachedString>(cacheKey).Get().Result;
         //    return translated;
@@ -726,7 +726,7 @@ namespace nine3q.Web
         //    args.Next("cmd");
         //    var key = args.Next("key");
         //    var lang = args.Next("language");
-            
+
         //    var cacheKey = GrainInterfaces.Content.GetTranslationCacheKey(key, lang);
         //    GrainClient.GetGrain<ICachedString>(cacheKey).Unset().Wait();
         //    return "(ok)";
@@ -736,53 +736,53 @@ namespace nine3q.Web
 
         #region Content
 
-        //object Content_Groups(Arglist args)
-        //{
-        //    args.Next("cmd");
-            
-        //    var inventoryName = GrainInterfaces.InventoryService.TemplatesInventoryName;
-        //    var inv = GrainClient.GetGrain<IContentGenerator>(inventoryName);
-        //    var groups = inv.GetGroups().Result;
-        //    var s = "";
-        //    foreach (var group in groups) {
-        //        s += CommandLink(Fn.Content_Templates.ToString(), new[] { group }, group) + " ";
-        //    }
-        //    return s;
-        //}
+        object Content_Groups(Arglist args)
+        {
+            args.Next("cmd");
 
-        //object Content_Templates(Arglist args)
-        //{
-        //    args.Next("cmd");
-        //    var name = args.Next("GroupName");
-            
-        //    var inventoryName = GrainInterfaces.InventoryService.TemplatesInventoryName;
-        //    var inv = GrainClient.GetGrain<IContentGenerator>(inventoryName);
-        //    var templates = inv.GetTemplates(name).Result;
-        //    var s = CommandLink(Fn.Content_CreateTemplates.ToString(), new[] { name }, "[Create all]") + " ";
-        //    foreach (var template in templates) {
-        //        s += CommandLink(Fn.Content_CreateTemplates.ToString(), new[] { template }, template) + " ";
-        //    }
-        //    return s;
-        //}
+            var inventoryName = GrainInterfaces.InventoryService.TemplatesInventoryName;
+            var inv = GrainClient.GetGrain<IContentGenerator>(inventoryName);
+            var groups = inv.GetGroups().Result;
+            var s = "";
+            foreach (var group in groups) {
+                s += CommandLink(Fn.Content_Templates.ToString(), new[] { group }, group) + " ";
+            }
+            return s;
+        }
 
-        //private object Content_CreateTemplates(Arglist args)
-        //{
-        //    args.Next("cmd");
-        //    var name = args.Next("template or group name");
-            
-        //    var inventoryName = GrainInterfaces.InventoryService.TemplatesInventoryName;
-        //    var ids = new ItemIdSet(GrainClient.GetGrain<IContentGenerator>(inventoryName).CreateTemplates(name).Result);
-        //    return string.Join(" ", ids.ToList().ConvertAll(id => ShowItemLink(inventoryName, id)));
-        //}
+        object Content_Templates(Arglist args)
+        {
+            args.Next("cmd");
+            var name = args.Next("GroupName");
 
-        //object Content_ShowTemplates(Arglist args)
-        //{
-            
-        //    var inventoryName = GrainInterfaces.InventoryService.TemplatesInventoryName;
-        //    var inv = GrainClient.GetGrain<IInventory>(inventoryName);
-        //    var ids = inv.GetItemIds().Result;
-        //    return string.Join(" ", ids.ToList().ConvertAll(id => ShowItemLink(inventoryName, id)));
-        //}
+            var inventoryName = GrainInterfaces.InventoryService.TemplatesInventoryName;
+            var inv = GrainClient.GetGrain<IContentGenerator>(inventoryName);
+            var templates = inv.GetTemplates(name).Result;
+            var s = CommandLink(Fn.Content_CreateTemplates.ToString(), new[] { name }, "[Create all]") + " ";
+            foreach (var template in templates) {
+                s += CommandLink(Fn.Content_CreateTemplates.ToString(), new[] { template }, template) + " ";
+            }
+            return s;
+        }
+
+        private object Content_CreateTemplates(Arglist args)
+        {
+            args.Next("cmd");
+            var name = args.Next("template or group name");
+
+            var inventoryName = GrainInterfaces.InventoryService.TemplatesInventoryName;
+            var ids = new ItemIdSet(GrainClient.GetGrain<IContentGenerator>(inventoryName).CreateTemplates(name).Result);
+            return string.Join(" ", ids.ToList().ConvertAll(id => ShowItemLink(inventoryName, id)));
+        }
+
+        object Content_ShowTemplates(Arglist args)
+        {
+
+            var inventoryName = GrainInterfaces.InventoryService.TemplatesInventoryName;
+            var inv = GrainClient.GetGrain<IInventory>(inventoryName);
+            var ids = inv.GetItemIds().Result;
+            return string.Join(" ", ids.ToList().ConvertAll(id => ShowItemLink(inventoryName, id)));
+        }
 
         #endregion
 
@@ -792,7 +792,7 @@ namespace nine3q.Web
         //{
         //    args.Next("cmd");
         //    var userName = args.Next("User");
-            
+
         //    var user = GrainClient.GetGrain<IUser>(userName);
         //    var stats = user.GetStatistics().Result;
         //    var table = new Table();
@@ -809,7 +809,7 @@ namespace nine3q.Web
         //{
         //    args.Next("cmd");
         //    var userName = args.Next("User");
-            
+
         //    var user = GrainClient.GetGrain<IUser>(userName);
         //    user.SetCustomized().Wait();
         //    return "ok";
@@ -820,7 +820,7 @@ namespace nine3q.Web
         //    args.Next("cmd");
         //    var userName = args.Next("User");
         //    var data = args.Next("Data");
-            
+
         //    var user = GrainClient.GetGrain<IUser>(userName);
         //    user.ReceiveFromFrontend(data).Wait();
         //    return "ok";
@@ -831,7 +831,7 @@ namespace nine3q.Web
         //    args.Next("cmd");
         //    var userName = args.Next("User");
         //    var data = args.Next("Data");
-            
+
         //    var user = GrainClient.GetGrain<IUser>(userName);
         //    user.ReceiveFromRoom(data).Wait();
         //    return "ok";
@@ -841,7 +841,7 @@ namespace nine3q.Web
         //{
         //    args.Next("cmd");
         //    var userName = args.Next("User");
-            
+
         //    var user = GrainClient.GetGrain<IUser>(userName);
         //    user.Deactivate().Wait();
         //    return "ok";
@@ -855,7 +855,7 @@ namespace nine3q.Web
         //{
         //    args.Next("cmd");
         //    var userName = args.Next("Room");
-            
+
         //    var user = GrainClient.GetGrain<IRoom>(userName);
         //    var stats = user.GetStatistics().Result;
         //    var table = new Table();
@@ -873,7 +873,7 @@ namespace nine3q.Web
         //    args.Next("cmd");
         //    var roomName = args.Next("Room");
         //    var data = args.Next("Data");
-            
+
         //    var room = GrainClient.GetGrain<IRoom>(roomName);
         //    room.ReceiveFromUser(data).Wait();
         //    return "ok";
@@ -883,7 +883,7 @@ namespace nine3q.Web
         //{
         //    args.Next("cmd");
         //    var userName = args.Next("Room");
-            
+
         //    var user = GrainClient.GetGrain<IRoom>(userName);
         //    user.Deactivate().Wait();
         //    return "ok";
@@ -893,7 +893,7 @@ namespace nine3q.Web
         //{
         //    args.Next("cmd");
         //    var roomName = args.Next("Room");
-            
+
         //    var room = GrainClient.GetGrain<IRoom>(roomName);
         //    room.DeletePermanentStorage().Wait();
         //    return "ok";

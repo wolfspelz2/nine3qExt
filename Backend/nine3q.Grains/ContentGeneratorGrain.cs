@@ -17,29 +17,29 @@ namespace nine3q.Grains
             return Task.CompletedTask;
         }
 
-        public void GetTemplates(string name, NamePropertiesCollection templates, BasicSetData.TextSet text)
+        public void GetTemplates(string name, NamePropertiesCollection templates, BasicData.TextSet text)
         {
-            BasicSetData.GetTemplates(name, templates, text);
+            BasicData.GetTemplates(name, templates, text);
         }
 
-        public void GetTemplate(string name, NamePropertiesCollection templates, BasicSetData.TextSet text)
+        public void GetTemplate(string name, NamePropertiesCollection templates, BasicData.TextSet text)
         {
-            BasicSetData.GetTemplate(name, templates, text);
+            BasicData.GetTemplate(name, templates, text);
         }
 
         public Task<List<string>> GetGroups()
         {
-            return Task.FromResult(BasicSetData.GetGroups());
+            return Task.FromResult(BasicData.GetGroups());
         }
 
         public Task<List<string>> GetTemplates(string group)
         {
-            return Task.FromResult(BasicSetData.GetTemplates(group));
+            return Task.FromResult(BasicData.GetTemplates(group));
         }
 
         public async Task<string> CreateTemplates(string name)
         {
-            var translations = new BasicSetData.TextSet();
+            var translations = new BasicData.TextSet();
             var templates = new NamePropertiesCollection();
 
             GetTemplates(name, templates, translations);
