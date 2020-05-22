@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Linq;
 using nine3q.Tools;
@@ -99,7 +98,7 @@ namespace nine3q.Items
             Add(Pid.Id, Type.Item, Use.Item, Group.Generic, Access.Public, Persistence.Persistent, "10000000001", "");
             Add(Pid.Name, Type.String, Use.String, Group.Generic, Access.Public, Persistence.Persistent, "Avatar", "");
             Add(Pid.TemplateName, Type.String, Use.String, Group.Generic, Access.Internal, Persistence.Persistent, "WaterBottleTemplate", "Template provides additional properties.");
-            //Add(Pid.Label, Type.String, Use.String, Group.Generic, Access.Public, Persistence.Persistent, "WaterBottle", "Used in public displays as primary designation. Will be translated.");
+            Add(Pid.Label, Type.String, Use.String, Group.Generic, Access.Public, Persistence.Persistent, "WaterBottle", "Used in public displays as primary designation. Will be translated.");
             Add(Pid.Owner, Type.String, Use.UserId, Group.Generic, Access.Public, Persistence.Persistent, "9c0a5e6d-1278-4e14-8981-e3909d9e7a4b", "User Id of the item owner (when rezzed in room).");
             Add(Pid.Container, Type.Item, Use.Item, Group.Generic, Access.Owner, Persistence.Persistent, "10000000001", "Id of container item.");
             Add(Pid.Contains, Type.ItemSet, Use.ItemList, Group.Generic, Access.Owner, Persistence.Persistent, "10000000001 10000000002", "Container: list of child items.");
@@ -109,7 +108,7 @@ namespace nine3q.Items
             Add(Pid.Stacksize, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "3", "Number of items item stacked in one place.");
             //Add(Pid.ImageUrl, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "");
             //Add(Pid.Icon16Url, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "Small representations");
-            //Add(Pid.Icon32Url, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "Medium images");
+            Add(Pid.Icon32Url, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "Medium images");
             //Add(Pid.AvatarUrl, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "Live display, minimum transparent area");
             Add(Pid.Image100Url, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "");
             Add(Pid.AnimationsUrl, Type.String, Use.Url, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "");
@@ -121,10 +120,10 @@ namespace nine3q.Items
             Add(Pid.IsRezzed, Type.Bool, Use.Bool, Group.Generic, Access.Internal, Persistence.Persistent, "true", "True if rezzed to room.");
             Add(Pid.IsDerezzing, Type.Bool, Use.Int, Group.Generic, Access.Internal, Persistence.Persistent, "true", "True while in the process of being de-rezzed (precence-unavailable sent).");
             Add(Pid.RezzedX, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "735", "Position of item in room if rezzed.");
-            //Add(Pid.IsClaim, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Fixed, "true", "Item claims room ownership.");
+            Add(Pid.IsClaim, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Fixed, "true", "Item claims room ownership.");
             //Add(Pid.Claimed, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Persistent, "true", "True if IsClaim-item rezzed to room.");
-            //Add(Pid.IsProxy, Type.Bool, Use.Bool, Group.Generic, Access.Owner, Persistence.Fixed, "true", "Item is a proxy for a rezzed item.");
-            //Add(Pid.ProxyTemplate, Type.String, Use.String, Group.Generic, Access.Owner, Persistence.Persistent, "PageProxyTemplate", "Name of proxy item template.");
+            Add(Pid.IsProxy, Type.Bool, Use.Bool, Group.Generic, Access.Owner, Persistence.Fixed, "true", "Item is a proxy for a rezzed item.");
+            Add(Pid.ProxyTemplate, Type.String, Use.String, Group.Generic, Access.Owner, Persistence.Persistent, "PageProxyTemplate", "Name of proxy item template.");
             //Add(Pid.ProxyName, Type.String, Use.String, Group.Generic, Access.Owner, Persistence.Persistent, "83726273-2344-8765-1234-936591538251", "Unique name of the rezzed item / proxy item relationship. Used by derez to find associated proxy.");
             //Add(Pid.ProxyDestination, Type.String, Use.Url, Group.Generic, Access.Owner, Persistence.Persistent, "http://www.heise.de", "The page URL where the proxied item was rezzed.");
             //Add(Pid.ProxyInventory, Type.String, Use.String, Group.Generic, Access.Owner, Persistence.Persistent, "xmpp:0caaf24ab1a0c33440c06afe99df986365b0781f@muc4.virtual-presence.org", "Room ID where the proxied item was rezzed.");
@@ -132,8 +131,8 @@ namespace nine3q.Items
             //Add(Pid.IsSettings, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Fixed, "true", "Item contains user settings.");
             //Add(Pid.IsAvatar, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Fixed, "true", "Item contains avatar data.");
             //Add(Pid.IsNickname, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Fixed, "true", "Item contains a nickname for the avatar.");
-            //Add(Pid.IsRole, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Fixed, "true", "Item contains account roles.");
-            //Add(Pid.Roles, Type.String, Use.Json, Group.Generic, Access.Public, Persistence.Persistent, "['Public', 'Admin']", "List of user roles.");
+            Add(Pid.IsRole, Type.Bool, Use.Bool, Group.Generic, Access.Public, Persistence.Fixed, "true", "Item contains account roles.");
+            Add(Pid.Roles, Type.String, Use.Json, Group.Generic, Access.Public, Persistence.Persistent, "['Public', 'Admin']", "List of user roles.");
             //Add(Pid.Stats, Type.String, Use.Json, Group.Generic, Access.Public, Persistence.Persistent, "['WaterLevel']", "List of stats visible on rezzed item.");
             //Add(Pid.Condition, Type.Float, Use.Percent, Group.Generic, Access.Public, Persistence.Persistent, "0.5", "Item condition between 0.0 and 1.0.");
 
@@ -274,11 +273,12 @@ namespace nine3q.Items
             public string Description { get; set; }
         }
 
-        public static object Normalize(Property.Type type, object value)
+        public static object Normalize(Pid pid, object value)
         {
+            var type = Property.Get(pid).Type;
             if (value == null) { return value; }
             switch (type) {
-                case Property.Type.Unknown: throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface.");
+                case Property.Type.Unknown: throw new InvalidOperationException("Property type=" + type.ToString() + " should not ever surface.");
                 case Property.Type.Int:
                     if (value is long) {
                         return (long)value;
@@ -343,11 +343,12 @@ namespace nine3q.Items
                     break;
                 default: throw new NotImplementedException("Property type=" + type.ToString() + " not yet implemented.");
             }
-            return Property.FromString(type, Property.ToString(type, value));
+            return Property.FromString(pid, Property.ToString(pid, value));
         }
 
-        public static string ToString(Property.Type type, object value)
+        public static string ToString(Pid pid, object value)
         {
+            var type = Property.Get(pid).Type;
             if (value == null) return "";
             if (value is string) {
                 return (string)value;
@@ -369,8 +370,9 @@ namespace nine3q.Items
             return value.ToString();
         }
 
-        public static object FromString(Property.Type type, string s)
+        public static object FromString(Pid pid, string s)
         {
+            var type = Property.Get(pid).Type;
             return type switch
             {
                 Property.Type.Unknown => throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface."),
@@ -384,9 +386,10 @@ namespace nine3q.Items
             };
         }
 
-        public static object Clone(Property.Type type, object value)
+        public static object Clone(Pid pid, object value)
         {
             if (value == null) return null;
+            var type = Property.Get(pid).Type;
             return type switch
             {
                 Property.Type.Unknown => throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface."),
@@ -400,8 +403,9 @@ namespace nine3q.Items
             };
         }
 
-        public static object Default(Property.Type type)
+        public static object Default(Pid pid)
         {
+            var type = Property.Get(pid).Type;
             return type switch
             {
                 Property.Type.Unknown => throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface."),
@@ -415,19 +419,20 @@ namespace nine3q.Items
             };
         }
 
-        public static bool AreEquivalent(Property.Type type, object value1, object value2)
+        public static bool AreEquivalent(Pid pid, object value1, object value2)
         {
+            var type = Property.Get(pid).Type;
             if (value1 == null && value2 != null || value1 != null && value2 == null) { return false; }
             switch (type) {
                 case Property.Type.Unknown: throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface.");
-                case Property.Type.Int: return (long)Normalize(type, value1) == (long)Normalize(type, value2);
-                case Property.Type.String: return (string)Normalize(type, value1) == (string)Normalize(type, value2);
-                case Property.Type.Float: return (double)Normalize(type, value1) == (double)Normalize(type, value2);
-                case Property.Type.Bool: return (bool)Normalize(type, value1) == (bool)Normalize(type, value2);
-                case Property.Type.Item: return (long)Normalize(type, value1) == (long)Normalize(type, value2);
+                case Property.Type.Int: return (long)Normalize(pid, value1) == (long)Normalize(pid, value2);
+                case Property.Type.String: return (string)Normalize(pid, value1) == (string)Normalize(pid, value2);
+                case Property.Type.Float: return (double)Normalize(pid, value1) == (double)Normalize(pid, value2);
+                case Property.Type.Bool: return (bool)Normalize(pid, value1) == (bool)Normalize(pid, value2);
+                case Property.Type.Item: return (long)Normalize(pid, value1) == (long)Normalize(pid, value2);
                 case Property.Type.ItemSet: {
-                    var set1 = Normalize(type, value1) as ItemIdSet;
-                    var set2 = Normalize(type, value2) as ItemIdSet;
+                    var set1 = Normalize(pid, value1) as ItemIdSet;
+                    var set2 = Normalize(pid, value2) as ItemIdSet;
                     if (set1.Count != set1.Count) { return false; }
                     var union = set1.Union(set2);
                     if (union.Count() != set1.Count) { return false; }

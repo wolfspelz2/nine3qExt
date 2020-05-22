@@ -19,7 +19,7 @@ namespace nine3q.Items.Test
             });
 
             // Assert
-            var summary = new ItemSummaryRecorder(inv);
+            var summary = new ItemChangesSummary(inv);
             Assert.IsTrue(summary.ChangedItems.Contains(item.Id));
             Assert.IsTrue(summary.AddedItems.Contains(item.Id));
             Assert.AreEqual(1, summary.ChangedItems.Count);
@@ -40,7 +40,7 @@ namespace nine3q.Items.Test
             });
 
             // Assert
-            var summary = new ItemSummaryRecorder(inv);
+            var summary = new ItemChangesSummary(inv);
             Assert.IsTrue(summary.ChangedItems.Contains(item.Id));
             Assert.IsTrue(summary.AddedItems.Contains(item.Id));
             Assert.AreEqual(1, summary.ChangedItems.Count);
@@ -61,7 +61,7 @@ namespace nine3q.Items.Test
             });
 
             // Assert
-            var summary = new ItemSummaryRecorder(inv);
+            var summary = new ItemChangesSummary(inv);
             Assert.IsTrue(summary.DeletedItems.Contains(item.Id));
             Assert.AreEqual(1, summary.DeletedItems.Count);
             Assert.AreEqual(0, summary.ChangedItems.Count);
@@ -80,7 +80,7 @@ namespace nine3q.Items.Test
             });
 
             // Assert
-            var summary = new ItemSummaryRecorder(inv);
+            var summary = new ItemChangesSummary(inv);
             Assert.IsTrue(summary.ChangedItems.Contains(item.Id));
             Assert.AreEqual(1, summary.ChangedItems.Count);
         }
@@ -99,7 +99,7 @@ namespace nine3q.Items.Test
             });
 
             // Assert
-            var summary = new ItemSummaryRecorder(inv);
+            var summary = new ItemChangesSummary(inv);
             Assert.IsTrue(summary.DeletedItems.Contains(item.Id));
             Assert.AreEqual(1, summary.DeletedItems.Count);
             Assert.AreEqual(0, summary.ChangedItems.Count);
@@ -118,7 +118,7 @@ namespace nine3q.Items.Test
             });
 
             // Assert
-            var summary = new ItemSummaryRecorder(inv);
+            var summary = new ItemChangesSummary(inv);
             Assert.IsTrue(summary.ChangedItems.Contains(item.Id));
             Assert.AreEqual(1, summary.ChangedItems.Count);
         }
@@ -136,7 +136,7 @@ namespace nine3q.Items.Test
             });
 
             // Assert
-            var summary = new ItemSummaryRecorder(inv);
+            var summary = new ItemChangesSummary(inv);
             Assert.IsTrue(summary.ChangedItems.Contains(item.Id));
             Assert.AreEqual(1, summary.ChangedItems.Count);
         }

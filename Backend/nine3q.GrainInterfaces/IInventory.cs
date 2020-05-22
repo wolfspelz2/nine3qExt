@@ -8,23 +8,26 @@ namespace nine3q.GrainInterfaces
 {
     public interface IInventory : IGrainWithStringKey
     {
+        // Items
         Task<long> CreateItem(PropertySet properties);
         Task<bool> DeleteItem(long id);
+        Task<long> GetItemByName(string name);
+        Task<ItemIdSet> GetItemIds();
 
+        // Properties
         Task SetItemProperties(long id, PropertySet properties);
         Task<PropertySet> GetItemProperties(long id, PidList pids, bool native = false);
         Task<int> DeleteItemProperties(long id, PidList pids);
         Task ModifyItemProperties(long id, PropertySet modified, PidList deleted);
-
-        Task<long> GetItemByName(string name);
-        Task<ItemIdSet> GetItemIds();
         Task<ItemIdPropertiesCollection> GetItemIdsAndValuesByProperty(Pid filterProperty, PidList desiredProperties);
 
+        // Container
         Task AddChildToContainer(long id, long containerId, long slot);
         Task RemoveChildFromContainer(long id, long containerId);
 
+        // Transfer
         Task<ItemIdPropertiesCollection> BeginItemTransfer(long id);
-        Task<ItemIdMap> ReceiveItemTransfer(long id, long containerId, long slot, ItemIdPropertiesCollection idProps, PropertySet setProperties, PidList removeProperties);
+        Task<ItemIdMap> ReceiveItemTransfer(long id, long containerId, long slot, ItemIdPropertiesCollection idProps, PropertySet finallySetProperties, PidList finallyDeleteProperties);
         Task EndItemTransfer(long id);
         Task CancelItemTransfer(long id);
 
@@ -36,4 +39,12 @@ namespace nine3q.GrainInterfaces
         Task ReadPersistentStorage();
         Task DeletePersistentStorage();
     }
+
+    public static class InventoryService
+    {
+        public const string TemplatesInventoryName = "Templates";
+        public const string StreamProvider = "SMSProvider";
+        public const string StreamNamespaceItemUpdate = "ItemUpdate";
+    }
+
 }

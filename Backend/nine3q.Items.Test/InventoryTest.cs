@@ -600,10 +600,10 @@ namespace nine3q.Items.Test
             Assert.AreEqual(112, destProps[map[item112.Id]].GetInt(Pid.TestInt1));
             Assert.AreEqual(113, destProps[map[item113.Id]].GetInt(Pid.TestInt1));
             Assert.AreEqual(121, destProps[map[item121.Id]].GetInt(Pid.TestInt1));
-            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet { map[item110.Id], map[item120.Id], map[item130.Id] }, destProps[map[item100.Id]].GetItemSet(Pid.Contains)));
-            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet { map[item111.Id], map[item112.Id], map[item113.Id] }, destProps[map[item110.Id]].GetItemSet(Pid.Contains)));
-            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet { map[item121.Id] }, destProps[map[item120.Id]].GetItemSet(Pid.Contains)));
-            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet { }, destProps[map[item130.Id]].GetItemSet(Pid.Contains)));
+            Assert.IsTrue(Property.AreEquivalent(Pid.TestItemSet, new ItemIdSet { map[item110.Id], map[item120.Id], map[item130.Id] }, destProps[map[item100.Id]].GetItemSet(Pid.Contains)));
+            Assert.IsTrue(Property.AreEquivalent(Pid.TestItemSet, new ItemIdSet { map[item111.Id], map[item112.Id], map[item113.Id] }, destProps[map[item110.Id]].GetItemSet(Pid.Contains)));
+            Assert.IsTrue(Property.AreEquivalent(Pid.TestItemSet, new ItemIdSet { map[item121.Id] }, destProps[map[item120.Id]].GetItemSet(Pid.Contains)));
+            Assert.IsTrue(Property.AreEquivalent(Pid.TestItemSet, new ItemIdSet { }, destProps[map[item130.Id]].GetItemSet(Pid.Contains)));
             Assert.AreEqual(ItemId.NoItem, destProps[map[item100.Id]].GetItem(Pid.Container));
             Assert.AreEqual(map[item100.Id], destProps[map[item110.Id]].GetItem(Pid.Container));
             Assert.AreEqual(map[item100.Id], destProps[map[item120.Id]].GetItem(Pid.Container));

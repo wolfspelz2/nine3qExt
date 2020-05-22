@@ -8,9 +8,8 @@ namespace IntegrationTests
     [TestClass]
     public class TestStringGrainTest
     {
-        const int StackFrameNumber = 0;
-
-        [TestMethod][TestCategory(GrainClient.Category)]
+        [TestMethod]
+        [TestCategory(GrainClient.Category)]
         public void SetGet()
         {
             // Arrange 
@@ -30,7 +29,8 @@ namespace IntegrationTests
             }
         }
 
-        [TestMethod][TestCategory(GrainClient.Category)]
+        [TestMethod]
+        [TestCategory(GrainClient.Category)]
         public void Persist_unload_reload()
         {
             // Arrange 

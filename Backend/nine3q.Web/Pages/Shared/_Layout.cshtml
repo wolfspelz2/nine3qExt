@@ -8,12 +8,12 @@
 </head>
 <body>
 
-    <ul>
-        <li><a asp-area="" asp-page="/Index">Home</a></li>
-        <li><a asp-area="" asp-page="/Counter">Counter</a></li>
-        <li><a href="/Sample">SampleController</a></li>
-        <li><a asp-area="" asp-page="/Commandline">Commandline</a></li>
-    </ul>
+    <div class="cSiteMenu">
+        <div class="cMenuItem"><a asp-area="" asp-page="/Index">Home</a></div>
+        <div class="cMenuItem"><a asp-area="" asp-page="/Counter">Counter</a></div>
+        <div class="cMenuItem"><a href="/Sample">SampleController</a></div>
+        <div class="cMenuItem"><a asp-area="" asp-page="/Commandline">Commandline</a></div>
+    </div>
 
     @RenderBody()
 

@@ -9,14 +9,6 @@ namespace nine3q.Grains
 {
     public class UserGrain : Grain, IUser
     {
-        private readonly Dictionary<string, string> item1 = new Dictionary<string, string> {
-            ["name"] = "General Sherman",
-            ["avatarUrl"] = "https://weblin-avatar.dev.sui.li/items/baum/avatar.xml",
-            ["rezzing"] = "false",
-            ["rezzed"] = "false",
-            ["room"] = "",
-        };
-
         private string Id => this.GetPrimaryKeyString();
         private readonly Guid _streamId = Guid.NewGuid();
 

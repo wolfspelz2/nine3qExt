@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Orleans;
-using Orleans.Providers;
 using Orleans.Runtime;
 using nine3q.Tools;
 using nine3q.Items;
@@ -13,17 +11,10 @@ using nine3q.StorageProviders;
 
 namespace nine3q.Grains
 {
-    public static class InventoryService
-    {
-        public const string TemplatesInventoryName = "Templates";
-        public const string StreamProvider = "SMSProvider";
-        public const string StreamNamespaceItemUpdate = "SMSProvider";
-    }
-
     [Serializable]
     public class InventoryState
     {
-        public string Name;
+        public string Id;
         public ItemIdPropertiesCollection Items;
         public ItemIdSet WriteIds;
         public ItemIdSet DeleteIds;
@@ -31,16 +22,14 @@ namespace nine3q.Grains
 
     class InventoryGrain : Grain, IInventory
     {
-        private Guid Guid { get; set; }
+        string Id { get; set; }
 
-        private readonly string _templatesInventoryName = Grains.InventoryService.TemplatesInventoryName;
+        Inventory Inventory;
+        bool _isPersistent = true;
 
-        private readonly IPersistentState<InventoryState> _state;
-        private Inventory Inventory;
-
-        private readonly Inventory Templates = new Inventory();
-
-        private bool IsPersistent { get; set; } = true;
+        readonly Guid _streamId = Guid.NewGuid();
+        readonly string _templatesInventoryName = InventoryService.TemplatesInventoryName;
+        readonly IPersistentState<InventoryState> _state;
 
         public InventoryGrain(
             [PersistentState("Inventory", JsonFileStorage.StorageProviderName)] IPersistentState<InventoryState> inventoryState
@@ -48,6 +37,8 @@ namespace nine3q.Grains
         {
             _state = inventoryState;
         }
+
+        private IInventory RemoteInventory(string key) => GrainFactory.GetGrain<IInventory>(key);
 
         #region Interface
 
@@ -86,6 +77,16 @@ namespace nine3q.Grains
             return deleted;
         }
 
+        public Task<long> GetItemByName(string name)
+        {
+            return Task.FromResult(Inventory.GetItemByName(name));
+        }
+
+        public Task<ItemIdSet> GetItemIds()
+        {
+            return Task.FromResult(Inventory.GetItemIds());
+        }
+
         public async Task SetItemProperties(long id, PropertySet properties)
         {
             Inventory.Transaction(() => {
@@ -118,16 +119,6 @@ namespace nine3q.Grains
             await CheckInventoryChanged();
         }
 
-        public Task<long> GetItemByName(string name)
-        {
-            return Task.FromResult(Inventory.GetItemByName(name));
-        }
-
-        public Task<ItemIdSet> GetItemIds()
-        {
-            return Task.FromResult(Inventory.GetItemIds());
-        }
-
         public Task<ItemIdPropertiesCollection> GetItemIdsAndValuesByProperty(Pid filterPid, PidList desiredProperties)
         {
             return Task.FromResult(Inventory.GetItemIdsAndValuesByProperty(filterPid, desiredProperties));
@@ -149,110 +140,6 @@ namespace nine3q.Grains
             await CheckInventoryChanged();
         }
 
-        #endregion
-
-        #region Lifecycle
-
-        public override async Task OnActivateAsync()
-        {
-            await base.OnActivateAsync();
-
-            Guid = NameBasedGuid.Create(NameBasedGuid.UrlNamespace, this.GetPrimaryKeyString());
-
-            await ReadInventoryState();
-
-            //Inventory.Timers = new InventoryGrainTimerManager(this);
-
-            //if (Name == _templatesInventoryName) {
-            //    Inventory.IsActive = false;
-            //} else {
-            //    await PopulateUsedTemplates();
-            //    await ActivateTemplateSubscription();
-            //    Inventory.Activate();
-            //}
-        }
-
-        public override async Task OnDeactivateAsync()
-        {
-            await base.OnDeactivateAsync();
-        }
-
-        async Task CheckInventoryChanged()
-        {
-            var summary = new ItemSummaryRecorder(Inventory);
-
-            if (summary.IsChanged()) {
-                foreach (var id in summary.NewTemplates) {
-                    await InstallTemplate(id);
-                }
-
-                if (IsPersistent) {
-                    await WriteInventoryState(summary);
-                }
-
-                // Notify subscribers
-                Don.t = () => {
-                    var streamProvider = GetStreamProvider(InventoryService.StreamProvider);
-                    var stream = streamProvider.GetStream<ItemUpdate>(Guid, InventoryService.StreamNamespaceItemUpdate.ToString());
-                    {
-                        var notifyItems = summary.ChangedItems.Clone();
-                        notifyItems.UnionWith(summary.AddedItems);
-                        foreach (var id in notifyItems) {
-                            var parents = Inventory.GetParentContainers(id);
-                            var update = new ItemUpdate(id, parents, ItemUpdate.Mode.Changed);
-                            stream.OnNextAsync(update).Ignore();
-                        }
-                    }
-                    {
-                        var notifyItems = summary.DeletedItems;
-                        foreach (var id in notifyItems) {
-                            var update = new ItemUpdate(id, new ItemIdSet(), ItemUpdate.Mode.Removed);
-                            stream.OnNextAsync(update).Ignore();
-                        }
-                    }
-                };
-            }
-        }
-
-        private async Task WriteInventoryState(ItemSummaryRecorder summary)
-        {
-            _state.State.Name = this.GetPrimaryKeyString();
-
-            Don.t = () => {
-                _state.State.WriteIds = summary.ChangedItems.Clone();
-                _state.State.WriteIds.UnionWith(summary.AddedItems);
-                _state.State.DeleteIds = summary.DeletedItems;
-
-                var itemIds = _state.State.WriteIds;
-            };
-            var itemIds = Inventory.GetItemIds();
-
-            _state.State.Items = new ItemIdPropertiesCollection();
-            foreach (var id in itemIds) {
-                _state.State.Items.Add(id, Inventory.GetItemProperties(id, PidList.All));
-            }
-
-            await _state.WriteStateAsync();
-        }
-
-        private async Task ReadInventoryState()
-        {
-            await _state.ReadStateAsync();
-
-            Inventory = new Inventory(this.GetPrimaryKeyString());
-
-            var allProps = _state.State.Items;
-            if (allProps != null) {
-                foreach (var pair in allProps) {
-                    Inventory.CreateItem(pair.Value);
-                }
-            }
-        }
-
-        #endregion
-
-        #region Transfer
-
         public async Task<ItemIdPropertiesCollection> BeginItemTransfer(long id)
         {
             var idProps = new ItemIdPropertiesCollection();
@@ -263,11 +150,11 @@ namespace nine3q.Grains
             return idProps;
         }
 
-        public async Task<ItemIdMap> ReceiveItemTransfer(long id, long containerId, long slot, ItemIdPropertiesCollection idProps, PropertySet setProperties, PidList removeProperties)
+        public async Task<ItemIdMap> ReceiveItemTransfer(long id, long containerId, long slot, ItemIdPropertiesCollection idProps, PropertySet finallySetProperties, PidList finallyDeleteProperties)
         {
             var mapping = new ItemIdMap();
             Inventory.Transaction(() => {
-                mapping = Inventory.ReceiveItemTransfer(id, containerId, slot, idProps, setProperties, removeProperties);
+                mapping = Inventory.ReceiveItemTransfer(id, containerId, slot, idProps, finallySetProperties, finallyDeleteProperties);
             });
             await CheckInventoryChanged();
             return mapping;
@@ -289,24 +176,137 @@ namespace nine3q.Grains
             await CheckInventoryChanged();
         }
 
+        public Task SetPersistent(bool persistent)
+        {
+            _isPersistent = persistent;
+            return Task.CompletedTask;
+        }
+
         #endregion
 
-        #region Internal
+        #region Lifecycle
 
-        private async Task InstallTemplate(string name)
+        public override async Task OnActivateAsync()
         {
-            if (!Templates.IsItem(name)) {
-                var inv = GrainFactory.GetGrain<IInventory>(_templatesInventoryName);
-                var id = await inv.GetItemByName(name);
-                var props = await inv.GetItemProperties(id, PidList.All);
-                Templates.CreateItem(props);
+            await base.OnActivateAsync();
+
+            Id = this.GetPrimaryKeyString();
+
+            await ReadInventoryState();
+
+            //Inventory.Timers = new InventoryGrainTimerManager(this);
+
+            if (Id == _templatesInventoryName) {
+                Inventory.IsActive = false;
+            } else {
+                await PopulateUsedTemplates();
+                //await ActivateTemplateSubscription();
+                Inventory.Activate();
             }
         }
 
-        public Task SetPersistent(bool persistent)
+        async Task PopulateUsedTemplates()
         {
-            IsPersistent = persistent;
-            return Task.CompletedTask;
+            var templateInv = GrainFactory.GetGrain<IInventory>(_templatesInventoryName);
+            foreach (var pair in Inventory.Items) {
+                var item = pair.Value;
+                var templateName = item.GetString(Pid.TemplateName);
+                if (!string.IsNullOrEmpty(templateName)) {
+                    await InstallTemplate(templateName);
+                }
+            }
+        }
+
+        async Task InstallTemplate(string name)
+        {
+            Inventory.Templates ??= new Inventory();
+            if (!Inventory.Templates.IsItem(name)) {
+                var inv = RemoteInventory(_templatesInventoryName);
+                var id = await inv.GetItemByName(name);
+                var props = await inv.GetItemProperties(id, PidList.All);
+                Inventory.Templates.CreateItem(props);
+            }
+        }
+
+        public override async Task OnDeactivateAsync()
+        {
+            await base.OnDeactivateAsync();
+        }
+
+        #endregion
+
+        #region Changes
+
+        async Task CheckInventoryChanged()
+        {
+            var summary = new ItemChangesSummary(Inventory);
+
+            if (summary.IsChanged()) {
+                foreach (var id in summary.NewTemplates) {
+                    await InstallTemplate(id);
+                }
+
+                if (_isPersistent) {
+                    await WriteInventoryState(summary);
+                }
+
+                // Notify subscribers
+                Don.t = () => {
+                    var streamProvider = GetStreamProvider(InventoryService.StreamProvider);
+                    var stream = streamProvider.GetStream<ItemUpdate>(_streamId, InventoryService.StreamNamespaceItemUpdate.ToString());
+                    {
+                        var notifyItems = summary.ChangedItems.Clone();
+                        notifyItems.UnionWith(summary.AddedItems);
+                        foreach (var id in notifyItems) {
+                            var parents = Inventory.GetParentContainers(id);
+                            var update = new ItemUpdate(id, parents, ItemUpdate.Mode.Changed);
+                            stream.OnNextAsync(update).Ignore();
+                        }
+                    }
+                    {
+                        var notifyItems = summary.DeletedItems;
+                        foreach (var id in notifyItems) {
+                            var update = new ItemUpdate(id, new ItemIdSet(), ItemUpdate.Mode.Removed);
+                            stream.OnNextAsync(update).Ignore();
+                        }
+                    }
+                };
+            }
+        }
+
+        async Task WriteInventoryState(ItemChangesSummary summary)
+        {
+            _state.State.Id = Id;
+
+            Don.t = () => {
+                _state.State.WriteIds = summary.ChangedItems.Clone();
+                _state.State.WriteIds.UnionWith(summary.AddedItems);
+                _state.State.DeleteIds = summary.DeletedItems;
+
+                var itemIds = _state.State.WriteIds;
+            };
+            var itemIds = Inventory.GetItemIds();
+
+            _state.State.Items = new ItemIdPropertiesCollection();
+            foreach (var id in itemIds) {
+                _state.State.Items.Add(id, Inventory.GetItemProperties(id, PidList.All, native: true));
+            }
+
+            await _state.WriteStateAsync();
+        }
+
+        async Task ReadInventoryState()
+        {
+            await _state.ReadStateAsync();
+
+            Inventory = new Inventory(Id);
+
+            var allProps = _state.State.Items;
+            if (allProps != null) {
+                foreach (var pair in allProps) {
+                    Inventory.CreateItem(pair.Value);
+                }
+            }
         }
 
         #endregion
@@ -328,7 +328,7 @@ namespace nine3q.Grains
             }
             Inventory.Changes = changes;
 
-            await WriteInventoryState(new ItemSummaryRecorder(Inventory));
+            await WriteInventoryState(new ItemChangesSummary(Inventory));
         }
 
         public async Task ReadPersistentStorage()

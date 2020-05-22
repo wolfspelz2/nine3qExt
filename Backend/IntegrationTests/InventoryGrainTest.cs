@@ -81,7 +81,7 @@ namespace IntegrationTests
                 Assert.AreEqual(props.GetFloat(Pid.TestFloat), receivedProps.GetFloat(Pid.TestFloat), 0.001);
                 Assert.AreEqual(props.GetBool(Pid.TestBool), receivedProps.GetBool(Pid.TestBool));
                 Assert.AreEqual(props.GetItem(Pid.TestItem), receivedProps.GetItem(Pid.TestItem));
-                Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, props.GetItemSet(Pid.TestItemSet), receivedProps.GetItemSet(Pid.TestItemSet)));
+                Assert.IsTrue(Property.AreEquivalent(Pid.TestItemSet, props.GetItemSet(Pid.TestItemSet), receivedProps.GetItemSet(Pid.TestItemSet)));
                 Assert.AreEqual(props.GetString(Pid.TestEnum), receivedProps.GetString(Pid.TestEnum));
                 Assert.AreEqual(props.GetEnum(Pid.TestEnum, PropertyValue.TestEnum.Unknown), receivedProps.GetEnum(Pid.TestEnum, PropertyValue.TestEnum.Unknown));
 
@@ -138,10 +138,10 @@ namespace IntegrationTests
                 Assert.AreEqual(112, destProps[map[item112Id]].GetInt(Pid.TestInt1));
                 Assert.AreEqual(113, destProps[map[item113Id]].GetInt(Pid.TestInt1));
                 Assert.AreEqual(121, destProps[map[item121Id]].GetInt(Pid.TestInt1));
-                Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet { map[item110Id], map[item120Id], map[item130Id] }, destProps[map[item100Id]].GetItemSet(Pid.Contains)));
-                Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet { map[item111Id], map[item112Id], map[item113Id] }, destProps[map[item110Id]].GetItemSet(Pid.Contains)));
-                Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet { map[item121Id] }, destProps[map[item120Id]].GetItemSet(Pid.Contains)));
-                Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet { }, destProps[map[item130Id]].GetItemSet(Pid.Contains)));
+                Assert.IsTrue(Property.AreEquivalent(Pid.TestItemSet, new ItemIdSet { map[item110Id], map[item120Id], map[item130Id] }, destProps[map[item100Id]].GetItemSet(Pid.Contains)));
+                Assert.IsTrue(Property.AreEquivalent(Pid.TestItemSet, new ItemIdSet { map[item111Id], map[item112Id], map[item113Id] }, destProps[map[item110Id]].GetItemSet(Pid.Contains)));
+                Assert.IsTrue(Property.AreEquivalent(Pid.TestItemSet, new ItemIdSet { map[item121Id] }, destProps[map[item120Id]].GetItemSet(Pid.Contains)));
+                Assert.IsTrue(Property.AreEquivalent(Pid.TestItemSet, new ItemIdSet { }, destProps[map[item130Id]].GetItemSet(Pid.Contains)));
                 Assert.AreEqual(map[item100Id], destProps[map[item110Id]].GetItem(Pid.Container));
                 Assert.AreEqual(map[item100Id], destProps[map[item120Id]].GetItem(Pid.Container));
                 Assert.AreEqual(map[item100Id], destProps[map[item130Id]].GetItem(Pid.Container));
@@ -293,7 +293,7 @@ namespace IntegrationTests
                 Assert.AreEqual(props.GetFloat(Pid.TestFloat), receivedProps.GetFloat(Pid.TestFloat), 0.001);
                 Assert.AreEqual(props.GetBool(Pid.TestBool), receivedProps.GetBool(Pid.TestBool));
                 Assert.AreEqual(props.GetItem(Pid.TestItem), receivedProps.GetItem(Pid.TestItem));
-                Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, props.GetItemSet(Pid.TestItemSet), receivedProps.GetItemSet(Pid.TestItemSet)));
+                Assert.IsTrue(Property.AreEquivalent(Pid.TestItemSet, props.GetItemSet(Pid.TestItemSet), receivedProps.GetItemSet(Pid.TestItemSet)));
                 Assert.AreEqual(props.GetString(Pid.TestEnum), receivedProps.GetString(Pid.TestEnum));
                 Assert.AreEqual(props.GetEnum(Pid.TestEnum, PropertyValue.TestEnum.Unknown), receivedProps.GetEnum(Pid.TestEnum, PropertyValue.TestEnum.Unknown));
 

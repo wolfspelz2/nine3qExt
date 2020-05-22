@@ -17,7 +17,7 @@ namespace nine3q.Web.Pages
 
         public async System.Threading.Tasks.Task OnGet()
         {
-            Value = await _clusterClient.GetGrain<ITestCounter>("dummy").Get();
+            Value = await _clusterClient.GetGrain<ITestCounter>("default").Get();
         }
     }
 }

@@ -15,7 +15,7 @@ namespace TestClient
     //{
     //}
 
-    public class Program
+    public class TestClient
     {
         const int initializeAttemptsBeforeFailing = 5;
         private static int attempt = 0;

@@ -20,7 +20,8 @@ namespace nine3q.Items
         public string Name { get; set; }
         public bool IsActive { get; set; } = false;
 
-        private Dictionary<long, Item> _items { get; set; } = new Dictionary<long, Item>();
+        Dictionary<long, Item> _items { get; set; } = new Dictionary<long, Item>();
+        public Dictionary<long, Item> Items => _items;
 
         InventoryTransaction CurrentTransaction = null;
 
@@ -47,7 +48,6 @@ namespace nine3q.Items
         public void Activate()
         {
             IsActive = true;
-
             foreach (var id in _items.Keys.ToList()) {
                 Item(id).Activate();
             }
@@ -244,11 +244,10 @@ namespace nine3q.Items
                     pid = parts[0].ToEnum(Pid.NoProperty);
                     value = parts[1];
                 }
-                var type = Property.Get(pid).Type;
 
                 foreach (var id in idList) {
                     var item = Item(id);
-                    if (Property.ToString(type, item.Get(pid)) == value) {
+                    if (Property.ToString(pid, item.Get(pid)) == value) {
                         if (pathSegments.Count == 0) {
                             return id;
                         } else {
@@ -313,8 +312,7 @@ namespace nine3q.Items
                 foreach (var filterPair in filterProperties) {
                     match = false;
                     if (props.ContainsKey(filterPair.Key)) {
-                        var prop = Property.Get(filterPair.Key);
-                        if (Property.AreEquivalent(prop.Type, props[filterPair.Key], filterPair.Value)) {
+                        if (Property.AreEquivalent(filterPair.Key, props[filterPair.Key], filterPair.Value)) {
                             match = true;
                         }
                     }
@@ -537,7 +535,7 @@ namespace nine3q.Items
             return new ItemIdPropertiesCollection();
         }
 
-        public ItemIdMap ReceiveItemTransfer(long id, long containerId, long slot, ItemIdPropertiesCollection idProps, PropertySet setProperties, PidList removeProperties)
+        public ItemIdMap ReceiveItemTransfer(long id, long containerId, long slot, ItemIdPropertiesCollection idProps, PropertySet finallySetProperties, PidList finallyDeleteProperties)
         {
             var mapping = SetItemAndChildrenProperties(idProps);
 
@@ -548,8 +546,8 @@ namespace nine3q.Items
                 container.AsContainer().AddChild(item, slot);
             }
 
-            SetItemProperties(newId, setProperties);
-            DeleteItemProperties(newId, removeProperties);
+            SetItemProperties(newId, finallySetProperties);
+            DeleteItemProperties(newId, finallyDeleteProperties);
 
             return mapping;
         }

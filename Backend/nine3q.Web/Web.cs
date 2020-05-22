@@ -15,18 +15,23 @@ using nine3q.Grains;
 
 namespace nine3q.Web
 {
-    public class Web
+    public static class Config
+    {
+        public static bool UseIntegratedCluster = false;
+    }
+
+    public static class Web
     {
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host
-            .CreateDefaultBuilder(args)
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            var host = Host.CreateDefaultBuilder(args);
 
-            .ConfigureLogging(logging => {
+            host.ConfigureLogging(logging => {
                 logging.AddConsole();
                 logging.SetMinimumLevel(LogLevel.Warning);
                 logging.AddFilter((provider, category, logLevel) => {
@@ -45,41 +50,45 @@ namespace nine3q.Web
                     }
                     return false;
                 });
-            })
+            });
 
-            .ConfigureWebHostDefaults(webBuilder => {
+            host.ConfigureWebHostDefaults(webBuilder => {
                 webBuilder.UseStartup<Startup>();
-            })
+            });
 
-            .UseOrleans(builder => {
-                // EnableDirectClient is no longer needed as it is enabled by default
-                builder.UseLocalhostClustering()
+            if (Config.UseIntegratedCluster) {
+                host.UseOrleans(builder => {
+                    // EnableDirectClient is no longer needed as it is enabled by default
+                    builder.UseLocalhostClustering()
 
-                .AddSimpleMessageStreamProvider("SMSProvider", options => {
-                    options.FireAndForgetDelivery = true;
-                })
-
-                .AddMemoryGrainStorage("PubSubStore")
-
-                .AddMemoryGrainStorage(ProviderConstants.DEFAULT_STORAGE_PROVIDER_NAME)
-
-                .AddJsonFileStorage(
-                    name: JsonFileStorage.StorageProviderName,
-                    configureOptions: options => {
-                        options.RootDirectory = @"C:\Heiner\github-nine3q\Backend\Test\JsonFileStorage";
+                    .AddSimpleMessageStreamProvider("SMSProvider", options => {
+                        options.FireAndForgetDelivery = true;
                     })
 
-                .AddInventoryFileStorage(
-                    name: InventoryFileStorage.StorageProviderName,
-                    configureOptions: options => {
-                        options.RootDirectory = @"C:\Heiner\github-nine3q\Backend\Test\InventoryFileStorage";
-                    })
+                    .AddMemoryGrainStorage("PubSubStore")
 
-                .UsePerfCounterEnvironmentStatistics()
+                    .AddMemoryGrainStorage(ProviderConstants.DEFAULT_STORAGE_PROVIDER_NAME)
 
-                .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(TestStringGrain).Assembly).WithReferences())
-                ;
-            })
-            ;
+                    .AddJsonFileStorage(
+                        name: JsonFileStorage.StorageProviderName,
+                        configureOptions: options => {
+                            options.RootDirectory = @"C:\Heiner\github-nine3q\Backend\Test\JsonFileStorage";
+                        })
+
+                    .AddInventoryFileStorage(
+                        name: InventoryFileStorage.StorageProviderName,
+                        configureOptions: options => {
+                            options.RootDirectory = @"C:\Heiner\github-nine3q\Backend\Test\InventoryFileStorage";
+                        })
+
+                    .UsePerfCounterEnvironmentStatistics()
+
+                    .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(TestStringGrain).Assembly).WithReferences())
+                    ;
+                });
+            }
+
+            return host;
+        }
     }
 }
