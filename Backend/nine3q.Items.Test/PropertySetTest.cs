@@ -28,7 +28,7 @@ namespace nine3q.Items.Test
             Assert.AreEqual("fourtytwo", props.GetString(Pid.TestString));
             Assert.AreEqual(true, props.GetBool(Pid.TestBool));
             Assert.AreEqual(10000000001, props.GetItem(Pid.TestItem));
-            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet { 42, 10000000001 }, props.GetItemSet(Pid.TestItemSet)));
+            Assert.IsTrue(Property.AreEquivalent(Pid.TestItemSet, new ItemIdSet { 42, 10000000001 }, props.GetItemSet(Pid.TestItemSet)));
             Assert.AreEqual(PropertyValue.TestEnum.Value1, props.GetEnum(Pid.TestEnum, PropertyValue.TestEnum.Unknown));
         }
 
@@ -76,7 +76,7 @@ namespace nine3q.Items.Test
             Assert.AreEqual(((long)42), props.GetItem(Pid.TestItem), Pid.TestItem.ToString());
             Assert.AreEqual(((long)42), props.GetItem(Pid.TestItem2), Pid.TestItem2.ToString());
             Assert.AreEqual(((long)42), props.GetItem(Pid.TestItem3), Pid.TestItem3.ToString());
-            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet { ((long)42), ((long)10000000001) }, props.GetItemSet(Pid.TestItemSet)), Pid.TestItemSet.ToString());
+            Assert.IsTrue(Property.AreEquivalent(Pid.TestItemSet, new ItemIdSet { ((long)42), ((long)10000000001) }, props.GetItemSet(Pid.TestItemSet)), Pid.TestItemSet.ToString());
             Assert.AreEqual(PropertyValue.TestEnum.Value1, props.GetEnum(Pid.TestEnum, PropertyValue.TestEnum.Unknown));
             Assert.AreEqual(PropertyValue.TestEnum.Value1.ToString(), props.GetString(Pid.TestEnum));
         }

@@ -219,7 +219,7 @@ namespace nine3q.Grains
 
         async Task InstallTemplate(string name)
         {
-            Inventory.Templates = Inventory.Templates ?? new Inventory();
+            Inventory.Templates ??= new Inventory();
             if (!Inventory.Templates.IsItem(name)) {
                 var inv = RemoteInventory(_templatesInventoryName);
                 var id = await inv.GetItemByName(name);

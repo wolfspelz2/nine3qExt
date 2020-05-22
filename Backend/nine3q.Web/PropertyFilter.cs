@@ -1,6 +1,6 @@
 ﻿namespace nine3q.Web
 {
-    public class PropertyFilter
+    public static class PropertyFilter
     {
         public static string Url(string url)
         {

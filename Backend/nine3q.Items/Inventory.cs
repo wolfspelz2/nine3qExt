@@ -244,11 +244,10 @@ namespace nine3q.Items
                     pid = parts[0].ToEnum(Pid.NoProperty);
                     value = parts[1];
                 }
-                var type = Property.Get(pid).Type;
 
                 foreach (var id in idList) {
                     var item = Item(id);
-                    if (Property.ToString(type, item.Get(pid)) == value) {
+                    if (Property.ToString(pid, item.Get(pid)) == value) {
                         if (pathSegments.Count == 0) {
                             return id;
                         } else {
@@ -313,8 +312,7 @@ namespace nine3q.Items
                 foreach (var filterPair in filterProperties) {
                     match = false;
                     if (props.ContainsKey(filterPair.Key)) {
-                        var prop = Property.Get(filterPair.Key);
-                        if (Property.AreEquivalent(prop.Type, props[filterPair.Key], filterPair.Value)) {
+                        if (Property.AreEquivalent(filterPair.Key, props[filterPair.Key], filterPair.Value)) {
                             match = true;
                         }
                     }

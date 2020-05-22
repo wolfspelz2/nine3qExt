@@ -16,7 +16,7 @@ namespace nine3q.Items
 
         public void Set(Pid key, object value)
         {
-            this[key] = Property.Normalize(Property.Get(key).Type, value);
+            this[key] = Property.Normalize(key, value);
         }
 
         public object GetMaybeNull(Pid key)
@@ -30,7 +30,7 @@ namespace nine3q.Items
             // Change values of Dictionary in-place
             // Don't copy, becaue copying would break ItemAspect
             foreach (var key in this.Keys.ToList()) {
-                this[key] = Property.Normalize(Property.Get(key).Type, this[key]);
+                this[key] = Property.Normalize(key, this[key]);
             }
         }
 
@@ -64,7 +64,7 @@ namespace nine3q.Items
         }
         public long GetInt(Pid key)
         {
-            if (!ContainsKey(key)) { return (long)Property.Default(Property.Type.Int); }
+            if (!ContainsKey(key)) { return (long)Property.Default(key); }
             var value = this[key];
             if (value is int) return (int)value;
             return (long)value;
@@ -77,7 +77,7 @@ namespace nine3q.Items
         }
         public string GetString(Pid key)
         {
-            if (!ContainsKey(key)) { return (string)Property.Default(Property.Type.String); }
+            if (!ContainsKey(key)) { return (string)Property.Default(key); }
             var value = this[key];
             if (value is Pid) return ((Pid)value).ToString();
             if (value is string) return (string)value;
@@ -91,7 +91,7 @@ namespace nine3q.Items
         }
         public double GetFloat(Pid key)
         {
-            if (!ContainsKey(key)) { return (double)Property.Default(Property.Type.Float); }
+            if (!ContainsKey(key)) { return (double)Property.Default(key); }
             var value = this[key];
             if (value is int) return (float)value;
             return (double)value;
@@ -104,13 +104,13 @@ namespace nine3q.Items
         }
         public bool GetBool(Pid key)
         {
-            if (!ContainsKey(key)) { return (bool)Property.Default(Property.Type.Bool); }
+            if (!ContainsKey(key)) { return (bool)Property.Default(key); }
             return (bool)this[key];
         }
 
         public long GetItem(Pid key)
         {
-            if (!ContainsKey(key)) { return (long)Property.Default(Property.Type.Item); }
+            if (!ContainsKey(key)) { return (long)Property.Default(key); }
             var value = this[key];
             if (value is int) return Convert.ToInt64(value, CultureInfo.InvariantCulture);
             if (value is string) return long.Parse((string)value, CultureInfo.InvariantCulture);
@@ -119,7 +119,7 @@ namespace nine3q.Items
 
         public ItemIdSet GetItemSet(Pid key)
         {
-            if (!ContainsKey(key)) { return Property.Default(Property.Type.ItemSet) as ItemIdSet; }
+            if (!ContainsKey(key)) { return Property.Default(key) as ItemIdSet; }
             return (ItemIdSet)this[key];
         }
 
@@ -186,8 +186,7 @@ namespace nine3q.Items
             Contract.Requires(info != null);
             base.GetObjectData(info, context);
             foreach (var pair in this) {
-                var prop = Property.Get(pair.Key);
-                info.AddValue(AttributePrefix + prop.Name, Property.ToString(prop.Type, pair.Value));
+                info.AddValue(AttributePrefix + Property.Get(pair.Key).Name, Property.ToString(pair.Key, pair.Value));
             }
             info.AddValue(KeyNamesAttribute, string.Join(Separator, Keys.ToList().ConvertAll(x => x.ToString())));
         }

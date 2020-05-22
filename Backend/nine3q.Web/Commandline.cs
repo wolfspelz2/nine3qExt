@@ -411,7 +411,7 @@ namespace nine3q.Web
                         if (inString) {
                             isData = true;
                         } else {
-                            if (token != "") {
+                            if (!string.IsNullOrEmpty(token)) {
                                 args.Add(token);
                                 token = "";
                             }
@@ -433,7 +433,7 @@ namespace nine3q.Web
                 }
             }
 
-            if (token != "") {
+            if (!string.IsNullOrEmpty(token)) {
                 args.Add(token);
                 token = "";
             }
@@ -621,7 +621,7 @@ namespace nine3q.Web
 
         public string CommandExecuteLink(string method, IEnumerable<string> args, string text, Dictionary<string, string> htmlAttributes = null)
         {
-            htmlAttributes = htmlAttributes ?? new Dictionary<string, string>();
+            htmlAttributes ??= new Dictionary<string, string>();
             htmlAttributes.Add("onclick", "SetInput('" + method + " " + string.Join(" ", args) + "');PostForm();");
             return Link("#", text, htmlAttributes);
         }

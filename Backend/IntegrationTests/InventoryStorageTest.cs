@@ -41,7 +41,7 @@ namespace IntegrationTests
                 Assert.AreEqual(set1.GetFloat(Pid.TestFloat), get1.GetFloat(Pid.TestFloat), 0.001);
                 Assert.AreEqual(set1.GetBool(Pid.TestBool), get1.GetBool(Pid.TestBool));
                 Assert.AreEqual(set1.GetItem(Pid.TestItem), get1.GetItem(Pid.TestItem));
-                Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, set1.GetItemSet(Pid.TestItemSet), get1.GetItemSet(Pid.TestItemSet)));
+                Assert.IsTrue(Property.AreEquivalent(Pid.TestItemSet, set1.GetItemSet(Pid.TestItemSet), get1.GetItemSet(Pid.TestItemSet)));
                 Assert.AreEqual(set1.GetString(Pid.TestEnum), get1.GetString(Pid.TestEnum));
                 Assert.AreEqual(set1.GetEnum(Pid.TestEnum, PropertyValue.TestEnum.Unknown), get1.GetEnum(Pid.TestEnum, PropertyValue.TestEnum.Unknown));
 

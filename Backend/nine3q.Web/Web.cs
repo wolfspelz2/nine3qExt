@@ -20,7 +20,7 @@ namespace nine3q.Web
         public static bool UseIntegratedCluster = false;
     }
 
-    public class Web
+    public static class Web
     {
         public static void Main(string[] args)
         {

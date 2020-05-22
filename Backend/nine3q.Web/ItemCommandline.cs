@@ -271,7 +271,9 @@ namespace nine3q.Web
         {
             if (!(o is ItemReference)) { return null; }
             var itemRef = o as ItemReference;
+#pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
             if (itemRef.Item == null) { throw new Exception("returned ItemId is (null)"); }
+#pragma warning restore CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
             return itemRef.Item.ToString();
         }
 
@@ -337,8 +339,7 @@ namespace nine3q.Web
 
         string Inventory_GetItemProperties_FormatValue(string inventoryName, Pid pid, object value)
         {
-            var type = Property.Get(pid).Type;
-            var s = Property.ToString(type, value);
+            var s = Property.ToString(pid, value);
             s = System.Net.WebUtility.HtmlEncode(s);
             if (pid == Pid.TemplateName) {
                 inventoryName = GrainInterfaces.InventoryService.TemplatesInventoryName;
@@ -402,8 +403,7 @@ namespace nine3q.Web
 
                 foreach (var pair in props) {
                     var pid = pair.Key;
-                    var type = Property.Get(pid).Type;
-                    var value = pair.Value;
+                    var value = Property.Normalize(pid, pair.Value);
 
                     table.Grid.Add(new Table.Row() {
                         pid.ToString(),
@@ -472,10 +472,10 @@ namespace nine3q.Web
             var arg = "";
             do {
                 arg = args.Next("PropertyName", "");
-                if (arg != "") {
+                if (!string.IsNullOrEmpty(arg)) {
                     pids.Add(Property.Get(arg).Id);
                 }
-            } while (arg != "");
+            } while (!string.IsNullOrEmpty(arg));
 
             
             var inv = GrainClient.GetGrain<IInventory>(inventoryName);
@@ -530,7 +530,7 @@ namespace nine3q.Web
             var source = GrainClient.GetGrain<IInventory>(sourceInventory);
             var dest = GrainClient.GetGrain<IInventory>(destinationInventory);
             var destinationContainerId = ItemId.NoItem;
-            if (destinationContainer != "") {
+            if (!string.IsNullOrEmpty(destinationContainer)) {
                 destinationContainerId = dest.GetItemByName(destinationContainer).Result;
                 if (destinationContainerId == ItemId.NoItem) {
                     throw new Exception("No container=" + destinationContainer);
@@ -641,7 +641,7 @@ namespace nine3q.Web
             var arg = "";
             do {
                 arg = args.Next("properties as JSON", "");
-                if (arg != "") {
+                if (!string.IsNullOrEmpty(arg)) {
                     if (arg.StartsWith("{")) {
                         var jsonNode = new JsonPath.Node(arg);
                         foreach (var pair in jsonNode.AsDictionary) {
@@ -655,7 +655,7 @@ namespace nine3q.Web
                         props.Add(Property.Get(parts[0]).Id, parts[1]);
                     }
                 }
-            } while (arg != "");
+            } while (!string.IsNullOrEmpty(arg));
 
             return props;
         }
@@ -674,7 +674,7 @@ namespace nine3q.Web
                 var name = props.GetString(Pid.Name);
                 var label = props.GetString(Pid.Label);
                 var show = name;
-                if (show == "") {
+                if (string.IsNullOrEmpty(show)) {
                     show = label;
                 }
                 text += string.IsNullOrEmpty(show) ? "" : ":" + show;

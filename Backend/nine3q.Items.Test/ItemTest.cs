@@ -60,7 +60,7 @@ namespace nine3q.Items.Test
             item.AddToItemSet(Pid.TestItemSet, (3));
 
             // Assert
-            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet("1 2 3"), item.GetItemSet(Pid.TestItemSet)));
+            Assert.IsTrue(Property.AreEquivalent(Pid.TestItemSet, new ItemIdSet("1 2 3"), item.GetItemSet(Pid.TestItemSet)));
         }
 
         [TestMethod]
@@ -74,7 +74,7 @@ namespace nine3q.Items.Test
             item.AddToItemSet(Pid.TestItemSet, (3));
 
             // Assert
-            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet("3"), item.GetItemSet(Pid.TestItemSet)));
+            Assert.IsTrue(Property.AreEquivalent(Pid.TestItemSet, new ItemIdSet("3"), item.GetItemSet(Pid.TestItemSet)));
         }
 
         [TestMethod]
@@ -88,7 +88,7 @@ namespace nine3q.Items.Test
             item.AddToItemSet(Pid.TestItemSet, (2));
 
             // Assert
-            Assert.IsTrue(Property.AreEquivalent(Property.Type.ItemSet, new ItemIdSet("1 2"), item.GetItemSet(Pid.TestItemSet)));
+            Assert.IsTrue(Property.AreEquivalent(Pid.TestItemSet, new ItemIdSet("1 2"), item.GetItemSet(Pid.TestItemSet)));
         }
 
         [TestMethod]

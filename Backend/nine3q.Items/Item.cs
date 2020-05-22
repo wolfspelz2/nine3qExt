@@ -70,8 +70,7 @@ namespace nine3q.Items
 
         public void Set(Pid pid, object value)
         {
-            var prop = Property.Get(pid);
-            value = Property.Normalize(prop.Type, value);
+            value = Property.Normalize(pid, value);
 
             if (pid == Pid.Name) {
                 var name = value as string;
@@ -84,7 +83,7 @@ namespace nine3q.Items
                 var template = GetTemplate();
                 if (template != null) {
                     var templateValue = template.Get(pid);
-                    isDeleteBecauseTemplateHasIt = Property.AreEquivalent(Property.Get(pid).Type, value, templateValue);
+                    isDeleteBecauseTemplateHasIt = Property.AreEquivalent(pid, value, templateValue);
                 }
             }
 
@@ -95,7 +94,7 @@ namespace nine3q.Items
                     What = Has(pid) ? ItemChange.Variant.SetProperty : ItemChange.Variant.AddProperty,
                     ItemId = Id,
                     Pid = pid,
-                    Value = Property.Clone(prop.Type, value),
+                    Value = Property.Clone(pid, value),
                     PreviousValue = Properties.ContainsKey(pid) ? Properties[pid] : null,
                 };
                 Properties.Set(pid, value);
@@ -211,7 +210,7 @@ namespace nine3q.Items
 
             // Still null: return an appropriate value for the Type
             if (value == null) {
-                value = Property.Default(Property.Get(pid).Type);
+                value = Property.Default(pid);
             }
 
             return value;

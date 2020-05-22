@@ -46,18 +46,6 @@ namespace nine3q.Content
             }
         }
 
-        //public static string GetTemplateJson(string name)
-        //{
-        //    var translations = new TextSet();
-        //    var templates = new NamePropertiesCollection();
-        //    GetTemplate(name, templates, translations);
-        //    var props = templates.First().Value;
-        //    var dict = props.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value);
-        //    var node = new JsonPath.Node(dict);
-        //    var json = node.ToJson();
-        //    return json;
-        //}
-
         public static void GetTemplate(string name, NamePropertiesCollection templates, BasicDefinition.TextSet text)
         {
             text[BasicDefinition.de][$"ItemProperty.{Pid.Label}"] = "Name";

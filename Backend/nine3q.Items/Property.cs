@@ -273,11 +273,12 @@ namespace nine3q.Items
             public string Description { get; set; }
         }
 
-        public static object Normalize(Property.Type type, object value)
+        public static object Normalize(Pid pid, object value)
         {
+            var type = Property.Get(pid).Type;
             if (value == null) { return value; }
             switch (type) {
-                case Property.Type.Unknown: throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface.");
+                case Property.Type.Unknown: throw new InvalidOperationException("Property type=" + type.ToString() + " should not ever surface.");
                 case Property.Type.Int:
                     if (value is long) {
                         return (long)value;
@@ -342,11 +343,12 @@ namespace nine3q.Items
                     break;
                 default: throw new NotImplementedException("Property type=" + type.ToString() + " not yet implemented.");
             }
-            return Property.FromString(type, Property.ToString(type, value));
+            return Property.FromString(pid, Property.ToString(pid, value));
         }
 
-        public static string ToString(Property.Type type, object value)
+        public static string ToString(Pid pid, object value)
         {
+            var type = Property.Get(pid).Type;
             if (value == null) return "";
             if (value is string) {
                 return (string)value;
@@ -368,8 +370,9 @@ namespace nine3q.Items
             return value.ToString();
         }
 
-        public static object FromString(Property.Type type, string s)
+        public static object FromString(Pid pid, string s)
         {
+            var type = Property.Get(pid).Type;
             return type switch
             {
                 Property.Type.Unknown => throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface."),
@@ -383,9 +386,10 @@ namespace nine3q.Items
             };
         }
 
-        public static object Clone(Property.Type type, object value)
+        public static object Clone(Pid pid, object value)
         {
             if (value == null) return null;
+            var type = Property.Get(pid).Type;
             return type switch
             {
                 Property.Type.Unknown => throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface."),
@@ -399,8 +403,9 @@ namespace nine3q.Items
             };
         }
 
-        public static object Default(Property.Type type)
+        public static object Default(Pid pid)
         {
+            var type = Property.Get(pid).Type;
             return type switch
             {
                 Property.Type.Unknown => throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface."),
@@ -414,19 +419,20 @@ namespace nine3q.Items
             };
         }
 
-        public static bool AreEquivalent(Property.Type type, object value1, object value2)
+        public static bool AreEquivalent(Pid pid, object value1, object value2)
         {
+            var type = Property.Get(pid).Type;
             if (value1 == null && value2 != null || value1 != null && value2 == null) { return false; }
             switch (type) {
                 case Property.Type.Unknown: throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface.");
-                case Property.Type.Int: return (long)Normalize(type, value1) == (long)Normalize(type, value2);
-                case Property.Type.String: return (string)Normalize(type, value1) == (string)Normalize(type, value2);
-                case Property.Type.Float: return (double)Normalize(type, value1) == (double)Normalize(type, value2);
-                case Property.Type.Bool: return (bool)Normalize(type, value1) == (bool)Normalize(type, value2);
-                case Property.Type.Item: return (long)Normalize(type, value1) == (long)Normalize(type, value2);
+                case Property.Type.Int: return (long)Normalize(pid, value1) == (long)Normalize(pid, value2);
+                case Property.Type.String: return (string)Normalize(pid, value1) == (string)Normalize(pid, value2);
+                case Property.Type.Float: return (double)Normalize(pid, value1) == (double)Normalize(pid, value2);
+                case Property.Type.Bool: return (bool)Normalize(pid, value1) == (bool)Normalize(pid, value2);
+                case Property.Type.Item: return (long)Normalize(pid, value1) == (long)Normalize(pid, value2);
                 case Property.Type.ItemSet: {
-                    var set1 = Normalize(type, value1) as ItemIdSet;
-                    var set2 = Normalize(type, value2) as ItemIdSet;
+                    var set1 = Normalize(pid, value1) as ItemIdSet;
+                    var set2 = Normalize(pid, value2) as ItemIdSet;
                     if (set1.Count != set1.Count) { return false; }
                     var union = set1.Union(set2);
                     if (union.Count() != set1.Count) { return false; }

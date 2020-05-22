@@ -39,7 +39,7 @@ namespace nine3q.Items
                     case ItemChange.Variant.SetProperty: {
                         var prop = Property.Get(change.Pid);
                         if (prop.Group == Property.Group.Operation) { break; }
-                        if (Property.AreEquivalent(prop.Type, change.PreviousValue, change.Value)) { break; }
+                        if (Property.AreEquivalent(change.Pid, change.PreviousValue, change.Value)) { break; }
                         ChangedItems.Add(change.ItemId);
                         if (change.Pid == Pid.TemplateName) {
                             NewTemplates.Add(change.Value as string);
