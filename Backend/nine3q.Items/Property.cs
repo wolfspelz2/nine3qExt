@@ -53,7 +53,7 @@ namespace nine3q.Items
 
             Add(Pid.FirstOperation, Type.Unknown, Use.Unknown, Group.Unknown, Access.Internal, Persistence.Fixed, "", "");
             Add(Pid.Item, Type.Item, Use.Item, Group.Operation, Access.Internal, Persistence.Unknown, "1", "Passive item of item action.");
-            //Add(Pid.StaleTemplate, Type.Bool, Use.Bool, Group.Operation, Access.Internal, Persistence.Unknown, "false", "Tells if this is a cached template, which is missing its original in the templates inventory.");
+            Add(Pid.StaleTemplate, Type.Bool, Use.Bool, Group.Operation, Access.Internal, Persistence.Unknown, "false", "Tells if this is a cached template, which is missing its original in the templates inventory.");
             Add(Pid.PublicAccess, Type.Bool, Use.Bool, Group.Operation, Access.Internal, Persistence.Unknown, "", "Dummy property for declaring a PropertyIdList with only this Pid as indicator for GetItemProperties.");
             Add(Pid.OwnerAccess, Type.Bool, Use.Bool, Group.Operation, Access.Internal, Persistence.Unknown, "", "Dummy property for declaring a PropertyIdList with only this Pid as indicator for GetItemProperties.");
             Add(Pid.TransferState, Type.String, Use.String, Group.Operation, Access.Internal, Persistence.Transient, PropertyValue.TransferState.Source.ToString(), "Indicates, that item is in transfer, either at source (Begin) oder at dest (Received).");

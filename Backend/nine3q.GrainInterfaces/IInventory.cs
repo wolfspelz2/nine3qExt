@@ -32,8 +32,12 @@ namespace nine3q.GrainInterfaces
         Task CancelItemTransfer(long id);
 
         Task SetPersistent(bool persistent);
+        Task<Guid> GetStreamId();
+        Task<string> GetStreamNamespace();
+        Task SetStreamNamespace(string ns);
 
         // Test, maintenance
+        Task SetTemplateInventoryName(string name);
         Task Deactivate();
         Task WritePersistentStorage();
         Task ReadPersistentStorage();
@@ -44,7 +48,8 @@ namespace nine3q.GrainInterfaces
     {
         public const string TemplatesInventoryName = "Templates";
         public const string StreamProvider = "SMSProvider";
-        public const string StreamNamespaceItemUpdate = "ItemUpdate";
+        public const string StreamNamespaceDefault = "Default";
+        public const string StreamNamespaceTemplates = "Templates";
     }
 
 }

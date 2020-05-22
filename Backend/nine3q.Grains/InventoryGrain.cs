@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Orleans;
 using Orleans.Runtime;
+using Orleans.Streams;
 using nine3q.Tools;
 using nine3q.Items;
 using nine3q.Items.Aspects;
@@ -20,15 +21,16 @@ namespace nine3q.Grains
         public ItemIdSet DeleteIds;
     }
 
-    class InventoryGrain : Grain, IInventory
+    class InventoryGrain : Grain, IInventory, IAsyncObserver<ItemUpdate>
     {
         string Id { get; set; }
 
         Inventory Inventory;
         bool _isPersistent = true;
+        string _streamNamespace = InventoryService.StreamNamespaceDefault;
+        string _templatesInventoryName = InventoryService.TemplatesInventoryName;
 
         readonly Guid _streamId = Guid.NewGuid();
-        readonly string _templatesInventoryName = InventoryService.TemplatesInventoryName;
         readonly IPersistentState<InventoryState> _state;
 
         public InventoryGrain(
@@ -182,6 +184,15 @@ namespace nine3q.Grains
             return Task.CompletedTask;
         }
 
+        public Task<Guid> GetStreamId() { return Task.FromResult(_streamId); }
+        public Task<string> GetStreamNamespace() { return Task.FromResult(_streamNamespace); }
+
+        public Task SetStreamNamespace(string ns)
+        {
+            _streamNamespace = ns;
+            return Task.CompletedTask;
+        }
+
         #endregion
 
         #region Lifecycle
@@ -200,7 +211,7 @@ namespace nine3q.Grains
                 Inventory.IsActive = false;
             } else {
                 await PopulateUsedTemplates();
-                //await ActivateTemplateSubscription();
+                await ActivateTemplateSubscription();
                 Inventory.Activate();
             }
         }
@@ -223,8 +234,75 @@ namespace nine3q.Grains
             if (!Inventory.Templates.IsItem(name)) {
                 var inv = RemoteInventory(_templatesInventoryName);
                 var id = await inv.GetItemByName(name);
-                var props = await inv.GetItemProperties(id, PidList.All);
-                Inventory.Templates.CreateItem(props);
+                if (id != ItemId.NoItem) {
+                    var props = await inv.GetItemProperties(id, PidList.All);
+                    Inventory.Templates.CreateItem(props);
+                }
+            }
+        }
+
+        private async Task ActivateTemplateSubscription()
+        {
+            var streamProvider = GetStreamProvider(InventoryService.StreamProvider);
+            var templatesStreamId = await RemoteInventory(_templatesInventoryName).GetStreamId();
+            var templatesStreamNamespace = await RemoteInventory(_templatesInventoryName).GetStreamNamespace();
+            var templatesStream = streamProvider.GetStream<ItemUpdate>(templatesStreamId, templatesStreamNamespace);
+            var handles = await templatesStream.GetAllSubscriptionHandles();
+            if (handles.Count == 0) {
+                var handle = await templatesStream.SubscribeAsync((data, token) => OnTemplateUpdate(data));
+            } else {
+                foreach (var handle in handles) {
+                    await handle.ResumeAsync((data, token) => OnTemplateUpdate(data));
+                }
+            }
+        }
+
+        private async Task DeactivateTemplateSubscription()
+        {
+            var streamProvider = GetStreamProvider(InventoryService.StreamProvider);
+            var templatesGuid = await RemoteInventory(_templatesInventoryName).GetStreamId();
+            var templatesStreamNamespace = await RemoteInventory(_templatesInventoryName).GetStreamNamespace();
+            var templatesStream = streamProvider.GetStream<ItemUpdate>(templatesGuid, templatesStreamNamespace);
+            var handles = await templatesStream.GetAllSubscriptionHandles();
+            foreach (var handle in handles) {
+                await handle.UnsubscribeAsync();
+            }
+        }
+
+        public async Task OnNextAsync(ItemUpdate itemUpdate, StreamSequenceToken token = null)
+        {
+            await OnTemplateUpdate(itemUpdate);
+        }
+
+        public Task OnCompletedAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task OnErrorAsync(Exception ex)
+        {
+            return Task.CompletedTask;
+        }
+
+        public async Task OnTemplateUpdate(ItemUpdate update)
+        {
+            Inventory.Templates ??=  new Inventory();
+            var templateId = update.Id;
+            if (Inventory.Templates.IsItem(templateId)) {
+                var template = Inventory.Templates.Item(templateId);
+                switch (update.What) {
+                    case ItemUpdate.Mode.Added:
+                        template.Delete(Pid.StaleTemplate);
+                        break;
+                    case ItemUpdate.Mode.Changed:
+                        var templateInv = GrainFactory.GetGrain<IInventory>(_templatesInventoryName);
+                        var changedTemplateProps = await templateInv.GetItemProperties(templateId, PidList.All);
+                        template.Properties = changedTemplateProps;
+                        break;
+                    case ItemUpdate.Mode.Removed:
+                        template.SetBool(Pid.StaleTemplate, true);
+                        break;
+                }
             }
         }
 
@@ -251,9 +329,9 @@ namespace nine3q.Grains
                 }
 
                 // Notify subscribers
-                Don.t = () => {
+                {
                     var streamProvider = GetStreamProvider(InventoryService.StreamProvider);
-                    var stream = streamProvider.GetStream<ItemUpdate>(_streamId, InventoryService.StreamNamespaceItemUpdate.ToString());
+                    var stream = streamProvider.GetStream<ItemUpdate>(_streamId, _streamNamespace);
                     {
                         var notifyItems = summary.ChangedItems.Clone();
                         notifyItems.UnionWith(summary.AddedItems);
@@ -270,7 +348,7 @@ namespace nine3q.Grains
                             stream.OnNextAsync(update).Ignore();
                         }
                     }
-                };
+                }
             }
         }
 
@@ -312,6 +390,14 @@ namespace nine3q.Grains
         #endregion
 
         #region Test/Maintanance
+
+        public async Task SetTemplateInventoryName(string name)
+        {
+            await DeactivateTemplateSubscription();
+            _templatesInventoryName = name;
+            await PopulateUsedTemplates();
+            await ActivateTemplateSubscription();
+        }
 
         public Task Deactivate()
         {

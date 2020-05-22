@@ -42,7 +42,7 @@
         // Operational, not real item properties
         FirstOperation = 1000000,
         Item,
-        //StaleTemplate,
+        StaleTemplate,
         PublicAccess,
         OwnerAccess,
         TransferState,

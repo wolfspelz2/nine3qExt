@@ -540,6 +540,65 @@ namespace IntegrationTests
             }
         }
 
+        [TestMethod]
+        [TestCategory(GrainClient.Category)]
+        public void just_created_item_gets_updates_of_template_changes()
+        {
+            // Arrange
+            var uniqueName = GetRandomInventoryName();
+            var inventoryName = uniqueName + "-Inventory";
+            var templatesInventoryName = uniqueName + "-TemplateInventory";
+            var templateName = uniqueName + "-Template";
+            var inv = GrainClient.GrainFactory.GetGrain<IInventory>(inventoryName);
+            var templates = GrainClient.GrainFactory.GetGrain<IInventory>(templatesInventoryName);
+            GrainClient.GrainFactory.GetGrain<IInventory>(templatesInventoryName).SetStreamNamespace(templateName).Wait();
+            try {
+                inv.SetTemplateInventoryName(templatesInventoryName);
+                var templateId = templates.CreateItem(new PropertySet { [Pid.Name] = templateName, [Pid.TestInt] = (long)41 }).Result;
+                var itemId = inv.CreateItem(new PropertySet { [Pid.TemplateName] = templateName }).Result;
+
+                // Act
+                templates.SetItemProperties(templateId, new PropertySet { [Pid.TestInt] = 42 }).Wait();
+
+                // Assert
+                Assert.AreEqual((long)42, inv.GetItemProperties(itemId, PidList.All).Result.GetInt(Pid.TestInt));
+
+            } finally {
+                inv.DeletePersistentStorage().Wait();
+                templates.DeletePersistentStorage().Wait();
+            }
+        }
+
+        [TestMethod]
+        [TestCategory(GrainClient.Category)]
+        public void item_with_later_assigned_template_gets_updates_of_template_changes()
+        {
+            // Arrange
+            var uniqueName = GetRandomInventoryName();
+            var inventoryName = uniqueName + "-Inventory";
+            var templatesInventoryName = uniqueName + "-TemplateInventory";
+            var templateName = uniqueName + "-Template";
+            var inv = GrainClient.GrainFactory.GetGrain<IInventory>(inventoryName);
+            var templates = GrainClient.GrainFactory.GetGrain<IInventory>(templatesInventoryName);
+            GrainClient.GrainFactory.GetGrain<IInventory>(templatesInventoryName).SetStreamNamespace(templateName).Wait();
+            try {
+                inv.SetTemplateInventoryName(templatesInventoryName);
+                var templateId = templates.CreateItem(new PropertySet { [Pid.Name] = templateName, [Pid.TestInt] = (long)41 }).Result;
+                var itemId = inv.CreateItem(new PropertySet { [Pid.TestString] = "fourtytwo" }).Result;
+                inv.SetItemProperties(itemId, new PropertySet { [Pid.TemplateName] = templateName }).Wait();
+
+                // Act
+                templates.SetItemProperties(templateId, new PropertySet { [Pid.TestInt] = 42 }).Wait();
+
+                // Assert
+                Assert.AreEqual((long)42, inv.GetItemProperties(itemId, PidList.All).Result.GetInt(Pid.TestInt));
+
+            } finally {
+                inv.DeletePersistentStorage().Wait();
+                templates.DeletePersistentStorage().Wait();
+            }
+        }
+
         /*
             [TestMethod][TestCategory(GrainClient.Category)]
             public void check_write_ops_of_multiple_transactions()
@@ -569,61 +628,6 @@ namespace IntegrationTests
                     }
                 } finally {
                     inv.DeletePersistentStorage().Wait();
-                }
-            }
-
-            [TestMethod][TestCategory(GrainClient.Category)]
-            public void just_created_item_gets_updates_of_template_changes()
-            {
-                // Arrange
-                var uniqueName = GetRandomInventoryName();
-                var inventoryName = uniqueName + "-Inventory";
-                var templatesInventoryName = uniqueName + "-TemplateInventory";
-                var templateName = uniqueName + "-Template";
-                var inv = GrainClient.GrainFactory.GetGrain<IInventory>(inventoryName);
-                var templates = GrainClient.GrainFactory.GetGrain<IInventory>(templatesInventoryName);
-                try {
-                    inv.SetTemplateInventoryName(templatesInventoryName);
-                    var templateId = templates.CreateItem(new PropertySet { [Pid.Name] = templateName, [Pid.TestInt] = (long)41 }).Result;
-                    var itemId = inv.CreateItem(new PropertySet { [Pid.TemplateName] = templateName }).Result;
-
-                    // Act
-                    templates.SetItemProperties(templateId, new PropertySet { [Pid.TestInt] = 42 }).Wait();
-
-                    // Assert
-                    Assert.AreEqual((long)42, inv.GetItemProperties(itemId, PidList.All).Result.GetInt(Pid.TestInt));
-
-                } finally {
-                    inv.DeletePersistentStorage().Wait();
-                    templates.DeletePermanentStorage().Wait();
-                }
-            }
-
-            [TestMethod][TestCategory(GrainClient.Category)]
-            public void item_with_later_assigned_template_gets_updates_of_template_changes()
-            {
-                // Arrange
-                var uniqueName = GetRandomInventoryName();
-                var inventoryName = uniqueName + "-Inventory";
-                var templatesInventoryName = uniqueName + "-TemplateInventory";
-                var templateName = uniqueName + "-Template";
-                var inv = GrainClient.GrainFactory.GetGrain<IInventory>(inventoryName);
-                var templates = GrainClient.GrainFactory.GetGrain<IInventory>(templatesInventoryName);
-                try {
-                    inv.SetTemplateInventoryName(templatesInventoryName);
-                    var templateId = templates.CreateItem(new PropertySet { [Pid.Name] = templateName, [Pid.TestInt] = (long)41 }).Result;
-                    var itemId = inv.CreateItem(new PropertySet { [Pid.TestString] = "fourtytwo" }).Result;
-                    inv.SetItemProperties(itemId, new PropertySet { [Pid.TemplateName] = templateName }).Wait();
-
-                    // Act
-                    templates.SetItemProperties(templateId, new PropertySet { [Pid.TestInt] = 42 }).Wait();
-
-                    // Assert
-                    Assert.AreEqual((long)42, inv.GetItemProperties(itemId, PidList.All).Result.GetInt(Pid.TestInt));
-
-                } finally {
-                    inv.DeletePersistentStorage().Wait();
-                    templates.DeletePermanentStorage().Wait();
                 }
             }
 
