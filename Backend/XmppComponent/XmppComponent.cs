@@ -52,7 +52,7 @@ namespace XmppComponent
                 .Build();
 
             await client.Connect(RetryFilter);
-            Log.Info("Client connected to silo host", "StartClientWithRetries");
+            Log.Info("Client connected to silo host", nameof(StartClientWithRetries));
 
             return client;
         }
@@ -89,7 +89,11 @@ namespace XmppComponent
             controller.Start();
 
             Console.WriteLine("Press Enter to terminate...");
-            Console.ReadLine();
+            var line = "";
+            while (line != "q") {
+                line = Console.ReadLine();
+                controller.Send(line);
+            }
 
             await Task.CompletedTask;
         }

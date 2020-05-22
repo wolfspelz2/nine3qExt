@@ -1,19 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace XmppComponent
 {
-    internal partial class Controller
+    public class ManagedRoom
     {
-        public class ManagedRoom
+        public readonly string RoomId;
+        public readonly List<RoomItem> Items = new List<RoomItem>();
+
+        public ManagedRoom(string roomId)
         {
-            public readonly string RoomId;
-            public readonly Dictionary<long, RoomItem> Items = new Dictionary<long, RoomItem>();
-
-            public ManagedRoom(string roomId)
-            {
-                RoomId = roomId;
-            }
+            RoomId = roomId;
         }
-
     }
 }

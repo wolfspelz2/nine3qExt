@@ -1,29 +1,25 @@
 ﻿namespace XmppComponent
 {
-    internal partial class Controller
+    public class RoomItem
     {
-        public class RoomItem
+        public enum RezState
         {
-            public enum RezState
-            {
-                NoState,
-                Dropping,
-                Rezzing,
-                Rezzed,
-                Derezzing,
-                Derezzed,
-                Pickupping,
-            }
+            NoState,
+            Rezzing,
+            Rezzed,
+            Derezzing,
+        }
 
-            public readonly long ItemId;
-            public string Resource;
-            public RezState State = RezState.NoState;
+        public string RoomId;
+        public long ItemId;
+        public string Resource;
+        public RezState State = RezState.NoState;
 
-            public RoomItem(long itemId, string resource = "item")
-            {
-                ItemId = itemId;
-                Resource = resource;
-            }
+        public RoomItem(string roomId, long itemId, string resource = "item")
+        {
+            RoomId = roomId;
+            ItemId = itemId;
+            Resource = resource;
         }
     }
 }
