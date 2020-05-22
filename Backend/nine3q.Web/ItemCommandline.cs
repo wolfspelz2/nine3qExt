@@ -396,8 +396,8 @@ namespace nine3q.Web
                     "Value",
                     "Native",
                     "Template",
-                    CommandLink(Fn.Item_Delete.ToString(), new[] { inventoryName, itemId.ToString() }, "DELETE-ITEM"),
-                    CommandLink(Fn.Item_GetProperties.ToString(), new[] { inventoryName, itemId.ToString(), "json" }, "JSON")
+                    CommandExecuteLink(Fn.Item_Delete.ToString(), new[] { inventoryName, itemId.ToString() }, "DELETE-ITEM"),
+                    CommandExecuteLink(Fn.Item_GetProperties.ToString(), new[] { inventoryName, itemId.ToString(), "json" }, "JSON")
                 });
 
                 foreach (var pair in props) {
@@ -415,10 +415,10 @@ namespace nine3q.Web
                         (pid == Pid.TemplateName && templateUnavailable) ? "(unavailable)" :  templateProps.ContainsKey(pid) ? Inventory_GetItemProperties_FormatValue(GrainInterfaces.InventoryService.TemplatesInventoryName, pid, templateProps[pid]) : "",
 
                         nativeProps.ContainsKey(pid) && pid != Pid.Id?
-                            CommandLink(Fn.Item_DeleteProperties.ToString(), new[] { inventoryName, itemId.ToString(), pid.ToString() }, "Delete") : "" ,
+                            CommandExecuteLink(Fn.Item_DeleteProperties.ToString(), new[] { inventoryName, itemId.ToString(), pid.ToString() }, "Delete") : "" ,
 
                         pid != Pid.Id?
-                            CommandPrepareLink(Fn.Item_SetProperties.ToString(), new[] { "\"" + inventoryName + "\"", itemId.ToString(), pid.ToString() + "=\"" + FormatAsArgument(value) + "\"" }, "Set") : "",
+                            CommandInsertLink(Fn.Item_SetProperties.ToString(), new[] { "\"" + inventoryName + "\"", itemId.ToString(), pid.ToString() + "=\"" + FormatAsArgument(value) + "\"" }, "Set") : "",
                     });
                 }
 
@@ -427,7 +427,7 @@ namespace nine3q.Web
                     "",
                     "",
                     "",
-                    CommandPrepareLink(Fn.Item_SetProperties.ToString(), new[] { inventoryName, itemId.ToString(), "Property=Value" }, "Add"),
+                    CommandInsertLink(Fn.Item_SetProperties.ToString(), new[] { inventoryName, itemId.ToString(), "Property=Value" }, "Add"),
                     "",
                 });
 
@@ -662,7 +662,7 @@ namespace nine3q.Web
 
         string ShowInventoryLink(string inventoryName, string text = null)
         {
-            return CommandLink(Fn.Inventory_Items.ToString(), new[] { inventoryName }, string.IsNullOrEmpty(text) ? inventoryName : text);
+            return CommandExecuteLink(Fn.Inventory_Items.ToString(), new[] { inventoryName }, string.IsNullOrEmpty(text) ? inventoryName : text);
         }
 
         string ShowItemLink(string inventoryName, long itemId)
@@ -681,7 +681,7 @@ namespace nine3q.Web
             } catch (Exception) {
                 text += "<img width='14' height='12' title='' alt='' src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAMCAYAAABSgIzaAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAF2SURBVHjalJK/S0JRFMe/DxuUzIooh8rScmgInHw0FEQguFmBCE3S3uAgJLXUZBC2+BcELeLgHkLQDwgkEIyGlpbaTMtfJHr73qtPzFo6vA/vnnu/33fuOTxtCT+jTPxkB8i/AU8pIHjLfGRAp/1lnAc8N8CDzN30fACVX8bFgY1nUgeEORwGikW8ZjKYpm5u0LjelxSJD4icAKdVIWBibtY07PK610BqvN+40V18knsi5JNMQkungWYTws+OYzFo1C73l5who2SLXACX0ijD7fGICadTreVeEjhfo2azC1xkirCHISmonJ0pre71CpfDodb1REKZLdTJG26jY1DxAnwZ1WQEAgGh63ovl2d3HMMetZPSsECCnIk8qOVyPd1jPi+ustleXisUlJnXXZk1+lSVfD7RH6uRiIDRoxGhkDKrqR4Ah8fA0Xs8jmG7Ha0yf4F2GxabjacaGqUSWpyuyWpFo1rFWDSKfXo61f4BP1uS728BBgC9quKyFfQlhgAAAABJRU5ErkJggg==' />";
             }
-            return CommandLink(Fn.Item_GetProperties.ToString(), new[] { inventoryName, itemId.ToString() }, text);
+            return CommandExecuteLink(Fn.Item_GetProperties.ToString(), new[] { inventoryName, itemId.ToString() }, text);
         }
 
         #endregion
@@ -745,7 +745,7 @@ namespace nine3q.Web
             var groups = inv.GetGroups().Result;
             var s = "";
             foreach (var group in groups) {
-                s += CommandLink(Fn.Content_Templates.ToString(), new[] { group }, group) + " ";
+                s += CommandExecuteLink(Fn.Content_Templates.ToString(), new[] { group }, group) + " ";
             }
             return s;
         }
@@ -758,9 +758,9 @@ namespace nine3q.Web
             var inventoryName = GrainInterfaces.InventoryService.TemplatesInventoryName;
             var inv = GrainClient.GetGrain<IContentGenerator>(inventoryName);
             var templates = inv.GetTemplates(name).Result;
-            var s = CommandLink(Fn.Content_CreateTemplates.ToString(), new[] { name }, "[Create all]") + " ";
+            var s = CommandExecuteLink(Fn.Content_CreateTemplates.ToString(), new[] { name }, "[Create all]") + " Create: ";
             foreach (var template in templates) {
-                s += CommandLink(Fn.Content_CreateTemplates.ToString(), new[] { template }, template) + " ";
+                s += CommandExecuteLink(Fn.Content_CreateTemplates.ToString(), new[] { template }, template) + " ";
             }
             return s;
         }

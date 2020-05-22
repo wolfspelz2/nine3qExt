@@ -461,8 +461,8 @@ namespace nine3q.Web
             result.Grid.Add(new Table.Row() { cnt++.ToString(), "Link (with text)", Link("http://www.galactic-developments.de/", "Galactic Developments") });
             result.Grid.Add(new Table.Row() { cnt++.ToString(), "Link (new window)", Link("http://www.galactic-developments.de/", "Galactic Developments", new Dictionary<string, string> { { "target", "_blank" } }) });
             result.Grid.Add(new Table.Row() { cnt++.ToString(), "Image", Image("http://lh5.googleusercontent.com/-wCxDAAgcS2o/AAAAAAAAAAI/AAAAAAAADOw/VyiIhdcYXmg/s80-c/photo.jpg") });
-            result.Grid.Add(new Table.Row() { cnt++.ToString(), "CommandLink", "Execute " + CommandLink("Echo", new List<string> { "a", "b" }, "Echo") });
-            result.Grid.Add(new Table.Row() { cnt++.ToString(), "CommandPrepareLink", "Insert " + CommandPrepareLink("Echo", new List<string> { "a", "b" }, "Echo") });
+            result.Grid.Add(new Table.Row() { cnt++.ToString(), "CommandLink", "Execute " + CommandExecuteLink("Echo", new List<string> { "a", "b" }, "Echo") });
+            result.Grid.Add(new Table.Row() { cnt++.ToString(), "CommandPrepareLink", "Insert " + CommandInsertLink("Echo", new List<string> { "a", "b" }, "Echo") });
             result.Options[Table.Option.TableHeader] = "yes";
             return result;
         }
@@ -619,14 +619,14 @@ namespace nine3q.Web
             return sb.ToString();
         }
 
-        public string CommandLink(string method, IEnumerable<string> args, string text, Dictionary<string, string> htmlAttributes = null)
+        public string CommandExecuteLink(string method, IEnumerable<string> args, string text, Dictionary<string, string> htmlAttributes = null)
         {
             htmlAttributes = htmlAttributes ?? new Dictionary<string, string>();
             htmlAttributes.Add("onclick", "SetInput('" + method + " " + string.Join(" ", args) + "');PostForm();");
             return Link("#", text, htmlAttributes);
         }
 
-        public string CommandPrepareLink(string method, IEnumerable<string> args, string text, Dictionary<string, string> htmlAttributes = null)
+        public string CommandInsertLink(string method, IEnumerable<string> args, string text, Dictionary<string, string> htmlAttributes = null)
         {
             var sb = new StringBuilder();
 

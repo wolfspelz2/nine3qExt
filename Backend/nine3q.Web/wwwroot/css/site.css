@@ -3,6 +3,9 @@
     font-size: 12px;
 }
 
+h1 {
+    font-size: 18px;
+}
 .cMenuItem {
     display: inline;
 }
@@ -61,8 +64,13 @@
 
 .cTable td {
     padding: 2px;
+    vertical-align: top;
 }
 
 .cTable .cOdd {
     background-color: #EEEEEE;
+}
+
+.cTable img {
+    vertical-align: text-top;
 }
