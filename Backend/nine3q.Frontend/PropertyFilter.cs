@@ -1,4 +1,4 @@
-﻿namespace nine3q.Web
+﻿namespace nine3q.Frontend
 {
     public static class PropertyFilter
     {

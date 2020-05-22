@@ -4,14 +4,12 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Diagnostics.Contracts;
-using Orleans;
-using Orleans.Streams;
-using nine3q.GrainInterfaces;
-using nine3q.Items;
 using System.Threading;
-using System.Collections.Concurrent;
-using nine3q.Tools;
 using System.Linq;
+using Orleans;
+using nine3q.Items;
+using nine3q.GrainInterfaces;
+using nine3q.Frontend;
 
 namespace XmppComponent
 {
@@ -232,8 +230,7 @@ namespace XmppComponent
             var destinationUrl = message.Cmd.ContainsKey("destination") ? message.Cmd["destination"] : "";
 
             if (!string.IsNullOrEmpty(userId) && itemId != ItemId.NoItem && !string.IsNullOrEmpty(roomId) && hasX) {
-
-                itemId = await TestPrepareItemForDrop(userId, roomId);
+                //itemId = await TestPrepareItemForDrop(userId, roomId);
 
                 var roomItem = AddRoomItem(roomId, itemId);
                 if (roomItem != null) {
@@ -298,15 +295,18 @@ namespace XmppComponent
             var roomId = roomItem.RoomId;
             long itemId = roomItem.ItemId;
 
-            var props = await Inventory(roomId).GetItemProperties(itemId, new PidList { Pid.Name, Pid.AnimationsUrl, Pid.Image100Url });
+            var props = await Inventory(roomId).GetItemProperties(itemId, new PidList { Pid.Name, Pid.Label, Pid.AnimationsUrl, Pid.Image100Url });
 
             var name = props.GetString(Pid.Name);
+            if (string.IsNullOrEmpty(name)) { name = props.GetString(Pid.Label); }
             if (string.IsNullOrEmpty(name)) { name = $"Item-{itemId}"; }
 
             var roomItemJid = new RoomItemJid(roomId, itemId, name);
 
             var animationsUrl = props.GetString(Pid.AnimationsUrl);
+            animationsUrl = PropertyFilter.Url(animationsUrl);
             var imageUrl = string.IsNullOrEmpty(animationsUrl) ? props.GetString(Pid.Image100Url) : "";
+            imageUrl = PropertyFilter.Url(imageUrl);
 
             var to = roomItemJid.Full;
             var from = $"{itemId}@{_componentDomain}/backend";
