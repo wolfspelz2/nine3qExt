@@ -206,7 +206,7 @@ namespace XmppComponent
                 if (roomItem.State != RoomItem.RezState.Rezzing) {
                     Log.Warning($"Unexpected presence-available: room={roomId} item={itemId}", nameof(Connection_OnPresenceAvailable));
                 } else {
-                    Log.Info($"Joined {roomId} {itemId}", nameof(Connection_OnPresenceAvailable));
+                    Log.Info($"Joined room {roomId} {itemId}", nameof(Connection_OnPresenceAvailable));
                     roomItem.State = RoomItem.RezState.Rezzed;
                     await Inventory(roomId).SetItemProperties(itemId, new PropertySet { [Pid.IsRezzed] = true });
                 }
@@ -217,6 +217,18 @@ namespace XmppComponent
 
         async Task Connection_OnPresenceUnavailable(XmppPresence stanza)
         {
+            var jid = new RoomItemJid(stanza.From);
+            var roomId = jid.Room;
+            var itemId = jid.Item;
+
+            Log.Info($"Left room {roomId} {itemId}", nameof(Connection_OnPresenceUnavailable));
+
+            var roomItem = GetRoomItem(roomId, itemId);
+            if (roomItem != null) {
+                // Just in case, shuld already be removed after sending presence-unavailable
+                RemoveRoomItem(roomId, itemId);
+            }
+            
             await Task.CompletedTask;
         }
 
@@ -232,27 +244,20 @@ namespace XmppComponent
             if (!string.IsNullOrEmpty(userId) && itemId != ItemId.NoItem && !string.IsNullOrEmpty(roomId) && hasX) {
                 //itemId = await TestPrepareItemForDrop(userId, roomId);
 
-                var roomItem = AddRoomItem(roomId, itemId);
-                if (roomItem != null) {
-                    Log.Info($"Drop {roomId} {itemId}");
+                Log.Info($"Drop {roomId} {itemId}");
 
-                    {
-                        var props = await Inventory(userId).GetItemProperties(itemId, new PidList { Pid.RezableAspect });
-                        if (!props.GetBool(Pid.RezableAspect)) { throw new SurfaceException(userId, itemId, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemNotRezable); }
-                    }
-
-                    var setProps = new PropertySet {
-                        [Pid.Owner] = userId,
-                        [Pid.IsRezzing] = true,
-                        [Pid.RezzedX] = posX,
-                    };
-                    var transferredItemId = await TransferItem(itemId, userId, roomId, ItemId.NoItem, 0, setProps, new PidList());
-                    roomItem.ItemId = transferredItemId;
-
-                    await SendPresenceAvailable(roomItem, posX);
-
-                    roomItem.State = RoomItem.RezState.Rezzing;
+                {
+                    var props = await Inventory(userId).GetItemProperties(itemId, new PidList { Pid.RezableAspect });
+                    if (!props.GetBool(Pid.RezableAspect)) { throw new SurfaceException(userId, itemId, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemNotRezable); }
                 }
+
+                var transferredItemId = await TransferItem(itemId, userId, roomId, ItemId.NoItem, 0, new PropertySet { [Pid.RezzedX] = posX, }, new PidList());
+
+                var roomItem = AddRoomItem(roomId, transferredItemId);
+
+                await SendPresenceAvailable(roomItem, posX);
+
+                roomItem.State = RoomItem.RezState.Rezzing;
             }
         }
 
@@ -280,8 +285,7 @@ namespace XmppComponent
                         await SendPresenceUnvailable(roomItem);
 
                         // Transfer back before confirmation from xmpp room
-                        var delProps = new PidList { Pid.Owner, Pid.RezzedX, Pid.IsRezzing, Pid.IsRezzed };
-                        var transferredItemId = await TransferItem(itemId, roomId, userId, ItemId.NoItem, 0, new PropertySet { }, delProps);
+                        var transferredItemId = await TransferItem(itemId, roomId, userId, ItemId.NoItem, 0, new PropertySet { }, new PidList { Pid.RezzedX, Pid.IsRezzed });
 
                         // Also: dont wait to cleanup state, just ignore the presence-unavailable
                         RemoveRoomItem(roomId, itemId);
@@ -332,7 +336,7 @@ namespace XmppComponent
             var imageUrl_Attribute = $"imageUrl='{imageUrl_XmlEncoded}'";
             var position_Node = $"<position x='{x_XmlEncoded}' />";
 
-            Log.Info($"Rez {roomItemJid.Resource} {roomId} {itemId}", nameof(SendPresenceAvailable));
+            Log.Info($"Rez '{roomItemJid.Resource}' {roomId} {itemId}", nameof(SendPresenceAvailable));
 
             if (_conn != null) {
                 _conn.Send(
@@ -351,15 +355,16 @@ namespace XmppComponent
         async Task SendPresenceUnvailable(RoomItem roomItem)
         {
             var roomId = roomItem.RoomId;
-            long itemId = roomItem.ItemId;
+            var itemId = roomItem.ItemId;
+            var roomResource = roomItem.Resource;
 
-            var to = $"{roomId}/{roomItem.Resource}";
+            var to = $"{roomId}/{roomResource}";
             var from = $"{itemId}@{_componentDomain}/backend";
 
             var to_XmlEncoded = WebUtility.HtmlEncode(to);
             var from_XmlEncoded = WebUtility.HtmlEncode(from);
 
-            Log.Info($"Derez {roomItem.Resource} {roomId} {itemId}", nameof(SendPresenceAvailable));
+            Log.Info($"Derez '{roomResource}' {roomId} {itemId}", nameof(SendPresenceAvailable));
 
             _conn?.Send($"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}' type='unavailable' />");
 

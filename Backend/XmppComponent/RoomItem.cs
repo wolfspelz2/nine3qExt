@@ -10,10 +10,11 @@
             Derezzing,
         }
 
-        public string RoomId;
-        public long ItemId;
         public string Resource;
         public RezState State = RezState.NoState;
+
+        public readonly string RoomId;
+        public readonly long ItemId;
 
         public RoomItem(string roomId, long itemId, string resource = "item")
         {
