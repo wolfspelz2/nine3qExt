@@ -29,7 +29,7 @@ namespace nine3q.Grains
 
         public Task<List<string>> GetGroups()
         {
-            return Task.FromResult(BasicData.GetGroups());
+            return Task.FromResult(BasicDefinition.GetGroups());
         }
 
         public Task<List<string>> GetTemplates(string group)

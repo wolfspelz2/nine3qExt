@@ -125,17 +125,6 @@ namespace nine3q.Content
             templates.Add(name, props);
         }
 
-        public static List<string> GetGroups()
-        {
-            var result = new List<string>();
-
-            foreach (var group in BasicDefinition.Groups) {
-                result.Add(group);
-            }
-
-            return result;
-        }
-
         public static List<string> GetTemplates(string name)
         {
             var result = new List<string>();

@@ -6,7 +6,7 @@ using nine3q.Items.Aspects;
 
 namespace nine3q.Content
 {
-    public class BasicDefinition
+    public static class BasicDefinition
     {
         public enum GroupName
         {
@@ -53,12 +53,23 @@ namespace nine3q.Content
         public const string en = "en-US";
         public static HashSet<string> Languages = new HashSet<string> { de, en };
 
+        public static List<string> GetGroups()
+        {
+            var result = new List<string>();
+
+            foreach (var group in BasicDefinition.Groups) {
+                result.Add(group);
+            }
+
+            return result;
+        }
+
         public static string GetTranslationCacheKey(string key, string lang)
         {
             return "Text-" + lang + "-" + key;
         }
 
-        public class ActionName
+        public static class ActionName
         {
             public class Test1
             {
