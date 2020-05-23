@@ -52,7 +52,7 @@ namespace nine3q.GrainInterfaces
         public const string StreamNamespaceDefault = "Default";
         public const string StreamNamespaceTemplates = "Templates";
 
-        public static Guid StreamGuidDefault { get; set; } = NameBasedGuid.Create(NameBasedGuid.UrlNamespace, "Default");
+        public static Guid StreamGuidDefault = Guid.Parse("{6129CB50-60F7-45AA-98E0-FB50C4C24221}");
     }
 
 }

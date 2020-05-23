@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
 namespace nine3q.Items
@@ -10,6 +11,7 @@ namespace nine3q.Items
         public ItemIdSet DeletedItems { get; } = new ItemIdSet();
 
         public List<string> NewTemplates { get; } = new List<string>();
+        public Dictionary<long, PidList> ChangedItemsProperties { get; } = new Dictionary<long, PidList>();
 
         public bool IsChanged()
         {
@@ -41,6 +43,7 @@ namespace nine3q.Items
                         if (prop.Group == Property.Group.Operation) { break; }
                         if (Property.AreEquivalent(change.Pid, change.PreviousValue, change.Value)) { break; }
                         ChangedItems.Add(change.ItemId);
+                        AddChangedProperty(change.ItemId, change.Pid);
                         if (change.Pid == Pid.TemplateName) {
                             NewTemplates.Add(change.Value as string);
                         }
@@ -52,6 +55,7 @@ namespace nine3q.Items
                         var prop = Property.Get(change.Pid);
                         if (prop.Group == Property.Group.Operation) { break; }
                         ChangedItems.Add(change.ItemId);
+                        AddChangedProperty(change.ItemId, change.Pid);
                     }
                     break;
                 }
@@ -67,5 +71,14 @@ namespace nine3q.Items
             }
         }
 
+        private void AddChangedProperty(long itemId, Pid pid)
+        {
+            if (!ChangedItemsProperties.ContainsKey(itemId)) {
+                ChangedItemsProperties[itemId] = new PidList();
+            }
+            if (!ChangedItemsProperties[itemId].Contains(pid)) {
+                ChangedItemsProperties[itemId].Add(pid);
+            }
+        }
     }
 }

@@ -86,7 +86,7 @@ namespace XmppComponent
                 _componentPort,
                 _componentSecret
             );
-            controller.Start();
+            await controller.Start();
 
             Console.WriteLine("Press Enter to terminate...");
             var line = "";

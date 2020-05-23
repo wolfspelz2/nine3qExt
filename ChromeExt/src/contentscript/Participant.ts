@@ -55,7 +55,7 @@ export class Participant extends Entity
         let xmppNickname = '';
 
         let vpNickname = '';
-        let vpAvatar = '';
+        let vpAvatarId = '';
         let vpAnimationsUrl = '';
         let vpImageUrl = '';
 
@@ -107,25 +107,19 @@ export class Participant extends Entity
         }
 
         {
-            let vpNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
-            if (vpNode) {
-                let attrs = vpNode.attrs;
+            let vpPropsNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
+            if (vpPropsNode) {
+                let attrs = vpPropsNode.attrs;
                 if (attrs) {
-                    vpNickname = as.String(attrs.nickname, '');
-                    vpAvatar = as.String(attrs.avatar, '');
-                    vpAnimationsUrl = as.String(attrs.animationsUrl, '');
-                    vpImageUrl = as.String(attrs.imageUrl, '');
+                    vpNickname = as.String(attrs.Nickname, '');
+                    if (vpNickname == '') { vpNickname = as.String(attrs.nickname, ''); }
+                    vpAvatarId = as.String(attrs.AvatarId, '');
+                    if (vpAvatarId == '') { vpAvatarId = as.String(attrs.avatar, ''); }
+                    vpAnimationsUrl = as.String(attrs.AnimationsUrl, '');
+                    vpImageUrl = as.String(attrs.ImageUrl, '');
                 }
             }
         }
-
-        // hasIdentityUrl = false;
-        // vpAvatar = '004/pinguin'; 
-        // vpAvatar = ''; 
-        // vpAnimationsUrl = 'https://weblin-avatar.dev.sui.li/items/baum/avatar.xml';
-        // vpAnimationsUrl = '';
-        // vpImageUrl = 'https://weblin-avatar.dev.sui.li/items/baum/idle.png';
-        // vpImageUrl = '';
 
         { // <show>: dnd, away, xa
             let showAvailability: string = 'available';
@@ -150,6 +144,14 @@ export class Participant extends Entity
                 statusMessage = statusNode.getText();
             }
         }
+
+        // hasIdentityUrl = false;
+        // vpAvatar = '004/pinguin'; 
+        // vpAvatar = ''; 
+        // vpAnimationsUrl = 'https://weblin-avatar.dev.sui.li/items/baum/avatar.xml';
+        // vpAnimationsUrl = '';
+        // vpImageUrl = 'https://weblin-avatar.dev.sui.li/items/baum/idle.png';
+        // vpImageUrl = '';
 
         if (this.isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, this.getCenterElem(), this.isSelf);
@@ -189,8 +191,8 @@ export class Participant extends Entity
         }
 
         if (this.avatarDisplay) {
-            if (vpAvatar != '') {
-                let animationsUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', vpAvatar);
+            if (vpAvatarId != '') {
+                let animationsUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', vpAvatarId);
                 let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(animationsUrl));
                 this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
             } else if (vpAnimationsUrl != '') {

@@ -250,7 +250,7 @@ namespace nine3q.Grains
             var templatesStream = streamProvider.GetStream<ItemUpdate>(templatesStreamId, templatesStreamNamespace);
             var handles = await templatesStream.GetAllSubscriptionHandles();
             if (handles.Count == 0) {
-                var handle = await templatesStream.SubscribeAsync((data, token) => OnTemplateUpdate(data));
+                var handle = await templatesStream.SubscribeAsync(this);
             } else {
                 foreach (var handle in handles) {
                     await handle.ResumeAsync((data, token) => OnTemplateUpdate(data));
@@ -338,14 +338,15 @@ namespace nine3q.Grains
                         notifyItems.UnionWith(summary.AddedItems);
                         foreach (var id in notifyItems) {
                             var parents = Inventory.GetParentContainers(id);
-                            var update = new ItemUpdate(id, parents, ItemUpdate.Mode.Changed);
+                            var pids = summary.ChangedItemsProperties.ContainsKey(id) ? summary.ChangedItemsProperties[id] : PidList.Empty;
+                            var update = new ItemUpdate(Id, id, pids, parents, ItemUpdate.Mode.Changed);
                             stream.OnNextAsync(update).Ignore();
                         }
                     }
                     {
                         var notifyItems = summary.DeletedItems;
                         foreach (var id in notifyItems) {
-                            var update = new ItemUpdate(id, new ItemIdSet(), ItemUpdate.Mode.Removed);
+                            var update = new ItemUpdate(Id, id, PidList.Empty, new ItemIdSet(), ItemUpdate.Mode.Removed);
                             stream.OnNextAsync(update).Ignore();
                         }
                     }

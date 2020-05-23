@@ -10,10 +10,11 @@ using Orleans;
 using nine3q.Items;
 using nine3q.GrainInterfaces;
 using nine3q.Frontend;
+using Orleans.Streams;
 
 namespace XmppComponent
 {
-    internal partial class Controller
+    internal partial class Controller : IAsyncObserver<ItemUpdate>
     {
         readonly string _componentHost;
         readonly string _componentDomain;
@@ -37,8 +38,9 @@ namespace XmppComponent
             _componentSecret = componentSecret;
         }
 
-        public void Start()
+        public async Task Start()
         {
+            var handle = await ItemUpdateStream.SubscribeAsync(this);
             StartConnectionNewThread();
         }
 
@@ -74,13 +76,16 @@ namespace XmppComponent
             return _clusterClient.GetGrain<IInventory>(key);
         }
 
-        //private async Task<IAsyncStream<T>> Stream<T>(string roomId, string streamProvider, string streamNamespace)
-        //{
-        //    var provider = _clusterClient.GetStreamProvider(streamProvider);
-        //    var streamId = await Room(roomId).GetStreamId();
-        //    var stream = provider.GetStream<T>(streamId, streamNamespace);
-        //    return stream;
-        //}
+        private IAsyncStream<ItemUpdate> ItemUpdateStream
+        {
+            get {
+                var streamProvider = _clusterClient.GetStreamProvider(InventoryService.StreamProvider);
+                var streamId = InventoryService.StreamGuidDefault;
+                var streamNamespace = InventoryService.StreamNamespaceDefault;
+                var stream = streamProvider.GetStream<ItemUpdate>(streamId, streamNamespace);
+                return stream;
+            }
+        }
 
         #endregion
 
@@ -139,7 +144,7 @@ namespace XmppComponent
 
         #endregion
 
-        #region OnConnction
+        #region OnConnection
 
         async Task Connection_OnMessage(XmppMessage stanza)
         {
@@ -228,7 +233,7 @@ namespace XmppComponent
                 // Just in case, shuld already be removed after sending presence-unavailable
                 RemoveRoomItem(roomId, itemId);
             }
-            
+
             await Task.CompletedTask;
         }
 
@@ -255,7 +260,7 @@ namespace XmppComponent
 
                 var roomItem = AddRoomItem(roomId, transferredItemId);
 
-                await SendPresenceAvailable(roomItem, posX);
+                await SendPresenceAvailable(roomItem);
 
                 roomItem.State = RoomItem.RezState.Rezzing;
             }
@@ -294,23 +299,28 @@ namespace XmppComponent
             }
         }
 
-        async Task SendPresenceAvailable(RoomItem roomItem, long x)
+        async Task SendPresenceAvailable(RoomItem roomItem)
         {
             var roomId = roomItem.RoomId;
             long itemId = roomItem.ItemId;
 
-            var props = await Inventory(roomId).GetItemProperties(itemId, new PidList { Pid.Name, Pid.Label, Pid.AnimationsUrl, Pid.Image100Url });
+            //var props = await Inventory(roomId).GetItemProperties(itemId, new PidList { Pid.Name, Pid.Label, Pid.AnimationsUrl, Pid.Image100Url, Pid.RezzedX });
+            var props = await Inventory(roomId).GetItemProperties(itemId, PidList.Public);
 
             var name = props.GetString(Pid.Name);
             if (string.IsNullOrEmpty(name)) { name = props.GetString(Pid.Label); }
             if (string.IsNullOrEmpty(name)) { name = $"Item-{itemId}"; }
 
+            var x = props.GetInt(Pid.RezzedX);
+            props.Delete(Pid.RezzedX);
+
             var roomItemJid = new RoomItemJid(roomId, itemId, name);
 
             var animationsUrl = props.GetString(Pid.AnimationsUrl);
             animationsUrl = PropertyFilter.Url(animationsUrl);
-            var imageUrl = string.IsNullOrEmpty(animationsUrl) ? props.GetString(Pid.Image100Url) : "";
-            imageUrl = PropertyFilter.Url(imageUrl);
+            if (props.ContainsKey(Pid.Image100Url)) {
+                props.Delete(Pid.Image100Url);
+            }
 
             var to = roomItemJid.Full;
             var from = $"{itemId}@{_componentDomain}/backend";
@@ -322,29 +332,42 @@ namespace XmppComponent
             var digest_UrlEncoded = WebUtility.UrlEncode(identityDigest);
             var identitySrc = $"https://avatar.weblin.sui.li/identity/?avatarUrl={animationsUrl_UrlEncoded}&nickname={name_UrlEncoded}&digest={digest_UrlEncoded}";
 
+            var props_XmlEncoded = props.Select(pair => {
+                var value = Property.ToString(pair.Key, pair.Value);
+                var propDef = Property.Get(pair.Key);
+                if (propDef.Type == Property.Type.String && (propDef.Use == Property.Use.Url || propDef.Use == Property.Use.ImageUrl)) {
+                    value = PropertyFilter.Url(value);
+                }
+                var key_XmlEncoded = WebUtility.HtmlEncode(pair.Key.ToString());
+                var value_XmlEncoded = WebUtility.HtmlEncode(value);
+                return new KeyValuePair<string, string>(key_XmlEncoded, value_XmlEncoded);
+            });
+
             var to_XmlEncoded = WebUtility.HtmlEncode(to);
             var from_XmlEncoded = WebUtility.HtmlEncode(from);
-            var name_XmlEncoded = WebUtility.HtmlEncode(name);
-            var animationsUrl_XmlEncoded = string.IsNullOrEmpty(animationsUrl) ? "" : WebUtility.HtmlEncode(animationsUrl);
             var x_XmlEncoded = (x == 0) ? "" : WebUtility.HtmlEncode(x.ToString(CultureInfo.InvariantCulture));
-            var imageUrl_XmlEncoded = string.IsNullOrEmpty(imageUrl) ? "" : WebUtility.HtmlEncode(imageUrl);
             var identitySrc_XmlEncoded = WebUtility.HtmlEncode(identitySrc);
             var identityDigest_XmlEncoded = WebUtility.HtmlEncode(identityDigest);
             var identityJid_XmlEncoded = WebUtility.HtmlEncode(identityJid);
 
-            var animationsUrl_Attribute = $"animationsUrl='{animationsUrl_XmlEncoded}'";
-            var imageUrl_Attribute = $"imageUrl='{imageUrl_XmlEncoded}'";
+            var props_XmlEncoded_All = "";
+            foreach (var pair in props_XmlEncoded) {
+                var attrName = pair.Key;
+                //var attrNameCamelCased = Char.ToLowerInvariant(attrName[0]) + attrName.Substring(1);
+                props_XmlEncoded_All += $" {attrName}='{pair.Value}'";
+            }
+
             var position_Node = $"<position x='{x_XmlEncoded}' />";
 
             Log.Info($"Rez '{roomItemJid.Resource}' {roomId} {itemId}", nameof(SendPresenceAvailable));
 
             if (_conn != null) {
                 _conn.Send(
-@$"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}'>
-    <x xmlns='vp:props' nickname='{name_XmlEncoded}' {(string.IsNullOrEmpty(animationsUrl) ? "" : animationsUrl_Attribute)} {(string.IsNullOrEmpty(imageUrl) ? "" : imageUrl_Attribute)} />
-    <x xmlns='firebat:user:identity' jid='{identityJid_XmlEncoded}' src='{identitySrc_XmlEncoded}' digest='{identityDigest_XmlEncoded}' />
-    <x xmlns='firebat:avatar:state'>{position_Node}</x>
-    <x xmlns='http://jabber.org/protocol/muc'><history seconds='0' maxchars='0' maxstanzas='0' /></x>
+        @$"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}'>
+<x xmlns='vp:props' type='item' {props_XmlEncoded_All} />
+<x xmlns='firebat:user:identity' jid='{identityJid_XmlEncoded}' src='{identitySrc_XmlEncoded}' digest='{identityDigest_XmlEncoded}' />
+<x xmlns='firebat:avatar:state'>{position_Node}</x>
+<x xmlns='http://jabber.org/protocol/muc'><history seconds='0' maxchars='0' maxstanzas='0' /></x>
 </presence>"
                 );
 
@@ -371,6 +394,78 @@ namespace XmppComponent
             roomItem.State = RoomItem.RezState.Derezzing;
 
             await Task.CompletedTask;
+        }
+
+        #endregion
+
+        #region Stream
+
+        public async Task OnNextAsync(ItemUpdate itemUpdate, StreamSequenceToken token = null)
+        {
+            await OnItemUpdate(itemUpdate);
+        }
+
+        public async Task OnItemUpdate(ItemUpdate update)
+        {
+            if (update.What == ItemUpdate.Mode.Removed) {
+                // if room/update.Id is ManagedRoom
+                // presence-unavailable?
+                return;
+            }
+
+            if (update.What == ItemUpdate.Mode.Added) {
+                // if room/update.Id is ManagedRoom
+                // presence-unavailable?
+                return;
+            }
+
+            var roomId = update.InventoryId;
+            var itemId = update.Id;
+
+            var roomItem = GetRoomItem(roomId, itemId);
+            if (roomItem != null) {
+
+                var atleastOneOfChangedPropertiesIsPublic = false;
+                if (update.Pids != null) {
+                    foreach (var pid in update.Pids) {
+                        if (Property.Get(pid).Access == Property.Access.Public) {
+                            atleastOneOfChangedPropertiesIsPublic = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (atleastOneOfChangedPropertiesIsPublic) {
+                    await SendPresenceAvailable(roomItem);
+                }
+            }
+
+            //if (Inventory.Templates.IsItem(templateId)) {
+            //    var template = Inventory.Templates.Item(templateId);
+            //    switch (update.What) {
+            //        case ItemUpdate.Mode.Added:
+            //            template.Delete(Pid.StaleTemplate);
+            //            break;
+            //        case ItemUpdate.Mode.Changed:
+            //            var templateInv = GrainFactory.GetGrain<IInventory>(_templatesInventoryName);
+            //            var changedTemplateProps = await templateInv.GetItemProperties(templateId, PidList.All);
+            //            template.Properties = changedTemplateProps;
+            //            break;
+            //        case ItemUpdate.Mode.Removed:
+            //            template.SetBool(Pid.StaleTemplate, true);
+            //            break;
+            //    }
+            //}
+        }
+
+        public Task OnCompletedAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task OnErrorAsync(Exception ex)
+        {
+            return Task.CompletedTask;
         }
 
         #endregion
@@ -409,19 +504,6 @@ namespace XmppComponent
         }
 
         #endregion
-
-        async Task<long> TestPrepareItemForDrop(string userId, string roomId)
-        {
-            // Cleanup
-            await Inventory(userId).DeleteItem(await Inventory(userId).GetItemByName("General Sherman"));
-            await Inventory(roomId).DeleteItem(await Inventory(roomId).GetItemByName("General Sherman"));
-
-            return await Inventory(userId).CreateItem(new PropertySet {
-                [Pid.Name] = "General Sherman",
-                [Pid.AnimationsUrl] = "https://weblin-avatar.dev.sui.li/items/baum/avatar.xml",
-                [Pid.RezableAspect] = true,
-            });
-        }
 
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace XmppComponent
+﻿using nine3q.Items;
+
+namespace XmppComponent
 {
     public class RoomItem
     {
@@ -12,6 +14,7 @@
 
         public string Resource;
         public RezState State = RezState.NoState;
+        public PropertySet PublicItemProperties = new PropertySet();
 
         public readonly string RoomId;
         public readonly long ItemId;
