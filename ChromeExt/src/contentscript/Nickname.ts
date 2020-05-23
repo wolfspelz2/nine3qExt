@@ -16,7 +16,7 @@ export class Nickname implements IObserver
     private nickname: string;
 
     getElem() { return this.elem; }
-    
+
     constructor(private app: ContentApp, private participant: Participant, private isSelf: boolean, private display: HTMLElement)
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-nickname n3q-shadow-small" />').get(0);
@@ -29,12 +29,14 @@ export class Nickname implements IObserver
 
         {
             let column = new MenuColumn(menu, 'main');
+
             if (this.isSelf) {
                 column.addItem('chat', 'Chat', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.toggleChatin(); });
                 if (Environment.isDevelopment()) { column.addItem('test', 'Test', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.app.test(); }); }
             } else {
                 column.addItem('chat', 'Chat', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.toggleChatout(); });
             }
+
             if (this.isSelf) {
                 column.addItem('settings', 'Settings', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { if (this.participant) { this.app.showSettings(this.participant.getElem()); } });
                 column.addItem('chatwin', 'Chat Window', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showChatWindow(); });
@@ -51,6 +53,7 @@ export class Nickname implements IObserver
                     }
                 );
             }
+
             menu.addColumn(column);
         }
 
@@ -69,15 +72,13 @@ export class Nickname implements IObserver
             menu.addColumn(column);
         }
 
-        this.menuElem = menu.render();
-        $(this.elem).append(this.menuElem);
+        if (this.isSelf) {
+            this.menuElem = menu.render();
+            $(this.elem).append(this.menuElem);
+        }
 
         this.textElem = <HTMLElement>$('<div class="n3q-base n3q-text" />').get(0);
         this.elem.appendChild(this.textElem);
-
-        if (Config.get('room.nicknameOnHover', false)) {
-            this.elem.style.display = 'none';
-        }
 
         display.appendChild(this.elem);
     }

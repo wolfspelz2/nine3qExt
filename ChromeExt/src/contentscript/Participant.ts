@@ -155,16 +155,18 @@ export class Participant extends Entity
             this.avatarDisplay = new Avatar(this.app, this, this.getCenterElem(), this.isSelf);
 
             this.nicknameDisplay = new Nickname(this.app, this, this.isSelf, this.getElem());
-            if (Config.get('room.nicknameOnHover', true)) {
-                let nicknameElem = this.nicknameDisplay.getElem();
-                nicknameElem.style.display = 'none';
-                $(this.getElem()).hover(function ()
-                {
-                    $(this).find(nicknameElem).fadeIn();
-                }, function ()
-                {
-                    $(this).find(nicknameElem).fadeOut();
-                });
+            if (!this.isSelf) {
+                if (Config.get('room.nicknameOnHover', true)) {
+                    let nicknameElem = this.nicknameDisplay.getElem();
+                    nicknameElem.style.display = 'none';
+                    $(this.getElem()).hover(function ()
+                    {
+                        $(this).find(nicknameElem).stop().fadeIn('fast');
+                    }, function ()
+                    {
+                        $(this).find(nicknameElem).stop().fadeOut();
+                    });
+                }
             }
 
             this.chatoutDisplay = new Chatout(this.app, this, this.getElem());
@@ -206,10 +208,14 @@ export class Participant extends Entity
 
         if (this.nicknameDisplay) {
             if (vpNickname != '') {
-                this.nicknameDisplay.setNickname(vpNickname);
+                if (vpNickname != this.nicknameDisplay.getNickname()) {
+                    this.nicknameDisplay.setNickname(vpNickname);
+                }
             } else {
-                this.nicknameDisplay.setNickname(xmppNickname);
-                if (hasIdentityUrl) {
+                if (xmppNickname != this.nicknameDisplay.getNickname()) {
+                    this.nicknameDisplay.setNickname(xmppNickname);
+                }
+                if (hasIdentityUrl && this.isFirstPresence) {
                     this.app.getPropertyStorage().watch(this.userId, 'Nickname', this.nicknameDisplay);
                 }
             }
