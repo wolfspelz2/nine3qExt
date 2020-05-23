@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Orleans;
 using nine3q.Items;
+using nine3q.Tools;
 
 namespace nine3q.GrainInterfaces
 {
@@ -50,6 +51,8 @@ namespace nine3q.GrainInterfaces
         public const string StreamProvider = "SMSProvider";
         public const string StreamNamespaceDefault = "Default";
         public const string StreamNamespaceTemplates = "Templates";
+
+        public static Guid StreamGuidDefault { get; set; } = NameBasedGuid.Create(NameBasedGuid.UrlNamespace, "Default");
     }
 
 }

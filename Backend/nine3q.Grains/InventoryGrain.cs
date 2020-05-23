@@ -31,7 +31,7 @@ namespace nine3q.Grains
         string _streamNamespace = InventoryService.StreamNamespaceDefault;
         string _templatesInventoryName = InventoryService.TemplatesInventoryName;
 
-        readonly Guid _streamId = Guid.NewGuid();
+        readonly Guid _streamId = InventoryService.StreamGuidDefault;
         readonly IPersistentState<InventoryState> _state;
 
         public InventoryGrain(
