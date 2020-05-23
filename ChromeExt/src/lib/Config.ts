@@ -50,6 +50,7 @@ export class Config
             chatWindowHeight: 250,
             chatWindowMaxHeight: 800,
             keepAliveSec: 120,
+            nicknameOnHover: true,
         },
         xmpp: {
             service: 'wss://xmpp.weblin.sui.li/xmpp-websocket',
@@ -69,11 +70,11 @@ export class Config
             identificatorUrlTemplate: 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}&digest={digest}',
         },
         i18n: {
-            'defaultLanguage': 'en-US',
-            'languageMapping': {
+            defaultLanguage: 'en-US',
+            languageMapping: {
                 'de': 'de-DE',
             },
-            'translations': {
+            translations: {
                 'en-US': {
                     'Common.Close': 'Close',
 
@@ -155,7 +156,8 @@ export class Config
             },
             'serviceUrl': '',
         },
-        'last': 0,
+
+        _last: 0
     }
 
     static get(key: string, defaultValue: any): any

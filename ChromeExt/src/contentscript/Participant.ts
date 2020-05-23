@@ -188,6 +188,19 @@ export class Participant extends Entity
                         this.app.getPropertyStorage().watch(this.userId, 'Nickname', this.nicknameDisplay);
                     }
                 }
+
+                if (Config.get('room.nicknameOnHover', true)) {
+                    let nicknameElem = this.nicknameDisplay.getElem();
+                    nicknameElem.style.display = 'none';
+                    $(this.getElem()).hover(function ()
+                    {
+                        $(this).find(nicknameElem).fadeIn();
+                    }, function ()
+                    {
+                        $(this).find(nicknameElem).fadeOut();
+                    });
+                }
+        
             }
 
             this.chatoutDisplay = new Chatout(this.app, this, this.getElem());

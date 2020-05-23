@@ -15,6 +15,8 @@ export class Nickname implements IObserver
     private menuElem: HTMLElement;
     private nickname: string;
 
+    getElem() { return this.elem; }
+    
     constructor(private app: ContentApp, private participant: Participant, private isSelf: boolean, private display: HTMLElement)
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-nickname n3q-shadow-small" />').get(0);
@@ -72,6 +74,10 @@ export class Nickname implements IObserver
 
         this.textElem = <HTMLElement>$('<div class="n3q-base n3q-text" />').get(0);
         this.elem.appendChild(this.textElem);
+
+        if (Config.get('room.nicknameOnHover', false)) {
+            this.elem.style.display = 'none';
+        }
 
         display.appendChild(this.elem);
     }
