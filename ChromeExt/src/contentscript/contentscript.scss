@@ -145,6 +145,8 @@ $z-index: (
     height: 100px;
     position: relative;
     left: -50px;
+    display: flex;
+    justify-content: center;
     // border-left: 1px solid #808080;
     // border-right: 1px solid #808080;
 }
