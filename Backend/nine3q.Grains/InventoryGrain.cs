@@ -16,6 +16,7 @@ namespace nine3q.Grains
     public class InventoryState
     {
         public string Id;
+        public long LastItemId;
         public ItemIdPropertiesCollection Items;
         public ItemIdSet WriteIds;
         public ItemIdSet DeleteIds;
@@ -355,6 +356,7 @@ namespace nine3q.Grains
         async Task WriteInventoryState(ItemChangesSummary summary)
         {
             _state.State.Id = Id;
+            _state.State.LastItemId = Inventory.GetLastItemId();
 
             Don.t = () => {
                 _state.State.WriteIds = summary.ChangedItems.Clone();
@@ -385,6 +387,8 @@ namespace nine3q.Grains
                     Inventory.CreateItem(pair.Value);
                 }
             }
+
+            Inventory.SetLastItemId(_state.State.LastItemId);
         }
 
         #endregion

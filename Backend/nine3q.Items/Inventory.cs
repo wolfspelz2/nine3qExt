@@ -37,7 +37,7 @@ namespace nine3q.Items
         public ITimerManager Timers { get; set; } = new DummyTimerManager();
 
         readonly Dictionary<string, long> Names = new Dictionary<string, long>();
-        
+
         readonly int MaxItemsPerInventory = 1000;
 
         public Inventory(string name = "")
@@ -92,7 +92,7 @@ namespace nine3q.Items
             if (Names.ContainsKey(name)) {
                 Names.Remove(name);
             }
-            Don.t  = () => { var x = id; };
+            Don.t = () => { var x = id; };
         }
 
         #endregion
@@ -128,6 +128,8 @@ namespace nine3q.Items
         }
 
         long _currentItemId = 0;
+        public long GetLastItemId() => _currentItemId;
+        public void SetLastItemId(long itemId) { _currentItemId = itemId; }
         long GetNextItemId_NeverReUse()
         {
             if (_currentItemId == ItemId.NoItem && _items.Count > 0) {
