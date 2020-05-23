@@ -4,13 +4,13 @@
 }
 
 $z-index: (
-    Page               : 1000000000,
-    Thing              : 1001000000,
-    Participant        : 1002000000,
-    ParticipantAvatar  : 1002001000,
-    ParticipantNickname: 1002002000,
-    ParticipantChatout : 1002003000,
-    ParticipantChatin  : 1002004000,
+    Page        : 1000000000,
+    Item        : 1001000000,
+    Participant : 1002000000,
+    Avatar      : 1002001000,
+    Nickname    : 1002002000,
+    Chatout     : 1002003000,
+    Chatin      : 1002004000,
 );
 
 @media print {
@@ -228,32 +228,36 @@ $z-index: (
     height: 14px;
 }
 
+// Entity
+
+#n3q div.n3q-entity img.n3q-avatar {
+    position: absolute;
+    bottom: 0;
+    filter: drop-shadow(1px 1px 2px #707070);
+    user-select: none;
+}
+
+    #n3q div.n3q-entity img.n3q-avatar-hilite {
+        filter: drop-shadow(1px 1px 3px #505050);
+    }
+
+// Item
+
+#n3q div.n3q-entity.n3q-item {
+    z-index: z-index(Item);
+}
+
 // Participant
 
-#n3q div.n3q-participant {
+#n3q div.n3q-entity.n3q-participant {
     z-index: z-index(Participant);
 }
 
-    #n3q img.n3q-avatar {
-        position: absolute;
-        bottom: 0;
-        filter: drop-shadow(1px 1px 2px #707070);
-
-        // position: relative; // centers the image in the div, but elevates the avatar on some pages
-        // left: unset;
-        // right: unset;
-        // top: unset;
-        // bottom: unset;
-
-        z-index: z-index(ParticipantAvatar);
-        user-select: none;
+    #n3q div.n3q-participant div.n3q-avatar {
+        z-index: z-index(Avatar);
     }
 
-        #n3q img.n3q-avatar-hilite {
-            filter: drop-shadow(1px 1px 3px #505050);
-        }
-
-    #n3q div.n3q-nickname {
+    #n3q div.n3q-participant div.n3q-nickname {
         position: absolute;
         left: 20px;
         bottom: 10px;
@@ -261,10 +265,10 @@ $z-index: (
         padding: 1px 2px 1px 2px;
         background-color: #f5f5f5;
         white-space: nowrap;
-        z-index: z-index(ParticipantNickname);
+        z-index: z-index(Nickname);
     }
 
-    #n3q div.n3q-nickname div.n3q-text {
+    #n3q div.n3q-participant div.n3q-nickname div.n3q-text {
         display: inline-block;
         vertical-align: middle;
         max-width: 80px;
@@ -337,41 +341,41 @@ $z-index: (
 
         // background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" focusable="false" width="1em" height="1em" style="-ms-transform: rotate(360deg); -webkit-transform: rotate(360deg); transform: rotate(360deg);" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" fill="#626262"/></svg>') no-repeat center center / contain;
         // background: url('https://api.iconify.design/ic:baseline-chat-bubble-outline.svg') no-repeat center center / contain;
-        #n3q div.n3q-item-chat div.n3q-menu-icon { background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgd2lkdGg9IjFlbSIgaGVpZ2h0PSIxZW0iIHN0eWxlPSItbXMtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgLXdlYmtpdC10cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyB0cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMjAgMkg0Yy0xLjEgMC0yIC45LTIgMnYxOGw0LTRoMTRjMS4xIDAgMi0uOSAyLTJWNGMwLTEuMS0uOS0yLTItMnptMCAxNEg2bC0yIDJWNGgxNnYxMnoiIGZpbGw9IiM2MjYyNjIiLz48L3N2Zz4') no-repeat center center / contain; }
+        #n3q div.n3q-menuitem-chat div.n3q-menu-icon { background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgd2lkdGg9IjFlbSIgaGVpZ2h0PSIxZW0iIHN0eWxlPSItbXMtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgLXdlYmtpdC10cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyB0cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMjAgMkg0Yy0xLjEgMC0yIC45LTIgMnYxOGw0LTRoMTRjMS4xIDAgMi0uOSAyLTJWNGMwLTEuMS0uOS0yLTItMnptMCAxNEg2bC0yIDJWNGgxNnYxMnoiIGZpbGw9IiM2MjYyNjIiLz48L3N2Zz4') no-repeat center center / contain; }
 
             // background: url('https://api.iconify.design/ic:outline-chat.svg') no-repeat center center / contain;
-            #n3q div.n3q-item-chatwin div.n3q-menu-icon { background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgd2lkdGg9IjFlbSIgaGVpZ2h0PSIxZW0iIHN0eWxlPSItbXMtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgLXdlYmtpdC10cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyB0cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNCA0aDE2djEySDUuMTdMNCAxNy4xN1Y0bTAtMmMtMS4xIDAtMS45OS45LTEuOTkgMkwyIDIybDQtNGgxNGMxLjEgMCAyLS45IDItMlY0YzAtMS4xLS45LTItMi0ySDR6bTIgMTBoOHYySDZ2LTJ6bTAtM2gxMnYySDZWOXptMC0zaDEydjJINlY2eiIgZmlsbD0iIzYyNjI2MiIvPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0icmdiYSgwLCAwLCAwLCAwKSIgLz48L3N2Zz4K') no-repeat center center / contain; }
+            #n3q div.n3q-menuitem-chatwin div.n3q-menu-icon { background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgd2lkdGg9IjFlbSIgaGVpZ2h0PSIxZW0iIHN0eWxlPSItbXMtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgLXdlYmtpdC10cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyB0cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNCA0aDE2djEySDUuMTdMNCAxNy4xN1Y0bTAtMmMtMS4xIDAtMS45OS45LTEuOTkgMkwyIDIybDQtNGgxNGMxLjEgMCAyLS45IDItMlY0YzAtMS4xLS45LTItMi0ySDR6bTIgMTBoOHYySDZ2LTJ6bTAtM2gxMnYySDZWOXptMC0zaDEydjJINlY2eiIgZmlsbD0iIzYyNjI2MiIvPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0icmdiYSgwLCAwLCAwLCAwKSIgLz48L3N2Zz4K') no-repeat center center / contain; }
 
             // background: url('https://api.iconify.design/ic:baseline-settings.svg') no-repeat center center / contain;
-            #n3q div.n3q-item-settings div.n3q-menu-icon { background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgd2lkdGg9IjFlbSIgaGVpZ2h0PSIxZW0iIHN0eWxlPSItbXMtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgLXdlYmtpdC10cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyB0cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTkuMTQgMTIuOTRjLjA0LS4zLjA2LS42MS4wNi0uOTRjMC0uMzItLjAyLS42NC0uMDctLjk0bDIuMDMtMS41OGEuNDkuNDkgMCAwIDAgLjEyLS42MWwtMS45Mi0zLjMyYS40ODguNDg4IDAgMCAwLS41OS0uMjJsLTIuMzkuOTZjLS41LS4zOC0xLjAzLS43LTEuNjItLjk0bC0uMzYtMi41NGEuNDg0LjQ4NCAwIDAgMC0uNDgtLjQxaC0zLjg0Yy0uMjQgMC0uNDMuMTctLjQ3LjQxbC0uMzYgMi41NGMtLjU5LjI0LTEuMTMuNTctMS42Mi45NGwtMi4zOS0uOTZjLS4yMi0uMDgtLjQ3IDAtLjU5LjIyTDIuNzQgOC44N2MtLjEyLjIxLS4wOC40Ny4xMi42MWwyLjAzIDEuNThjLS4wNS4zLS4wOS42My0uMDkuOTRzLjAyLjY0LjA3Ljk0bC0yLjAzIDEuNThhLjQ5LjQ5IDAgMCAwLS4xMi42MWwxLjkyIDMuMzJjLjEyLjIyLjM3LjI5LjU5LjIybDIuMzktLjk2Yy41LjM4IDEuMDMuNyAxLjYyLjk0bC4zNiAyLjU0Yy4wNS4yNC4yNC40MS40OC40MWgzLjg0Yy4yNCAwIC40NC0uMTcuNDctLjQxbC4zNi0yLjU0Yy41OS0uMjQgMS4xMy0uNTYgMS42Mi0uOTRsMi4zOS45NmMuMjIuMDguNDcgMCAuNTktLjIybDEuOTItMy4zMmMuMTItLjIyLjA3LS40Ny0uMTItLjYxbC0yLjAxLTEuNTh6TTEyIDE1LjZjLTEuOTggMC0zLjYtMS42Mi0zLjYtMy42czEuNjItMy42IDMuNi0zLjZzMy42IDEuNjIgMy42IDMuNnMtMS42MiAzLjYtMy42IDMuNnoiIGZpbGw9IiM2MjYyNjIiLz48L3N2Zz4') no-repeat center center / contain; }
+            #n3q div.n3q-menuitem-settings div.n3q-menu-icon { background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBhcmlhLWhpZGRlbj0idHJ1ZSIgZm9jdXNhYmxlPSJmYWxzZSIgd2lkdGg9IjFlbSIgaGVpZ2h0PSIxZW0iIHN0eWxlPSItbXMtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgLXdlYmtpdC10cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyB0cmFuc2Zvcm06IHJvdGF0ZSgzNjBkZWcpOyIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTkuMTQgMTIuOTRjLjA0LS4zLjA2LS42MS4wNi0uOTRjMC0uMzItLjAyLS42NC0uMDctLjk0bDIuMDMtMS41OGEuNDkuNDkgMCAwIDAgLjEyLS42MWwtMS45Mi0zLjMyYS40ODguNDg4IDAgMCAwLS41OS0uMjJsLTIuMzkuOTZjLS41LS4zOC0xLjAzLS43LTEuNjItLjk0bC0uMzYtMi41NGEuNDg0LjQ4NCAwIDAgMC0uNDgtLjQxaC0zLjg0Yy0uMjQgMC0uNDMuMTctLjQ3LjQxbC0uMzYgMi41NGMtLjU5LjI0LTEuMTMuNTctMS42Mi45NGwtMi4zOS0uOTZjLS4yMi0uMDgtLjQ3IDAtLjU5LjIyTDIuNzQgOC44N2MtLjEyLjIxLS4wOC40Ny4xMi42MWwyLjAzIDEuNThjLS4wNS4zLS4wOS42My0uMDkuOTRzLjAyLjY0LjA3Ljk0bC0yLjAzIDEuNThhLjQ5LjQ5IDAgMCAwLS4xMi42MWwxLjkyIDMuMzJjLjEyLjIyLjM3LjI5LjU5LjIybDIuMzktLjk2Yy41LjM4IDEuMDMuNyAxLjYyLjk0bC4zNiAyLjU0Yy4wNS4yNC4yNC40MS40OC40MWgzLjg0Yy4yNCAwIC40NC0uMTcuNDctLjQxbC4zNi0yLjU0Yy41OS0uMjQgMS4xMy0uNTYgMS42Mi0uOTRsMi4zOS45NmMuMjIuMDguNDcgMCAuNTktLjIybDEuOTItMy4zMmMuMTItLjIyLjA3LS40Ny0uMTItLjYxbC0yLjAxLTEuNTh6TTEyIDE1LjZjLTEuOTggMC0zLjYtMS42Mi0zLjYtMy42czEuNjItMy42IDMuNi0zLjZzMy42IDEuNjIgMy42IDMuNnMtMS42MiAzLjYtMy42IDMuNnoiIGZpbGw9IiM2MjYyNjIiLz48L3N2Zz4') no-repeat center center / contain; }
 
             // background: url('https://api.iconify.design/ic-outline-check-box-outline-blank.svg') no-repeat center center / contain;
-            #n3q div.n3q-item-tabstay div.n3q-menu-icon-unchecked { background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMWVtIiBoZWlnaHQ9IjFlbSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0IiBzdHlsZT0iLW1zLXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7IC13ZWJraXQtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsiPjxwYXRoIGQ9Ik0xOSA1djE0SDVWNWgxNG0wLTJINWMtMS4xIDAtMiAuOS0yIDJ2MTRjMCAxLjEuOSAyIDIgMmgxNGMxLjEgMCAyLS45IDItMlY1YzAtMS4xLS45LTItMi0yeiIgZmlsbD0iY3VycmVudENvbG9yIi8+PC9zdmc+Cg') no-repeat center center / contain; }
+            #n3q div.n3q-menuitem-tabstay div.n3q-menu-icon-unchecked { background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMWVtIiBoZWlnaHQ9IjFlbSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0IiBzdHlsZT0iLW1zLXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7IC13ZWJraXQtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsiPjxwYXRoIGQ9Ik0xOSA1djE0SDVWNWgxNG0wLTJINWMtMS4xIDAtMiAuOS0yIDJ2MTRjMCAxLjEuOSAyIDIgMmgxNGMxLjEgMCAyLS45IDItMlY1YzAtMS4xLS45LTItMi0yeiIgZmlsbD0iY3VycmVudENvbG9yIi8+PC9zdmc+Cg') no-repeat center center / contain; }
             // background: url('https://api.iconify.design/ic-outline-check-box.svg') no-repeat center center / contain;
-            #n3q div.n3q-item-tabstay div.n3q-menu-icon-checked { background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMWVtIiBoZWlnaHQ9IjFlbSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0IiBzdHlsZT0iLW1zLXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7IC13ZWJraXQtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsiPjxwYXRoIGQ9Ik0xOSAzSDVjLTEuMSAwLTIgLjktMiAydjE0YzAgMS4xLjkgMiAyIDJoMTRjMS4xIDAgMi0uOSAyLTJWNWMwLTEuMS0uOS0yLTItMnptMCAxNkg1VjVoMTR2MTR6TTE3Ljk5IDlsLTEuNDEtMS40MmwtNi41OSA2LjU5bC0yLjU4LTIuNTdsLTEuNDIgMS40MWw0IDMuOTl6IiBmaWxsPSJjdXJyZW50Q29sb3IiLz48L3N2Zz4K') no-repeat center center / contain; }
+            #n3q div.n3q-menuitem-tabstay div.n3q-menu-icon-checked { background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMWVtIiBoZWlnaHQ9IjFlbSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0IiBzdHlsZT0iLW1zLXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7IC13ZWJraXQtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsiPjxwYXRoIGQ9Ik0xOSAzSDVjLTEuMSAwLTIgLjktMiAydjE0YzAgMS4xLjkgMiAyIDJoMTRjMS4xIDAgMi0uOSAyLTJWNWMwLTEuMS0uOS0yLTItMnptMCAxNkg1VjVoMTR2MTR6TTE3Ljk5IDlsLTEuNDEtMS40MmwtNi41OSA2LjU5bC0yLjU4LTIuNTdsLTEuNDIgMS40MWw0IDMuOTl6IiBmaWxsPSJjdXJyZW50Q29sb3IiLz48L3N2Zz4K') no-repeat center center / contain; }
 
         #n3q div.n3q-menu-item.n3q-menu-column-main { transform: translate3d(60px, -35px, 0); }
         #n3q div.n3q-menu-item.n3q-menu-column-action { transform: translate3d(-3px, -35px, 0); }
 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-test     { transform: translate3d(80px, -16px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-test     { transform: translate3d(80px, -16px, 0); } 
 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-settings { transform: translate3d(60px, -110px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-tabstay  { transform: translate3d(60px,  -88px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-chatwin  { transform: translate3d(60px,  -66px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-chat     { transform: translate3d(60px,  -44px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-Actions  { transform: translate3d(-3px, -242px, 0); }
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-wave     { transform: translate3d(-3px, -220px, 0); }
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-dance    { transform: translate3d(-3px, -198px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-cheer    { transform: translate3d(-3px, -176px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-kiss     { transform: translate3d(-3px, -154px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-clap     { transform: translate3d(-3px, -132px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-laugh    { transform: translate3d(-3px, -110px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-angry    { transform: translate3d(-3px,  -88px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-deny     { transform: translate3d(-3px,  -66px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-yawn     { transform: translate3d(-3px,  -44px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-settings { transform: translate3d(60px, -110px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-tabstay  { transform: translate3d(60px,  -88px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-chatwin  { transform: translate3d(60px,  -66px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-chat     { transform: translate3d(60px,  -44px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-Actions  { transform: translate3d(-3px, -242px, 0); }
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-wave     { transform: translate3d(-3px, -220px, 0); }
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-dance    { transform: translate3d(-3px, -198px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-cheer    { transform: translate3d(-3px, -176px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-kiss     { transform: translate3d(-3px, -154px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-clap     { transform: translate3d(-3px, -132px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-laugh    { transform: translate3d(-3px, -110px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-angry    { transform: translate3d(-3px,  -88px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-deny     { transform: translate3d(-3px,  -66px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-yawn     { transform: translate3d(-3px,  -44px, 0); } 
         
         #n3q div.n3q-participant-other div.n3q-menu-item.n3q-menu-column-main { transform: translate3d(-3px, -35px, 0); }
-        #n3q div.n3q-participant-other input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-item-chat    { transform: translate3d(-3px, -44px, 0); } 
+        #n3q div.n3q-participant-other input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-chat    { transform: translate3d(-3px, -44px, 0); } 
 
         #n3q div.n3q-menu-item:hover { filter: brightness(0.9); }
         #n3q div.n3q-menu-item:active { filter: brightness(0.8); }   
@@ -391,7 +395,7 @@ $z-index: (
     min-width: 100px;
     max-width: 140px;
     max-height: 200px;
-    z-index: z-index(ParticipantChatout);
+    z-index: z-index(Chatout);
 }
 
     #n3q div.n3q-speech {
@@ -733,15 +737,10 @@ $z-index: (
     white-space: nowrap;
     padding: 0px 2px 0px 4px;
     -events: auto;
-    z-index: z-index(ParticipantChatin);
+    z-index: z-index(Chatin);
 }
 
 #n3q div.n3q-chatin input[type=text].n3q-text {
     margin: 6px;
 }
 
-// Thing
-
-#n3q div.n3q-thing {
-    z-index: z-index(Thing);
-}

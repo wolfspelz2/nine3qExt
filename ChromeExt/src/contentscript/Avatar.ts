@@ -28,6 +28,7 @@ export class Avatar implements IObserver
     private hasAnimation = false;
     private animations: AnimationsXml.AnimationsDefinition;
     private defaultGroup: string;
+    private currentCondition: string = '';
     private currentState: string = '';
     private currentAction: string = '';
     private inDrag: boolean = false;
@@ -69,7 +70,7 @@ export class Avatar implements IObserver
 
         $(this.elem).draggable({
             scroll: false,
-            stack: '.n3q-participant',
+            stack: '.n3q-item',
             opacity: 0.5,
             distance: 4,
             helper: 'clone',
@@ -130,6 +131,12 @@ export class Avatar implements IObserver
     {
         this.imageUrl = url;
         this.elem.src = this.imageUrl;
+    }
+
+    setCondition(condition: string): void
+    {
+        this.currentCondition = condition;
+        this.startNextAnimation();
     }
 
     setState(state: string): void
