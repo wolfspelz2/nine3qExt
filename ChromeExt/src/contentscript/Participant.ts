@@ -176,18 +176,6 @@ export class Participant extends Entity
             if (this.isSelf) {
                 this.chatinDisplay = new Chatin(this.app, this, this.getElem());
             }
-
-            // if (this.isSelf && Environment.isDevelopment()) { this.showChatWindow(); }
-
-            if (this.isSelf) {
-                this.room?.showChatMessage(this.nick, 'entered the room');
-            } else {
-                if (this.room?.iAmAlreadyHere()) {
-                    this.room?.showChatMessage(this.nick, 'entered the room');
-                } else {
-                    this.room?.showChatMessage(this.nick, 'was already there');
-                }
-            }
         }
 
         if (this.avatarDisplay) {
@@ -208,6 +196,10 @@ export class Participant extends Entity
             }
         }
 
+        if (presenceHasCondition) {
+            this.avatarDisplay?.setCondition(newCondition);
+        }
+
         if (this.nicknameDisplay) {
             if (vpNickname != '') {
                 if (vpNickname != this.nicknameDisplay.getNickname()) {
@@ -220,14 +212,6 @@ export class Participant extends Entity
                 if (hasIdentityUrl && this.isFirstPresence) {
                     this.app.getPropertyStorage().watch(this.userId, 'Nickname', this.nicknameDisplay);
                 }
-            }
-        }
-
-        if (this.isFirstPresence) {
-            if (this.isSelf) {
-                this.show(true, Config.get('room.fadeInSec', 0.3));
-            } else {
-                this.show(true);
             }
         }
 
@@ -245,8 +229,25 @@ export class Participant extends Entity
             }
         }
 
-        if (presenceHasCondition) {
-            this.avatarDisplay?.setCondition(newCondition);
+        if (this.isFirstPresence) {
+            if (this.isSelf) {
+                this.show(true, Config.get('room.fadeInSec', 0.3));
+            } else {
+                this.show(true);
+            }
+        }
+
+        if (this.isFirstPresence) {
+            // if (this.isSelf && Environment.isDevelopment()) { this.showChatWindow(); }
+            if (this.isSelf) {
+                this.room?.showChatMessage(this.nick, 'entered the room');
+            } else {
+                if (this.room?.iAmAlreadyHere()) {
+                    this.room?.showChatMessage(this.nick, 'entered the room');
+                } else {
+                    this.room?.showChatMessage(this.nick, 'was already there');
+                }
+            }
         }
 
         this.isFirstPresence = false;

@@ -6,10 +6,6 @@ import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
-import { Nickname } from './Nickname';
-import { Chatout } from './Chatout';
-import { Chatin } from './Chatin';
-import { Environment } from '../lib/Environment';
 
 export class Item extends Entity
 {
@@ -78,12 +74,6 @@ export class Item extends Entity
 
         if (this.isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, this.getCenterElem(), this.isSelf);
-
-            if (this.room?.iAmAlreadyHere()) {
-                this.room?.showChatMessage(this.nick, 'appeared');
-            } else {
-                this.room?.showChatMessage(this.nick, 'is present');
-            }
         }
 
         if (this.avatarDisplay) {
@@ -97,8 +87,8 @@ export class Item extends Entity
             }
         }
 
-        if (this.isFirstPresence) {
-                this.show(true);
+        if (presenceHasCondition) {
+            this.avatarDisplay?.setCondition(newCondition);
         }
 
         if (this.isFirstPresence) {
@@ -115,8 +105,16 @@ export class Item extends Entity
             }
         }
 
-        if (presenceHasCondition) {
-            this.avatarDisplay?.setCondition(newCondition);
+        if (this.isFirstPresence) {
+            this.show(true);
+        }
+
+        if (this.isFirstPresence) {
+            if (this.room?.iAmAlreadyHere()) {
+                this.room?.showChatMessage(this.nick, 'appeared');
+            } else {
+                this.room?.showChatMessage(this.nick, 'is present');
+            }
         }
 
         this.isFirstPresence = false;
