@@ -111,6 +111,9 @@ export class Config
                     'Chatwindow.entered the room': '**entered the room**',
                     'Chatwindow.was already there': '**was already there**',
                     'Chatwindow.left the room': '**left the room**',
+                    'Chatwindow.appeared': '*appeared*',
+                    'Chatwindow.is present': '*is present*',
+                    'Chatwindow.disappeared': '*disappeared*',
 
                     'Settingswindow.Settings': 'Settings',
                 },
@@ -150,6 +153,9 @@ export class Config
                     'Chatwindow.entered the room': '**hat den Raum betreten**',
                     'Chatwindow.was already there': '**war schon da**',
                     'Chatwindow.left the room': '**hat den Raum verlassen**',
+                    'Chatwindow.appeared': '*erschienen*',
+                    'Chatwindow.is present': '*ist da*',
+                    'Chatwindow.disappeared': '*verschwunden*',
 
                     'Settingswindow.Settings': 'Einstellungen',
                 },

@@ -9,23 +9,18 @@ import { Avatar } from './Avatar';
 import { Nickname } from './Nickname';
 import { Chatout } from './Chatout';
 import { Chatin } from './Chatin';
-import { Environment } from '../lib/Environment';
 
 export class Participant extends Entity
 {
-    private avatarDisplay: Avatar;
     private nicknameDisplay: Nickname;
     private chatoutDisplay: Chatout;
     private chatinDisplay: Chatin;
     private isFirstPresence: boolean = true;
-    private defaultSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
     private userId: string;
-    private inMove: boolean = false;
-    private condition_: string = '';
 
-    constructor(private app: ContentApp, room: Room, display: HTMLElement, private nick: string, private isSelf: boolean)
+    constructor(app: ContentApp, room: Room, display: HTMLElement, private nick: string, isSelf: boolean)
     {
-        super(room, display);
+        super(app, room, display, isSelf);
 
         $(this.getElem()).addClass('n3q-participant');
         if (isSelf) {
@@ -53,12 +48,17 @@ export class Participant extends Entity
     {
         let presenceHasPosition: boolean = false;
         let newX: number = 123;
+
+        let presenceHasCondition: boolean = false;
         let newCondition: string = '';
+
         let xmppNickname = '';
+
         let vpNickname = '';
         let vpAvatar = '';
         let vpAnimationsUrl = '';
         let vpImageUrl = '';
+
         let hasIdentityUrl = false;
 
         {
@@ -74,16 +74,17 @@ export class Participant extends Entity
 
         {
             let stateNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'firebat:avatar:state');
-            if (stateNode != null) {
+            if (stateNode) {
                 let positionNode = stateNode.getChild('position');
-                if (positionNode != undefined) {
+                if (positionNode) {
                     newX = as.Int(positionNode.attrs.x, -1);
                     if (newX != -1) {
                         presenceHasPosition = true;
                     }
                 }
+                presenceHasCondition = true;
                 let conditionNode = stateNode.getChild('condition');
-                if (conditionNode != undefined) {
+                if (conditionNode) {
                     newCondition = as.String(conditionNode.attrs.status, '');
                 }
             }
@@ -132,11 +133,11 @@ export class Participant extends Entity
             if (showNode != null) {
                 showAvailability = showNode.getText();
                 switch (showAvailability) {
-                    case 'chat': newCondition = ''; break;
-                    case 'available': newCondition = ''; break;
-                    case 'away': newCondition = 'sleep'; break;
-                    case 'dnd': newCondition = 'sleep'; break;
-                    case 'xa': newCondition = 'sleep'; break;
+                    case 'chat': newCondition = ''; presenceHasCondition = true; break;
+                    case 'available': newCondition = ''; presenceHasCondition = true; break;
+                    case 'away': newCondition = 'sleep'; presenceHasCondition = true; break;
+                    case 'dnd': newCondition = 'sleep'; presenceHasCondition = true; break;
+                    case 'xa': newCondition = 'sleep'; presenceHasCondition = true; break;
                     default: break;
                 }
             }
@@ -151,56 +152,19 @@ export class Participant extends Entity
         }
 
         if (this.isFirstPresence) {
-            this.isFirstPresence = false;
+            this.avatarDisplay = new Avatar(this.app, this, this.getCenterElem(), this.isSelf);
 
-            if (!presenceHasPosition) {
-                newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition();
-            }
-            if (newX < 0) { newX = 100; }
-            this.setPosition(newX);
-
-            {
-                this.avatarDisplay = new Avatar(this.app, this, this.getCenterElem(), this.isSelf);
-                if (vpAvatar != '') {
-                    let animationsUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', vpAvatar);
-                    let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(animationsUrl));
-                    this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
-                } else if (vpAnimationsUrl != '') {
-                    let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(vpAnimationsUrl));
-                    this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
-                } else {
-                    if (vpImageUrl != '') {
-                        this.avatarDisplay?.updateObservableProperty('ImageUrl', vpImageUrl);
-                    }
-                    if (hasIdentityUrl) {
-                        this.app.getPropertyStorage().watch(this.userId, 'AnimationsUrl', this.avatarDisplay);
-                    }
-                }
-            }
-
-            {
-                this.nicknameDisplay = new Nickname(this.app, this, this.isSelf, this.getElem());
-                if (vpNickname != '') {
-                    this.nicknameDisplay.setNickname(vpNickname);
-                } else {
-                    this.nicknameDisplay.setNickname(xmppNickname);
-                    if (hasIdentityUrl) {
-                        this.app.getPropertyStorage().watch(this.userId, 'Nickname', this.nicknameDisplay);
-                    }
-                }
-
-                if (Config.get('room.nicknameOnHover', true)) {
-                    let nicknameElem = this.nicknameDisplay.getElem();
-                    nicknameElem.style.display = 'none';
-                    $(this.getElem()).hover(function ()
-                    {
-                        $(this).find(nicknameElem).fadeIn();
-                    }, function ()
-                    {
-                        $(this).find(nicknameElem).fadeOut();
-                    });
-                }
-        
+            this.nicknameDisplay = new Nickname(this.app, this, this.isSelf, this.getElem());
+            if (Config.get('room.nicknameOnHover', true)) {
+                let nicknameElem = this.nicknameDisplay.getElem();
+                nicknameElem.style.display = 'none';
+                $(this.getElem()).hover(function ()
+                {
+                    $(this).find(nicknameElem).fadeIn();
+                }, function ()
+                {
+                    $(this).find(nicknameElem).fadeOut();
+                });
             }
 
             this.chatoutDisplay = new Chatout(this.app, this, this.getElem());
@@ -209,11 +173,6 @@ export class Participant extends Entity
                 this.chatinDisplay = new Chatin(this.app, this, this.getElem());
             }
 
-            if (this.isSelf) {
-                this.show(true, Config.get('room.fadeInSec', 0.3));
-            } else {
-                this.show(true);
-            }
             // if (this.isSelf && Environment.isDevelopment()) { this.showChatWindow(); }
 
             if (this.isSelf) {
@@ -225,9 +184,52 @@ export class Participant extends Entity
                     this.room?.showChatMessage(this.nick, 'was already there');
                 }
             }
+        }
 
+        if (this.avatarDisplay) {
+            if (vpAvatar != '') {
+                let animationsUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', vpAvatar);
+                let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(animationsUrl));
+                this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
+            } else if (vpAnimationsUrl != '') {
+                let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(vpAnimationsUrl));
+                this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
+            } else {
+                if (vpImageUrl != '') {
+                    this.avatarDisplay?.updateObservableProperty('ImageUrl', vpImageUrl);
+                }
+                if (hasIdentityUrl) {
+                    this.app.getPropertyStorage().watch(this.userId, 'AnimationsUrl', this.avatarDisplay);
+                }
+            }
+        }
+
+        if (this.nicknameDisplay) {
+            if (vpNickname != '') {
+                this.nicknameDisplay.setNickname(vpNickname);
+            } else {
+                this.nicknameDisplay.setNickname(xmppNickname);
+                if (hasIdentityUrl) {
+                    this.app.getPropertyStorage().watch(this.userId, 'Nickname', this.nicknameDisplay);
+                }
+            }
+        }
+
+        if (this.isFirstPresence) {
+            if (this.isSelf) {
+                this.show(true, Config.get('room.fadeInSec', 0.3));
+            } else {
+                this.show(true);
+            }
+        }
+
+        if (this.isFirstPresence) {
+            if (!presenceHasPosition) {
+                newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition();
+            }
+            if (newX < 0) { newX = 100; }
+            this.setPosition(newX);
         } else {
-
             if (presenceHasPosition) {
                 if (this.getPosition() != newX) {
                     this.move(newX);
@@ -235,10 +237,11 @@ export class Participant extends Entity
             }
         }
 
-        this.condition_ = newCondition;
-        if (!this.inMove) {
-            this.avatarDisplay?.setState(this.condition_);
+        if (presenceHasCondition) {
+            this.avatarDisplay?.setCondition(newCondition);
         }
+
+        this.isFirstPresence = false;
     }
 
     onPresenceUnavailable(stanza: any): void
@@ -395,93 +398,21 @@ export class Participant extends Entity
         this.room?.sendGroupChat(text);
     }
 
-    // drag/move
-
-    move(newX: number): void
-    {
-        this.inMove = true;
-
-        if (newX < 0) { newX = 0; }
-
-        this.setPosition(this.getPosition());
-
-        var oldX = this.getPosition();
-        var diffX = newX - oldX;
-        if (diffX < 0) {
-            diffX = -diffX;
-            this.avatarDisplay?.setState('moveleft');
-        } else {
-            this.avatarDisplay?.setState('moveright');
-        }
-
-        let speedPixelPerSec = as.Float(this.avatarDisplay?.getSpeedPixelPerSec(), this.defaultSpeedPixelPerSec);
-        var durationSec = diffX / speedPixelPerSec;
-
-        $(this.getElem())
-            .stop(true)
-            .animate(
-                { left: newX + 'px' },
-                durationSec * 1000,
-                'linear',
-                () => this.onMoveDestinationReached(newX)
-            );
-    }
-
-    onMoveDestinationReached(newX: number): void
-    {
-        this.inMove = false;
-        this.setPosition(newX);
-        this.avatarDisplay?.setState(this.condition_);
-    }
-
-    onDraggedBy(dX: number, dY: number): void
-    {
-        var newX = this.getPosition() + dX;
-
-        if (this.getPosition() != newX) {
-            if (this.isSelf) {
-                this.app.savePosition(newX);
-                this.room?.sendMoveMessage(newX);
-            } else {
-                this.quickSlide(newX);
-            }
-        }
-    }
-
-    quickSlide(newX: number): void
-    {
-        this.avatarDisplay?.setState('');
-        super.quickSlide(newX);
-    }
-
     // Mouse
-
-    select(): void
-    {
-        //$(this.elem).siblings().zIndex(1);
-        //$(this.elem).zIndex(100);
-    }
-
-    onMouseEnterAvatar(ev: JQuery.Event): void
-    {
-        this.avatarDisplay?.hilite(true);
-        //this.nickname.setVisible(true);
-    }
-
-    onMouseLeaveAvatar(ev: JQuery.Event): void
-    {
-        this.avatarDisplay?.hilite(false);
-        //this.nickname.setVisible(false);
-    }
 
     onMouseClickAvatar(ev: JQuery.Event): void
     {
-        this.select()
-        this.toggleChatin();
+        super.onMouseClickAvatar(ev)
+        if (this.isSelf) {
+            this.toggleChatin();
+        } else {
+            this.toggleChatout();
+        }
     }
 
     onMouseDoubleClickAvatar(ev: JQuery.Event): void
     {
+        super.onMouseClickAvatar(ev)
         this.toggleChatWindow();
     }
 

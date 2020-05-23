@@ -28,6 +28,7 @@ export class Avatar implements IObserver
     private hasAnimation = false;
     private animations: AnimationsXml.AnimationsDefinition;
     private defaultGroup: string;
+    private currentCondition: string = '';
     private currentState: string = '';
     private currentAction: string = '';
     private inDrag: boolean = false;
@@ -69,7 +70,7 @@ export class Avatar implements IObserver
 
         $(this.elem).draggable({
             scroll: false,
-            stack: '.n3q-participant',
+            stack: '.n3q-item',
             opacity: 0.5,
             distance: 4,
             helper: 'clone',
@@ -132,6 +133,12 @@ export class Avatar implements IObserver
         this.elem.src = this.imageUrl;
     }
 
+    setCondition(condition: string): void
+    {
+        this.currentCondition = condition;
+        this.startNextAnimation();
+    }
+
     setState(state: string): void
     {
         this.currentState = state;
@@ -176,6 +183,7 @@ export class Avatar implements IObserver
         var once = true;
         var group = this.currentAction;
         this.currentAction = '';
+        if (group == '') { group = this.currentCondition; once = false; }
         if (group == '') { group = this.currentState; once = false; }
         if (group == '') { group = this.defaultGroup; }
 
@@ -189,7 +197,9 @@ export class Avatar implements IObserver
             durationSec = 1.0;
         }
 
-        this.currentSpeedPixelPerSec = Math.abs(animation.dx) / durationSec;
+        this.currentSpeedPixelPerSec = Math.abs(animation.dx) / 1.0;
+        // dx means pixels per sec, not pixels per duration
+        // this.currentSpeedPixelPerSec = Math.abs(animation.dx) / durationSec;
 
         this.elem.src = animation.url;
 

@@ -5,9 +5,9 @@ import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { Panic } from '../lib/Panic';
 import { ContentApp } from './ContentApp';
-import { Participant } from './Participant';
 import { ChatWindow } from './ChatWindow';
-import { stringify } from 'querystring';
+import { Participant } from './Participant';
+import { Item } from './Item';
 
 export interface IRoomInfoLine extends Array<string | string> { 0: string, 1: string }
 export interface IRoomInfo extends Array<IRoomInfoLine> { }
@@ -20,6 +20,7 @@ export class Room
     private enterRetryCount: number = 0;
     private maxEnterRetries: number = as.Int(Config.get('xmpp.maxMucEnterRetries', 4));
     private participants: { [nick: string]: Participant; } = {};
+    private items: { [nick: string]: Item; } = {};
     private isEntered = false; // iAmAlreadyHere() needs isEntered=true to be after onPresenceAvailable
     private chatWindow: ChatWindow;
     private myNick: any;
@@ -34,9 +35,6 @@ export class Room
         this.userJid = user + '@' + domain;
 
         this.chatWindow = new ChatWindow(app, display, this);
-
-        // this.participants['dummy'] = new Participant(this.app, this, this.display, 'dummy', false);
-        // this.participants['dummy'].onPresenceAvailable(xml('presence', { from: jid + '/dummy' }).append(xml('x', { xmlns: 'firebat:avatar:state' }).append(xml('position', { x: 100 }))));
     }
 
     getInfo(): IRoomInfo
@@ -50,7 +48,7 @@ export class Room
     {
         return this.isEntered;
     }
-    
+
     // presence
 
     async enter(): Promise<void>
@@ -140,20 +138,40 @@ export class Room
 
         switch (type) {
             case 'available':
-                if (this.participants[nick] === undefined) {
-                    this.participants[nick] = new Participant(this.app, this, this.display, nick, isSelf);
-                }
-                this.participants[nick].onPresenceAvailable(stanza);
+                {
+                    let entity = null;
+                    let isItem = false;
 
-                if (isSelf && !this.isEntered) {
-                    this.isEntered = true;
-                    this.myNick = nick;
-                    this.keepAlive();
+                    if (isItem) {
+                        entity = this.items[nick];
+                        if (!entity) {
+                            entity = new Item(this.app, this, this.display, nick, false);
+                            this.items[nick] = entity;
+                        }
+                    } else {
+                        entity = this.participants[nick];
+                        if (!entity) {
+                            entity = new Participant(this.app, this, this.display, nick, isSelf);
+                            this.participants[nick] = entity;
+                        }
+                    }
+
+
+                    if (entity) {
+                        entity.onPresenceAvailable(stanza);
+
+                        if (isSelf && !this.isEntered) {
+                            this.isEntered = true;
+                            this.myNick = nick;
+                            this.keepAlive();
+                        }
+                    }
                 }
+
                 break;
 
             case 'unavailable':
-                if (this.participants[nick] != undefined) {
+                if (this.participants[nick]) {
                     this.participants[nick].onPresenceUnavailable(stanza);
                     delete this.participants[nick];
                 }
