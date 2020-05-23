@@ -461,8 +461,8 @@ namespace nine3q.Web
             result.Grid.Add(new Table.Row() { cnt++.ToString(), "Link (with text)", Link("http://www.galactic-developments.de/", "Galactic Developments") });
             result.Grid.Add(new Table.Row() { cnt++.ToString(), "Link (new window)", Link("http://www.galactic-developments.de/", "Galactic Developments", new Dictionary<string, string> { { "target", "_blank" } }) });
             result.Grid.Add(new Table.Row() { cnt++.ToString(), "Image", Image("http://lh5.googleusercontent.com/-wCxDAAgcS2o/AAAAAAAAAAI/AAAAAAAADOw/VyiIhdcYXmg/s80-c/photo.jpg") });
-            result.Grid.Add(new Table.Row() { cnt++.ToString(), "CommandLink", "Execute " + CommandExecuteLink("Echo", new List<string> { "a", "b" }, "Echo") });
-            result.Grid.Add(new Table.Row() { cnt++.ToString(), "CommandPrepareLink", "Insert " + CommandInsertLink("Echo", new List<string> { "a", "b" }, "Echo") });
+            result.Grid.Add(new Table.Row() { cnt++.ToString(), "CommandExecuteLink", "Execute " + CommandExecuteLink("Echo", new List<string> { "a", "b" }, "Echo") });
+            result.Grid.Add(new Table.Row() { cnt++.ToString(), "CommandInsertLink", "Insert " + CommandInsertLink("Echo", new List<string> { "a", "b" }, "Echo") });
             result.Options[Table.Option.TableHeader] = "yes";
             return result;
         }

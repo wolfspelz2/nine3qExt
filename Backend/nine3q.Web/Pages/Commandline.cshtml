@@ -31,10 +31,10 @@
                     var detail = pair2.Value;
                     var cmd = pair2.Key;
                     <div class="cCommandItem">
-                        <a href="#" class="cTextButton cLabel" data-template="@detail.Template" title="@detail.Arguments">@cmd</a>
-                        <a href="#" class="cTextButton cInsert" data-template="@detail.Template" title="Show command">&gt</a>
+                        <a href="#" class="cTextButton cLabel" data-template="@Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(@detail.Template))" title="@detail.Arguments">@cmd</a>
+                        <a href="#" class="cTextButton cInsert" data-template="@Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(@detail.Template))" title="Show command">&gt</a>
                         @if (detail.ImmediateExecute) {
-                            <a href="#" class="cTextButton cExecute" data-template="@detail.Template" title="Execute command">&gt;&gt;</a>
+                            <a href="#" class="cTextButton cExecute" data-template="@Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(@detail.Template))" title="Execute command">&gt;&gt;</a>
                         }
                     </div>
                 }
@@ -85,8 +85,8 @@
                 + '  <div class="cOriginalCommand">'
                 + '  <span class="cButtons">'
                 + '    <a href="#" class="cTextButton cDelete" data-transaction="' + sId + '">x</a>'
-                + '    <a href="#" class="cTextButton cInsert" data-template="' + cmd + '">&gt;</a>'
-                + '    <a href="#" class="cTextButton cExecute" data-template="' + cmd + '">&gt;&gt;</a>'
+                + '    <a href="#" class="cTextButton cInsert" data-template="' + btoa(cmd) + '">&gt;</a>'
+                + '    <a href="#" class="cTextButton cExecute" data-template="' + btoa(cmd) + '">&gt;&gt;</a>'
                 + '  </span>'
                 + '  <span class="cCommand">'
                 + cmd
@@ -107,13 +107,13 @@
             });
 
             $('#' + sId + ' .cInsert').on('click', function (evt) {
-                SetInput($(evt.target).data('template'));
+                SetInput(atob($(evt.target).data('template')));
                 FocusInput();
                 return false;
             });
 
             $('#' + sId + ' .cExecute').on('click', function (evt) {
-                SetInput($(evt.target).data('template'));
+                SetInput(atob($(evt.target).data('template')));
                 PostForm();
                 FocusInput();
                 return false;
@@ -183,7 +183,7 @@
 
         $(function () {
             $('.cCommandItem .cLabel').on('click', function (evt) {
-                SetInput($(evt.target).data('template'));
+                SetInput(atob($(evt.target).data('template')));
                 FocusInput();
                 return false;
             });
@@ -191,7 +191,7 @@
 
         $(function () {
             $('.cInsert').on('click', function (evt) {
-                SetInput($(evt.target).data('template'));
+                SetInput(atob($(evt.target).data('template')));
                 FocusInput();
                 return false;
             });
@@ -199,7 +199,7 @@
 
         $(function () {
             $('.cExecute').on('click', function (evt) {
-                SetInput($(evt.target).data('template'));
+                SetInput(atob($(evt.target).data('template')));
                 PostForm();
                 return false;
             });
