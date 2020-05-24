@@ -1,6 +1,6 @@
 ﻿* {
     font-family: Arial, sans-serif;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 h1 {
@@ -10,9 +10,7 @@ h1 {
     display: inline;
 }
 
-// Commandline
-
-#iCommand {
+#iCommandline {
     margin-top: 4px;
     width: 100%;
 }
@@ -43,7 +41,7 @@ h1 {
     text-decoration: none;
     background-color: #DDDDDD;
     color: #000000;
-    padding: 1px 4px;
+    padding: 1px 6px;
     border-radius: 5px;
 }
 

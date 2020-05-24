@@ -622,7 +622,7 @@ namespace nine3q.Web
         public string CommandExecuteLink(string method, IEnumerable<string> args, string text, Dictionary<string, string> htmlAttributes = null)
         {
             htmlAttributes ??= new Dictionary<string, string>();
-            htmlAttributes.Add("onclick", "SetInput('" + method + " " + string.Join(" ", args) + "');PostForm();");
+            htmlAttributes.Add("onclick", "Run('" + method + " " + string.Join(" ", args) + "');");
             return Link("#", text, htmlAttributes);
         }
 

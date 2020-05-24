@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\JsonPath\JsonPath.csproj" />
     <ProjectReference Include="..\nine3q.Frontend\nine3q.Frontend.csproj" />
     <ProjectReference Include="..\nine3q.GrainInterfaces\nine3q.GrainInterfaces.csproj" />
     <ProjectReference Include="..\nine3q.Grains\nine3q.Grains.csproj" />
