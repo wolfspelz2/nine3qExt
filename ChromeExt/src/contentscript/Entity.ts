@@ -7,6 +7,8 @@ import { Room } from './Room';
 import { Avatar } from './Avatar';
 import { ContentApp } from './ContentApp';
 
+import imgDefaultAvatar from '../assets/DefaultAvatar.png';
+
 export class Entity
 {
     protected elem: HTMLElement;
@@ -37,7 +39,8 @@ export class Entity
     getRoom(): Room { return this.room; }
     getElem(): HTMLElement { return this.elem; }
     getCenterElem(): HTMLElement { return this.centerElem; }
-
+    getDefaultAvatar(): string { return imgDefaultAvatar; }
+    
     show(visible: boolean, durationSec: number = 0.0): void
     {
         if (visible != this.visible) {

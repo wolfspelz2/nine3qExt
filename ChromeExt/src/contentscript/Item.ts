@@ -6,10 +6,15 @@ import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
+import { IframeWindow } from './IframeWindow';
+
+import imgDefaultItem from '../assets/DefaultItem.png';
 
 export class Item extends Entity
 {
     private isFirstPresence: boolean = true;
+    private properties: { [pid: string]: string } = {};
+    private iframeWindow: IframeWindow;
 
     constructor(app: ContentApp, room: Room, display: HTMLElement, private nick: string, isSelf: boolean)
     {
@@ -17,6 +22,8 @@ export class Item extends Entity
 
         $(this.getElem()).addClass('n3q-item');
     }
+
+    getDefaultAvatar(): string { return imgDefaultItem; }
 
     remove(): void
     {
@@ -36,6 +43,10 @@ export class Item extends Entity
 
         let vpAnimationsUrl = '';
         let vpImageUrl = '';
+
+        let newProperties: { [pid: string]: string } = {};
+
+        // Collect info
 
         {
             let stateNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'firebat:avatar:state');
@@ -60,6 +71,10 @@ export class Item extends Entity
             if (vpPropsNode) {
                 let attrs = vpPropsNode.attrs;
                 if (attrs) {
+                    for (let attrName in attrs) {
+                        let attrValue = attrs[attrName];
+                        newProperties[attrName] = attrValue;
+                    }
                     // vpNickname = as.String(attrs.Nickname, '');
                     vpAnimationsUrl = as.String(attrs.AnimationsUrl, '');
                     vpImageUrl = as.String(attrs.ImageUrl, '');
@@ -67,10 +82,21 @@ export class Item extends Entity
             }
         }
 
+        // Do someting with the data
+
         // vpAnimationsUrl = 'https://weblin-avatar.dev.sui.li/items/baum/avatar.xml';
         // vpAnimationsUrl = '';
         // vpImageUrl = 'https://weblin-avatar.dev.sui.li/items/baum/idle.png';
         // vpImageUrl = '';
+
+        {
+            this.properties = newProperties;
+            if (vpImageUrl == '') {
+                if (this.properties.Image100Url) {
+                    vpImageUrl = this.properties.Image100Url;
+                }
+            }
+        }
 
         if (this.isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, this.getCenterElem(), this.isSelf);
@@ -125,5 +151,31 @@ export class Item extends Entity
         this.remove();
 
         this.room?.showChatMessage(this.nick, 'disappeared');
+    }
+
+    onMouseClickAvatar(ev: JQuery.Event): void
+    {
+        super.onMouseClickAvatar(ev);
+        if (this.properties) {
+            if (this.properties.IframeAspect) {
+                this.toggleIframe(this.getElem());
+            }
+        }
+    }
+
+    toggleIframe(aboveElem: HTMLElement)
+    {
+        if (this.iframeWindow) {
+            this.iframeWindow.close();
+        } else {
+            this.iframeWindow = new IframeWindow(this.app, this.display);
+            this.iframeWindow.show({
+                above: aboveElem,
+                resizable: as.Bool(this.properties.IframeResizable, true),
+                titleText: as.String(this.properties.Label, 'Item'),
+                url: as.String(this.properties.IframeUrl, 'https://example.com'),
+                onClose: () => { this.iframeWindow = null; },
+            });
+        }
     }
 }

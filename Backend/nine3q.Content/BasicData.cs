@@ -128,6 +128,8 @@ namespace nine3q.Content
                     [Pid.Label] = "TheatreScreenplay",
                     [Pid.Icon32Url] = "{item.nine3q}PageProxy/icon32.png",
                     [Pid.Image100Url] = "{item.nine3q}PageProxy/image100.png",
+                    [Pid.RezableAspect] = true,
+                    [Pid.IframeAspect] = true,
                     [Pid.IframeUrl] = "https://example.com",
                     [Pid.IframeWidth] = 400,
                     [Pid.IframeHeight] = 400,
