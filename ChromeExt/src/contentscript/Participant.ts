@@ -196,10 +196,6 @@ export class Participant extends Entity
             }
         }
 
-        if (presenceHasCondition) {
-            this.avatarDisplay?.setCondition(newCondition);
-        }
-
         if (this.nicknameDisplay) {
             if (vpNickname != '') {
                 if (vpNickname != this.nicknameDisplay.getNickname()) {
@@ -213,6 +209,10 @@ export class Participant extends Entity
                     this.app.getPropertyStorage().watch(this.userId, 'Nickname', this.nicknameDisplay);
                 }
             }
+        }
+
+        if (presenceHasCondition) {
+            this.avatarDisplay?.setCondition(newCondition);
         }
 
         if (this.isFirstPresence) {
