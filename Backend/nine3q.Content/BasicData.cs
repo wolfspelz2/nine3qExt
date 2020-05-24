@@ -32,6 +32,10 @@ namespace nine3q.Content
                     GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.PageProxy], templates, text);
                     break;
 
+                case nameof(BasicDefinition.GroupName.Theater):
+                    GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.TheatreScreenplay], templates, text);
+                    break;
+
                 case nameof(BasicDefinition.GroupName.WaterResourceTest):
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.WaterBottle], templates, text);
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.WaterCan], templates, text);
@@ -116,6 +120,21 @@ namespace nine3q.Content
                 };
                 text[BasicDefinition.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Webseitenbesitz";
                 text[BasicDefinition.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Page Claim";
+            }
+
+            if (name == BasicDefinition.TemplateName[BasicDefinition.Template.TheatreScreenplay]) {
+                props = new PropertySet {
+                    [Pid.Name] = name,
+                    [Pid.Label] = "TheatreScreenplay",
+                    [Pid.Icon32Url] = "{item.nine3q}PageProxy/icon32.png",
+                    [Pid.Image100Url] = "{item.nine3q}PageProxy/image100.png",
+                    [Pid.IframeUrl] = "https://example.com",
+                    [Pid.IframeWidth] = 400,
+                    [Pid.IframeHeight] = 400,
+                    [Pid.IframeResizeable] = true,
+                };
+                text[BasicDefinition.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Theater Drehbuch";
+                text[BasicDefinition.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Theatre Screenplay";
             }
 
             if (props == null) {

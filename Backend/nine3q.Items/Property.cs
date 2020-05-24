@@ -140,6 +140,7 @@ namespace nine3q.Items
             Add(Pid.IsTest2, Type.Bool, Use.Bool, Group.Aspect, Access.Internal, Persistence.Fixed, "true", "For unit testing of aspects.");
             Add(Pid.IsContainer, Type.Bool, Use.Bool, Group.Aspect, Access.Internal, Persistence.Fixed, "true", "Item is a container for other items.");
             Add(Pid.RezableAspect, Type.Bool, Use.Bool, Group.Aspect, Access.Internal, Persistence.Fixed, "true", "True if item can be rezzed to room.");
+            Add(Pid.IframeAspect, Type.Bool, Use.Bool, Group.Aspect, Access.Public, Persistence.Fixed, "true", "True if item opens an iframe on click.");
             //Add(Pid.IsTrashCan, Type.Bool, Use.Bool, Group.Aspect, Access.Public, Persistence.Fixed, "true", "Item is a trash repository, can be emptied.");
             //Add(Pid.IsSource, Type.Bool, Use.Bool, Group.Aspect, Access.Internal, Persistence.Fixed, "true", "IsSource provides a resource (a property which can be extracted by an Extractor).");
             //Add(Pid.IsSink, Type.Bool, Use.Bool, Group.Aspect, Access.Internal, Persistence.Fixed, "true", "IsSink takes a resource (a property which can be filled by a Supplier).");
@@ -162,7 +163,11 @@ namespace nine3q.Items
             //Add(Pid.ContainerCanReplace, Type.Bool, Use.Bool, Group.App, Access.Public, Persistence.Fixed, "true", "Container can replace items via drag/drop with items from other repository.");
             Add(Pid.ContainerCanShuffle, Type.Bool, Use.Bool, Group.App, Access.Public, Persistence.Fixed, "true", "Container can move items around inside via drag/drop.");
             //Add(Pid.ContainerCanRez, Type.Bool, Use.Bool, Group.App, Access.Public, Persistence.Fixed, "true", "Container can rez items to room via drag/drop.");
-            //Add(Pid.ContainerCanDerez, Type.Bool, Use.Bool, Group.App, Access.Public, Persistence.Fixed, "true", "Container can derez items from room.");
+            //Add(Pid.ContainerCanDerez, Type.Int, Use.Bool, Group.App, Access.Public, Persistence.Fixed, "true", "Container can derez items from room.");
+            Add(Pid.IframeUrl, Type.String, Use.Url, Group.App, Access.Public, Persistence.Fixed, "IFrameUrl", "TODO.");
+            Add(Pid.IframeWidth, Type.Int, Use.String, Group.App, Access.Public, Persistence.Fixed, "IFrameWidth", "TODO.");
+            Add(Pid.IframeHeight, Type.Int, Use.Int, Group.App, Access.Public, Persistence.Fixed, "IFrameHeight", "TODO.");
+            Add(Pid.IframeResizeable, Type.Bool, Use.Bool, Group.App, Access.Public, Persistence.Fixed, "IFrameResizable", "TODO.");
             //Add(Pid.Resource, Type.String, Use.String, Group.App, Access.Public, Persistence.Fixed, "WaterLevel", "The name of the resource provided by the source.");
             //Add(Pid.DeleteExtractedResource, Type.Bool, Use.Bool, Group.App, Access.Public, Persistence.Fixed, "true", "Delete item if extractor changed resource level to 0.");
             //Add(Pid.DeleteTime, Type.Float, Use.Delay, Group.App, Access.Internal, Persistence.Fixed, "true", "Delete IsDeletee after seconds.");

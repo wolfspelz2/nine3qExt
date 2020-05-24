@@ -13,6 +13,7 @@ namespace nine3q.Content
             Admin,
             User,
             Room,
+            Theater,
             WaterResourceTest,
         }
 
@@ -36,6 +37,9 @@ namespace nine3q.Content
             PirateFlag,
             //Landmark,
             PageProxy,
+
+            // Theatre
+            TheatreScreenplay,
 
             // WaterResourceTest
             //WaterCan,
