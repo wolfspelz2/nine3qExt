@@ -24,7 +24,9 @@ namespace nine3q.Grains
         public ItemIdSet DeleteIds;
     }
 
-    class InventoryGrain : Grain, IInventory, IAsyncObserver<ItemUpdate>
+    class InventoryGrain : Grain
+        , IInventory
+        //, IAsyncObserver<ItemUpdate>
     {
         string Id { get; set; }
 
@@ -213,14 +215,14 @@ namespace nine3q.Grains
             if (Id == _templatesInventoryName) {
                 _inventory.IsActive = false;
             } else {
-                await PopulateUsedTemplates();
-                await ActivateTemplateSubscription();
+                await PopulateTemplates();
                 _inventory.Activate();
             }
         }
 
-        async Task PopulateUsedTemplates()
+        async Task PopulateTemplates()
         {
+            _inventory.Templates = null;
             var templateInv = GrainFactory.GetGrain<IInventory>(_templatesInventoryName);
             foreach (var pair in _inventory.Items) {
                 var item = pair.Value;
@@ -243,91 +245,6 @@ namespace nine3q.Grains
                 }
             }
         }
-
-        private async Task ActivateTemplateSubscription()
-        {
-            var templatesStream = await GetTemplatesStream();
-            var handles = await templatesStream.GetAllSubscriptionHandles();
-            if (handles.Count == 0) {
-                var handle = await templatesStream.SubscribeAsync(this);
-            } else {
-                foreach (var handle in handles) {
-                    await handle.ResumeAsync(this);
-                }
-            }
-        }
-
-        private async Task DeactivateTemplateSubscription()
-        {
-            var templatesStream = await GetTemplatesStream();
-            var handles = await templatesStream.GetAllSubscriptionHandles();
-            foreach (var handle in handles) {
-                await handle.UnsubscribeAsync();
-            }
-        }
-
-        private async Task<IAsyncStream<ItemUpdate>> GetTemplatesStream()
-        {
-            var streamProvider = GetStreamProvider(InventoryService.StreamProvider);
-            var templatesGuid = await RemoteInventory(_templatesInventoryName).GetStreamId();
-            var templatesStreamNamespace = await RemoteInventory(_templatesInventoryName).GetStreamNamespace();
-            var templatesStream = streamProvider.GetStream<ItemUpdate>(templatesGuid, templatesStreamNamespace);
-            return templatesStream;
-        }
-
-        public async Task OnNextAsync(ItemUpdate itemUpdate, StreamSequenceToken token = null)
-        {
-            await OnTemplateUpdate(itemUpdate);
-        }
-
-        public Task OnCompletedAsync()
-        {
-            return Task.CompletedTask;
-        }
-
-        public Task OnErrorAsync(Exception ex)
-        {
-            return Task.CompletedTask;
-        }
-
-        public async Task OnTemplateUpdate(ItemUpdate update)
-        {
-            _inventory.Templates ??= new Inventory();
-            var templateId = update.Id;
-            if (_inventory.Templates.IsItem(templateId)) {
-                var template = _inventory.Templates.Item(templateId);
-                switch (update.What) {
-                    case ItemUpdate.Mode.Added:
-                        template.Delete(Pid.StaleTemplate);
-                        break;
-                    case ItemUpdate.Mode.Changed:
-                        var templateInv = GrainFactory.GetGrain<IInventory>(_templatesInventoryName);
-                        var newTemplateProps = await templateInv.GetItemProperties(templateId, PidList.All);
-                        //await ForwardItemUpdateforAffectedItems(update, newTemplateProps);
-                        template.Properties = newTemplateProps;
-                        break;
-                    case ItemUpdate.Mode.Removed:
-                        template.SetBool(Pid.StaleTemplate, true);
-                        break;
-                }
-            }
-        }
-
-        //public async Task ForwardItemUpdateforAffectedItems(ItemUpdate update, PropertySet newTemplateProps)
-        //{
-        //    var templateName = newTemplateProps.GetString(Pid.Name);
-        //    foreach (var pair in _inventory.Items) {
-        //        var itemId = pair.Key;
-        //        var item = pair.Value;
-        //        if (item.GetString(Pid.TemplateName) == templateName) {
-        //            foreach (var pid in update.Pids) {
-        //                var itemChange = new ItemChange { What = ItemChange.Variant., ItemId = id };
-
-
-        //            }
-        //        }
-        //    }
-        //}
 
         public override async Task OnDeactivateAsync()
         {
@@ -422,10 +339,10 @@ namespace nine3q.Grains
 
         public async Task SetTemplateInventoryName(string name)
         {
-            await DeactivateTemplateSubscription();
+            //await DeactivateTemplateSubscription();
             _templatesInventoryName = name;
-            await PopulateUsedTemplates();
-            await ActivateTemplateSubscription();
+            await PopulateTemplates();
+            //await ActivateTemplateSubscription();
         }
 
         public Task Deactivate()

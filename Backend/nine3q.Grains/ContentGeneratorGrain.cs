@@ -51,8 +51,6 @@ namespace nine3q.Grains
 
         private async Task<ItemIdSet> StoreTemplates(NamePropertiesCollection templates)
         {
-            GrainFactory.GetGrain<IInventory>(Name).SetStreamNamespace(InventoryService.StreamNamespaceTemplates).Wait();
-
             var ids = new ItemIdSet();
             var inv = GrainFactory.GetGrain<IInventory>(Name);
             foreach (var template in templates) {
