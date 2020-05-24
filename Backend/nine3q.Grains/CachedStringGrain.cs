@@ -8,7 +8,7 @@ using nine3q.Tools;
 
 namespace nine3q.Grains
 {
-    public class CachedStringState
+    public static class CachedStringState
     {
         [Serializable]
         public class CachedString

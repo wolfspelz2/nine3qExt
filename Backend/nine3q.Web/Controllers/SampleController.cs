@@ -26,6 +26,7 @@ namespace nine3q.Web.Controllers
         [HttpGet]
         public async Task<IEnumerable<Sample>> Get()
         {
+            _logger.LogInformation("Get");
             var ids = new[] { "a", "b" };
             var samples = new List<Sample>();
             foreach (var id in ids) {
@@ -41,6 +42,7 @@ namespace nine3q.Web.Controllers
         [HttpGet]
         public async Task<Sample> Get(string id)
         {
+            _logger.LogInformation($"Get {id}");
             return new Sample {
                 Key = id,
                 Value = await _clusterClient.GetGrain<ITestString>(id).Get()

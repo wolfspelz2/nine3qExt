@@ -49,8 +49,8 @@ namespace nine3q.Content
 
         public static Dictionary<Template, string> TemplateName = typeof(Template).GetEnumNames().ToDictionary(key => (Template)Enum.Parse(typeof(Template), key), key => key + TemplateSuffix);
 
-        public const string de = "de-DE";
-        public const string en = "en-US";
+        public static string de = "de-DE";
+        public static string en = "en-US";
         public static HashSet<string> Languages = new HashSet<string> { de, en };
 
         public static List<string> GetGroups()
@@ -69,19 +69,19 @@ namespace nine3q.Content
             return "Text-" + lang + "-" + key;
         }
 
-        public static class ActionName
-        {
-            public class Test1
-            {
-                public static string Nop = Test1Aspect.Action.Nop.ToString();
-                public static string AddTestInt = Test1Aspect.Action.AddTestInt.ToString();
-            }
-            public class Container
-            {
-                public static string SetChild = ContainerAspect.Action.SetChild.ToString();
-                public static string RemoveChild = ContainerAspect.Action.RemoveChild.ToString();
-            }
-        }
+        //public static class ActionName
+        //{
+        //    public class Test1
+        //    {
+        //        public static string Nop = Test1Aspect.Action.Nop.ToString();
+        //        public static string AddTestInt = Test1Aspect.Action.AddTestInt.ToString();
+        //    }
+        //    public class Container
+        //    {
+        //        public static string SetChild = ContainerAspect.Action.SetChild.ToString();
+        //        public static string RemoveChild = ContainerAspect.Action.RemoveChild.ToString();
+        //    }
+        //}
 
         public class TextSet : Dictionary<string, Dictionary<string, string>>
         {

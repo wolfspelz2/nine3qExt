@@ -95,8 +95,9 @@ namespace nine3q.Items.Test
         public void Set_deletes_property_if_same_as_template()
         {
             // Arrange
-            var inv = new Inventory();
-            inv.Templates = new Inventory();
+            var inv = new Inventory {
+                Templates = new Inventory()
+            };
             var item = inv.CreateItem(new PropertySet { { Pid.TestInt1, 41 }, { Pid.TestInt2, 42 }, { Pid.TemplateName, "TestTemplate" }});
             var template = inv.Templates.CreateItem(new PropertySet { { Pid.TestInt1, 43 }, { Pid.TestInt2, 44 }, { Pid.Name, "TestTemplate" } });
 

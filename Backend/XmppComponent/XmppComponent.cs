@@ -11,8 +11,9 @@ namespace XmppComponent
 {
     public class XmppComponent
     {
-        const int initializeAttemptsBeforeFailing = 5;
-        private static int attempt = 0;
+        const int InitializeAttemptsBeforeFailing = 5;
+
+        private static int _attempt = 0;
 
         static int Main(string[] args)
         {
@@ -39,7 +40,7 @@ namespace XmppComponent
 
         private static async Task<IClusterClient> StartClientWithRetries()
         {
-            attempt = 0;
+            _attempt = 0;
             IClusterClient client;
             client = new ClientBuilder()
                 .UseLocalhostClustering()
@@ -63,28 +64,28 @@ namespace XmppComponent
                 Console.WriteLine($"Cluster client failed to connect to cluster with unexpected error.  Exception: {exception}");
                 return false;
             }
-            attempt++;
-            Console.WriteLine($"Cluster client attempt {attempt} of {initializeAttemptsBeforeFailing} failed to connect to cluster.  Exception: {exception}");
-            if (attempt > initializeAttemptsBeforeFailing) {
+            _attempt++;
+            Console.WriteLine($"Cluster client attempt {_attempt} of {InitializeAttemptsBeforeFailing} failed to connect to cluster.  Exception: {exception}");
+            if (_attempt > InitializeAttemptsBeforeFailing) {
                 return false;
             }
             await Task.Delay(TimeSpan.FromSeconds(4));
             return true;
         }
 
-        private const string _componentHost = "items.xmpp.dev.sui.li";
-        private const string _componentDomain = "items.xmpp.dev.sui.li";
-        private const int _componentPort = 5555;
-        private const string _componentSecret = "28756a7ff5dce";
+        private const string ComponentHost = "items.xmpp.dev.sui.li";
+        private const string ComponentDomain = "items.xmpp.dev.sui.li";
+        private const int ComponentPort = 5555;
+        private const string ComponentSecret = "28756a7ff5dce";
 
         private static async Task DoClientWork(IClusterClient client)
         {
 
             var controller = new Controller(client,
-                _componentHost,
-                _componentDomain,
-                _componentPort,
-                _componentSecret
+                ComponentHost,
+                ComponentDomain,
+                ComponentPort,
+                ComponentSecret
             );
             await controller.Start();
 

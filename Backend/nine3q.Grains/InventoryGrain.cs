@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 using Orleans;
 using Orleans.Runtime;
 using Orleans.Streams;
@@ -16,6 +17,7 @@ namespace nine3q.Grains
     public class InventoryState
     {
         public string Id;
+        public string StreamNamespace;
         public long LastItemId;
         public ItemIdPropertiesCollection Items;
         public ItemIdSet WriteIds;
@@ -26,7 +28,7 @@ namespace nine3q.Grains
     {
         string Id { get; set; }
 
-        Inventory Inventory;
+        Inventory _inventory;
         bool _isPersistent = true;
         string _streamNamespace = InventoryService.StreamNamespaceDefault;
         string _templatesInventoryName = InventoryService.TemplatesInventoryName;
@@ -48,7 +50,7 @@ namespace nine3q.Grains
         public async Task<long> CreateItem(PropertySet properties)
         {
             Item item = null;
-            Inventory.Transaction(() => {
+            _inventory.Transaction(() => {
                 var slot = properties.GetInt(Pid.Slot);
                 var containerId = properties.GetItem(Pid.Container);
 
@@ -56,10 +58,10 @@ namespace nine3q.Grains
                 properties.Remove(Pid.Container);
                 properties.Remove(Pid.Contains);
 
-                item = Inventory.CreateItem(properties);
+                item = _inventory.CreateItem(properties);
 
                 if (containerId != ItemId.NoItem) {
-                    var container = Inventory.Item(containerId);
+                    var container = _inventory.Item(containerId);
                     container.AsContainer().AddChild(item, slot);
                 }
             });
@@ -73,8 +75,8 @@ namespace nine3q.Grains
         public async Task<bool> DeleteItem(long id)
         {
             var deleted = true;
-            Inventory.Transaction(() => {
-                deleted = Inventory.DeleteItem(id);
+            _inventory.Transaction(() => {
+                deleted = _inventory.DeleteItem(id);
             });
             await CheckInventoryChanged();
             return deleted;
@@ -82,32 +84,32 @@ namespace nine3q.Grains
 
         public Task<long> GetItemByName(string name)
         {
-            return Task.FromResult(Inventory.GetItemByName(name));
+            return Task.FromResult(_inventory.GetItemByName(name));
         }
 
         public Task<ItemIdSet> GetItemIds()
         {
-            return Task.FromResult(Inventory.GetItemIds());
+            return Task.FromResult(_inventory.GetItemIds());
         }
 
         public async Task SetItemProperties(long id, PropertySet properties)
         {
-            Inventory.Transaction(() => {
-                Inventory.SetItemProperties(id, properties);
+            _inventory.Transaction(() => {
+                _inventory.SetItemProperties(id, properties);
             });
             await CheckInventoryChanged();
         }
 
         public Task<PropertySet> GetItemProperties(long id, PidList pids, bool native = false)
         {
-            return Task.FromResult(Inventory.GetItemProperties(id, pids, native));
+            return Task.FromResult(_inventory.GetItemProperties(id, pids, native));
         }
 
         public async Task<int> DeleteItemProperties(long id, PidList pids)
         {
             var deleted = 0;
-            Inventory.Transaction(() => {
-                deleted = Inventory.DeleteItemProperties(id, pids);
+            _inventory.Transaction(() => {
+                deleted = _inventory.DeleteItemProperties(id, pids);
             });
             await CheckInventoryChanged();
             return deleted;
@@ -115,30 +117,30 @@ namespace nine3q.Grains
 
         public async Task ModifyItemProperties(long id, PropertySet modified, PidList deleted)
         {
-            Inventory.Transaction(() => {
-                Inventory.DeleteItemProperties(id, deleted);
-                Inventory.SetItemProperties(id, modified);
+            _inventory.Transaction(() => {
+                _inventory.DeleteItemProperties(id, deleted);
+                _inventory.SetItemProperties(id, modified);
             });
             await CheckInventoryChanged();
         }
 
         public Task<ItemIdPropertiesCollection> GetItemIdsAndValuesByProperty(Pid filterPid, PidList desiredProperties)
         {
-            return Task.FromResult(Inventory.GetItemIdsAndValuesByProperty(filterPid, desiredProperties));
+            return Task.FromResult(_inventory.GetItemIdsAndValuesByProperty(filterPid, desiredProperties));
         }
 
         public async Task AddChildToContainer(long id, long containerId, long slot)
         {
-            Inventory.Transaction(() => {
-                Inventory.AddChild(containerId, id, slot);
+            _inventory.Transaction(() => {
+                _inventory.AddChild(containerId, id, slot);
             });
             await CheckInventoryChanged();
         }
 
         public async Task RemoveChildFromContainer(long id, long containerId)
         {
-            Inventory.Transaction(() => {
-                Inventory.RemoveChild(containerId, id);
+            _inventory.Transaction(() => {
+                _inventory.RemoveChild(containerId, id);
             });
             await CheckInventoryChanged();
         }
@@ -146,8 +148,8 @@ namespace nine3q.Grains
         public async Task<ItemIdPropertiesCollection> BeginItemTransfer(long id)
         {
             var idProps = new ItemIdPropertiesCollection();
-            Inventory.Transaction(() => {
-                idProps = Inventory.BeginItemTransfer(id);
+            _inventory.Transaction(() => {
+                idProps = _inventory.BeginItemTransfer(id);
             });
             await CheckInventoryChanged();
             return idProps;
@@ -156,8 +158,8 @@ namespace nine3q.Grains
         public async Task<ItemIdMap> ReceiveItemTransfer(long id, long containerId, long slot, ItemIdPropertiesCollection idProps, PropertySet finallySetProperties, PidList finallyDeleteProperties)
         {
             var mapping = new ItemIdMap();
-            Inventory.Transaction(() => {
-                mapping = Inventory.ReceiveItemTransfer(id, containerId, slot, idProps, finallySetProperties, finallyDeleteProperties);
+            _inventory.Transaction(() => {
+                mapping = _inventory.ReceiveItemTransfer(id, containerId, slot, idProps, finallySetProperties, finallyDeleteProperties);
             });
             await CheckInventoryChanged();
             return mapping;
@@ -165,16 +167,16 @@ namespace nine3q.Grains
 
         public async Task EndItemTransfer(long id)
         {
-            Inventory.Transaction(() => {
-                Inventory.EndItemTransfer(id);
+            _inventory.Transaction(() => {
+                _inventory.EndItemTransfer(id);
             });
             await CheckInventoryChanged();
         }
 
         public async Task CancelItemTransfer(long id)
         {
-            Inventory.Transaction(() => {
-                Inventory.CancelItemTransfer(id);
+            _inventory.Transaction(() => {
+                _inventory.CancelItemTransfer(id);
             });
             await CheckInventoryChanged();
         }
@@ -188,10 +190,10 @@ namespace nine3q.Grains
         public Task<Guid> GetStreamId() { return Task.FromResult(_streamId); }
         public Task<string> GetStreamNamespace() { return Task.FromResult(_streamNamespace); }
 
-        public Task SetStreamNamespace(string ns)
+        public async Task SetStreamNamespace(string ns)
         {
             _streamNamespace = ns;
-            return Task.CompletedTask;
+            await WritePersistentStorage();
         }
 
         #endregion
@@ -209,18 +211,18 @@ namespace nine3q.Grains
             //Inventory.Timers = new InventoryGrainTimerManager(this);
 
             if (Id == _templatesInventoryName) {
-                Inventory.IsActive = false;
+                _inventory.IsActive = false;
             } else {
                 await PopulateUsedTemplates();
                 await ActivateTemplateSubscription();
-                Inventory.Activate();
+                _inventory.Activate();
             }
         }
 
         async Task PopulateUsedTemplates()
         {
             var templateInv = GrainFactory.GetGrain<IInventory>(_templatesInventoryName);
-            foreach (var pair in Inventory.Items) {
+            foreach (var pair in _inventory.Items) {
                 var item = pair.Value;
                 var templateName = item.GetString(Pid.TemplateName);
                 if (!string.IsNullOrEmpty(templateName)) {
@@ -231,43 +233,46 @@ namespace nine3q.Grains
 
         async Task InstallTemplate(string name)
         {
-            Inventory.Templates ??= new Inventory();
-            if (!Inventory.Templates.IsItem(name)) {
+            _inventory.Templates ??= new Inventory();
+            if (!_inventory.Templates.IsItem(name)) {
                 var inv = RemoteInventory(_templatesInventoryName);
                 var id = await inv.GetItemByName(name);
                 if (id != ItemId.NoItem) {
                     var props = await inv.GetItemProperties(id, PidList.All);
-                    Inventory.Templates.CreateItem(props);
+                    _inventory.Templates.CreateItem(props);
                 }
             }
         }
 
         private async Task ActivateTemplateSubscription()
         {
-            var streamProvider = GetStreamProvider(InventoryService.StreamProvider);
-            var templatesStreamId = await RemoteInventory(_templatesInventoryName).GetStreamId();
-            var templatesStreamNamespace = await RemoteInventory(_templatesInventoryName).GetStreamNamespace();
-            var templatesStream = streamProvider.GetStream<ItemUpdate>(templatesStreamId, templatesStreamNamespace);
+            var templatesStream = await GetTemplatesStream();
             var handles = await templatesStream.GetAllSubscriptionHandles();
             if (handles.Count == 0) {
                 var handle = await templatesStream.SubscribeAsync(this);
             } else {
                 foreach (var handle in handles) {
-                    await handle.ResumeAsync((data, token) => OnTemplateUpdate(data));
+                    await handle.ResumeAsync(this);
                 }
             }
         }
 
         private async Task DeactivateTemplateSubscription()
         {
-            var streamProvider = GetStreamProvider(InventoryService.StreamProvider);
-            var templatesGuid = await RemoteInventory(_templatesInventoryName).GetStreamId();
-            var templatesStreamNamespace = await RemoteInventory(_templatesInventoryName).GetStreamNamespace();
-            var templatesStream = streamProvider.GetStream<ItemUpdate>(templatesGuid, templatesStreamNamespace);
+            var templatesStream = await GetTemplatesStream();
             var handles = await templatesStream.GetAllSubscriptionHandles();
             foreach (var handle in handles) {
                 await handle.UnsubscribeAsync();
             }
+        }
+
+        private async Task<IAsyncStream<ItemUpdate>> GetTemplatesStream()
+        {
+            var streamProvider = GetStreamProvider(InventoryService.StreamProvider);
+            var templatesGuid = await RemoteInventory(_templatesInventoryName).GetStreamId();
+            var templatesStreamNamespace = await RemoteInventory(_templatesInventoryName).GetStreamNamespace();
+            var templatesStream = streamProvider.GetStream<ItemUpdate>(templatesGuid, templatesStreamNamespace);
+            return templatesStream;
         }
 
         public async Task OnNextAsync(ItemUpdate itemUpdate, StreamSequenceToken token = null)
@@ -287,18 +292,19 @@ namespace nine3q.Grains
 
         public async Task OnTemplateUpdate(ItemUpdate update)
         {
-            Inventory.Templates ??=  new Inventory();
+            _inventory.Templates ??= new Inventory();
             var templateId = update.Id;
-            if (Inventory.Templates.IsItem(templateId)) {
-                var template = Inventory.Templates.Item(templateId);
+            if (_inventory.Templates.IsItem(templateId)) {
+                var template = _inventory.Templates.Item(templateId);
                 switch (update.What) {
                     case ItemUpdate.Mode.Added:
                         template.Delete(Pid.StaleTemplate);
                         break;
                     case ItemUpdate.Mode.Changed:
                         var templateInv = GrainFactory.GetGrain<IInventory>(_templatesInventoryName);
-                        var changedTemplateProps = await templateInv.GetItemProperties(templateId, PidList.All);
-                        template.Properties = changedTemplateProps;
+                        var newTemplateProps = await templateInv.GetItemProperties(templateId, PidList.All);
+                        //await ForwardItemUpdateforAffectedItems(update, newTemplateProps);
+                        template.Properties = newTemplateProps;
                         break;
                     case ItemUpdate.Mode.Removed:
                         template.SetBool(Pid.StaleTemplate, true);
@@ -306,6 +312,22 @@ namespace nine3q.Grains
                 }
             }
         }
+
+        //public async Task ForwardItemUpdateforAffectedItems(ItemUpdate update, PropertySet newTemplateProps)
+        //{
+        //    var templateName = newTemplateProps.GetString(Pid.Name);
+        //    foreach (var pair in _inventory.Items) {
+        //        var itemId = pair.Key;
+        //        var item = pair.Value;
+        //        if (item.GetString(Pid.TemplateName) == templateName) {
+        //            foreach (var pid in update.Pids) {
+        //                var itemChange = new ItemChange { What = ItemChange.Variant., ItemId = id };
+
+
+        //            }
+        //        }
+        //    }
+        //}
 
         public override async Task OnDeactivateAsync()
         {
@@ -318,7 +340,7 @@ namespace nine3q.Grains
 
         async Task CheckInventoryChanged()
         {
-            var summary = new ItemChangesSummary(Inventory);
+            var summary = new ItemChangesSummary(_inventory);
 
             if (summary.IsChanged()) {
                 foreach (var id in summary.NewTemplates) {
@@ -337,17 +359,17 @@ namespace nine3q.Grains
                         var notifyItems = summary.ChangedItems.Clone();
                         notifyItems.UnionWith(summary.AddedItems);
                         foreach (var id in notifyItems) {
-                            var parents = Inventory.GetParentContainers(id);
+                            var parents = _inventory.GetParentContainers(id);
                             var pids = summary.ChangedItemsProperties.ContainsKey(id) ? summary.ChangedItemsProperties[id] : PidList.Empty;
                             var update = new ItemUpdate(Id, id, pids, parents, ItemUpdate.Mode.Changed);
-                            stream.OnNextAsync(update).Ignore();
+                            await stream.OnNextAsync(update);
                         }
                     }
                     {
                         var notifyItems = summary.DeletedItems;
                         foreach (var id in notifyItems) {
                             var update = new ItemUpdate(Id, id, PidList.Empty, new ItemIdSet(), ItemUpdate.Mode.Removed);
-                            stream.OnNextAsync(update).Ignore();
+                            await stream.OnNextAsync(update);
                         }
                     }
                 }
@@ -357,7 +379,8 @@ namespace nine3q.Grains
         async Task WriteInventoryState(ItemChangesSummary summary)
         {
             _state.State.Id = Id;
-            _state.State.LastItemId = Inventory.GetLastItemId();
+            _state.State.StreamNamespace = _streamNamespace;
+            _state.State.LastItemId = _inventory.GetLastItemId();
 
             Don.t = () => {
                 _state.State.WriteIds = summary.ChangedItems.Clone();
@@ -366,11 +389,11 @@ namespace nine3q.Grains
 
                 var itemIds = _state.State.WriteIds;
             };
-            var itemIds = Inventory.GetItemIds();
+            var itemIds = _inventory.GetItemIds();
 
             _state.State.Items = new ItemIdPropertiesCollection();
             foreach (var id in itemIds) {
-                _state.State.Items.Add(id, Inventory.GetItemProperties(id, PidList.All, native: true));
+                _state.State.Items.Add(id, _inventory.GetItemProperties(id, PidList.All, native: true));
             }
 
             await _state.WriteStateAsync();
@@ -380,16 +403,17 @@ namespace nine3q.Grains
         {
             await _state.ReadStateAsync();
 
-            Inventory = new Inventory(Id);
+            _inventory = new Inventory(Id);
 
             var allProps = _state.State.Items;
             if (allProps != null) {
                 foreach (var pair in allProps) {
-                    Inventory.CreateItem(pair.Value);
+                    _inventory.CreateItem(pair.Value);
                 }
             }
 
-            Inventory.SetLastItemId(_state.State.LastItemId);
+            _inventory.SetLastItemId(_state.State.LastItemId);
+            _streamNamespace = _state.State.StreamNamespace ?? _streamNamespace;
         }
 
         #endregion
@@ -413,13 +437,13 @@ namespace nine3q.Grains
         public async Task WritePersistentStorage()
         {
             var changes = new List<ItemChange>();
-            var ids = Inventory.GetItemIds();
+            var ids = _inventory.GetItemIds();
             foreach (var id in ids) {
                 changes.Add(new ItemChange() { What = ItemChange.Variant.TouchItem, ItemId = id });
             }
-            Inventory.Changes = changes;
+            _inventory.Changes = changes;
 
-            await WriteInventoryState(new ItemChangesSummary(Inventory));
+            await WriteInventoryState(new ItemChangesSummary(_inventory));
         }
 
         public async Task ReadPersistentStorage()

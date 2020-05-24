@@ -56,8 +56,8 @@ namespace nine3q.Web
 
     public class CommandlineModel : PageModel
     {
-        ICommandline _commandline;
-        IClusterClient _clusterClient;
+        readonly ICommandline _commandline;
+        readonly IClusterClient _clusterClient;
 
         public readonly Dictionary<string, CommandDetail> Commands = new Dictionary<string, CommandDetail>();
         public CommandSymbols Symbols = new CommandSymbols();

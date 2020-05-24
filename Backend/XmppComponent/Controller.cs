@@ -439,23 +439,6 @@ namespace XmppComponent
                     await SendPresenceAvailable(roomItem);
                 }
             }
-
-            //if (Inventory.Templates.IsItem(templateId)) {
-            //    var template = Inventory.Templates.Item(templateId);
-            //    switch (update.What) {
-            //        case ItemUpdate.Mode.Added:
-            //            template.Delete(Pid.StaleTemplate);
-            //            break;
-            //        case ItemUpdate.Mode.Changed:
-            //            var templateInv = GrainFactory.GetGrain<IInventory>(_templatesInventoryName);
-            //            var changedTemplateProps = await templateInv.GetItemProperties(templateId, PidList.All);
-            //            template.Properties = changedTemplateProps;
-            //            break;
-            //        case ItemUpdate.Mode.Removed:
-            //            template.SetBool(Pid.StaleTemplate, true);
-            //            break;
-            //    }
-            //}
         }
 
         public Task OnCompletedAsync()

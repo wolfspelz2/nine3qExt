@@ -1,5 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using nine3q.Tools;
 using nine3q.Items;
 using nine3q.GrainInterfaces;
@@ -9,7 +9,7 @@ namespace IntegrationTests
     [TestClass]
     public class InventoryGrainTest
     {
-        private string GetRandomInventoryName()
+        string GetRandomInventoryName()
         {
             return "Test-" + Stack.GetMethodName(1) + "-" + RandomString.Get(10);
         }
@@ -266,7 +266,7 @@ namespace IntegrationTests
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
-        public void persists_properties()
+        public void Persists_properties()
         {
             // Arrange
             var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
@@ -305,7 +305,7 @@ namespace IntegrationTests
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
-        public void get_subset_of_item_properties()
+        public void Get_subset_of_item_properties()
         {
             // Arrange
             var invName = GetRandomInventoryName();
@@ -452,7 +452,7 @@ namespace IntegrationTests
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
-        public void activate_big_inventory()
+        public void Activate_big_inventory()
         {
             // Arrange
             var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
@@ -475,7 +475,7 @@ namespace IntegrationTests
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
-        public void transient_inventory_does_not_persist_changes()
+        public void Transient_inventory_does_not_persist_changes()
         {
             // Arrange
             var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
@@ -498,7 +498,7 @@ namespace IntegrationTests
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
-        public void default_persistent_inventory_does_persist()
+        public void D()
         {
             // Arrange
             var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
@@ -519,7 +519,7 @@ namespace IntegrationTests
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
-        public void transient_inventory_persist_completely_on_WritePermanentStorage()
+        public void Transient_inventory_persist_completely_on_WritePermanentStorage()
         {
             // Arrange
             var inv = GrainClient.GrainFactory.GetGrain<IInventory>(GetRandomInventoryName());
@@ -542,7 +542,7 @@ namespace IntegrationTests
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
-        public void just_created_item_gets_updates_of_template_changes()
+        public void Just_created_item_gets_updates_of_template_changes()
         {
             // Arrange
             var uniqueName = GetRandomInventoryName();
@@ -571,7 +571,7 @@ namespace IntegrationTests
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
-        public void item_with_later_assigned_template_gets_updates_of_template_changes()
+        public void Item_with_later_assigned_template_gets_updates_of_template_changes()
         {
             // Arrange
             var uniqueName = GetRandomInventoryName();

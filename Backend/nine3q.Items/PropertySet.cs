@@ -153,11 +153,9 @@ namespace nine3q.Items
         const string AttributePrefix = "_";
         const string Separator = " ";
         static readonly char[] SeparatorSplitArg = new[] { Separator[0] };
-        private readonly StreamingContext _context;
 
         protected PropertySet(SerializationInfo info, StreamingContext context)
         {
-            _context = context;
             Contract.Requires(info != null);
             var propertyNames = info.GetString(KeyNamesAttribute).Split(SeparatorSplitArg, StringSplitOptions.RemoveEmptyEntries);
             foreach (var name in propertyNames) {

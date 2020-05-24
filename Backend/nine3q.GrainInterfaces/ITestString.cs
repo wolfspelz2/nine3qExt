@@ -4,7 +4,7 @@ using Orleans;
 
 namespace nine3q.GrainInterfaces
 {
-    public class TestStringStream
+    public static class TestStringStream
     {
         public const string Provider = "SMSProvider";
         public const string Namespace = "Value";

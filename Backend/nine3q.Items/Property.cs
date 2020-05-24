@@ -17,13 +17,13 @@ namespace nine3q.Items
 
     public static class Property
     {
-        static readonly object _mutex = new object();
+        static readonly object Mutex = new object();
         private static Dictionary<Pid, Definition> _definitions = null;
         public static Dictionary<Pid, Definition> Definitions
         {
             private set { }
             get {
-                lock (_mutex) {
+                lock (Mutex) {
                     if (_definitions == null) {
                         _definitions = new Dictionary<Pid, Definition>();
                         InitDefinitions();
@@ -443,21 +443,21 @@ namespace nine3q.Items
             }
         }
 
-        static readonly object _nameIndexMutex = new object();
-        static Dictionary<string, Definition> NameIndex = null;
+        static readonly object NameIndexMutex = new object();
+        static Dictionary<string, Definition> _nameIndex = null;
         public static Definition Get(string name)
         {
-            lock (_nameIndexMutex) {
-                if (NameIndex == null) {
-                    NameIndex = new Dictionary<string, Definition>();
+            lock (NameIndexMutex) {
+                if (_nameIndex == null) {
+                    _nameIndex = new Dictionary<string, Definition>();
                     foreach (var pair in Definitions) {
-                        NameIndex.Add(pair.Value.Name, pair.Value);
+                        _nameIndex.Add(pair.Value.Name, pair.Value);
                     }
                 }
             }
 
-            if (NameIndex.ContainsKey(name)) {
-                return NameIndex[name];
+            if (_nameIndex.ContainsKey(name)) {
+                return _nameIndex[name];
             }
 
             throw new NotImplementedException("Property name=" + name + " not implemented.");

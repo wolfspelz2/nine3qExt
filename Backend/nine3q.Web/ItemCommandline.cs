@@ -28,9 +28,10 @@ namespace nine3q.Web
             //Inventory_Statistics,
             Inventory_Items,
             Inventory_DeleteAll,
+            Inventory_WriteStorage,
+            Inventory_ReadStorage,
             Inventory_DeleteStorage,
             Inventory_Deactivate,
-            Inventory_Reload,
 
             Item_Create,
             Item_Delete,
@@ -80,9 +81,10 @@ namespace nine3q.Web
             //Handlers.Add(nameof(Fn.Inventory_Statistics), new Handler { Name = nameof(Fn.Inventory_Statistics), Function = Inventory_Statistics, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Show statistics", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
             Handlers.Add(nameof(Fn.Inventory_Items), new Handler { Name = nameof(Fn.Inventory_Items), Function = Inventory_GetItems, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Get all item IDs of inventory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
             Handlers.Add(nameof(Fn.Inventory_DeleteAll), new Handler { Name = nameof(Fn.Inventory_DeleteAll), Function = Inventory_DeleteAllItems, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Delete all item from inventory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
-            Handlers.Add(nameof(Fn.Inventory_DeleteStorage), new Handler { Name = nameof(Fn.Inventory_DeleteStorage), Function = Inventory_DeletePermanentStorage, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Delete permanent storage of inventory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
+            Handlers.Add(nameof(Fn.Inventory_WriteStorage), new Handler { Name = nameof(Fn.Inventory_WriteStorage), Function = Inventory_WritePersistentStorage, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Delete permanent storage of inventory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
+            Handlers.Add(nameof(Fn.Inventory_ReadStorage), new Handler { Name = nameof(Fn.Inventory_ReadStorage), Function = Inventory_ReadStorage, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Reload inventory data", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
+            Handlers.Add(nameof(Fn.Inventory_DeleteStorage), new Handler { Name = nameof(Fn.Inventory_DeleteStorage), Function = Inventory_DeletePersistentStorage, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Delete permanent storage of inventory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
             Handlers.Add(nameof(Fn.Inventory_Deactivate), new Handler { Name = nameof(Fn.Inventory_Deactivate), Function = Inventory_Deactivate, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Deactivate inventory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
-            Handlers.Add(nameof(Fn.Inventory_Reload), new Handler { Name = nameof(Fn.Inventory_Reload), Function = Inventory_Reload, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Reload inventory data", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", } });
            
             Handlers.Add(nameof(Fn.Item_Create), new Handler { Name = nameof(Fn.Item_Create), Function = Inventory_CreateItem, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Add item to inventory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["Properties"] = "Item properties as JSON dictionary or as PropertyName=Value pairs", } });
             Handlers.Add(nameof(Fn.Item_Delete), new Handler { Name = nameof(Fn.Item_Delete), Function = Inventory_DeleteItem, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Delete item", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Inventory"] = "Inventory name", ["ItemId"] = "Item ID", } });
@@ -599,17 +601,27 @@ namespace nine3q.Web
         //    var itemId = long.Parse(args.Next("item ID"));
         //    var actionName = args.Next("Inventory");
         //    var actionArgs = GetPropertySetFromNextArgs(args);
-            
+
         //    var inv = GrainClient.GetGrain<IInventory>(inventoryName);
         //    inv.ExecuteItemAction(itemId, actionName, actionArgs).Wait();
         //    return new ItemReference(inventoryName, itemId);
         //}
 
-        object Inventory_DeletePermanentStorage(Arglist args)
+        object Inventory_WritePersistentStorage(Arglist args)
         {
             args.Next("cmd");
             var inventoryName = args.Next("Inventory");
-            
+
+            var inv = GrainClient.GetGrain<IInventory>(inventoryName);
+            inv.WritePersistentStorage().Wait();
+            return "OK";
+        }
+
+        object Inventory_DeletePersistentStorage(Arglist args)
+        {
+            args.Next("cmd");
+            var inventoryName = args.Next("Inventory");
+
             var inv = GrainClient.GetGrain<IInventory>(inventoryName);
             inv.DeletePersistentStorage().Wait();
             return "OK";
@@ -625,7 +637,7 @@ namespace nine3q.Web
             return "OK";
         }
 
-        object Inventory_Reload(Arglist args)
+        object Inventory_ReadStorage(Arglist args)
         {
             args.Next("cmd");
             var inventoryName = args.Next("Inventory");

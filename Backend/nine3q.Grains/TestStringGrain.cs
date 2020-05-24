@@ -7,7 +7,7 @@ using nine3q.StorageProviders;
 
 namespace nine3q.Grains
 {
-    public class TestStringState
+    public static class TestStringState
     {
         [Serializable]
         public class TestString

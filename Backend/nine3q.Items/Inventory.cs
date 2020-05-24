@@ -20,10 +20,9 @@ namespace nine3q.Items
         public string Name { get; set; }
         public bool IsActive { get; set; } = false;
 
-        Dictionary<long, Item> _items { get; set; } = new Dictionary<long, Item>();
-        public Dictionary<long, Item> Items => _items;
+        public Dictionary<long, Item> Items { get; } = new Dictionary<long, Item>();
 
-        InventoryTransaction CurrentTransaction = null;
+        InventoryTransaction _currentTransaction = null;
 
         List<ItemChange> _changes = null;
         public List<ItemChange> Changes
@@ -36,9 +35,9 @@ namespace nine3q.Items
 
         public ITimerManager Timers { get; set; } = new DummyTimerManager();
 
-        readonly Dictionary<string, long> Names = new Dictionary<string, long>();
+        readonly Dictionary<string, long> _names = new Dictionary<string, long>();
 
-        readonly int MaxItemsPerInventory = 1000;
+        const int MaxItemsPerInventory = 1000;
 
         public Inventory(string name = "")
         {
@@ -48,24 +47,24 @@ namespace nine3q.Items
         public void Activate()
         {
             IsActive = true;
-            foreach (var id in _items.Keys.ToList()) {
+            foreach (var id in Items.Keys.ToList()) {
                 Item(id).Activate();
             }
         }
 
         public bool IsItem(long id)
         {
-            return _items.ContainsKey(id);
+            return Items.ContainsKey(id);
         }
 
         public bool IsItem(string name)
         {
-            return Names.ContainsKey(name);
+            return _names.ContainsKey(name);
         }
 
         public Item Item(long id)
         {
-            if (!_items.TryGetValue(id, out Item item)) {
+            if (!Items.TryGetValue(id, out Item item)) {
                 throw new ItemException(Name, id, "No such item");
             }
             return item;
@@ -73,10 +72,10 @@ namespace nine3q.Items
 
         public Item Item(string name)
         {
-            if (!Names.TryGetValue(name, out long id)) {
+            if (!_names.TryGetValue(name, out long id)) {
                 throw new ItemException(Name, ItemId.NoItem, $"No such item: name={name}");
             }
-            if (!_items.TryGetValue(id, out Item item)) {
+            if (!Items.TryGetValue(id, out Item item)) {
                 throw new ItemException(Name, id, $"No such item: name={name}");
             }
             return item;
@@ -84,13 +83,13 @@ namespace nine3q.Items
 
         internal void SetName(string name, long id)
         {
-            Names[name] = id;
+            _names[name] = id;
         }
 
         internal void UnsetName(string name, long id)
         {
-            if (Names.ContainsKey(name)) {
-                Names.Remove(name);
+            if (_names.ContainsKey(name)) {
+                _names.Remove(name);
             }
             Don.t = () => { var x = id; };
         }
@@ -132,8 +131,8 @@ namespace nine3q.Items
         public void SetLastItemId(long itemId) { _currentItemId = itemId; }
         long GetNextItemId_NeverReUse()
         {
-            if (_currentItemId == ItemId.NoItem && _items.Count > 0) {
-                _currentItemId = _items.Keys.Max();
+            if (_currentItemId == ItemId.NoItem && Items.Count > 0) {
+                _currentItemId = Items.Keys.Max();
             }
             _currentItemId++;
             return _currentItemId;
@@ -149,7 +148,7 @@ namespace nine3q.Items
             Contract.Requires(properties != null);
             CheckConflictingProperties(properties, ItemId.NoItem);
 
-            if (_items.Keys.Count >= MaxItemsPerInventory) {
+            if (Items.Keys.Count >= MaxItemsPerInventory) {
                 throw new ItemException(Name, ItemId.NoItem, $"Exceeded max items per inventory: {MaxItemsPerInventory}");
             }
 
@@ -162,7 +161,7 @@ namespace nine3q.Items
             }
 
             var item = new Item(this, id, properties);
-            _items.Add(id, item);
+            Items.Add(id, item);
 
             var name = item.GetString(Pid.Name);
             if (!string.IsNullOrEmpty(name)) {
@@ -185,7 +184,7 @@ namespace nine3q.Items
                     UnsetName(name, id);
                 }
 
-                _items.Remove(id);
+                Items.Remove(id);
                 return true;
             }
             return false;
@@ -228,13 +227,13 @@ namespace nine3q.Items
         public long GetItemByName(string path)
         {
             Contract.Requires(path != null);
-            if (Names.ContainsKey(path)) {
-                return Names[path];
+            if (_names.ContainsKey(path)) {
+                return _names[path];
             }
 
             var pathSegments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
-            var idList = _items.Keys.ToList();
+            var idList = Items.Keys.ToList();
             while (pathSegments.Count > 0) {
                 var segment = pathSegments[0];
                 pathSegments.RemoveAt(0);
@@ -272,7 +271,7 @@ namespace nine3q.Items
         public ItemIdSet GetItemIds()
         {
             var ids = new ItemIdSet();
-            foreach (var id in _items.Keys) {
+            foreach (var id in Items.Keys) {
                 ids.Add(id);
             }
             return ids;
@@ -282,7 +281,7 @@ namespace nine3q.Items
         {
             var idValueList = new ItemIdPropertiesCollection();
 
-            foreach (var pair in _items) {
+            foreach (var pair in Items) {
                 var id = pair.Key;
                 var item = pair.Value;
                 var props = item.GetProperties(new PidList { filterPid });
@@ -305,7 +304,7 @@ namespace nine3q.Items
                 filterPids.Add(pair.Key);
             }
 
-            foreach (var pair in _items) {
+            foreach (var pair in Items) {
                 var id = pair.Key;
                 var item = pair.Value;
                 var props = item.GetProperties(filterPids);
@@ -346,14 +345,13 @@ namespace nine3q.Items
         public void Transaction(TransactionWrappedCode code)
         {
             Contract.Requires(code != null);
-            using (var t = BeginTransaction()) {
-                try {
-                    code();
-                } catch (Exception ex) {
-                    t.Cancel();
-                    Don.t = () => { var m = ex.Message; };
-                    throw;
-                }
+            using var t = BeginTransaction();
+            try {
+                code();
+            } catch (Exception ex) {
+                t.Cancel();
+                Don.t = () => { var m = ex.Message; };
+                throw;
             }
         }
 
@@ -361,8 +359,8 @@ namespace nine3q.Items
         {
             var t = new InventoryTransaction(this);
 
-            if (CurrentTransaction == null) {
-                CurrentTransaction = t;
+            if (_currentTransaction == null) {
+                _currentTransaction = t;
                 Changes = null;
             }
 
@@ -371,8 +369,8 @@ namespace nine3q.Items
 
         public void CommitTransaction(InventoryTransaction t)
         {
-            if (t != null && t == CurrentTransaction) {
-                CurrentTransaction = null;
+            if (t != null && t == _currentTransaction) {
+                _currentTransaction = null;
                 Changes = t.GetChanges();
                 t.ResetChanges();
             }
@@ -380,8 +378,8 @@ namespace nine3q.Items
 
         public void CancelTransaction(InventoryTransaction t)
         {
-            if (t != null && t == CurrentTransaction) {
-                CurrentTransaction = null;
+            if (t != null && t == _currentTransaction) {
+                _currentTransaction = null;
 
                 // Undo changes in reverse order
                 var lifo = new Stack<ItemChange>();
@@ -404,35 +402,35 @@ namespace nine3q.Items
             switch (change.What) {
 
                 case ItemChange.Variant.CreateItem:
-                    _items.Remove(change.ItemId);
+                    Items.Remove(change.ItemId);
                     break;
 
                 case ItemChange.Variant.DeleteItem:
-                    _items.Add(change.ItemId, change.Item);
+                    Items.Add(change.ItemId, change.Item);
                     break;
 
                 case ItemChange.Variant.AddProperty:
                     if (IsItem(change.ItemId)) {
-                        _items[change.ItemId].Delete(change.Pid);
+                        Items[change.ItemId].Delete(change.Pid);
                     }
                     break;
 
                 case ItemChange.Variant.SetProperty:
                 case ItemChange.Variant.DeleteProperty:
                     if (IsItem(change.ItemId)) {
-                        _items[change.ItemId].Set(change.Pid, change.PreviousValue);
+                        Items[change.ItemId].Set(change.Pid, change.PreviousValue);
                     }
                     break;
 
                 case ItemChange.Variant.AddItemToCollection:
                     if (IsItem(change.ItemId)) {
-                        _items[change.ItemId].RemoveFromItemSet(change.Pid, change.ChildId);
+                        Items[change.ItemId].RemoveFromItemSet(change.Pid, change.ChildId);
                     }
                     break;
 
                 case ItemChange.Variant.RemoveItemFromCollection:
                     if (IsItem(change.ItemId)) {
-                        _items[change.ItemId].AddToItemSet(change.Pid, change.ChildId);
+                        Items[change.ItemId].AddToItemSet(change.Pid, change.ChildId);
                     }
                     break;
             }
@@ -444,22 +442,22 @@ namespace nine3q.Items
 
         internal void OnCreateItem(ItemChange change)
         {
-            if (CurrentTransaction != null) {
-                CurrentTransaction.AddChange(change);
+            if (_currentTransaction != null) {
+                _currentTransaction.AddChange(change);
             }
         }
 
         internal void OnDeleteItem(ItemChange change)
         {
-            if (CurrentTransaction != null) {
-                CurrentTransaction.AddChange(change);
+            if (_currentTransaction != null) {
+                _currentTransaction.AddChange(change);
             }
         }
 
         internal void OnPropertyChange(ItemChange change)
         {
-            if (CurrentTransaction != null) {
-                CurrentTransaction.AddChange(change);
+            if (_currentTransaction != null) {
+                _currentTransaction.AddChange(change);
             }
         }
 
