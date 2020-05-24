@@ -47,6 +47,7 @@ export class Participant extends Entity
     async onPresenceAvailable(stanza: any): Promise<void>
     {
         let presenceHasPosition: boolean = false;
+        let presenceHasCondition: boolean = false;
         let newX: number = 123;
 
         let presenceHasCondition: boolean = false;
