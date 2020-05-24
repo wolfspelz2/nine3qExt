@@ -5,9 +5,9 @@ import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { Panic } from '../lib/Panic';
 import { ContentApp } from './ContentApp';
-import { ChatWindow } from './ChatWindow';
 import { Participant } from './Participant';
 import { Item } from './Item';
+import { ChatWindow } from './ChatWindow';
 
 export interface IRoomInfoLine extends Array<string | string> { 0: string, 1: string }
 export interface IRoomInfo extends Array<IRoomInfoLine> { }
