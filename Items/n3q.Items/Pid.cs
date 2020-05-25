@@ -51,11 +51,14 @@
         Name,
         TemplateId,
         Label,
+        Container,
+        Contains,
 
         // Aspect
         FirstAspect = 3000000,
         Test1Aspect,
         Test2Aspect,
+        ContainerAspect,
         RezableAspect,
         IframeAspect,
 

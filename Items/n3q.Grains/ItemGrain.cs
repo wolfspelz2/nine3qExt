@@ -40,12 +40,6 @@ namespace n3q.Grains
 
         private IItem Item(string id) => GrainFactory.GetGrain<IItem>(id);
 
-        #region Interface
-
-        public Task<Guid> GetStreamId() { return Task.FromResult(_streamId); }
-        public Task<string> GetStreamNamespace() { return Task.FromResult(_streamNamespace); }
-
-        #endregion
 
         #region Lifecycle
 
@@ -67,7 +61,7 @@ namespace n3q.Grains
 
         #region Changes
 
-            //await _state.WriteStateAsync();
+        //await _state.WriteStateAsync();
 
         #endregion
 
@@ -95,5 +89,62 @@ namespace n3q.Grains
         }
 
         #endregion
+
+        #region Interface
+
+        public Task<Guid> GetStreamId() { return Task.FromResult(_streamId); }
+        public Task<string> GetStreamNamespace() { return Task.FromResult(_streamNamespace); }
+
+        public Task<bool> GetBool(Pid pid)
+        {
+            return Task.FromResult((bool)Properties.Get(pid));
+        }
+
+        public Task AddToItemSet(Pid pid, string itemId)
+        {
+            var ids = (ItemIdSet)Properties.Get(pid);
+            ids.Add(itemId);
+            Properties.Set(pid, ids);
+            return Task.CompletedTask;
+        }
+
+        public Task Set(Pid pid, string value)
+        {
+            Properties.Set(pid, value);
+            return Task.CompletedTask;
+        }
+
+        //public async Task Transfer(string dest)
+        //{
+        //    await Aspect.Container(dest).AddItem(Id);
+        //    //Properties.Set(Pid.Container, dest);
+        //}
+
+        #endregion
     }
+
+    //public class Aspect
+    //{
+    //    public string Id { get; set; }
+
+    //    internal static ContainerAspect Container(string id)
+    //    {
+    //        return new ContainerAspect(id);
+    //    }
+    //}
+
+    //public class ContainerAspect : Aspect
+    //{
+    //    public ContainerAspect(string id)
+    //    {
+    //        Id = id;
+    //    }
+
+    //    public Task AddItem(string id)
+    //    {
+    //        Properties.Set(Pid.Container, dest);
+
+    //        return Task.CompletedTask;
+    //    }
+    //}
 }

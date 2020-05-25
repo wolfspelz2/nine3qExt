@@ -22,5 +22,28 @@ namespace n3q.Items
             get { return new PropertyValue(_properties[pid]); }
             set { _properties[pid] = value.ToString(); }
         }
+
+        public PropertyValue Get(Pid pid)
+        {
+            if (_properties.ContainsKey(pid)) {
+                return new PropertyValue(_properties[pid]);
+            }
+            return new PropertyValue();
+        }
+
+        public void Set(Pid pid, string value)
+        {
+            _properties[pid] = value;
+        }
+
+        public void Set(Pid pid, bool value)
+        {
+            _properties[pid] = value.ToString();
+        }
+
+        public void Set(Pid pid, ItemIdSet ids)
+        {
+            _properties[pid] = ids.ToString();
+        }
     }
 }

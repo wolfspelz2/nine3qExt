@@ -15,6 +15,11 @@ namespace n3q.GrainInterfaces
         Task WritePersistentStorage();
         Task ReadPersistentStorage();
         Task DeletePersistentStorage();
+
+        Task<bool> GetBool(Pid pid);
+        //Task Transfer(string destContainer);
+        Task AddToItemSet(Pid pid, string itemId);
+        Task Set(Pid pid, string value);
     }
 
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using n3q.Tools;
 
 namespace n3q.Items
 {
@@ -8,13 +9,16 @@ namespace n3q.Items
         const string JoinSeparator = " ";
         static readonly char[] SplitSeparator = new[] { JoinSeparator[0] };
 
-        public void FromString(string listOfString)
+        public static ItemIdSet FromString(string blankSeparatedListOfString)
         {
-            if (listOfString == null) return;
-            var parts = listOfString.Split(SplitSeparator, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string part in parts) {
-                Add(part);
+            var result = new ItemIdSet();
+            if (Has.Value(blankSeparatedListOfString)) {
+                var parts = blankSeparatedListOfString.Split(SplitSeparator, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string part in parts) {
+                    result.Add(part);
+                }
             }
+            return result;
         }
 
         public ItemIdSet Clone()

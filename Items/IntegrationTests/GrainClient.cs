@@ -53,12 +53,6 @@ namespace IntegrationTests
                         options.RootDirectory = @"C:\Heiner\github-nine3q\Backend\Test\JsonFileStorage";
                     })
 
-                .AddInventoryFileStorage(
-                    name: InventoryFileStorage.StorageProviderName,
-                    configureOptions: options => {
-                        options.RootDirectory = @"C:\Heiner\github-nine3q\Backend\Test\InventoryFileStorage";
-                    })
-
                 .UsePerfCounterEnvironmentStatistics()
 
                 .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(TestStringGrain).Assembly).WithReferences())

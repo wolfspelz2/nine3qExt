@@ -7,8 +7,21 @@ using System.Globalization;
 
 namespace n3q.Tools
 {
-    public static class StringExtensions
+    public static class Has
     {
+        public static bool Value(string self)
+        {
+            return !string.IsNullOrEmpty(self);
+        }
+    }
+
+    public static class StringExtensions
+        {
+            public static bool IsSomething(this string self)
+        {
+            return !string.IsNullOrEmpty(self);
+        }
+
         public static int ToInteger(this string self)
         {
             int.TryParse(self, out var value);

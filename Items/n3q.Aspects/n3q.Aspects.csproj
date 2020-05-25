@@ -11,12 +11,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\JsonPath\JsonPath.csproj" />
+    <ProjectReference Include="..\n3q.GrainInterfaces\n3q.GrainInterfaces.csproj" />
+    <ProjectReference Include="..\n3q.Items\n3q.Items.csproj" />
     <ProjectReference Include="..\n3q.Tools\n3q.Tools.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Aspects\" />
     <Folder Include="Exceptions\" />
   </ItemGroup>
 
