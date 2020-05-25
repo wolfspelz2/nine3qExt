@@ -1,15 +1,12 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using n3q.Items;
-using Orleans;
 
 namespace n3q.Aspects
 {
     public class ContainerAspect : Aspect
     {
         public ContainerAspect(Item item) { self = item; }
-
-        private async Task AssertAspect() { await AssertAspect(Pid.ContainerAspect); }
+        public override Pid GetAspectPid() => Pid.ContainerAspect;
 
         public async Task AddChild(Item child)
         {

@@ -26,7 +26,6 @@ namespace XmppComponent
         readonly IClusterClient _clusterClient;
 
         readonly object _mutex = new object();
-        //readonly Dictionary<string, StreamSubscriptionHandle<RoomEvent>> _roomEventsSubscriptionHandles = new Dictionary<string, StreamSubscriptionHandle<RoomEvent>>();
         readonly Dictionary<string, ManagedRoom> _rooms = new Dictionary<string, ManagedRoom>();
 
         Connection _conn;
@@ -72,9 +71,9 @@ namespace XmppComponent
 
         #region Shortcuts
 
-        IItem ItemGrain(string id)
+        IItem Grain(Item item)
         {
-            return _clusterClient.GetGrain<IItem>(id);
+            return item.ClusterClient.GetGrain<IItem>(item.Id);
         }
 
         private IAsyncStream<ItemUpdate> ItemUpdateStream
@@ -251,14 +250,10 @@ namespace XmppComponent
 
                 Log.Info($"Drop {roomId} {itemId}");
 
-                {
-                    var isRezable = await ItemGrain(itemId).GetBool(Pid.RezableAspect);
-                    if (!isRezable) { throw new SurfaceException(userId, itemId, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemNotRezable); }
-                }
-
                 var room = new Item(_clusterClient, roomId);
                 var item = new Item(_clusterClient, itemId);
 
+                await Aspect.Rezable(item).AssertAspect(() => throw new SurfaceException(userId, itemId, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemNotRezable));
                 await Aspect.Container(room).AddChild(item);
 
                 //var roomItem = AddRoomItem(roomId, transferredItemId);

@@ -23,6 +23,8 @@ namespace n3q.Aspects
             return new Item(Client, itemId);
         }
 
+        public virtual Pid GetAspectPid() => Pid.FirstAspect;
+
         protected async Task<bool> IsAspect(Pid pid)
         {
             return await MyGrain.GetBool(pid);
@@ -35,9 +37,20 @@ namespace n3q.Aspects
             }
         }
 
-        public static ContainerAspect Container(Item item)
+        public async Task<bool> IsAspect() { return await IsAspect(GetAspectPid()); }
+
+        public async Task AssertAspect() { await AssertAspect(GetAspectPid()); }
+
+        public async Task AssertAspect(Action action)
         {
-            return new ContainerAspect(item);
+            if (action != null) {
+                try { await AssertAspect(); } catch (Exception) { action.Invoke(); }
+            } else {
+                await AssertAspect();
+            }
         }
+
+        public static ContainerAspect Container(Item item) { return new ContainerAspect(item); }
+        public static RezableAspect Rezable(Item item) { return new RezableAspect(item); }
     }
 }
