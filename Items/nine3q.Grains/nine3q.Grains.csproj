@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\nine3q.Common\nine3q.Common.csproj" />
     <ProjectReference Include="..\nine3q.Content\nine3q.Content.csproj" />
     <ProjectReference Include="..\nine3q.GrainInterfaces\nine3q.GrainInterfaces.csproj" />
     <ProjectReference Include="..\nine3q.StorageProviders\nine3q.StorageProviders.csproj" />

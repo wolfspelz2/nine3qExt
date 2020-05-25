@@ -308,7 +308,7 @@ namespace nine3q.Web
             var inventoryName = args.Next("Inventory");
             var props = GetPropertySetFromNextArgs(args);
             
-            var inv = GrainClient.GetGrain<IInventory>(inventoryName);
+            var inv = GrainClient.GetGrain<IItem>(inventoryName);
             var itemId = inv.CreateItem(props).Result;
             return new ItemReference(inventoryName, itemId);
         }
@@ -319,7 +319,7 @@ namespace nine3q.Web
             var inventoryName = args.Next("Inventory");
             var itemId = long.Parse(args.Next("item ID"));
             
-            var inv = GrainClient.GetGrain<IInventory>(inventoryName);
+            var inv = GrainClient.GetGrain<IItem>(inventoryName);
             var ids = inv.GetItemIds().Result;
             var deleted = inv.DeleteItem(itemId).Result;
             var newIds = inv.GetItemIds().Result;
@@ -333,7 +333,7 @@ namespace nine3q.Web
             var itemId = long.Parse(args.Next("item ID"));
             var props = GetPropertySetFromNextArgs(args);
             
-            var inv = GrainClient.GetGrain<IInventory>(inventoryName);
+            var inv = GrainClient.GetGrain<IItem>(inventoryName);
             inv.SetItemProperties(itemId, props).Wait();
             return new ItemReference(inventoryName, itemId);
         }
@@ -345,7 +345,7 @@ namespace nine3q.Web
             var s = Property.ToString(pid, value);
             s = System.Net.WebUtility.HtmlEncode(s);
             if (pid == Pid.TemplateName) {
-                inventoryName = GrainInterfaces.InventoryService.TemplatesInventoryName;
+                inventoryName = GrainInterfaces.ItemService.TemplatesInventoryName;
             }
             switch (Property.Get(pid).Type) {
                 case Property.Type.Item:
@@ -375,7 +375,7 @@ namespace nine3q.Web
             var itemId = long.Parse(args.Next("item ID"));
             var format = args.Next("Format", Inventory_Result_format.table.ToString());
             
-            var inv = GrainClient.GetGrain<IInventory>(inventoryName);
+            var inv = GrainClient.GetGrain<IItem>(inventoryName);
             var props = inv.GetItemProperties(itemId, PidList.All).Result;
             var nativeProps = inv.GetItemProperties(itemId, PidList.All, native: true).Result;
             var templateProps = new PropertySet();
@@ -383,7 +383,7 @@ namespace nine3q.Web
             var templateUnavailable = false;
             if (!string.IsNullOrEmpty(templateName)) {
                 try {
-                    var templateInv = GrainClient.GetGrain<IInventory>(GrainInterfaces.InventoryService.TemplatesInventoryName);
+                    var templateInv = GrainClient.GetGrain<IItem>(GrainInterfaces.ItemService.TemplatesInventoryName);
                     var templateId = templateInv.GetItemByName(templateName).Result;
                     templateProps = templateInv.GetItemProperties(templateId, PidList.All).Result;
                 } catch (Exception) {
@@ -415,7 +415,7 @@ namespace nine3q.Web
 
                         nativeProps.ContainsKey(pid) ? Inventory_GetItemProperties_FormatValue(inventoryName, pid, nativeProps[pid]) : "",
 
-                        (pid == Pid.TemplateName && templateUnavailable) ? "(unavailable)" :  templateProps.ContainsKey(pid) ? Inventory_GetItemProperties_FormatValue(GrainInterfaces.InventoryService.TemplatesInventoryName, pid, templateProps[pid]) : "",
+                        (pid == Pid.TemplateName && templateUnavailable) ? "(unavailable)" :  templateProps.ContainsKey(pid) ? Inventory_GetItemProperties_FormatValue(GrainInterfaces.ItemService.TemplatesInventoryName, pid, templateProps[pid]) : "",
 
                         nativeProps.ContainsKey(pid) && pid != Pid.Id?
                             CommandExecuteLink(Fn.Item_DeleteProperties.ToString(), new[] { inventoryName, itemId.ToString(), pid.ToString() }, "Delete") : "" ,
@@ -481,7 +481,7 @@ namespace nine3q.Web
             } while (!string.IsNullOrEmpty(arg));
 
             
-            var inv = GrainClient.GetGrain<IInventory>(inventoryName);
+            var inv = GrainClient.GetGrain<IItem>(inventoryName);
             var deleted = inv.DeleteItemProperties(itemId, pids).Result;
 
             return "Deleted " + deleted + " properties from item " + ShowItemLink(inventoryName, itemId);
@@ -492,7 +492,7 @@ namespace nine3q.Web
             args.Next("cmd");
             var inventoryName = args.Next("Inventory");
             
-            var inv = GrainClient.GetGrain<IInventory>(inventoryName);
+            var inv = GrainClient.GetGrain<IItem>(inventoryName);
             var ids = inv.GetItemIds().Result;
             return ids.ToList().ConvertAll(id => new ItemReference(inventoryName, id));
         }
@@ -504,7 +504,7 @@ namespace nine3q.Web
             var itemId = long.Parse(args.Next("item ID"));
             var containerId = long.Parse(args.Next("Container ID"));
             
-            var inv = GrainClient.GetGrain<IInventory>(inventoryName);
+            var inv = GrainClient.GetGrain<IItem>(inventoryName);
             inv.AddChildToContainer(itemId, containerId, 0).Wait();
             return new ItemReference(inventoryName, itemId);
         }
@@ -516,7 +516,7 @@ namespace nine3q.Web
             var itemId = long.Parse(args.Next("item ID"));
             var containerId = long.Parse(args.Next("Container ID"));
             
-            var inv = GrainClient.GetGrain<IInventory>(inventoryName);
+            var inv = GrainClient.GetGrain<IItem>(inventoryName);
             inv.RemoveChildFromContainer(itemId, containerId).Wait();
             return new ItemReference(inventoryName, itemId);
         }
@@ -530,8 +530,8 @@ namespace nine3q.Web
             var destinationContainer = args.Next("destination container name", "");
             
 
-            var source = GrainClient.GetGrain<IInventory>(sourceInventory);
-            var dest = GrainClient.GetGrain<IInventory>(destinationInventory);
+            var source = GrainClient.GetGrain<IItem>(sourceInventory);
+            var dest = GrainClient.GetGrain<IItem>(destinationInventory);
             var destinationContainerId = ItemId.NoItem;
             if (!string.IsNullOrEmpty(destinationContainer)) {
                 destinationContainerId = dest.GetItemByName(destinationContainer).Result;
@@ -573,7 +573,7 @@ namespace nine3q.Web
             args.Next("cmd");
             var inventoryName = args.Next("Inventory");
             
-            var inv = GrainClient.GetGrain<IInventory>(inventoryName);
+            var inv = GrainClient.GetGrain<IItem>(inventoryName);
             var ids = inv.GetItemIds().Result;
             var deleted = 0;
             foreach (var id in ids) {
@@ -589,7 +589,7 @@ namespace nine3q.Web
             var inventoryName = args.Next("Inventory");
             var itemName = args.Next("item name");
             
-            var inv = GrainClient.GetGrain<IInventory>(inventoryName);
+            var inv = GrainClient.GetGrain<IItem>(inventoryName);
             var itemId = inv.GetItemByName(itemName).Result;
             return new ItemReference(inventoryName, itemId);
         }
@@ -612,7 +612,7 @@ namespace nine3q.Web
             args.Next("cmd");
             var inventoryName = args.Next("Inventory");
 
-            var inv = GrainClient.GetGrain<IInventory>(inventoryName);
+            var inv = GrainClient.GetGrain<IItem>(inventoryName);
             inv.WritePersistentStorage().Wait();
             return "OK";
         }
@@ -622,7 +622,7 @@ namespace nine3q.Web
             args.Next("cmd");
             var inventoryName = args.Next("Inventory");
 
-            var inv = GrainClient.GetGrain<IInventory>(inventoryName);
+            var inv = GrainClient.GetGrain<IItem>(inventoryName);
             inv.DeletePersistentStorage().Wait();
             return "OK";
         }
@@ -632,7 +632,7 @@ namespace nine3q.Web
             args.Next("cmd");
             var inventoryName = args.Next("Inventory");
             
-            var inv = GrainClient.GetGrain<IInventory>(inventoryName);
+            var inv = GrainClient.GetGrain<IItem>(inventoryName);
             inv.Deactivate().Wait();
             return "OK";
         }
@@ -642,7 +642,7 @@ namespace nine3q.Web
             args.Next("cmd");
             var inventoryName = args.Next("Inventory");
             
-            var inv = GrainClient.GetGrain<IInventory>(inventoryName);
+            var inv = GrainClient.GetGrain<IItem>(inventoryName);
             inv.ReadPersistentStorage().Wait();
             return "OK";
         }
@@ -680,7 +680,7 @@ namespace nine3q.Web
 
         string ShowItemLink(string inventoryName, long itemId)
         {
-            var inv = GrainClient.GetGrain<IInventory>(inventoryName);
+            var inv = GrainClient.GetGrain<IItem>(inventoryName);
             var text = itemId.ToString();
             try {
                 var props = inv.GetItemProperties(itemId, new PidList { Pid.Name, Pid.Label }).Result;
@@ -753,7 +753,7 @@ namespace nine3q.Web
         {
             args.Next("cmd");
 
-            var inventoryName = GrainInterfaces.InventoryService.TemplatesInventoryName;
+            var inventoryName = GrainInterfaces.ItemService.TemplatesInventoryName;
             var inv = GrainClient.GetGrain<IContentGenerator>(inventoryName);
             var groups = inv.GetGroups().Result;
             var s = "";
@@ -768,7 +768,7 @@ namespace nine3q.Web
             args.Next("cmd");
             var name = args.Next("GroupName");
 
-            var inventoryName = GrainInterfaces.InventoryService.TemplatesInventoryName;
+            var inventoryName = GrainInterfaces.ItemService.TemplatesInventoryName;
             var inv = GrainClient.GetGrain<IContentGenerator>(inventoryName);
             var templates = inv.GetTemplates(name).Result;
             var s = CommandExecuteLink(Fn.Content_CreateTemplates.ToString(), new[] { name }, "[Create all]") + " Create: ";
@@ -783,7 +783,7 @@ namespace nine3q.Web
             args.Next("cmd");
             var name = args.Next("template or group name");
 
-            var inventoryName = GrainInterfaces.InventoryService.TemplatesInventoryName;
+            var inventoryName = GrainInterfaces.ItemService.TemplatesInventoryName;
             var ids = new ItemIdSet(GrainClient.GetGrain<IContentGenerator>(inventoryName).CreateTemplates(name).Result);
             return string.Join(" ", ids.ToList().ConvertAll(id => ShowItemLink(inventoryName, id)));
         }
@@ -791,8 +791,8 @@ namespace nine3q.Web
         object Content_ShowTemplates(Arglist args)
         {
 
-            var inventoryName = GrainInterfaces.InventoryService.TemplatesInventoryName;
-            var inv = GrainClient.GetGrain<IInventory>(inventoryName);
+            var inventoryName = GrainInterfaces.ItemService.TemplatesInventoryName;
+            var inv = GrainClient.GetGrain<IItem>(inventoryName);
             var ids = inv.GetItemIds().Result;
             return string.Join(" ", ids.ToList().ConvertAll(id => ShowItemLink(inventoryName, id)));
         }

@@ -70,18 +70,18 @@ namespace XmppComponent
 
         #region Shortcuts
 
-        IInventory Inventory(string key)
+        IItem Inventory(string key)
         {
             Contract.Requires(_clusterClient != null);
-            return _clusterClient.GetGrain<IInventory>(key);
+            return _clusterClient.GetGrain<IItem>(key);
         }
 
         private IAsyncStream<ItemUpdate> ItemUpdateStream
         {
             get {
-                var streamProvider = _clusterClient.GetStreamProvider(InventoryService.StreamProvider);
-                var streamId = InventoryService.StreamGuidDefault;
-                var streamNamespace = InventoryService.StreamNamespaceDefault;
+                var streamProvider = _clusterClient.GetStreamProvider(ItemService.StreamProvider);
+                var streamId = ItemService.StreamGuidDefault;
+                var streamNamespace = ItemService.StreamNamespaceDefault;
                 var stream = streamProvider.GetStream<ItemUpdate>(streamId, streamNamespace);
                 return stream;
             }

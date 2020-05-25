@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\nine3q.Frontend\nine3q.Frontend.csproj" />
+    <ProjectReference Include="..\nine3q.Common\nine3q.Common.csproj" />
     <ProjectReference Include="..\nine3q.GrainInterfaces\nine3q.GrainInterfaces.csproj" />
   </ItemGroup>
 
