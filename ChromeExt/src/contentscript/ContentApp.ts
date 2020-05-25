@@ -16,6 +16,7 @@ import { VpiResolver } from './VpiResolver';
 import { SettingsWindow } from './SettingsWindow';
 import { XmppWindow } from './XmppWindow';
 import { ChangesWindow } from './ChangesWindow';
+import { IframeWindow } from './IframeWindow';
 
 interface ILocationMapperResponse
 {
@@ -41,6 +42,7 @@ export class ContentApp
     private babelfish: Translator;
     private stayOnTabChange: boolean = false;
     private xmppWindow: XmppWindow;
+    private settingsWindow: SettingsWindow;
 
     // Getter
 
@@ -140,7 +142,14 @@ export class ContentApp
 
     test()
     {
-    }
+        let iframeWindow = new IframeWindow(this, this.display);
+        iframeWindow.show({
+            'above': this.display,
+            'resizable': true,
+            'titleText': 'Theatre Screenplay',
+            'url': 'https://theatre.weblin.sui.li/iframe.html?room=d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org',
+        });
+}
 
     showXmppWindow()
     {
@@ -150,7 +159,7 @@ export class ContentApp
 
     showChangesWindow()
     {
-        new ChangesWindow(this, this.display).show({ });
+        new ChangesWindow(this, this.display).show({});
     }
 
     createPageControl()
@@ -172,7 +181,10 @@ export class ContentApp
 
     showSettings(aboveElem: HTMLElement)
     {
-        new SettingsWindow(this, this.display).show({ 'above': aboveElem });
+        if (!this.settingsWindow) {
+            this.settingsWindow = new SettingsWindow(this, this.display);
+            this.settingsWindow.show({ 'above': aboveElem });
+        }
     }
 
     // Backgound pages dont allow timers 

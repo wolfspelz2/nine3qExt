@@ -18,6 +18,8 @@ export class Window
 
     show(options: any)
     {
+        this.onClose = options.onClose;
+        
         if (!this.windowElem) {
             let windowId = Utils.randomString(10);
             let resizable = as.Bool(options.resizable, false);

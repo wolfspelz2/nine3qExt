@@ -529,6 +529,13 @@ $z-index: (
             cursor: se-resize;
         }
     
+    // #n3q div.n3q-iframewindow {}
+
+    #n3q div.n3q-iframewindow iframe.n3q-iframewindow-content {
+        width: 100%;
+        height: 100%;
+    }
+
     // #n3q div.n3q-settingswindow {}
 
         #n3q div.n3q-settingswindow-content {

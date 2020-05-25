@@ -8,8 +8,6 @@ import { Config } from '../lib/Config';
 import { IObserver, IObservable } from '../lib/ObservableProperty';
 import * as AnimationsXml from './AnimationsXml';
 
-import imgDefaultAvatar from '../assets/DefaultAvatar.png';
-
 class AvatarGetAnimationResult
 {
     constructor(
@@ -42,7 +40,8 @@ export class Avatar implements IObserver
         this.elem = <HTMLImageElement>$('<img class="n3q-base n3q-avatar" />').get(0);
         // var url = 'https://www.virtual-presence.org/images/wolf.png';
         // var url = app.getAssetUrl('default-avatar.png');
-        var url = imgDefaultAvatar;
+        var url = entity.getDefaultAvatar();
+
         this.elem.src = url;
 
         $(this.elem).on('click', ev =>

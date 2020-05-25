@@ -317,9 +317,11 @@ namespace XmppComponent
             var roomItemJid = new RoomItemJid(roomId, itemId, name);
 
             var animationsUrl = props.GetString(Pid.AnimationsUrl);
-            animationsUrl = PropertyFilter.Url(animationsUrl);
-            if (props.ContainsKey(Pid.Image100Url)) {
-                props.Delete(Pid.Image100Url);
+            if (!string.IsNullOrEmpty(animationsUrl)) {
+                animationsUrl = PropertyFilter.Url(animationsUrl);
+                if (props.ContainsKey(Pid.Image100Url)) {
+                    props.Delete(Pid.Image100Url);
+                }
             }
 
             var to = roomItemJid.Full;
