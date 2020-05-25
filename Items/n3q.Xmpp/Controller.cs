@@ -260,8 +260,7 @@ namespace XmppComponent
                 var room = new Item(_clusterClient, roomId);
                 var item = new Item(_clusterClient, itemId);
 
-                await ItemAspect.Container(room).AddItem(item);
-                //await Aspect.Container(room).AddItem(item);
+                await Aspect.Container(room).AddChild(item);
 
                 //var transferredItemId = await TransferItem(itemId, userId, roomId, ItemId.NoItem, 0, new PropertySet { [Pid.RezzedX] = posX, }, new PidList());
 

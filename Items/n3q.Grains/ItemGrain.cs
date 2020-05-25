@@ -40,7 +40,6 @@ namespace n3q.Grains
 
         private IItem Item(string id) => GrainFactory.GetGrain<IItem>(id);
 
-
         #region Lifecycle
 
         public override async Task OnActivateAsync()
@@ -100,10 +99,23 @@ namespace n3q.Grains
             return Task.FromResult((bool)Properties.Get(pid));
         }
 
+        public Task<string> GetItem(Pid pid)
+        {
+            return Task.FromResult((string)Properties.Get(pid));
+        }
+
         public Task AddToItemSet(Pid pid, string itemId)
         {
             var ids = (ItemIdSet)Properties.Get(pid);
             ids.Add(itemId);
+            Properties.Set(pid, ids);
+            return Task.CompletedTask;
+        }
+
+        public Task DeleteFromItemSet(Pid pid, string itemId)
+        {
+            var ids = (ItemIdSet)Properties.Get(pid);
+            ids.Remove(itemId);
             Properties.Set(pid, ids);
             return Task.CompletedTask;
         }
@@ -122,29 +134,4 @@ namespace n3q.Grains
 
         #endregion
     }
-
-    //public class Aspect
-    //{
-    //    public string Id { get; set; }
-
-    //    internal static ContainerAspect Container(string id)
-    //    {
-    //        return new ContainerAspect(id);
-    //    }
-    //}
-
-    //public class ContainerAspect : Aspect
-    //{
-    //    public ContainerAspect(string id)
-    //    {
-    //        Id = id;
-    //    }
-
-    //    public Task AddItem(string id)
-    //    {
-    //        Properties.Set(Pid.Container, dest);
-
-    //        return Task.CompletedTask;
-    //    }
-    //}
 }
