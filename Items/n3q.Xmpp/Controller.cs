@@ -256,13 +256,10 @@ namespace XmppComponent
                     if (!isRezable) { throw new SurfaceException(userId, itemId, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemNotRezable); }
                 }
 
-                //await ItemGrain(itemId).TransferTo(roomId);
                 var room = new Item(_clusterClient, roomId);
                 var item = new Item(_clusterClient, itemId);
 
                 await Aspect.Container(room).AddChild(item);
-
-                //var transferredItemId = await TransferItem(itemId, userId, roomId, ItemId.NoItem, 0, new PropertySet { [Pid.RezzedX] = posX, }, new PidList());
 
                 //var roomItem = AddRoomItem(roomId, transferredItemId);
 

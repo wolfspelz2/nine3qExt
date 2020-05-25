@@ -2,7 +2,7 @@
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 
-namespace n3q.Grains
+namespace n3q.Common
 {
     [Serializable]
     public sealed class SurfaceException : Exception
@@ -26,10 +26,10 @@ namespace n3q.Grains
         public SurfaceException(string message, Exception innerException) : base(message, innerException) { }
         [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter = true)]
         private SurfaceException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-        public override void GetObjectData(SerializationInfo info, StreamingContext context) { if (info == null) { throw new ArgumentNullException("info"); } base.GetObjectData(info, context); }
+        public override void GetObjectData(SerializationInfo info, StreamingContext context) { if (info == null) { throw new ArgumentNullException(nameof(info)); } base.GetObjectData(info, context); }
     }
 
-    public class SurfaceNotification
+    public static class SurfaceNotification
     {
         public enum Fact
         {
