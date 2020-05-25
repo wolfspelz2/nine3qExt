@@ -12,6 +12,11 @@ namespace n3q.Items
     {
         private readonly Dictionary<Pid, string> _properties;
 
+        public PropertySet()
+        {
+            _properties = new Dictionary<Pid, string>();
+        }
+
         public PropertySet(Dictionary<Pid, string> properties)
         {
             _properties = properties;

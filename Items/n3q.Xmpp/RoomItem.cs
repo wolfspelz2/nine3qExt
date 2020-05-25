@@ -17,9 +17,9 @@ namespace XmppComponent
         public PropertySet PublicItemProperties = new PropertySet();
 
         public readonly string RoomId;
-        public readonly long ItemId;
+        public readonly string ItemId;
 
-        public RoomItem(string roomId, long itemId, string resource = "item")
+        public RoomItem(string roomId, string itemId, string resource = "item")
         {
             RoomId = roomId;
             ItemId = itemId;

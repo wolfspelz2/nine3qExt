@@ -91,7 +91,7 @@ namespace XmppComponent
 
         #region Management
 
-        RoomItem AddRoomItem(string roomId, long itemId)
+        RoomItem AddRoomItem(string roomId, string itemId)
         {
             var roomItem = (RoomItem)null;
 
@@ -112,7 +112,7 @@ namespace XmppComponent
             return roomItem;
         }
 
-        RoomItem GetRoomItem(string roomId, long itemId)
+        RoomItem GetRoomItem(string roomId, string itemId)
         {
             var roomItem = (RoomItem)null;
 
@@ -126,7 +126,7 @@ namespace XmppComponent
             return roomItem;
         }
 
-        void RemoveRoomItem(string roomId, long itemId)
+        void RemoveRoomItem(string roomId, string itemId)
         {
             lock (_mutex) {
                 if (_rooms.ContainsKey(roomId)) {
@@ -256,9 +256,9 @@ namespace XmppComponent
                 await Aspect.Rezable(item).AssertAspect(() => throw new SurfaceException(userId, itemId, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemNotRezable));
                 await Aspect.Container(room).AddChild(item);
 
-                //var roomItem = AddRoomItem(roomId, transferredItemId);
+                var roomItem = AddRoomItem(roomId, itemId);
 
-                //await SendPresenceAvailable(roomItem);
+                await SendPresenceAvailable(roomItem);
 
                 //roomItem.State = RoomItem.RezState.Rezzing;
             }
