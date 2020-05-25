@@ -7,7 +7,7 @@ using Orleans.Runtime;
 using Orleans.Configuration;
 using Orleans.Hosting;
 using Orleans.Streams;
-using nine3q.GrainInterfaces;
+using n3q.GrainInterfaces;
 
 namespace TestClient
 {

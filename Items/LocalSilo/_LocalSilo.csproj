@@ -15,9 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\nine3q.GrainInterfaces\nine3q.GrainInterfaces.csproj" />
-    <ProjectReference Include="..\nine3q.Grains\nine3q.Grains.csproj" />
-    <ProjectReference Include="..\nine3q.StorageProviders\nine3q.StorageProviders.csproj" />
+    <ProjectReference Include="..\n3q.GrainInterfaces\n3q.GrainInterfaces.csproj" />
+    <ProjectReference Include="..\n3q.Grains\n3q.Grains.csproj" />
+    <ProjectReference Include="..\n3q.StorageProviders\n3q.StorageProviders.csproj" />
   </ItemGroup>
 
 </Project>

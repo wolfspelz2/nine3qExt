@@ -6,8 +6,8 @@ using Orleans.Configuration;
 using Orleans.Hosting;
 using Orleans.Statistics;
 using Orleans.Providers;
-using nine3q.StorageProviders;
-using nine3q.Grains;
+using n3q.StorageProviders;
+using n3q.Grains;
 
 namespace IntegrationTests
 {

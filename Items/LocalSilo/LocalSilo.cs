@@ -7,8 +7,8 @@ using Orleans.Configuration;
 using Orleans.Hosting;
 using Orleans.Statistics;
 using Orleans.Providers;
-using nine3q.Grains;
-using nine3q.StorageProviders;
+using n3q.Grains;
+using n3q.StorageProviders;
 
 namespace LocalSilo
 {
@@ -66,12 +66,6 @@ namespace LocalSilo
                     name: JsonFileStorage.StorageProviderName,
                     configureOptions: options => {
                         options.RootDirectory = @"C:\Heiner\github-nine3q\Backend\Test\JsonFileStorage";
-                    })
-
-                .AddInventoryFileStorage(
-                    name: InventoryFileStorage.StorageProviderName,
-                    configureOptions: options => {
-                        options.RootDirectory = @"C:\Heiner\github-nine3q\Backend\Test\InventoryFileStorage";
                     })
 
                 .UsePerfCounterEnvironmentStatistics()

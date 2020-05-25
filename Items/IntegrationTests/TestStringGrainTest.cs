@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using nine3q.GrainInterfaces;
-using nine3q.Tools;
+using n3q.GrainInterfaces;
+using n3q.Tools;
 
 namespace IntegrationTests
 {
