@@ -51,7 +51,6 @@ namespace IntegrationTests
             }
         }
 
-
         [TestMethod]
         [TestCategory(GrainClient.Category)]
         public async System.Threading.Tasks.Task GetProperties()
@@ -75,5 +74,30 @@ namespace IntegrationTests
                 item.DeletePersistentStorage().Wait();
             }
         }
+
+        [TestMethod]
+        [TestCategory(GrainClient.Category)]
+        public async System.Threading.Tasks.Task GetProperties_by_access_level()
+        {
+            // Arrange 
+            var item = GrainClient.GrainFactory.GetGrain<IItem>($"{nameof(ItemGrainTest)}-{nameof(GetProperties_by_access_level)}-{RandomString.Get(10)}");
+
+            try {
+                // Act 
+                await item.Set(Pid.TestInternal, 41);
+                await item.Set(Pid.TestPublic, 42);
+                var props = await item.GetProperties(PidSet.Public);
+
+                // Assert
+                Assert.AreEqual(1, props.Count);
+                Assert.AreEqual(0, (long)props.Get(Pid.TestInternal));
+                Assert.AreEqual(42, (long)props.Get(Pid.TestPublic));
+
+            } finally {
+                // Cleanup
+                item.DeletePersistentStorage().Wait();
+            }
+        }
+
     }
 }

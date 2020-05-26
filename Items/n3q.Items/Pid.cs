@@ -47,13 +47,16 @@
 
         // Generic
         FirstGeneric = 2000000,
-        Id,
+        //Id,
         Name,
         TemplateId,
         Label,
         Container,
         Contains,
         Stacksize,
+        Icon32Url,
+        Image100Url,
+        AnimationsUrl,
 
         // Aspect
         FirstAspect = 3000000,
@@ -64,18 +67,17 @@
         RezableAspect,
         IframeAspect,
 
-        // Level (*Max by convention)
-        FirstLevel = 4000000,
-        //WaterLevel,
-        //WaterLevelMax,
-
         // App
         FirstApp = 5000000,
         ContainerItemLimit,
+        IsRezzed,
+        RezzedX,
         IframeUrl,
         IframeWidth,
         IframeHeight,
         IframeResizeable,
+        //WaterLevel,
+        //WaterLevelMax,
 
         // User Attribute
         FirstAttribute = 6000000,

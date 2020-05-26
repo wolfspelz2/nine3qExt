@@ -49,18 +49,31 @@ namespace n3q.Items
             return _value;
         }
 
-        //#region Serializable
+        #region Defined values
 
-        //protected PropertyValue(SerializationInfo info, StreamingContext context)
-        //{
-        //    _value = info.GetString("value");
-        //}
+        public enum Roles
+        {
+            Public,
+            User,
+            PowerUser,
+            Moderator,
+            LeadModerator,
+            Janitor,
+            LeadJanitor,
+            Content,
+            LeadContent,
+            Admin,
+            Developer,
+            SecurityAdmin
+        }
 
-        //public void GetObjectData(SerializationInfo info, StreamingContext context)
-        //{
-        //    info.AddValue("value", _value);
-        //}
+        public enum TestEnum
+        {
+            Unknown,
+            Value1,
+            Value2,
+        }
 
-        //#endregion
+        #endregion
     }
 }

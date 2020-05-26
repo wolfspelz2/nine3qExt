@@ -178,7 +178,17 @@ namespace n3q.Grains
 
         private PropertySet GetPropertiesByAccess(Property.Access access, bool native = false)
         {
-            return Properties;
+            var result = new PropertySet();
+
+            foreach (Pid pid in Enum.GetValues(typeof(Pid))) {
+                if (Property.Definitions[pid].Access == Property.Access.Public) {
+                    if (Properties.ContainsKey(pid)) {
+                        result.Add(pid, Properties[pid]);
+                    }
+                }
+            }
+
+            return result;
         }
 
         #endregion
