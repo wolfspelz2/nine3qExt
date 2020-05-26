@@ -147,12 +147,10 @@ namespace n3q.Grains
         {
             if (pids == PidSet.All) {
                 return await GetPropertiesAll(native);
-            } else if (pids.Count == 1 && pids.Contains(Pid.PublicAccess)) {
-                return GetPropertiesPublic(native);
-            } else if (pids.Count == 1 && pids.Contains(Pid.OwnerAccess)) {
-                return GetPropertiesOwner(native);
+            } else if (pids.Count == 1 && (pids.Contains(Pid.PublicAccess) || pids.Contains(Pid.OwnerAccess))) {
+                return await GetPropertiesByAccess(pids.First(), native);
             }
-            return GetPropertiesByPid(pids, native);
+            return await GetPropertiesByPid(pids, native);
         }
 
         public Task Delete(Pid pid)
@@ -176,44 +174,80 @@ namespace n3q.Grains
                 if (Has.Value(templateId)) {
                     result = await Item(templateId).GetProperties(PidSet.All);
                 }
-            }
 
-            result ??= new PropertySet();
-            foreach (var pair in Properties) {
-                result[pair.Key] = pair.Value;
-            }
-
-            return result;
-        }
-
-        private PropertySet GetPropertiesByPid(PidSet pids, bool native = false)
-        {
-            return Properties;
-        }
-
-        public PropertySet GetPropertiesPublic(bool native = false)
-        {
-            return GetPropertiesByAccess(Property.Access.Public, native);
-        }
-
-        public PropertySet GetPropertiesOwner(bool native = false)
-        {
-            return GetPropertiesByAccess(Property.Access.Owner, native);
-        }
-
-        private PropertySet GetPropertiesByAccess(Property.Access access, bool native = false)
-        {
-            var result = new PropertySet();
-
-            foreach (Pid pid in Enum.GetValues(typeof(Pid))) {
-                if (Property.Definitions[pid].Access == Property.Access.Public) {
-                    if (Properties.ContainsKey(pid)) {
-                        result.Add(pid, Properties[pid]);
-                    }
+                result ??= new PropertySet();
+                foreach (var pair in Properties) {
+                    result[pair.Key] = pair.Value;
                 }
             }
 
             return result;
+        }
+
+        private async Task<PropertySet> GetPropertiesByPid(PidSet pids, bool native = false)
+        {
+            var result = new PropertySet();
+
+            if (native) {
+                CopyPropertiesByPidSelection(result, pids);
+            } else {
+                var templateId = (string)Properties.Get(Pid.TemplateId);
+                if (Has.Value(templateId)) {
+                    result = await Item(templateId).GetProperties(pids);
+                }
+
+                result ??= new PropertySet();
+                CopyPropertiesByPidSelection(result, pids);
+            }
+
+            return result;
+        }
+
+        private void CopyPropertiesByPidSelection(PropertySet result, PidSet pids)
+        {
+            foreach (Pid pid in Enum.GetValues(typeof(Pid))) {
+                if (pids.Contains(pid)) {
+                    if (Properties.ContainsKey(pid)) {
+                        result[pid] = Properties[pid];
+                    }
+                }
+            }
+        }
+
+        private async Task<PropertySet> GetPropertiesByAccess(Pid accessPid, bool native = false)
+        {
+            var result = new PropertySet();
+
+            var access = Property.Access.System;
+            switch (accessPid) {
+                case Pid.OwnerAccess: access = Property.Access.Owner; break;
+                case Pid.PublicAccess: access = Property.Access.Public; break;
+            }
+
+            if (native) {
+                CopyPropertiesByAccessLevel(result, access);
+            } else {
+                var templateId = (string)Properties.Get(Pid.TemplateId);
+                if (Has.Value(templateId)) {
+                    result = await Item(templateId).GetProperties(new PidSet { accessPid });
+                }
+
+                result ??= new PropertySet();
+                CopyPropertiesByAccessLevel(result, access);
+            }
+
+            return result;
+        }
+
+        private void CopyPropertiesByAccessLevel(PropertySet result, Property.Access access)
+        {
+            foreach (Pid pid in Enum.GetValues(typeof(Pid))) {
+                if (Property.Definitions[pid].Access >= access) {
+                    if (Properties.ContainsKey(pid)) {
+                        result[pid] = Properties[pid];
+                    }
+                }
+            }
         }
 
         #endregion
