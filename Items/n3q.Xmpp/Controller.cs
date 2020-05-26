@@ -253,7 +253,7 @@ namespace XmppComponent
                 await Aspect.Rezable(item).AssertAspect(() => throw new SurfaceException(userId, itemId, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemNotRezable));
                 await Aspect.Container(room).AddChild(item);
 
-                var itemContainerId = await item.Grain.GetItem(Pid.Container);
+                var itemContainerId = await item.GetItemId(Pid.Container);
                 if (itemContainerId != roomId) {
                     // ...
                 }

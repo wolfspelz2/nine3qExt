@@ -9,19 +9,23 @@ namespace n3q.GrainInterfaces
 {
     public interface IItem : IGrainWithStringKey
     {
+        Task Set(Pid pid, string value);
+        Task AddToItemSet(Pid pid, string itemId);
+        Task DeleteFromItemSet(Pid pid, string itemId);
+
+        Task<string> GetString(Pid pid);
+        Task<long> GetInt(Pid pid);
+        Task<double> GetFloat(Pid pid);
+        Task<bool> GetBool(Pid pid);
+        Task<string> GetItemId(Pid pid);
+        Task<ItemIdSet> GetItemIdSet(Pid pid);
+
         Task<Guid> GetStreamId();
         Task<string> GetStreamNamespace();
         Task Deactivate();
         Task WritePersistentStorage();
         Task ReadPersistentStorage();
         Task DeletePersistentStorage();
-
-        Task Set(Pid pid, string value);
-        Task AddToItemSet(Pid pid, string itemId);
-        Task DeleteFromItemSet(Pid pid, string itemId);
-
-        Task<string> GetItem(Pid pid);
-        Task<bool> GetBool(Pid pid);
     }
 
 }

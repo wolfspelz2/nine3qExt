@@ -53,12 +53,14 @@
         Label,
         Container,
         Contains,
+        Stacksize,
 
         // Aspect
         FirstAspect = 3000000,
         Test1Aspect,
         Test2Aspect,
         ContainerAspect,
+        ItemCapacityLimitAspect,
         RezableAspect,
         IframeAspect,
 
@@ -69,6 +71,7 @@
 
         // App
         FirstApp = 5000000,
+        ContainerItemLimit,
         IframeUrl,
         IframeWidth,
         IframeHeight,

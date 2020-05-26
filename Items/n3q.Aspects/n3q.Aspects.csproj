@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\n3q.Common\n3q.Common.csproj" />
     <ProjectReference Include="..\n3q.GrainInterfaces\n3q.GrainInterfaces.csproj" />
     <ProjectReference Include="..\n3q.Items\n3q.Items.csproj" />
     <ProjectReference Include="..\n3q.Tools\n3q.Tools.csproj" />

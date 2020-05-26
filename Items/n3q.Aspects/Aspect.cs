@@ -8,6 +8,8 @@ namespace n3q.Aspects
 {
     public class Aspect
     {
+        #region Core
+
         protected Item self;
         protected IItem MyGrain => Grain(self);
         protected string Id => self.Id;
@@ -15,10 +17,10 @@ namespace n3q.Aspects
 
         public IItem Grain(Item item)
         {
-            return item.ClusterClient.GetGrain<IItem>(item.Id);
+            return Client.GetGrain<IItem>(item.Id);
         }
 
-        protected Item GetItem(string itemId)
+        protected Item Item(string itemId)
         {
             return new Item(Client, itemId);
         }
@@ -41,7 +43,7 @@ namespace n3q.Aspects
 
         public async Task AssertAspect() { await AssertAspect(GetAspectPid()); }
 
-        public async Task AssertAspect(Action action)
+        public async Task AssertAspect(Action action = null)
         {
             if (action != null) {
                 try { await AssertAspect(); } catch (Exception) { action.Invoke(); }
@@ -50,7 +52,14 @@ namespace n3q.Aspects
             }
         }
 
-        public static ContainerAspect Container(Item item) { return new ContainerAspect(item); }
-        public static RezableAspect Rezable(Item item) { return new RezableAspect(item); }
+        #endregion
+
+        #region Aspects
+
+        public static Container Container(Item item) { return new Container(item); }
+        public static CapacityLimit CapacityLimit(Item item) { return new CapacityLimit(item); }
+        public static Rezable Rezable(Item item) { return new Rezable(item); }
+
+        #endregion
     }
 }

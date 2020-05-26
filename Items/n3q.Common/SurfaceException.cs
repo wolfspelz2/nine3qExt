@@ -8,16 +8,16 @@ namespace n3q.Common
     public sealed class SurfaceException : Exception
     {
         public string Context { get; set; }
-        public long ItemId;
+        public string ItemId;
         public SurfaceNotification.Fact Fact { get; set; }
         public SurfaceNotification.Reason Reason { get; set; }
 
-        public SurfaceException(string contextId, long itemId, SurfaceNotification.Fact fact, SurfaceNotification.Reason reason)
+        public SurfaceException(string contextId, string itemId, SurfaceNotification.Fact fact, SurfaceNotification.Reason reason)
             : base($"{contextId} item {itemId}: {fact.ToString()} {reason.ToString()}")
         {
-            Context = contextId; 
-            ItemId = itemId; 
-            Fact = fact; 
+            Context = contextId;
+            ItemId = itemId;
+            Fact = fact;
             Reason = reason;
         }
 
@@ -37,6 +37,7 @@ namespace n3q.Common
             Error,
             NotRezzed,
             NotDerezzed,
+            NotExecuted,
         }
 
         public enum Reason
@@ -45,6 +46,7 @@ namespace n3q.Common
             NotRezzed,
             NotYourItem,
             TransferFailed,
+            CapacityLimit,
         }
     }
 }

@@ -3,9 +3,9 @@ using n3q.Items;
 
 namespace n3q.Aspects
 {
-    public class RezableAspect : Aspect
+    public class Rezable : Aspect
     {
-        public RezableAspect(Item item) { self = item; }
+        public Rezable(Item item) { self = item; }
         public override Pid GetAspectPid() => Pid.RezableAspect;
     }
 }

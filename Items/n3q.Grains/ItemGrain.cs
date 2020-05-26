@@ -64,7 +64,66 @@ namespace n3q.Grains
 
         #endregion
 
-        #region Test/Maintanance
+        #region Interface
+
+        public Task Set(Pid pid, string value)
+        {
+            Properties.Set(pid, value);
+            return Task.CompletedTask;
+        }
+
+        public Task AddToItemSet(Pid pid, string itemId)
+        {
+            var ids = (ItemIdSet)Properties.Get(pid);
+            ids.Add(itemId);
+            Properties.Set(pid, ids);
+            return Task.CompletedTask;
+        }
+
+        public Task DeleteFromItemSet(Pid pid, string itemId)
+        {
+            var ids = (ItemIdSet)Properties.Get(pid);
+            ids.Remove(itemId);
+            Properties.Set(pid, ids);
+            return Task.CompletedTask;
+        }
+
+        public Task<string> GetString(Pid pid)
+        {
+            return Task.FromResult((string)Properties.Get(pid));
+        }
+
+        public Task<long> GetInt(Pid pid)
+        {
+            return Task.FromResult((long)Properties.Get(pid));
+        }
+
+        public Task<double> GetFloat(Pid pid)
+        {
+            return Task.FromResult((double)Properties.Get(pid));
+        }
+
+        public Task<bool> GetBool(Pid pid)
+        {
+            return Task.FromResult((bool)Properties.Get(pid));
+        }
+
+        public Task<string> GetItemId(Pid pid)
+        {
+            return Task.FromResult((string)Properties.Get(pid));
+        }
+
+        public Task<ItemIdSet> GetItemIdSet(Pid pid)
+        {
+            return Task.FromResult((ItemIdSet)Properties.Get(pid));
+        }
+
+        #endregion
+
+        #region Test / Maintanance / Operation
+
+        public Task<Guid> GetStreamId() { return Task.FromResult(_streamId); }
+        public Task<string> GetStreamNamespace() { return Task.FromResult(_streamNamespace); }
 
         public Task Deactivate()
         {
@@ -89,49 +148,5 @@ namespace n3q.Grains
 
         #endregion
 
-        #region Interface
-
-        public Task<Guid> GetStreamId() { return Task.FromResult(_streamId); }
-        public Task<string> GetStreamNamespace() { return Task.FromResult(_streamNamespace); }
-
-        public Task<bool> GetBool(Pid pid)
-        {
-            return Task.FromResult((bool)Properties.Get(pid));
-        }
-
-        public Task<string> GetItem(Pid pid)
-        {
-            return Task.FromResult((string)Properties.Get(pid));
-        }
-
-        public Task AddToItemSet(Pid pid, string itemId)
-        {
-            var ids = (ItemIdSet)Properties.Get(pid);
-            ids.Add(itemId);
-            Properties.Set(pid, ids);
-            return Task.CompletedTask;
-        }
-
-        public Task DeleteFromItemSet(Pid pid, string itemId)
-        {
-            var ids = (ItemIdSet)Properties.Get(pid);
-            ids.Remove(itemId);
-            Properties.Set(pid, ids);
-            return Task.CompletedTask;
-        }
-
-        public Task Set(Pid pid, string value)
-        {
-            Properties.Set(pid, value);
-            return Task.CompletedTask;
-        }
-
-        //public async Task Transfer(string dest)
-        //{
-        //    await Aspect.Container(dest).AddItem(Id);
-        //    //Properties.Set(Pid.Container, dest);
-        //}
-
-        #endregion
     }
 }
