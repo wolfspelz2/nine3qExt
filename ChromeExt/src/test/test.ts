@@ -11,6 +11,7 @@ import { TestConfig } from './TestConfig'; s.addTestClass(TestConfig);
 import { TestTranslator } from './TestTranslator'; s.addTestClass(TestTranslator);
 import { TestMisc } from './TestMisc'; s.addTestClass(TestMisc);
 import { TestVpiResolver } from './TestVpiResolver'; s.addTestClass(TestVpiResolver);
+import { TestItem } from './TestItem'; s.addTestClass(TestItem);
 
 s.run().then(() =>
 {
