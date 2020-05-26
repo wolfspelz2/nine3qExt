@@ -16,8 +16,8 @@ namespace n3q.Tools
     }
 
     public static class StringExtensions
-        {
-            public static bool IsSomething(this string self)
+    {
+        public static bool IsSomething(this string self)
         {
             return !string.IsNullOrEmpty(self);
         }

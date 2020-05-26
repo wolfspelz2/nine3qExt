@@ -8,9 +8,8 @@ namespace n3q.Aspects
 {
     public class Aspect
     {
-        #region Core
-
         protected Item self;
+        public Item Self => self;
         protected IItem MyGrain => Grain(self);
         protected string Id => self.Id;
         protected IClusterClient Client => self.ClusterClient;
@@ -51,15 +50,5 @@ namespace n3q.Aspects
                 await AssertAspect();
             }
         }
-
-        #endregion
-
-        #region Aspects
-
-        public static Container Container(Item item) { return new Container(item); }
-        public static CapacityLimit CapacityLimit(Item item) { return new CapacityLimit(item); }
-        public static Rezable Rezable(Item item) { return new Rezable(item); }
-
-        #endregion
     }
 }
