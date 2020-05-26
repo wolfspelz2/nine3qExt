@@ -153,6 +153,7 @@ namespace n3q.Grains
                 }
             }
 
+            result ??= new PropertySet();
             foreach (var pair in Properties) {
                 result[pair.Key] = pair.Value;
             }

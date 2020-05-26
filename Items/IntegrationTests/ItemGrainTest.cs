@@ -63,10 +63,12 @@ namespace IntegrationTests
                 // Act 
                 await item.Set(Pid.TestInt, 42);
                 await item.Set(Pid.TestString, "42");
-                var value = await item.Get(Pid.TestString);
+                var props = await item.GetProperties(PidSet.All);
 
                 // Assert
-                Assert.AreEqual("42", (string)value);
+                Assert.AreEqual(42, (long)props.Get(Pid.TestInt));
+                Assert.AreEqual(42, (int)props.Get(Pid.TestInt));
+                Assert.AreEqual("42", (string)props.Get(Pid.TestString));
 
             } finally {
                 // Cleanup

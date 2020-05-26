@@ -9,7 +9,6 @@ using n3q.Tools;
 
 namespace n3q.Items
 {
-    //[Serializable]
     public class PropertySet : Dictionary<Pid, PropertyValue>
     {
         public PropertySet()
@@ -55,39 +54,5 @@ namespace n3q.Items
         {
             this[pid] = new PropertyValue(ids);
         }
-
-        //protected PropertySet(SerializationInfo serializationInfo, StreamingContext streamingContext)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //#region Serializable
-
-        //const string KeyNamesAttribute = "__Properties";
-        //const string AttributePrefix = "_";
-        //const string Separator = " ";
-        //static readonly char[] SeparatorSplitArg = new[] { Separator[0] };
-
-        //protected PropertySet(SerializationInfo info, StreamingContext context)
-        //{
-        //    Contract.Requires(info != null);
-        //    var propertyNames = info.GetString(KeyNamesAttribute).Split(SeparatorSplitArg, StringSplitOptions.RemoveEmptyEntries);
-        //    foreach (var name in propertyNames) {
-        //        var attr = AttributePrefix + name;
-        //        Add(name.ToEnum(Pid.Unknown), new PropertyValue(info.GetString(attr)));
-        //    }
-        //}
-
-        //public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        //{
-        //    Contract.Requires(info != null);
-        //    base.GetObjectData(info, context);
-        //    foreach (var pair in this) {
-        //        info.AddValue(AttributePrefix + pair.Key.ToString(), pair.Value.ToString());
-        //    }
-        //    info.AddValue(KeyNamesAttribute, string.Join(Separator, Keys.ToList().ConvertAll(x => x.ToString())));
-        //}
-
-        //#endregion
     }
 }
