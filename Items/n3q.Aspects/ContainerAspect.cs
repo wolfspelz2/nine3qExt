@@ -12,10 +12,19 @@ namespace n3q.Aspects
         {
             await AssertAspect();
 
-            var container = GetItem(await Grain(child).GetItem(Pid.Container));
-            await Grain(container).DeleteFromItemSet(Pid.Contains, Id);
-            await Grain(self).AddToItemSet(Pid.Contains, child.Id);
-            await Grain(child).Set(Pid.Container, Id);
+            {
+                var container = GetItem(await child.Grain.GetItem(Pid.Container));
+                await container.Grain.DeleteFromItemSet(Pid.Contains, Id);
+                await self.Grain.AddToItemSet(Pid.Contains, child.Id);
+                await child.Grain.Set(Pid.Container, Id);
+            }
+
+            {
+                var container = GetItem(await child.I.GetItem(Pid.Container));
+                await container.I.DeleteFromItemSet(Pid.Contains, Id);
+                await self.I.AddToItemSet(Pid.Contains, child.Id);
+                await child.I.Set(Pid.Container, Id);
+            }
         }
     }
 }
