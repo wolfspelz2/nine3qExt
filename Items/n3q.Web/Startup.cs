@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
+using n3q.Common;
 
 namespace n3q.Web
 {
@@ -29,10 +30,10 @@ namespace n3q.Web
                     var client = new ClientBuilder()
                         .UseLocalhostClustering()
                         .Configure<ClusterOptions>(options => {
-                            options.ClusterId = "dev";
-                            options.ServiceId = "WeblinItems";
+                            options.ClusterId = Cluster.DevClusterId;
+                            options.ServiceId = Cluster.ServiceId;
                         })
-                        .AddSimpleMessageStreamProvider("SMSProvider")
+                        .AddSimpleMessageStreamProvider(ItemService.StreamProvider)
                         .Build();
 
                     client.Connect().Wait();

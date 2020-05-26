@@ -8,6 +8,7 @@ using Orleans.Configuration;
 using Orleans.Hosting;
 using Orleans.Streams;
 using n3q.GrainInterfaces;
+using n3q.Common;
 
 namespace TestClient
 {
@@ -17,8 +18,8 @@ namespace TestClient
 
     public class TestClient
     {
-        const int initializeAttemptsBeforeFailing = 5;
-        private static int attempt = 0;
+        const int InitializeAttemptsBeforeFailing = 5;
+        private static int _attempt = 0;
 
 #pragma warning disable IDE0060 // Remove unused parameter
         static int Main(string[] args)
@@ -44,13 +45,13 @@ namespace TestClient
 
         private static async Task<IClusterClient> StartClientWithRetries()
         {
-            attempt = 0;
+            _attempt = 0;
             IClusterClient client;
             client = new ClientBuilder()
                 .UseLocalhostClustering()
                 .Configure<ClusterOptions>(options => {
-                    options.ClusterId = "dev";
-                    options.ServiceId = "WeblinItems";
+                    options.ClusterId = Cluster.DevClusterId;
+                    options.ServiceId = Cluster.ServiceId;
                 })
                 .ConfigureLogging(logging => { logging.AddConsole(); logging.SetMinimumLevel(LogLevel.Error); })
                 .AddSimpleMessageStreamProvider("SMSProvider")
@@ -67,9 +68,9 @@ namespace TestClient
                 Console.WriteLine($"Cluster client failed to connect to cluster with unexpected error.  Exception: {exception}");
                 return false;
             }
-            attempt++;
-            Console.WriteLine($"Cluster client attempt {attempt} of {initializeAttemptsBeforeFailing} failed to connect to cluster.  Exception: {exception}");
-            if (attempt > initializeAttemptsBeforeFailing) {
+            _attempt++;
+            Console.WriteLine($"Cluster client attempt {_attempt} of {InitializeAttemptsBeforeFailing} failed to connect to cluster.  Exception: {exception}");
+            if (_attempt > InitializeAttemptsBeforeFailing) {
                 return false;
             }
             await Task.Delay(TimeSpan.FromSeconds(4));

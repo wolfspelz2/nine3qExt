@@ -5,7 +5,7 @@ using Orleans;
 using Orleans.Runtime;
 using Orleans.Configuration;
 using Orleans.Hosting;
-using n3q.GrainInterfaces;
+using n3q.Common;
 using n3q.Tools;
 
 namespace XmppComponent
@@ -46,11 +46,11 @@ namespace XmppComponent
             client = new ClientBuilder()
                 .UseLocalhostClustering()
                 .Configure<ClusterOptions>(options => {
-                    options.ClusterId = "dev";
-                    options.ServiceId = "WeblinItems";
+                    options.ClusterId = Cluster.DevClusterId;
+                    options.ServiceId = Cluster.ServiceId;
                 })
                 .ConfigureLogging(logging => { logging.AddConsole(); logging.SetMinimumLevel(LogLevel.Error); })
-                .AddSimpleMessageStreamProvider("SMSProvider")
+                .AddSimpleMessageStreamProvider(ItemService.StreamProvider)
                 .Build();
 
             await client.Connect(RetryFilter);

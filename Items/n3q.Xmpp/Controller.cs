@@ -24,7 +24,7 @@ namespace XmppComponent
         readonly string _componentSecret;
 
         readonly IClusterClient _clusterClient;
-        private StreamSubscriptionHandle<ItemUpdate> _subscriptionHandle;
+        StreamSubscriptionHandle<ItemUpdate> _subscriptionHandle;
 
         readonly object _mutex = new object();
         readonly Dictionary<string, ManagedRoom> _rooms = new Dictionary<string, ManagedRoom>();

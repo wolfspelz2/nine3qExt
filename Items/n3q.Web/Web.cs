@@ -10,6 +10,7 @@ using Orleans.Hosting;
 using Orleans.Providers;
 using Orleans.Statistics;
 using Orleans;
+using n3q.Common;
 using n3q.StorageProviders;
 using n3q.Grains;
 
@@ -61,7 +62,7 @@ namespace n3q.Web
                     // EnableDirectClient is no longer needed as it is enabled by default
                     builder.UseLocalhostClustering()
 
-                    .AddSimpleMessageStreamProvider("SMSProvider", options => {
+                    .AddSimpleMessageStreamProvider(ItemService.StreamProvider, options => {
                         options.FireAndForgetDelivery = true;
                     })
 
@@ -72,13 +73,7 @@ namespace n3q.Web
                     .AddJsonFileStorage(
                         name: JsonFileStorage.StorageProviderName,
                         configureOptions: options => {
-                            options.RootDirectory = @"C:\Heiner\github-nine3q\Backend\Test\JsonFileStorage";
-                        })
-
-                    .AddInventoryFileStorage(
-                        name: InventoryFileStorage.StorageProviderName,
-                        configureOptions: options => {
-                            options.RootDirectory = @"C:\Heiner\github-nine3q\Backend\Test\InventoryFileStorage";
+                            options.RootDirectory = ItemService.JsonFileStorageRoot;
                         })
 
                     .UsePerfCounterEnvironmentStatistics()

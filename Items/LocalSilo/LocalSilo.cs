@@ -7,6 +7,7 @@ using Orleans.Configuration;
 using Orleans.Hosting;
 using Orleans.Statistics;
 using Orleans.Providers;
+using n3q.Common;
 using n3q.Grains;
 using n3q.StorageProviders;
 
@@ -43,8 +44,8 @@ namespace LocalSilo
                 .UseLocalhostClustering()
 
                 .Configure<ClusterOptions>(options => {
-                    options.ClusterId = "dev";
-                    options.ServiceId = "WeblinItems";
+                    options.ClusterId = Cluster.DevClusterId;
+                    options.ServiceId = Cluster.ServiceId;
                 })
 
                 .Configure<EndpointOptions>(options => options.AdvertisedIPAddress = IPAddress.Loopback)
@@ -54,7 +55,7 @@ namespace LocalSilo
                     logging.SetMinimumLevel(LogLevel.Error);
                 })
 
-                .AddSimpleMessageStreamProvider("SMSProvider", options => {
+                .AddSimpleMessageStreamProvider(ItemService.StreamProvider, options => {
                     options.FireAndForgetDelivery = true;
                 })
 
@@ -65,7 +66,7 @@ namespace LocalSilo
                 .AddJsonFileStorage(
                     name: JsonFileStorage.StorageProviderName,
                     configureOptions: options => {
-                        options.RootDirectory = @"C:\Heiner\github-nine3q\Backend\Test\JsonFileStorage";
+                        options.RootDirectory = ItemService.JsonFileStorageRoot;
                     })
 
                 .UsePerfCounterEnvironmentStatistics()

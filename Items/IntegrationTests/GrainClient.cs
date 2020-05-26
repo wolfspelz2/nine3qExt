@@ -6,6 +6,7 @@ using Orleans.Configuration;
 using Orleans.Hosting;
 using Orleans.Statistics;
 using Orleans.Providers;
+using n3q.Common;
 using n3q.StorageProviders;
 using n3q.Grains;
 
@@ -15,8 +16,6 @@ namespace IntegrationTests
     public static class GrainClient
     {
         public const string Category = "WithSilo";
-        public const string ClusterId = "test";
-        public const string ServiceId = "WeblinItems";
 
         public static ISiloHost SiloHost { get; set; }
         public static IClusterClient GrainFactory { get; set; }
@@ -28,8 +27,8 @@ namespace IntegrationTests
                 .UseLocalhostClustering()
 
                 .Configure<ClusterOptions>(options => {
-                    options.ClusterId = ClusterId;
-                    options.ServiceId = ServiceId;
+                    options.ClusterId = Cluster.TestClusterId;
+                    options.ServiceId = Cluster.ServiceId;
                 })
 
                 .Configure<EndpointOptions>(options => options.AdvertisedIPAddress = IPAddress.Loopback)
@@ -39,7 +38,7 @@ namespace IntegrationTests
                 //    logging.SetMinimumLevel(LogLevel.Error);
                 //})
 
-                .AddSimpleMessageStreamProvider("SMSProvider", options => {
+                .AddSimpleMessageStreamProvider(ItemService.StreamProvider, options => {
                     options.FireAndForgetDelivery = true;
                 })
 
@@ -50,7 +49,7 @@ namespace IntegrationTests
                 .AddJsonFileStorage(
                     name: JsonFileStorage.StorageProviderName,
                     configureOptions: options => {
-                        options.RootDirectory = @"C:\Heiner\github-nine3q\Backend\Test\JsonFileStorage";
+                        options.RootDirectory = ItemService.JsonFileStorageRoot;
                     })
 
                 .UsePerfCounterEnvironmentStatistics()
@@ -68,11 +67,11 @@ namespace IntegrationTests
             var client = new ClientBuilder()
                 .UseLocalhostClustering()
                 .Configure<ClusterOptions>(options => {
-                    options.ClusterId = ClusterId;
-                    options.ServiceId = ServiceId;
+                    options.ClusterId = Cluster.DevClusterId;
+                    options.ServiceId = Cluster.ServiceId;
                 })
                 //.ConfigureLogging(logging => { logging.AddConsole(); logging.SetMinimumLevel(LogLevel.Error); })
-                .AddSimpleMessageStreamProvider("SMSProvider")
+                .AddSimpleMessageStreamProvider(ItemService.StreamProvider)
                 .Build();
 
             await client.Connect();

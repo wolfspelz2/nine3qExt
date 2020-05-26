@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using n3q.Tools;
 using n3q.Items;
 using n3q.GrainInterfaces;
+using System.Threading;
 
 namespace IntegrationTests
 {
@@ -11,13 +13,13 @@ namespace IntegrationTests
     {
         [TestMethod]
         [TestCategory(GrainClient.Category)]
-        public async System.Threading.Tasks.Task SetGet_string()
+        public async Task SetGet_string()
         {
-            // Arrange 
+            // Arrange
             var item = GrainClient.GrainFactory.GetGrain<IItem>($"{nameof(ItemGrainTest)}-{nameof(SetGet_string)}-{RandomString.Get(10)}");
 
             try {
-                // Act 
+                // Act
                 await item.Set(Pid.TestString, "42");
                 var value = await item.GetString(Pid.TestString);
 
@@ -26,19 +28,19 @@ namespace IntegrationTests
 
             } finally {
                 // Cleanup
-                item.DeletePersistentStorage().Wait();
+                await item.DeletePersistentStorage();
             }
         }
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
-        public async System.Threading.Tasks.Task SetGet_PropertyValue()
+        public async Task SetGet_PropertyValue()
         {
-            // Arrange 
+            // Arrange
             var item = GrainClient.GrainFactory.GetGrain<IItem>($"{nameof(ItemGrainTest)}-{nameof(SetGet_PropertyValue)}-{RandomString.Get(10)}");
 
             try {
-                // Act 
+                // Act
                 await item.Set(Pid.TestString, "42");
                 var value = await item.Get(Pid.TestString);
 
@@ -47,19 +49,19 @@ namespace IntegrationTests
 
             } finally {
                 // Cleanup
-                item.DeletePersistentStorage().Wait();
+                await item.DeletePersistentStorage();
             }
         }
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
-        public async System.Threading.Tasks.Task GetProperties()
+        public async Task GetProperties()
         {
-            // Arrange 
+            // Arrange
             var item = GrainClient.GrainFactory.GetGrain<IItem>($"{nameof(ItemGrainTest)}-{nameof(GetProperties)}-{RandomString.Get(10)}");
 
             try {
-                // Act 
+                // Act
                 await item.Set(Pid.TestInt, 42);
                 await item.Set(Pid.TestString, "42");
                 var props = await item.GetProperties(PidSet.All);
@@ -71,22 +73,22 @@ namespace IntegrationTests
 
             } finally {
                 // Cleanup
-                item.DeletePersistentStorage().Wait();
+                await item.DeletePersistentStorage();
             }
         }
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
-        public async System.Threading.Tasks.Task GetProperties_by_access_level()
+        public async Task GetProperties_by_access_level()
         {
-            // Arrange 
+            // Arrange
             var item = GrainClient.GrainFactory.GetGrain<IItem>($"{nameof(ItemGrainTest)}-{nameof(GetProperties_by_access_level)}-{RandomString.Get(10)}");
 
             try {
                 await item.Set(Pid.TestInternal, 41);
                 await item.Set(Pid.TestPublic, 42);
 
-                // Act 
+                // Act
                 var props = await item.GetProperties(PidSet.Public);
 
                 // Assert
@@ -96,24 +98,23 @@ namespace IntegrationTests
 
             } finally {
                 // Cleanup
-                item.DeletePersistentStorage().Wait();
+                await item.DeletePersistentStorage();
             }
         }
 
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
-        public async System.Threading.Tasks.Task Delete()
+        public async Task Delete()
         {
-            // Arrange 
+            // Arrange
             var item = GrainClient.GrainFactory.GetGrain<IItem>($"{nameof(ItemGrainTest)}-{nameof(Delete)}-{RandomString.Get(10)}");
 
             try {
-                // Act 
                 await item.Set(Pid.TestInt, 42);
                 await item.Set(Pid.TestString, "42");
 
-                // Act 
+                // Act
                 await item.Delete(Pid.TestInt);
 
                 // Assert
@@ -123,9 +124,17 @@ namespace IntegrationTests
 
             } finally {
                 // Cleanup
-                item.DeletePersistentStorage().Wait();
+                await item.DeletePersistentStorage();
             }
         }
 
+    }
+
+    public static class ItemStreamTestAsyncUtilityExtension
+    {
+        public static void ItemStreamTestPerformAsyncTaskWithoutAwait(this Task task, Action<Task> exceptionHandler)
+        {
+            var dummy = task?.ContinueWith(t => exceptionHandler(t), CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
+        }
     }
 }
