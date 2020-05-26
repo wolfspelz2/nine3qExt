@@ -83,15 +83,43 @@ namespace IntegrationTests
             var item = GrainClient.GrainFactory.GetGrain<IItem>($"{nameof(ItemGrainTest)}-{nameof(GetProperties_by_access_level)}-{RandomString.Get(10)}");
 
             try {
-                // Act 
                 await item.Set(Pid.TestInternal, 41);
                 await item.Set(Pid.TestPublic, 42);
+
+                // Act 
                 var props = await item.GetProperties(PidSet.Public);
 
                 // Assert
                 Assert.AreEqual(1, props.Count);
                 Assert.AreEqual(0, (long)props.Get(Pid.TestInternal));
                 Assert.AreEqual(42, (long)props.Get(Pid.TestPublic));
+
+            } finally {
+                // Cleanup
+                item.DeletePersistentStorage().Wait();
+            }
+        }
+
+
+        [TestMethod]
+        [TestCategory(GrainClient.Category)]
+        public async System.Threading.Tasks.Task Delete()
+        {
+            // Arrange 
+            var item = GrainClient.GrainFactory.GetGrain<IItem>($"{nameof(ItemGrainTest)}-{nameof(Delete)}-{RandomString.Get(10)}");
+
+            try {
+                // Act 
+                await item.Set(Pid.TestInt, 42);
+                await item.Set(Pid.TestString, "42");
+
+                // Act 
+                await item.Delete(Pid.TestInt);
+
+                // Assert
+                var props = await item.GetProperties(PidSet.All);
+                Assert.AreEqual(1, props.Count);
+                Assert.AreEqual("42", (string)props.Get(Pid.TestString));
 
             } finally {
                 // Cleanup

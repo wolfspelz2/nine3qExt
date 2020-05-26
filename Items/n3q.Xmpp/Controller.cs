@@ -306,78 +306,75 @@ namespace XmppComponent
             var roomId = roomItem.RoomId;
             var itemId = roomItem.ItemId;
 
-            //var props = await Inventory(roomId).GetItemProperties(itemId, new PidList { Pid.Name, Pid.Label, Pid.AnimationsUrl, Pid.Image100Url, Pid.RezzedX });
-            //var props = await Inventory(roomId).GetItemProperties(itemId, PidList.Public);
             var props = await GetItem(itemId).GetProperties(PidSet.Public);
 
-        //    var name = props.GetString(Pid.Name);
-        //    if (string.IsNullOrEmpty(name)) { name = props.GetString(Pid.Label); }
-        //    if (string.IsNullOrEmpty(name)) { name = $"Item-{itemId}"; }
+            var name = props.GetString(Pid.Name);
+            if (string.IsNullOrEmpty(name)) { name = props.Get(Pid.Label); }
+            if (string.IsNullOrEmpty(name)) { name = $"Item-{itemId}"; }
 
-        //    var x = props.GetInt(Pid.RezzedX);
-        //    props.Delete(Pid.RezzedX);
+            var x = props.GetInt(Pid.RezzedX);
 
-        //    var roomItemJid = new RoomItemJid(roomId, itemId, name);
+            //    var roomItemJid = new RoomItemJid(roomId, itemId, name);
 
-        //    var animationsUrl = props.GetString(Pid.AnimationsUrl);
-        //    if (!string.IsNullOrEmpty(animationsUrl)) {
-        //        animationsUrl = PropertyFilter.Url(animationsUrl);
-        //        if (props.ContainsKey(Pid.Image100Url)) {
-        //            props.Delete(Pid.Image100Url);
-        //        }
-        //    }
+            //    var animationsUrl = props.GetString(Pid.AnimationsUrl);
+            //    if (!string.IsNullOrEmpty(animationsUrl)) {
+            //        animationsUrl = PropertyFilter.Url(animationsUrl);
+            //        if (props.ContainsKey(Pid.Image100Url)) {
+            //            props.Delete(Pid.Image100Url);
+            //        }
+            //    }
 
-        //    var to = roomItemJid.Full;
-        //    var from = $"{itemId}@{_componentDomain}/backend";
-        //    var identityJid = $"{itemId}@{_componentDomain}";
-        //    var identityDigest = Math.Abs(string.GetHashCode(name + animationsUrl, StringComparison.InvariantCulture)).ToString(CultureInfo.InvariantCulture);
+            //    var to = roomItemJid.Full;
+            //    var from = $"{itemId}@{_componentDomain}/backend";
+            //    var identityJid = $"{itemId}@{_componentDomain}";
+            //    var identityDigest = Math.Abs(string.GetHashCode(name + animationsUrl, StringComparison.InvariantCulture)).ToString(CultureInfo.InvariantCulture);
 
-        //    var name_UrlEncoded = WebUtility.UrlEncode(name);
-        //    var animationsUrl_UrlEncoded = string.IsNullOrEmpty(animationsUrl) ? "" : WebUtility.UrlEncode(animationsUrl);
-        //    var digest_UrlEncoded = WebUtility.UrlEncode(identityDigest);
-        //    var identitySrc = $"https://avatar.weblin.sui.li/identity/?avatarUrl={animationsUrl_UrlEncoded}&nickname={name_UrlEncoded}&digest={digest_UrlEncoded}";
+            //    var name_UrlEncoded = WebUtility.UrlEncode(name);
+            //    var animationsUrl_UrlEncoded = string.IsNullOrEmpty(animationsUrl) ? "" : WebUtility.UrlEncode(animationsUrl);
+            //    var digest_UrlEncoded = WebUtility.UrlEncode(identityDigest);
+            //    var identitySrc = $"https://avatar.weblin.sui.li/identity/?avatarUrl={animationsUrl_UrlEncoded}&nickname={name_UrlEncoded}&digest={digest_UrlEncoded}";
 
-        //    var props_XmlEncoded = props.Select(pair => {
-        //        var value = Property.ToString(pair.Key, pair.Value);
-        //        var propDef = Property.Get(pair.Key);
-        //        if (propDef.Type == Property.Type.String && (propDef.Use == Property.Use.Url || propDef.Use == Property.Use.ImageUrl)) {
-        //            value = PropertyFilter.Url(value);
-        //        }
-        //        var key_XmlEncoded = WebUtility.HtmlEncode(pair.Key.ToString());
-        //        var value_XmlEncoded = WebUtility.HtmlEncode(value);
-        //        return new KeyValuePair<string, string>(key_XmlEncoded, value_XmlEncoded);
-        //    });
+            //    var props_XmlEncoded = props.Select(pair => {
+            //        var value = Property.ToString(pair.Key, pair.Value);
+            //        var propDef = Property.Get(pair.Key);
+            //        if (propDef.Type == Property.Type.String && (propDef.Use == Property.Use.Url || propDef.Use == Property.Use.ImageUrl)) {
+            //            value = PropertyFilter.Url(value);
+            //        }
+            //        var key_XmlEncoded = WebUtility.HtmlEncode(pair.Key.ToString());
+            //        var value_XmlEncoded = WebUtility.HtmlEncode(value);
+            //        return new KeyValuePair<string, string>(key_XmlEncoded, value_XmlEncoded);
+            //    });
 
-        //    var to_XmlEncoded = WebUtility.HtmlEncode(to);
-        //    var from_XmlEncoded = WebUtility.HtmlEncode(from);
-        //    var x_XmlEncoded = (x == 0) ? "" : WebUtility.HtmlEncode(x.ToString(CultureInfo.InvariantCulture));
-        //    var identitySrc_XmlEncoded = WebUtility.HtmlEncode(identitySrc);
-        //    var identityDigest_XmlEncoded = WebUtility.HtmlEncode(identityDigest);
-        //    var identityJid_XmlEncoded = WebUtility.HtmlEncode(identityJid);
+            //    var to_XmlEncoded = WebUtility.HtmlEncode(to);
+            //    var from_XmlEncoded = WebUtility.HtmlEncode(from);
+            //    var x_XmlEncoded = (x == 0) ? "" : WebUtility.HtmlEncode(x.ToString(CultureInfo.InvariantCulture));
+            //    var identitySrc_XmlEncoded = WebUtility.HtmlEncode(identitySrc);
+            //    var identityDigest_XmlEncoded = WebUtility.HtmlEncode(identityDigest);
+            //    var identityJid_XmlEncoded = WebUtility.HtmlEncode(identityJid);
 
-        //    var props_XmlEncoded_All = "";
-        //    foreach (var pair in props_XmlEncoded) {
-        //        var attrName = pair.Key;
-        //        //var attrNameCamelCased = Char.ToLowerInvariant(attrName[0]) + attrName.Substring(1);
-        //        props_XmlEncoded_All += $" {attrName}='{pair.Value}'";
-        //    }
+            //    var props_XmlEncoded_All = "";
+            //    foreach (var pair in props_XmlEncoded) {
+            //        var attrName = pair.Key;
+            //        //var attrNameCamelCased = Char.ToLowerInvariant(attrName[0]) + attrName.Substring(1);
+            //        props_XmlEncoded_All += $" {attrName}='{pair.Value}'";
+            //    }
 
-        //    var position_Node = $"<position x='{x_XmlEncoded}' />";
+            //    var position_Node = $"<position x='{x_XmlEncoded}' />";
 
-        //    Log.Info($"Rez '{roomItemJid.Resource}' {roomId} {itemId}", nameof(SendPresenceAvailable));
+            //    Log.Info($"Rez '{roomItemJid.Resource}' {roomId} {itemId}", nameof(SendPresenceAvailable));
 
-        //    if (_conn != null) {
-        //        _conn.Send(
-        //@$"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}'>
-        //    <x xmlns='vp:props' type='item' {props_XmlEncoded_All} />
-        //    <x xmlns='firebat:user:identity' jid='{identityJid_XmlEncoded}' src='{identitySrc_XmlEncoded}' digest='{identityDigest_XmlEncoded}' />
-        //    <x xmlns='firebat:avatar:state'>{position_Node}</x>
-        //    <x xmlns='http://jabber.org/protocol/muc'><history seconds='0' maxchars='0' maxstanzas='0' /></x>
-        //    </presence>"
-        //        );
+            //    if (_conn != null) {
+            //        _conn.Send(
+            //@$"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}'>
+            //    <x xmlns='vp:props' type='item' {props_XmlEncoded_All} />
+            //    <x xmlns='firebat:user:identity' jid='{identityJid_XmlEncoded}' src='{identitySrc_XmlEncoded}' digest='{identityDigest_XmlEncoded}' />
+            //    <x xmlns='firebat:avatar:state'>{position_Node}</x>
+            //    <x xmlns='http://jabber.org/protocol/muc'><history seconds='0' maxchars='0' maxstanzas='0' /></x>
+            //    </presence>"
+            //        );
 
-        //        roomItem.Resource = roomItemJid.Resource;
-        //    }
+            //        roomItem.Resource = roomItemJid.Resource;
+            //    }
 
             await Task.CompletedTask;
         }

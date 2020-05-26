@@ -26,6 +26,8 @@ namespace n3q.GrainInterfaces
         Task<ItemIdSet> GetItemIdSet(Pid pid);
         Task<PropertySet> GetProperties(PidSet pids, bool native = false);
 
+        Task Delete(Pid pid);
+
         Task<Guid> GetStreamId();
         Task<string> GetStreamNamespace();
         Task Deactivate();

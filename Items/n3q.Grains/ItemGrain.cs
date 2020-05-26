@@ -136,6 +136,12 @@ namespace n3q.Grains
             return GetPropertiesByPid(pids, native);
         }
 
+        public Task Delete(Pid pid)
+        {
+            Properties.Delete(pid);
+            return Task.CompletedTask;
+        }
+
         #endregion
 
         #region Internal

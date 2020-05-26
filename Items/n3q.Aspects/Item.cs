@@ -38,6 +38,8 @@ namespace n3q.Aspects
         public Task<ItemIdSet> GetItemIdSet(Pid pid) { return Grain.GetItemIdSet(pid); }
         public Task<PropertySet> GetProperties(PidSet pids, bool native = false) { return Grain.GetProperties(pids, native); }
 
+        public Task Delete(Pid pid) { return Grain.Delete(pid); }
+
         public Task<Guid> GetStreamId() { return Grain.GetStreamId(); }
         public Task<string> GetStreamNamespace() { return Grain.GetStreamNamespace(); }
         public Task Deactivate() { return Grain.Deactivate(); }

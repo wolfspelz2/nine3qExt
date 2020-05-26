@@ -22,6 +22,12 @@ namespace n3q.Items
             }
         }
 
+        public void Set(Pid pid, string value) { this[pid] = new PropertyValue(value); }
+        public void Set(Pid pid, long value) { this[pid] = new PropertyValue(value); }
+        public void Set(Pid pid, double value) { this[pid] = new PropertyValue(value); }
+        public void Set(Pid pid, bool value) { this[pid] = new PropertyValue(value); }
+        public void Set(Pid pid, ItemIdSet ids) { this[pid] = new PropertyValue(ids); }
+
         public PropertyValue Get(Pid pid)
         {
             if (ContainsKey(pid)) {
@@ -30,29 +36,18 @@ namespace n3q.Items
             return new PropertyValue();
         }
 
-        public void Set(Pid pid, string value)
+        public string GetString(Pid pid) { return (string)Get(pid); }
+        public long GetInt(Pid pid) { return (long)Get(pid); }
+        public double GetFloat(Pid pid) { return (double)Get(pid); }
+        public bool GetBool(Pid pid) { return (bool)Get(pid); }
+        public ItemIdSet GetItemIdSet(Pid pid) { return (ItemIdSet)Get(pid); }
+
+        public void Delete(Pid pid)
         {
-            this[pid] = new PropertyValue(value);
+            if (ContainsKey(pid)) {
+                Remove(pid);
+            }
         }
 
-        public void Set(Pid pid, long value)
-        {
-            this[pid] = new PropertyValue(value);
-        }
-
-        public void Set(Pid pid, double value)
-        {
-            this[pid] = new PropertyValue(value);
-        }
-
-        public void Set(Pid pid, bool value)
-        {
-            this[pid] = new PropertyValue(value);
-        }
-
-        public void Set(Pid pid, ItemIdSet ids)
-        {
-            this[pid] = new PropertyValue(ids);
-        }
     }
 }

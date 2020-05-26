@@ -8,21 +8,20 @@ using Newtonsoft.Json;
 namespace n3q.Items.Test
 {
     [TestClass]
-    public class PropertySet
+    public class PropertySetTest
     {
         [TestMethod]
-        public void Serializes_correctly()
+        public void Delete()
         {
             // Arrange
-            var props = new Dictionary<Pid, PropertyValue> { [Pid.TestInt] = 42 };
+            var props = new PropertySet { [Pid.TestString] = 41, [Pid.TestInt] = 42 };
 
             // Act
-            var json = JsonConvert.SerializeObject(props);
-
-            var propsDeserialized = JsonConvert.DeserializeObject<PropertyValue>(json);
+            props.Delete(Pid.TestInt);
 
             // Assert
-            //Assert.AreEqual("42", s);
+            Assert.AreEqual(1, props.Count);
+            Assert.AreEqual("41", (string)props.Get(Pid.TestString));
         }
 
     }
