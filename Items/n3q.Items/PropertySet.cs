@@ -10,45 +10,45 @@ namespace n3q.Items
 {
     public class PropertySet
     {
-        private readonly Dictionary<Pid, string> _properties;
+        public readonly Dictionary<Pid, string> Dict;
 
         public PropertySet()
         {
-            _properties = new Dictionary<Pid, string>();
+            Dict = new Dictionary<Pid, string>();
         }
 
         public PropertySet(Dictionary<Pid, string> properties)
         {
-            _properties = properties;
+            Dict = properties;
         }
 
         public PropertyValue this[Pid pid]
         {
-            get { return new PropertyValue(_properties[pid]); }
-            set { _properties[pid] = value.ToString(); }
+            get { return new PropertyValue(Dict[pid]); }
+            set { Dict[pid] = value.ToString(); }
         }
 
         public PropertyValue Get(Pid pid)
         {
-            if (_properties.ContainsKey(pid)) {
-                return new PropertyValue(_properties[pid]);
+            if (Dict.ContainsKey(pid)) {
+                return new PropertyValue(Dict[pid]);
             }
             return new PropertyValue();
         }
 
         public void Set(Pid pid, string value)
         {
-            _properties[pid] = value;
+            Dict[pid] = value;
         }
 
         public void Set(Pid pid, bool value)
         {
-            _properties[pid] = value.ToString();
+            Dict[pid] = value.ToString();
         }
 
         public void Set(Pid pid, ItemIdSet ids)
         {
-            _properties[pid] = ids.ToString();
+            Dict[pid] = ids.ToString();
         }
     }
 }

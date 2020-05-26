@@ -376,8 +376,8 @@ namespace n3q.Web
             var format = args.Next("Format", Inventory_Result_format.table.ToString());
             
             var inv = GrainClient.GetGrain<IItem>(inventoryName);
-            var props = inv.GetItemProperties(itemId, PidList.All).Result;
-            var nativeProps = inv.GetItemProperties(itemId, PidList.All, native: true).Result;
+            var props = inv.GetItemProperties(itemId, PidSet.All).Result;
+            var nativeProps = inv.GetItemProperties(itemId, PidSet.All, native: true).Result;
             var templateProps = new PropertySet();
             var templateName = props.GetString(Pid.TemplateName);
             var templateUnavailable = false;
@@ -385,7 +385,7 @@ namespace n3q.Web
                 try {
                     var templateInv = GrainClient.GetGrain<IItem>(GrainInterfaces.ItemService.TemplatesInventoryName);
                     var templateId = templateInv.GetItemByName(templateName).Result;
-                    templateProps = templateInv.GetItemProperties(templateId, PidList.All).Result;
+                    templateProps = templateInv.GetItemProperties(templateId, PidSet.All).Result;
                 } catch (Exception) {
                     templateUnavailable = true;
                 }
@@ -471,7 +471,7 @@ namespace n3q.Web
             var inventoryName = args.Next("Inventory");
             var itemId = long.Parse(args.Next("item ID"));
 
-            var pids = new PidList();
+            var pids = new PidSet();
             var arg = "";
             do {
                 arg = args.Next("PropertyName", "");
@@ -547,7 +547,7 @@ namespace n3q.Web
                 if (transfer.Count == 0) {
                     throw new Exception("BeginItemTransfer: no data");
                 }
-                map = dest.ReceiveItemTransfer(itemId, destinationContainerId, 0, transfer, new PropertySet(), new PidList()).Result;
+                map = dest.ReceiveItemTransfer(itemId, destinationContainerId, 0, transfer, new PropertySet(), new PidSet()).Result;
                 destId = map[itemId];
                 dest.EndItemTransfer(destId).Wait();
                 source.EndItemTransfer(sourceId).Wait();
@@ -683,7 +683,7 @@ namespace n3q.Web
             var inv = GrainClient.GetGrain<IItem>(inventoryName);
             var text = itemId.ToString();
             try {
-                var props = inv.GetItemProperties(itemId, new PidList { Pid.Name, Pid.Label }).Result;
+                var props = inv.GetItemProperties(itemId, new PidSet { Pid.Name, Pid.Label }).Result;
                 var name = props.GetString(Pid.Name);
                 var label = props.GetString(Pid.Label);
                 var show = name;

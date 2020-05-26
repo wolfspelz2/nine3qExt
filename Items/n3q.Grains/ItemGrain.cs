@@ -118,6 +118,62 @@ namespace n3q.Grains
             return Task.FromResult((ItemIdSet)Properties.Get(pid));
         }
 
+        public async Task<PropertySet> GetProperties(PidSet pids, bool native = false)
+        {
+            if (pids == PidSet.All) {
+                return await GetPropertiesAll(native);
+            } else if (pids.Count == 1 && pids.Contains(Pid.PublicAccess)) {
+                return GetPropertiesPublic(native);
+            } else if (pids.Count == 1 && pids.Contains(Pid.OwnerAccess)) {
+                return GetPropertiesOwner(native);
+            }
+            return GetPropertiesByPid(pids, native);
+        }
+
+        #endregion
+
+        #region Internal
+
+        private async Task<PropertySet> GetPropertiesAll(bool native = false)
+        {
+            var result = (PropertySet)null;
+
+            if (native) {
+                result = new PropertySet();
+            } else {
+                var templateId = (string)Properties.Get(Pid.TemplateId);
+                if (Has.Value(templateId)) {
+                    result = await Item(templateId).GetProperties(PidSet.All);
+                }
+            }
+
+            foreach (var pair in Properties.Dict) {
+                result.Dict[pair.Key] = pair.Value;
+            }
+
+            return result;
+        }
+
+        private PropertySet GetPropertiesByPid(PidSet pids, bool native = false)
+        {
+            return new PropertySet();
+        }
+
+        public PropertySet GetPropertiesPublic(bool native = false)
+        {
+            return GetPropertiesByAccess(Property.Access.Public, native);
+        }
+
+        public PropertySet GetPropertiesOwner(bool native = false)
+        {
+            return GetPropertiesByAccess(Property.Access.Owner, native);
+        }
+
+        private PropertySet GetPropertiesByAccess(Property.Access access, bool native = false)
+        {
+            return new PropertySet();
+        }
+
         #endregion
 
         #region Test / Maintanance / Operation

@@ -19,6 +19,7 @@ namespace n3q.GrainInterfaces
         Task<bool> GetBool(Pid pid);
         Task<string> GetItemId(Pid pid);
         Task<ItemIdSet> GetItemIdSet(Pid pid);
+        Task<PropertySet> GetProperties(PidSet pids, bool native = false);
 
         Task<Guid> GetStreamId();
         Task<string> GetStreamNamespace();
