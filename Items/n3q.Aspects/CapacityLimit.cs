@@ -4,11 +4,6 @@ using n3q.Items;
 
 namespace n3q.Aspects
 {
-    public static class CapacityLimitExtension
-    {
-        public static CapacityLimit AsCapacityLimit(this Item self) => new CapacityLimit(self);
-    }
-
     public class CapacityLimit : Aspect
     {
         public CapacityLimit(Item item) { self = item; }

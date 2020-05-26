@@ -40,5 +40,13 @@ namespace n3q.Aspects
         public Task DeletePersistentStorage() { return Grain.DeletePersistentStorage(); }
 
         #endregion
+
+        #region Aspects
+
+        public Container AsContainer => new Container(this);
+        public CapacityLimit AsCapacityLimit => new CapacityLimit(this);
+        public Rezable AsRezable => new Rezable(this);
+
+        #endregion
     }
 }
