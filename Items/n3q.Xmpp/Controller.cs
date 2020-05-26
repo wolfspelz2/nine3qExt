@@ -71,11 +71,6 @@ namespace XmppComponent
 
         #region Shortcuts
 
-        IItem Grain(Item item)
-        {
-            return item.ClusterClient.GetGrain<IItem>(item.Id);
-        }
-
         private IAsyncStream<ItemUpdate> ItemUpdateStream
         {
             get {
@@ -237,6 +232,8 @@ namespace XmppComponent
             await Task.CompletedTask;
         }
 
+        Item GetItem(string roomId) { return new Item(_clusterClient, roomId); }
+
         async Task Connection_OnDropItem(XmppMessage message)
         {
             var userId = message.Cmd.ContainsKey("user") ? message.Cmd["user"] : "";
@@ -250,11 +247,16 @@ namespace XmppComponent
 
                 Log.Info($"Drop {roomId} {itemId}");
 
-                var room = new Item(_clusterClient, roomId);
-                var item = new Item(_clusterClient, itemId);
+                var room = GetItem(roomId);
+                var item = GetItem(itemId);
 
                 await Aspect.Rezable(item).AssertAspect(() => throw new SurfaceException(userId, itemId, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemNotRezable));
                 await Aspect.Container(room).AddChild(item);
+
+                var itemContainerId = await item.Grain.GetItem(Pid.Container);
+                if (itemContainerId != roomId) {
+                    // ...
+                }
 
                 var roomItem = AddRoomItem(roomId, itemId);
 

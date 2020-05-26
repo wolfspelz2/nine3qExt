@@ -1,4 +1,5 @@
 ﻿using Orleans;
+using n3q.GrainInterfaces;
 
 namespace n3q.Aspects
 {
@@ -12,5 +13,6 @@ namespace n3q.Aspects
 
         public IClusterClient ClusterClient { get; }
         public string Id { get; }
+        public IItem Grain => ClusterClient.GetGrain<IItem>(Id);
     }
 }
