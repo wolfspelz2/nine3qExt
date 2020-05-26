@@ -36,11 +36,12 @@ namespace n3q.Items
             return new PropertyValue();
         }
 
-        public string GetString(Pid pid) { return (string)Get(pid); }
-        public long GetInt(Pid pid) { return (long)Get(pid); }
-        public double GetFloat(Pid pid) { return (double)Get(pid); }
-        public bool GetBool(Pid pid) { return (bool)Get(pid); }
-        public ItemIdSet GetItemIdSet(Pid pid) { return (ItemIdSet)Get(pid); }
+        public string GetString(Pid pid) { return Get(pid); }
+        public long GetInt(Pid pid) { return Get(pid); }
+        public double GetFloat(Pid pid) { return Get(pid); }
+        public bool GetBool(Pid pid) { return Get(pid); }
+        public string GetItemId(Pid pid) { return Get(pid); }
+        public ItemIdSet GetItemIdSet(Pid pid) { return Get(pid); }
 
         public void Delete(Pid pid)
         {

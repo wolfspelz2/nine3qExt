@@ -27,9 +27,10 @@ namespace n3q.Grains
         string Id => _state.State.Id;
         public PropertySet Properties { get; set; }
 
-        readonly string _streamNamespace = ItemService.StreamNamespaceDefault;
-        readonly Guid _streamId = ItemService.StreamGuidDefault;
+        readonly string _streamNamespace = ItemService.StreamNamespace;
+        readonly Guid _streamId = ItemService.StreamGuid;
         readonly IPersistentState<ItemState> _state;
+        IAsyncStream<ItemUpdate> _stream;
 
         public ItemGrain(
             [PersistentState("Item", JsonFileStorage.StorageProviderName)] IPersistentState<ItemState> itemState
@@ -46,10 +47,10 @@ namespace n3q.Grains
         {
             await base.OnActivateAsync();
 
-            _state.State.Id = this.GetPrimaryKeyString();
-            Properties = new PropertySet(_state.State.Properties);
+            await ReadPersistentStorage();
 
-            await _state.ReadStateAsync();
+            var streamProvider = GetStreamProvider(ItemService.StreamProvider);
+            _stream = streamProvider.GetStream<ItemUpdate>(_streamId, ItemService.StreamNamespace);
         }
 
         public override async Task OnDeactivateAsync()
@@ -59,34 +60,52 @@ namespace n3q.Grains
 
         #endregion
 
-        #region Changes
-
-        //await _state.WriteStateAsync();
-
-        #endregion
-
         #region Interface
 
-        public Task Set(Pid pid, string value) { Properties.Set(pid, value); return Task.CompletedTask; }
-        public Task Set(Pid pid, long value) { Properties.Set(pid, value); return Task.CompletedTask; }
-        public Task Set(Pid pid, double value) { Properties.Set(pid, value); return Task.CompletedTask; }
-        public Task Set(Pid pid, bool value) { Properties.Set(pid, value); return Task.CompletedTask; }
-        public Task Set(Pid pid, ItemIdSet value) { Properties.Set(pid, value); return Task.CompletedTask; }
+        public async Task Set(Pid pid, string value)
+        {
+            Properties.Set(pid, value);
+            await Update(ItemUpdate.Mode.PropertyChanged, pid, value);
+        }
 
-        public Task AddToItemSet(Pid pid, string itemId)
+        public async Task Set(Pid pid, long value)
+        {
+            Properties.Set(pid, value);
+            await Update(ItemUpdate.Mode.PropertyChanged, pid, value);
+        }
+
+        public async Task Set(Pid pid, double value)
+        {
+            Properties.Set(pid, value);
+            await Update(ItemUpdate.Mode.PropertyChanged, pid, value);
+        }
+
+        public async Task Set(Pid pid, bool value)
+        {
+            Properties.Set(pid, value);
+            await Update(ItemUpdate.Mode.PropertyChanged, pid, value);
+        }
+
+        public async Task Set(Pid pid, ItemIdSet value)
+        {
+            Properties.Set(pid, value);
+            await Update(ItemUpdate.Mode.PropertyChanged, pid, value);
+        }
+
+        public async Task AddToItemSet(Pid pid, string itemId)
         {
             var ids = (ItemIdSet)Properties.Get(pid);
             ids.Add(itemId);
             Properties.Set(pid, ids);
-            return Task.CompletedTask;
+            await Update(ItemUpdate.Mode.AddedToItemList, pid, itemId);
         }
 
-        public Task DeleteFromItemSet(Pid pid, string itemId)
+        public async Task DeleteFromItemSet(Pid pid, string itemId)
         {
             var ids = (ItemIdSet)Properties.Get(pid);
             ids.Remove(itemId);
             Properties.Set(pid, ids);
-            return Task.CompletedTask;
+            await Update(ItemUpdate.Mode.RemovedFromItemList, pid, itemId);
         }
 
         public Task<PropertyValue> Get(Pid pid)
@@ -199,6 +218,24 @@ namespace n3q.Grains
 
         #endregion
 
+        #region Changes
+
+        //WritePersistentStorage();
+
+        async Task Update(ItemUpdate.Mode what, Pid pid, PropertyValue value)
+        {
+            // Persist changes
+            if (PropertyMustBeSaved(pid, value)) {
+                await WritePersistentStorage();
+            }
+
+            // Notify subscribers
+            var update = new ItemUpdate(what, Id, pid, value);
+            await _stream?.OnNextAsync(update);
+        }
+
+        #endregion
+
         #region Test / Maintanance / Operation
 
         public Task<Guid> GetStreamId() { return Task.FromResult(_streamId); }
@@ -212,12 +249,38 @@ namespace n3q.Grains
 
         public async Task WritePersistentStorage()
         {
+            _state.State.Id = this.GetPrimaryKeyString();
+
+            var propsToBeSaved = new Dictionary<Pid, string>();
+            foreach (var pair in Properties) {
+                if (PropertyMustBeSaved(pair.Key, pair.Value)) {
+                    propsToBeSaved.Add(pair.Key, pair.Value);
+                }
+            }
+            _state.State.Properties = propsToBeSaved;
+
             await _state.WriteStateAsync();
+        }
+
+        private bool PropertyMustBeSaved(Pid pid, PropertyValue value)
+        {
+            return Property.GetDefinition(pid).Persistence switch
+            {
+                Property.Persistence.Unknown => false,
+                Property.Persistence.Fixed => false,
+                Property.Persistence.Transient => false,
+                Property.Persistence.Persistent => true,
+                Property.Persistence.Slow => true,
+                Property.Persistence.Unload => true,
+                _ => true,
+            };
         }
 
         public async Task ReadPersistentStorage()
         {
             await _state.ReadStateAsync();
+
+            Properties = new PropertySet(_state.State.Properties);
         }
 
         public async Task DeletePersistentStorage()

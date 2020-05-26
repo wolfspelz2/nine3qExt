@@ -23,14 +23,32 @@ namespace n3q.Items
         public PropertyValue(bool value) { _value = value.ToString(CultureInfo.InvariantCulture); }
         public PropertyValue(ItemIdSet ids) { _value = ids.ToString(); }
 
-        public static implicit operator string(PropertyValue pv) { return pv._value; }
-
-        public static implicit operator bool(PropertyValue pv) { return pv._value.IsTrue(); }
+        public static implicit operator string(PropertyValue pv)
+        {
+            return pv._value;
+        }
 
         public static implicit operator long(PropertyValue pv)
         {
-            _ = long.TryParse(pv._value, NumberStyles.Any, CultureInfo.InvariantCulture, out long result);
-            return result;
+            if (long.TryParse(pv._value, NumberStyles.Any, CultureInfo.InvariantCulture, out long result)) {
+                return result;
+            } else {
+                return 0L;
+            }
+        }
+
+        public static implicit operator double(PropertyValue pv)
+        {
+            if (double.TryParse(pv._value, NumberStyles.Any, CultureInfo.InvariantCulture, out double result)) {
+                return result;
+            } else {
+                return 0.0D;
+            }
+        }
+
+        public static implicit operator bool(PropertyValue pv)
+        {
+            return pv._value.IsTrue();
         }
 
         public static implicit operator ItemIdSet(PropertyValue pv)

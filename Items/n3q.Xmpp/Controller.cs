@@ -83,8 +83,8 @@ namespace XmppComponent
         {
             get {
                 var streamProvider = _clusterClient.GetStreamProvider(ItemService.StreamProvider);
-                var streamId = ItemService.StreamGuidDefault;
-                var streamNamespace = ItemService.StreamNamespaceDefault;
+                var streamId = ItemService.StreamGuid;
+                var streamNamespace = ItemService.StreamNamespace;
                 var stream = streamProvider.GetStream<ItemUpdate>(streamId, streamNamespace);
                 return stream;
             }
@@ -140,6 +140,13 @@ namespace XmppComponent
             }
 
             return roomItem;
+        }
+
+        bool IsManagedRoom(string roomId)
+        {
+            lock (_mutex) {
+                return _rooms.ContainsKey(roomId);
+            }
         }
 
         void RemoveRoomItem(string roomId, string itemId)
@@ -274,19 +281,7 @@ namespace XmppComponent
                 await room.AsContainer().AddChild(item);
                 await item.Set(Pid.RezzedX, posX);
 
-                Don.t = async () => {
-                    var itemContainerId = await item.GetItemId(Pid.Container);
-                    if (itemContainerId != roomId) {
-                        // ...
-                    };
-                };
-
-                var roomItem = AddRoomItem(roomId, itemId);
-
-                await SendPresenceAvailable(roomItem);
-
-                await room.Set(Pid.IsRezzing, true);
-                roomItem.State = RoomItem.RezState.Rezzing;
+                await OnItemAddedToRoom(roomId, itemId);
             }
         }
 
@@ -312,11 +307,9 @@ namespace XmppComponent
 
                         if (!await item.Get(Pid.IsRezzed)) { throw new SurfaceException(roomId, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezzed); }
 
-                        await SendPresenceUnvailable(roomItem);
+                        await OnItemRemovedFromRoom(roomItem);
 
                         await user.AsContainer().AddChild(item);
-                        await item.Delete(Pid.RezzedX);
-                        await item.Delete(Pid.IsRezzed);
 
                         // Also: dont wait to cleanup state, just ignore the presence-unavailable
                         RemoveRoomItem(roomId, itemId);
@@ -432,36 +425,29 @@ namespace XmppComponent
 
         public async Task OnItemUpdate(ItemUpdate update)
         {
-            if (update.What == ItemUpdate.Mode.Removed) {
-                // if room/update.Id is ManagedRoom
-                // presence-unavailable?
-                return;
-            }
+            if (IsManagedRoom(update.ItemId)) {
 
-            if (update.What == ItemUpdate.Mode.Added) {
-                // if room/update.Id is ManagedRoom
-                // presence-unavailable?
-                return;
-            }
+                if (update.Pid == Pid.Contains && update.What == ItemUpdate.Mode.AddedToItemList) {
+                    var roomId = update.ItemId;
+                    var itemId = update.Value;
+                    await OnItemAddedToRoom(roomId, itemId);
 
-            var itemId = update.Id;
-
-            var roomItem = GetRoomItem(itemId);
-            if (roomItem != null) {
-
-                var atleastOneOfChangedPropertiesIsPublic = false;
-                if (update.Pids != null) {
-                    foreach (var pid in update.Pids) {
-                        if (Property.GetDefinition(pid).Access == Property.Access.Public) {
-                            atleastOneOfChangedPropertiesIsPublic = true;
-                            break;
-                        }
+                } else if (update.Pid == Pid.Contains && update.What == ItemUpdate.Mode.RemovedFromItemList) {
+                    var roomId = update.ItemId;
+                    var itemId = update.Value;
+                    var roomItem = GetRoomItem(roomId, itemId);
+                    if (roomItem != null) {
+                        await OnItemRemovedFromRoom(roomItem);
                     }
                 }
 
-                if (atleastOneOfChangedPropertiesIsPublic) {
-                    await SendPresenceAvailable(roomItem);
+            } else {
+
+                var roomItem = GetRoomItem(update.ItemId);
+                if (roomItem != null) {
+                    await OnItemPropertyChanged(roomItem, update.Pid, update.Value);
                 }
+
             }
         }
 
@@ -477,38 +463,33 @@ namespace XmppComponent
 
         #endregion
 
-        #region Internal
+        #region Item events
 
-        //public async Task<long> TransferItem(long id, string sourceInventory, string destInventory, long containerId, long slot, PropertySet setProperties, PidList removeProperties)
-        //{
-        //    var source = Inventory(sourceInventory);
-        //    var dest = Inventory(destInventory);
-        //    var sourceId = id;
-        //    var destId = ItemId.NoItem;
+        private async Task OnItemAddedToRoom(string roomId, string itemId)
+        {
+            var roomItem = AddRoomItem(roomId, itemId);
 
-        //    try {
-        //        var transfer = await source.BeginItemTransfer(sourceId);
-        //        if (transfer.Count == 0) {
-        //            throw new Exception("BeginItemTransfer: no data");
-        //        }
+            await SendPresenceAvailable(roomItem);
 
-        //        var map = await dest.ReceiveItemTransfer(id, containerId, slot, transfer, setProperties, removeProperties);
-        //        destId = map[sourceId];
+            await GetItem(itemId).Set(Pid.IsRezzing, true);
+            roomItem.State = RoomItem.RezState.Rezzing;
+        }
 
-        //        await dest.EndItemTransfer(destId);
+        private async Task OnItemRemovedFromRoom(RoomItem roomItem)
+        {
+            await SendPresenceUnvailable(roomItem);
 
-        //        await source.EndItemTransfer(sourceId);
-        //    } catch (Exception ex) {
-        //        if (destId != ItemId.NoItem) {
-        //            await dest.CancelItemTransfer(destId);
-        //        }
+            await GetItem(roomItem.ItemId).Delete(Pid.RezzedX);
+            await GetItem(roomItem.ItemId).Delete(Pid.IsRezzed);
+        }
 
-        //        await source.CancelItemTransfer(sourceId);
-        //        throw ex;
-        //    }
-
-        //    return destId;
-        //}
+        private async Task OnItemPropertyChanged(RoomItem roomItem, Pid pid, string value)
+        {
+            var atleastOneOfChangedPropertiesIsPublic = (Property.GetDefinition(pid).Access == Property.Access.Public);
+            if (atleastOneOfChangedPropertiesIsPublic) {
+                await SendPresenceAvailable(roomItem);
+            }
+        }
 
         #endregion
 

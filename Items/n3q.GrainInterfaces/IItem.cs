@@ -28,6 +28,10 @@ namespace n3q.GrainInterfaces
 
         Task Delete(Pid pid);
 
+        //Task<Guid> BeginTransaction();
+        //Task CommitTransaction(Guid t);
+        //Task CancelTransaction(Guid t);
+
         Task<Guid> GetStreamId();
         Task<string> GetStreamNamespace();
         Task Deactivate();
