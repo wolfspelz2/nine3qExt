@@ -59,7 +59,7 @@ namespace LocalSilo
                     options.FireAndForgetDelivery = true;
                 })
 
-                .AddMemoryGrainStorage("PubSubStore")
+                .AddMemoryGrainStorage(Cluster.MemoryGrainStorageProviderName)
 
                 .AddMemoryGrainStorage(ProviderConstants.DEFAULT_STORAGE_PROVIDER_NAME)
 

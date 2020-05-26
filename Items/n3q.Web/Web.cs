@@ -66,7 +66,7 @@ namespace n3q.Web
                         options.FireAndForgetDelivery = true;
                     })
 
-                    .AddMemoryGrainStorage("PubSubStore")
+                    .AddMemoryGrainStorage(Cluster.MemoryGrainStorageProviderName)
 
                     .AddMemoryGrainStorage(ProviderConstants.DEFAULT_STORAGE_PROVIDER_NAME)
 

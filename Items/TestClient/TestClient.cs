@@ -54,7 +54,7 @@ namespace TestClient
                     options.ServiceId = Cluster.ServiceId;
                 })
                 .ConfigureLogging(logging => { logging.AddConsole(); logging.SetMinimumLevel(LogLevel.Error); })
-                .AddSimpleMessageStreamProvider("SMSProvider")
+                .AddSimpleMessageStreamProvider(Cluster.SimpleMessageStreamProviderName)
                 .Build();
 
             await client.Connect(RetryFilter);
