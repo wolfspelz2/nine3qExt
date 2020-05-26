@@ -2,7 +2,7 @@
 {
     public enum Pid
     {
-        NoProperty = 0,
+        Unknown = 0,
 
         // Test
         FirstTest,

@@ -10,9 +10,14 @@ namespace n3q.GrainInterfaces
     public interface IItem : IGrainWithStringKey
     {
         Task Set(Pid pid, string value);
+        Task Set(Pid pid, long value);
+        Task Set(Pid pid, double value);
+        Task Set(Pid pid, bool value);
+        Task Set(Pid pid, ItemIdSet value);
         Task AddToItemSet(Pid pid, string itemId);
         Task DeleteFromItemSet(Pid pid, string itemId);
 
+        Task<PropertyValue> Get(Pid pid);
         Task<string> GetString(Pid pid);
         Task<long> GetInt(Pid pid);
         Task<double> GetFloat(Pid pid);

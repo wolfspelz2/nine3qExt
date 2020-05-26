@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 
 namespace n3q.Items.Test
 {
@@ -25,6 +26,5 @@ namespace n3q.Items.Test
             Assert.AreEqual(new ItemIdSet { "42", "4faaaa09-60a9-413e-8388-2e877e70440d" }.ToString(), ((ItemIdSet)new PropertyValue("42 4faaaa09-60a9-413e-8388-2e877e70440d")).ToString());
             Assert.AreEqual( "42 4faaaa09-60a9-413e-8388-2e877e70440d", ((ItemIdSet)new PropertyValue("42 4faaaa09-60a9-413e-8388-2e877e70440d")).ToString());
         }
-
     }
 }

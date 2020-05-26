@@ -25,7 +25,7 @@ namespace n3q.Grains
     //, IAsyncObserver<ItemUpdate>
     {
         string Id => _state.State.Id;
-        PropertySet Properties => new PropertySet(_state.State.Properties);
+        public PropertySet Properties { get; set; }
 
         readonly string _streamNamespace = ItemService.StreamNamespaceDefault;
         readonly Guid _streamId = ItemService.StreamGuidDefault;
@@ -47,6 +47,7 @@ namespace n3q.Grains
             await base.OnActivateAsync();
 
             _state.State.Id = this.GetPrimaryKeyString();
+            Properties = new PropertySet(_state.State.Properties);
 
             await _state.ReadStateAsync();
         }
@@ -66,11 +67,11 @@ namespace n3q.Grains
 
         #region Interface
 
-        public Task Set(Pid pid, string value)
-        {
-            Properties.Set(pid, value);
-            return Task.CompletedTask;
-        }
+        public Task Set(Pid pid, string value) { Properties.Set(pid, value); return Task.CompletedTask; }
+        public Task Set(Pid pid, long value) { Properties.Set(pid, value); return Task.CompletedTask; }
+        public Task Set(Pid pid, double value) { Properties.Set(pid, value); return Task.CompletedTask; }
+        public Task Set(Pid pid, bool value) { Properties.Set(pid, value); return Task.CompletedTask; }
+        public Task Set(Pid pid, ItemIdSet value) { Properties.Set(pid, value); return Task.CompletedTask; }
 
         public Task AddToItemSet(Pid pid, string itemId)
         {
@@ -86,6 +87,11 @@ namespace n3q.Grains
             ids.Remove(itemId);
             Properties.Set(pid, ids);
             return Task.CompletedTask;
+        }
+
+        public Task<PropertyValue> Get(Pid pid)
+        {
+            return Task.FromResult(Properties.Get(pid));
         }
 
         public Task<string> GetString(Pid pid)
@@ -139,7 +145,7 @@ namespace n3q.Grains
             var result = (PropertySet)null;
 
             if (native) {
-                result = new PropertySet();
+                result = Properties;
             } else {
                 var templateId = (string)Properties.Get(Pid.TemplateId);
                 if (Has.Value(templateId)) {
@@ -147,8 +153,8 @@ namespace n3q.Grains
                 }
             }
 
-            foreach (var pair in Properties.Dict) {
-                result.Dict[pair.Key] = pair.Value;
+            foreach (var pair in Properties) {
+                result[pair.Key] = pair.Value;
             }
 
             return result;
@@ -156,7 +162,7 @@ namespace n3q.Grains
 
         private PropertySet GetPropertiesByPid(PidSet pids, bool native = false)
         {
-            return new PropertySet();
+            return Properties;
         }
 
         public PropertySet GetPropertiesPublic(bool native = false)
@@ -171,7 +177,7 @@ namespace n3q.Grains
 
         private PropertySet GetPropertiesByAccess(Property.Access access, bool native = false)
         {
-            return new PropertySet();
+            return Properties;
         }
 
         #endregion

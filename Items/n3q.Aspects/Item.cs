@@ -22,9 +22,14 @@ namespace n3q.Aspects
         #region IItem
 
         public Task Set(Pid pid, string value) { return Grain.Set(pid, value); }
+        public Task Set(Pid pid, long value) { return Grain.Set(pid, value); }
+        public Task Set(Pid pid, double value) { return Grain.Set(pid, value); }
+        public Task Set(Pid pid, bool value) { return Grain.Set(pid, value); }
+        public Task Set(Pid pid, ItemIdSet value) { return Grain.Set(pid, value); }
         public Task AddToItemSet(Pid pid, string itemId) { return Grain.AddToItemSet(pid, itemId); }
         public Task DeleteFromItemSet(Pid pid, string itemId) { return Grain.DeleteFromItemSet(pid, itemId); }
 
+        public Task<PropertyValue> Get(Pid pid) { return Grain.Get(pid); }
         public Task<string> GetString(Pid pid) { return Grain.GetString(pid); }
         public Task<long> GetInt(Pid pid) { return Grain.GetInt(pid); }
         public Task<double> GetFloat(Pid pid) { return Grain.GetFloat(pid); }
@@ -42,12 +47,12 @@ namespace n3q.Aspects
 
         #endregion
 
-        #region Aspects
+        //#region Aspects
 
-        public Container AsContainer => new Container(this);
-        public CapacityLimit AsCapacityLimit => new CapacityLimit(this);
-        public Rezable AsRezable => new Rezable(this);
+        //public Container AsContainer => new Container(this);
+        //public CapacityLimit AsCapacityLimit => new CapacityLimit(this);
+        //public Rezable AsRezable => new Rezable(this);
 
-        #endregion
+        //#endregion
     }
 }
