@@ -12,7 +12,7 @@ using n3q.Tools;
 
 namespace XmppComponent
 {
-    public partial class Connection : IDisposable
+    public class Connection : IDisposable
     {
         private static NetworkStream _networkStream;
 

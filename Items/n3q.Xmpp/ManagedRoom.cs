@@ -6,7 +6,7 @@ namespace XmppComponent
     public class ManagedRoom
     {
         public readonly string RoomId;
-        public readonly List<RoomItem> Items = new List<RoomItem>();
+        public readonly Dictionary<string, RoomItem> Items = new Dictionary<string, RoomItem>();
 
         public ManagedRoom(string roomId)
         {

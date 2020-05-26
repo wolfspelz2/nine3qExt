@@ -28,7 +28,7 @@ namespace n3q.Aspects
             foreach (var itemId in await self.GetItemIdSet(Pid.Contains)) {
                 currentTotal += await Item(itemId).GetInt(Pid.Stacksize);
             }
-            if (currentTotal + stacksize > itemLimit) { throw new SurfaceException(Id, newItem.Id, SurfaceNotification.Fact.NotExecuted, SurfaceNotification.Reason.CapacityLimit); };
+            if (currentTotal + stacksize > itemLimit) { throw new SurfaceException(Id, newItem.Id, SurfaceNotification.Fact.NotExecuted, SurfaceNotification.Reason.ItemCapacityLimit); };
         }
     }
 }

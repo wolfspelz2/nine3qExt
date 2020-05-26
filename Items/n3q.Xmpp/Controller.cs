@@ -16,7 +16,7 @@ using n3q.Aspects;
 
 namespace XmppComponent
 {
-    internal partial class Controller : IAsyncObserver<ItemUpdate>
+    public class Controller : IAsyncObserver<ItemUpdate>
     {
         readonly string _componentHost;
         readonly string _componentDomain;
@@ -24,9 +24,11 @@ namespace XmppComponent
         readonly string _componentSecret;
 
         readonly IClusterClient _clusterClient;
+        private StreamSubscriptionHandle<ItemUpdate> _subscriptionHandle;
 
         readonly object _mutex = new object();
         readonly Dictionary<string, ManagedRoom> _rooms = new Dictionary<string, ManagedRoom>();
+        readonly Dictionary<string, RoomItem> _items = new Dictionary<string, RoomItem>();
 
         Connection _conn;
 
@@ -41,8 +43,14 @@ namespace XmppComponent
 
         public async Task Start()
         {
-            var handle = await ItemUpdateStream.SubscribeAsync(this);
+            _subscriptionHandle = await ItemUpdateStream.SubscribeAsync(this);
+
             StartConnectionNewThread();
+        }
+
+        public async Task Shutdown()
+        {
+            await _subscriptionHandle.UnsubscribeAsync();
         }
 
         internal void Send(string line)
@@ -97,10 +105,12 @@ namespace XmppComponent
                 }
                 managedRoom = _rooms[roomId];
 
-                roomItem = managedRoom.Items.Where(ri => ri.ItemId == itemId).FirstOrDefault();
+                _ = managedRoom.Items.TryGetValue(itemId, out roomItem);
                 if (roomItem == null) {
                     roomItem = new RoomItem(roomId, itemId);
-                    managedRoom.Items.Add(roomItem);
+
+                    managedRoom.Items.Add(itemId, roomItem);
+                    _items.Add(itemId, roomItem);
                 }
             }
 
@@ -114,8 +124,19 @@ namespace XmppComponent
             lock (_mutex) {
                 if (_rooms.ContainsKey(roomId)) {
                     var managedRoom = _rooms[roomId];
-                    roomItem = managedRoom.Items.Where(ri => ri.ItemId == itemId).FirstOrDefault();
+                    _ = managedRoom.Items.TryGetValue(itemId, out roomItem);
                 }
+            }
+
+            return roomItem;
+        }
+
+        RoomItem GetRoomItem(string itemId)
+        {
+            var roomItem = (RoomItem)null;
+
+            lock (_mutex) {
+                _ = _items.TryGetValue(itemId, out roomItem);
             }
 
             return roomItem;
@@ -124,13 +145,13 @@ namespace XmppComponent
         void RemoveRoomItem(string roomId, string itemId)
         {
             lock (_mutex) {
-                if (_rooms.ContainsKey(roomId)) {
-                    var managedRoom = _rooms[roomId];
-                    var roomItem = managedRoom.Items.Where(ri => ri.ItemId == itemId).FirstOrDefault();
-                    if (roomItem != null) {
-                        managedRoom.Items.Remove(roomItem);
+                if (_rooms.TryGetValue(itemId, out var managedRoom)) {
+                    if (managedRoom.Items.ContainsKey(itemId)) {
+                        managedRoom.Items.Remove(itemId);
                         if (managedRoom.Items.Count == 0) {
+
                             _rooms.Remove(roomId);
+                            _items.Remove(itemId);
                         }
                     }
                 }
@@ -195,22 +216,23 @@ namespace XmppComponent
 
         async Task Connection_OnPresenceAvailable(XmppPresence stanza)
         {
-            //var jid = new RoomItemJid(stanza.From);
-            //var roomId = jid.Room;
-            //var itemId = jid.Item;
+            var jid = new RoomItemJid(stanza.From);
+            var roomId = jid.Room;
+            var itemId = jid.Item;
 
-            //var roomItem = GetRoomItem(roomId, itemId);
-            //if (roomItem == null) {
-            //    // Not my item
-            //} else {
-            //    if (roomItem.State != RoomItem.RezState.Rezzing) {
-            //        Log.Warning($"Unexpected presence-available: room={roomId} item={itemId}", nameof(Connection_OnPresenceAvailable));
-            //    } else {
-            //        Log.Info($"Joined room {roomId} {itemId}", nameof(Connection_OnPresenceAvailable));
-            //        roomItem.State = RoomItem.RezState.Rezzed;
-            //        await Inventory(roomId).SetItemProperties(itemId, new PropertySet { [Pid.IsRezzed] = true });
-            //    }
-            //}
+            var roomItem = GetRoomItem(roomId, itemId);
+            if (roomItem == null) {
+                // Not my item
+            } else {
+                if (roomItem.State != RoomItem.RezState.Rezzing) {
+                    Log.Warning($"Unexpected presence-available: room={roomId} item={itemId}", nameof(Connection_OnPresenceAvailable));
+                } else {
+                    Log.Info($"Joined room {roomId} {itemId}", nameof(Connection_OnPresenceAvailable));
+                    roomItem.State = RoomItem.RezState.Rezzed;
+                    await GetItem(roomId).Set(Pid.IsRezzed, true);
+                    await GetItem(roomId).Delete(Pid.IsRezzing);
+                }
+            }
 
             await Task.CompletedTask;
         }
@@ -243,60 +265,64 @@ namespace XmppComponent
             var destinationUrl = message.Cmd.ContainsKey("destination") ? message.Cmd["destination"] : "";
 
             if (Has.Value(userId) && Has.Value(itemId) && Has.Value(roomId) && hasX) {
-                //itemId = await TestPrepareItemForDrop(userId, roomId);
-
-                Log.Info($"Drop {roomId} {itemId}");
-
                 var room = GetItem(roomId);
                 var item = GetItem(itemId);
 
-                await item.AsRezable().AssertAspect(() => throw new SurfaceException(userId, itemId, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemNotRezable));
-                await room.AsContainer().AddChild(item);
+                await GetItem(itemId).AsRezable().AssertAspect(() => throw new SurfaceException(userId, itemId, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemIsNotRezable));
+                Log.Info($"Drop {roomId} {itemId}");
 
-                var itemContainerId = await item.GetItemId(Pid.Container);
-                if (itemContainerId != roomId) {
-                    // ...
-                }
+                await room.AsContainer().AddChild(item);
+                await item.Set(Pid.RezzedX, posX);
+
+                Don.t = async () => {
+                    var itemContainerId = await item.GetItemId(Pid.Container);
+                    if (itemContainerId != roomId) {
+                        // ...
+                    };
+                };
 
                 var roomItem = AddRoomItem(roomId, itemId);
 
                 await SendPresenceAvailable(roomItem);
 
-                //roomItem.State = RoomItem.RezState.Rezzing;
+                await room.Set(Pid.IsRezzing, true);
+                roomItem.State = RoomItem.RezState.Rezzing;
             }
         }
 
         async Task Connection_OnPickupItem(XmppMessage message)
         {
-            //var userId = message.Cmd.ContainsKey("user") ? message.Cmd["user"] : "";
-            //var itemId = ItemId.NoItem;
-            //_ = long.TryParse(message.Cmd.ContainsKey("item") ? message.Cmd["item"] : "0", out itemId);
-            //var roomId = message.Cmd.ContainsKey("room") ? message.Cmd["room"] : "";
+            var userId = message.Cmd.ContainsKey("user") ? message.Cmd["user"] : "";
+            var itemId = message.Cmd.ContainsKey("item") ? message.Cmd["item"] : "";
+            var roomId = message.Cmd.ContainsKey("room") ? message.Cmd["room"] : "";
 
-            //if (!string.IsNullOrEmpty(userId) && itemId != ItemId.NoItem && !string.IsNullOrEmpty(roomId)) {
+            if (Has.Value(userId) && Has.Value(itemId) && Has.Value(roomId)) {
+                var roomItem = GetRoomItem(roomId, itemId);
+                if (roomItem != null) {
+                    if (roomItem.State != RoomItem.RezState.Rezzed) {
+                        Log.Warning($"Unexpected message-cmd-pickupItem: room={roomId} item={itemId}");
+                        throw new SurfaceException(roomId, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezzed);
+                    } else {
+                        var room = GetItem(roomId);
+                        var item = GetItem(itemId);
+                        var user = GetItem(userId);
 
-            //    var roomItem = GetRoomItem(roomId, itemId);
-            //    if (roomItem != null) {
-            //        if (roomItem.State != RoomItem.RezState.Rezzed) {
-            //            Log.Warning($"Unexpected message-cmd-pickupItem: room={roomId} item={itemId}");
-            //            throw new SurfaceException(roomId, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemNotRezzed);
-            //        } else {
-            //            Log.Info($"Pickup {roomId} {itemId}", nameof(Connection_OnPickupItem));
+                        await item.AsRezable().AssertAspect(() => throw new SurfaceException(userId, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezable));
+                        Log.Info($"Pickup {roomId} {itemId}", nameof(Connection_OnPickupItem));
 
-            //            var props = await Inventory(roomId).GetItemProperties(itemId, new PidList { Pid.RezableAspect, Pid.IsRezzed });
-            //            if (!props.GetBool(Pid.RezableAspect)) { throw new SurfaceException(roomId, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemNotRezable); }
-            //            if (!props.GetBool(Pid.IsRezzed)) { throw new SurfaceException(roomId, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemNotRezzed); }
+                        if (!await item.Get(Pid.IsRezzed)) { throw new SurfaceException(roomId, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezzed); }
 
-            //            await SendPresenceUnvailable(roomItem);
+                        await SendPresenceUnvailable(roomItem);
 
-            //            // Transfer back before confirmation from xmpp room
-            //            var transferredItemId = await TransferItem(itemId, roomId, userId, ItemId.NoItem, 0, new PropertySet { }, new PidList { Pid.RezzedX, Pid.IsRezzed });
+                        await user.AsContainer().AddChild(item);
+                        await item.Delete(Pid.RezzedX);
+                        await item.Delete(Pid.IsRezzed);
 
-            //            // Also: dont wait to cleanup state, just ignore the presence-unavailable
-            //            RemoveRoomItem(roomId, itemId);
-            //        }
-            //    }
-            //}
+                        // Also: dont wait to cleanup state, just ignore the presence-unavailable
+                        RemoveRoomItem(roomId, itemId);
+                    }
+                }
+            }
 
             await Task.CompletedTask;
         }
@@ -314,67 +340,62 @@ namespace XmppComponent
 
             var x = props.GetInt(Pid.RezzedX);
 
-            //    var roomItemJid = new RoomItemJid(roomId, itemId, name);
+            var roomItemJid = new RoomItemJid(roomId, itemId, name);
 
-            //    var animationsUrl = props.GetString(Pid.AnimationsUrl);
-            //    if (!string.IsNullOrEmpty(animationsUrl)) {
-            //        animationsUrl = PropertyFilter.Url(animationsUrl);
-            //        if (props.ContainsKey(Pid.Image100Url)) {
-            //            props.Delete(Pid.Image100Url);
-            //        }
-            //    }
+            var animationsUrl = props.GetString(Pid.AnimationsUrl);
+            if (!string.IsNullOrEmpty(animationsUrl)) {
+                if (props.ContainsKey(Pid.Image100Url)) {
+                    props.Delete(Pid.Image100Url);
+                }
+            }
 
-            //    var to = roomItemJid.Full;
-            //    var from = $"{itemId}@{_componentDomain}/backend";
-            //    var identityJid = $"{itemId}@{_componentDomain}";
-            //    var identityDigest = Math.Abs(string.GetHashCode(name + animationsUrl, StringComparison.InvariantCulture)).ToString(CultureInfo.InvariantCulture);
+            var to = roomItemJid.Full;
+            var from = $"{itemId}@{_componentDomain}/backend";
+            var identityJid = $"{itemId}@{_componentDomain}";
+            var identityDigest = Math.Abs(string.GetHashCode(name + animationsUrl, StringComparison.InvariantCulture)).ToString(CultureInfo.InvariantCulture);
 
-            //    var name_UrlEncoded = WebUtility.UrlEncode(name);
-            //    var animationsUrl_UrlEncoded = string.IsNullOrEmpty(animationsUrl) ? "" : WebUtility.UrlEncode(animationsUrl);
-            //    var digest_UrlEncoded = WebUtility.UrlEncode(identityDigest);
-            //    var identitySrc = $"https://avatar.weblin.sui.li/identity/?avatarUrl={animationsUrl_UrlEncoded}&nickname={name_UrlEncoded}&digest={digest_UrlEncoded}";
+            var name_UrlEncoded = WebUtility.UrlEncode(name);
+            var animationsUrl_UrlEncoded = string.IsNullOrEmpty(animationsUrl) ? "" : WebUtility.UrlEncode(animationsUrl);
+            var digest_UrlEncoded = WebUtility.UrlEncode(identityDigest);
+            var identitySrc = $"https://avatar.weblin.sui.li/identity/?avatarUrl={animationsUrl_UrlEncoded}&nickname={name_UrlEncoded}&digest={digest_UrlEncoded}";
 
-            //    var props_XmlEncoded = props.Select(pair => {
-            //        var value = Property.ToString(pair.Key, pair.Value);
-            //        var propDef = Property.Get(pair.Key);
-            //        if (propDef.Type == Property.Type.String && (propDef.Use == Property.Use.Url || propDef.Use == Property.Use.ImageUrl)) {
-            //            value = PropertyFilter.Url(value);
-            //        }
-            //        var key_XmlEncoded = WebUtility.HtmlEncode(pair.Key.ToString());
-            //        var value_XmlEncoded = WebUtility.HtmlEncode(value);
-            //        return new KeyValuePair<string, string>(key_XmlEncoded, value_XmlEncoded);
-            //    });
+            var props_XmlEncoded = props.Select(pair => {
+                var value = pair.Value.ToString();
+                var key_XmlEncoded = WebUtility.HtmlEncode(pair.Key.ToString());
+                var value_XmlEncoded = WebUtility.HtmlEncode(value);
+                return new KeyValuePair<string, string>(key_XmlEncoded, value_XmlEncoded);
+            });
 
-            //    var to_XmlEncoded = WebUtility.HtmlEncode(to);
-            //    var from_XmlEncoded = WebUtility.HtmlEncode(from);
-            //    var x_XmlEncoded = (x == 0) ? "" : WebUtility.HtmlEncode(x.ToString(CultureInfo.InvariantCulture));
-            //    var identitySrc_XmlEncoded = WebUtility.HtmlEncode(identitySrc);
-            //    var identityDigest_XmlEncoded = WebUtility.HtmlEncode(identityDigest);
-            //    var identityJid_XmlEncoded = WebUtility.HtmlEncode(identityJid);
+            var to_XmlEncoded = WebUtility.HtmlEncode(to);
+            var from_XmlEncoded = WebUtility.HtmlEncode(from);
+            var x_XmlEncoded = (x == 0) ? "" : WebUtility.HtmlEncode(x.ToString(CultureInfo.InvariantCulture));
+            var identitySrc_XmlEncoded = WebUtility.HtmlEncode(identitySrc);
+            var identityDigest_XmlEncoded = WebUtility.HtmlEncode(identityDigest);
+            var identityJid_XmlEncoded = WebUtility.HtmlEncode(identityJid);
 
-            //    var props_XmlEncoded_All = "";
-            //    foreach (var pair in props_XmlEncoded) {
-            //        var attrName = pair.Key;
-            //        //var attrNameCamelCased = Char.ToLowerInvariant(attrName[0]) + attrName.Substring(1);
-            //        props_XmlEncoded_All += $" {attrName}='{pair.Value}'";
-            //    }
+            var props_XmlEncoded_All = "";
+            foreach (var pair in props_XmlEncoded) {
+                var attrName = pair.Key;
+                //var attrNameCamelCased = Char.ToLowerInvariant(attrName[0]) + attrName.Substring(1);
+                props_XmlEncoded_All += $" {attrName}='{pair.Value}'";
+            }
 
-            //    var position_Node = $"<position x='{x_XmlEncoded}' />";
+            var position_Node = $"<position x='{x_XmlEncoded}' />";
 
-            //    Log.Info($"Rez '{roomItemJid.Resource}' {roomId} {itemId}", nameof(SendPresenceAvailable));
+            Log.Info($"Rez '{roomItemJid.Resource}' {roomId} {itemId}", nameof(SendPresenceAvailable));
 
-            //    if (_conn != null) {
-            //        _conn.Send(
-            //@$"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}'>
-            //    <x xmlns='vp:props' type='item' {props_XmlEncoded_All} />
-            //    <x xmlns='firebat:user:identity' jid='{identityJid_XmlEncoded}' src='{identitySrc_XmlEncoded}' digest='{identityDigest_XmlEncoded}' />
-            //    <x xmlns='firebat:avatar:state'>{position_Node}</x>
-            //    <x xmlns='http://jabber.org/protocol/muc'><history seconds='0' maxchars='0' maxstanzas='0' /></x>
-            //    </presence>"
-            //        );
+            if (_conn != null) {
+                _conn.Send(
+                    $"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}'>"
+                    + $"<x xmlns='vp:props' type='item' service='n3q' {props_XmlEncoded_All} /> "
+                    + $"< x xmlns='firebat:user:identity' jid='{identityJid_XmlEncoded}' src='{identitySrc_XmlEncoded}' digest='{identityDigest_XmlEncoded}' /> "
+                    + $"< x xmlns='firebat:avatar:state'>{position_Node}</x> "
+                    + $"< x xmlns='http://jabber.org/protocol/muc'><history seconds='0' maxchars='0' maxstanzas='0' /></x> "
+                    + $"</presence>"
+                );
 
-            //        roomItem.Resource = roomItemJid.Resource;
-            //    }
+                roomItem.Resource = roomItemJid.Resource;
+            }
 
             await Task.CompletedTask;
         }
@@ -411,39 +432,37 @@ namespace XmppComponent
 
         public async Task OnItemUpdate(ItemUpdate update)
         {
-            //if (update.What == ItemUpdate.Mode.Removed) {
-            //    // if room/update.Id is ManagedRoom
-            //    // presence-unavailable?
-            //    return;
-            //}
+            if (update.What == ItemUpdate.Mode.Removed) {
+                // if room/update.Id is ManagedRoom
+                // presence-unavailable?
+                return;
+            }
 
-            //if (update.What == ItemUpdate.Mode.Added) {
-            //    // if room/update.Id is ManagedRoom
-            //    // presence-unavailable?
-            //    return;
-            //}
+            if (update.What == ItemUpdate.Mode.Added) {
+                // if room/update.Id is ManagedRoom
+                // presence-unavailable?
+                return;
+            }
 
-            //var roomId = update.InventoryId;
-            //var itemId = update.Id;
+            var itemId = update.Id;
 
-            //var roomItem = GetRoomItem(roomId, itemId);
-            //if (roomItem != null) {
+            var roomItem = GetRoomItem(itemId);
+            if (roomItem != null) {
 
-            //    var atleastOneOfChangedPropertiesIsPublic = false;
-            //    if (update.Pids != null) {
-            //        foreach (var pid in update.Pids) {
-            //            if (Property.Get(pid).Access == Property.Access.Public) {
-            //                atleastOneOfChangedPropertiesIsPublic = true;
-            //                break;
-            //            }
-            //        }
-            //    }
+                var atleastOneOfChangedPropertiesIsPublic = false;
+                if (update.Pids != null) {
+                    foreach (var pid in update.Pids) {
+                        if (Property.GetDefinition(pid).Access == Property.Access.Public) {
+                            atleastOneOfChangedPropertiesIsPublic = true;
+                            break;
+                        }
+                    }
+                }
 
-            //    if (atleastOneOfChangedPropertiesIsPublic) {
-            //        await SendPresenceAvailable(roomItem);
-            //    }
-            //}
-            await Task.CompletedTask;
+                if (atleastOneOfChangedPropertiesIsPublic) {
+                    await SendPresenceAvailable(roomItem);
+                }
+            }
         }
 
         public Task OnCompletedAsync()

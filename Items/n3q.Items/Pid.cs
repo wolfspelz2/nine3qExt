@@ -70,6 +70,7 @@
         // App
         FirstApp = 5000000,
         ContainerItemLimit,
+        IsRezzing,
         IsRezzed,
         RezzedX,
         IframeUrl,

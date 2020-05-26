@@ -42,11 +42,10 @@ namespace n3q.Common
 
         public enum Reason
         {
-            ItemNotRezable,
-            NotRezzed,
+            ItemIsNotRezable,
+            ItemIsNotRezzed,
             NotYourItem,
-            TransferFailed,
-            CapacityLimit,
+            ItemCapacityLimit,
         }
     }
 }

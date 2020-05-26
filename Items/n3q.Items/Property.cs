@@ -155,6 +155,7 @@ namespace n3q.Items
             [Pid.Icon32Url] = new Definition(Pid.Icon32Url, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "Medium images"),
             [Pid.Image100Url] = new Definition(Pid.Image100Url, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", ""),
             [Pid.AnimationsUrl] = new Definition(Pid.AnimationsUrl, Type.String, Use.Url, Group.Generic, Access.Public, Persistence.Persistent, "http://...", ""),
+            [Pid.IsRezzing] = new Definition(Pid.IsRezzing, Type.Bool, Use.Bool, Group.Generic, Access.Internal, Persistence.Persistent, "true", "True while rez not confirmed by room."),
             [Pid.IsRezzed] = new Definition(Pid.IsRezzed, Type.Bool, Use.Bool, Group.Generic, Access.Internal, Persistence.Persistent, "true", "True if rezzed to room."),
             [Pid.RezzedX] = new Definition(Pid.RezzedX, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "735", "Position of item in room if rezzed."),
             [Pid.FirstAspect] = new Definition(Pid.FirstAspect, Type.Unknown, Use.Unknown, Group.Unknown, Access.Internal, Persistence.Fixed, "", ""),

@@ -6,6 +6,7 @@ using Orleans.Runtime;
 using Orleans.Configuration;
 using Orleans.Hosting;
 using n3q.GrainInterfaces;
+using n3q.Tools;
 
 namespace XmppComponent
 {
@@ -80,21 +81,23 @@ namespace XmppComponent
 
         private static async Task DoClientWork(IClusterClient client)
         {
-
             var controller = new Controller(client,
                 ComponentHost,
                 ComponentDomain,
                 ComponentPort,
                 ComponentSecret
             );
+
             await controller.Start();
 
             Console.WriteLine("Press Enter to terminate...");
             var line = "";
-            while (line != "q") {
+            do {
                 line = Console.ReadLine();
                 controller.Send(line);
-            }
+            } while (Has.Value(line) && line != "q");
+
+            await controller.Shutdown();
 
             await Task.CompletedTask;
         }
