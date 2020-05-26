@@ -71,8 +71,10 @@ export class Item extends Entity
             if (vpPropsNode) {
                 let attrs = vpPropsNode.attrs;
                 if (attrs) {
+                    let itemServiceId = as.String(attrs.service, '');
                     for (let attrName in attrs) {
                         let attrValue = attrs[attrName];
+                        attrValue = Item.itemServiceUrlFilter(itemServiceId, attrName, attrValue);
                         newProperties[attrName] = attrValue;
                     }
                     // vpNickname = as.String(attrs.Nickname, '');
@@ -144,6 +146,28 @@ export class Item extends Entity
         }
 
         this.isFirstPresence = false;
+    }
+
+    static itemServiceUrlFilter(itemServiceId: string, attrName: string, attrValue: string): any
+    {
+        if (itemServiceId) {
+            var itemServices = Config.get('itemServices', []);
+            let itemServiceTree = itemServices[itemServiceId];
+            if (itemServiceTree) {
+                let itemServiceConfig = itemServiceTree.config;
+                if (itemServiceConfig) {
+                    let propertyUrlFilter = itemServiceConfig.itemPropertyUrlFilter;
+                    if (propertyUrlFilter) {
+                        for (let i = 0; i < propertyUrlFilter.length; i++) {
+                            if (propertyUrlFilter[i].key && propertyUrlFilter[i].value) {
+                                attrValue = attrValue.replace(propertyUrlFilter[i].key, propertyUrlFilter[i].value);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return attrValue;
     }
 
     onPresenceUnavailable(stanza: any): void

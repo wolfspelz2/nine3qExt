@@ -69,6 +69,19 @@ export class Config
             digest: '',
             identificatorUrlTemplate: 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}&digest={digest}',
         },
+        itemServices: {
+            'n3q':
+            {
+                name: 'weblin Items',
+                description: 'Things on web pages',
+                configUrl: 'https://avatar.weblin.sui.li/item/config',
+                config: {
+                    itemPropertyUrlFilter: [
+                        { key: '{item.nine3q}', value: 'https://nine3q.dev.sui.li/images/Items/' },
+                    ]
+                }
+            }
+        },
         i18n: {
             defaultLanguage: 'en-US',
             languageMapping: {
