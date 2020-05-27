@@ -12,6 +12,8 @@ namespace n3q.Items
         //[DataMember]
         readonly string _value;
 
+        public static PropertyValue Empty = new PropertyValue();
+
         public PropertyValue()
         {
             _value = "";

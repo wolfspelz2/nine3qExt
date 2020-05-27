@@ -90,6 +90,9 @@ namespace XmppComponent
             }
         }
 
+        Item GetItemX(string roomId) { return new Item(_clusterClient, roomId); }
+        IWorker Worker => _clusterClient.GetGrain<IWorker>(Guid.Empty);
+
         #endregion
 
         #region Management
@@ -236,8 +239,7 @@ namespace XmppComponent
                 } else {
                     Log.Info($"Joined room {roomId} {itemId}", nameof(Connection_OnPresenceAvailable));
                     roomItem.State = RoomItem.RezState.Rezzed;
-                    await GetItem(roomId).Set(Pid.IsRezzed, true);
-                    await GetItem(roomId).Delete(Pid.IsRezzing);
+                    await Worker.Run(itemId, Pid.RezableAspect, nameof(Rezable.OnRezzed));
                 }
             }
 
@@ -261,8 +263,6 @@ namespace XmppComponent
             await Task.CompletedTask;
         }
 
-        Item GetItem(string roomId) { return new Item(_clusterClient, roomId); }
-
         async Task Connection_OnDropItem(XmppMessage message)
         {
             var userId = message.Cmd.ContainsKey("user") ? message.Cmd["user"] : "";
@@ -272,16 +272,9 @@ namespace XmppComponent
             var destinationUrl = message.Cmd.ContainsKey("destination") ? message.Cmd["destination"] : "";
 
             if (Has.Value(userId) && Has.Value(itemId) && Has.Value(roomId) && hasX) {
-                var room = GetItem(roomId);
-                var item = GetItem(itemId);
-
-                await GetItem(itemId).AsRezable().AssertAspect(() => throw new SurfaceException(userId, itemId, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemIsNotRezable));
                 Log.Info($"Drop {roomId} {itemId}");
-
-                await room.AsContainer().AddChild(item);
-                await item.Set(Pid.RezzedX, posX);
-
-                await OnItemAddedToRoom(roomId, itemId);
+                await Worker.Run(itemId, Pid.RezableAspect, nameof(Rezable.Rez), new PropertySet { [Pid.RezRoom] = roomId, [Pid.RezzedX] = posX });
+                //await OnItemAddedToRoom(roomId, itemId);
             }
         }
 
@@ -298,20 +291,11 @@ namespace XmppComponent
                         Log.Warning($"Unexpected message-cmd-pickupItem: room={roomId} item={itemId}");
                         throw new SurfaceException(roomId, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezzed);
                     } else {
-                        var room = GetItem(roomId);
-                        var item = GetItem(itemId);
-                        var user = GetItem(userId);
-
-                        await item.AsRezable().AssertAspect(() => throw new SurfaceException(userId, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezable));
                         Log.Info($"Pickup {roomId} {itemId}", nameof(Connection_OnPickupItem));
-
-                        if (!await item.Get(Pid.IsRezzed)) { throw new SurfaceException(roomId, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezzed); }
-
+                        await Worker.Run(itemId, Pid.RezableAspect, nameof(Rezable.Derez), new PropertySet { [Pid.DerezUser] = roomId });
                         await OnItemRemovedFromRoom(roomItem);
 
-                        await user.AsContainer().AddChild(item);
-
-                        // Also: dont wait to cleanup state, just ignore the presence-unavailable
+                        // Also: don't wait to cleanup state, just ignore the presence-unavailable
                         RemoveRoomItem(roomId, itemId);
                     }
                 }
@@ -325,7 +309,7 @@ namespace XmppComponent
             var roomId = roomItem.RoomId;
             var itemId = roomItem.ItemId;
 
-            var props = await GetItem(itemId).GetProperties(PidSet.Public);
+            var props = await GetItemX(itemId).GetProperties(PidSet.Public);
 
             var name = props.GetString(Pid.Name);
             if (string.IsNullOrEmpty(name)) { name = props.Get(Pid.Label); }
@@ -471,16 +455,12 @@ namespace XmppComponent
 
             await SendPresenceAvailable(roomItem);
 
-            await GetItem(itemId).Set(Pid.IsRezzing, true);
             roomItem.State = RoomItem.RezState.Rezzing;
         }
 
         private async Task OnItemRemovedFromRoom(RoomItem roomItem)
         {
             await SendPresenceUnvailable(roomItem);
-
-            await GetItem(roomItem.ItemId).Delete(Pid.RezzedX);
-            await GetItem(roomItem.ItemId).Delete(Pid.IsRezzed);
         }
 
         private async Task OnItemPropertyChanged(RoomItem roomItem, Pid pid, string value)

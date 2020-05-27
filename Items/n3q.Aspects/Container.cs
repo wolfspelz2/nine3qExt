@@ -17,7 +17,7 @@ namespace n3q.Aspects
         public async Task AddChild(Item child)
         {
             await AssertAspect();
-            await self.AsCapacityLimit().AssertLimit(child);
+            await self.AsItemCapacityLimit().AssertLimit(child);
 
             var currentParent = Item(await child.GetItemId(Pid.Container));
             await currentParent.DeleteFromItemSet(Pid.Contains, child.Id);

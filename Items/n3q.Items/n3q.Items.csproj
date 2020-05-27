@@ -15,9 +15,4 @@
     <ProjectReference Include="..\n3q.Tools\n3q.Tools.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Aspects\" />
-    <Folder Include="Exceptions\" />
-  </ItemGroup>
-
 </Project>

@@ -17,6 +17,9 @@ namespace n3q.GrainInterfaces
         Task AddToItemSet(Pid pid, string itemId);
         Task DeleteFromItemSet(Pid pid, string itemId);
 
+        Task Delete(Pid pid);
+        Task Modify(PropertySet modified, PidSet deleted);
+
         Task<PropertyValue> Get(Pid pid);
         Task<string> GetString(Pid pid);
         Task<long> GetInt(Pid pid);
@@ -25,8 +28,6 @@ namespace n3q.GrainInterfaces
         Task<string> GetItemId(Pid pid);
         Task<ItemIdSet> GetItemIdSet(Pid pid);
         Task<PropertySet> GetProperties(PidSet pids, bool native = false);
-
-        Task Delete(Pid pid);
 
         //Task<Guid> BeginTransaction();
         //Task CommitTransaction(Guid t);

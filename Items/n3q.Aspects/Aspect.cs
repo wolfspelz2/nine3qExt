@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Orleans;
 using n3q.GrainInterfaces;
 using n3q.Items;
@@ -49,6 +50,32 @@ namespace n3q.Aspects
             } else {
                 await AssertAspect();
             }
+        }
+
+        public delegate Aspect AspectSpecializer(Item item);
+        public delegate Task<PropertyValue> ActionHandler(PropertySet args);
+
+        public class ActionDescription
+        {
+            public ActionHandler Handler { set; get; }
+        }
+
+        public class ActionList : Dictionary<string, ActionDescription> { }
+
+        public virtual ActionList GetActionList()
+        {
+            return null;
+        }
+
+        public Task<PropertyValue> Run(string action, PropertySet arguments)
+        {
+            var actions = GetActionList();
+            if (actions != null) {
+                if (actions.ContainsKey(action)) {
+                    return actions[action].Handler(arguments);
+                }
+            }
+            return Task.FromResult(PropertyValue.Empty);
         }
     }
 }

@@ -11,6 +11,8 @@ namespace n3q.Items
 {
     public class PropertySet : Dictionary<Pid, PropertyValue>
     {
+        public static PropertySet Empty = new PropertySet();
+
         public PropertySet()
         {
         }
