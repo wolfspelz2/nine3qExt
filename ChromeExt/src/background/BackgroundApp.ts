@@ -1,11 +1,10 @@
 import log = require('loglevel');
 import { client, xml, jid } from '@xmpp/client';
+import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { ConfigUpdater } from './ConfigUpdater';
-import { timingSafeEqual } from 'crypto';
 import { Config } from '../lib/Config';
-import { Panic } from '../lib/Panic';
-import { as } from '../lib/as';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 
 interface ILocationMapperResponse
 {
@@ -16,23 +15,31 @@ interface ILocationMapperResponse
 export class BackgroundApp
 {
     private xmpp: any;
-    private activeTabId: number;
-    private roomJid2tabId: Map<string, number> = new Map<string, number>();
-    private roomJid2selfNick: Map<string, string> = new Map<string, string>();
     private xmppConnected = false;
-    private stanzaQ: Array<xml> = [];
     private configUpdater: ConfigUpdater;
+    private resource: string;
+
+    private readonly stanzaQ: Array<xml> = [];
+    private readonly roomJid2tabId: Map<string, number> = new Map<string, number>();
+    private readonly roomJid2selfNick: Map<string, string> = new Map<string, string>();
+    private readonly httpCacheData: Map<string, string> = new Map<string, string>();
+    private readonly httpCacheTime: Map<string, number> = new Map<string, number>();
 
     async start(): Promise<void>
     {
+        let devConfig = await Config.getSync('dev.config', '{}');
+        try {
+            let parsed = JSON.parse(devConfig);
+            Config.setDevTree(parsed);
+        } catch (error) {
+
+        }
+
+        chrome.runtime?.onMessage.addListener((message, sender, sendResponse) => { return this.onRuntimeMessage(message, sender, sendResponse); });
+
         this.configUpdater = new ConfigUpdater();
         await this.configUpdater.getUpdate();
         await this.configUpdater.startUpdateTimer()
-
-        chrome.tabs.onActivated.addListener(activeInfo => { return this.tabsOnActivated(activeInfo); });
-        // chrome.tabs.onUpdated.addListener(this.tabsOnUpdated);
-
-        chrome.tabs.query({ active: true }, (result: Array<chrome.tabs.Tab>) => { this.activeTabId = result[0].id; });
 
         try {
             await this.startXmpp();
@@ -45,63 +52,184 @@ export class BackgroundApp
     {
         this.configUpdater.stopUpdateTimer();
 
-        // chrome.tabs.onUpdated.removeListener(this.tabsOnUpdated);
-        chrome.tabs.onActivated.removeListener(activeInfo => { this.tabsOnActivated(activeInfo); });
+        // Does not work that way
+        // chrome.runtime?.onMessage.removeListener((message, sender, sendResponse) => { return this.onRuntimeMessage(message, sender, sendResponse); });
 
         this.stopXmpp();
     }
 
-    private tabsOnActivated(activeInfo: chrome.tabs.TabActiveInfo): void
-    {
-        log.debug('BackgroundApp.tabsOnActivated', 'tab=', activeInfo.tabId, 'window=', activeInfo.windowId);
-        this.activeTabId = activeInfo.tabId;
-    }
-
-    // private tabsOnUpdated(tabId: number, changeInfo: any, tab: chrome.tabs.Tab): void
-    // {
-    //     if (tabId == this.tabId) {
-    //         if (changeInfo.url != undefined) {
-    //             if (this.pageUrl != changeInfo.url) {
-    //                 this.leaveCurrentRoom();
-    //                 this.enterRoomByPageUrl(this.pageUrl);
-    //             }
-    //         }
-    //     }
-    // }
-
     // IPC
 
-    handle_sendStanza(stanza: any, tabId: number, sendResponse: any): any
+    private onRuntimeMessage(message, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void): boolean
     {
-        log.info('BackgroundApp.handle_sendStanza', stanza, tabId);
+        switch (message.type) {
+            case BackgroundMessage.type_fetchUrl: {
+                return this.handle_fetchUrl(message.url, message.version, sendResponse);
+            } break;
 
-        try {
-            let xmlStanza = Utils.jsObject2xmlObject(stanza);
+            case BackgroundMessage.type_getConfigTree: {
+                sendResponse(this.handle_getConfigTree(message.name));
+                return false;
+            } break;
 
-            if (stanza.name == 'presence') {
-                let to = jid(stanza.attrs.to);
-                let room = to.bare().toString();
-                let nick = to.getResource();
+            case BackgroundMessage.type_getSessionConfig: {
+                sendResponse(this.handle_getSessionConfig(message.key));
+                return false; // true if async
+            } break;
 
-                if (as.String(stanza.attrs['type'], 'available') == 'available') {
-                    if (this.roomJid2tabId[room] == undefined) {
-                        log.debug('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId);
-                    }
-                    this.roomJid2tabId[room] = tabId;
-                    this.roomJid2selfNick[room] = nick;
-                }
-            }
+            case BackgroundMessage.type_setSessionConfig: {
+                sendResponse(this.handle_setSessionConfig(message.key, message.value));
+                return false; // true if async
+            } break;
 
-            this.sendStanza(xmlStanza);
+            case BackgroundMessage.type_sendStanza: {
+                sendResponse(this.handle_sendStanza(message.stanza, sender.tab.id, sendResponse));
+                return false;
+            } break;
 
-        } catch (error) {
-            log.error('BackgroundApp.handle_sendStanza', error);
+            case BackgroundMessage.type_pingBackground: {
+                sendResponse(this.handle_pingBackground());
+                return false;
+            } break;
+
+            case BackgroundMessage.type_userSettingsChanged: {
+                sendResponse(this.handle_userSettingsChanged());
+                return false;
+            } break;
+
+            default: {
+                log.debug('BackgroundApp.onRuntimeMessage unhandled', message);
+                sendResponse({});
+                return false;
+            } break;
         }
     }
 
+    maintainHttpCache(): void
+    {
+        log.debug('BackgroundApp.maintainHttpCache');
+        let cacheTimeout = Config.get('httpCache.maxAgeSec', 3600);
+        let now = Date.now();
+        let deleteKeys = new Array<string>();
+        for (let key in this.httpCacheTime) {
+            if (now - this.httpCacheTime[key] > cacheTimeout * 1000) {
+                deleteKeys.push(key);
+            }
+        }
+
+        deleteKeys.forEach(key =>
+        {
+            log.debug('BackgroundApp.maintainHttpCache', (now - this.httpCacheTime[key]) / 1000, 'sec', 'delete', key);
+            delete this.httpCacheData[key];
+            delete this.httpCacheTime[key];
+        });
+    }
+
+    lastCacheMaintenanceTime: number = 0;
+    handle_fetchUrl(url: any, version: any, sendResponse: (response?: any) => void): boolean
+    {
+        let now = Date.now();
+        let maintenanceIntervalSec = Config.get('httpCache.maintenanceIntervalSec', 60);
+        if (now - this.lastCacheMaintenanceTime > maintenanceIntervalSec * 1000) {
+            this.maintainHttpCache();
+            this.lastCacheMaintenanceTime = now;
+        }
+
+        let key = version + url;
+        let isCached = (this.httpCacheData[key] != undefined);
+
+        if (isCached) {
+            log.debug('BackgroundApp.handle_fetchUrl', 'cache-age', (now - this.httpCacheTime[key]) / 1000, url, 'version=', version);
+        } else {
+            log.debug('BackgroundApp.handle_fetchUrl', 'not-cached', url, 'version=', version);
+        }
+
+        if (isCached) {
+            sendResponse({ 'ok': true, 'data': this.httpCacheData[key] });
+        } else {
+            try {
+                fetch(url)
+                    .then(httpResponse =>
+                    {
+                        // log.debug('BackgroundApp.handle_fetchUrl', 'httpResponse', url, httpResponse);
+                        if (httpResponse.ok) {
+                            return httpResponse.text();
+                        } else {
+                            throw { 'ok': false, 'status': httpResponse.status, 'statusText': httpResponse.statusText };
+                        }
+                    })
+                    .then(text =>
+                    {
+                        this.httpCacheData[key] = text;
+                        this.httpCacheTime[key] = now;
+                        let response = { 'ok': true, 'data': text };
+                        log.debug('BackgroundApp.handle_fetchUrl', 'response', url, text.length, response);
+                        sendResponse(response);
+                    })
+                    .catch(ex =>
+                    {
+                        log.debug('BackgroundApp.handle_fetchUrl', 'catch', url, ex);
+                        sendResponse({ 'ok': false, 'status': ex.status, 'statusText': ex.statusText });
+                    });
+                return true;
+            } catch (error) {
+                log.debug('BackgroundApp.handle_fetchUrl', 'exception', url, error);
+                sendResponse({ 'ok': false, 'status': error.status, 'statusText': error.statusText });
+            }
+        }
+        return false;
+    }
+
+    handle_getConfigTree(name: any)
+    {
+        log.debug('BackgroundApp.handle_getConfigTree', name);
+        switch (as.String(name, Config.onlineConfigName)) {
+            case Config.devConfigName:
+                return Config.getDevTree();
+                break;
+        }
+        return Config.getOnlineTree();
+    }
+
+    handle_getSessionConfig(key: string): any
+    {
+        let response = {};
+        try {
+            let value = Config.get(key, undefined);
+            if (value != undefined) {
+                response[key] = value;
+            }
+        } catch (error) {
+            log.info('BackgroundApp.handle_getSessionConfig', error);
+        }
+
+        log.debug('BackgroundApp.handle_getSessionConfig', key, 'response', response);
+        return response;
+    }
+
+    handle_setSessionConfig(key: string, value: string): any
+    {
+        log.debug('BackgroundApp.handle_setSessionConfig', key, value);
+        try {
+            Config.set(key, value);
+        } catch (error) {
+            log.info('BackgroundApp.handle_setSessionConfig', error);
+        }
+    }
+
+    // send/recv stanza
+
     private recvStanza(stanza: any)
     {
-        log.debug('BackgroundApp.recvStanza', stanza);
+        {
+            let isConnectionPresence = false;
+            if (stanza.name == 'presence') {
+                isConnectionPresence = stanza.attrs.from && (jid(stanza.attrs.from).getResource() == this.resource);
+            }
+            if (!isConnectionPresence) {
+                log.info('BackgroundApp.recvStanza', stanza);
+            }
+        }
 
         if (stanza.name == 'presence' || stanza.name == 'message') {
             let from = jid(stanza.attrs.from);
@@ -117,78 +245,40 @@ export class BackgroundApp
                     let nick = from.getResource();
                     let isSelf = this.roomJid2selfNick[room] == nick;
                     if (isSelf) {
-                        log.debug('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', this.roomJid2tabId[room]);
                         delete this.roomJid2tabId[room];
                         delete this.roomJid2selfNick[room];
+                        log.debug('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', this.roomJid2tabId[room], 'now:', this.roomJid2tabId);
                     }
                 }
             }
         }
     }
 
-    // xmpp
-
-    private async startXmpp()
+    handle_sendStanza(stanza: any, tabId: number, sendResponse: any): void
     {
+        // log.debug('BackgroundApp.handle_sendStanza', stanza, tabId);
+
         try {
-            var conf = {
-                service: Config.get('xmpp.service', 'wss://xmpp.weblin.sui.li/xmpp-websocket'),// service: 'wss://xmpp.dev.sui.li/xmpp-websocket',
-                domain: Config.get('xmpp.domain', 'xmpp.weblin.sui.li'),
-                resource: Config.get('xmpp.resource', 'web'),
-                username: await Config.getPreferSync('xmpp.user', ''),
-                password: await Config.getPreferSync('xmpp.pass', ''),
-            };
-            if (conf.username == '' || conf.password == '') {
-                throw 'Missing xmpp.user or xmpp.pass';
-            }
-            this.xmpp = client(conf);
+            let xmlStanza = Utils.jsObject2xmlObject(stanza);
 
-            this.xmpp.on('error', (err: any) =>
-            {
-                log.error('BackgroundApp xmpp.on.error', err);
-            });
+            if (stanza.name == 'presence') {
+                let to = jid(stanza.attrs.to);
+                let room = to.bare().toString();
+                let nick = to.getResource();
 
-            this.xmpp.on('offline', () =>
-            {
-                log.warn('BackgroundApp xmpp.on.offline');
-                this.xmppConnected = false;
-            });
-
-            this.xmpp.on('online', async (address: any) =>
-            {
-                log.info('BackgroundApp xmpp.on.online', address);
-
-                this.sendPresence();
-                this.keepAlive();
-
-                if (!this.xmppConnected) {
-                    this.xmppConnected = true;
-                    while (this.stanzaQ.length > 0) {
-                        let stanza = this.stanzaQ.shift();
-                        this.sendStanzaUnbuffered(stanza);
-                    }
+                if (as.String(stanza.attrs['type'], 'available') == 'available') {
+                    let thisIsNew = false;
+                    if (this.roomJid2tabId[room] == undefined) { thisIsNew = true; }
+                    this.roomJid2tabId[room] = tabId;
+                    this.roomJid2selfNick[room] = nick;
+                    if (thisIsNew) { log.debug('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId); }
                 }
-            });
+            }
 
-            this.xmpp.on('stanza', (stanza: any) => this.recvStanza(stanza));
+            this.sendStanza(xmlStanza);
 
-            this.xmpp.start().catch(log.error);
         } catch (error) {
-            log.error(error);
-        }
-    }
-
-    private stopXmpp()
-    {
-        //hw todo
-    }
-
-    private sendStanzaUnbuffered(stanza: any): void
-    {
-        try {
-            this.xmpp.send(stanza);
-        } catch (error) {
-            log.warn('BackgroundApp.sendStanza', error.message ?? '');
+            log.info('BackgroundApp.handle_sendStanza', error);
         }
     }
 
@@ -201,24 +291,120 @@ export class BackgroundApp
         }
     }
 
-    // keepalive
-
-    private keepAliveSec: number = 180;
-    private keepAliveTimer: number = undefined;
-    private keepAlive()
+    private sendStanzaUnbuffered(stanza: any): void
     {
-        if (this.keepAliveTimer == undefined) {
-            this.keepAliveTimer = <number><unknown>setTimeout(() =>
+        try {
             {
-                this.sendPresence();
-                this.keepAliveTimer = undefined;
-                this.keepAlive();
-            }, this.keepAliveSec * 1000);
+                let isConnectionPresence = false;
+                if (stanza.name == 'presence') {
+                    isConnectionPresence = (stanza.attrs == undefined || stanza.attrs.to == undefined || jid(stanza.attrs.to).getResource() == this.resource);
+                }
+                if (!isConnectionPresence) {
+                    log.info('BackgroundApp.sendStanza', stanza);
+                }
+            }
+
+            this.xmpp.send(stanza);
+        } catch (error) {
+            log.info('BackgroundApp.sendStanza', error.message ?? '');
         }
     }
 
     private sendPresence()
     {
         this.sendStanza(xml('presence'));
+    }
+
+    // xmpp
+
+    private async startXmpp()
+    {
+        this.resource = Utils.randomString(10);
+
+        try {
+            var conf = {
+                service: Config.get('xmpp.service', 'wss://xmpp.weblin.sui.li/xmpp-websocket'),// service: 'wss://xmpp.dev.sui.li/xmpp-websocket',
+                domain: Config.get('xmpp.domain', 'xmpp.weblin.sui.li'),
+                resource: Config.get('xmpp.resource', this.resource),
+                username: await Config.getPreferSync('xmpp.user', ''),
+                password: await Config.getPreferSync('xmpp.pass', ''),
+            };
+            if (conf.username == '' || conf.password == '') {
+                throw 'Missing xmpp.user or xmpp.pass';
+            }
+            this.xmpp = client(conf);
+
+            this.xmpp.on('error', (err: any) =>
+            {
+                log.info('BackgroundApp xmpp.on.error', err);
+            });
+
+            this.xmpp.on('offline', () =>
+            {
+                log.info('BackgroundApp xmpp.on.offline');
+                this.xmppConnected = false;
+            });
+
+            this.xmpp.on('online', (address: any) =>
+            {
+                log.info('BackgroundApp xmpp.on.online', address);
+
+                this.sendPresence();
+
+                if (!this.xmppConnected) {
+                    this.xmppConnected = true;
+                    while (this.stanzaQ.length > 0) {
+                        let stanza = this.stanzaQ.shift();
+                        this.sendStanzaUnbuffered(stanza);
+                    }
+                }
+            });
+
+            this.xmpp.on('stanza', (stanza: any) => this.recvStanza(stanza));
+
+            this.xmpp.start().catch(log.info);
+        } catch (error) {
+            log.info(error);
+        }
+    }
+
+    private stopXmpp()
+    {
+        //hw todo
+    }
+
+    // Keep connection alive
+
+    private lastPingTime: number = 0;
+    handle_pingBackground(): void
+    {
+        log.debug('BackgroundApp.handle_pingBackground');
+        try {
+            let now = Date.now();
+            if (now - this.lastPingTime > 10000) {
+                this.lastPingTime = now;
+                this.sendPresence();
+            }
+        } catch (error) {
+            //
+        }
+    }
+
+    // 
+
+    handle_userSettingsChanged(): void
+    {
+        log.debug('BackgroundApp.handle_userSettingsChanged');
+        try {
+            for (let room in this.roomJid2tabId) {
+                let tabId = this.roomJid2tabId[room];
+                if (tabId != undefined) {
+                    chrome.tabs.sendMessage(tabId, { 'type': 'userSettingsChanged' });
+                }
+            }
+
+        } catch (error) {
+            //
+        }
     }
 }

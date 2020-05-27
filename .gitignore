@@ -4,3 +4,10 @@
 
 /.vs
 /ChromeExt/.vs
+ChromeExt/extension.zip
+ChromeExt/dist.zip
+/nine3q/obj
+/nine3q/bin
+/Backend/.vs
+/Backend/Test
+*.user

@@ -1,7 +1,5 @@
 import { expect } from 'chai';
-import { Utils } from '../lib/Utils';
-import { xml } from '@xmpp/client';
-import { Room } from '../contentscript/Room';
+// import markdown = require('markdown');
 
 export class TestMisc
 {
@@ -12,4 +10,10 @@ export class TestMisc
         m.delete('a');
         expect(m.size).to.equal(0);
     }
+
+    // markdown()
+    // {
+    //     let md = markdown.markdown.toHTML('Hello **World**');
+    //     expect(md).to.equal('<p>Hello <strong>World</strong></p>');
+    // }
 }

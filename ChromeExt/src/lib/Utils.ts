@@ -38,7 +38,11 @@ export class Utils
 
     static randomInt(min: number, max: number): number
     {
-        return Math.trunc(Math.random() * (max - min) + min);
+        let f = Math.random() * (max - min) + min;
+        f = Math.min(max - 0.001, f);
+        f = Math.max(min, f);
+        let i = Math.trunc(f);
+        return i;
     }
 
     static randomNickname(): string
@@ -52,5 +56,21 @@ export class Utils
 
         const randomName: string = uniqueNamesGenerator(customConfig);
         return randomName;
+    }
+
+    static hash(s: string): number
+    {
+        var hash = 0;
+        if (s.length == 0) return hash;
+
+        s += 'abcd';
+
+        for (let i = 0; i < s.length; i++) {
+            let char = s.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+
+        return Math.abs(hash);
     }
 }

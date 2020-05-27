@@ -1,4 +1,3 @@
-import { xml } from '@xmpp/client';
 import log = require('loglevel');
 import { Utils } from './Utils';
 
@@ -7,66 +6,110 @@ interface ConfigSetCallback { (): void }
 
 export class Config
 {
-    private static tempConfig: any = {};
+    public static sessionConfigName = 'session';
+    private static sessionConfig: any = {};
 
+    public static devConfigName = 'dev';
+    private static devConfig: any = {};
+
+    public static onlineConfigName = 'online';
     private static onlineConfig: any = {};
 
+    public static staticConfigName = 'static';
     private static staticConfig: any = {
-        'me': {
-            'nickname': '',//'新しいアバター',//'new-avatar',
-            'avatar': '',
+        me: {
+            nickname: '',//'新しいアバター',//'new-avatar',
+            avatar: '',
+            active: '',
         },
-        'vp': {
-            'locationMappingServiceUrl': 'http://lms.virtual-presence.org/api/',
-            'deferPageEnterSec': 2,
+        vp: {
+            useLocationMappingService: false,
+            locationMappingServiceUrl: 'https://lms.virtual-presence.org/api/',
+            deferPageEnterSec: 0.3,
+            vpiRoot: 'https://lms.virtual-presence.org/v7/root.xml',
+            vpiMaxIterations: 15,
         },
-        'config': {
-            'seviceUrl': 'https://config.weblin.sui.li/',
-            'updateIntervalSec': Utils.randomInt(60000, 80000),
-            'checkUpdateIntervalSec': 600,
+        config: {
+            serviceUrl: 'https://config.weblin.sui.li/',
+            updateIntervalSec: Utils.randomInt(60000, 80000),
+            checkUpdateIntervalSec: 600,
         },
-        'room': {
-            'defaultAvatarSpeedPixelPerSec': 100,
-            'randomEnterPosXMin': 300,
-            'randomEnterPosXMax': 600,
-            'showNicknameTooltip': true,
-            'avatarDoubleClickDelaySec': 0.1,
-            'maxChatAgeSec': 60,
+        httpCache: {
+            maxAgeSec: 3600,
+            maintenanceIntervalSec: 60,
         },
-        'xmpp': {
-            'service': 'wss://xmpp.weblin.sui.li/xmpp-websocket',
-            'domain': 'xmpp.weblin.sui.li',
-            'maxMucEnterRetries': 4,
+        room: {
+            fadeInSec: 0.3,
+            defaultAvatarSpeedPixelPerSec: 100,
+            randomEnterPosXMin: 300,
+            randomEnterPosXMax: 600,
+            showNicknameTooltip: true,
+            avatarDoubleClickDelaySec: 0.1,
+            maxChatAgeSec: 60,
+            chatWindowWidth: 400,
+            chatWindowHeight: 250,
+            chatWindowMaxHeight: 800,
+            keepAliveSec: 120,
+            nicknameOnHover: true,
         },
-        'avatars': {
-            'animationsUrlTemplate': 'http://avatar.zweitgeist.com/gif/{id}/config.xml',
-            'animationsProxyUrlTemplate': 'https://avatar.weblin.sui.li/avatar/?url={url}',
-            'list': ['002/sportive03_m', '002/business03_m', '002/child02_m', '002/sportive01_m', '002/business06_m', '002/casual04_f', '002/business01_f', '002/casual30_m', '002/sportive03_f', '002/casual16_m', '002/casual10_f', '002/business03_f', '002/casual03_m', '002/sportive07_m', '002/casual13_f', '002/casual09_m', '002/casual16_f', '002/child02_f', '002/sportive08_m', '002/casual15_m', '002/casual15_f', '002/casual01_f', '002/casual11_f', '002/sportive09_m', '002/casual20_f', '002/sportive02_f', '002/business05_m', '002/casual06_m', '002/casual10_m', '002/casual02_f',],
-            'randomList': ['002/sportive03_m', '002/business03_m', '002/child02_m', '002/sportive01_m', '002/business06_m', '002/casual04_f', '002/business01_f', '002/casual30_m', '002/sportive03_f', '002/casual16_m', '002/casual10_f', '002/business03_f', '002/casual03_m', '002/sportive07_m', '002/casual13_f', '002/casual09_m', '002/casual16_f', '002/child02_f', '002/sportive08_m', '002/casual15_m', '002/casual15_f', '002/casual01_f', '002/casual11_f', '002/sportive09_m', '002/casual20_f', '002/sportive02_f', '002/business05_m', '002/casual06_m', '002/casual10_m', '002/casual02_f',],
+        xmpp: {
+            service: 'wss://xmpp.weblin.sui.li/xmpp-websocket',
+            domain: 'xmpp.weblin.sui.li',
+            maxMucEnterRetries: 4,
+            pingBackgroundToKeepConnectionAliveSec: 12,
         },
-        'identity': {
-            'identificatorUrlTemplate': 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}',
+        avatars: {
+            animationsUrlTemplate: 'http://avatar.zweitgeist.com/gif/{id}/config.xml',
+            animationsProxyUrlTemplate: 'https://avatar.weblin.sui.li/avatar/?url={url}',
+            list: ['002/sportive03_m', '002/business03_m', '002/child02_m', '002/sportive01_m', '002/business06_m', '002/casual04_f', '002/business01_f', '002/casual30_m', '002/sportive03_f', '002/casual16_m', '002/casual10_f', '002/business03_f', '002/casual03_m', '002/sportive07_m', '002/casual13_f', '002/casual09_m', '002/casual16_f', '002/child02_f', '002/sportive08_m', '002/casual15_m', '002/casual15_f', '002/casual01_f', '002/casual11_f', '002/sportive09_m', '002/casual20_f', '002/sportive02_f', '002/business05_m', '002/casual06_m', '002/casual10_m', '002/casual02_f',],
+            randomList: ['002/sportive03_m', '002/business03_m', '002/child02_m', '002/sportive01_m', '002/business06_m', '002/casual04_f', '002/business01_f', '002/casual30_m', '002/sportive03_f', '002/casual16_m', '002/casual10_f', '002/business03_f', '002/casual03_m', '002/sportive07_m', '002/casual13_f', '002/casual09_m', '002/casual16_f', '002/child02_f', '002/sportive08_m', '002/casual15_m', '002/casual15_f', '002/casual01_f', '002/casual11_f', '002/sportive09_m', '002/casual20_f', '002/sportive02_f', '002/business05_m', '002/casual06_m', '002/casual10_m', '002/casual02_f',],
         },
-        'i18n': {
-            'defaultLanguage': 'en-US',
-            'languageMapping': {
+        identity: {
+            url: '',
+            digest: '',
+            identificatorUrlTemplate: 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}&digest={digest}',
+        },
+        itemServices: {
+            'n3q':
+            {
+                name: 'weblin Items',
+                description: 'Things on web pages',
+                configUrl: 'https://avatar.weblin.sui.li/item/config',
+                config: {
+                    itemPropertyUrlFilter: [
+                        { key: '{item.nine3q}', value: 'https://nine3q.dev.sui.li/images/Items/' },
+                    ]
+                }
+            }
+        },
+        i18n: {
+            defaultLanguage: 'en-US',
+            languageMapping: {
                 'de': 'de-DE',
             },
-            'translations': {
+            translations: {
                 'en-US': {
                     'Common.Close': 'Close',
 
                     'Chatin.Enter chat here...': 'Enter chat here...',
                     'Chatin.SendChat': 'Send chat',
 
-                    'Popup.title': 'Configure your avatar',
-                    'Popup.description': 'Change name and avatar, press [save], and then reload the page.',
+                    'Popup.title': 'Your weblin',
+                    'Popup.description': 'Change name and avatar, then press [save].',
                     'Popup.Name': 'Name',
                     'Popup.Random': 'Random',
                     'Popup.Avatar': 'Avatar',
                     'Popup.Save': 'Save',
+                    'Popup.Saving': 'Saving',
+                    'Popup.Saved': 'Saved',
+                    'Popup.Show avatar': 'Show avatar on pages',
+                    'Popup.Uncheck to hide': 'Uncheck to hide avatar on pages',
 
+                    'Menu.Settings': 'Settings',
+                    'Menu.Stay Here': 'Stay Here',
+                    'Menu.Chat Window': 'History',
                     'Menu.Chat': 'Chat',
+                    'Menu.Actions:': 'Actions:',
                     'Menu.wave': 'Wave',
                     'Menu.dance': 'Dance',
                     'Menu.cheer': 'Cheer',
@@ -76,21 +119,39 @@ export class Config
                     'Menu.angry': 'Angry',
                     'Menu.deny': 'Deny',
                     'Menu.yawn': 'Yawn',
+
+                    'Chatwindow.Chat History': 'Chat',
+                    'Chatwindow.entered the room': '**entered the room**',
+                    'Chatwindow.was already there': '**was already there**',
+                    'Chatwindow.left the room': '**left the room**',
+                    'Chatwindow.appeared': '*appeared*',
+                    'Chatwindow.is present': '*is present*',
+                    'Chatwindow.disappeared': '*disappeared*',
+
+                    'Settingswindow.Settings': 'Settings',
                 },
                 'de-DE': {
                     'Common.Close': 'Schließen',
 
-                    'Chatin.Enter chat here...': 'Chat Text hier eingeben...',
+                    'Chatin.Enter chat here...': 'Chat Text hier...',
                     'Chatin.SendChat': 'Chat abschicken',
 
-                    'Popup.title': 'Avatar Einstellungen',
-                    'Popup.description': 'Wähle Name und Avatar, dann drücke [Speichern] und lade die Seite neu.',
+                    'Popup.title': 'Dein weblin',
+                    'Popup.description': 'Wähle Name und Avatar, dann drücke [Speichern].',
                     'Popup.Name': 'Name',
                     'Popup.Random': 'Zufallsname',
                     'Popup.Avatar': 'Avatar',
                     'Popup.Save': 'Speichern',
+                    'Popup.Saving': 'Speichern',
+                    'Popup.Saved': 'Gespeichert',
+                    'Popup.Show avatar': 'Avatar auf Seiten anzeigen',
+                    'Popup.Uncheck to hide': 'Abschalten, um das Avatar auf Webseiten nicht anzuzeigen',
 
-                    'Menu.Chat': 'Chat',
+                    'Menu.Settings': 'Einstellungen',
+                    'Menu.Stay Here': 'Hier bleiben',
+                    'Menu.Chat Window': 'Chatverlauf',
+                    'Menu.Chat': 'Sprechblase',
+                    'Menu.Actions:': 'Aktionen:',
                     'Menu.wave': 'Winken',
                     'Menu.dance': 'Tanzen',
                     'Menu.cheer': 'Jubeln',
@@ -100,16 +161,30 @@ export class Config
                     'Menu.angry': 'Ärgern',
                     'Menu.deny': 'Ablehnen',
                     'Menu.yawn': 'Gähnen',
+
+                    'Chatwindow.Chat History': 'Chat',
+                    'Chatwindow.entered the room': '**hat den Raum betreten**',
+                    'Chatwindow.was already there': '**war schon da**',
+                    'Chatwindow.left the room': '**hat den Raum verlassen**',
+                    'Chatwindow.appeared': '*erschienen*',
+                    'Chatwindow.is present': '*ist da*',
+                    'Chatwindow.disappeared': '*verschwunden*',
+
+                    'Settingswindow.Settings': 'Einstellungen',
                 },
             },
             'serviceUrl': '',
         },
-        'last': 0,
+
+        _last: 0
     }
 
     static get(key: string, defaultValue: any): any
     {
-        let result = Config.getTemp(key);
+        let result = Config.getSession(key);
+        if (result == undefined || result == null) {
+            result = Config.getDev(key);
+        }
         if (result == undefined || result == null) {
             result = Config.getOnline(key);
         }
@@ -124,7 +199,7 @@ export class Config
 
     static set(key: string, value: any): void
     {
-        this.tempConfig[key] = value;
+        this.sessionConfig[key] = value;
     }
 
     static async getPreferSync(key: string, defaultValue: any)
@@ -136,9 +211,14 @@ export class Config
         return result;
     }
 
-    static getTemp(key: string): any
+    static getSession(key: string): any
     {
-        return this.tempConfig[key];
+        return this.sessionConfig[key];
+    }
+
+    static getDev(key: string): any
+    {
+        return Config.getFromTree(this.devConfig, key);
     }
 
     static getOnline(key: string): any
@@ -224,25 +304,25 @@ export class Config
         });
     }
 
-    static getAllStatic(): any
+    static getDevTree(): any { return this.devConfig; }
+    static getOnlineTree(): any { return this.onlineConfig; }
+    static getStaticTree(): any { return this.staticConfig; }
+
+    static setDevTree(values: any)
     {
-        return this.staticConfig;
+        this.devConfig = values;
     }
 
-    static getAllOnline(): any
+    static setOnlineTree(values: any): void
     {
-        return this.onlineConfig;
+        log.debug('Config.setOnlineTree');
+        this.onlineConfig = values;
     }
 
-    static setAllStatic(values: any): void
+    static setStaticTree(values: any): void
     {
-        log.debug('Config.setAllStatic');
+        log.debug('Config.setStaticTree');
         this.staticConfig = values;
     }
 
-    static setAllOnline(values: any): void
-    {
-        log.debug('Config.setAllOnline');
-        this.onlineConfig = values;
-    }
 }

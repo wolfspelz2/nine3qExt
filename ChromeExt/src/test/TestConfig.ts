@@ -6,7 +6,7 @@ export class TestConfig
 {
     get_from_static_config()
     {
-        Config.setAllStatic({
+        Config.setStaticTree({
             'xmpp': {
                 'service': 'wss://xmpp.weblin.sui.li/xmpp-websocket',
                 'domain': 'xmpp.weblin.sui.li',
@@ -29,7 +29,7 @@ export class TestConfig
 
     get_from_online_config_with_static_fallback()
     {
-        Config.setAllStatic({
+        Config.setStaticTree({
             'notInOnlineConfig1': {
                 'notInOnlineConfig2': 'notInOnlineConfig3',
             },
@@ -37,7 +37,7 @@ export class TestConfig
                 'service': 'no-service',
             },
         });
-        Config.setAllOnline({
+        Config.setOnlineTree({
             'xmpp': {
                 'service': 'wss://xmpp.weblin.sui.li/xmpp-websocket',
                 'domain': 'xmpp.weblin.sui.li',

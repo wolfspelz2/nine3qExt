@@ -1,9 +1,9 @@
-import * as $ from 'jquery';
 import log = require('loglevel');
+import * as $ from 'jquery';
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
-import { Platform } from '../lib/Platform';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Translator } from '../lib/Translator';
 import { AvatarGallery } from '../lib/AvatarGallery';
 
@@ -14,6 +14,11 @@ export class PopupApp
 {
     private display: HTMLElement;
     private babelfish: Translator;
+    private defaultDevConfig = `{
+    "config": {
+        "serviceUrl": "https://config.weblin.sui.li/"
+    }
+}`;
 
     constructor(private appendToMe: HTMLElement)
     {
@@ -41,8 +46,8 @@ export class PopupApp
     async start()
     {
         try {
-            let config = await Platform.getConfig();
-            Config.setAllOnline(config);
+            let config = await BackgroundMessage.getConfigTree(Config.onlineConfigName);
+            Config.setOnlineTree(config);
         } catch (error) {
             log.warn(error);
         }
@@ -51,6 +56,7 @@ export class PopupApp
 
         let nickname = as.String(await Config.getSync('me.nickname', 'Your name'));
         let avatar = as.String(await Config.getSync('me.avatar', ''));
+        let active = as.String(await Config.getSync('me.active', 'true'));
 
         {
             let group = $('<div class="n3q-base n3q-popup-header" data-translate="children"/>').get(0);
@@ -59,11 +65,41 @@ export class PopupApp
             icon.src = imgPopupIcon;
             group.append(icon);
 
-            let title = $('<div class="n3q-base n3q-popup-title" data-translate="text:Popup.title">Configure your avatar</div>').get(0);
+            let title = $('<div class="n3q-base n3q-popup-title" data-translate="text:Popup.title">Your Weblin</div>').get(0);
             group.append(title);
 
             let description = $('<div class="n3q-base n3q-popup-description" data-translate="text:Popup.description">Change name and avatar, then reload the page.</div>').get(0);
             group.append(description);
+
+            $(icon).on('click', async ev =>
+            {
+                if (ev.ctrlKey) {
+                    let dev = $('#n3q-popup-dev').get(0);
+                    if (dev == null) {
+                        dev = $('<div id="n3q-popup-dev" class="n3q-base n3q-popup-hidden" style="" />').get(0);
+                        let text = $('<textarea class="n3q-base" style="width: 100%; height: 100px; margin-top: 1em;" />').get(0);
+                        let data = await Config.getSync('dev.config', this.defaultDevConfig);
+                        $(text).val(data);
+                        $(dev).append(text);
+                        let apply = $('<button class="n3q-base" style="margin-top: 0.5em;">Save</button>').get(0);
+                        $(apply).on('click', async ev =>
+                        {
+                            let data = $(text).val();
+                            await Config.setSync('dev.config', data);
+                        });
+                        $(dev).append(apply);
+                        $(group).append(dev);
+                    }
+                    if (dev != null) {
+                        if ($(dev).hasClass('n3q-popup-hidden')) {
+                            $(dev).removeClass('n3q-popup-hidden');
+                        } else {
+                            $(dev).addClass('n3q-popup-hidden');
+                        }
+                    }
+                }
+            });
+            // $(dev).removeClass('n3q-popup-hidden');
 
             this.display.append(group);
         }
@@ -144,20 +180,75 @@ export class PopupApp
         }
 
         {
+            let group = $('<div class="n3q-base n3q-popup-group n3q-popup-group-active" data-translate="children"/>').get(0);
+
+            let label = $('<div class="n3q-base n3q-popup-label" data-translate="text:Popup">Show avatar</div>').get(0);
+            group.append(label);
+
+            let checkbox = $('<input type="checkbox" id="n3q-id-popup-active" name="n3q-id-popup-active" class="n3q-base n3q-popup-active" title="Uncheck to hide" data-translate="attr:title:Popup"></input>').get(0);
+            $(checkbox).prop('checked', as.Bool(active, false));
+            group.append(checkbox);
+
+            this.display.append(group);
+        }
+
+        {
             let group = $('<div class="n3q-base n3q-popup-group n3q-popup-group-save" data-translate="children"/>').get(0);
+
+            let saving = $('<div class="n3q-base n3q-popup-save-saving" data-translate="text:Popup">Saving</div>').get(0);
+            let saved = $('<div class="n3q-base n3q-popup-save-saved" data-translate="text:Popup">Saved</div>').get(0);
 
             let save = $('<button class="n3q-base n3q-popup-save" data-translate="text:Popup">Save</button>').get(0);
             $(save).bind('click', async ev =>
             {
-                await Config.setSync('me.nickname', $('#n3q-id-popup-nickname').val())
-                await Config.setSync('me.avatar', $('#n3q-id-popup-avatar').val())
+                $(saving).fadeTo(200, 1.0);
+                let nickname2Save = $('#n3q-id-popup-nickname').val();
+                await Config.setSync('me.nickname', nickname2Save);
+
+                let avatar2Save = $('#n3q-id-popup-avatar').val();
+                await Config.setSync('me.avatar', avatar2Save);
+
+                let isActive = $('#n3q-id-popup-active').prop('checked');
+                let active2Save = as.String(isActive, 'false');
+                await Config.setSync('me.active', active2Save);
+
+                // Verify
+                {
+                    let nickname2Verify = await Config.getSync('me.nickname', '');
+                    let avatar2Verify = await Config.getSync('me.avatar', '');
+                    let active2Verify = await Config.getSync('me.active', '');
+                    $(saving).fadeTo(100, 0.0);
+                    
+                    if (true
+                        && nickname2Verify == nickname2Save
+                        && avatar2Verify == avatar2Save
+                        && active2Verify == active2Save
+                        ) {
+                            if (false
+                                || nickname != nickname2Save
+                                || avatar != avatar2Save
+                                || active != active2Save
+                                ) {
+                                    await BackgroundMessage.userSettingsChanged();
+                                }
+
+
+                        $(saved).fadeTo(100, 1.0).fadeTo(1000, 0.0, () =>
+                        {
+                            this.close();
+                        });
+                    }
+                }
             });
             group.append(save);
+
+            group.append(saving);
+            group.append(saved);
 
             let close = $('<button class="n3q-base n3q-popup-close" data-translate="text:Common">Close</button>').get(0);
             $(close).bind('click', async ev =>
             {
-                window.close();
+                this.close();
             });
             group.append(close);
 
@@ -166,6 +257,11 @@ export class PopupApp
 
         this.babelfish.translateElem(this.display);
         this.appendToMe.append(this.display);
+    }
+
+    close()
+    {
+        window.close();
     }
 
     private setCurrentAvatar(id: string, displayElem: HTMLImageElement, hiddenElem: HTMLElement, nameElem: HTMLElement)

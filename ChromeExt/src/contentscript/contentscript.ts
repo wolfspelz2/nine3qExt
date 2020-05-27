@@ -1,55 +1,115 @@
+import log = require('loglevel');
 import './contentscript.scss';
 import * as $ from 'jquery';
-import log = require('loglevel');
 import { Panic } from '../lib/Panic';
 import { Config } from '../lib/Config';
-import { ContentApp } from './ContentApp';
+import { Environment } from '../lib/Environment';
+import { ContentApp, ContentAppNotification } from './ContentApp';
 
 console.log('Contentscript');
 
-let debug = true;
+let debug = Environment.isDevelopment();
+console.log('Contentscript', 'debug', debug);
+
 log.setLevel(log.levels.INFO);
 
 if (debug) {
     // Config.getAllStatic().room.randomEnterPosXMin = 200;
     // Config.getAllStatic().room.randomEnterPosXMax= 200;
-    Config.getAllStatic().vp.deferPageEnterSec = 0;
+    // Config.getAllStatic().vp.deferPageEnterSec = 0;
     log.setLevel(log.levels.DEBUG);
 }
 
 var app = null;
+let onTabChangeStay = false;
 
-function activate()
-{
-    if (app == null) {
-        app = new ContentApp($('body').get(0));
-        app.start();
+try {
+
+    function activate()
+    {
+        if (app == null) {
+            log.debug('Contentscript.activate');
+            app = new ContentApp($('body').get(0), msg =>
+            {
+                log.debug('Contentscript msg', msg.type);
+                switch (msg.type) {
+                    case ContentAppNotification.type_onTabChangeStay: {
+                        onTabChangeStay = true;
+                    } break;
+
+                    case ContentAppNotification.type_onTabChangeLeave: {
+                        onTabChangeStay = false;
+                    } break;
+
+                    case ContentAppNotification.type_stopped: {
+                    } break;
+
+                    case ContentAppNotification.type_restart: {
+                        restart();
+                    } break;
+                }
+            });
+            app.start();
+        }
     }
-}
 
-function deactivate()
-{
-    if (app != null) {
-        app.stop();
-        app = null;
+    function deactivate()
+    {
+        if (app != null) {
+            log.debug('Contentscript.deactivate');
+            app.stop();
+            app = null;
+        }
     }
-}
 
-Panic.onNow(deactivate);
+    function restart()
+    {
+        setTimeout(restart_deactivate, 100);
+    }
 
-window.addEventListener('onbeforeunload', deactivate);
+    function restart_deactivate()
+    {
+        deactivate();
+        setTimeout(restart_activate, 100);
+    }
 
-window.addEventListener('visibilitychange', function ()
-{
+    function restart_activate()
+    {
+        activate();
+    }
+
+    function kill()
+    {
+        if (app != null) {
+            log.debug('Contentscript.kill');
+            app.kill();
+            app = null;
+        }
+    }
+
+    Panic.onNow(kill);
+
+    window.addEventListener('onbeforeunload', deactivate);
+
+    window.addEventListener('visibilitychange', function ()
+    {
+        if (document.visibilityState === 'visible') {
+            activate();
+        } else {
+            if (onTabChangeStay) {
+                log.debug('staying');
+            } else {
+                deactivate();
+            }
+        }
+    });
+
     if (document.visibilityState === 'visible') {
         activate();
-    } else {
-        deactivate();
     }
-});
 
-if (document.visibilityState === 'visible') {
-    activate();
+} catch (error) {
+    log.info(error);
 }
 
 // iframe test

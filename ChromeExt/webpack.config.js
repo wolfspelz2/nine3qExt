@@ -2,6 +2,7 @@ const { CheckerPlugin } = require('awesome-typescript-loader');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { optimize } = require('webpack');
 const { join } = require('path');
+const webpack = require('webpack');
 let prodPlugins = [];
 
 if (process.env.NODE_ENV === 'production') {
@@ -13,7 +14,7 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
     mode: process.env.NODE_ENV,
-    devtool: 'inline-source-map',
+    devtool: (process.env.NODE_ENV === 'development') ? 'inline-source-map' : '',
     entry: {
         contentscript: join(__dirname, 'src/contentscript/contentscript.ts'),
         background: join(__dirname, 'src/background/background.ts'),
@@ -30,16 +31,23 @@ module.exports = {
                 use: 'awesome-typescript-loader?{configFileName: "tsconfig.json"}',
             },
             {
-                test: /\.scss$/,
+                test: /\.(scss|css)$/,
                 use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
             },
             {
-                test: /\.(png|jpg)$/,
+                test: /\.(png|jpg|gif)$/,
                 use: 'url-loader',
             },
         ],
     },
     plugins: [
+        /* Use the ProvidePlugin constructor to inject jquery implicit globals */
+        new webpack.ProvidePlugin({
+            $: "jquery",
+            jQuery: "jquery",
+            "window.jQuery": "jquery'",
+            "window.$": "jquery"
+        }),
         new CheckerPlugin(),
         ...prodPlugins,
         new MiniCssExtractPlugin({

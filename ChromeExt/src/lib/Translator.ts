@@ -65,6 +65,25 @@ export class Translator
     {
     }
 
+    getLanguage(): string
+    {
+        return this.language;
+    }
+    
+    static getShortLanguageCode(language: string): string
+    {
+        return language.substr(0, 2);
+    }
+    
+    translateText(key: any, defaultText: string): string
+    {
+        if (this.translations[key] != undefined) {
+            return this.translations[key];
+        } else {
+            return defaultText;
+        }
+    }
+
     translateElem(elem: HTMLElement): void
     {
         var translate: string = $(elem).data('translate');

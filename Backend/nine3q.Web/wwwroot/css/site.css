@@ -1,0 +1,74 @@
+﻿* {
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+}
+
+h1 {
+    font-size: 18px;
+}
+.cMenuItem {
+    display: inline;
+}
+
+#iCommandline {
+    margin-top: 4px;
+    width: 100%;
+}
+
+.cCommandGroup {
+    display: inline-grid;
+}
+
+.cCommandItem {
+    height: 18px;
+}
+
+.cTransaction {
+    border-top: solid 1px #CCCCCC;
+    margin-top: 4px;
+    padding-top: 4px;
+}
+
+.cOriginalCommand {
+    margin-bottom: 4px;
+}
+
+.cButtons {
+    margin-right: 4px;
+}
+
+.cTextButton {
+    text-decoration: none;
+    background-color: #DDDDDD;
+    color: #000000;
+    padding: 1px 6px;
+    border-radius: 5px;
+}
+
+.cLabel.cTextButton {
+    background-color: unset;
+    color: unset;
+    border-radius: unset;
+}
+
+.cLabel {
+}
+
+.cTable th {
+    text-align: left;
+    font-weight: bold;
+    padding: 2px;
+}
+
+.cTable td {
+    padding: 2px;
+    vertical-align: top;
+}
+
+.cTable .cOdd {
+    background-color: #EEEEEE;
+}
+
+.cTable img {
+    vertical-align: text-top;
+}

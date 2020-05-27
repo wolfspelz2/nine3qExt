@@ -1,11 +1,14 @@
+import log = require('loglevel');
 import './popup.scss';
 import * as $ from 'jquery';
-import log = require('loglevel');
+import { Environment } from '../lib/Environment';
 import { PopupApp } from './PopupApp';
 
 console.log('Popup');
 
-let debug = true;
+let debug = Environment.isDevelopment();
+console.log('Popup', 'debug', debug);
+
 log.setLevel(log.levels.INFO);
 
 if (debug) {

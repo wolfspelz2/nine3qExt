@@ -1,21 +1,29 @@
-import { xml, jid } from '@xmpp/client';
 import log = require('loglevel');
+import { xml, jid } from '@xmpp/client';
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { Panic } from '../lib/Panic';
 import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
+import { Item } from './Item';
+import { ChatWindow } from './ChatWindow'; // Wants to be after Participant and Item otherwise $().resizable does not work
+
+export interface IRoomInfoLine extends Array<string | string> { 0: string, 1: string }
+export interface IRoomInfo extends Array<IRoomInfoLine> { }
 
 export class Room
 {
     private userJid: string;
-    private nickname: string = '';
+    private resource: string = '';
     private avatar: string = '';
     private enterRetryCount: number = 0;
     private maxEnterRetries: number = as.Int(Config.get('xmpp.maxMucEnterRetries', 4));
     private participants: { [nick: string]: Participant; } = {};
-    private isEntered = false;
+    private items: { [nick: string]: Item; } = {};
+    private isEntered = false; // iAmAlreadyHere() needs isEntered=true to be after onPresenceAvailable
+    private chatWindow: ChatWindow;
+    private myNick: any;
 
     constructor(private app: ContentApp, private display: HTMLElement, private jid: string, private posX: number) 
     {
@@ -26,8 +34,19 @@ export class Room
         }
         this.userJid = user + '@' + domain;
 
-        // this.participants['dummy'] = new Participant(this.app, this, this.display, 'dummy', false);
-        // this.participants['dummy'].onPresenceAvailable(xml('presence', { from: jid + '/dummy' }).append(xml('x', { xmlns: 'firebat:avatar:state' }).append(xml('position', { x: 100 }))));
+        this.chatWindow = new ChatWindow(app, display, this);
+    }
+
+    getInfo(): IRoomInfo
+    {
+        return [
+            ['jid', this.jid]
+        ];
+    }
+
+    iAmAlreadyHere()
+    {
+        return this.isEntered;
     }
 
     // presence
@@ -35,11 +54,11 @@ export class Room
     async enter(): Promise<void>
     {
         try {
-            this.nickname = await this.app.getUserNickname();
+            this.resource = await this.app.getUserNickname();
             this.avatar = await this.app.getUserAvatar();
         } catch (error) {
-            log.error(error);
-            this.nickname = 'new-user';
+            log.info(error);
+            this.resource = 'new-user';
             this.avatar = '004/pinguin';
         }
 
@@ -51,30 +70,47 @@ export class Room
     {
         this.sendPresenceUnavailable();
         this.removeAllParticipants();
+        this.kill();
+    }
+
+    kill()
+    {
+        this.stopKeepAlive();
     }
 
     private async sendPresence(): Promise<void>
     {
-        let avatarUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', this.avatar);
-        let identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}'))
-            .replace('{nickname}', this.nickname)
-            .replace('{avatarUrl}', avatarUrl)
+        let identityUrl = Config.get('identity.url', '');
+        let identityDigest = Config.get('identity.digest', '1');
+        if (identityUrl == '') {
+            let avatarUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', this.avatar);
+            identityDigest = as.String(Utils.hash(this.resource + avatarUrl));
+            identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}&digest={digest}'))
+                .replace('{nickname}', encodeURIComponent(this.resource))
+                .replace('{avatarUrl}', encodeURIComponent(avatarUrl))
+                .replace('{digest}', encodeURIComponent(identityDigest))
+                ;
+        }
+
+        let presence = xml('presence', { to: this.jid + '/' + this.resource })
+            .append(
+                xml('x', { xmlns: 'vp:props', 'Nickname': this.resource, 'AvatarId': this.avatar, 'nickname': this.resource, 'avatar': this.avatar }))
+            .append(
+                xml('x', { xmlns: 'firebat:avatar:state', })
+                    .append(xml('position', { x: as.Int(this.posX) }))
+            )
             ;
 
-        let presence = xml('presence', { to: this.jid + '/' + this.nickname })
-            .append(
-                xml('x', { xmlns: 'vp:props', nickname: this.nickname, avatar: this.avatar }))
-            .append(
-                xml('x', { xmlns: 'firebat:user:identity', jid: this.userJid, src: identityUrl, digest: '1' }))
-            .append(
-                xml('x', { xmlns: 'firebat:avatar:state', jid: this.userJid, })
-                    .append(xml('position', { x: this.posX }))
+        if (identityUrl != '') {
+            presence.append(
+                xml('x', { xmlns: 'firebat:user:identity', 'jid': this.userJid, 'src': identityUrl, 'digest': identityDigest })
             );
+        }
 
         if (!this.isEntered) {
             presence.append(
                 xml('x', { xmlns: 'http://jabber.org/protocol/muc' })
-                    .append(xml('history', { seconds: '60', maxchars: '1000', maxstanzas: '1' }))
+                    .append(xml('history', { seconds: '180', maxchars: '3000', maxstanzas: '10' }))
             );
         }
 
@@ -83,7 +119,7 @@ export class Room
 
     private sendPresenceUnavailable(): void
     {
-        let presence = xml('presence', { type: 'unavailable', to: this.jid + '/' + this.nickname });
+        let presence = xml('presence', { type: 'unavailable', to: this.jid + '/' + this.resource });
 
         this.app.sendStanza(presence);
     }
@@ -91,34 +127,67 @@ export class Room
     onPresence(stanza: any): void
     {
         let from = jid(stanza.attrs.from);
-        let nick = from.getResource();
+        let resource = from.getResource();
 
-        let type = as.String(stanza.attrs.type, '');
-        if (type == '') {
-            type = 'available';
+        let presenceType = as.String(stanza.attrs.type, '');
+        if (presenceType == '') {
+            presenceType = 'available';
         }
 
-        let isSelf = nick == this.nickname;
+        let isSelf = (resource == this.resource);
 
-        switch (type) {
+        switch (presenceType) {
             case 'available':
-                if (this.participants[nick] === undefined) {
-                    this.participants[nick] = new Participant(this.app, this, this.display, nick, isSelf);
-                }
-                this.participants[nick].onPresenceAvailable(stanza);
+                {
+                    let entity = null;
+                    let isItem = false;
 
-                if (isSelf && !this.isEntered) {
-                    this.isEntered = true;
-                    this.keepAlive();
+                    // presence x.vp:props type='item' 
+                    let vpPropsNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
+                    if (vpPropsNode) {
+                        let attrs = vpPropsNode.attrs;
+                        if (attrs) {
+                            let type = as.String(attrs.type, '');
+                            isItem = (type == 'item');
+                        }
+                    }
+
+                    if (isItem) {
+                        entity = this.items[resource];
+                        if (!entity) {
+                            entity = new Item(this.app, this, this.display, resource, false);
+                            this.items[resource] = entity;
+                        }
+                    } else {
+                        entity = this.participants[resource];
+                        if (!entity) {
+                            entity = new Participant(this.app, this, this.display, resource, isSelf);
+                            this.participants[resource] = entity;
+                        }
+                    }
+
+                    if (entity) {
+                        entity.onPresenceAvailable(stanza);
+
+                        if (isSelf && !this.isEntered) {
+                            this.isEntered = true;
+                            this.myNick = resource;
+                            this.keepAlive();
+                        }
+                    }
                 }
 
                 break;
 
             case 'unavailable':
-                if (this.participants[nick] != undefined) {
-                    this.participants[nick].onPresenceUnavailable(stanza);
-                    delete this.participants[nick];
+                if (this.participants[resource]) {
+                    this.participants[resource].onPresenceUnavailable(stanza);
+                    delete this.participants[resource];
+                } else if (this.items[resource]) {
+                    this.items[resource].onPresenceUnavailable(stanza);
+                    delete this.items[resource];
                 }
+
                 break;
 
             case 'error':
@@ -134,10 +203,10 @@ export class Room
     {
         this.enterRetryCount++;
         if (this.enterRetryCount > this.maxEnterRetries) {
-            log.error('Too many retries ', this.enterRetryCount, 'giving up on room', this.jid);
+            log.info('Too many retries ', this.enterRetryCount, 'giving up on room', this.jid);
             return;
         } else {
-            this.nickname = this.getNextNick(this.nickname);
+            this.resource = this.getNextNick(this.resource);
             this.sendPresence();
         }
     }
@@ -161,7 +230,7 @@ export class Room
 
     // Keepalive
 
-    private keepAliveSec: number = 180;
+    private keepAliveSec: number = Config.get('room.keepAliveSec', 180);
     private keepAliveTimer: number = undefined;
     private keepAlive()
     {
@@ -172,6 +241,14 @@ export class Room
                 this.keepAliveTimer = undefined;
                 this.keepAlive();
             }, this.keepAliveSec * 1000);
+        }
+    }
+
+    private stopKeepAlive()
+    {
+        if (this.keepAliveTimer != undefined) {
+            clearTimeout(this.keepAliveTimer);
+            this.keepAliveTimer = undefined;
         }
     }
 
@@ -207,12 +284,37 @@ export class Room
       <body>Harpier cries: 'tis time, 'tis time.</body>
     </message>
     */
-    sendGroupChat(text: string, fromNick: string)
+    sendGroupChat(text: string)
     {
-        let message = xml('message', { type: 'groupchat', to: this.jid, from: this.jid + '/' + fromNick })
+        let message = xml('message', { type: 'groupchat', to: this.jid, from: this.jid + '/' + this.myNick })
             .append(xml('body', {}, text))
             ;
         this.app.sendStanza(message);
+    }
+
+    showChatWindow(aboveElem: HTMLElement): void
+    {
+        if (this.chatWindow) {
+            if (!this.chatWindow.isOpen()) {
+                this.chatWindow.show({ 'above': aboveElem });
+            }
+        }
+    }
+
+    toggleChatWindow(relativeToElem: HTMLElement): void
+    {
+        if (this.chatWindow) {
+            if (this.chatWindow.isOpen()) {
+                this.chatWindow.close();
+            } else {
+                this.showChatWindow(relativeToElem);
+            }
+        }
+    }
+
+    showChatMessage(nick: string, text: string)
+    {
+        this.chatWindow.addLine(nick + Date.now(), nick, text);
     }
 
     sendMoveMessage(newX: number): void

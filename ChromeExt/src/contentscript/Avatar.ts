@@ -1,14 +1,12 @@
+import log = require('loglevel');
 import * as $ from 'jquery';
-import 'jqueryui';
 import { as } from '../lib/as';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
-import { Platform } from '../lib/Platform';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Config } from '../lib/Config';
 import { IObserver, IObservable } from '../lib/ObservableProperty';
 import * as AnimationsXml from './AnimationsXml';
-
-import imgDefaultAvatar from '../assets/DefaultAvatar.png';
 
 class AvatarGetAnimationResult
 {
@@ -28,40 +26,37 @@ export class Avatar implements IObserver
     private hasAnimation = false;
     private animations: AnimationsXml.AnimationsDefinition;
     private defaultGroup: string;
+    private currentCondition: string = '';
     private currentState: string = '';
     private currentAction: string = '';
     private inDrag: boolean = false;
     private currentSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
     private defaultSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
 
-    private preventNextClick_a_hack_otherwise_draggable_clicks = false;
-    private clickTimer: number = undefined;
+    private clickDblClickSeparationTimer: number;
 
     constructor(private app: ContentApp, private entity: Entity, private display: HTMLElement, private isSelf: boolean)
     {
         this.elem = <HTMLImageElement>$('<img class="n3q-base n3q-avatar" />').get(0);
         // var url = 'https://www.virtual-presence.org/images/wolf.png';
         // var url = app.getAssetUrl('default-avatar.png');
-        var url = imgDefaultAvatar;
+        var url = entity.getDefaultAvatar();
+
         this.elem.src = url;
 
         $(this.elem).on('click', ev =>
         {
-            if (this.clickTimer == undefined) {
-                if (this.preventNextClick_a_hack_otherwise_draggable_clicks) {
-                    this.preventNextClick_a_hack_otherwise_draggable_clicks = false;
-                } else {
-                    this.clickTimer = <number><unknown>setTimeout(() =>
-                    {
-                        this.clickTimer = undefined;
-                        this.entity.onMouseClickAvatar(ev);
-                        //hw later app.zIndexTop(this.elem);
-                    }, as.Float(Config.get('avatarDoubleClickDelaySec', 0.25)) * 1000);
-                }
+            if (!this.clickDblClickSeparationTimer) {
+                this.clickDblClickSeparationTimer = <number><unknown>setTimeout(() =>
+                {
+                    this.clickDblClickSeparationTimer = null;
+                    this.entity.onMouseClickAvatar(ev);
+                    //hw later app.zIndexTop(this.elem);
+                }, as.Float(Config.get('avatarDoubleClickDelaySec', 0.25)) * 1000);
             } else {
-                if (this.clickTimer != undefined) {
-                    clearTimeout(this.clickTimer);
-                    this.clickTimer = undefined;
+                if (this.clickDblClickSeparationTimer) {
+                    clearTimeout(this.clickDblClickSeparationTimer);
+                    this.clickDblClickSeparationTimer = null;
                     this.entity.onMouseDoubleClickAvatar(ev);
                 }
             }
@@ -74,7 +69,7 @@ export class Avatar implements IObserver
 
         $(this.elem).draggable({
             scroll: false,
-            stack: '.n3q-participant',
+            stack: '.n3q-item',
             opacity: 0.5,
             distance: 4,
             helper: 'clone',
@@ -84,7 +79,6 @@ export class Avatar implements IObserver
             {
                 this.app.enableScreen(true);
                 this.inDrag = true;
-                this.a_hack_otherwise_draggable_clicks_start(ev);
                 this.entity.onStartDragAvatar(ev, ui);
             },
             drag: (ev: JQueryMouseEventObject, ui) =>
@@ -94,23 +88,17 @@ export class Avatar implements IObserver
             stop: (ev: JQueryMouseEventObject, ui) =>
             {
                 this.entity.onStopDragAvatar(ev, ui);
-                this.a_hack_otherwise_draggable_clicks_stop(ev);
                 this.inDrag = false;
                 this.app.enableScreen(false);
             }
         });
-
     }
 
-    a_hack_otherwise_draggable_clicks_x: number;
-    a_hack_otherwise_draggable_clicks_start(ev: JQueryMouseEventObject): void
+    stop()
     {
-        this.a_hack_otherwise_draggable_clicks_x = $(this.elem).offset().left;
-    }
-    a_hack_otherwise_draggable_clicks_stop(ev: JQueryMouseEventObject): void
-    {
-        if (ev.clientX > this.a_hack_otherwise_draggable_clicks_x && ev.clientX <= this.a_hack_otherwise_draggable_clicks_x + this.elem.width) {
-            this.preventNextClick_a_hack_otherwise_draggable_clicks = true;
+        if (this.animationTimer != undefined) {
+            clearTimeout(this.animationTimer);
+            this.animationTimer = undefined;
         }
     }
 
@@ -144,6 +132,12 @@ export class Avatar implements IObserver
         this.elem.src = this.imageUrl;
     }
 
+    setCondition(condition: string): void
+    {
+        this.currentCondition = condition;
+        this.startNextAnimation();
+    }
+
     setState(state: string): void
     {
         this.currentState = state;
@@ -156,15 +150,17 @@ export class Avatar implements IObserver
         this.startNextAnimation();
     }
 
-    setAnimations(url: string): void
+    async setAnimations(url: string): Promise<void>
     {
-        Platform.fetchUrl(url, 'unversioned', (ok, status, statusText, data) =>
-        {
-            if (ok) {
-                let parsed = AnimationsXml.AnimationsXml.parseXml(url, data);
+        let response = await BackgroundMessage.fetchUrl(url, '');
+        if (response.ok) {
+            try {
+                let parsed = AnimationsXml.AnimationsXml.parseXml(url, response.data);
                 this.onAnimations(parsed);
+            } catch (error) {
+                log.info(error);
             }
-        });
+        }
     }
 
     onAnimations(data: any): void
@@ -186,6 +182,7 @@ export class Avatar implements IObserver
         var once = true;
         var group = this.currentAction;
         this.currentAction = '';
+        if (group == '') { group = this.currentCondition; once = false; }
         if (group == '') { group = this.currentState; once = false; }
         if (group == '') { group = this.defaultGroup; }
 
@@ -199,7 +196,9 @@ export class Avatar implements IObserver
             durationSec = 1.0;
         }
 
-        this.currentSpeedPixelPerSec = Math.abs(animation.dx) / durationSec;
+        this.currentSpeedPixelPerSec = Math.abs(animation.dx) / 1.0;
+        // dx means pixels per sec, not pixels per duration
+        // this.currentSpeedPixelPerSec = Math.abs(animation.dx) / durationSec;
 
         this.elem.src = animation.url;
 

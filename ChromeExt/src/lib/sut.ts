@@ -7,6 +7,7 @@ export class sutTest
         public methodName: string,
         public className: string,
         public fn: any,
+        public isAsync: boolean,
         public success: boolean,
         public result: any
     ) { }
@@ -50,13 +51,15 @@ export class sut
         {
             if (methodName != 'constructor' && typeof testClass.prototype[methodName] == 'function') {
                 let name = className + '_' + methodName;
-                this.tests[name] = new sutTest(name, methodName, className, testClass.prototype[methodName], false, null);
+                let fnString = testClass.prototype[methodName].toString();
+                let isAsync = fnString.startsWith('async');
+                this.tests[name] = new sutTest(name, methodName, className, testClass.prototype[methodName], isAsync, false, null);
                 this.totalTests++;
             }
         });
     }
 
-    run()
+    async run()
     {
         this.runStarted = true;
         this.runSuccess = true;
@@ -64,7 +67,11 @@ export class sut
             let result;
             this.countStarted++;
             try {
+                if (this.tests[name].isAsync) {
+                result = await this.tests[name].fn();
+                } else {
                 result = this.tests[name].fn();
+                }
             } catch (error) {
                 result = error;
             }

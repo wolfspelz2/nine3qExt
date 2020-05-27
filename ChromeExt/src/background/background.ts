@@ -1,15 +1,18 @@
 import log = require('loglevel');
-import { Config } from '../lib/Config';
-import { Panic } from '../lib/Panic';
+import { Environment } from '../lib/Environment';
 import { BackgroundApp } from './BackgroundApp';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 
 console.log('Background');
 
-let debug = true;
+let debug = Environment.isDevelopment();
+console.log('Background', 'debug', debug);
+
 log.setLevel(log.levels.INFO);
 
 if (debug) {
     log.setLevel(log.levels.DEBUG);
+    // log.setLevel(log.levels.TRACE);
 }
 
 var app = null;
@@ -66,93 +69,3 @@ activate();
 //         });
 //     });
 // })
-
-const httpCache: Map<string, string> = new Map<string, string>();
-
-chrome.runtime?.onMessage.addListener(
-    function (message, sender, sendResponse)
-    {
-        switch (message.type) {
-            case 'fetchUrl': {
-                var url = message.url;
-                var version = message.version;
-
-                let key = version + url;
-                let isCached = (httpCache[key] != undefined);
-
-                log.debug('background fetchUrl', 'cached=', isCached, url, 'version=', version);
-
-                if (isCached) {
-                    return sendResponse({ 'ok': true, 'data': httpCache[key] });
-                } else {
-                    try {
-
-                        fetch(url)
-                            .then(httpResponse =>
-                            {
-                                log.trace('background fetchUrl response', httpResponse);
-                                if (httpResponse.ok) {
-                                    return httpResponse.text();
-                                } else {
-                                    throw { 'ok': false, 'status': httpResponse.status, 'statusText': httpResponse.statusText };
-                                }
-                            })
-                            .then(text =>
-                            {
-                                httpCache[key] = text;
-                                log.trace('background fetchUrl text', text);
-                                return sendResponse({ 'ok': true, 'data': text });
-                            })
-                            .catch(ex =>
-                            {
-                                log.trace('background fetchUrl catch', ex);
-                                return sendResponse({ 'ok': false, 'status': ex.status, 'statusText': ex.statusText });
-                            }
-                            );
-
-                    } catch (error) {
-                        log.trace('background fetchUrl', error);
-                        return sendResponse({ 'ok': false, 'status': error.status, 'statusText': error.statusText });
-                    }
-                }
-            } break;
-
-            case 'getConfig': {
-                log.debug('background getConfig');
-                return sendResponse(Config.getAllOnline());
-            } break;
-
-            case 'getLocalStorage': {
-                let response = {};
-                try {
-                    let value = Config.get(message.key, undefined);
-                    if (value != undefined) {
-                        response[message.key] = value;
-                    }
-                } catch (error) {
-                    log.warn('background getLocalStorage', error);
-                }
-                log.debug('background getLocalStorage', message.key, 'response', response);
-                return sendResponse(response);
-            } break;
-
-            case 'setLocalStorage': {
-                log.debug('background setLocalStorage', message.key, message.value);
-                try {
-                    Config.set(message.key, message.value);
-                } catch (error) {
-                    log.warn('background setLocalStorage', error);
-                }
-                return sendResponse({});
-            } break;
-
-            case 'sendStanza': {
-                if (app != null) {
-                    return app.handle_sendStanza(message.stanza, sender.tab.id, sendResponse);
-                }
-            } break;
-        }
-
-        return true;
-    }
-);

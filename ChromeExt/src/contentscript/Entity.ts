@@ -1,16 +1,25 @@
+import log = require('loglevel');
 import * as $ from 'jquery';
 import 'jqueryui';
-import log = require('loglevel');
+import { as } from '../lib/as';
+import { Config } from '../lib/Config';
 import { Room } from './Room';
+import { Avatar } from './Avatar';
+import { ContentApp } from './ContentApp';
+
+import imgDefaultAvatar from '../assets/DefaultAvatar.png';
 
 export class Entity
 {
-    private elem: HTMLElement;
-    private centerElem: HTMLElement;
-    private positionX: number = -1;
-    private visible: boolean = false;
+    protected elem: HTMLElement;
+    protected centerElem: HTMLElement;
+    protected visible: boolean = false;
+    protected avatarDisplay: Avatar;
+    protected positionX: number = -1;
+    protected defaultSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
+    protected inMove: boolean = false;
 
-    constructor(protected room: Room, protected display: HTMLElement)
+    constructor(protected app: ContentApp, protected room: Room, protected display: HTMLElement, protected isSelf: boolean)
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-entity" />').get(0);
         this.elem.style.display = 'none';
@@ -27,13 +36,23 @@ export class Entity
         this.display.appendChild(this.elem);
     }
 
+    getRoom(): Room { return this.room; }
     getElem(): HTMLElement { return this.elem; }
     getCenterElem(): HTMLElement { return this.centerElem; }
-
-    show(visible: boolean): void
+    getDefaultAvatar(): string { return imgDefaultAvatar; }
+    
+    show(visible: boolean, durationSec: number = 0.0): void
     {
         if (visible != this.visible) {
-            this.elem.style.display = visible ? 'block' : 'none';
+            if (visible) {
+                if (durationSec > 0) {
+                    $(this.elem).fadeIn(durationSec * 1000);
+                } else {
+                    this.elem.style.display = 'block';
+                }
+            } else {
+                this.elem.style.display = 'none';
+            }
             this.visible = visible;
         }
     }
@@ -51,6 +70,46 @@ export class Entity
         if (this.elem != undefined) {
             this.elem.style.left = x + 'px';
         }
+    }
+
+    move(newX: number): void
+    {
+        this.inMove = true;
+
+        if (newX < 0) { newX = 0; }
+
+        this.setPosition(this.getPosition());
+
+        var oldX = this.getPosition();
+        var diffX = newX - oldX;
+        var absDiffX = diffX < 0 ? -diffX : diffX;
+
+        if (this.avatarDisplay) {
+            if (diffX < 0) {
+                this.avatarDisplay.setState('moveleft');
+            } else {
+                this.avatarDisplay.setState('moveright');
+            }
+        }
+
+        let speedPixelPerSec = as.Float(this.avatarDisplay.getSpeedPixelPerSec(), this.defaultSpeedPixelPerSec);
+        var durationSec = absDiffX / speedPixelPerSec;
+
+        $(this.getElem())
+            .stop(true)
+            .animate(
+                { left: newX + 'px' },
+                durationSec * 1000,
+                'linear',
+                () => this.onMoveDestinationReached(newX)
+            );
+    }
+
+    onMoveDestinationReached(newX: number): void
+    {
+        this.inMove = false;
+        this.setPosition(newX);
+        this.avatarDisplay?.setState('');
     }
 
     getPosition(): number
@@ -81,18 +140,27 @@ export class Entity
 
     onMouseEnterAvatar(ev: JQuery.Event): void
     {
+        this.avatarDisplay?.hilite(true);
     }
 
     onMouseLeaveAvatar(ev: JQuery.Event): void
     {
+        this.avatarDisplay?.hilite(false);
     }
 
     onMouseClickAvatar(ev: JQuery.Event): void
     {
+        this.select()
     }
 
     onMouseDoubleClickAvatar(ev: JQuery.Event): void
     {
+    }
+
+    select(): void
+    {
+        //$(this.elem).siblings().zIndex(1);
+        //$(this.elem).zIndex(100);
     }
 
     // Drag
@@ -112,10 +180,18 @@ export class Entity
         this.onDraggedBy((ui.position.left - this.dragStartPosition.left), (ui.position.top - this.dragStartPosition.top));
     }
 
-    protected onDraggedBy(dX: number, dY: number): void
+    onDraggedBy(dX: number, dY: number): void
     {
-    }
+        var newX = this.getPosition() + dX;
 
-    // 
+        if (this.getPosition() != newX) {
+            if (this.isSelf) {
+                this.app.savePosition(newX);
+                this.room?.sendMoveMessage(newX);
+            } else {
+                this.quickSlide(newX);
+            }
+        }
+    }
 
 }

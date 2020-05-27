@@ -1,14 +1,13 @@
 {
   "name": "nine3q-chrome-extension-avatars-and-things-on-web-pages",
   "version": "1.0.0",
-  "description": "Nine3q Extension: avatars and things on web pages",
+  "description": "Weblin: Avatars and Things on Web Pages",
   "homepage": "https://github.com/wolfspelz/nine3q/blob/master/ChromeExt/README.md",
   "scripts": {
     "clean": "rimraf -rf dist && cpy manifest.json dist && cpy src/assets/* dist/assets",
     "prebuild": "npm run clean",
     "build:contentscript-background": "cross-env NODE_ENV=production webpack --config webpack.config.js",
     "build:popup": "cross-env NODE_ENV=production webpack --config webpack.popup.config.js",
-    "build:test": "webpack --config webpack.test.config.js",
     "build": "npm-run-all build:*",
     "prewatch": "npm run clean",
     "watch:contentscript-background": "cross-env NODE_ENV=development webpack --config webpack.config.js -w",
@@ -30,7 +29,7 @@
     "typescript",
     "react"
   ],
-  "author": "Guibert Thomas",
+  "author": "Wolfspelz",
   "license": "ISC",
   "devDependencies": {
     "@types/chrome": "0.0.91",
@@ -66,6 +65,7 @@
     "jqueryui": "^1.11.1",
     "loglevel": "^1.6.8",
     "rimraf": "^3.0.2",
-    "unique-names-generator": "^4.2.0"
+    "unique-names-generator": "^4.2.0",
+    "webpack-jquery-ui": "^2.0.1"
   }
 }

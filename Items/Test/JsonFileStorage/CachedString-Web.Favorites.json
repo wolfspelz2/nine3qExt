@@ -1,0 +1,10 @@
+﻿{
+  "$id": "1",
+  "$type": "Orleans.GrainState`1[[nine3q.Grains.CachedStringState+CachedString, nine3q.Grains]], Orleans.Core",
+  "State": {
+    "$id": "2",
+    "$type": "nine3q.Grains.CachedStringState+CachedString, nine3q.Grains",
+    "Data": "{ \n  \"7uxE0PXXLl\": \"Inventory_Items fce62790a52fcb799c8a1835bb21c3262ac009d9@muc4.virtual-presence.org\\r\\n\", \n  \"hybGTIDAZF\": \"Inventory_Items suat\", \n  \"mZhQzRKWFC\": \"Inventory_Items d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org\" \n}"
+  },
+  "Type": "nine3q.Grains.CachedStringState+CachedString, nine3q.Grains, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+}

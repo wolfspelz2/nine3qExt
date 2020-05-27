@@ -1,8 +1,14 @@
 * { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 12px; }
 
+body {
+    margin: 0;
+    padding: 0;
+    background-color: white;
+}
+
 #n3q-id-popup {
-    width: 30em;
-    margin: 1em;
+    width: 400px;
+    padding: 10px;
 }
 
 .n3q-base {
@@ -13,16 +19,20 @@ input.n3q-base {
     display: inline;
 }
 
+.n3q-popup-hidden {
+    display: none;
+}
+
 .n3q-popup-title {
     font-size: 24px;
     font-weight: bold;
-    max-width: 20em;
+    max-width: 300px;
 }
 
 .n3q-popup-description {
-    margin-top: 1em;
+    margin-top: 10px;
     font-size: 14px;
-    max-width: 20em;
+    max-width: 300px;
 }
 
 .n3q-popup-icon {
@@ -30,91 +40,125 @@ input.n3q-base {
     float: right;
 }
 
-.n3q-popup-header {
-    border-color: #a9a9a9;
-    border-style: dashed;
-    border-width: 0 0 1px 0;
-    padding: 0.5em 0 1.5em 0;    
-}
+// .n3q-popup-header {
+// }
 
 .n3q-popup-group {
-    margin-top: 1.5em;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-color: #a9a9a9;
+    border-style: dashed;
+    border-width: 1px 0 0 0;
 }   
 
 .n3q-popup-label {
     display: inline;
-    margin-right: 1em;
+    margin-right: 10px;
 }
 
-#n3q-id-popup-nickname {
-    border-color: #a9a9a9;
-    border-style: solid;
-    border-width: 0 0 1px 0;
-}
+// .n3q-popup-group-nickname {
+// }   
 
-.n3q-popup-label::after { 
-    content: ":"; 
-}
+    #n3q-id-popup-nickname {
+        border-color: #a9a9a9;
+        border-style: solid;
+        border-width: 0 0 1px 0;
+    }
 
-.n3q-popup-random { 
-    display: inline;
-    margin-left: 1em;
-}
+    .n3q-popup-label::after { 
+        content: ":"; 
+    }
 
-.n3q-popup-group-avatar .n3q-popup-label {
-    vertical-align: top;
-}
+    .n3q-popup-random { 
+        display: inline;
+        margin-left: 10px;
+    }
 
-.n3q-popup-avatar-arrow, .n3q-popup-avatar-current, .n3q-popup-avatar-name { 
-    vertical-align: top;
-    display: inline;
-}
+// .n3q-popup-group-avatar {
+// }   
 
-.n3q-popup-avatar-name { 
-    margin-left: 1em;
-}
+    .n3q-popup-group-avatar .n3q-popup-label {
+        vertical-align: top;
+    }
 
-.n3q-popup-avatar-arrow { 
-    width: 20px;
-    height: 100px;
-    background-repeat: no-repeat;
-    cursor:pointer;
-    border:none;
-    vertical-align: top;
-}
+    .n3q-popup-avatar-arrow, .n3q-popup-avatar-current, .n3q-popup-avatar-name { 
+        vertical-align: top;
+        display: inline;
+    }
 
-.n3q-popup-avatar-arrow:hover {
-    filter: brightness(1.2);
-}
-  
-.n3q-popup-avatar-arrow:active {
-    filter: brightness(0.8);
-}
+    .n3q-popup-avatar-name { 
+        margin-left: 10px;
+    }
+
+    .n3q-popup-avatar-arrow { 
+        width: 20px;
+        height: 100px;
+        background-repeat: no-repeat;
+        cursor: pointer;
+        border: none;
+        vertical-align: top;
+    }
+
+    .n3q-popup-avatar-arrow:hover {
+        filter: brightness(1.2);
+    }
+    
+    .n3q-popup-avatar-arrow:active {
+        filter: brightness(0.8);
+    }
+
+// .n3q-popup-group-active {
+// }
+
+    .n3q-popup-group-active .n3q-popup-label {
+        vertical-align: middle;
+    }
+    
+    .n3q-popup-active {
+        width: 16px;
+        height: 16px;
+        vertical-align: middle;
+    }
+
 
 .n3q-popup-group-save {
-    border-color: #a9a9a9;
-    border-style: dashed;
-    border-width: 1px 0 0 0;
-    padding: 1.5em 0 0 0;    
-    margin: 1.5em 0 0.5em 0;    
+    padding: 15px 0 0 0;    
+    margin: 15px 0 5px 0;    
 }
 
-.n3q-popup-save {
-    background-color: #b1c032;
-    display: inline;
-    border: 1px solid grey;
-    padding: 2px 2em;
-}
+    .n3q-popup-save {
+        background-color: #b1c032;
+        display: inline;
+        border: 1px solid grey;
+        padding: 2px 10px;
+    }
 
-.n3q-popup-save:hover {
-    filter: brightness(1.2);
-}
-  
-.n3q-popup-save:active {
-    filter: brightness(0.8);
-}
+    .n3q-popup-save:hover {
+        filter: brightness(1.2);
+    }
+    
+    .n3q-popup-save:active {
+        filter: brightness(0.8);
+    }
 
-.n3q-popup-close {
-    float: right;
-}
+    .n3q-popup-save-saving {
+        display: inline;
+        margin-left: 5px;
+        background-color: lightgray;
+        padding: 3px 10px;
+        opacity: 0;
+    }
+
+    .n3q-popup-save-saved {
+        display: inline;
+        margin-left: 0.5em;
+        background-color: #b1c032;
+        padding: 3px 1em;
+        opacity: 0;
+    }
+
+    .n3q-popup-close {
+        display: none;
+        float: right;
+    }
 

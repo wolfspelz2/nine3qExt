@@ -1,0 +1,4 @@
+<config xmlns='http://schema.bluehands.de/character-config' version='1.0'>
+  <param name='defaultsequence' value='idle'/>
+  <sequence group='idle' name='idle' type='status' probability='1000' in='standard' out='standard'><animation src='idle.gif'/></sequence>
+</config>
