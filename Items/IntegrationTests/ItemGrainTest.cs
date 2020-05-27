@@ -129,12 +129,4 @@ namespace IntegrationTests
         }
 
     }
-
-    public static class ItemStreamTestAsyncUtilityExtension
-    {
-        public static void ItemStreamTestPerformAsyncTaskWithoutAwait(this Task task, Action<Task> exceptionHandler)
-        {
-            var dummy = task?.ContinueWith(t => exceptionHandler(t), CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
-        }
-    }
 }

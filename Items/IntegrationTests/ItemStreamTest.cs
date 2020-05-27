@@ -8,21 +8,24 @@ using Orleans.Streams;
 using n3q.Common;
 using System.Collections.Generic;
 using System.Threading;
+using Orleans;
 
 namespace IntegrationTests
 {
     [TestClass]
     public class ItemStreamTest
     {
-        private IAsyncStream<ItemUpdate> ItemUpdateStream
+        private IAsyncStream<ItemUpdate> GetItemStream()
         {
-            get {
-                var streamProvider = GrainClient.GrainFactory.GetStreamProvider(ItemService.StreamProvider);
-                var streamId = ItemService.StreamGuid;
-                var streamNamespace = ItemService.StreamNamespace;
-                var stream = streamProvider.GetStream<ItemUpdate>(streamId, streamNamespace);
-                return stream;
-            }
+            var streamProvider = GrainClient.GrainFactory.GetStreamProvider(ItemService.StreamProvider);
+            var streamId = ItemService.StreamGuid;
+            var streamNamespace = ItemService.StreamNamespace;
+            var stream = streamProvider.GetStream<ItemUpdate>(streamId, streamNamespace);
+            return stream;
+        }
+        IItem GetItemGrain(string id)
+        {
+            return GrainClient.GrainFactory.GetGrain<IItem>(id);
         }
 
         public class UpdateReceiver : IAsyncObserver<ItemUpdate>
@@ -52,19 +55,17 @@ namespace IntegrationTests
         public async Task ItemUpdate_after_Set()
         {
             // Arrange
-            var itemId = $"{nameof(ItemGrainTest)}-{nameof(ItemUpdate_after_Set)}-{RandomString.Get(10)}";
-            var item = GrainClient.GrainFactory.GetGrain<IItem>(itemId);
             var are = new AutoResetEvent(false);
-            await item.Set(Pid.TestInt, 41);
             var updates = new List<ItemUpdate>();
             var exceptions = new List<Exception>();
             var updateReceiver = new UpdateReceiver(are, updates);
-            var handle = await ItemUpdateStream.SubscribeAsync(updateReceiver);
-            Task.Run(() => {
-                //throw new Exception("in Task.Run");
-            }).ItemStreamTestPerformAsyncTaskWithoutAwait(t => {
-                exceptions.Add(t.Exception);
-            });
+
+            var itemId = $"{nameof(ItemGrainTest)}-{nameof(ItemUpdate_after_Set)}-{RandomString.Get(10)}";
+            var item = GetItemGrain(itemId);
+            await item.Set(Pid.TestInt, 41);
+
+            var handle = await GetItemStream().SubscribeAsync(updateReceiver);
+            Task.Run(() => { }).ItemStreamTestPerformAsyncTaskWithoutAwait(t => { exceptions.Add(t.Exception); });
 
             try {
                 // Act
@@ -88,5 +89,69 @@ namespace IntegrationTests
                 are.Close();
             }
         }
+
+        [TestMethod]
+        [TestCategory(GrainClient.Category)]
+        public async Task ItemUpdate_Container_AddChild()
+        {
+            // Arrange
+            var are = new AutoResetEvent(false);
+            var updates = new List<ItemUpdate>();
+            var exceptions = new List<Exception>();
+            var updateReceiver = new UpdateReceiver(are, updates);
+
+            var containerId = $"{nameof(ItemGrainTest)}-{nameof(ItemUpdate_Container_AddChild) + "_CONTAINER"}-{RandomString.Get(10)}";
+            var childId = $"{nameof(ItemGrainTest)}-{nameof(ItemUpdate_Container_AddChild) + "_CHILD"}-{RandomString.Get(10)}";
+            var container = GetItemGrain(containerId);
+            var child = GetItemGrain(childId);
+            await container.Set(Pid.TestInt, 41);
+            await child.Set(Pid.TestInt, 42);
+
+            var handle = await GetItemStream().SubscribeAsync(updateReceiver);
+            Task.Run(() => { }).ItemStreamTestPerformAsyncTaskWithoutAwait(t => { exceptions.Add(t.Exception); });
+
+            try {
+                // Act
+                await container.AddToItemSet(Pid.Contains, childId);
+                await child.Set(Pid.Container, containerId);
+                await child.Set(Pid.TestInt, 43);
+                are.WaitOne(3000);
+
+                // Assert
+                Assert.AreEqual(0, exceptions.Count);
+                Assert.AreEqual(43, await child.GetInt(Pid.TestInt));
+                Assert.AreEqual(3, updates.Count);
+
+                Assert.AreEqual(containerId, updates[0].ItemId);
+                Assert.AreEqual(Pid.Contains, updates[0].Pid);
+                Assert.AreEqual(childId, (string)updates[0].Value);
+
+                Assert.AreEqual(childId, updates[1].ItemId);
+                Assert.AreEqual(Pid.Container, updates[1].Pid);
+                Assert.AreEqual(containerId, (string)updates[1].Value);
+
+                Assert.AreEqual(childId, updates[2].ItemId);
+                Assert.AreEqual(Pid.TestInt, updates[2].Pid);
+                Assert.AreEqual(43, (long)updates[2].Value);
+
+            } finally {
+                // Cleanup
+                await handle?.UnsubscribeAsync();
+                handle = null;
+
+                await child.DeletePersistentStorage();
+                await container.DeletePersistentStorage();
+                are.Close();
+            }
+        }
     }
+
+    public static class ItemStreamTestAsyncUtilityExtension
+    {
+        public static void ItemStreamTestPerformAsyncTaskWithoutAwait(this Task task, Action<Task> exceptionHandler)
+        {
+            var dummy = task?.ContinueWith(t => exceptionHandler(t), CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
+        }
+    }
+
 }
