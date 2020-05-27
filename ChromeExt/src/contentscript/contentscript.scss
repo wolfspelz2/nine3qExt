@@ -248,6 +248,7 @@ input.n3q-base:focus {
     position: absolute;
     left: -50px;
     bottom: 110px;
+    min-width: 100px;
     max-width: 140px;
     max-height: 200px;
     z-index: z-index(ParticipantChatout);
