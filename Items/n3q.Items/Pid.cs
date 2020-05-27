@@ -14,6 +14,8 @@
         TestString1,
         TestString2,
         TestString3,
+        TestString4,
+        TestString5,
         TestFloat,
         TestFloat1,
         TestFloat2,

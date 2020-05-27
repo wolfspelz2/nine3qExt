@@ -120,6 +120,8 @@ namespace n3q.Items
             [Pid.TestString1] = new Definition(Pid.TestString1, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, "fourtytwo", ""),
             [Pid.TestString2] = new Definition(Pid.TestString2, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, "fourtytwo", ""),
             [Pid.TestString3] = new Definition(Pid.TestString3, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, "fourtytwo", ""),
+            [Pid.TestString4] = new Definition(Pid.TestString4, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, "fourtytwo", ""),
+            [Pid.TestString5] = new Definition(Pid.TestString5, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, "fourtytwo", ""),
             [Pid.TestFloat] = new Definition(Pid.TestFloat, Type.Float, Use.Float, Group.Test, Access.System, Persistence.Persistent, "3.141592653589793238462643383279502", ""),
             [Pid.TestFloat1] = new Definition(Pid.TestFloat1, Type.Float, Use.Float, Group.Test, Access.System, Persistence.Persistent, "3.141592653589793238462643383279502", ""),
             [Pid.TestFloat2] = new Definition(Pid.TestFloat2, Type.Float, Use.Float, Group.Test, Access.System, Persistence.Persistent, "3.141592653589793238462643383279502", ""),

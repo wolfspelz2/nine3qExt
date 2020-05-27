@@ -186,5 +186,79 @@ namespace IntegrationTests
             }
         }
 
+        [TestMethod]
+        [TestCategory(GrainClient.Category)]
+        public async Task GetProperties_PidSet_with_template()
+        {
+            // Arrange
+            var itemId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template)}-{RandomString.Get(10)}";
+            var tmplId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template) + "_TEMPLATE"}-{RandomString.Get(10)}";
+            var item = GetItemGrain(itemId);
+            var tmpl = GetItemGrain(tmplId);
+
+            try {
+                await item.Set(Pid.TemplateId, tmplId);
+                await item.Set(Pid.TestInt, 40);
+                await item.Set(Pid.TestString, "item.TestString");   // item
+                await item.Set(Pid.TestString1, "item.TestString1"); // item get
+                await item.Set(Pid.TestString2, "item.TestString2"); // both
+                await tmpl.Set(Pid.TestString2, "tmpl.TestString2"); // both
+                await item.Set(Pid.TestString3, "item.TestString3"); // both get
+                await tmpl.Set(Pid.TestString3, "tmpl.TestString3"); // both get
+                await tmpl.Set(Pid.TestString4, "tmpl.TestString4"); // tmpl
+                await tmpl.Set(Pid.TestString5, "tmpl.TestString5"); // tmpl get
+
+                // Act
+                var props = await item.GetProperties(new PidSet { Pid.TestString1, Pid.TestString3, Pid.TestString5 });
+
+                // Assert
+                Assert.AreEqual(3, props.Count);
+                Assert.AreEqual("item.TestString1", (string)props.Get(Pid.TestString1));
+                Assert.AreEqual("item.TestString3", (string)props.Get(Pid.TestString3));
+                Assert.AreEqual("tmpl.TestString5", (string)props.Get(Pid.TestString5));
+
+            } finally {
+                // Cleanup
+                await item.DeletePersistentStorage();
+            }
+        }
+
+        [TestMethod]
+        [TestCategory(GrainClient.Category)]
+        public async Task GetProperties_PidSet_with_template__and_native()
+        {
+            // Arrange
+            var itemId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template__and_native)}-{RandomString.Get(10)}";
+            var tmplId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template__and_native) + "_TEMPLATE"}-{RandomString.Get(10)}";
+            var item = GetItemGrain(itemId);
+            var tmpl = GetItemGrain(tmplId);
+
+            try {
+                await item.Set(Pid.TemplateId, tmplId);
+                await item.Set(Pid.TestInt, 40);
+                await item.Set(Pid.TestString, "item.TestString");   // item
+                await item.Set(Pid.TestString1, "item.TestString1"); // item get
+                await item.Set(Pid.TestString2, "item.TestString2"); // both
+                await tmpl.Set(Pid.TestString2, "tmpl.TestString2"); // both
+                await item.Set(Pid.TestString3, "item.TestString3"); // both get
+                await tmpl.Set(Pid.TestString3, "tmpl.TestString3"); // both get
+                await tmpl.Set(Pid.TestString4, "tmpl.TestString4"); // tmpl
+                await tmpl.Set(Pid.TestString5, "tmpl.TestString5"); // tmpl get
+
+                // Act
+                var props = await item.GetProperties(new PidSet { Pid.TestString1, Pid.TestString3, Pid.TestString5 }, native: true);
+
+                // Assert
+                Assert.AreEqual(2, props.Count);
+                Assert.AreEqual("item.TestString1", (string)props.Get(Pid.TestString1));
+                Assert.AreEqual("item.TestString3", (string)props.Get(Pid.TestString3));
+                //Assert.AreEqual("tmpl.TestString5", (string)props.Get(Pid.TestString5));
+
+            } finally {
+                // Cleanup
+                await item.DeletePersistentStorage();
+            }
+        }
+
     }
 }
