@@ -25,16 +25,17 @@ namespace IntegrationTests
             var greeterId = $"{nameof(WorkGrainTest)}-{nameof(Execute_Greeter) + "_GREETER"}-{RandomString.Get(10)}";
             var greetUser = GetItemGrain(greetUserId);
             var greeter = GetItemGrain(greeterId);
-            await greetUser.Set(Pid.TestGreetUserAspect, true);
-            await greeter.Set(Pid.TestGreeterAspect, true);
-            await greeter.Set(Pid.TestString,"Hello");
 
             try {
+                await greetUser.Set(Pid.TestGreetUserAspect, true);
+                await greeter.Set(Pid.TestGreeterAspect, true);
+                await greeter.Set(Pid.TestString, "Hello");
+
                 // Act
                 var greeting = await work.Run(greetUserId, Pid.TestGreetUserAspect, nameof(TestGreetUser.UseGreeter), new PropertySet { [Pid.Item] = greeterId, [Pid.Name] = "World" });
 
                 // Assert
-                Assert.AreEqual("Hello World", greeting);
+                Assert.AreEqual("Hello World", (string)greeting);
 
             } finally {
                 // Cleanup

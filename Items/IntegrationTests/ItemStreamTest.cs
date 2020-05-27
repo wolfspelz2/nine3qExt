@@ -73,11 +73,12 @@ namespace IntegrationTests
                 are.WaitOne(3000);
 
                 // Assert
-                Assert.AreEqual(42, (long)await item.GetInt(Pid.TestInt));
+                var props = await item.GetProperties(new PidSet { Pid.TestInt });
+                Assert.AreEqual(42, (long)props[Pid.TestInt]);
                 Assert.AreEqual(1, updates.Count);
                 Assert.AreEqual(itemId, updates[0].ItemId);
-                Assert.AreEqual(Pid.TestInt, updates[0].Pid);
-                Assert.AreEqual(42, (long)updates[0].Value);
+                Assert.AreEqual(Pid.TestInt, updates[0].Changes[0].Pid);
+                Assert.AreEqual(42, (long)updates[0].Changes[0].Value);
                 Assert.AreEqual(0, exceptions.Count);
 
             } finally {
@@ -119,20 +120,23 @@ namespace IntegrationTests
 
                 // Assert
                 Assert.AreEqual(0, exceptions.Count);
-                Assert.AreEqual(43, await child.GetInt(Pid.TestInt));
+
+                var props = await child.GetProperties(new PidSet { Pid.TestInt });
+                Assert.AreEqual(43, (long)props[Pid.TestInt]);
+
                 Assert.AreEqual(3, updates.Count);
 
                 Assert.AreEqual(containerId, updates[0].ItemId);
-                Assert.AreEqual(Pid.Contains, updates[0].Pid);
-                Assert.AreEqual(childId, (string)updates[0].Value);
+                Assert.AreEqual(Pid.Contains, updates[0].Changes[0].Pid);
+                Assert.AreEqual(childId, (string)updates[0].Changes[0].Value);
 
                 Assert.AreEqual(childId, updates[1].ItemId);
-                Assert.AreEqual(Pid.Container, updates[1].Pid);
-                Assert.AreEqual(containerId, (string)updates[1].Value);
+                Assert.AreEqual(Pid.Container, updates[1].Changes[0].Pid);
+                Assert.AreEqual(containerId, (string)updates[1].Changes[0].Value);
 
                 Assert.AreEqual(childId, updates[2].ItemId);
-                Assert.AreEqual(Pid.TestInt, updates[2].Pid);
-                Assert.AreEqual(43, (long)updates[2].Value);
+                Assert.AreEqual(Pid.TestInt, updates[2].Changes[0].Pid);
+                Assert.AreEqual(43, (long)updates[2].Changes[0].Value);
 
             } finally {
                 // Cleanup

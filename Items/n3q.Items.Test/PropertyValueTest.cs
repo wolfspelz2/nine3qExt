@@ -18,7 +18,7 @@ namespace n3q.Items.Test
             // Assert
             Assert.AreEqual("42", s);
             Assert.AreEqual("42", (string)pv);
-            Assert.AreEqual((long)42, (long)pv);
+            Assert.AreEqual(42L, (long)pv);
 
             // More
             Assert.AreEqual(new ItemIdSet { "42" }.ToString(), ((ItemIdSet)pv).ToString());

@@ -20,9 +20,9 @@ namespace n3q.Items
         }
 
         public PropertyValue(string value) { _value = value; }
-        public PropertyValue(long value) { _value = value.ToString(CultureInfo.InvariantCulture); }
-        public PropertyValue(double value) { _value = value.ToString(CultureInfo.InvariantCulture); }
-        public PropertyValue(bool value) { _value = value.ToString(CultureInfo.InvariantCulture); }
+        public PropertyValue(long value) { _value = value != 0L ? value.ToString(CultureInfo.InvariantCulture) : ""; }
+        public PropertyValue(double value) { _value = value != 0D ? value.ToString(CultureInfo.InvariantCulture) : ""; }
+        public PropertyValue(bool value) { _value = value ? "true" : ""; }
         public PropertyValue(ItemIdSet ids) { _value = ids.ToString(); }
 
         public static implicit operator string(PropertyValue pv)
@@ -92,6 +92,29 @@ namespace n3q.Items
             Unknown,
             Value1,
             Value2,
+        }
+
+        public static bool AreEquivalent(Pid pid, PropertyValue left, PropertyValue right)
+        {
+            if (left.ToString() == right.ToString()) {
+                return true;
+            }
+            return false;
+        }
+
+        public static PropertyValue Default(Pid pid)
+        {
+            var type = Property.GetDefinition(pid).Type;
+            return type switch
+            {
+                Property.Type.Unknown => throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface."),
+                Property.Type.Int => 0L,
+                Property.Type.String => "",
+                Property.Type.Float => 0.0D,
+                Property.Type.Bool => false,
+                Property.Type.ItemSet => new ItemIdSet(),
+                _ => throw new NotImplementedException("Property type=" + type.ToString() + " not yet implemented."),
+            };
         }
 
         #endregion

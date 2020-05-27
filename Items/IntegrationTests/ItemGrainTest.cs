@@ -18,48 +18,6 @@ namespace IntegrationTests
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
-        public async Task SetGet_string()
-        {
-            // Arrange
-            var item = GetItemGrain($"{nameof(ItemGrainTest)}-{nameof(SetGet_string)}-{RandomString.Get(10)}");
-
-            try {
-                // Act
-                await item.Set(Pid.TestString, "42");
-                var value = await item.GetString(Pid.TestString);
-
-                // Assert
-                Assert.AreEqual("42", value);
-
-            } finally {
-                // Cleanup
-                await item.DeletePersistentStorage();
-            }
-        }
-
-        [TestMethod]
-        [TestCategory(GrainClient.Category)]
-        public async Task SetGet_PropertyValue()
-        {
-            // Arrange
-            var item = GetItemGrain($"{nameof(ItemGrainTest)}-{nameof(SetGet_PropertyValue)}-{RandomString.Get(10)}");
-
-            try {
-                // Act
-                await item.Set(Pid.TestString, "42");
-                var value = await item.Get(Pid.TestString);
-
-                // Assert
-                Assert.AreEqual("42", (string)value);
-
-            } finally {
-                // Cleanup
-                await item.DeletePersistentStorage();
-            }
-        }
-
-        [TestMethod]
-        [TestCategory(GrainClient.Category)]
         public async Task GetProperties()
         {
             // Arrange
@@ -135,22 +93,84 @@ namespace IntegrationTests
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
-        public async Task Delete()
+        public async Task SetGet_Modify_add_set_delete()
         {
             // Arrange
-            var item = GetItemGrain($"{nameof(ItemGrainTest)}-{nameof(Delete)}-{RandomString.Get(10)}");
+            var item = GetItemGrain($"{nameof(ItemGrainTest)}-{nameof(SetGet_Modify_add_set_delete)}-{RandomString.Get(10)}");
 
             try {
-                await item.Set(Pid.TestInt, 42);
-                await item.Set(Pid.TestString, "42");
+                // stay
+                await item.Set(Pid.TestString, "40");
+                await item.Set(Pid.TestInt, 40000000000);
+                await item.Set(Pid.TestFloat, 40.14159265358979323);
+                //await item.Set(Pid.TestBool, false);
+                await item.Set(Pid.TestItemSet, new ItemIdSet { "4", "0" });
+
+                // change
+                await item.Set(Pid.TestString1, "41");
+                await item.Set(Pid.TestInt1, 41000000000);
+                await item.Set(Pid.TestFloat1, 41.14159265358979323);
+                //await item.Set(Pid.TestBool1, false);
+                await item.Set(Pid.TestItemSet1, new ItemIdSet { "4", "1" });
+
+                // delete
+                await item.Set(Pid.TestString3, "43");
+                await item.Set(Pid.TestInt3, 43000000000);
+                await item.Set(Pid.TestFloat3, 43.14159265358979323);
+                await item.Set(Pid.TestBool3, true);
+                await item.Set(Pid.TestItemSet3, new ItemIdSet { "4", "3" });
 
                 // Act
-                await item.Delete(Pid.TestInt);
+                await item.ModifyProperties(new PropertySet {
+                    [Pid.TestString1] = "412",
+                    [Pid.TestInt1] = 41200000000,
+                    [Pid.TestFloat1] = 412.14159265358979323,
+                    [Pid.TestBool1] = true,
+                    [Pid.TestItemSet1] = new ItemIdSet { "4", "1", "2" },
+
+                    [Pid.TestString2] = "42",
+                    [Pid.TestInt2] = 42000000000,
+                    [Pid.TestFloat2] = 42.14159265358979323,
+                    [Pid.TestBool2] = true,
+                    [Pid.TestItemSet2] = new ItemIdSet { "4", "2" },
+                }, new PidSet {
+                    Pid.TestString3,
+                    Pid.TestInt3,
+                    Pid.TestFloat3,
+                    Pid.TestBool3,
+                    Pid.TestItemSet3,
+                });
 
                 // Assert
                 var props = await item.GetProperties(PidSet.All);
-                Assert.AreEqual(1, props.Count);
-                Assert.AreEqual("42", (string)props.Get(Pid.TestString));
+
+                // stay
+                Assert.AreEqual("40", props.GetString(Pid.TestString));
+                Assert.AreEqual(40000000000, props.GetInt(Pid.TestInt));
+                Assert.AreEqual(40.14159265358979323, props.GetFloat(Pid.TestFloat), 0.01);
+                Assert.AreEqual(false, props.GetBool(Pid.TestBool));
+                Assert.AreEqual("4 0", props.GetItemIdSet(Pid.TestItemSet).ToString());
+
+                // change
+                Assert.AreEqual("412", props.GetString(Pid.TestString1));
+                Assert.AreEqual(41200000000, props.GetInt(Pid.TestInt1));
+                Assert.AreEqual(412.14159265358979323, props.GetFloat(Pid.TestFloat1), 0.01);
+                Assert.AreEqual(true, props.GetBool(Pid.TestBool1));
+                Assert.AreEqual("4 1 2", props.GetItemIdSet(Pid.TestItemSet1).ToString());
+
+                // set
+                Assert.AreEqual("42", props.GetString(Pid.TestString2));
+                Assert.AreEqual(42000000000, props.GetInt(Pid.TestInt2));
+                Assert.AreEqual(42.14159265358979323, props.GetFloat(Pid.TestFloat2), 0.01);
+                Assert.AreEqual(true, props.GetBool(Pid.TestBool2));
+                Assert.AreEqual("4 2", props.GetItemIdSet(Pid.TestItemSet2).ToString());
+
+                // delete
+                Assert.AreEqual("", props.GetString(Pid.TestString3));
+                Assert.AreEqual(0L, props.GetInt(Pid.TestInt3));
+                Assert.AreEqual(0.0D, props.GetFloat(Pid.TestFloat3), 0.01);
+                Assert.AreEqual(false, props.GetBool(Pid.TestBool3));
+                Assert.AreEqual("", props.GetItemIdSet(Pid.TestItemSet3).ToString());
 
             } finally {
                 // Cleanup
@@ -225,11 +245,11 @@ namespace IntegrationTests
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
-        public async Task GetProperties_PidSet_with_template__and_native()
+        public async Task GetProperties_PidSet_with_template_and_native()
         {
             // Arrange
-            var itemId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template__and_native)}-{RandomString.Get(10)}";
-            var tmplId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template__and_native) + "_TEMPLATE"}-{RandomString.Get(10)}";
+            var itemId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template_and_native)}-{RandomString.Get(10)}";
+            var tmplId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template_and_native) + "_TEMPLATE"}-{RandomString.Get(10)}";
             var item = GetItemGrain(itemId);
             var tmpl = GetItemGrain(tmplId);
 

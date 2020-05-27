@@ -1,20 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 using n3q.Items;
 
 namespace n3q.Items
 {
     [Serializable]
-    public class ItemUpdate
+    public class PropertyChange
     {
         public enum Mode
         {
             PropertyChanged,
             AddedToItemList,
             RemovedFromItemList,
+            PropertyDeleted,
         }
 
         public Mode What { get; set; }
-        public string ItemId { get; set; }
         public Pid Pid { get; set; }
 
         // PropertyChanged: Value contains the new property value
@@ -22,12 +23,25 @@ namespace n3q.Items
         // RemovedFromItemList: Value contains the removed item id
         public PropertyValue Value { get; set; }
 
-        public ItemUpdate(Mode what, string itemId, Pid pid, PropertyValue value)
+        public PropertyChange(Mode what, Pid pid, PropertyValue value)
         {
             What = what;
-            ItemId = itemId;
             Pid = pid;
             Value = value;
         }
     }
+
+    [Serializable]
+    public class ItemUpdate
+    {
+        public string ItemId { get; set; }
+        public List<PropertyChange> Changes = new List<PropertyChange>();
+
+        public ItemUpdate(string itemId, List<PropertyChange> changes)
+        {
+            ItemId = itemId;
+            Changes = changes;
+        }
+    }
+
 }

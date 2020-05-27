@@ -11,7 +11,6 @@ namespace n3q.Aspects
     {
         protected Item self;
         public Item Self => self;
-        protected IItem MyGrain => Grain(self);
         protected string Id => self.Id;
         protected IClusterClient Client => self.ClusterClient;
 
@@ -29,7 +28,7 @@ namespace n3q.Aspects
 
         protected async Task<bool> IsAspect(Pid pid)
         {
-            return await MyGrain.GetBool(pid);
+            return await self.Get(pid);
         }
 
         protected async Task AssertAspect(Pid pid)

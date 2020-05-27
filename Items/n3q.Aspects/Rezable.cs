@@ -50,7 +50,7 @@ namespace n3q.Aspects
 
         public async Task<PropertyValue> OnDerezzed()
         {
-            await self.Modify(PropertySet.Empty, new PidSet { Pid.RezzedX, Pid.IsRezzed, Pid.IsRezzing });
+            await self.ModifyProperties(PropertySet.Empty, new PidSet { Pid.RezzedX, Pid.IsRezzed, Pid.IsRezzing });
             return true;
         }
     }

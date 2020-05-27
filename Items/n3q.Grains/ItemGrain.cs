@@ -20,8 +20,7 @@ namespace n3q.Grains
         public Dictionary<Pid, string> Properties;
     }
 
-    class ItemGrain : Grain
-        , IItem
+    class ItemGrain : Grain, IItem
     //, IAsyncObserver<ItemUpdate>
     {
         string Id => _state.State.Id;
@@ -62,34 +61,10 @@ namespace n3q.Grains
 
         #region Interface
 
-        public async Task Set(Pid pid, string value)
+        public async Task Set(Pid pid, PropertyValue value)
         {
-            Properties.Set(pid, value);
-            await Update(ItemUpdate.Mode.PropertyChanged, pid, value);
-        }
-
-        public async Task Set(Pid pid, long value)
-        {
-            Properties.Set(pid, value);
-            await Update(ItemUpdate.Mode.PropertyChanged, pid, value);
-        }
-
-        public async Task Set(Pid pid, double value)
-        {
-            Properties.Set(pid, value);
-            await Update(ItemUpdate.Mode.PropertyChanged, pid, value);
-        }
-
-        public async Task Set(Pid pid, bool value)
-        {
-            Properties.Set(pid, value);
-            await Update(ItemUpdate.Mode.PropertyChanged, pid, value);
-        }
-
-        public async Task Set(Pid pid, ItemIdSet value)
-        {
-            Properties.Set(pid, value);
-            await Update(ItemUpdate.Mode.PropertyChanged, pid, value);
+            Properties[pid] = value;
+            await Update(PropertyChange.Mode.PropertyChanged, pid, value);
         }
 
         public async Task AddToItemSet(Pid pid, string itemId)
@@ -97,7 +72,7 @@ namespace n3q.Grains
             var ids = (ItemIdSet)Properties.Get(pid);
             ids.Add(itemId);
             Properties.Set(pid, ids);
-            await Update(ItemUpdate.Mode.AddedToItemList, pid, itemId);
+            await Update(PropertyChange.Mode.AddedToItemList, pid, itemId);
         }
 
         public async Task DeleteFromItemSet(Pid pid, string itemId)
@@ -105,42 +80,42 @@ namespace n3q.Grains
             var ids = (ItemIdSet)Properties.Get(pid);
             ids.Remove(itemId);
             Properties.Set(pid, ids);
-            await Update(ItemUpdate.Mode.RemovedFromItemList, pid, itemId);
+            await Update(PropertyChange.Mode.RemovedFromItemList, pid, itemId);
+        }
+
+        public async Task Delete(Pid pid)
+        {
+            Properties.Delete(pid);
+            await Update(PropertyChange.Mode.PropertyDeleted, pid, null);
+        }
+
+        public async Task ModifyProperties(PropertySet modified, PidSet deleted)
+        {
+            var changes = new List<PropertyChange> { };
+
+            foreach (var pair in modified) {
+                var pid = pair.Key;
+                await Set(pid, pair.Value);
+                if (!PropertyValue.AreEquivalent(pid, Properties.Get(pid), pair.Value)) {
+                    changes.Add(new PropertyChange(PropertyChange.Mode.PropertyChanged, pid, pair.Value));
+                }
+            }
+
+            foreach (var pid in deleted) {
+                if (Properties.ContainsKey(pid)) {
+                    Properties.Delete(pid);
+                }
+                if (!PropertyValue.AreEquivalent(pid, Properties.Get(pid), PropertyValue.Default(pid))) {
+                    changes.Add(new PropertyChange(PropertyChange.Mode.PropertyChanged, pid, null));
+                }
+            }
+
+            await Update(changes);
         }
 
         public Task<PropertyValue> Get(Pid pid)
         {
             return Task.FromResult(Properties.Get(pid));
-        }
-
-        public Task<string> GetString(Pid pid)
-        {
-            return Task.FromResult((string)Properties.Get(pid));
-        }
-
-        public Task<long> GetInt(Pid pid)
-        {
-            return Task.FromResult((long)Properties.Get(pid));
-        }
-
-        public Task<double> GetFloat(Pid pid)
-        {
-            return Task.FromResult((double)Properties.Get(pid));
-        }
-
-        public Task<bool> GetBool(Pid pid)
-        {
-            return Task.FromResult((bool)Properties.Get(pid));
-        }
-
-        public Task<string> GetItemId(Pid pid)
-        {
-            return Task.FromResult((string)Properties.Get(pid));
-        }
-
-        public Task<ItemIdSet> GetItemIdSet(Pid pid)
-        {
-            return Task.FromResult((ItemIdSet)Properties.Get(pid));
         }
 
         public async Task<PropertySet> GetProperties(PidSet pids, bool native = false)
@@ -151,12 +126,6 @@ namespace n3q.Grains
                 return await GetPropertiesByAccess(pids.First(), native);
             }
             return await GetPropertiesByPid(pids, native);
-        }
-
-        public Task Delete(Pid pid)
-        {
-            Properties.Delete(pid);
-            return Task.CompletedTask;
         }
 
         #endregion
@@ -205,7 +174,7 @@ namespace n3q.Grains
 
         private void CopyPropertiesByPidSelection(PropertySet result, PidSet pids)
         {
-            foreach (Pid pid in Enum.GetValues(typeof(Pid))) {
+            foreach (Pid pid in pids) {
                 if (pids.Contains(pid)) {
                     if (Properties.ContainsKey(pid)) {
                         result[pid] = Properties[pid];
@@ -256,15 +225,21 @@ namespace n3q.Grains
 
         //WritePersistentStorage();
 
-        async Task Update(ItemUpdate.Mode what, Pid pid, PropertyValue value)
+        async Task Update(PropertyChange.Mode what, Pid pid, PropertyValue value)
+        {
+            await Update(new List<PropertyChange> { new PropertyChange(what, pid, value) });
+        }
+
+        async Task Update(List<PropertyChange> changes)
         {
             // Persist changes
-            if (PropertyMustBeSaved(pid, value)) {
+            var persist = changes.Aggregate(false, (current, change) => current |= PropertyMustBeSaved(change.Pid, change.Value));
+            if (persist) {
                 await WritePersistentStorage();
             }
 
             // Notify subscribers
-            var update = new ItemUpdate(what, Id, pid, value);
+            var update = new ItemUpdate(Id, changes);
             await _stream?.OnNextAsync(update);
         }
 

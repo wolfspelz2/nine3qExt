@@ -19,13 +19,9 @@ namespace n3q.Aspects
             //await AssertAspect();
 
             var itemLimit = await self.GetInt(Pid.ContainerItemLimit);
-
-            var itemLimit2 = (long)await self.Get(Pid.ContainerItemLimit);
-            long itemLimit3 = await self.Get(Pid.ContainerItemLimit);
-
             var stacksize = await newItem.GetInt(Pid.Stacksize);
             var currentTotal = 0L;
-            foreach (var itemId in await self.GetItemIdSet(Pid.Contains)) {
+            foreach (var itemId in (ItemIdSet) await self.Get(Pid.Contains)) {
                 currentTotal += await Item(itemId).GetInt(Pid.Stacksize);
             }
             if (currentTotal + stacksize > itemLimit) { throw new SurfaceException(Id, newItem.Id, SurfaceNotification.Fact.NotExecuted, SurfaceNotification.Reason.ItemCapacityLimit); };

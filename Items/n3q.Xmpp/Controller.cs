@@ -411,17 +411,19 @@ namespace XmppComponent
         {
             if (IsManagedRoom(update.ItemId)) {
 
-                if (update.Pid == Pid.Contains && update.What == ItemUpdate.Mode.AddedToItemList) {
-                    var roomId = update.ItemId;
-                    var itemId = update.Value;
-                    await OnItemAddedToRoom(roomId, itemId);
+                foreach (var change in update.Changes) {
+                    if (change.Pid == Pid.Contains && change.What == PropertyChange.Mode.AddedToItemList) {
+                        var roomId = update.ItemId;
+                        var itemId = change.Value;
+                        await OnItemAddedToRoom(roomId, itemId);
 
-                } else if (update.Pid == Pid.Contains && update.What == ItemUpdate.Mode.RemovedFromItemList) {
-                    var roomId = update.ItemId;
-                    var itemId = update.Value;
-                    var roomItem = GetRoomItem(roomId, itemId);
-                    if (roomItem != null) {
-                        await OnItemRemovedFromRoom(roomItem);
+                    } else if (change.Pid == Pid.Contains && change.What == PropertyChange.Mode.RemovedFromItemList) {
+                        var roomId = update.ItemId;
+                        var itemId = change.Value;
+                        var roomItem = GetRoomItem(roomId, itemId);
+                        if (roomItem != null) {
+                            await OnItemRemovedFromRoom(roomItem);
+                        }
                     }
                 }
 
@@ -429,7 +431,14 @@ namespace XmppComponent
 
                 var roomItem = GetRoomItem(update.ItemId);
                 if (roomItem != null) {
-                    await OnItemPropertyChanged(roomItem, update.Pid, update.Value);
+                    var atleastOneOfChangedPropertiesIsPublic = false;
+                    foreach (var change in update.Changes) {
+                        atleastOneOfChangedPropertiesIsPublic |= Property.GetDefinition(change.Pid).Access == Property.Access.Public;
+                    }
+                    if (atleastOneOfChangedPropertiesIsPublic) {
+                        await OnPublicItemPropertyChanged(roomItem);
+                    }
+
                 }
 
             }
@@ -463,12 +472,9 @@ namespace XmppComponent
             await SendPresenceUnvailable(roomItem);
         }
 
-        private async Task OnItemPropertyChanged(RoomItem roomItem, Pid pid, string value)
+        private async Task OnPublicItemPropertyChanged(RoomItem roomItem)
         {
-            var atleastOneOfChangedPropertiesIsPublic = (Property.GetDefinition(pid).Access == Property.Access.Public);
-            if (atleastOneOfChangedPropertiesIsPublic) {
-                await SendPresenceAvailable(roomItem);
-            }
+            await SendPresenceAvailable(roomItem);
         }
 
         #endregion

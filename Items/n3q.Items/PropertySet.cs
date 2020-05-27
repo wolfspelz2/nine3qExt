@@ -17,6 +17,11 @@ namespace n3q.Items
         {
         }
 
+        public PropertySet(Pid pid, PropertyValue value)
+        {
+            Add(pid, value);
+        }
+
         public PropertySet(Dictionary<Pid, string> properties)
         {
             if (properties != null) {
