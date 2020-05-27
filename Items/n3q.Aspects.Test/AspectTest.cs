@@ -27,7 +27,7 @@ namespace n3q.Items.Test
             var greeterId = $"{nameof(AspectTest)}-{nameof(AsAspect) + "_GREETER"}-{RandomString.Get(10)}";
             var greetUser = GetDummyItem(greetUserId);
             var aspect = greetUser.AsAspect(Pid.TestGreetUserAspect);
-            var greeting = await aspect.Execute(nameof(TestGreetUser.UseGreeter), new PropertySet { [Pid.Item] = greeterId, [Pid.Name] = "World" });
+            var greeting = await aspect.Run(nameof(TestGreetUser.UseGreeter), new PropertySet { [Pid.Item] = greeterId, [Pid.Name] = "World" });
             Assert.AreEqual("Hello World", (string)greeting);
         }
 

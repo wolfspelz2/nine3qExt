@@ -11,7 +11,7 @@ namespace IntegrationTests
     [TestClass]
     public class WorkGrainTest
     {
-        IWork GetWorkGrain() { return GrainClient.GrainFactory.GetGrain<IWork>(Guid.Empty); }
+        IWorker GetWorkGrain() { return GrainClient.GrainFactory.GetGrain<IWorker>(Guid.Empty); }
         IItem GetItemGrain(string id) { return GrainClient.GrainFactory.GetGrain<IItem>(id); }
 
         [TestMethod]
@@ -31,7 +31,7 @@ namespace IntegrationTests
 
             try {
                 // Act
-                var greeting = await work.Execute(workId, greetUserId, Pid.TestGreetUserAspect, nameof(TestGreetUser.UseGreeter), new PropertySet { [Pid.Item] = greeterId, [Pid.Name] = "World" });
+                var greeting = await work.Run(greetUserId, Pid.TestGreetUserAspect, nameof(TestGreetUser.UseGreeter), new PropertySet { [Pid.Item] = greeterId, [Pid.Name] = "World" });
 
                 // Assert
                 Assert.AreEqual("Hello World", greeting);

@@ -159,6 +159,7 @@ namespace n3q.Items
             [Pid.AnimationsUrl] = new Definition(Pid.AnimationsUrl, Type.String, Use.Url, Group.Generic, Access.Public, Persistence.Persistent, "http://...", ""),
             [Pid.IsRezzing] = new Definition(Pid.IsRezzing, Type.Bool, Use.Bool, Group.Generic, Access.System, Persistence.Persistent, "true", "True while rez not confirmed by room."),
             [Pid.IsRezzed] = new Definition(Pid.IsRezzed, Type.Bool, Use.Bool, Group.Generic, Access.System, Persistence.Persistent, "true", "True if rezzed to room."),
+            [Pid.IsDerezzing] = new Definition(Pid.IsDerezzing, Type.Bool, Use.Bool, Group.Generic, Access.System, Persistence.Persistent, "true", "True after derez sent to room."),
             [Pid.RezzedX] = new Definition(Pid.RezzedX, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "735", "Position of item in room if rezzed."),
             [Pid.FirstAspect] = new Definition(Pid.FirstAspect, Type.Unknown, Use.Unknown, Group.Unknown, Access.System, Persistence.Fixed, "", ""),
             [Pid.TestGreetUserAspect] = new Definition(Pid.TestGreetUserAspect, Type.Bool, Use.Bool, Group.Aspect, Access.System, Persistence.Fixed, "true", "Test aspect flag"),

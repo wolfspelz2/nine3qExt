@@ -69,11 +69,17 @@
         RezableAspect,
         IframeAspect,
 
+        // Method parameters
+        FirstParameter = 4000000,
+        RezRoom,
+        DerezUser,
+
         // App
         FirstApp = 5000000,
         ContainerItemLimit,
         IsRezzing,
         IsRezzed,
+        IsDerezzing,
         RezzedX,
         IframeUrl,
         IframeWidth,

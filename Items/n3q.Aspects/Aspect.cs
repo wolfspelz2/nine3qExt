@@ -67,7 +67,7 @@ namespace n3q.Aspects
             return null;
         }
 
-        public Task<PropertyValue> Execute(string action, PropertySet arguments)
+        public Task<PropertyValue> Run(string action, PropertySet arguments)
         {
             var actions = GetActionList();
             if (actions != null) {
