@@ -62,8 +62,8 @@
 
         // Aspect
         FirstAspect = 3000000,
-        Test1Aspect,
-        Test2Aspect,
+        TestGreetUserAspect,
+        TestGreeterAspect,
         ContainerAspect,
         ItemCapacityLimitAspect,
         RezableAspect,

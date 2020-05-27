@@ -8,16 +8,42 @@ namespace n3q.Aspects
 {
     public class Item : IItem
     {
+        public IClusterClient ClusterClient { get; }
+        public IGrainFactory GrainFactory { get; }
+        public string Id { get; }
+
         public Item(IClusterClient clusterClient, string itemId)
         {
             ClusterClient = clusterClient;
             Id = itemId;
         }
 
-        public IClusterClient ClusterClient { get; }
-        public string Id { get; }
+        public Item(IGrainFactory grainFactory, string id)
+        {
+            GrainFactory = grainFactory;
+            Id = id;
+        }
 
-        public IItem Grain => ClusterClient.GetGrain<IItem>(Id);
+        public IItem Grain
+        {
+            get {
+                if (ClusterClient != null) {
+                    return ClusterClient.GetGrain<IItem>(Id);
+                } else if (GrainFactory != null) {
+                    return GrainFactory.GetGrain<IItem>(Id);
+                } 
+                throw new Exception($"Need valid IClusterClient or IGrainFactory for id={Id}");
+            }
+        }
+
+        public Aspect AsAspect(Pid pid)
+        {
+            if (AspectRegistry.Aspects.ContainsKey(pid)) {
+                return AspectRegistry.Aspects[pid](this);
+            }
+            throw new Exception($"Unknown pid/aspect={pid}");
+        }
+
 
         #region IItem
 

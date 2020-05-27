@@ -90,6 +90,8 @@ namespace XmppComponent
             }
         }
 
+        Item GetItem(string roomId) { return new Item(_clusterClient, roomId); }
+
         #endregion
 
         #region Management
@@ -260,8 +262,6 @@ namespace XmppComponent
 
             await Task.CompletedTask;
         }
-
-        Item GetItem(string roomId) { return new Item(_clusterClient, roomId); }
 
         async Task Connection_OnDropItem(XmppMessage message)
         {
