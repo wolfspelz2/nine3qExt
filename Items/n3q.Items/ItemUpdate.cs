@@ -9,10 +9,10 @@ namespace n3q.Items
     {
         public enum Mode
         {
-            PropertyChanged,
-            AddedToItemList,
-            RemovedFromItemList,
-            PropertyDeleted,
+            SetProperty,
+            AddToSet,
+            RemoveFromSet,
+            DeleteProperty,
         }
 
         public Mode What { get; set; }

@@ -22,10 +22,12 @@ namespace n3q.Aspects
             };
         }
 
-        public async Task<string> Greet(string name)
+        public async Task<PropertyValue> Greet(string name)
         {
             await Task.CompletedTask;
-            return "Hello " + name;
+            var prefix = await self.Get(Pid.TestGreeterPrefix);
+            var greeting = prefix + name;
+            return greeting;
         }
     }
 }

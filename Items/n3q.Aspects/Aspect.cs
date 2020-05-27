@@ -12,16 +12,29 @@ namespace n3q.Aspects
         protected Item self;
         public Item Self => self;
         protected string Id => self.Id;
-        protected IClusterClient Client => self.ClusterClient;
 
-        public IItem Grain(Item item)
-        {
-            return Client.GetGrain<IItem>(item.Id);
-        }
+        //public IItem Grain(Item item)
+        //{
+        //    if (self.ClusterClient != null) {
+        //        return self.ClusterClient.GetGrain<IItem>(item.Id);
+        //    } else if (self.GrainFactory != null) {
+        //        return self.GrainFactory.GetGrain<IItem>(item.Id);
+        //    } else if (self.Simulator != null) {
+        //        return self.Simulator.GetGrain<IItem>(item.Id);
+        //    }
+        //    throw new Exception($"Need valid IClusterClient or IGrainFactory for id={Id}");
+        //}
 
         protected Item Item(string itemId)
         {
-            return new Item(Client, itemId);
+            if (self.ClusterClient != null) {
+                return new Item(self.ClusterClient, itemId);
+            } else if (self.GrainFactory != null) {
+                return new Item(self.GrainFactory, itemId);
+            } else if (self.Simulator != null) {
+                return new Item(self.Simulator, itemId);
+            }
+            throw new Exception($"Need valid IClusterClient or IGrainFactory for id={Id}");
         }
 
         public virtual Pid GetAspectPid() => Pid.FirstAspect;

@@ -71,6 +71,7 @@
 
         // Method parameters
         FirstParameter = 4000000,
+        TestGreeterPrefix,
         RezRoom,
         DerezUser,
 

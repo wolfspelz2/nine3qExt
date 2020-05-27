@@ -29,6 +29,12 @@ namespace n3q.Items
             }
         }
 
+
+        public void Set(Pid pid, PropertyValue value)
+        {
+            this[pid] = value;
+        }
+
         public void Set(Pid pid, string value) { this[pid] = new PropertyValue(value); }
         public void Set(Pid pid, long value) { this[pid] = new PropertyValue(value); }
         public void Set(Pid pid, double value) { this[pid] = new PropertyValue(value); }
@@ -56,6 +62,5 @@ namespace n3q.Items
                 Remove(pid);
             }
         }
-
     }
 }
