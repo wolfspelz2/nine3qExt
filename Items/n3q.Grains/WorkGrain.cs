@@ -15,12 +15,11 @@ namespace n3q.Grains
 
         #region Interface
 
-        public Task Execute(Guid wId, string itemId, Pid aspectPid, string actionName, PropertySet args)
+        public async Task<PropertyValue> Execute(Guid wId, string itemId, Pid aspectPid, string actionName, PropertySet args)
         {
             var item = GetItem(itemId);
             var aspect = item.AsAspect(aspectPid);
-
-            return Task.CompletedTask;
+            return await aspect.Execute(actionName, args);
         }
 
         #endregion

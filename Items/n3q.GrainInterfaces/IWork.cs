@@ -7,7 +7,7 @@ namespace n3q.GrainInterfaces
 {
     public interface IWork : IGrainWithGuidKey
     {
-        Task Execute(Guid wId, string itemId, Pid aspectPid, string actionName, PropertySet args);
+        Task<PropertyValue> Execute(Guid wId, string itemId, Pid aspectPid, string actionName, PropertySet args);
     }
 
 }
