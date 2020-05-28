@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using n3q.Items;
 using n3q.Tools;
 
@@ -26,6 +27,14 @@ namespace n3q.Aspects
             }
             await self.AddToList(Pid.Contains, child.Id);
             await child.Set(Pid.Container, Id);
+        }
+
+        public async Task RemoveChild(ItemStub child)
+        {
+            await AssertAspect();
+
+            await self.DeleteFromList(Pid.Contains, child.Id);
+            await child.Delete(Pid.Container);
         }
     }
 }

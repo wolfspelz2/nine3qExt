@@ -12,8 +12,6 @@ namespace n3q.Items
             String,
             Float,
             Bool,
-            Item,
-            ItemSet,
         }
 
         public enum Access
@@ -108,7 +106,7 @@ namespace n3q.Items
         public static readonly Dictionary<Pid, Definition> Definitions = new Dictionary<Pid, Definition> {
             [Pid.Unknown] = new Definition(Pid.Unknown, Type.Unknown, Use.Unknown, Group.Unknown, Access.System, Persistence.Unknown, "", ""),
             [Pid.FirstOperation] = new Definition(Pid.FirstOperation, Type.Unknown, Use.Unknown, Group.Unknown, Access.System, Persistence.Fixed, "", ""),
-            [Pid.Item] = new Definition(Pid.Item, Type.Item, Use.Item, Group.Operation, Access.System, Persistence.Unknown, "1", "Passive item of item action."),
+            [Pid.Item] = new Definition(Pid.Item, Type.String, Use.Item, Group.Operation, Access.System, Persistence.Unknown, "1", "Passive item of item action."),
             [Pid.PublicAccess] = new Definition(Pid.PublicAccess, Type.Bool, Use.Bool, Group.Operation, Access.System, Persistence.Unknown, "", "Dummy property for declaring a PropertyIdList with only this Pid as indicator for GetItemProperties."),
             [Pid.OwnerAccess] = new Definition(Pid.OwnerAccess, Type.Bool, Use.Bool, Group.Operation, Access.System, Persistence.Unknown, "", "Dummy property for declaring a PropertyIdList with only this Pid as indicator for GetItemProperties."),
             [Pid.FirstTest] = new Definition(Pid.FirstTest, Type.Unknown, Use.Unknown, Group.Unknown, Access.System, Persistence.Fixed, "", ""),
@@ -132,14 +130,14 @@ namespace n3q.Items
             [Pid.TestBool2] = new Definition(Pid.TestBool2, Type.Bool, Use.Bool, Group.Test, Access.System, Persistence.Persistent, "true", ""),
             [Pid.TestBool3] = new Definition(Pid.TestBool3, Type.Bool, Use.Bool, Group.Test, Access.System, Persistence.Persistent, "true", ""),
             [Pid.TestBool4] = new Definition(Pid.TestBool4, Type.Bool, Use.Bool, Group.Test, Access.System, Persistence.Persistent, "true", ""),
-            [Pid.TestItem] = new Definition(Pid.TestItem, Type.Item, Use.Item, Group.Test, Access.System, Persistence.Persistent, "10000000001", ""),
-            [Pid.TestItem1] = new Definition(Pid.TestItem1, Type.Item, Use.Item, Group.Test, Access.System, Persistence.Persistent, "10000000001", ""),
-            [Pid.TestItem2] = new Definition(Pid.TestItem2, Type.Item, Use.Item, Group.Test, Access.System, Persistence.Persistent, "10000000001", ""),
-            [Pid.TestItem3] = new Definition(Pid.TestItem3, Type.Item, Use.Item, Group.Test, Access.System, Persistence.Persistent, "10000000001", ""),
-            [Pid.TestItemSet] = new Definition(Pid.TestItemSet, Type.ItemSet, Use.ItemList, Group.Test, Access.System, Persistence.Persistent, "10000000001 10000000002", ""),
-            [Pid.TestItemSet1] = new Definition(Pid.TestItemSet1, Type.ItemSet, Use.ItemList, Group.Test, Access.System, Persistence.Persistent, "10000000001 10000000002", ""),
-            [Pid.TestItemSet2] = new Definition(Pid.TestItemSet2, Type.ItemSet, Use.ItemList, Group.Test, Access.System, Persistence.Persistent, "10000000001 10000000002", ""),
-            [Pid.TestItemSet3] = new Definition(Pid.TestItemSet3, Type.ItemSet, Use.ItemList, Group.Test, Access.System, Persistence.Persistent, "10000000001 10000000002", ""),
+            [Pid.TestItem] = new Definition(Pid.TestItem, Type.String, Use.Item, Group.Test, Access.System, Persistence.Persistent, "10000000001", ""),
+            [Pid.TestItem1] = new Definition(Pid.TestItem1, Type.String, Use.Item, Group.Test, Access.System, Persistence.Persistent, "10000000001", ""),
+            [Pid.TestItem2] = new Definition(Pid.TestItem2, Type.String, Use.Item, Group.Test, Access.System, Persistence.Persistent, "10000000001", ""),
+            [Pid.TestItem3] = new Definition(Pid.TestItem3, Type.String, Use.Item, Group.Test, Access.System, Persistence.Persistent, "10000000001", ""),
+            [Pid.TestItemSet] = new Definition(Pid.TestItemSet, Type.String, Use.ItemList, Group.Test, Access.System, Persistence.Persistent, "10000000001 10000000002", ""),
+            [Pid.TestItemSet1] = new Definition(Pid.TestItemSet1, Type.String, Use.ItemList, Group.Test, Access.System, Persistence.Persistent, "10000000001 10000000002", ""),
+            [Pid.TestItemSet2] = new Definition(Pid.TestItemSet2, Type.String, Use.ItemList, Group.Test, Access.System, Persistence.Persistent, "10000000001 10000000002", ""),
+            [Pid.TestItemSet3] = new Definition(Pid.TestItemSet3, Type.String, Use.ItemList, Group.Test, Access.System, Persistence.Persistent, "10000000001 10000000002", ""),
             [Pid.TestEnum] = new Definition(Pid.TestEnum, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, PropertyValue.TestEnum.Value1.ToString(), ""),
             [Pid.TestEnum1] = new Definition(Pid.TestEnum1, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, PropertyValue.TestEnum.Value1.ToString(), ""),
             [Pid.TestEnum2] = new Definition(Pid.TestEnum2, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, PropertyValue.TestEnum.Value1.ToString(), ""),
@@ -148,12 +146,12 @@ namespace n3q.Items
             [Pid.TestInternal] = new Definition(Pid.TestInternal, Type.Int, Use.Int, Group.Test, Access.System, Persistence.Persistent, "42", ""),
 
             [Pid.FirstGeneric] = new Definition(Pid.FirstGeneric, Type.Unknown, Use.Unknown, Group.Unknown, Access.System, Persistence.Fixed, "", ""),
-            //[Pid.Id] = new Definition(Pid.Id, Type.Item, Use.Item, Group.Generic, Access.Public, Persistence.Persistent, "10000000001", ""),
+            //[Pid.Id] = new Definition(Pid.Id, Type.String, Use.Item, Group.Generic, Access.Public, Persistence.Persistent, "10000000001", ""),
             [Pid.Name] = new Definition(Pid.Name, Type.String, Use.String, Group.Generic, Access.Public, Persistence.Persistent, "Avatar", ""),
             [Pid.TemplateId] = new Definition(Pid.TemplateId, Type.String, Use.String, Group.Generic, Access.System, Persistence.Persistent, "WaterBottleTemplate", "Grain Id of the template item."),
             [Pid.Label] = new Definition(Pid.Label, Type.String, Use.String, Group.Generic, Access.Public, Persistence.Persistent, "WaterBottle", "Used in public displays as primary designation. Will be translated."),
-            [Pid.Container] = new Definition(Pid.Container, Type.Item, Use.Item, Group.Generic, Access.Owner, Persistence.Persistent, "10000000001", "Id of container item."),
-            [Pid.Contains] = new Definition(Pid.Contains, Type.ItemSet, Use.ItemList, Group.Generic, Access.Owner, Persistence.Persistent, "10000000001 10000000002", "Container: list of child items."),
+            [Pid.Container] = new Definition(Pid.Container, Type.String, Use.Item, Group.Generic, Access.Owner, Persistence.Persistent, "10000000001", "Id of container item."),
+            [Pid.Contains] = new Definition(Pid.Contains, Type.String, Use.ItemList, Group.Generic, Access.Owner, Persistence.Persistent, "10000000001 10000000002", "Container: list of child items."),
             [Pid.Stacksize] = new Definition(Pid.Stacksize, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "3", "Number of items item stacked in one place."),
             [Pid.Icon32Url] = new Definition(Pid.Icon32Url, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", "Medium images"),
             [Pid.Image100Url] = new Definition(Pid.Image100Url, Type.String, Use.ImageUrl, Group.Generic, Access.Public, Persistence.Persistent, "http://...", ""),
@@ -176,8 +174,8 @@ namespace n3q.Items
             [Pid.TestGreeted_Name] = new Definition(Pid.TestGreeted_Name, Type.String, Use.String, Group.Parameter, Access.System, Persistence.Transient, "World", "Greeted name"),
             [Pid.TestGreeter_Result] = new Definition(Pid.TestGreeter_Result, Type.String, Use.String, Group.Parameter, Access.System, Persistence.Persistent, "Hello World", "Greeting result stored by Greeter before return"),
             [Pid.TestGreeted_Result] = new Definition(Pid.TestGreeted_Result, Type.String, Use.String, Group.Parameter, Access.System, Persistence.Persistent, "Hello World", "Greeting result stored by Greeted"),
-            [Pid.RezRoom] = new Definition(Pid.RezRoom, Type.Item, Use.Item, Group.Parameter, Access.System, Persistence.Transient, "1", "Room to rez to by Rezable.Rez."),
-            [Pid.DerezUser] = new Definition(Pid.DerezUser, Type.Item, Use.Item, Group.Parameter, Access.System, Persistence.Transient, "1", "User to derez to by Rezable.Derez."),
+            [Pid.RezRoom] = new Definition(Pid.RezRoom, Type.String, Use.Item, Group.Parameter, Access.System, Persistence.Transient, "1", "Room to rez to by Rezable.Rez."),
+            [Pid.DerezUser] = new Definition(Pid.DerezUser, Type.String, Use.Item, Group.Parameter, Access.System, Persistence.Transient, "1", "User to derez to by Rezable.Derez."),
 
             [Pid.FirstApp] = new Definition(Pid.FirstApp, Type.Unknown, Use.Unknown, Group.Unknown, Access.System, Persistence.Fixed, "", ""),
             [Pid.TestGreeterPrefix] = new Definition(Pid.TestGreeterPrefix, Type.String, Use.String, Group.Parameter, Access.System, Persistence.Persistent, "Hello ", "Greeting prefix"),
@@ -192,6 +190,5 @@ namespace n3q.Items
             [Pid.LastProperty] = new Definition(Pid.LastProperty, Type.Unknown, Use.Unknown, Group.Unknown, Access.System, Persistence.Fixed, "", ""),
 
         };
-
     }
 }

@@ -153,21 +153,6 @@ namespace n3q.Items
             return false;
         }
 
-        public static PropertyValue Default(Pid pid)
-        {
-            var type = Property.GetDefinition(pid).Type;
-            return type switch
-            {
-                Property.Type.Unknown => throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface."),
-                Property.Type.Int => 0L,
-                Property.Type.String => "",
-                Property.Type.Float => 0.0D,
-                Property.Type.Bool => false,
-                Property.Type.ItemSet => new ItemIdSet(),
-                _ => throw new NotImplementedException("Property type=" + type.ToString() + " not yet implemented."),
-            };
-        }
-
         #endregion
     }
 }
