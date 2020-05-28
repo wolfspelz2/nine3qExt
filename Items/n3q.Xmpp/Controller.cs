@@ -412,12 +412,12 @@ namespace XmppComponent
             if (IsManagedRoom(update.ItemId)) {
 
                 foreach (var change in update.Changes) {
-                    if (change.Pid == Pid.Contains && change.What == PropertyChange.Mode.AddedToItemList) {
+                    if (change.Pid == Pid.Contains && change.What == PropertyChange.Mode.AddToSet) {
                         var roomId = update.ItemId;
                         var itemId = change.Value;
                         await OnItemAddedToRoom(roomId, itemId);
 
-                    } else if (change.Pid == Pid.Contains && change.What == PropertyChange.Mode.RemovedFromItemList) {
+                    } else if (change.Pid == Pid.Contains && change.What == PropertyChange.Mode.RemoveFromSet) {
                         var roomId = update.ItemId;
                         var itemId = change.Value;
                         var roomItem = GetRoomItem(roomId, itemId);

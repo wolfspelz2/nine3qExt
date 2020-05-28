@@ -67,7 +67,7 @@ namespace n3q.Items
             Test,
             Generic,
             Aspect,
-            Level,
+            Parameter,
             App,
             Attribute, // User attributes
             //Competition,
@@ -172,8 +172,9 @@ namespace n3q.Items
             [Pid.IframeAspect] = new Definition(Pid.IframeAspect, Type.Bool, Use.Bool, Group.Aspect, Access.Public, Persistence.Fixed, "true", "True if item opens an iframe on click."),
 
             [Pid.FirstParameter] = new Definition(Pid.FirstParameter, Type.Unknown, Use.Unknown, Group.Unknown, Access.System, Persistence.Fixed, "", ""),
-            [Pid.RezRoom] = new Definition(Pid.RezRoom, Type.Item, Use.Item, Group.Operation, Access.System, Persistence.Unknown, "1", "Room to rez to by Rezable.Rez."),
-            [Pid.DerezUser] = new Definition(Pid.DerezUser, Type.Item, Use.Item, Group.Operation, Access.System, Persistence.Unknown, "1", "User to derez to by Rezable.Derez."),
+            [Pid.TestGreeterPrefix] = new Definition(Pid.TestGreeterPrefix, Type.String, Use.String, Group.Parameter, Access.System, Persistence.Unknown, "1", "TestGreeter greeting prefix"),
+            [Pid.RezRoom] = new Definition(Pid.RezRoom, Type.Item, Use.Item, Group.Parameter, Access.System, Persistence.Unknown, "1", "Room to rez to by Rezable.Rez."),
+            [Pid.DerezUser] = new Definition(Pid.DerezUser, Type.Item, Use.Item, Group.Parameter, Access.System, Persistence.Unknown, "1", "User to derez to by Rezable.Derez."),
 
             [Pid.FirstApp] = new Definition(Pid.FirstApp, Type.Unknown, Use.Unknown, Group.Unknown, Access.System, Persistence.Fixed, "", ""),
             [Pid.ContainerItemLimit] = new Definition(Pid.ContainerItemLimit, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "3", "Number of items in the container counting stacksize."),

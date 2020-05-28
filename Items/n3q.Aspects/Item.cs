@@ -3,13 +3,92 @@ using n3q.GrainInterfaces;
 using System.Threading.Tasks;
 using n3q.Items;
 using System;
+using System.Collections.Generic;
 
 namespace n3q.Aspects
 {
+    public class ItemSiloSimulator
+    {
+        readonly Dictionary<string, ItemGrainSimulator> _grains = new Dictionary<string, ItemGrainSimulator>();
+
+        internal IItem GetGrain(string id)
+        {
+            if (_grains.TryGetValue(id, out var grain)) {
+                return grain;
+            } else {
+                grain = new ItemGrainSimulator();
+                _grains[id] = grain;
+                return grain;
+            }
+        }
+    }
+
+    public class ItemGrainSimulator : IItem
+    {
+        public PropertySet Properties { get; set; }
+
+        public ItemGrainSimulator()
+        {
+        }
+
+        public Task ModifyProperties(PropertySet modified, PidSet deleted)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PropertySet> GetProperties(PidSet pids, bool native = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task AddToSet(Pid pid, PropertyValue value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteFromSet(Pid pid, PropertyValue value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Guid> GetStreamId()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> GetStreamNamespace()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Deactivate()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task WritePersistentStorage()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ReadPersistentStorage()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeletePersistentStorage()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class Item : IItem
     {
+        public class IDevNull { }
+
         public IClusterClient ClusterClient { get; }
         public IGrainFactory GrainFactory { get; }
+        public ItemSiloSimulator Simulator { get; }
         public string Id { get; }
 
         public Item(IClusterClient clusterClient, string itemId)
@@ -24,6 +103,12 @@ namespace n3q.Aspects
             Id = id;
         }
 
+        public Item(ItemSiloSimulator simulator, string id)
+        {
+            Simulator = simulator;
+            Id = id;
+        }
+
         public IItem Grain
         {
             get {
@@ -31,6 +116,8 @@ namespace n3q.Aspects
                     return ClusterClient.GetGrain<IItem>(Id);
                 } else if (GrainFactory != null) {
                     return GrainFactory.GetGrain<IItem>(Id);
+                } else if (Simulator != null) {
+                    return Simulator.GetGrain(Id);
                 }
                 throw new Exception($"Need valid IClusterClient or IGrainFactory for id={Id}");
             }
@@ -39,7 +126,8 @@ namespace n3q.Aspects
         public Aspect AsAspect(Pid pid)
         {
             if (AspectRegistry.Aspects.ContainsKey(pid)) {
-                return AspectRegistry.Aspects[pid](this);
+                var aspect = AspectRegistry.Aspects[pid](this);
+                return aspect;
             }
             throw new Exception($"Unknown pid/aspect={pid}");
         }
@@ -47,11 +135,10 @@ namespace n3q.Aspects
 
         #region IItem
 
-        public Task Set(Pid pid, PropertyValue value) { return Grain.Set(pid, value); }
         public Task ModifyProperties(PropertySet modified, PidSet deleted) { return Grain.ModifyProperties(modified, deleted); }
         public Task<PropertySet> GetProperties(PidSet pids, bool native = false) { return Grain.GetProperties(pids, native); }
-        public Task AddToItemSet(Pid pid, string itemId) { return Grain.AddToItemSet(pid, itemId); }
-        public Task DeleteFromItemSet(Pid pid, string itemId) { return Grain.DeleteFromItemSet(pid, itemId); }
+        public Task AddToSet(Pid pid, PropertyValue value) { return Grain.AddToSet(pid, value); }
+        public Task DeleteFromSet(Pid pid, PropertyValue value) { return Grain.DeleteFromSet(pid, value); }
 
         public Task<Guid> GetStreamId() { return Grain.GetStreamId(); }
         public Task<string> GetStreamNamespace() { return Grain.GetStreamNamespace(); }
@@ -64,15 +151,14 @@ namespace n3q.Aspects
 
         #region IItem extensions
 
-        //public async Task Set(Pid pid, PropertyValue value) { await Grain.ModifyProperties(new PropertySet(pid, value), PidSet.Empty); }
-
+        public async Task Set(Pid pid, PropertyValue value) { await Grain.ModifyProperties(new PropertySet(pid, value), PidSet.Empty); }
         public async Task Delete(Pid pid) { await Grain.ModifyProperties(PropertySet.Empty, new PidSet { pid }); }
 
         public async Task<PropertyValue> Get(Pid pid)
         {
             var props = await Grain.GetProperties(new PidSet { pid });
-            if (props.ContainsKey(pid)) {
-                return props[pid];
+            if (props.TryGetValue(pid, out var value)) {
+                return value;
             }
             return PropertyValue.Empty;
         }

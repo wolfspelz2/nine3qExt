@@ -16,20 +16,19 @@ namespace IntegrationTests
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
-        public async Task Execute_Greeter()
+        public async Task Run_Greeter()
         {
             // Arrange
             var work = GetWorkGrain();
             var workId = Guid.NewGuid();
-            var greetUserId = $"{nameof(WorkGrainTest)}-{nameof(Execute_Greeter) + "_GREETUSER"}-{RandomString.Get(10)}";
-            var greeterId = $"{nameof(WorkGrainTest)}-{nameof(Execute_Greeter) + "_GREETER"}-{RandomString.Get(10)}";
+            var greetUserId = $"{nameof(WorkGrainTest)}-{nameof(Run_Greeter) + "_GREETUSER"}-{RandomString.Get(10)}";
+            var greeterId = $"{nameof(WorkGrainTest)}-{nameof(Run_Greeter) + "_GREETER"}-{RandomString.Get(10)}";
             var greetUser = GetItemGrain(greetUserId);
             var greeter = GetItemGrain(greeterId);
 
             try {
-                await greetUser.Set(Pid.TestGreetUserAspect, true);
-                await greeter.Set(Pid.TestGreeterAspect, true);
-                await greeter.Set(Pid.TestString, "Hello");
+                await greetUser.ModifyProperties(new PropertySet { [Pid.TestGreetUserAspect] = true }, PidSet.Empty);
+                await greeter.ModifyProperties(new PropertySet { [Pid.TestGreeterAspect] = true, [Pid.TestGreeterPrefix] = "Hello " }, PidSet.Empty);
 
                 // Act
                 var greeting = await work.Run(greetUserId, Pid.TestGreetUserAspect, nameof(TestGreetUser.UseGreeter), new PropertySet { [Pid.Item] = greeterId, [Pid.Name] = "World" });

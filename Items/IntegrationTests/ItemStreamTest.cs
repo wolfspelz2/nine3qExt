@@ -62,14 +62,14 @@ namespace IntegrationTests
 
             var itemId = $"{nameof(ItemGrainTest)}-{nameof(ItemUpdate_after_Set)}-{RandomString.Get(10)}";
             var item = GetItemGrain(itemId);
-            await item.Set(Pid.TestInt, 41);
+            await item.ModifyProperties(new PropertySet { [Pid.TestInt] = 41 }, PidSet.Empty);
 
             var handle = await GetItemStream().SubscribeAsync(updateReceiver);
             Task.Run(() => { }).ItemStreamTestPerformAsyncTaskWithoutAwait(t => { exceptions.Add(t.Exception); });
 
             try {
                 // Act
-                await item.Set(Pid.TestInt, 42);
+                await item.ModifyProperties(new PropertySet { [Pid.TestInt] = 42 }, PidSet.Empty);
                 are.WaitOne(3000);
 
                 // Assert
@@ -105,17 +105,17 @@ namespace IntegrationTests
             var childId = $"{nameof(ItemGrainTest)}-{nameof(ItemUpdate_Container_AddChild) + "_CHILD"}-{RandomString.Get(10)}";
             var container = GetItemGrain(containerId);
             var child = GetItemGrain(childId);
-            await container.Set(Pid.TestInt, 41);
-            await child.Set(Pid.TestInt, 42);
+            await container.ModifyProperties(new PropertySet { [Pid.TestInt] = 42 }, PidSet.Empty);
+            await child.ModifyProperties(new PropertySet { [Pid.TestInt] = 42 }, PidSet.Empty);
 
             var handle = await GetItemStream().SubscribeAsync(updateReceiver);
             Task.Run(() => { }).ItemStreamTestPerformAsyncTaskWithoutAwait(t => { exceptions.Add(t.Exception); });
 
             try {
                 // Act
-                await container.AddToItemSet(Pid.Contains, childId);
-                await child.Set(Pid.Container, containerId);
-                await child.Set(Pid.TestInt, 43);
+                await container.AddToSet(Pid.Contains, childId);
+                await child.ModifyProperties(new PropertySet { [Pid.Container] = containerId }, PidSet.Empty);
+                await child.ModifyProperties(new PropertySet { [Pid.TestInt] = 43 }, PidSet.Empty);
                 are.WaitOne(3000);
 
                 // Assert

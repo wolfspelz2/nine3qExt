@@ -20,8 +20,8 @@ namespace n3q.Aspects
             await self.AsItemCapacityLimit().AssertLimit(child);
 
             var currentParent = Item(await child.GetItemId(Pid.Container));
-            await currentParent.DeleteFromItemSet(Pid.Contains, child.Id);
-            await self.AddToItemSet(Pid.Contains, child.Id);
+            await currentParent.DeleteFromSet(Pid.Contains, child.Id);
+            await self.AddToSet(Pid.Contains, child.Id);
             await child.Set(Pid.Container, Id);
         }
     }

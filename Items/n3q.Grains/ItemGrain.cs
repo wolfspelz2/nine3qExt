@@ -25,6 +25,7 @@ namespace n3q.Grains
     {
         string Id => _state.State.Id;
         public PropertySet Properties { get; set; }
+        public ItemCore Impl { get; private set; }
 
         readonly string _streamNamespace = ItemService.StreamNamespace;
         readonly Guid _streamId = ItemService.StreamGuid;
@@ -61,65 +62,56 @@ namespace n3q.Grains
 
         #region Interface
 
-        public async Task Set(Pid pid, PropertyValue value)
-        {
-            Properties[pid] = value;
-            await Update(PropertyChange.Mode.PropertyChanged, pid, value);
-        }
-
-        public async Task AddToItemSet(Pid pid, string itemId)
-        {
-            var ids = (ItemIdSet)Properties.Get(pid);
-            ids.Add(itemId);
-            Properties.Set(pid, ids);
-            await Update(PropertyChange.Mode.AddedToItemList, pid, itemId);
-        }
-
-        public async Task DeleteFromItemSet(Pid pid, string itemId)
-        {
-            var ids = (ItemIdSet)Properties.Get(pid);
-            ids.Remove(itemId);
-            Properties.Set(pid, ids);
-            await Update(PropertyChange.Mode.RemovedFromItemList, pid, itemId);
-        }
-
-        public async Task Delete(Pid pid)
-        {
-            Properties.Delete(pid);
-            await Update(PropertyChange.Mode.PropertyDeleted, pid, null);
-        }
-
         public async Task ModifyProperties(PropertySet modified, PidSet deleted)
         {
             var changes = new List<PropertyChange> { };
 
             foreach (var pair in modified) {
                 var pid = pair.Key;
-                await Set(pid, pair.Value);
                 if (!PropertyValue.AreEquivalent(pid, Properties.Get(pid), pair.Value)) {
-                    changes.Add(new PropertyChange(PropertyChange.Mode.PropertyChanged, pid, pair.Value));
+                    changes.Add(new PropertyChange(PropertyChange.Mode.SetProperty, pid, pair.Value));
                 }
+                Properties[pid] = pair.Value;
             }
 
             foreach (var pid in deleted) {
+                if (!PropertyValue.AreEquivalent(pid, Properties.Get(pid), PropertyValue.Default(pid))) {
+                    changes.Add(new PropertyChange(PropertyChange.Mode.DeleteProperty, pid, null));
+                }
                 if (Properties.ContainsKey(pid)) {
                     Properties.Delete(pid);
                 }
-                if (!PropertyValue.AreEquivalent(pid, Properties.Get(pid), PropertyValue.Default(pid))) {
-                    changes.Add(new PropertyChange(PropertyChange.Mode.PropertyChanged, pid, null));
-                }
             }
 
-            await Update(changes);
+            if (changes.Count > 0) {
+                await Update(changes);
+            }
         }
 
-        public Task<PropertyValue> Get(Pid pid)
+        public async Task AddToSet(Pid pid, PropertyValue value)
         {
-            return Task.FromResult(Properties.Get(pid));
+            if (Properties.TryGetValue(pid, out var current)) {
+                if (current.AddToSet(value)) {
+                    await Update(PropertyChange.Mode.AddToSet, pid, value);
+                }
+            } else {
+                Properties.Set(pid, value);
+                await Update(PropertyChange.Mode.AddToSet, pid, value);
+            }
+        }
+
+        public async Task DeleteFromSet(Pid pid, PropertyValue value)
+        {
+            if (Properties.TryGetValue(pid, out var current)) {
+                if (current.RemoveFromSet(value)) {
+                    await Update(PropertyChange.Mode.RemoveFromSet, pid, value);
+                }
+            }
         }
 
         public async Task<PropertySet> GetProperties(PidSet pids, bool native = false)
         {
+            //return await Impl.GetProperties(pids, native);
             if (pids == PidSet.All) {
                 return await GetPropertiesAll(native);
             } else if (pids.Count == 1 && (pids.Contains(Pid.PublicAccess) || pids.Contains(Pid.OwnerAccess))) {
