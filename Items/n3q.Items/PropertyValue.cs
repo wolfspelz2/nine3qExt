@@ -75,7 +75,7 @@ namespace n3q.Items
             return result;
         }
 
-        public bool AddToSet(PropertyValue value)
+        public bool AddToList(PropertyValue value)
         {
             var s = value.ToString();
             var idx = _value.IndexOf(s);
@@ -86,7 +86,7 @@ namespace n3q.Items
             return false;
         }
 
-        public bool RemoveFromSet(PropertyValue value)
+        public bool RemoveFromList(PropertyValue value)
         {
             var s = value.ToString();
             var idx = _value.IndexOf(s);
@@ -95,6 +95,13 @@ namespace n3q.Items
                 return true;
             }
             return false;
+        }
+
+        public bool IsInList(PropertyValue value)
+        {
+            var s = value.ToString();
+            var idx = _value.IndexOf(s);
+            return idx >= 0;
         }
 
         public static implicit operator PropertyValue(string value) { return new PropertyValue(value); }

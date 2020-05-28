@@ -6,11 +6,12 @@ using n3q.Tools;
 
 namespace n3q.Aspects
 {
-    public class Transaction
+    public class Transaction : IDisposable
     {
         public Guid Id = Guid.NewGuid();
 
         readonly HashSet<ItemStub> _items = new HashSet<ItemStub>();
+        bool _cancelled = false;
 
         public Transaction()
         {
@@ -34,6 +35,7 @@ namespace n3q.Aspects
 
         public void Cancel()
         {
+            _cancelled = true;
             foreach (var item in _items) {
                 item.EndTransaction(Id, false).PerformAsyncTaskWithoutAwait(t => {
                     // Log?
@@ -41,5 +43,15 @@ namespace n3q.Aspects
             }
         }
 
+        #region IDisposable Members
+
+        void IDisposable.Dispose()
+        {
+            if (!_cancelled) {
+                Commit();
+            }
+        }
+
+        #endregion
     }
 }

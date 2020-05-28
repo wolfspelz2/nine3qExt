@@ -22,10 +22,13 @@ namespace IntegrationTests
 
             try {
                 // Act
-                await item.ModifyProperties(new PropertySet {
-                    [Pid.TestInt] = 42,
-                    [Pid.TestString] = "42",
-                }, PidSet.Empty);
+                using (var t = await item.BeginTransaction()) {
+                    ;
+                    await item.ModifyProperties(new PropertySet {
+                        [Pid.TestInt] = 42,
+                        [Pid.TestString] = "42",
+                    }, PidSet.Empty);
+                }
 
                 var props = await item.GetProperties(PidSet.All);
 

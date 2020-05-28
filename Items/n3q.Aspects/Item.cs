@@ -170,6 +170,13 @@ namespace n3q.Aspects
         public Task DeleteFromList(Pid pid, PropertyValue value) { return Grain.DeleteFromList(pid, value, Transaction.Id); }
         public Task<PropertySet> GetProperties(PidSet pids, bool native = false) { return Grain.GetProperties(pids, native); }
 
+        public async Task<Transaction> BeginTransaction()
+        {
+            await Grain.BeginTransaction(Transaction.Id);
+            return Transaction;
+        }
+        public Task EndTransaction(bool success) { return Grain.EndTransaction(Transaction.Id, success); }
+
         public async Task Set(Pid pid, PropertyValue value) { await Grain.ModifyProperties(new PropertySet(pid, value), PidSet.Empty, Transaction.Id); }
         public async Task Delete(Pid pid) { await Grain.ModifyProperties(PropertySet.Empty, new PidSet { pid }, Transaction.Id); }
 

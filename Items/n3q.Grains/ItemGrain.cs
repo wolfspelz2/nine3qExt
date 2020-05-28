@@ -31,7 +31,9 @@ namespace n3q.Grains
         readonly Guid _streamId = ItemService.StreamGuid;
         readonly IPersistentState<ItemState> _state;
         IAsyncStream<ItemUpdate> _stream;
+
         Guid _transactionId = Guid.Empty;
+        List<PropertyChange> _changes;
 
         public ItemGrain(
             [PersistentState("Item", JsonFileStorage.StorageProviderName)] IPersistentState<ItemState> itemState
@@ -67,27 +69,21 @@ namespace n3q.Grains
         {
             AssertCurrentTransaction(tid);
 
-            var changes = new List<PropertyChange> { };
-
             foreach (var pair in modified) {
                 var pid = pair.Key;
                 if (!PropertyValue.AreEquivalent(pid, Properties.Get(pid), pair.Value)) {
-                    changes.Add(new PropertyChange(PropertyChange.Mode.SetProperty, pid, pair.Value));
+                    _changes.Add(new PropertyChange(PropertyChange.Mode.SetProperty, pid, pair.Value));
                 }
-                Properties[pid] = pair.Value;
             }
 
             foreach (var pid in deleted) {
                 if (!PropertyValue.AreEquivalent(pid, Properties.Get(pid), PropertyValue.Default(pid))) {
-                    changes.Add(new PropertyChange(PropertyChange.Mode.DeleteProperty, pid, null));
-                }
-                if (Properties.ContainsKey(pid)) {
-                    Properties.Delete(pid);
+                    _changes.Add(new PropertyChange(PropertyChange.Mode.DeleteProperty, pid, null));
                 }
             }
 
-            if (changes.Count > 0) {
-                await Update(changes);
+            if (tid == Guid.Empty) {
+                await ApplyChanges();
             }
         }
 
@@ -95,13 +91,16 @@ namespace n3q.Grains
         {
             AssertCurrentTransaction(tid);
 
-            if (Properties.TryGetValue(pid, out var current)) {
-                if (current.AddToSet(value)) {
-                    await Update(PropertyChange.Mode.AddToList, pid, value);
+            if (Properties.TryGetValue(pid, out var pv)) {
+                if (!pv.IsInList(value)) {
+                    _changes.Add(new PropertyChange(PropertyChange.Mode.AddToList, pid, value));
                 }
             } else {
-                Properties.Set(pid, value);
-                await Update(PropertyChange.Mode.AddToList, pid, value);
+                _changes.Add(new PropertyChange(PropertyChange.Mode.AddToList, pid, value));
+            }
+
+            if (tid == Guid.Empty) {
+                await ApplyChanges();
             }
         }
 
@@ -109,10 +108,14 @@ namespace n3q.Grains
         {
             AssertCurrentTransaction(tid);
 
-            if (Properties.TryGetValue(pid, out var current)) {
-                if (current.RemoveFromSet(value)) {
-                    await Update(PropertyChange.Mode.RemoveFromList, pid, value);
+            if (Properties.TryGetValue(pid, out var pv)) {
+                if (!pv.IsInList(value)) {
+                    _changes.Add(new PropertyChange(PropertyChange.Mode.RemoveFromList, pid, value));
                 }
+            }
+
+            if (tid == Guid.Empty) {
+                await ApplyChanges();
             }
         }
 
@@ -134,13 +137,19 @@ namespace n3q.Grains
             }
 
             _transactionId = tid;
+            _changes = new List<PropertyChange>();
+
             return Task.CompletedTask;
         }
 
-        public Task EndTransaction(Guid tid, bool success)
+        public async Task EndTransaction(Guid tid, bool success)
         {
+            if (success) {
+                await ApplyChanges();
+            }
+
             _transactionId = Guid.Empty;
-            return Task.CompletedTask;
+            _changes = null;
         }
 
         #endregion
@@ -149,9 +158,13 @@ namespace n3q.Grains
 
         private void AssertCurrentTransaction(Guid tid)
         {
-            if (_transactionId == Guid.Empty) { return; }
-            if (_transactionId != tid) {
-                throw new Exception($"Already in transaction {_transactionId}");
+            if (_transactionId == Guid.Empty) {
+                _changes = new List<PropertyChange>();
+                return;
+            } else {
+                if (_transactionId != tid) {
+                    throw new Exception($"Already in transaction {_transactionId}");
+                }
             }
         }
 
@@ -248,21 +261,52 @@ namespace n3q.Grains
 
         //WritePersistentStorage();
 
-        async Task Update(PropertyChange.Mode what, Pid pid, PropertyValue value)
+        private async Task ApplyChanges()
         {
-            await Update(new List<PropertyChange> { new PropertyChange(what, pid, value) });
-        }
+            foreach (var change in _changes) {
+                var pid = change.Pid;
+                var value = change.Value;
 
-        async Task Update(List<PropertyChange> changes)
-        {
+                switch (change.What) {
+                    case PropertyChange.Mode.SetProperty: {
+                        Properties[pid] = value;
+                    }
+                    break;
+
+                    case PropertyChange.Mode.AddToList: {
+                        if (Properties.TryGetValue(pid, out var pv)) {
+                            pv.AddToList(value);
+                        } else {
+                            pv = new PropertyValue();
+                            pv.AddToList(value);
+                        }
+                    }
+                    break;
+
+                    case PropertyChange.Mode.RemoveFromList: {
+                        if (Properties.TryGetValue(pid, out var pv)) {
+                            pv.RemoveFromList(value);
+                        }
+                    }
+                    break;
+
+                    case PropertyChange.Mode.DeleteProperty: {
+                        if (Properties.ContainsKey(pid)) {
+                            Properties.Delete(pid);
+                        }
+                    }
+                    break;
+                }
+            }
+
             // Persist changes
-            var persist = changes.Aggregate(false, (current, change) => current |= PropertyMustBeSaved(change.Pid, change.Value));
+            var persist = _changes.Aggregate(false, (current, change) => current |= PropertyMustBeSaved(change.Pid, change.Value));
             if (persist) {
                 await WritePersistentStorage();
             }
 
             // Notify subscribers
-            var update = new ItemUpdate(Id, changes);
+            var update = new ItemUpdate(Id, _changes);
             await _stream?.OnNextAsync(update);
         }
 
