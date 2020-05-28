@@ -9,6 +9,7 @@ using Orleans.Providers;
 using n3q.Common;
 using n3q.StorageProviders;
 using n3q.Grains;
+using n3q.Aspects;
 
 namespace IntegrationTests
 {
@@ -76,6 +77,12 @@ namespace IntegrationTests
 
             await client.Connect();
             return client;
+        }
+
+        ItemStub GetItemGrain(string id)
+        {
+            //return GrainClient.GrainFactory.GetGrain<IItem>(id);
+            return new ItemStub(GrainFactory, id, new Transaction());
         }
 
         [AssemblyInitialize]

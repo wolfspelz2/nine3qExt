@@ -6,12 +6,12 @@ namespace n3q.Aspects
 {
     public static class TestGreeterExtensions
     {
-        public static TestGreeter AsTestGreeter(this Item self) { return new TestGreeter(self); }
+        public static TestGreeter AsTestGreeter(this ItemStub self) { return new TestGreeter(self); }
     }
 
     public class TestGreeter : Aspect
     {
-        public TestGreeter(Item item) { self = item; }
+        public TestGreeter(ItemStub item) { self = item; }
         public override Pid GetAspectPid() => Pid.TestGreeterAspect;
 
         public enum Action { Greet }

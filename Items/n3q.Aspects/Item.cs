@@ -31,22 +31,22 @@ namespace n3q.Aspects
         {
         }
 
-        public Task ModifyProperties(PropertySet modified, PidSet deleted)
+        public Task ModifyProperties(PropertySet modified, PidSet deleted, Guid tid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task AddToList(Pid pid, PropertyValue value, Guid tid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteFromList(Pid pid, PropertyValue value, Guid tid)
         {
             throw new NotImplementedException();
         }
 
         public Task<PropertySet> GetProperties(PidSet pids, bool native = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task AddToSet(Pid pid, PropertyValue value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task DeleteFromSet(Pid pid, PropertyValue value)
         {
             throw new NotImplementedException();
         }
@@ -80,35 +80,45 @@ namespace n3q.Aspects
         {
             throw new NotImplementedException();
         }
+
+        public Task BeginTransaction(Guid tid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task EndTransaction(Guid tid, bool success)
+        {
+            throw new NotImplementedException();
+        }
     }
 
-    public class Item : IItem
+    public class ItemStub : IItem
     {
         public IClusterClient ClusterClient { get; }
         public IGrainFactory GrainFactory { get; }
         public ItemSiloSimulator Simulator { get; }
         public string Id { get; }
-        public Guid Tid;
+        public Transaction Transaction { get; }
 
-        public Item(IClusterClient clusterClient, string itemId, Guid tid)
+        public ItemStub(IClusterClient clusterClient, string itemId, Transaction t)
         {
             ClusterClient = clusterClient;
             Id = itemId;
-            Tid = tid;
+            Transaction = t;
         }
 
-        public Item(IGrainFactory grainFactory, string id, Guid tid)
+        public ItemStub(IGrainFactory grainFactory, string id, Transaction t)
         {
             GrainFactory = grainFactory;
             Id = id;
-            Tid = tid;
+            Transaction = t;
         }
 
-        public Item(ItemSiloSimulator simulator, string id, Guid tid)
+        public ItemStub(ItemSiloSimulator simulator, string id, Transaction t)
         {
             Simulator = simulator;
             Id = id;
-            Tid = tid;
+            Transaction = t;
         }
 
         public IItem Grain
@@ -137,10 +147,12 @@ namespace n3q.Aspects
 
         #region IItem
 
-        public Task ModifyProperties(PropertySet modified, PidSet deleted) { return Grain.ModifyProperties(modified, deleted); }
-        public Task<PropertySet> GetProperties(PidSet pids, bool native = false) { return Grain.GetProperties(pids, native); }
-        public Task AddToSet(Pid pid, PropertyValue value) { return Grain.AddToSet(pid, value); }
-        public Task DeleteFromSet(Pid pid, PropertyValue value) { return Grain.DeleteFromSet(pid, value); }
+        public Task ModifyProperties(PropertySet modified, PidSet deleted, Guid tid) { throw new NotImplementedException(); }
+        public Task AddToList(Pid pid, PropertyValue value, Guid tid) { throw new NotImplementedException(); }
+        public Task DeleteFromList(Pid pid, PropertyValue value, Guid tid) { throw new NotImplementedException(); }
+
+        public Task BeginTransaction(Guid tid) { return Grain.BeginTransaction(tid); }
+        public Task EndTransaction(Guid tid, bool success) { return Grain.EndTransaction(tid, success); }
 
         public Task<Guid> GetStreamId() { return Grain.GetStreamId(); }
         public Task<string> GetStreamNamespace() { return Grain.GetStreamNamespace(); }
@@ -153,8 +165,13 @@ namespace n3q.Aspects
 
         #region IItem extensions
 
-        public async Task Set(Pid pid, PropertyValue value) { await Grain.ModifyProperties(new PropertySet(pid, value), PidSet.Empty); }
-        public async Task Delete(Pid pid) { await Grain.ModifyProperties(PropertySet.Empty, new PidSet { pid }); }
+        public Task ModifyProperties(PropertySet modified, PidSet deleted) { return Grain.ModifyProperties(modified, deleted, Transaction.Id); }
+        public Task AddToList(Pid pid, PropertyValue value) { return Grain.AddToList(pid, value, Transaction.Id); }
+        public Task DeleteFromList(Pid pid, PropertyValue value) { return Grain.DeleteFromList(pid, value, Transaction.Id); }
+        public Task<PropertySet> GetProperties(PidSet pids, bool native = false) { return Grain.GetProperties(pids, native); }
+
+        public async Task Set(Pid pid, PropertyValue value) { await Grain.ModifyProperties(new PropertySet(pid, value), PidSet.Empty, Transaction.Id); }
+        public async Task Delete(Pid pid) { await Grain.ModifyProperties(PropertySet.Empty, new PidSet { pid }, Transaction.Id); }
 
         public async Task<PropertyValue> Get(Pid pid)
         {

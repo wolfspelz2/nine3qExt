@@ -9,8 +9,7 @@ namespace n3q.Aspects
 {
     public class Aspect
     {
-        protected Item self;
-        public Item Self => self;
+        protected ItemStub self;
         protected string Id => self.Id;
 
         //public IItem Grain(Item item)
@@ -25,16 +24,24 @@ namespace n3q.Aspects
         //    throw new Exception($"Need valid IClusterClient or IGrainFactory for id={Id}");
         //}
 
-        protected Item Item(string itemId)
+        protected async Task<ItemStub> Item(string itemId)
         {
+
+            var item = (ItemStub)null;
             if (self.ClusterClient != null) {
-                return new Item(self.ClusterClient, itemId, self.Tid);
+                item= new ItemStub(self.ClusterClient, itemId, self.Transaction);
             } else if (self.GrainFactory != null) {
-                return new Item(self.GrainFactory, itemId, self.Tid);
+                item = new ItemStub(self.GrainFactory, itemId, self.Transaction);
             } else if (self.Simulator != null) {
-                return new Item(self.Simulator, itemId, self.Tid);
+                item = new ItemStub(self.Simulator, itemId, self.Transaction);
             }
-            throw new Exception($"Need valid IClusterClient or IGrainFactory for id={Id}");
+            if (item != null) {
+                await item.BeginTransaction();
+                self.Transaction.AddItem(item);
+                return item;
+            } else {
+                throw new Exception($"Need valid IClusterClient or IGrainFactory for id={Id}");
+            }
         }
 
         public virtual Pid GetAspectPid() => Pid.FirstAspect;
@@ -64,7 +71,7 @@ namespace n3q.Aspects
             }
         }
 
-        public delegate Aspect AspectSpecializer(Item item);
+        public delegate Aspect AspectSpecializer(ItemStub item);
         public delegate Task<PropertyValue> ActionHandler(PropertySet args);
 
         public class ActionDescription

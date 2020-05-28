@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
+using System.Threading;
+using Orleans.Streams;
+using n3q.Common;
 using n3q.Tools;
 using n3q.Items;
 using n3q.GrainInterfaces;
-using Orleans.Streams;
-using n3q.Common;
-using System.Collections.Generic;
-using System.Threading;
-using Orleans;
+using n3q.Aspects;
 
 namespace IntegrationTests
 {
@@ -22,10 +22,6 @@ namespace IntegrationTests
             var streamNamespace = ItemService.StreamNamespace;
             var stream = streamProvider.GetStream<ItemUpdate>(streamId, streamNamespace);
             return stream;
-        }
-        IItem GetItemGrain(string id)
-        {
-            return GrainClient.GrainFactory.GetGrain<IItem>(id);
         }
 
         public class UpdateReceiver : IAsyncObserver<ItemUpdate>
@@ -65,7 +61,7 @@ namespace IntegrationTests
             await item.ModifyProperties(new PropertySet { [Pid.TestInt] = 41 }, PidSet.Empty);
 
             var handle = await GetItemStream().SubscribeAsync(updateReceiver);
-            Task.Run(() => { }).ItemStreamTestPerformAsyncTaskWithoutAwait(t => { exceptions.Add(t.Exception); });
+            Task.Run(() => { }).PerformAsyncTaskWithoutAwait(t => { exceptions.Add(t.Exception); });
 
             try {
                 // Act
@@ -109,11 +105,11 @@ namespace IntegrationTests
             await child.ModifyProperties(new PropertySet { [Pid.TestInt] = 42 }, PidSet.Empty);
 
             var handle = await GetItemStream().SubscribeAsync(updateReceiver);
-            Task.Run(() => { }).ItemStreamTestPerformAsyncTaskWithoutAwait(t => { exceptions.Add(t.Exception); });
+            Task.Run(() => { }).PerformAsyncTaskWithoutAwait(t => { exceptions.Add(t.Exception); });
 
             try {
                 // Act
-                await container.AddToSet(Pid.Contains, childId);
+                await container.AddToList(Pid.Contains, childId);
                 await child.ModifyProperties(new PropertySet { [Pid.Container] = containerId }, PidSet.Empty);
                 await child.ModifyProperties(new PropertySet { [Pid.TestInt] = 43 }, PidSet.Empty);
                 are.WaitOne(3000);
@@ -149,13 +145,4 @@ namespace IntegrationTests
             }
         }
     }
-
-    public static class ItemStreamTestAsyncUtilityExtension
-    {
-        public static void ItemStreamTestPerformAsyncTaskWithoutAwait(this Task task, Action<Task> exceptionHandler)
-        {
-            var dummy = task?.ContinueWith(t => exceptionHandler(t), CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
-        }
-    }
-
 }

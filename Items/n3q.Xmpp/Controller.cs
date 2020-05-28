@@ -90,8 +90,8 @@ namespace XmppComponent
             }
         }
 
-        Item GetItem(string roomId) { return new Item(_clusterClient, roomId, Guid.Empty); }
-        IWorker Worker => _clusterClient.GetGrain<IWorker>(Guid.Empty);
+        IItem GetItem(string roomId) => _clusterClient.GetGrain<IItem>(roomId);
+        IWorker GetWorker() => _clusterClient.GetGrain<IWorker>(Guid.Empty);
 
         #endregion
 
@@ -239,7 +239,7 @@ namespace XmppComponent
                 } else {
                     Log.Info($"Joined room {roomId} {itemId}", nameof(Connection_OnPresenceAvailable));
                     roomItem.State = RoomItem.RezState.Rezzed;
-                    await Worker.Run(itemId, Pid.RezableAspect, nameof(Rezable.OnRezzed));
+                    await GetWorker().Run(itemId, Pid.RezableAspect, nameof(Rezable.OnRezzed));
                 }
             }
 
@@ -256,7 +256,7 @@ namespace XmppComponent
 
             var roomItem = GetRoomItem(roomId, itemId);
             if (roomItem != null) {
-                // Just in case, shuld already be removed after sending presence-unavailable
+//                // Just in case, should already be removed after sending presence-unavailable
                 RemoveRoomItem(roomId, itemId);
             }
 
@@ -273,7 +273,7 @@ namespace XmppComponent
 
             if (Has.Value(userId) && Has.Value(itemId) && Has.Value(roomId) && hasX) {
                 Log.Info($"Drop {roomId} {itemId}");
-                await Worker.Run(itemId, Pid.RezableAspect, nameof(Rezable.Rez), new PropertySet { [Pid.RezRoom] = roomId, [Pid.RezzedX] = posX });
+                await GetWorker().Run(itemId, Pid.RezableAspect, nameof(Rezable.Rez), new PropertySet { [Pid.RezRoom] = roomId, [Pid.RezzedX] = posX });
                 //await OnItemAddedToRoom(roomId, itemId);
             }
         }
@@ -292,7 +292,7 @@ namespace XmppComponent
                         throw new SurfaceException(roomId, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezzed);
                     } else {
                         Log.Info($"Pickup {roomId} {itemId}", nameof(Connection_OnPickupItem));
-                        await Worker.Run(itemId, Pid.RezableAspect, nameof(Rezable.Derez), new PropertySet { [Pid.DerezUser] = roomId });
+                        await GetWorker().Run(itemId, Pid.RezableAspect, nameof(Rezable.Derez), new PropertySet { [Pid.DerezUser] = roomId });
                         await OnItemRemovedFromRoom(roomItem);
 
                         // Also: don't wait to cleanup state, just ignore the presence-unavailable
@@ -412,12 +412,12 @@ namespace XmppComponent
             if (IsManagedRoom(update.ItemId)) {
 
                 foreach (var change in update.Changes) {
-                    if (change.Pid == Pid.Contains && change.What == PropertyChange.Mode.AddToSet) {
+                    if (change.Pid == Pid.Contains && change.What == PropertyChange.Mode.AddToList) {
                         var roomId = update.ItemId;
                         var itemId = change.Value;
                         await OnItemAddedToRoom(roomId, itemId);
 
-                    } else if (change.Pid == Pid.Contains && change.What == PropertyChange.Mode.RemoveFromSet) {
+                    } else if (change.Pid == Pid.Contains && change.What == PropertyChange.Mode.RemoveFromList) {
                         var roomId = update.ItemId;
                         var itemId = change.Value;
                         var roomItem = GetRoomItem(roomId, itemId);

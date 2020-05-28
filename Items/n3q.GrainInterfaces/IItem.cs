@@ -9,10 +9,13 @@ namespace n3q.GrainInterfaces
 {
     public interface IItem : IGrainWithStringKey
     {
-        Task ModifyProperties(PropertySet modified, PidSet deleted);
+        Task ModifyProperties(PropertySet modified, PidSet deleted, Guid tid);
+        Task AddToList(Pid pid, PropertyValue value, Guid tid);
+        Task DeleteFromList(Pid pid, PropertyValue value, Guid tid);
         Task<PropertySet> GetProperties(PidSet pids, bool native = false);
-        Task AddToSet(Pid pid, PropertyValue value);
-        Task DeleteFromSet(Pid pid, PropertyValue value);
+
+        Task BeginTransaction(Guid tid);
+        Task EndTransaction(Guid tid, bool success);
 
         Task<Guid> GetStreamId();
         Task<string> GetStreamNamespace();

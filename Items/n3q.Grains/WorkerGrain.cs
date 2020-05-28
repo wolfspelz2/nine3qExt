@@ -15,9 +15,17 @@ namespace n3q.Grains
 
         public async Task<PropertyValue> Run(string itemId, Pid aspectPid, string actionName, PropertySet args = null)
         {
-            var item = new Item(GrainFactory, itemId, Guid.NewGuid());
-            var aspect = item.AsAspect(aspectPid);
-            return await aspect.Run(actionName, args);
+            var t = new Transaction();
+            var item = new ItemStub(GrainFactory, itemId, t);
+            try {
+                var aspect = item.AsAspect(aspectPid);
+                var result = await aspect.Run(actionName, args);
+                t.Commit();
+                return result;
+            } catch {
+                t.Cancel();
+            }
+            return false;
         }
 
         #endregion

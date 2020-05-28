@@ -31,6 +31,7 @@ namespace n3q.Grains
         readonly Guid _streamId = ItemService.StreamGuid;
         readonly IPersistentState<ItemState> _state;
         IAsyncStream<ItemUpdate> _stream;
+        Guid _transactionId = Guid.Empty;
 
         public ItemGrain(
             [PersistentState("Item", JsonFileStorage.StorageProviderName)] IPersistentState<ItemState> itemState
@@ -62,7 +63,7 @@ namespace n3q.Grains
 
         #region Interface
 
-        public async Task ModifyProperties(PropertySet modified, PidSet deleted)
+        public async Task ModifyProperties(PropertySet modified, PidSet deleted, Guid tid)
         {
             var changes = new List<PropertyChange> { };
 
@@ -88,23 +89,23 @@ namespace n3q.Grains
             }
         }
 
-        public async Task AddToSet(Pid pid, PropertyValue value)
+        public async Task AddToList(Pid pid, PropertyValue value, Guid tid)
         {
             if (Properties.TryGetValue(pid, out var current)) {
                 if (current.AddToSet(value)) {
-                    await Update(PropertyChange.Mode.AddToSet, pid, value);
+                    await Update(PropertyChange.Mode.AddToList, pid, value);
                 }
             } else {
                 Properties.Set(pid, value);
-                await Update(PropertyChange.Mode.AddToSet, pid, value);
+                await Update(PropertyChange.Mode.AddToList, pid, value);
             }
         }
 
-        public async Task DeleteFromSet(Pid pid, PropertyValue value)
+        public async Task DeleteFromList(Pid pid, PropertyValue value, Guid tid)
         {
             if (Properties.TryGetValue(pid, out var current)) {
                 if (current.RemoveFromSet(value)) {
-                    await Update(PropertyChange.Mode.RemoveFromSet, pid, value);
+                    await Update(PropertyChange.Mode.RemoveFromList, pid, value);
                 }
             }
         }
@@ -118,6 +119,22 @@ namespace n3q.Grains
                 return await GetPropertiesByAccess(pids.First(), native);
             }
             return await GetPropertiesByPid(pids, native);
+        }
+
+        public Task BeginTransaction(Guid tid)
+        {
+            if (_transactionId != Guid.Empty) {
+                throw new Exception($"Already in transaction {_transactionId}");
+            }
+
+            _transactionId = tid;
+            return Task.CompletedTask;
+        }
+
+        public Task EndTransaction(Guid tid, bool success)
+        {
+            _transactionId = Guid.Empty;
+            return Task.CompletedTask;
         }
 
         #endregion
