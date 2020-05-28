@@ -1,6 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using n3q.Items;
+using n3q.Tools;
 
 namespace n3q.Aspects
 {
@@ -19,8 +19,11 @@ namespace n3q.Aspects
             await AssertAspect();
             await self.AsItemCapacityLimit().AssertLimit(child);
 
-            var currentParent = await Item(await child.GetItemId(Pid.Container));
-            await currentParent.DeleteFromList(Pid.Contains, child.Id);
+            var parentId = await child.GetItemId(Pid.Container);
+            if (Has.Value(parentId)) {
+                var currentParent = await Item(parentId);
+                await currentParent.DeleteFromList(Pid.Contains, child.Id);
+            }
             await self.AddToList(Pid.Contains, child.Id);
             await child.Set(Pid.Container, Id);
         }

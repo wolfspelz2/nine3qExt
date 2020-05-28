@@ -99,23 +99,23 @@ namespace n3q.Aspects
         public IClusterClient ClusterClient { get; }
         public IGrainFactory GrainFactory { get; }
         public ItemSiloSimulator Simulator { get; }
-        public ItemTransaction Transaction { get; }
+        public ItemTransaction Transaction { get; set; }
 
-        public ItemStub(IClusterClient clusterClient, string itemId, ItemTransaction t)
+        public ItemStub(IClusterClient clusterClient, string itemId, ItemTransaction t = null)
         {
             ClusterClient = clusterClient;
             Id = itemId;
             Transaction = t;
         }
 
-        public ItemStub(IGrainFactory grainFactory, string id, ItemTransaction t)
+        public ItemStub(IGrainFactory grainFactory, string id, ItemTransaction t = null)
         {
             GrainFactory = grainFactory;
             Id = id;
             Transaction = t;
         }
 
-        public ItemStub(ItemSiloSimulator simulator, string id, ItemTransaction t)
+        public ItemStub(ItemSiloSimulator simulator, string id, ItemTransaction t = null)
         {
             Simulator = simulator;
             Id = id;
@@ -166,27 +166,32 @@ namespace n3q.Aspects
 
         #region IItem extensions
 
-        public Task ModifyProperties(PropertySet modified, PidSet deleted) { return Grain.ModifyProperties(modified, deleted, Transaction.Id); }
-        public Task AddToList(Pid pid, PropertyValue value) { return Grain.AddToList(pid, value, Transaction.Id); }
-        public Task DeleteFromList(Pid pid, PropertyValue value) { return Grain.DeleteFromList(pid, value, Transaction.Id); }
-        public Task<PropertySet> GetProperties(PidSet pids, bool native = false) { return Grain.GetProperties(pids, native); }
+        public Task ModifyProperties(PropertySet modified, PidSet deleted) { AssertTransaction(); return Grain.ModifyProperties(modified, deleted, Transaction.Id); }
+
+        public Task AddToList(Pid pid, PropertyValue value) { AssertTransaction(); return Grain.AddToList(pid, value, Transaction.Id); }
+        public Task DeleteFromList(Pid pid, PropertyValue value) { AssertTransaction(); return Grain.DeleteFromList(pid, value, Transaction.Id); }
+        public Task<PropertySet> GetProperties(PidSet pids, bool native = false) { AssertTransaction(); return Grain.GetProperties(pids, native); }
 
         public delegate Task TransactionWrappedCode(ItemStub item);
         public async Task WithTransaction(TransactionWrappedCode code)
         {
+            Transaction = new ItemTransaction();
             await Transaction.Begin(this);
             try {
                 await code(this);
                 await Transaction.Commit();
-            } catch {
+            } catch (Exception ex) {
+                _ = ex;
                 await Transaction.Cancel();
                 throw;
+            } finally {
+                Transaction = null;
             }
         }
-        public Task EndTransaction(bool success) { return Grain.EndTransaction(Transaction.Id, success); }
+        public Task EndTransaction(bool success) { AssertTransaction(); return Grain.EndTransaction(Transaction.Id, success); }
 
-        public async Task Set(Pid pid, PropertyValue value) { await Grain.ModifyProperties(new PropertySet(pid, value), PidSet.Empty, Transaction.Id); }
-        public async Task Delete(Pid pid) { await Grain.ModifyProperties(PropertySet.Empty, new PidSet { pid }, Transaction.Id); }
+        public async Task Set(Pid pid, PropertyValue value) { AssertTransaction(); await Grain.ModifyProperties(new PropertySet(pid, value), PidSet.Empty, Transaction.Id); }
+        public async Task Delete(Pid pid) { AssertTransaction(); await Grain.ModifyProperties(PropertySet.Empty, new PidSet { pid }, Transaction.Id); }
 
         public async Task<PropertyValue> Get(Pid pid)
         {
@@ -203,6 +208,13 @@ namespace n3q.Aspects
         public async Task<bool> GetBool(Pid pid) { return await Get(pid); }
         public async Task<string> GetItemId(Pid pid) { return await Get(pid); }
         public async Task<ItemIdSet> GetItemIdSet(Pid pid) { return await Get(pid); }
+
+        private void AssertTransaction()
+        {
+            if (Transaction == null) {
+                throw new Exception("No transaction");
+            }
+        }
 
         #endregion
 

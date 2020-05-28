@@ -58,14 +58,18 @@ namespace IntegrationTests
 
             var itemId = $"{nameof(ItemGrainTest)}-{nameof(ItemUpdate_after_Set)}-{RandomString.Get(10)}";
             var item = GrainClient.GetItemStub(itemId);
-            await item.ModifyProperties(new PropertySet { [Pid.TestInt] = 41 }, PidSet.Empty);
+            await item.WithTransaction(async self => {
+                await item.ModifyProperties(new PropertySet { [Pid.TestInt] = 41 }, PidSet.Empty);
+            });
 
             var handle = await GetItemStream().SubscribeAsync(updateReceiver);
             Task.Run(() => { }).PerformAsyncTaskWithoutAwait(t => { exceptions.Add(t.Exception); });
 
             try {
                 // Act
-                await item.ModifyProperties(new PropertySet { [Pid.TestInt] = 42 }, PidSet.Empty);
+                await item.WithTransaction(async self => {
+                    await item.ModifyProperties(new PropertySet { [Pid.TestInt] = 42 }, PidSet.Empty);
+                });
                 are.WaitOne(3000);
 
                 // Assert
@@ -101,24 +105,43 @@ namespace IntegrationTests
             var childId = $"{nameof(ItemGrainTest)}-{nameof(ItemUpdate_Container_AddChild) + "_CHILD"}-{RandomString.Get(10)}";
             var container = GrainClient.GetItemStub(containerId);
             var child = GrainClient.GetItemStub(childId);
-            await container.ModifyProperties(new PropertySet { [Pid.TestInt] = 42 }, PidSet.Empty);
-            await child.ModifyProperties(new PropertySet { [Pid.TestInt] = 42 }, PidSet.Empty);
+            await container.WithTransaction(async self => {
+                await self.ModifyProperties(new PropertySet { [Pid.ContainerAspect] = true, [Pid.TestInt] = 41 }, PidSet.Empty);
+            });
+            await child.WithTransaction(async self => {
+                await self.ModifyProperties(new PropertySet { [Pid.TestInt] = 42 }, PidSet.Empty);
+            });
 
             var handle = await GetItemStream().SubscribeAsync(updateReceiver);
             Task.Run(() => { }).PerformAsyncTaskWithoutAwait(t => { exceptions.Add(t.Exception); });
 
             try {
                 // Act
-                await container.AddToList(Pid.Contains, childId);
-                await child.ModifyProperties(new PropertySet { [Pid.Container] = containerId }, PidSet.Empty);
-                await child.ModifyProperties(new PropertySet { [Pid.TestInt] = 43 }, PidSet.Empty);
+                //await container.AddToList(Pid.Contains, childId);
+                //await child.ModifyProperties(new PropertySet { [Pid.Container] = containerId }, PidSet.Empty);
+                //await child.ModifyProperties(new PropertySet { [Pid.TestInt] = 43 }, PidSet.Empty);
+
+                await container.WithTransaction(async self => {
+                    //var localChild = self.  Item(childId);
+                    //await self.AsContainer().AddChild(localChild);
+                    //await localChild.Set(Pid.TestInt, 43);
+                });
+
                 are.WaitOne(3000);
 
                 // Assert
                 Assert.AreEqual(0, exceptions.Count);
 
-                var props = await child.GetProperties(new PidSet { Pid.TestInt });
-                Assert.AreEqual(43, (long)props[Pid.TestInt]);
+                {
+                    var props = await container.GetProperties(PidSet.All);
+                    Assert.IsTrue(props[Pid.Contains].IsInList(childId));
+                    Assert.AreEqual(41, (long)props[Pid.TestInt]);
+                }
+                {
+                    var props = await child.GetProperties(PidSet.All);
+                    Assert.AreEqual(containerId, (string)props[Pid.Container]);
+                    Assert.AreEqual(43, (long)props[Pid.TestInt]);
+                }
 
                 Assert.AreEqual(3, updates.Count);
 

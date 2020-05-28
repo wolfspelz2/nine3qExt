@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Orleans;
-using n3q.GrainInterfaces;
 using n3q.Items;
+using n3q.Tools;
 
 namespace n3q.Aspects
 {
@@ -12,20 +11,11 @@ namespace n3q.Aspects
         protected ItemStub self;
         protected string Id => self.Id;
 
-        //public IItem Grain(Item item)
-        //{
-        //    if (self.ClusterClient != null) {
-        //        return self.ClusterClient.GetGrain<IItem>(item.Id);
-        //    } else if (self.GrainFactory != null) {
-        //        return self.GrainFactory.GetGrain<IItem>(item.Id);
-        //    } else if (self.Simulator != null) {
-        //        return self.Simulator.GetGrain<IItem>(item.Id);
-        //    }
-        //    throw new Exception($"Need valid IClusterClient or IGrainFactory for id={Id}");
-        //}
-
         protected async Task<ItemStub> Item(string itemId)
         {
+            if (!Has.Value(itemId)) {
+                throw new Exception($"{nameof(Aspect)}.{nameof(Item)}: Empty or null itemId");
+            }
 
             var item = (ItemStub)null;
             if (self.ClusterClient != null) {
