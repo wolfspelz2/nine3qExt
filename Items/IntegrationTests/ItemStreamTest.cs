@@ -57,7 +57,7 @@ namespace IntegrationTests
             var updateReceiver = new UpdateReceiver(are, updates);
 
             var itemId = $"{nameof(ItemGrainTest)}-{nameof(ItemUpdate_after_Set)}-{RandomString.Get(10)}";
-            var item = GetItemGrain(itemId);
+            var item = GrainClient.GetItemStub(itemId);
             await item.ModifyProperties(new PropertySet { [Pid.TestInt] = 41 }, PidSet.Empty);
 
             var handle = await GetItemStream().SubscribeAsync(updateReceiver);
@@ -99,8 +99,8 @@ namespace IntegrationTests
 
             var containerId = $"{nameof(ItemGrainTest)}-{nameof(ItemUpdate_Container_AddChild) + "_CONTAINER"}-{RandomString.Get(10)}";
             var childId = $"{nameof(ItemGrainTest)}-{nameof(ItemUpdate_Container_AddChild) + "_CHILD"}-{RandomString.Get(10)}";
-            var container = GetItemGrain(containerId);
-            var child = GetItemGrain(childId);
+            var container = GrainClient.GetItemStub(containerId);
+            var child = GrainClient.GetItemStub(childId);
             await container.ModifyProperties(new PropertySet { [Pid.TestInt] = 42 }, PidSet.Empty);
             await child.ModifyProperties(new PropertySet { [Pid.TestInt] = 42 }, PidSet.Empty);
 

@@ -36,7 +36,7 @@ namespace n3q.Aspects
                 item = new ItemStub(self.Simulator, itemId, self.Transaction);
             }
             if (item != null) {
-                await item.BeginTransaction();
+                await item.BeginTransaction(self.Transaction.Id);
                 self.Transaction.AddItem(item);
                 return item;
             } else {

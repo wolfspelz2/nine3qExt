@@ -79,7 +79,7 @@ namespace IntegrationTests
             return client;
         }
 
-        ItemStub GetItemGrain(string id)
+        public static ItemStub GetItemStub(string id)
         {
             //return GrainClient.GrainFactory.GetGrain<IItem>(id);
             return new ItemStub(GrainFactory, id, new Transaction());

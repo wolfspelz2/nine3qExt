@@ -18,7 +18,7 @@ namespace IntegrationTests
         public async Task GetProperties()
         {
             // Arrange
-            var item = GetItemGrain($"{nameof(ItemGrainTest)}-{nameof(GetProperties)}-{RandomString.Get(10)}");
+            var item = GrainClient.GetItemStub($"{nameof(ItemGrainTest)}-{nameof(GetProperties)}-{RandomString.Get(10)}");
 
             try {
                 // Act
@@ -44,7 +44,7 @@ namespace IntegrationTests
         public async Task GetProperties_by_access_level()
         {
             // Arrange
-            var item = GetItemGrain($"{nameof(ItemGrainTest)}-{nameof(GetProperties_by_access_level)}-{RandomString.Get(10)}");
+            var item = GrainClient.GetItemStub($"{nameof(ItemGrainTest)}-{nameof(GetProperties_by_access_level)}-{RandomString.Get(10)}");
 
             try {
                 await item.ModifyProperties(new PropertySet {
@@ -71,7 +71,7 @@ namespace IntegrationTests
         public async Task GetProperties_by_PidSet()
         {
             // Arrange
-            var item = GetItemGrain($"{nameof(ItemGrainTest)}-{nameof(GetProperties_by_PidSet)}-{RandomString.Get(10)}");
+            var item = GrainClient.GetItemStub($"{nameof(ItemGrainTest)}-{nameof(GetProperties_by_PidSet)}-{RandomString.Get(10)}");
 
             try {
                 await item.ModifyProperties(new PropertySet {
@@ -99,7 +99,7 @@ namespace IntegrationTests
         public async Task SetGet_Modify_add_set_delete()
         {
             // Arrange
-            var item = GetItemGrain($"{nameof(ItemGrainTest)}-{nameof(SetGet_Modify_add_set_delete)}-{RandomString.Get(10)}");
+            var item = GrainClient.GetItemStub($"{nameof(ItemGrainTest)}-{nameof(SetGet_Modify_add_set_delete)}-{RandomString.Get(10)}");
 
             try {
                 await item.ModifyProperties(new PropertySet {
@@ -186,8 +186,8 @@ namespace IntegrationTests
             // Arrange
             var itemId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_with_template)}-{RandomString.Get(10)}";
             var tmplId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_with_template) + "_TEMPLATE"}-{RandomString.Get(10)}";
-            var item = GetItemGrain(itemId);
-            var tmpl = GetItemGrain(tmplId);
+            var item = GrainClient.GetItemStub(itemId);
+            var tmpl = GrainClient.GetItemStub(tmplId);
 
             try {
                 await item.ModifyProperties(new PropertySet {
@@ -216,8 +216,8 @@ namespace IntegrationTests
             // Arrange
             var itemId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template)}-{RandomString.Get(10)}";
             var tmplId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template) + "_TEMPLATE"}-{RandomString.Get(10)}";
-            var item = GetItemGrain(itemId);
-            var tmpl = GetItemGrain(tmplId);
+            var item = GrainClient.GetItemStub(itemId);
+            var tmpl = GrainClient.GetItemStub(tmplId);
 
             try {
                 await item.ModifyProperties(new PropertySet {
@@ -257,8 +257,8 @@ namespace IntegrationTests
             // Arrange
             var itemId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template_and_native)}-{RandomString.Get(10)}";
             var tmplId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template_and_native) + "_TEMPLATE"}-{RandomString.Get(10)}";
-            var item = GetItemGrain(itemId);
-            var tmpl = GetItemGrain(tmplId);
+            var item = GrainClient.GetItemStub(itemId);
+            var tmpl = GrainClient.GetItemStub(tmplId);
 
             try {
                 await item.ModifyProperties(new PropertySet {

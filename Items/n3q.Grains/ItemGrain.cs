@@ -65,6 +65,8 @@ namespace n3q.Grains
 
         public async Task ModifyProperties(PropertySet modified, PidSet deleted, Guid tid)
         {
+            AssertCurrentTransaction(tid);
+
             var changes = new List<PropertyChange> { };
 
             foreach (var pair in modified) {
@@ -91,6 +93,8 @@ namespace n3q.Grains
 
         public async Task AddToList(Pid pid, PropertyValue value, Guid tid)
         {
+            AssertCurrentTransaction(tid);
+
             if (Properties.TryGetValue(pid, out var current)) {
                 if (current.AddToSet(value)) {
                     await Update(PropertyChange.Mode.AddToList, pid, value);
@@ -103,6 +107,8 @@ namespace n3q.Grains
 
         public async Task DeleteFromList(Pid pid, PropertyValue value, Guid tid)
         {
+            AssertCurrentTransaction(tid);
+
             if (Properties.TryGetValue(pid, out var current)) {
                 if (current.RemoveFromSet(value)) {
                     await Update(PropertyChange.Mode.RemoveFromList, pid, value);
@@ -140,6 +146,14 @@ namespace n3q.Grains
         #endregion
 
         #region Internal
+
+        private void AssertCurrentTransaction(Guid tid)
+        {
+            if (_transactionId == Guid.Empty) { return; }
+            if (_transactionId != tid) {
+                throw new Exception($"Already in transaction {_transactionId}");
+            }
+        }
 
         private async Task<PropertySet> GetPropertiesAll(bool native = false)
         {

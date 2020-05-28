@@ -23,8 +23,8 @@ namespace IntegrationTests
             var workId = Guid.NewGuid();
             var greetUserId = $"{nameof(WorkGrainTest)}-{nameof(Run_Greeter) + "_GREETUSER"}-{RandomString.Get(10)}";
             var greeterId = $"{nameof(WorkGrainTest)}-{nameof(Run_Greeter) + "_GREETER"}-{RandomString.Get(10)}";
-            var greetUser = GetItemGrain(greetUserId);
-            var greeter = GetItemGrain(greeterId);
+            var greetUser = GrainClient.GetItemStub(greetUserId);
+            var greeter = GrainClient.GetItemStub(greeterId);
 
             try {
                 await greetUser.ModifyProperties(new PropertySet { [Pid.TestGreetUserAspect] = true }, PidSet.Empty);
