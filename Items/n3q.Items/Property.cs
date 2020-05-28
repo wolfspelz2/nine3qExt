@@ -164,7 +164,7 @@ namespace n3q.Items
             [Pid.RezzedX] = new Definition(Pid.RezzedX, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "735", "Position of item in room if rezzed."),
 
             [Pid.FirstAspect] = new Definition(Pid.FirstAspect, Type.Unknown, Use.Unknown, Group.Unknown, Access.System, Persistence.Fixed, "", ""),
-            [Pid.TestGreetUserAspect] = new Definition(Pid.TestGreetUserAspect, Type.Bool, Use.Bool, Group.Aspect, Access.System, Persistence.Fixed, "true", "Test aspect flag"),
+            [Pid.TestGreetedAspect] = new Definition(Pid.TestGreetedAspect, Type.Bool, Use.Bool, Group.Aspect, Access.System, Persistence.Fixed, "true", "Test aspect flag"),
             [Pid.TestGreeterAspect] = new Definition(Pid.TestGreeterAspect, Type.Bool, Use.Bool, Group.Aspect, Access.System, Persistence.Fixed, "true", "Test aspect flag"),
             [Pid.ContainerAspect] = new Definition(Pid.ContainerAspect, Type.Bool, Use.Bool, Group.Aspect, Access.System, Persistence.Fixed, "true", "Item is a container for other items."),
             [Pid.ItemCapacityLimitAspect] = new Definition(Pid.ItemCapacityLimitAspect, Type.Bool, Use.Bool, Group.Aspect, Access.System, Persistence.Fixed, "true", "Item is a container with capacity limit"),
@@ -172,17 +172,22 @@ namespace n3q.Items
             [Pid.IframeAspect] = new Definition(Pid.IframeAspect, Type.Bool, Use.Bool, Group.Aspect, Access.Public, Persistence.Fixed, "true", "True if item opens an iframe on click."),
 
             [Pid.FirstParameter] = new Definition(Pid.FirstParameter, Type.Unknown, Use.Unknown, Group.Unknown, Access.System, Persistence.Fixed, "", ""),
-            [Pid.TestGreeterPrefix] = new Definition(Pid.TestGreeterPrefix, Type.String, Use.String, Group.Parameter, Access.System, Persistence.Unknown, "1", "TestGreeter greeting prefix"),
-            [Pid.RezRoom] = new Definition(Pid.RezRoom, Type.Item, Use.Item, Group.Parameter, Access.System, Persistence.Unknown, "1", "Room to rez to by Rezable.Rez."),
-            [Pid.DerezUser] = new Definition(Pid.DerezUser, Type.Item, Use.Item, Group.Parameter, Access.System, Persistence.Unknown, "1", "User to derez to by Rezable.Derez."),
+            [Pid.TestGreeted_Item] = new Definition(Pid.TestGreeted_Item, Type.String, Use.Item, Group.Parameter, Access.System, Persistence.Transient, "1", "Greeter item id"),
+            [Pid.TestGreeted_Name] = new Definition(Pid.TestGreeted_Name, Type.String, Use.String, Group.Parameter, Access.System, Persistence.Transient, "World", "Greeted name"),
+            [Pid.TestGreeter_Result] = new Definition(Pid.TestGreeter_Result, Type.String, Use.String, Group.Parameter, Access.System, Persistence.Persistent, "Hello World", "Greeting result stored by Greeter before return"),
+            [Pid.TestGreeted_Result] = new Definition(Pid.TestGreeted_Result, Type.String, Use.String, Group.Parameter, Access.System, Persistence.Persistent, "Hello World", "Greeting result stored by Greeted"),
+            [Pid.RezRoom] = new Definition(Pid.RezRoom, Type.Item, Use.Item, Group.Parameter, Access.System, Persistence.Transient, "1", "Room to rez to by Rezable.Rez."),
+            [Pid.DerezUser] = new Definition(Pid.DerezUser, Type.Item, Use.Item, Group.Parameter, Access.System, Persistence.Transient, "1", "User to derez to by Rezable.Derez."),
 
             [Pid.FirstApp] = new Definition(Pid.FirstApp, Type.Unknown, Use.Unknown, Group.Unknown, Access.System, Persistence.Fixed, "", ""),
+            [Pid.TestGreeterPrefix] = new Definition(Pid.TestGreeterPrefix, Type.String, Use.String, Group.Parameter, Access.System, Persistence.Persistent, "Hello ", "Greeting prefix"),
             [Pid.ContainerItemLimit] = new Definition(Pid.ContainerItemLimit, Type.Int, Use.Int, Group.Generic, Access.Public, Persistence.Persistent, "3", "Number of items in the container counting stacksize."),
-            [Pid.IframeUrl] = new Definition(Pid.IframeUrl, Type.String, Use.Url, Group.App, Access.Public, Persistence.Fixed, "IFrameUrl", "TODO."),
-            [Pid.IframeWidth] = new Definition(Pid.IframeWidth, Type.Int, Use.String, Group.App, Access.Public, Persistence.Fixed, "IFrameWidth", "TODO."),
-            [Pid.IframeHeight] = new Definition(Pid.IframeHeight, Type.Int, Use.Int, Group.App, Access.Public, Persistence.Fixed, "IFrameHeight", "TODO."),
-            [Pid.IframeResizeable] = new Definition(Pid.IframeResizeable, Type.Bool, Use.Bool, Group.App, Access.Public, Persistence.Fixed, "IFrameResizable", "TODO."),
-            [Pid.FirstAttribute] = new Definition(Pid.FirstAttribute, Type.Unknown, Use.Unknown, Group.Unknown, Access.System, Persistence.Fixed, "", ""),
+            [Pid.IframeUrl] = new Definition(Pid.IframeUrl, Type.String, Use.Url, Group.App, Access.Public, Persistence.Persistent, "IFrameUrl", "TODO."),
+            [Pid.IframeWidth] = new Definition(Pid.IframeWidth, Type.Int, Use.String, Group.App, Access.Public, Persistence.Persistent, "IFrameWidth", "TODO."),
+            [Pid.IframeHeight] = new Definition(Pid.IframeHeight, Type.Int, Use.Int, Group.App, Access.Public, Persistence.Persistent, "IFrameHeight", "TODO."),
+            [Pid.IframeResizeable] = new Definition(Pid.IframeResizeable, Type.Bool, Use.Bool, Group.App, Access.Public, Persistence.Persistent, "IFrameResizable", "TODO."),
+            
+            [Pid.FirstUserAttribute] = new Definition(Pid.FirstUserAttribute, Type.Unknown, Use.Unknown, Group.Unknown, Access.System, Persistence.Fixed, "", ""),
 
             [Pid.LastProperty] = new Definition(Pid.LastProperty, Type.Unknown, Use.Unknown, Group.Unknown, Access.System, Persistence.Fixed, "", ""),
 

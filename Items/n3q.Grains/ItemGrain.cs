@@ -23,9 +23,8 @@ namespace n3q.Grains
     class ItemGrain : Grain, IItem
     //, IAsyncObserver<ItemUpdate>
     {
-        string Id => _state.State.Id;
+        string Id => this.GetPrimaryKeyString();
         public PropertySet Properties { get; set; }
-        public ItemCore Impl { get; private set; }
 
         readonly string _streamNamespace = ItemService.StreamNamespace;
         readonly Guid _streamId = ItemService.StreamGuid;
@@ -71,15 +70,11 @@ namespace n3q.Grains
 
             foreach (var pair in modified) {
                 var pid = pair.Key;
-                if (!PropertyValue.AreEquivalent(pid, Properties.Get(pid), pair.Value)) {
-                    _changes.Add(new PropertyChange(PropertyChange.Mode.SetProperty, pid, pair.Value));
-                }
+                _changes.Add(new PropertyChange(PropertyChange.Mode.SetProperty, pid, pair.Value));
             }
 
             foreach (var pid in deleted) {
-                if (!PropertyValue.AreEquivalent(pid, Properties.Get(pid), PropertyValue.Default(pid))) {
-                    _changes.Add(new PropertyChange(PropertyChange.Mode.DeleteProperty, pid, null));
-                }
+                _changes.Add(new PropertyChange(PropertyChange.Mode.DeleteProperty, pid, null));
             }
 
             if (tid == Guid.Empty) {
@@ -144,8 +139,10 @@ namespace n3q.Grains
 
         public async Task EndTransaction(Guid tid, bool success)
         {
-            if (success) {
-                await ApplyChanges();
+            if (IsCurrentTransaction(tid)) {
+                if (success) {
+                    await ApplyChanges();
+                }
             }
 
             _transactionId = Guid.Empty;
@@ -158,15 +155,17 @@ namespace n3q.Grains
 
         private void AssertCurrentTransaction(Guid tid)
         {
-            if (_transactionId == Guid.Empty) {
-                _changes = new List<PropertyChange>();
-                return;
-            } else {
-                if (_transactionId != tid) {
+            if (HasCurrentTransaction()) {
+                if (!IsCurrentTransaction(tid)) {
                     throw new Exception($"Already in transaction {_transactionId}");
                 }
+            } else {
+                _changes = new List<PropertyChange>();
             }
         }
+
+        private bool HasCurrentTransaction() => _transactionId == Guid.Empty;
+        private bool IsCurrentTransaction(Guid tid) => _transactionId == tid;
 
         private async Task<PropertySet> GetPropertiesAll(bool native = false)
         {

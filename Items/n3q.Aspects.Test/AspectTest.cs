@@ -13,7 +13,7 @@ namespace n3q.Items.Test
         public void AsAspect()
         {
             var siloSimulator = new ItemSiloSimulator();
-            ItemStub GetItem(string id) { return new ItemStub(siloSimulator, id, new Transaction()); }
+            ItemStub GetItem(string id) { return new ItemStub(siloSimulator, id, new ItemTransaction()); }
 
             var itemId = $"{nameof(AspectTest)}-{nameof(AsAspect)}-{RandomString.Get(10)}";
             var item = GetItem(itemId);

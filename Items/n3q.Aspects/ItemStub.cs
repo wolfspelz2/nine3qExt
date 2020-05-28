@@ -94,27 +94,28 @@ namespace n3q.Aspects
 
     public class ItemStub : IItem
     {
+        public string Id { get; }
+
         public IClusterClient ClusterClient { get; }
         public IGrainFactory GrainFactory { get; }
         public ItemSiloSimulator Simulator { get; }
-        public string Id { get; }
-        public Transaction Transaction { get; }
+        public ItemTransaction Transaction { get; }
 
-        public ItemStub(IClusterClient clusterClient, string itemId, Transaction t)
+        public ItemStub(IClusterClient clusterClient, string itemId, ItemTransaction t)
         {
             ClusterClient = clusterClient;
             Id = itemId;
             Transaction = t;
         }
 
-        public ItemStub(IGrainFactory grainFactory, string id, Transaction t)
+        public ItemStub(IGrainFactory grainFactory, string id, ItemTransaction t)
         {
             GrainFactory = grainFactory;
             Id = id;
             Transaction = t;
         }
 
-        public ItemStub(ItemSiloSimulator simulator, string id, Transaction t)
+        public ItemStub(ItemSiloSimulator simulator, string id, ItemTransaction t)
         {
             Simulator = simulator;
             Id = id;
@@ -147,9 +148,9 @@ namespace n3q.Aspects
 
         #region IItem
 
-        public Task ModifyProperties(PropertySet modified, PidSet deleted, Guid tid) { throw new NotImplementedException(); }
-        public Task AddToList(Pid pid, PropertyValue value, Guid tid) { throw new NotImplementedException(); }
-        public Task DeleteFromList(Pid pid, PropertyValue value, Guid tid) { throw new NotImplementedException(); }
+        public Task ModifyProperties(PropertySet modified, PidSet deleted, Guid tid) { return Grain.ModifyProperties(modified, deleted, tid); }
+        public Task AddToList(Pid pid, PropertyValue value, Guid tid) { return Grain.AddToList(pid, value, tid); }
+        public Task DeleteFromList(Pid pid, PropertyValue value, Guid tid) { return Grain.DeleteFromList(pid, value, tid); }
 
         public Task BeginTransaction(Guid tid) { return Grain.BeginTransaction(tid); }
         public Task EndTransaction(Guid tid, bool success) { return Grain.EndTransaction(tid, success); }
@@ -170,10 +171,17 @@ namespace n3q.Aspects
         public Task DeleteFromList(Pid pid, PropertyValue value) { return Grain.DeleteFromList(pid, value, Transaction.Id); }
         public Task<PropertySet> GetProperties(PidSet pids, bool native = false) { return Grain.GetProperties(pids, native); }
 
-        public async Task<Transaction> BeginTransaction()
+        public delegate Task TransactionWrappedCode(ItemStub item);
+        public async Task WithTransaction(TransactionWrappedCode code)
         {
-            await Grain.BeginTransaction(Transaction.Id);
-            return Transaction;
+            await Transaction.Begin(this);
+            try {
+                await code(this);
+                await Transaction.Commit();
+            } catch {
+                await Transaction.Cancel();
+                throw;
+            }
         }
         public Task EndTransaction(bool success) { return Grain.EndTransaction(Transaction.Id, success); }
 

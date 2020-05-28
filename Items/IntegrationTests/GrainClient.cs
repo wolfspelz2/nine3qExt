@@ -82,7 +82,7 @@ namespace IntegrationTests
         public static ItemStub GetItemStub(string id)
         {
             //return GrainClient.GrainFactory.GetGrain<IItem>(id);
-            return new ItemStub(GrainFactory, id, new Transaction());
+            return new ItemStub(GrainFactory, id, new ItemTransaction());
         }
 
         [AssemblyInitialize]

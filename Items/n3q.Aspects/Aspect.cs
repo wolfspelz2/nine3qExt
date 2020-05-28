@@ -36,8 +36,7 @@ namespace n3q.Aspects
                 item = new ItemStub(self.Simulator, itemId, self.Transaction);
             }
             if (item != null) {
-                await item.BeginTransaction(self.Transaction.Id);
-                self.Transaction.AddItem(item);
+                await self.Transaction.AddItem(item);
                 return item;
             } else {
                 throw new Exception($"Need valid IClusterClient or IGrainFactory for id={Id}");
@@ -72,7 +71,7 @@ namespace n3q.Aspects
         }
 
         public delegate Aspect AspectSpecializer(ItemStub item);
-        public delegate Task<PropertyValue> ActionHandler(PropertySet args);
+        public delegate Task ActionHandler(PropertySet args);
 
         public class ActionDescription
         {
@@ -86,15 +85,14 @@ namespace n3q.Aspects
             return null;
         }
 
-        public Task<PropertyValue> Run(string action, PropertySet arguments)
+        public async Task Run(string action, PropertySet arguments)
         {
             var actions = GetActionList();
             if (actions != null) {
                 if (actions.ContainsKey(action)) {
-                    return actions[action].Handler(arguments);
+                    await actions[action].Handler(arguments);
                 }
             }
-            return Task.FromResult(PropertyValue.Empty);
         }
     }
 }
