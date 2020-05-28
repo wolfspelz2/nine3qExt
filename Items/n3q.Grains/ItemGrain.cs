@@ -127,8 +127,8 @@ namespace n3q.Grains
 
         public Task BeginTransaction(Guid tid)
         {
-            if (_transactionId != Guid.Empty) {
-                throw new Exception($"Already in transaction {_transactionId}");
+            if (HasCurrentTransaction()) {
+                throw new Exception($"BeginTransaction: already in transaction current={_transactionId} tid={tid}");
             }
 
             _transactionId = tid;
@@ -139,9 +139,11 @@ namespace n3q.Grains
 
         public async Task EndTransaction(Guid tid, bool success)
         {
-            if (IsCurrentTransaction(tid)) {
-                if (success) {
-                    await ApplyChanges();
+            if (HasCurrentTransaction()) {
+                if (IsCurrentTransaction(tid)) {
+                    if (success) {
+                        await ApplyChanges();
+                    }
                 }
             }
 
@@ -157,15 +159,15 @@ namespace n3q.Grains
         {
             if (HasCurrentTransaction()) {
                 if (!IsCurrentTransaction(tid)) {
-                    throw new Exception($"Already in transaction {_transactionId}");
+                    throw new Exception($"AssertCurrentTransaction: already in different transaction current={_transactionId} tid={tid}");
                 }
             } else {
                 _changes = new List<PropertyChange>();
             }
         }
 
-        private bool HasCurrentTransaction() => _transactionId == Guid.Empty;
-        private bool IsCurrentTransaction(Guid tid) => _transactionId == tid;
+        private bool HasCurrentTransaction() => _transactionId != Guid.Empty;
+        private bool IsCurrentTransaction(Guid tid) => tid == _transactionId;
 
         private async Task<PropertySet> GetPropertiesAll(bool native = false)
         {
