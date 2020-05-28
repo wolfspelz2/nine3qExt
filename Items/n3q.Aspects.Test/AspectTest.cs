@@ -21,19 +21,19 @@ namespace n3q.Items.Test
             Assert.AreEqual(nameof(TestGreeter), aspectName);
         }
 
-        [TestMethod]
-        public async Task Execute()
-        {
-            var siloSimulator = new ItemSiloSimulator();
-            Item GetItem(string id) { return new Item(siloSimulator, id); }
+        //[TestMethod]
+        //public async Task Execute()
+        //{
+        //    var siloSimulator = new ItemSiloSimulator();
+        //    Item GetItem(string id) { return new Item(siloSimulator, id); }
 
-            var greetUserId = $"{nameof(AspectTest)}-{nameof(Execute) + "_GREETUSER"}-{RandomString.Get(10)}";
-            var greeterId = $"{nameof(AspectTest)}-{nameof(Execute) + "_GREETER"}-{RandomString.Get(10)}";
-            var greetUser = GetItem(greetUserId);
-            var aspect = greetUser.AsAspect(Pid.TestGreetUserAspect);
-            var greeting = await aspect.Run(nameof(TestGreetUser.UseGreeter), new PropertySet { [Pid.Item] = greeterId, [Pid.Name] = "World" });
-            Assert.AreEqual("Hello World", (string)greeting);
-        }
+        //    var greetUserId = $"{nameof(AspectTest)}-{nameof(Execute) + "_GREETUSER"}-{RandomString.Get(10)}";
+        //    var greeterId = $"{nameof(AspectTest)}-{nameof(Execute) + "_GREETER"}-{RandomString.Get(10)}";
+        //    var greetUser = GetItem(greetUserId);
+        //    var aspect = greetUser.AsAspect(Pid.TestGreetUserAspect);
+        //    var greeting = await aspect.Run(nameof(TestGreetUser.UseGreeter), new PropertySet { [Pid.Item] = greeterId, [Pid.Name] = "World" });
+        //    Assert.AreEqual("Hello World", (string)greeting);
+        //}
 
     }
 }
