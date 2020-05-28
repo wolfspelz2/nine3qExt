@@ -280,6 +280,7 @@ namespace n3q.Grains
                         } else {
                             pv = new PropertyValue();
                             pv.AddToList(value);
+                            Properties[pid] = pv;
                         }
                     }
                     break;

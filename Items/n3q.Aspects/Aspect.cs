@@ -11,26 +11,30 @@ namespace n3q.Aspects
         protected ItemStub self;
         protected string Id => self.Id;
 
+        //protected async Task<ItemStub> Item(string itemId)
+        //{
+        //    if (!Has.Value(itemId)) {
+        //        throw new Exception($"{nameof(Aspect)}.{nameof(Item)}: Empty or null itemId");
+        //    }
+
+        //    var item = (ItemStub)null;
+        //    if (self.ClusterClient != null) {
+        //        item= new ItemStub(self.ClusterClient, itemId, self.Transaction);
+        //    } else if (self.GrainFactory != null) {
+        //        item = new ItemStub(self.GrainFactory, itemId, self.Transaction);
+        //    } else if (self.Simulator != null) {
+        //        item = new ItemStub(self.Simulator, itemId, self.Transaction);
+        //    }
+        //    if (item != null) {
+        //        await self.Transaction.AddItem(item);
+        //        return item;
+        //    } else {
+        //        throw new Exception($"Need valid IClusterClient or IGrainFactory for id={Id}");
+        //    }
+        //}
         protected async Task<ItemStub> Item(string itemId)
         {
-            if (!Has.Value(itemId)) {
-                throw new Exception($"{nameof(Aspect)}.{nameof(Item)}: Empty or null itemId");
-            }
-
-            var item = (ItemStub)null;
-            if (self.ClusterClient != null) {
-                item= new ItemStub(self.ClusterClient, itemId, self.Transaction);
-            } else if (self.GrainFactory != null) {
-                item = new ItemStub(self.GrainFactory, itemId, self.Transaction);
-            } else if (self.Simulator != null) {
-                item = new ItemStub(self.Simulator, itemId, self.Transaction);
-            }
-            if (item != null) {
-                await self.Transaction.AddItem(item);
-                return item;
-            } else {
-                throw new Exception($"Need valid IClusterClient or IGrainFactory for id={Id}");
-            }
+            return await self.Item(itemId);
         }
 
         public virtual Pid GetAspectPid() => Pid.FirstAspect;

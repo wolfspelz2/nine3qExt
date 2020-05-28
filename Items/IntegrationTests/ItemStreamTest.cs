@@ -9,6 +9,7 @@ using n3q.Tools;
 using n3q.Items;
 using n3q.GrainInterfaces;
 using n3q.Aspects;
+using System.Linq;
 
 namespace IntegrationTests
 {
@@ -122,9 +123,10 @@ namespace IntegrationTests
                 //await child.ModifyProperties(new PropertySet { [Pid.TestInt] = 43 }, PidSet.Empty);
 
                 await container.WithTransaction(async self => {
-                    //var localChild = self.  Item(childId);
-                    //await self.AsContainer().AddChild(localChild);
-                    //await localChild.Set(Pid.TestInt, 43);
+                    var localChild = await self.Item(childId);
+                    await self.AsContainer().AddChild(localChild);
+                    await self.Set(Pid.TestInt, 43);
+                    await localChild.Set(Pid.TestInt, 44);
                 });
 
                 are.WaitOne(3000);
@@ -135,27 +137,20 @@ namespace IntegrationTests
                 {
                     var props = await container.GetProperties(PidSet.All);
                     Assert.IsTrue(props[Pid.Contains].IsInList(childId));
-                    Assert.AreEqual(41, (long)props[Pid.TestInt]);
+                    Assert.AreEqual(43, (long)props[Pid.TestInt]);
                 }
                 {
                     var props = await child.GetProperties(PidSet.All);
                     Assert.AreEqual(containerId, (string)props[Pid.Container]);
-                    Assert.AreEqual(43, (long)props[Pid.TestInt]);
+                    Assert.AreEqual(44, (long)props[Pid.TestInt]);
                 }
 
-                Assert.AreEqual(3, updates.Count);
+                Assert.AreEqual(2, updates.Count);
 
-                Assert.AreEqual(containerId, updates[0].ItemId);
-                Assert.AreEqual(Pid.Contains, updates[0].Changes[0].Pid);
-                Assert.AreEqual(childId, (string)updates[0].Changes[0].Value);
-
-                Assert.AreEqual(childId, updates[1].ItemId);
-                Assert.AreEqual(Pid.Container, updates[1].Changes[0].Pid);
-                Assert.AreEqual(containerId, (string)updates[1].Changes[0].Value);
-
-                Assert.AreEqual(childId, updates[2].ItemId);
-                Assert.AreEqual(Pid.TestInt, updates[2].Changes[0].Pid);
-                Assert.AreEqual(43, (long)updates[2].Changes[0].Value);
+                Assert.IsNotNull(updates.Where(update => update.ItemId == containerId).SelectMany(update => update.Changes).Where(change => change.Pid == Pid.Contains && change.Value == childId).FirstOrDefault());
+                Assert.IsNotNull(updates.Where(update => update.ItemId == containerId).SelectMany(update => update.Changes).Where(change => change.Pid == Pid.TestInt && change.Value == 43).FirstOrDefault());
+                Assert.IsNotNull(updates.Where(update => update.ItemId == childId).SelectMany(update => update.Changes).Where(change => change.Pid == Pid.Container && change.Value == containerId).FirstOrDefault());
+                Assert.IsNotNull(updates.Where(update => update.ItemId == childId).SelectMany(update => update.Changes).Where(change => change.Pid == Pid.TestInt && change.Value == 44).FirstOrDefault());
 
             } finally {
                 // Cleanup

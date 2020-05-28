@@ -294,7 +294,7 @@ namespace IntegrationTests
                         [Pid.TestString3] = "item.TestString3", // both get
                     }, PidSet.Empty);
                 });
-                await item.WithTransaction(async self => {
+                await tmpl.WithTransaction(async self => {
                     await self.ModifyProperties(new PropertySet {
                         [Pid.TestString2] = "tmpl.TestString2", // both
                         [Pid.TestString3] = "tmpl.TestString3", // both get
@@ -310,7 +310,6 @@ namespace IntegrationTests
                 Assert.AreEqual(2, props.Count);
                 Assert.AreEqual("item.TestString1", (string)props.Get(Pid.TestString1));
                 Assert.AreEqual("item.TestString3", (string)props.Get(Pid.TestString3));
-                //Assert.AreEqual("tmpl.TestString5", (string)props.Get(Pid.TestString5));
 
             } finally {
                 // Cleanup

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using n3q.Items;
 using System;
 using System.Collections.Generic;
+using n3q.Tools;
 
 namespace n3q.Aspects
 {
@@ -136,6 +137,28 @@ namespace n3q.Aspects
             }
         }
 
+        public async Task<ItemStub> Item(string itemId)
+        {
+            if (!Has.Value(itemId)) {
+                throw new Exception($"{nameof(Aspect)}.{nameof(Item)}: Empty or null itemId");
+            }
+
+            var item = (ItemStub)null;
+            if (ClusterClient != null) {
+                item = new ItemStub(ClusterClient, itemId, Transaction);
+            } else if (GrainFactory != null) {
+                item = new ItemStub(GrainFactory, itemId, Transaction);
+            } else if (Simulator != null) {
+                item = new ItemStub(Simulator, itemId, Transaction);
+            }
+            if (item != null) {
+                await Transaction.AddItem(item);
+                return item;
+            } else {
+                throw new Exception($"Need valid IClusterClient or IGrainFactory for id={Id}");
+            }
+        }
+
         public Aspect AsAspect(Pid pid)
         {
             if (AspectRegistry.Aspects.ContainsKey(pid)) {
@@ -170,7 +193,7 @@ namespace n3q.Aspects
 
         public Task AddToList(Pid pid, PropertyValue value) { AssertTransaction(); return Grain.AddToList(pid, value, Transaction.Id); }
         public Task DeleteFromList(Pid pid, PropertyValue value) { AssertTransaction(); return Grain.DeleteFromList(pid, value, Transaction.Id); }
-        public Task<PropertySet> GetProperties(PidSet pids, bool native = false) { AssertTransaction(); return Grain.GetProperties(pids, native); }
+        public Task<PropertySet> GetProperties(PidSet pids, bool native = false) { return Grain.GetProperties(pids, native); }
 
         public delegate Task TransactionWrappedCode(ItemStub item);
         public async Task WithTransaction(TransactionWrappedCode code)
