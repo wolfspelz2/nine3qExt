@@ -18,14 +18,15 @@ namespace n3q.Aspects
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { Action.UseGreeter.ToString(), new ActionDescription() { Handler = async (args) => await UseGreeter(Item(args.Get(Pid.Item)), args.Get(Pid.Name)) } },
+                { nameof(Action.UseGreeter), new ActionDescription() { Handler = async (args) => await UseGreeter(Item(args.Get(Pid.Item)), args.Get(Pid.Name)) } },
             };
         }
 
         public async Task<PropertyValue> UseGreeter(Item passiveItem, string name)
         {
             //await AssertAspect();
-            return await passiveItem.AsTestGreeter().Greet(name);
+            var greeting = await passiveItem.AsTestGreeter().Greet(name);
+            return greeting;
             //return PropertyValue.Empty;
         }
 

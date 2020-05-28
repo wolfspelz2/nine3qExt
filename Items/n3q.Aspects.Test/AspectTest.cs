@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using n3q.Aspects;
 using n3q.Tools;
@@ -12,7 +13,7 @@ namespace n3q.Items.Test
         public void AsAspect()
         {
             var siloSimulator = new ItemSiloSimulator();
-            Item GetItem(string id) { return new Item(siloSimulator, id); }
+            Item GetItem(string id) { return new Item(siloSimulator, id, Guid.Empty); }
 
             var itemId = $"{nameof(AspectTest)}-{nameof(AsAspect)}-{RandomString.Get(10)}";
             var item = GetItem(itemId);

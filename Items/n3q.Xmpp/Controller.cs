@@ -90,7 +90,7 @@ namespace XmppComponent
             }
         }
 
-        Item GetItemX(string roomId) { return new Item(_clusterClient, roomId); }
+        Item GetItem(string roomId) { return new Item(_clusterClient, roomId, Guid.Empty); }
         IWorker Worker => _clusterClient.GetGrain<IWorker>(Guid.Empty);
 
         #endregion
@@ -309,7 +309,7 @@ namespace XmppComponent
             var roomId = roomItem.RoomId;
             var itemId = roomItem.ItemId;
 
-            var props = await GetItemX(itemId).GetProperties(PidSet.Public);
+            var props = await GetItem(itemId).GetProperties(PidSet.Public);
 
             var name = props.GetString(Pid.Name);
             if (string.IsNullOrEmpty(name)) { name = props.Get(Pid.Label); }

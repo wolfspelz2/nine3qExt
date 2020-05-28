@@ -84,29 +84,31 @@ namespace n3q.Aspects
 
     public class Item : IItem
     {
-        public class IDevNull { }
-
         public IClusterClient ClusterClient { get; }
         public IGrainFactory GrainFactory { get; }
         public ItemSiloSimulator Simulator { get; }
         public string Id { get; }
+        public Guid Tid;
 
-        public Item(IClusterClient clusterClient, string itemId)
+        public Item(IClusterClient clusterClient, string itemId, Guid tid)
         {
             ClusterClient = clusterClient;
             Id = itemId;
+            Tid = tid;
         }
 
-        public Item(IGrainFactory grainFactory, string id)
+        public Item(IGrainFactory grainFactory, string id, Guid tid)
         {
             GrainFactory = grainFactory;
             Id = id;
+            Tid = tid;
         }
 
-        public Item(ItemSiloSimulator simulator, string id)
+        public Item(ItemSiloSimulator simulator, string id, Guid tid)
         {
             Simulator = simulator;
             Id = id;
+            Tid = tid;
         }
 
         public IItem Grain

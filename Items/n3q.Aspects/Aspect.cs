@@ -28,11 +28,11 @@ namespace n3q.Aspects
         protected Item Item(string itemId)
         {
             if (self.ClusterClient != null) {
-                return new Item(self.ClusterClient, itemId);
+                return new Item(self.ClusterClient, itemId, self.Tid);
             } else if (self.GrainFactory != null) {
-                return new Item(self.GrainFactory, itemId);
+                return new Item(self.GrainFactory, itemId, self.Tid);
             } else if (self.Simulator != null) {
-                return new Item(self.Simulator, itemId);
+                return new Item(self.Simulator, itemId, self.Tid);
             }
             throw new Exception($"Need valid IClusterClient or IGrainFactory for id={Id}");
         }

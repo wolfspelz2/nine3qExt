@@ -11,13 +11,11 @@ namespace n3q.Grains
     [StatelessWorker]
     class WorkerGrain : Grain, IWorker
     {
-        Item GetItem(string id) { return new Item(GrainFactory, id); }
-
         #region Interface
 
         public async Task<PropertyValue> Run(string itemId, Pid aspectPid, string actionName, PropertySet args = null)
         {
-            var item = GetItem(itemId);
+            var item = new Item(GrainFactory, itemId, Guid.NewGuid());
             var aspect = item.AsAspect(aspectPid);
             return await aspect.Run(actionName, args);
         }
