@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace XmppComponent
+namespace n3q.Tools
 {
     public static class AsyncUtilityExtension
     {

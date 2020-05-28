@@ -23,14 +23,16 @@ namespace n3q.Grains
     class ItemGrain : Grain, IItem
     //, IAsyncObserver<ItemUpdate>
     {
-        string Id => _state.State.Id;
+        string Id => this.GetPrimaryKeyString();
         public PropertySet Properties { get; set; }
-        public ItemCore Impl { get; private set; }
 
         readonly string _streamNamespace = ItemService.StreamNamespace;
         readonly Guid _streamId = ItemService.StreamGuid;
         readonly IPersistentState<ItemState> _state;
         IAsyncStream<ItemUpdate> _stream;
+
+        Guid _transactionId = Guid.Empty;
+        List<PropertyChange> _changes;
 
         public ItemGrain(
             [PersistentState("Item", JsonFileStorage.StorageProviderName)] IPersistentState<ItemState> itemState
@@ -62,50 +64,53 @@ namespace n3q.Grains
 
         #region Interface
 
-        public async Task ModifyProperties(PropertySet modified, PidSet deleted)
+        public async Task ModifyProperties(PropertySet modified, PidSet deleted, Guid tid)
         {
-            var changes = new List<PropertyChange> { };
+            AssertCurrentTransaction(tid);
 
             foreach (var pair in modified) {
                 var pid = pair.Key;
-                if (!PropertyValue.AreEquivalent(pid, Properties.Get(pid), pair.Value)) {
-                    changes.Add(new PropertyChange(PropertyChange.Mode.SetProperty, pid, pair.Value));
-                }
-                Properties[pid] = pair.Value;
+                _changes.Add(new PropertyChange(PropertyChange.Mode.SetProperty, pid, pair.Value));
             }
 
             foreach (var pid in deleted) {
-                if (!PropertyValue.AreEquivalent(pid, Properties.Get(pid), PropertyValue.Default(pid))) {
-                    changes.Add(new PropertyChange(PropertyChange.Mode.DeleteProperty, pid, null));
-                }
-                if (Properties.ContainsKey(pid)) {
-                    Properties.Delete(pid);
-                }
+                _changes.Add(new PropertyChange(PropertyChange.Mode.DeleteProperty, pid, null));
             }
 
-            if (changes.Count > 0) {
-                await Update(changes);
+            if (tid == Guid.Empty) {
+                await ApplyChanges();
             }
         }
 
-        public async Task AddToSet(Pid pid, PropertyValue value)
+        public async Task AddToList(Pid pid, PropertyValue value, Guid tid)
         {
-            if (Properties.TryGetValue(pid, out var current)) {
-                if (current.AddToSet(value)) {
-                    await Update(PropertyChange.Mode.AddToSet, pid, value);
+            AssertCurrentTransaction(tid);
+
+            if (Properties.TryGetValue(pid, out var pv)) {
+                if (!pv.IsInList(value)) {
+                    _changes.Add(new PropertyChange(PropertyChange.Mode.AddToList, pid, value));
                 }
             } else {
-                Properties.Set(pid, value);
-                await Update(PropertyChange.Mode.AddToSet, pid, value);
+                _changes.Add(new PropertyChange(PropertyChange.Mode.AddToList, pid, value));
+            }
+
+            if (tid == Guid.Empty) {
+                await ApplyChanges();
             }
         }
 
-        public async Task DeleteFromSet(Pid pid, PropertyValue value)
+        public async Task DeleteFromList(Pid pid, PropertyValue value, Guid tid)
         {
-            if (Properties.TryGetValue(pid, out var current)) {
-                if (current.RemoveFromSet(value)) {
-                    await Update(PropertyChange.Mode.RemoveFromSet, pid, value);
+            AssertCurrentTransaction(tid);
+
+            if (Properties.TryGetValue(pid, out var pv)) {
+                if (!pv.IsInList(value)) {
+                    _changes.Add(new PropertyChange(PropertyChange.Mode.RemoveFromList, pid, value));
                 }
+            }
+
+            if (tid == Guid.Empty) {
+                await ApplyChanges();
             }
         }
 
@@ -120,9 +125,49 @@ namespace n3q.Grains
             return await GetPropertiesByPid(pids, native);
         }
 
+        public Task BeginTransaction(Guid tid)
+        {
+            if (HasCurrentTransaction()) {
+                throw new Exception($"BeginTransaction: already in transaction current={_transactionId} tid={tid}");
+            }
+
+            _transactionId = tid;
+            _changes = new List<PropertyChange>();
+
+            return Task.CompletedTask;
+        }
+
+        public async Task EndTransaction(Guid tid, bool success)
+        {
+            if (HasCurrentTransaction()) {
+                if (IsCurrentTransaction(tid)) {
+                    if (success) {
+                        await ApplyChanges();
+                    }
+                }
+            }
+
+            _transactionId = Guid.Empty;
+            _changes = null;
+        }
+
         #endregion
 
         #region Internal
+
+        private void AssertCurrentTransaction(Guid tid)
+        {
+            if (HasCurrentTransaction()) {
+                if (!IsCurrentTransaction(tid)) {
+                    throw new Exception($"AssertCurrentTransaction: already in different transaction current={_transactionId} tid={tid}");
+                }
+            } else {
+                _changes = new List<PropertyChange>();
+            }
+        }
+
+        private bool HasCurrentTransaction() => _transactionId != Guid.Empty;
+        private bool IsCurrentTransaction(Guid tid) => tid == _transactionId;
 
         private async Task<PropertySet> GetPropertiesAll(bool native = false)
         {
@@ -217,21 +262,53 @@ namespace n3q.Grains
 
         //WritePersistentStorage();
 
-        async Task Update(PropertyChange.Mode what, Pid pid, PropertyValue value)
+        private async Task ApplyChanges()
         {
-            await Update(new List<PropertyChange> { new PropertyChange(what, pid, value) });
-        }
+            foreach (var change in _changes) {
+                var pid = change.Pid;
+                var value = change.Value;
 
-        async Task Update(List<PropertyChange> changes)
-        {
+                switch (change.What) {
+                    case PropertyChange.Mode.SetProperty: {
+                        Properties[pid] = value;
+                    }
+                    break;
+
+                    case PropertyChange.Mode.AddToList: {
+                        if (Properties.TryGetValue(pid, out var pv)) {
+                            pv.AddToList(value);
+                        } else {
+                            pv = new PropertyValue();
+                            pv.AddToList(value);
+                            Properties[pid] = pv;
+                        }
+                    }
+                    break;
+
+                    case PropertyChange.Mode.RemoveFromList: {
+                        if (Properties.TryGetValue(pid, out var pv)) {
+                            pv.RemoveFromList(value);
+                        }
+                    }
+                    break;
+
+                    case PropertyChange.Mode.DeleteProperty: {
+                        if (Properties.ContainsKey(pid)) {
+                            Properties.Delete(pid);
+                        }
+                    }
+                    break;
+                }
+            }
+
             // Persist changes
-            var persist = changes.Aggregate(false, (current, change) => current |= PropertyMustBeSaved(change.Pid, change.Value));
+            var persist = _changes.Aggregate(false, (current, change) => current |= PropertyMustBeSaved(change.Pid, change.Value));
             if (persist) {
                 await WritePersistentStorage();
             }
 
             // Notify subscribers
-            var update = new ItemUpdate(Id, changes);
+            var update = new ItemUpdate(Id, _changes);
             await _stream?.OnNextAsync(update);
         }
 

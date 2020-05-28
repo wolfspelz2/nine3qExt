@@ -1,40 +1,40 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Orleans;
-using n3q.GrainInterfaces;
 using n3q.Items;
+using n3q.Tools;
 
 namespace n3q.Aspects
 {
     public class Aspect
     {
-        protected Item self;
-        public Item Self => self;
+        protected ItemStub self;
         protected string Id => self.Id;
 
-        //public IItem Grain(Item item)
+        //protected async Task<ItemStub> Item(string itemId)
         //{
-        //    if (self.ClusterClient != null) {
-        //        return self.ClusterClient.GetGrain<IItem>(item.Id);
-        //    } else if (self.GrainFactory != null) {
-        //        return self.GrainFactory.GetGrain<IItem>(item.Id);
-        //    } else if (self.Simulator != null) {
-        //        return self.Simulator.GetGrain<IItem>(item.Id);
+        //    if (!Has.Value(itemId)) {
+        //        throw new Exception($"{nameof(Aspect)}.{nameof(Item)}: Empty or null itemId");
         //    }
-        //    throw new Exception($"Need valid IClusterClient or IGrainFactory for id={Id}");
-        //}
 
-        protected Item Item(string itemId)
+        //    var item = (ItemStub)null;
+        //    if (self.ClusterClient != null) {
+        //        item= new ItemStub(self.ClusterClient, itemId, self.Transaction);
+        //    } else if (self.GrainFactory != null) {
+        //        item = new ItemStub(self.GrainFactory, itemId, self.Transaction);
+        //    } else if (self.Simulator != null) {
+        //        item = new ItemStub(self.Simulator, itemId, self.Transaction);
+        //    }
+        //    if (item != null) {
+        //        await self.Transaction.AddItem(item);
+        //        return item;
+        //    } else {
+        //        throw new Exception($"Need valid IClusterClient or IGrainFactory for id={Id}");
+        //    }
+        //}
+        protected async Task<ItemStub> Item(string itemId)
         {
-            if (self.ClusterClient != null) {
-                return new Item(self.ClusterClient, itemId);
-            } else if (self.GrainFactory != null) {
-                return new Item(self.GrainFactory, itemId);
-            } else if (self.Simulator != null) {
-                return new Item(self.Simulator, itemId);
-            }
-            throw new Exception($"Need valid IClusterClient or IGrainFactory for id={Id}");
+            return await self.Item(itemId);
         }
 
         public virtual Pid GetAspectPid() => Pid.FirstAspect;
@@ -64,8 +64,8 @@ namespace n3q.Aspects
             }
         }
 
-        public delegate Aspect AspectSpecializer(Item item);
-        public delegate Task<PropertyValue> ActionHandler(PropertySet args);
+        public delegate Aspect AspectSpecializer(ItemStub item);
+        public delegate Task ActionHandler(PropertySet args);
 
         public class ActionDescription
         {
@@ -79,15 +79,14 @@ namespace n3q.Aspects
             return null;
         }
 
-        public Task<PropertyValue> Run(string action, PropertySet arguments)
+        public async Task Run(string action, PropertySet arguments)
         {
             var actions = GetActionList();
             if (actions != null) {
                 if (actions.ContainsKey(action)) {
-                    return actions[action].Handler(arguments);
+                    await actions[action].Handler(arguments);
                 }
             }
-            return Task.FromResult(PropertyValue.Empty);
         }
     }
 }

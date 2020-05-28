@@ -11,7 +11,7 @@ namespace IntegrationTests
     [TestClass]
     public class WorkGrainTest
     {
-        IWorker GetWorkGrain() { return GrainClient.GrainFactory.GetGrain<IWorker>(Guid.Empty); }
+        IWorker GetWorkerGrain() { return GrainClient.GrainFactory.GetGrain<IWorker>(Guid.Empty); }
         IItem GetItemGrain(string id) { return GrainClient.GrainFactory.GetGrain<IItem>(id); }
 
         [TestMethod]
@@ -19,26 +19,32 @@ namespace IntegrationTests
         public async Task Run_Greeter()
         {
             // Arrange
-            var work = GetWorkGrain();
-            var workId = Guid.NewGuid();
-            var greetUserId = $"{nameof(WorkGrainTest)}-{nameof(Run_Greeter) + "_GREETUSER"}-{RandomString.Get(10)}";
+            var greetedId = $"{nameof(WorkGrainTest)}-{nameof(Run_Greeter) + "_GREETED"}-{RandomString.Get(10)}";
             var greeterId = $"{nameof(WorkGrainTest)}-{nameof(Run_Greeter) + "_GREETER"}-{RandomString.Get(10)}";
-            var greetUser = GetItemGrain(greetUserId);
-            var greeter = GetItemGrain(greeterId);
+            var greeted = GrainClient.GetItemStub(greetedId);
+            var greeter = GrainClient.GetItemStub(greeterId);
 
             try {
-                await greetUser.ModifyProperties(new PropertySet { [Pid.TestGreetUserAspect] = true }, PidSet.Empty);
-                await greeter.ModifyProperties(new PropertySet { [Pid.TestGreeterAspect] = true, [Pid.TestGreeterPrefix] = "Hello " }, PidSet.Empty);
+                await greeted.WithTransaction(async self => {
+                    await self.Set(Pid.TestGreetedAspect, true);
+                });
+                await greeter.WithTransaction(async self => {
+                    await self.ModifyProperties(new PropertySet { [Pid.TestGreeterAspect] = true, [Pid.TestGreeterPrefix] = "Hello " }, PidSet.Empty);
+                });
 
                 // Act
-                var greeting = await work.Run(greetUserId, Pid.TestGreetUserAspect, nameof(TestGreetUser.UseGreeter), new PropertySet { [Pid.Item] = greeterId, [Pid.Name] = "World" });
+                await GetWorkerGrain().Run(greetedId,
+                               Pid.TestGreetedAspect,
+                               nameof(TestGreeted.Action.UseGreeter),
+                               new PropertySet { [Pid.TestGreeted_Item] = greeterId, [Pid.TestGreeted_Name] = "World" });
 
                 // Assert
-                Assert.AreEqual("Hello World", (string)greeting);
+                Assert.AreEqual("Hello World", await greeter.GetString(Pid.TestGreeter_Result));
+                Assert.AreEqual("Hello World", await greeted.GetString(Pid.TestGreeted_Result));
 
             } finally {
                 // Cleanup
-                await greetUser.DeletePersistentStorage();
+                await greeted.DeletePersistentStorage();
                 await greeter.DeletePersistentStorage();
             }
         }

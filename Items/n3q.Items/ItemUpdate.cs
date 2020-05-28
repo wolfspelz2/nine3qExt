@@ -10,8 +10,8 @@ namespace n3q.Items
         public enum Mode
         {
             SetProperty,
-            AddToSet,
-            RemoveFromSet,
+            AddToList,
+            RemoveFromList,
             DeleteProperty,
         }
 

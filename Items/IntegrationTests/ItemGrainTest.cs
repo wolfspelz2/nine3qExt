@@ -18,14 +18,16 @@ namespace IntegrationTests
         public async Task GetProperties()
         {
             // Arrange
-            var item = GetItemGrain($"{nameof(ItemGrainTest)}-{nameof(GetProperties)}-{RandomString.Get(10)}");
+            var item = GrainClient.GetItemStub($"{nameof(ItemGrainTest)}-{nameof(GetProperties)}-{RandomString.Get(10)}");
 
             try {
                 // Act
-                await item.ModifyProperties(new PropertySet {
-                    [Pid.TestInt] = 42,
-                    [Pid.TestString] = "42",
-                }, PidSet.Empty);
+                await item.WithTransaction(async self => {
+                    await self.ModifyProperties(new PropertySet {
+                        [Pid.TestInt] = 42,
+                        [Pid.TestString] = "42",
+                    }, PidSet.Empty);
+                });
 
                 var props = await item.GetProperties(PidSet.All);
 
@@ -44,13 +46,15 @@ namespace IntegrationTests
         public async Task GetProperties_by_access_level()
         {
             // Arrange
-            var item = GetItemGrain($"{nameof(ItemGrainTest)}-{nameof(GetProperties_by_access_level)}-{RandomString.Get(10)}");
+            var item = GrainClient.GetItemStub($"{nameof(ItemGrainTest)}-{nameof(GetProperties_by_access_level)}-{RandomString.Get(10)}");
 
             try {
-                await item.ModifyProperties(new PropertySet {
-                    [Pid.TestInternal] = 41,
-                    [Pid.TestPublic] = 42,
-                }, PidSet.Empty);
+                await item.WithTransaction(async self => {
+                    await self.ModifyProperties(new PropertySet {
+                        [Pid.TestInternal] = 41,
+                        [Pid.TestPublic] = 42,
+                    }, PidSet.Empty);
+                });
 
                 // Act
                 var props = await item.GetProperties(PidSet.Public);
@@ -71,14 +75,16 @@ namespace IntegrationTests
         public async Task GetProperties_by_PidSet()
         {
             // Arrange
-            var item = GetItemGrain($"{nameof(ItemGrainTest)}-{nameof(GetProperties_by_PidSet)}-{RandomString.Get(10)}");
+            var item = GrainClient.GetItemStub($"{nameof(ItemGrainTest)}-{nameof(GetProperties_by_PidSet)}-{RandomString.Get(10)}");
 
             try {
-                await item.ModifyProperties(new PropertySet {
-                    [Pid.TestInt1] = 41,
-                    [Pid.TestInt2] = 42,
-                    [Pid.TestInt3] = 43,
-                }, PidSet.Empty);
+                await item.WithTransaction(async self => {
+                    await self.ModifyProperties(new PropertySet {
+                        [Pid.TestInt1] = 41,
+                        [Pid.TestInt2] = 42,
+                        [Pid.TestInt3] = 43,
+                    }, PidSet.Empty);
+                });
 
                 // Act
                 var props = await item.GetProperties(new PidSet { Pid.TestInt2, Pid.TestInt3, });
@@ -99,47 +105,54 @@ namespace IntegrationTests
         public async Task SetGet_Modify_add_set_delete()
         {
             // Arrange
-            var item = GetItemGrain($"{nameof(ItemGrainTest)}-{nameof(SetGet_Modify_add_set_delete)}-{RandomString.Get(10)}");
+            var item = GrainClient.GetItemStub($"{nameof(ItemGrainTest)}-{nameof(SetGet_Modify_add_set_delete)}-{RandomString.Get(10)}");
 
             try {
-                await item.ModifyProperties(new PropertySet {
-                    // stay
-                    [Pid.TestString] = "40",
-                    [Pid.TestInt] = 40000000000,
-                    [Pid.TestFloat] = 40.14159265358979323,
-                    [Pid.TestItemSet] = new ItemIdSet { "4", "0" },
-                    // change
-                    [Pid.TestString1] = "41",
-                    [Pid.TestInt1] = 41000000000,
-                    [Pid.TestFloat1] = 41.14159265358979323,
-                    [Pid.TestItemSet1] = new ItemIdSet { "4", "1" },
-                    // delete
-                    [Pid.TestString3] = "43",
-                    [Pid.TestInt3] = 43000000000,
-                    [Pid.TestFloat3] = 43.14159265358979323,
-                    [Pid.TestBool3] = true,
-                    [Pid.TestItemSet3] = new ItemIdSet { "4", "3" },
-                }, PidSet.Empty);
+                await item.WithTransaction(async self => {
+                    await self.ModifyProperties(new PropertySet {
+                        // stay
+                        [Pid.TestString] = "40",
+                        [Pid.TestInt] = 40000000000,
+                        [Pid.TestFloat] = 40.14159265358979323,
+                        [Pid.TestItemSet] = new ItemIdSet { "4", "0" },
 
-                // Act
-                await item.ModifyProperties(new PropertySet {
-                    [Pid.TestString1] = "412",
-                    [Pid.TestInt1] = 41200000000,
-                    [Pid.TestFloat1] = 412.14159265358979323,
-                    [Pid.TestBool1] = true,
-                    [Pid.TestItemSet1] = new ItemIdSet { "4", "1", "2" },
+                        // change
+                        [Pid.TestString1] = "41",
+                        [Pid.TestInt1] = 41000000000,
+                        [Pid.TestFloat1] = 41.14159265358979323,
+                        [Pid.TestItemSet1] = new ItemIdSet { "4", "1" },
 
-                    [Pid.TestString2] = "42",
-                    [Pid.TestInt2] = 42000000000,
-                    [Pid.TestFloat2] = 42.14159265358979323,
-                    [Pid.TestBool2] = true,
-                    [Pid.TestItemSet2] = new ItemIdSet { "4", "2" },
-                }, new PidSet {
-                    Pid.TestString3,
-                    Pid.TestInt3,
-                    Pid.TestFloat3,
-                    Pid.TestBool3,
-                    Pid.TestItemSet3,
+                        // delete
+                        [Pid.TestString3] = "43",
+                        [Pid.TestInt3] = 43000000000,
+                        [Pid.TestFloat3] = 43.14159265358979323,
+                        [Pid.TestBool3] = true,
+                        [Pid.TestItemSet3] = new ItemIdSet { "4", "3" },
+                    }, PidSet.Empty);
+                });
+
+                await item.WithTransaction(async self => {
+                    // Act
+                    await self.ModifyProperties(new PropertySet {
+                        [Pid.TestString1] = "412",
+                        [Pid.TestInt1] = 41200000000,
+                        [Pid.TestFloat1] = 412.14159265358979323,
+                        [Pid.TestBool1] = true,
+                        [Pid.TestItemSet1] = new ItemIdSet { "4", "1", "2" },
+                        
+                        // add
+                        [Pid.TestString2] = "42",
+                        [Pid.TestInt2] = 42000000000,
+                        [Pid.TestFloat2] = 42.14159265358979323,
+                        [Pid.TestBool2] = true,
+                        [Pid.TestItemSet2] = new ItemIdSet { "4", "2" },
+                    }, new PidSet {
+                        Pid.TestString3,
+                        Pid.TestInt3,
+                        Pid.TestFloat3,
+                        Pid.TestBool3,
+                        Pid.TestItemSet3,
+                    });
                 });
 
                 // Assert
@@ -186,14 +199,20 @@ namespace IntegrationTests
             // Arrange
             var itemId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_with_template)}-{RandomString.Get(10)}";
             var tmplId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_with_template) + "_TEMPLATE"}-{RandomString.Get(10)}";
-            var item = GetItemGrain(itemId);
-            var tmpl = GetItemGrain(tmplId);
+            var item = GrainClient.GetItemStub(itemId);
+            var tmpl = GrainClient.GetItemStub(tmplId);
 
             try {
-                await item.ModifyProperties(new PropertySet {
-                    [Pid.TemplateId] = tmplId,
-                    [Pid.TestInt] = 42,
-                }, PidSet.Empty);
+                await item.WithTransaction(async self => {
+                    await self.ModifyProperties(new PropertySet {
+                        [Pid.TemplateId] = tmplId,
+                    }, PidSet.Empty);
+                });
+                await tmpl.WithTransaction(async self => {
+                    await self.ModifyProperties(new PropertySet {
+                        [Pid.TestInt] = 42,
+                    }, PidSet.Empty);
+                });
 
                 // Act
                 var props = await item.GetProperties(PidSet.All);
@@ -216,24 +235,28 @@ namespace IntegrationTests
             // Arrange
             var itemId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template)}-{RandomString.Get(10)}";
             var tmplId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template) + "_TEMPLATE"}-{RandomString.Get(10)}";
-            var item = GetItemGrain(itemId);
-            var tmpl = GetItemGrain(tmplId);
+            var item = GrainClient.GetItemStub(itemId);
+            var tmpl = GrainClient.GetItemStub(tmplId);
 
             try {
-                await item.ModifyProperties(new PropertySet {
-                    [Pid.TemplateId] = tmplId,
-                    [Pid.TestInt] = 40,
-                    [Pid.TestString] = "item.TestString",   // item
-                    [Pid.TestString1] = "item.TestString1", // item get
-                    [Pid.TestString2] = "item.TestString2", // both
-                    [Pid.TestString3] = "item.TestString3", // both get
-                }, PidSet.Empty);
-                await tmpl.ModifyProperties(new PropertySet {
-                    [Pid.TestString2] = "tmpl.TestString2", // both
-                    [Pid.TestString3] = "tmpl.TestString3", // both get
-                    [Pid.TestString4] = "tmpl.TestString4", // tmpl
-                    [Pid.TestString5] = "tmpl.TestString5", // tmpl get
-                }, PidSet.Empty);
+                await item.WithTransaction(async self => {
+                    await self.ModifyProperties(new PropertySet {
+                        [Pid.TemplateId] = tmplId,
+                        [Pid.TestInt] = 40,
+                        [Pid.TestString] = "item.TestString",   // item
+                        [Pid.TestString1] = "item.TestString1", // item get
+                        [Pid.TestString2] = "item.TestString2", // both
+                        [Pid.TestString3] = "item.TestString3", // both get
+                    }, PidSet.Empty);
+                });
+                await tmpl.WithTransaction(async self => {
+                    await self.ModifyProperties(new PropertySet {
+                        [Pid.TestString2] = "tmpl.TestString2", // both
+                        [Pid.TestString3] = "tmpl.TestString3", // both get
+                        [Pid.TestString4] = "tmpl.TestString4", // tmpl
+                        [Pid.TestString5] = "tmpl.TestString5", // tmpl get
+                    }, PidSet.Empty);
+                });
 
                 // Act
                 var props = await item.GetProperties(new PidSet { Pid.TestString1, Pid.TestString3, Pid.TestString5 });
@@ -257,24 +280,28 @@ namespace IntegrationTests
             // Arrange
             var itemId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template_and_native)}-{RandomString.Get(10)}";
             var tmplId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template_and_native) + "_TEMPLATE"}-{RandomString.Get(10)}";
-            var item = GetItemGrain(itemId);
-            var tmpl = GetItemGrain(tmplId);
+            var item = GrainClient.GetItemStub(itemId);
+            var tmpl = GrainClient.GetItemStub(tmplId);
 
             try {
-                await item.ModifyProperties(new PropertySet {
-                    [Pid.TemplateId] = tmplId,
-                    [Pid.TestInt] = 40,
-                    [Pid.TestString] = "item.TestString",   // item
-                    [Pid.TestString1] = "item.TestString1", // item get
-                    [Pid.TestString2] = "item.TestString2", // both
-                    [Pid.TestString3] = "item.TestString3", // both get
-                }, PidSet.Empty);
-                await tmpl.ModifyProperties(new PropertySet {
-                    [Pid.TestString2] = "tmpl.TestString2", // both
-                    [Pid.TestString3] = "tmpl.TestString3", // both get
-                    [Pid.TestString4] = "tmpl.TestString4", // tmpl
-                    [Pid.TestString5] = "tmpl.TestString5", // tmpl get
-                }, PidSet.Empty);
+                await item.WithTransaction(async self => {
+                    await self.ModifyProperties(new PropertySet {
+                        [Pid.TemplateId] = tmplId,
+                        [Pid.TestInt] = 40,
+                        [Pid.TestString] = "item.TestString",   // item
+                        [Pid.TestString1] = "item.TestString1", // item get
+                        [Pid.TestString2] = "item.TestString2", // both
+                        [Pid.TestString3] = "item.TestString3", // both get
+                    }, PidSet.Empty);
+                });
+                await tmpl.WithTransaction(async self => {
+                    await self.ModifyProperties(new PropertySet {
+                        [Pid.TestString2] = "tmpl.TestString2", // both
+                        [Pid.TestString3] = "tmpl.TestString3", // both get
+                        [Pid.TestString4] = "tmpl.TestString4", // tmpl
+                        [Pid.TestString5] = "tmpl.TestString5", // tmpl get
+                    }, PidSet.Empty);
+                });
 
                 // Act
                 var props = await item.GetProperties(new PidSet { Pid.TestString1, Pid.TestString3, Pid.TestString5 }, native: true);
@@ -283,7 +310,6 @@ namespace IntegrationTests
                 Assert.AreEqual(2, props.Count);
                 Assert.AreEqual("item.TestString1", (string)props.Get(Pid.TestString1));
                 Assert.AreEqual("item.TestString3", (string)props.Get(Pid.TestString3));
-                //Assert.AreEqual("tmpl.TestString5", (string)props.Get(Pid.TestString5));
 
             } finally {
                 // Cleanup
