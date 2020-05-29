@@ -35,9 +35,10 @@ namespace n3q.Web
             Item_SetProperties,
             Item_GetProperties,
             Item_DeleteProperties,
-            Item_Delete,
             Item_AddToContainer,
             Item_RemoveFromContainer,
+            Item_Delete,
+            Item_Deactivate,
 
             //Translation_Set,
             //Translation_Get,
@@ -67,6 +68,7 @@ namespace n3q.Web
             Handlers.Add(nameof(Fn.Item_AddToContainer), new Handler { Name = nameof(Fn.Item_AddToContainer), Function = Item_AddChildToContainer, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Make item a child of the container", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Container"] = "Container-ID", } });
             Handlers.Add(nameof(Fn.Item_RemoveFromContainer), new Handler { Name = nameof(Fn.Item_RemoveFromContainer), Function = Item_RemoveChildFromContainer, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Remove item from container", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Container"] = "Container-ID", } });
             Handlers.Add(nameof(Fn.Item_Delete), new Handler { Name = nameof(Fn.Item_Delete), Function = Item_Delete, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Delete item and storage", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", } });
+            Handlers.Add(nameof(Fn.Item_Deactivate), new Handler { Name = nameof(Fn.Item_Deactivate), Function = Item_Deactivate, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Remove item from memory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", } });
 
             //Handlers.Add(nameof(Fn.Translation_Set), new Handler { Name = nameof(Fn.Translation_Set), Function = Translation_Set, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Add translation", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Text to translate, format: context.text", ["Language"] = "Language [de_DE|en_US|...]", ["Translated"] = "Translated text (omitting context)", } });
             //Handlers.Add(nameof(Fn.Translation_Get), new Handler { Name = nameof(Fn.Translation_Get), Function = Translation_Get, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Show translation", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Text to translate, format: context.text", ["Language"] = "Language [de_DE|en_US|...]", } });
@@ -390,19 +392,6 @@ namespace n3q.Web
             return "Deleted from " + ShowItemLink(itemId);
         }
 
-        object Item_Delete(Arglist args)
-        {
-            args.Next("cmd");
-            var itemId = args.Next("item-ID");
-
-            var item = GetItemStub(itemId);
-            item.WithTransaction(async self => {
-                await self.AsDeletable().Delete();
-            }).Wait();
-
-            return $"Deleted";
-        }
-
         object Item_AddChildToContainer(Arglist args)
         {
             args.Next("cmd");
@@ -429,6 +418,30 @@ namespace n3q.Web
             }).Wait();
 
             return new ItemReference(itemId);
+        }
+
+        object Item_Delete(Arglist args)
+        {
+            args.Next("cmd");
+            var itemId = args.Next("item-ID");
+
+            var item = GetItemStub(itemId);
+            item.WithTransaction(async self => {
+                await self.AsDeletable().Delete();
+            }).Wait();
+
+            return $"Deleted";
+        }
+
+        object Item_Deactivate(Arglist args)
+        {
+            args.Next("cmd");
+            var itemId = args.Next("item-ID");
+
+            var item = GetItemStub(itemId);
+            item.Deactivate().Wait();
+
+            return $"Deactivated";
         }
 
         PropertySet GetPropertySetFromNextArgs(Arglist args)
