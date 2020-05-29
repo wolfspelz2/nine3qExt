@@ -15,9 +15,6 @@ namespace n3q.Items
 
         public static PropertyValue Empty = new PropertyValue();
 
-        const string JoinSeparator = " ";
-        static readonly char[] SplitSeparator = new[] { JoinSeparator[0] };
-
         public PropertyValue()
         {
             _value = "";
@@ -27,7 +24,8 @@ namespace n3q.Items
         public PropertyValue(long value) { _value = value != 0L ? value.ToString(CultureInfo.InvariantCulture) : ""; }
         public PropertyValue(double value) { _value = value != 0D ? value.ToString(CultureInfo.InvariantCulture) : ""; }
         public PropertyValue(bool value) { _value = value ? "true" : ""; }
-        public PropertyValue(ValueList ids) { _value = ids.ToString(); }
+        public PropertyValue(ValueList list) { _value = list.ToString(); }
+        public PropertyValue(ValueMap map) { _value = map.ToString(); }
 
         public static implicit operator string(PropertyValue pv)
         {
@@ -52,15 +50,9 @@ namespace n3q.Items
             }
         }
 
-        public static implicit operator bool(PropertyValue pv)
-        {
-            return pv._value.IsTrue();
-        }
-
-        public static implicit operator ValueList(PropertyValue pv)
-        {
-            return ValueList.FromString(pv._value);
-        }
+        public static implicit operator bool(PropertyValue pv) { return pv._value.IsTrue(); }
+        public static implicit operator ValueList(PropertyValue pv) { return ValueList.FromString(pv._value); }
+        public static implicit operator ValueMap(PropertyValue pv) { return ValueMap.FromString(pv._value); }
 
         public void AddToList(PropertyValue listItem)
         {
@@ -92,6 +84,7 @@ namespace n3q.Items
         public static implicit operator PropertyValue(double value) { return new PropertyValue(value); }
         public static implicit operator PropertyValue(bool value) { return new PropertyValue(value); }
         public static implicit operator PropertyValue(ValueList value) { return new PropertyValue(value); }
+        public static implicit operator PropertyValue(ValueMap value) { return new PropertyValue(value); }
 
         public override string ToString()
         {

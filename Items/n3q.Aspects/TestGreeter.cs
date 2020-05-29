@@ -26,7 +26,7 @@ namespace n3q.Aspects
 
         public async Task<PropertyValue> Greet(string name)
         {
-            var prefix = await self.Get(Pid.TestGreeterPrefix);
+            var prefix = await self.Get(Pid.TestGreeter_Prefix);
             var greeting = prefix + name;
             await self.Set(Pid.TestGreeter_Result, greeting);
             return greeting;

@@ -11,8 +11,6 @@ namespace IntegrationTests
     [TestClass]
     public class ItemGrainTest
     {
-        IItem GetItemGrain(string id) { return GrainClient.GrainFactory.GetGrain<IItem>(id); }
-
         [TestMethod]
         [TestCategory(GrainClient.Category)]
         public async Task GetProperties()
@@ -205,7 +203,7 @@ namespace IntegrationTests
             try {
                 await item.WithTransaction(async self => {
                     await self.ModifyProperties(new PropertySet {
-                        [Pid.TemplateId] = tmplId,
+                        [Pid.Template] = tmplId,
                     }, PidSet.Empty);
                 });
                 await tmpl.WithTransaction(async self => {
@@ -219,7 +217,7 @@ namespace IntegrationTests
 
                 // Assert
                 Assert.AreEqual(2, props.Count);
-                Assert.AreEqual(tmplId, (string)props.Get(Pid.TemplateId));
+                Assert.AreEqual(tmplId, (string)props.Get(Pid.Template));
                 Assert.AreEqual(42, (long)props.Get(Pid.TestInt));
 
             } finally {
@@ -242,7 +240,7 @@ namespace IntegrationTests
             try {
                 await item.WithTransaction(async self => {
                     await self.ModifyProperties(new PropertySet {
-                        [Pid.TemplateId] = tmplId,
+                        [Pid.Template] = tmplId,
                         [Pid.TestInt] = 40,
                         [Pid.TestString] = "item.TestString",   // item
                         [Pid.TestString1] = "item.TestString1", // item get
@@ -288,7 +286,7 @@ namespace IntegrationTests
             try {
                 await item.WithTransaction(async self => {
                     await self.ModifyProperties(new PropertySet {
-                        [Pid.TemplateId] = tmplId,
+                        [Pid.Template] = tmplId,
                         [Pid.TestInt] = 40,
                         [Pid.TestString] = "item.TestString",   // item
                         [Pid.TestString1] = "item.TestString1", // item get

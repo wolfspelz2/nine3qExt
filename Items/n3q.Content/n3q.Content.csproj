@@ -5,6 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\n3q.Aspects\n3q.Aspects.csproj" />
+    <ProjectReference Include="..\n3q.Common\n3q.Common.csproj" />
     <ProjectReference Include="..\n3q.Items\n3q.Items.csproj" />
   </ItemGroup>
 

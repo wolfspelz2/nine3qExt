@@ -21,13 +21,13 @@ namespace n3q.Items
             return result;
         }
 
-        public ValueList Clone()
+        public static ValueList From(IEnumerable<string> list)
         {
-            var clone = new ValueList();
-            foreach (var id in this) {
-                clone.Add(id);
+            var result = new ValueList();
+            foreach (string listItem in list) {
+                result.Add(listItem);
             }
-            return clone;
+            return result;
         }
 
         public override string ToString()

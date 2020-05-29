@@ -55,7 +55,7 @@
         FirstGeneric = 2000000,
         //Id,
         Name,
-        TemplateId,
+        Template,
         Label,
         Container,
         Contains,
@@ -63,6 +63,8 @@
         Icon32Url,
         Image100Url,
         AnimationsUrl,
+        Actions,
+        Stats,
 
         // Aspect
         FirstAspect = 3000000,
@@ -73,30 +75,43 @@
         ItemCapacityLimitAspect,
         RezableAspect,
         IframeAspect,
-
-        // Method parameters
+        PageClaimAspect,
+        RezzableProxyAspect,
+        RoleAspect,
+        SourceAspect,
+        SinkAspect,
+        ExtractorAspect,
+        InjectorAspect,
+        ApplierAspect,   
+        
+        // Public aspect method parameters
         FirstParameter = 4000000,
         TestGreeted_Item,
         TestGreeted_Name,
         TestGreeter_Result,
         TestGreeted_Result,
-        RezRoom,
-        DerezUser,
+        PassiveItem,
+        RezableRoom,
+        RezableUser,
 
         // App
         FirstApp = 5000000,
-        TestGreeterPrefix,
+        TestGreeter_Prefix,
         ContainerItemLimit,
-        IsRezzing,
-        IsRezzed,
-        IsDerezzing,
-        RezzedX,
+        RezableIsRezzing,
+        RezableIsRezzed,
+        RezableIsDerezzing,
+        RezableX,
         IframeUrl,
         IframeWidth,
         IframeHeight,
         IframeResizeable,
-        //WaterLevel,
-        //WaterLevelMax,
+        RezzableProxyTemplate,
+        RoleUserRoles,
+        SourceResource, //
+        SinkResource,   //
+        WaterLevel,     //
+        WaterLevelMax,  //
 
         // User Attribute
         FirstUserAttribute = 6000000,

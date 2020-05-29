@@ -13,6 +13,7 @@ namespace n3q.Web
         public Commandline(string path)
         {
             _path = path;
+            _ = _path;
 
             Handlers.Add("Echo", new Handler { Name = "Echo", Function = Echo, Role = Role.Public.ToString(), ImmediateExecute = true, Description = "Return all arguments", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { { "arg1", "first argument" }, { "...", "more arguments" } } });
             Handlers.Add("Dev_TestTable", new Handler { Name = "Dev_TestTable", Function = Dev_TestTable, ImmediateExecute = true, Role = Role.Developer.ToString(), Description = "Full table example" });
@@ -53,14 +54,15 @@ namespace n3q.Web
 
         public class User : ICommandlineUser
         {
-            private IEnumerable<Claim> claims;
+            private readonly IEnumerable<Claim> _claims;
 
             public IEnumerable<string> Roles { get; } = new[] { Role.Public.ToString(), Role.Admin.ToString(), Role.Developer.ToString(), ItemCommandline.ItemRole.Content.ToString(), ItemCommandline.ItemRole.LeadContent.ToString(), ItemCommandline.ItemRole.SecurityAdmin.ToString() };
             //public User(IEnumerable<string> roles) { Roles = roles; }
 
             public User(IEnumerable<Claim> claims)
             {
-                this.claims = claims;
+                _claims = claims;
+                _ = _claims;
             }
         }
 
@@ -643,24 +645,5 @@ namespace n3q.Web
         }
 
         #endregion
-
-        public Runner NewRunner(HttpContext httpContext)
-        {
-            return new Runner(httpContext);
-        }
-
-        public class Runner
-        {
-            HttpContext HttpContext { get; set; }
-
-            public Runner(HttpContext httpContext)
-            {
-                HttpContext = httpContext;
-            }
-
-            public Runner()
-            {
-            }
-        }
     }
 }

@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Orleans;
 using n3q.GrainInterfaces;
 using n3q.Items;
 using n3q.Tools;
-using n3q.Frontend;
+using n3q.Common;
 using n3q.Aspects;
 
 namespace n3q.Web
@@ -44,15 +45,13 @@ namespace n3q.Web
             //Translation_de,
             //Translation_en,
 
-            //Content_Groups,
-            //Content_Templates,
-            //Content_ShowTemplates,
-            //Content_CreateTemplates,
+            Content_Groups,
+            Content_Templates,
+            Content_Create,
         }
 
         public ItemCommandline(string path) : base(path)
         {
-
             Handlers.Add("Dev_Item", new Handler { Name = "Dev_Item", Function = Dev_Item, Role = nameof(Role.Developer), Arguments = new ArgumentDescriptionList { ["ID"] = "Item-ID" } });
 
             //Handlers.Add(nameof(Fn.Admin_TokenLogon), new Handler { Name = nameof(Fn.Admin_TokenLogon), Function = Admin_TokenLogon, Role = nameof(Role.Public), ImmediateExecute = false, Description = "Log in as admin with token (for system bootstrap)", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Token"] = "Secret", } });
@@ -75,10 +74,9 @@ namespace n3q.Web
             //Handlers.Add(nameof(Fn.Translation_de), new Handler { Name = nameof(Fn.Translation_de), Function = Translation_Set_de, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Add translation", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Text to translate, format: context.text", ["Translated"] = "Translated text (omitting context)", } });
             //Handlers.Add(nameof(Fn.Translation_en), new Handler { Name = nameof(Fn.Translation_en), Function = Translation_Set_en, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Add translation", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Text to translate, format: context.text", ["Translated"] = "Translated text (omitting context)", } });
 
-            //Handlers.Add(nameof(Fn.Content_Groups), new Handler { Name = nameof(Fn.Content_Groups), Function = Content_Groups, Role = nameof(ItemRole.Content), ImmediateExecute = true, Description = "List available template groups" });
-            //Handlers.Add(nameof(Fn.Content_Templates), new Handler { Name = nameof(Fn.Content_Templates), Function = Content_Templates, Role = nameof(ItemRole.Content), ImmediateExecute = false, Description = "List available templates in group", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Name"] = "Group name", } });
-            //Handlers.Add(nameof(Fn.Content_CreateTemplates), new Handler { Name = nameof(Fn.Content_CreateTemplates), Function = Content_CreateTemplates, Role = nameof(ItemRole.LeadContent), ImmediateExecute = false, Description = "Create or update template(s)", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Name"] = "[template or group name]", } });
-            //Handlers.Add(nameof(Fn.Content_ShowTemplates), new Handler { Name = nameof(Fn.Content_ShowTemplates), Function = Content_ShowTemplates, Role = nameof(ItemRole.Content), ImmediateExecute = true, Description = "Get all item-IDs of templates inventory" });
+            Handlers.Add(nameof(Fn.Content_Groups), new Handler { Name = nameof(Fn.Content_Groups), Function = Content_ShowTemplateGroups, Role = nameof(ItemRole.Content), ImmediateExecute = true, Description = "List available template groups" });
+            Handlers.Add(nameof(Fn.Content_Templates), new Handler { Name = nameof(Fn.Content_Templates), Function = Content_ShowTemplates, Role = nameof(ItemRole.Content), ImmediateExecute = false, Description = "List available templates in group", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Name"] = "Group name", } });
+            Handlers.Add(nameof(Fn.Content_Create), new Handler { Name = nameof(Fn.Content_Create), Function = Content_CreateTemplates, Role = nameof(ItemRole.LeadContent), ImmediateExecute = false, Description = "Create or update template(s)", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Name"] = "[template or group name]", } });
 
             Formatters.Add(FormatItem);
             Formatters.Add(FormatItemList);
@@ -268,7 +266,7 @@ namespace n3q.Web
             var props = item.GetProperties(PidSet.All).Result;
             var nativeProps = item.GetProperties(PidSet.All, native: true).Result;
             var templateProps = new PropertySet();
-            var templateId = nativeProps.GetString(Pid.TemplateId);
+            var templateId = nativeProps.GetString(Pid.Template);
             var templateUnavailable = false;
 
             if (Has.Value(templateId)) {
@@ -301,7 +299,7 @@ namespace n3q.Web
                         nativeProps.ContainsKey(pid) ? 
                             Item_GetProperties_FormatValue(pid, nativeProps[pid]) : "",
 
-                        (pid == Pid.TemplateId && templateUnavailable) ?
+                        (pid == Pid.Template && templateUnavailable) ?
                             "(unavailable)" :  templateProps.ContainsKey(pid) ?
                                 Item_GetProperties_FormatValue(pid, templateProps[pid]) : "",
 
@@ -314,9 +312,9 @@ namespace n3q.Web
 
                 table.Grid.Add(new Table.Row() {
                     "",
-                    "",
-                    "",
-                    "",
+                    props.Count.ToString(),
+                    nativeProps.Count.ToString(),
+                    templateProps.Count.ToString(),
                     CommandInsertLink(Fn.Item_SetProperties.ToString(), new[] { itemId.ToString(), "Property=Value" }, "Add"),
                     "",
                 });
@@ -329,9 +327,9 @@ namespace n3q.Web
                     JsonPath.Node propNode = null;
                     propNode = Property.GetDefinition(pair.Key).Basic switch
                     {
-                        Property.Basic.Int => new JsonPath.Node(JsonPath.Node.Type.Int, (long)pair.Value),
-                        Property.Basic.Float => new JsonPath.Node(JsonPath.Node.Type.Float, (double)pair.Value),
-                        Property.Basic.Bool => new JsonPath.Node(JsonPath.Node.Type.Bool, (bool)pair.Value),
+                        Property.Storage.Int => new JsonPath.Node(JsonPath.Node.Type.Int, (long)pair.Value),
+                        Property.Storage.Float => new JsonPath.Node(JsonPath.Node.Type.Float, (double)pair.Value),
+                        Property.Storage.Bool => new JsonPath.Node(JsonPath.Node.Type.Bool, (bool)pair.Value),
                         _ => new JsonPath.Node(JsonPath.Node.Type.String, pair.Value.ToString()),
                     };
                     node.AsDictionary.Add(pair.Key.ToString(), propNode);
@@ -463,18 +461,6 @@ namespace n3q.Web
         {
             var item = GrainClient.GetGrain<IItem>(itemId);
             var text = itemId.ToString();
-            try {
-                var props = item.GetProperties(new PidSet { Pid.Name, Pid.Label }).Result;
-                var name = props.GetString(Pid.Name);
-                var label = props.GetString(Pid.Label);
-                var show = name;
-                if (string.IsNullOrEmpty(show)) {
-                    show = label;
-                }
-                text += string.IsNullOrEmpty(show) ? "" : ":" + show;
-            } catch (Exception) {
-                text += "<img width='14' height='12' title='' alt='' src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAMCAYAAABSgIzaAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAF2SURBVHjalJK/S0JRFMe/DxuUzIooh8rScmgInHw0FEQguFmBCE3S3uAgJLXUZBC2+BcELeLgHkLQDwgkEIyGlpbaTMtfJHr73qtPzFo6vA/vnnu/33fuOTxtCT+jTPxkB8i/AU8pIHjLfGRAp/1lnAc8N8CDzN30fACVX8bFgY1nUgeEORwGikW8ZjKYpm5u0LjelxSJD4icAKdVIWBibtY07PK610BqvN+40V18knsi5JNMQkungWYTws+OYzFo1C73l5who2SLXACX0ijD7fGICadTreVeEjhfo2azC1xkirCHISmonJ0pre71CpfDodb1REKZLdTJG26jY1DxAnwZ1WQEAgGh63ovl2d3HMMetZPSsECCnIk8qOVyPd1jPi+ustleXisUlJnXXZk1+lSVfD7RH6uRiIDRoxGhkDKrqR4Ah8fA0Xs8jmG7Ha0yf4F2GxabjacaGqUSWpyuyWpFo1rFWDSKfXo61f4BP1uS728BBgC9quKyFfQlhgAAAABJRU5ErkJggg==' />";
-            }
             return CommandExecuteLink(Fn.Item_GetProperties.ToString(), new[] { itemId }, text);
         }
 
@@ -530,53 +516,43 @@ namespace n3q.Web
 
         #region Content
 
-        //object Content_Groups(Arglist args)
-        //{
-        //    args.Next("cmd");
+        object Content_ShowTemplateGroups(Arglist args)
+        {
+            args.Next("cmd");
 
-        //    var inventoryName = GrainInterfaces.ItemService.TemplatesInventoryName;
-        //    var inv = GrainClient.GetGrain<IContentGenerator>(inventoryName);
-        //    var groups = inv.GetGroups().Result;
-        //    var s = "";
-        //    foreach (var group in groups) {
-        //        s += CommandExecuteLink(Fn.Content_Templates.ToString(), new[] { group }, group) + " ";
-        //    }
-        //    return s;
-        //}
+            var cg = GrainClient.GetGrain<IContentGenerator>(Guid.Empty);
+            var groups = cg.GetGroups().Result;
+            var s = "";
+            foreach (var group in groups) {
+                s += CommandExecuteLink(Fn.Content_Templates.ToString(), new[] { group }, group) + " ";
+            }
+            return s;
+        }
 
-        //object Content_Templates(Arglist args)
-        //{
-        //    args.Next("cmd");
-        //    var name = args.Next("GroupName");
+        object Content_ShowTemplates(Arglist args)
+        {
+            args.Next("cmd");
+            var name = args.Next("GroupName");
 
-        //    var inventoryName = GrainInterfaces.ItemService.TemplatesInventoryName;
-        //    var inv = GrainClient.GetGrain<IContentGenerator>(inventoryName);
-        //    var templates = inv.GetTemplates(name).Result;
-        //    var s = CommandExecuteLink(Fn.Content_CreateTemplates.ToString(), new[] { name }, "[Create all]") + " Create: ";
-        //    foreach (var template in templates) {
-        //        s += CommandExecuteLink(Fn.Content_CreateTemplates.ToString(), new[] { template }, template) + " ";
-        //    }
-        //    return s;
-        //}
+            var cg = GrainClient.GetGrain<IContentGenerator>(Guid.Empty);
+            var templates = cg.GetTemplates(name).Result;
+            var s = CommandExecuteLink(Fn.Content_Create.ToString(), new[] { name }, "[Create all]") + " Create: ";
+            foreach (var template in templates) {
+                s += CommandExecuteLink(Fn.Content_Create.ToString(), new[] { template }, template) + " ";
+            }
+            return s;
+        }
 
-        //private object Content_CreateTemplates(Arglist args)
-        //{
-        //    args.Next("cmd");
-        //    var name = args.Next("template or group name");
+        private object Content_CreateTemplates(Arglist args)
+        {
+            args.Next("cmd");
+            var name = args.Next("template or group name");
 
-        //    var inventoryName = GrainInterfaces.ItemService.TemplatesInventoryName;
-        //    var ids = new ItemIdSet(GrainClient.GetGrain<IContentGenerator>(inventoryName).CreateTemplates(name).Result);
-        //    return string.Join(" ", ids.ToList().ConvertAll(id => ShowItemLink(inventoryName, id)));
-        //}
+            var cg = GrainClient.GetGrain<IContentGenerator>(Guid.Empty);
+            var ids = cg.CreateTemplates(name).Result;
 
-        //object Content_ShowTemplates(Arglist args)
-        //{
-
-        //    var inventoryName = GrainInterfaces.ItemService.TemplatesInventoryName;
-        //    var item = GrainClient.GetGrain<IItem>(itemId);
-        //    var ids = inv.GetItemIds().Result;
-        //    return string.Join(" ", ids.ToList().ConvertAll(id => ShowItemLink(inventoryName, id)));
-        //}
+            return string.Join(" ", ids.ConvertAll(id => ShowItemLink(id)));
+        }
 
         #endregion
 

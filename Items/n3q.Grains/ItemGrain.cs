@@ -199,7 +199,7 @@ namespace n3q.Grains
             if (native) {
                 result = Properties;
             } else {
-                var templateId = (string)Properties.Get(Pid.TemplateId);
+                var templateId = (string)Properties.Get(Pid.Template);
                 if (Has.Value(templateId)) {
                     result = await Item(templateId).GetProperties(PidSet.All);
                 }
@@ -220,7 +220,7 @@ namespace n3q.Grains
             if (native) {
                 CopyPropertiesByPidSelection(result, pids);
             } else {
-                var templateId = (string)Properties.Get(Pid.TemplateId);
+                var templateId = (string)Properties.Get(Pid.Template);
                 if (Has.Value(templateId)) {
                     result = await Item(templateId).GetProperties(pids);
                 }
@@ -256,7 +256,7 @@ namespace n3q.Grains
             if (native) {
                 CopyPropertiesByAccessLevel(result, access);
             } else {
-                var templateId = (string)Properties.Get(Pid.TemplateId);
+                var templateId = (string)Properties.Get(Pid.Template);
                 if (Has.Value(templateId)) {
                     result = await Item(templateId).GetProperties(new PidSet { accessPid });
                 }

@@ -273,7 +273,7 @@ namespace XmppComponent
 
             if (Has.Value(userId) && Has.Value(itemId) && Has.Value(roomId) && hasX) {
                 Log.Info($"Drop {roomId} {itemId}");
-                await GetWorker().Run(itemId, Pid.RezableAspect, nameof(Rezable.Rez), new PropertySet { [Pid.RezRoom] = roomId, [Pid.RezzedX] = posX });
+                await GetWorker().Run(itemId, Pid.RezableAspect, nameof(Rezable.Rez), new PropertySet { [Pid.RezableRoom] = roomId, [Pid.RezableX] = posX });
                 //await OnItemAddedToRoom(roomId, itemId);
             }
         }
@@ -292,7 +292,7 @@ namespace XmppComponent
                         throw new SurfaceException(roomId, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezzed);
                     } else {
                         Log.Info($"Pickup {roomId} {itemId}", nameof(Connection_OnPickupItem));
-                        await GetWorker().Run(itemId, Pid.RezableAspect, nameof(Rezable.Derez), new PropertySet { [Pid.DerezUser] = roomId });
+                        await GetWorker().Run(itemId, Pid.RezableAspect, nameof(Rezable.Derez), new PropertySet { [Pid.RezableUser] = roomId });
                         await OnItemRemovedFromRoom(roomItem);
 
                         // Also: don't wait to cleanup state, just ignore the presence-unavailable
@@ -315,7 +315,7 @@ namespace XmppComponent
             if (string.IsNullOrEmpty(name)) { name = props.Get(Pid.Label); }
             if (string.IsNullOrEmpty(name)) { name = $"Item-{itemId}"; }
 
-            var x = props.GetInt(Pid.RezzedX);
+            var x = props.GetInt(Pid.RezableX);
 
             var roomItemJid = new RoomItemJid(roomId, itemId, name);
 

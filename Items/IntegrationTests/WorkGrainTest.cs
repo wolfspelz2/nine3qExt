@@ -12,7 +12,6 @@ namespace IntegrationTests
     public class WorkGrainTest
     {
         IWorker GetWorkerGrain() { return GrainClient.GrainFactory.GetGrain<IWorker>(Guid.Empty); }
-        IItem GetItemGrain(string id) { return GrainClient.GrainFactory.GetGrain<IItem>(id); }
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
@@ -29,14 +28,16 @@ namespace IntegrationTests
                     await self.Set(Pid.TestGreetedAspect, true);
                 });
                 await greeter.WithTransaction(async self => {
-                    await self.ModifyProperties(new PropertySet { [Pid.TestGreeterAspect] = true, [Pid.TestGreeterPrefix] = "Hello " }, PidSet.Empty);
+                    await self.ModifyProperties(new PropertySet { [Pid.TestGreeterAspect] = true, [Pid.TestGreeter_Prefix] = "Hello " }, PidSet.Empty);
                 });
 
                 // Act
-                await GetWorkerGrain().Run(greetedId,
-                               Pid.TestGreetedAspect,
-                               nameof(TestGreeted.Action.UseGreeter),
-                               new PropertySet { [Pid.TestGreeted_Item] = greeterId, [Pid.TestGreeted_Name] = "World" });
+                await GetWorkerGrain().Run(
+                    greetedId,
+                    Pid.TestGreetedAspect,
+                    nameof(TestGreeted.Action.UseGreeter),
+                    new PropertySet { [Pid.TestGreeted_Item] = greeterId, [Pid.TestGreeted_Name] = "World" }
+                );
 
                 // Assert
                 Assert.AreEqual("Hello World", await greeter.GetString(Pid.TestGreeter_Result));
