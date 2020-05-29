@@ -18,7 +18,7 @@ namespace IntegrationTests
         public async Task GetProperties()
         {
             // Arrange
-            var item = GrainClient.GetItemStub($"{nameof(ItemGrainTest)}-{nameof(GetProperties)}-{RandomString.Get(10)}");
+            var item = GrainClient.GetItemStub(GrainClient.GetRandomItemId());
 
             try {
                 // Act
@@ -46,7 +46,7 @@ namespace IntegrationTests
         public async Task GetProperties_by_access_level()
         {
             // Arrange
-            var item = GrainClient.GetItemStub($"{nameof(ItemGrainTest)}-{nameof(GetProperties_by_access_level)}-{RandomString.Get(10)}");
+            var item = GrainClient.GetItemStub(GrainClient.GetRandomItemId());
 
             try {
                 await item.WithTransaction(async self => {
@@ -75,7 +75,7 @@ namespace IntegrationTests
         public async Task GetProperties_by_PidSet()
         {
             // Arrange
-            var item = GrainClient.GetItemStub($"{nameof(ItemGrainTest)}-{nameof(GetProperties_by_PidSet)}-{RandomString.Get(10)}");
+            var item = GrainClient.GetItemStub(GrainClient.GetRandomItemId());
 
             try {
                 await item.WithTransaction(async self => {
@@ -105,7 +105,7 @@ namespace IntegrationTests
         public async Task SetGet_Modify_add_set_delete()
         {
             // Arrange
-            var item = GrainClient.GetItemStub($"{nameof(ItemGrainTest)}-{nameof(SetGet_Modify_add_set_delete)}-{RandomString.Get(10)}");
+            var item = GrainClient.GetItemStub(GrainClient.GetRandomItemId());
 
             try {
                 await item.WithTransaction(async self => {
@@ -197,8 +197,8 @@ namespace IntegrationTests
         public async Task GetProperties_with_template()
         {
             // Arrange
-            var itemId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_with_template)}-{RandomString.Get(10)}";
-            var tmplId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_with_template) + "_TEMPLATE"}-{RandomString.Get(10)}";
+            var itemId = GrainClient.GetRandomItemId();
+            var tmplId = GrainClient.GetRandomItemId($"TEMPLATE");
             var item = GrainClient.GetItemStub(itemId);
             var tmpl = GrainClient.GetItemStub(tmplId);
 
@@ -233,8 +233,8 @@ namespace IntegrationTests
         public async Task GetProperties_PidSet_with_template()
         {
             // Arrange
-            var itemId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template)}-{RandomString.Get(10)}";
-            var tmplId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template) + "_TEMPLATE"}-{RandomString.Get(10)}";
+            var itemId = GrainClient.GetRandomItemId();
+            var tmplId = GrainClient.GetRandomItemId($"TEMPLATE");
             var item = GrainClient.GetItemStub(itemId);
             var tmpl = GrainClient.GetItemStub(tmplId);
 
@@ -278,8 +278,8 @@ namespace IntegrationTests
         public async Task GetProperties_PidSet_with_template_and_native()
         {
             // Arrange
-            var itemId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template_and_native)}-{RandomString.Get(10)}";
-            var tmplId = $"{nameof(ItemGrainTest)}-{nameof(GetProperties_PidSet_with_template_and_native) + "_TEMPLATE"}-{RandomString.Get(10)}";
+            var itemId = GrainClient.GetRandomItemId();
+            var tmplId = GrainClient.GetRandomItemId($"TEMPLATE");
             var item = GrainClient.GetItemStub(itemId);
             var tmpl = GrainClient.GetItemStub(tmplId);
 
@@ -310,6 +310,34 @@ namespace IntegrationTests
                 Assert.AreEqual(2, props.Count);
                 Assert.AreEqual("item.TestString1", (string)props.Get(Pid.TestString1));
                 Assert.AreEqual("item.TestString3", (string)props.Get(Pid.TestString3));
+
+            } finally {
+                // Cleanup
+                await item.DeletePersistentStorage();
+            }
+        }
+
+        [TestMethod]
+        [TestCategory(GrainClient.Category)]
+        public async Task AddToList_RemoveFromList()
+        {
+            // Arrange
+            var item = GrainClient.GetItemStub(GrainClient.GetRandomItemId());
+
+            try {
+                // Act
+                await item.WithTransaction(async self => {
+                    await self.ModifyProperties(new PropertySet {
+                        [Pid.TestInt] = 42,
+                        [Pid.TestString] = "42",
+                    }, PidSet.Empty);
+                });
+
+                var props = await item.GetProperties(PidSet.All);
+
+                // Assert
+                Assert.AreEqual(42, props.GetInt(Pid.TestInt));
+                Assert.AreEqual("42", props.GetString(Pid.TestString));
 
             } finally {
                 // Cleanup

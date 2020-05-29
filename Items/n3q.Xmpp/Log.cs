@@ -1,15 +1,15 @@
 ﻿using System;
-using System.IO;
-using System.Diagnostics;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
-using System.Reflection;
+using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace XmppComponent
 {
-    public static class Log
+    internal static class Log
     {
-        public enum Level
+        internal enum Level
         {
             Silent,
             Error,
@@ -21,17 +21,17 @@ namespace XmppComponent
             Flooding,
         }
 
-        public delegate void CallbackToApplication(Level level, string context, string message);
+        internal delegate void CallbackToApplication(Level level, string context, string message);
 
-        internal static void Error(Exception ex, string context = null) { try { _Log(Level.Error, context ?? CallerName(), "Exception: " + ExceptionDetail(ex)); } catch (Exception) { } }
-        internal static void Warning(Exception ex, string context = null) { try { _Log(Level.Warning, context ?? CallerName(), "Exception: " + ExceptionDetail(ex)); } catch (Exception) { } }
-        internal static void Error(string message, string context = null) { try { _Log(Level.Error, context ?? CallerName(), message); } catch (Exception) { } }
-        internal static void Warning(string message, string context = null) { try { _Log(Level.Warning, context ?? CallerName(), message); } catch (Exception) { } }
-        internal static void Debug(string message, string context = null) { try { _Log(Level.Debug, context ?? CallerName(), message); } catch (Exception) { } }
-        internal static void User(string message, string context = null) { try { _Log(Level.User, context ?? CallerName(), message); } catch (Exception) { } }
-        internal static void Info(string message, string context = null) { try { _Log(Level.Info, context ?? CallerName(), message); } catch (Exception) { } }
-        internal static void Verbose(string message, string context = null) { try { _Log(Level.Verbose, context ?? CallerName(), message); } catch (Exception) { } }
-        internal static void Flooding(string message, string context = null) { try { _Log(Level.Flooding, context ?? CallerName(), message); } catch (Exception) { } }
+        internal static void Error(Exception ex, [CallerMemberName] string context = null) { try { _Log(Level.Error, context ?? CallerName(), "Exception: " + ExceptionDetail(ex)); } catch (Exception) { } }
+        internal static void Warning(Exception ex, [CallerMemberName] string context = null) { try { _Log(Level.Warning, context ?? CallerName(), "Exception: " + ExceptionDetail(ex)); } catch (Exception) { } }
+        internal static void Error(string message, [CallerMemberName] string context = null) { try { _Log(Level.Error, context ?? CallerName(), message); } catch (Exception) { } }
+        internal static void Warning(string message, [CallerMemberName] string context = null) { try { _Log(Level.Warning, context ?? CallerName(), message); } catch (Exception) { } }
+        internal static void Debug(string message, [CallerMemberName] string context = null) { try { _Log(Level.Debug, context ?? CallerName(), message); } catch (Exception) { } }
+        internal static void User(string message, [CallerMemberName] string context = null) { try { _Log(Level.User, context ?? CallerName(), message); } catch (Exception) { } }
+        internal static void Info(string message, [CallerMemberName] string context = null) { try { _Log(Level.Info, context ?? CallerName(), message); } catch (Exception) { } }
+        internal static void Verbose(string message, [CallerMemberName] string context = null) { try { _Log(Level.Verbose, context ?? CallerName(), message); } catch (Exception) { } }
+        internal static void Flooding(string message, [CallerMemberName] string context = null) { try { _Log(Level.Flooding, context ?? CallerName(), message); } catch (Exception) { } }
 
         internal static bool IsVerbose => LogLevel >= Level.Verbose;
         internal static bool IsFlooding => LogLevel >= Level.Flooding;
@@ -51,12 +51,12 @@ namespace XmppComponent
         }
         private static readonly List<LogLine> Backlog = new List<LogLine>();
 
-        public static string LogFile = "";
-        public const string LogFileTempFolder = @"%TEMP%";
-        public static long LogFileLimit = 10 * 1024 * 1024;
+        internal static string LogFile = "";
+        private const string LogFileTempFolder = @"%TEMP%";
+        internal static long LogFileLimit = 10 * 1024 * 1024;
 
         private static CallbackToApplication _callback;
-        public static CallbackToApplication LogHandler
+        internal static CallbackToApplication LogHandler
         {
             get { return _callback; }
             set {
@@ -68,20 +68,11 @@ namespace XmppComponent
 
         public static Level LogLevel = Level.Info;
 
-        public static IEnumerable<Enum> GetEnumValues(Enum enumeration)
-        {
-            List<Enum> enumerations = new List<Enum>();
-            foreach (FieldInfo fieldInfo in enumeration.GetType().GetFields(BindingFlags.Static | BindingFlags.Public)) {
-                enumerations.Add((Enum)fieldInfo.GetValue(enumeration));
-            }
-            return enumerations;
-        }
-
         public static Level LevelFromString(string levels)
         {
             var lowerLevels = levels.ToLower();
             var maxLevel = Level.Silent;
-            foreach (var level in GetEnumValues(new Level())) {
+            foreach (var level in typeof(Level).GetEnumValues()) {
                 if (lowerLevels.Contains(level.ToString().ToLower())) {
                     if (maxLevel < (Level)level) {
                         maxLevel = (Level)level;
@@ -150,7 +141,7 @@ namespace XmppComponent
 
                     var now = DateTime.Now;
                     // ReSharper disable once LocalizableElement
-                    File.AppendAllText(logFile, $"{now.ToString(CultureInfo.InvariantCulture)}.{now.Millisecond:D3} {Pid} {level} {context} {message}" + Environment.NewLine);
+                    File.AppendAllText(logFile, $"{now.ToString(CultureInfo.InvariantCulture)}.{now.Millisecond:D3} {Pid} " + level.ToString().Replace($"{nameof(Level.Debug)}", "#########") + $" {context} {message}" + Environment.NewLine);
                 } catch (Exception) {
                     // file errors dont prevent other logging
                 }

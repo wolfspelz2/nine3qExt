@@ -57,7 +57,7 @@ namespace IntegrationTests
             var exceptions = new List<Exception>();
             var updateReceiver = new UpdateReceiver(are, updates);
 
-            var itemId = $"{nameof(ItemGrainTest)}-{nameof(ItemUpdate_after_Set)}-{RandomString.Get(10)}";
+            var itemId = GrainClient.GetRandomItemId();
             var item = GrainClient.GetItemStub(itemId);
             await item.WithTransaction(async self => {
                 await item.ModifyProperties(new PropertySet { [Pid.TestInt] = 41 }, PidSet.Empty);
@@ -102,8 +102,8 @@ namespace IntegrationTests
             var exceptions = new List<Exception>();
             var updateReceiver = new UpdateReceiver(are, updates);
 
-            var containerId = $"{nameof(ItemGrainTest)}-{nameof(ItemUpdate_Container_AddChild) + "_CONTAINER"}-{RandomString.Get(10)}";
-            var childId = $"{nameof(ItemGrainTest)}-{nameof(ItemUpdate_Container_AddChild) + "_CHILD"}-{RandomString.Get(10)}";
+            var containerId = GrainClient.GetRandomItemId("CONTAINER");
+            var childId = GrainClient.GetRandomItemId("CHILD");
             var container = GrainClient.GetItemStub(containerId);
             var child = GrainClient.GetItemStub(childId);
             await container.WithTransaction(async self => {

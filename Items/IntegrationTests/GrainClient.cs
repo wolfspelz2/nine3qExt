@@ -1,5 +1,7 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Orleans;
 using Orleans.Configuration;
@@ -7,6 +9,7 @@ using Orleans.Hosting;
 using Orleans.Statistics;
 using Orleans.Providers;
 using n3q.Common;
+using n3q.Tools;
 using n3q.StorageProviders;
 using n3q.Grains;
 using n3q.Aspects;
@@ -79,9 +82,25 @@ namespace IntegrationTests
             return client;
         }
 
+        public static string GetRandomItemId(string id = null, [CallerFilePath]string callerFilePath = null, [CallerMemberName]string callerMemberName = null)
+        {
+            if (!Has.Value(id)) {
+                id = "";
+            }
+            if (Has.Value(callerMemberName)) {
+                id = callerMemberName + "-" + id;
+            }
+            if (Has.Value(callerFilePath)) {
+                var guessedCallerTypeName = Path.GetFileNameWithoutExtension(callerFilePath);
+                id = guessedCallerTypeName + "-" + id;
+            }
+            id += RandomString.Get(10);
+
+            return id;
+        }
+
         public static ItemStub GetItemStub(string id)
         {
-            //return GrainClient.GrainFactory.GetGrain<IItem>(id);
             return new ItemStub(GrainFactory, id);
         }
 

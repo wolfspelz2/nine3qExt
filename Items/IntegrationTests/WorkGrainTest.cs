@@ -19,8 +19,8 @@ namespace IntegrationTests
         public async Task Run_Greeter()
         {
             // Arrange
-            var greetedId = $"{nameof(WorkGrainTest)}-{nameof(Run_Greeter) + "_GREETED"}-{RandomString.Get(10)}";
-            var greeterId = $"{nameof(WorkGrainTest)}-{nameof(Run_Greeter) + "_GREETER"}-{RandomString.Get(10)}";
+            var greetedId = GrainClient.GetRandomItemId("GREETED");
+            var greeterId = GrainClient.GetRandomItemId("GREETER");
             var greeted = GrainClient.GetItemStub(greetedId);
             var greeter = GrainClient.GetItemStub(greeterId);
 
