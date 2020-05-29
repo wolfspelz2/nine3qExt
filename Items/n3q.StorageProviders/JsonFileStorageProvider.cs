@@ -151,6 +151,9 @@ namespace n3q.StorageProviders
 
         protected string GetFilePath(string grainType, GrainReference grainReference, IGrainState grainState)
         {
+            if (!Directory.Exists(_options.RootDirectory)) {
+                throw new Exception($"{nameof(JsonFileStorage)}: root directory does not exist: {_options.RootDirectory}");
+            }
             var type = grainState.Type.Name;
             var id = GetPrimaryKey(grainReference);
             var fileName = FilesystemSafeName(type) + "-" + FilesystemSafeName(id) + this._options.FileExtension;
