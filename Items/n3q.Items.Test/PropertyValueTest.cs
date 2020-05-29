@@ -21,10 +21,10 @@ namespace n3q.Items.Test
             Assert.AreEqual(42L, (long)pv);
 
             // More
-            Assert.AreEqual(new ItemIdList { "42" }.ToString(), ((ItemIdList)pv).ToString());
-            Assert.AreEqual("42", ((ItemIdList)pv).ToString());
-            Assert.AreEqual(new ItemIdList { "42", "4faaaa09-60a9-413e-8388-2e877e70440d" }.ToString(), ((ItemIdList)new PropertyValue("42 4faaaa09-60a9-413e-8388-2e877e70440d")).ToString());
-            Assert.AreEqual( "42 4faaaa09-60a9-413e-8388-2e877e70440d", ((ItemIdList)new PropertyValue("42 4faaaa09-60a9-413e-8388-2e877e70440d")).ToString());
+            Assert.AreEqual(new ValueList { "42" }.ToString(), ((ValueList)pv).ToString());
+            Assert.AreEqual("42", ((ValueList)pv).ToString());
+            Assert.AreEqual(new ValueList { "42", "4faaaa09-60a9-413e-8388-2e877e70440d" }.ToString(), ((ValueList)new PropertyValue("42 4faaaa09-60a9-413e-8388-2e877e70440d")).ToString());
+            Assert.AreEqual( "42 4faaaa09-60a9-413e-8388-2e877e70440d", ((ValueList)new PropertyValue("42 4faaaa09-60a9-413e-8388-2e877e70440d")).ToString());
         }
     }
 }

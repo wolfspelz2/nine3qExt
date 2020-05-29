@@ -27,7 +27,7 @@ namespace n3q.Items
         public PropertyValue(long value) { _value = value != 0L ? value.ToString(CultureInfo.InvariantCulture) : ""; }
         public PropertyValue(double value) { _value = value != 0D ? value.ToString(CultureInfo.InvariantCulture) : ""; }
         public PropertyValue(bool value) { _value = value ? "true" : ""; }
-        public PropertyValue(ItemIdList ids) { _value = ids.ToString(); }
+        public PropertyValue(ValueList ids) { _value = ids.ToString(); }
 
 
         public static implicit operator string(PropertyValue pv)
@@ -58,9 +58,9 @@ namespace n3q.Items
             return pv._value.IsTrue();
         }
 
-        public static implicit operator ItemIdList(PropertyValue pv)
+        public static implicit operator ValueList(PropertyValue pv)
         {
-            return ItemIdList.FromString(pv._value);
+            return ValueList.FromString(pv._value);
         }
 
         public static implicit operator HashSet<string>(PropertyValue pv)
@@ -75,26 +75,22 @@ namespace n3q.Items
             return result;
         }
 
-        public bool AddToList(PropertyValue value)
+        public void AddToList(PropertyValue listItem)
         {
-            var s = value.ToString();
-            var idx = _value.IndexOf(s);
-            if (idx < 0) {
-                _value += s + JoinSeparator;
-                return true;
+            var list = ValueList.FromString(_value);
+            if (!list.Contains(listItem)) {
+                list.Add(listItem);
+                _value = list.ToString();
             }
-            return false;
         }
 
-        public bool RemoveFromList(PropertyValue value)
+        public void RemoveFromList(PropertyValue listItem)
         {
-            var s = value.ToString();
-            var idx = _value.IndexOf(s);
-            if (idx >= 0) {
-                _value = _value.Replace(s + JoinSeparator, "");
-                return true;
+            var list = ValueList.FromString(_value);
+            if (list.Contains(listItem)) {
+                list.Remove(listItem);
+                _value = list.ToString();
             }
-            return false;
         }
 
         public bool IsInList(PropertyValue value)
@@ -108,7 +104,7 @@ namespace n3q.Items
         public static implicit operator PropertyValue(long value) { return new PropertyValue(value); }
         public static implicit operator PropertyValue(double value) { return new PropertyValue(value); }
         public static implicit operator PropertyValue(bool value) { return new PropertyValue(value); }
-        public static implicit operator PropertyValue(ItemIdList value) { return new PropertyValue(value); }
+        public static implicit operator PropertyValue(ValueList value) { return new PropertyValue(value); }
 
         public override string ToString()
         {

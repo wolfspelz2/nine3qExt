@@ -114,20 +114,20 @@ namespace IntegrationTests
                         [Pid.TestString] = "40",
                         [Pid.TestInt] = 40000000000,
                         [Pid.TestFloat] = 40.14159265358979323,
-                        [Pid.TestItemList] = new ItemIdList { "4", "0" },
+                        [Pid.TestItemList] = new ValueList { "4", "0" },
 
                         // change
                         [Pid.TestString1] = "41",
                         [Pid.TestInt1] = 41000000000,
                         [Pid.TestFloat1] = 41.14159265358979323,
-                        [Pid.TestItemList1] = new ItemIdList { "4", "1" },
+                        [Pid.TestItemList1] = new ValueList { "4", "1" },
 
                         // delete
                         [Pid.TestString3] = "43",
                         [Pid.TestInt3] = 43000000000,
                         [Pid.TestFloat3] = 43.14159265358979323,
                         [Pid.TestBool3] = true,
-                        [Pid.TestItemList3] = new ItemIdList { "4", "3" },
+                        [Pid.TestItemList3] = new ValueList { "4", "3" },
                     }, PidSet.Empty);
                 });
 
@@ -138,14 +138,14 @@ namespace IntegrationTests
                         [Pid.TestInt1] = 41200000000,
                         [Pid.TestFloat1] = 412.14159265358979323,
                         [Pid.TestBool1] = true,
-                        [Pid.TestItemList1] = new ItemIdList { "4", "1", "2" },
+                        [Pid.TestItemList1] = new ValueList { "4", "1", "2" },
 
                         // add
                         [Pid.TestString2] = "42",
                         [Pid.TestInt2] = 42000000000,
                         [Pid.TestFloat2] = 42.14159265358979323,
                         [Pid.TestBool2] = true,
-                        [Pid.TestItemList2] = new ItemIdList { "4", "2" },
+                        [Pid.TestItemList2] = new ValueList { "4", "2" },
                     }, new PidSet {
                         Pid.TestString3,
                         Pid.TestInt3,
@@ -330,7 +330,7 @@ namespace IntegrationTests
             try {
                 await item.WithTransaction(async self => {
                     await self.ModifyProperties(new PropertySet {
-                        [Pid.TestItemList] = ItemIdList.FromString("a b"),
+                        [Pid.TestItemList] = ValueList.FromString("a b"),
                     }, PidSet.Empty);
                 });
 
@@ -347,6 +347,34 @@ namespace IntegrationTests
                 });
                 // Assert
                 Assert.AreEqual("a c", (string)(await item.GetProperties(PidSet.All))[Pid.TestItemList]);
+
+            } finally {
+                // Cleanup
+                await item.DeletePersistentStorage();
+            }
+        }
+
+        [TestMethod]
+        [TestCategory(GrainClient.Category)]
+        public async Task AddToList_RemoveFromList_empty()
+        {
+            // Arrange
+            var item = GrainClient.GetItemStub(GrainClient.GetRandomItemId());
+
+            try {
+                // Act
+                await item.WithTransaction(async self => {
+                    await self.AddToList(Pid.TestItemList, "a");
+                });
+                // Assert
+                Assert.AreEqual("a", ((ValueList)(await item.GetProperties(PidSet.All))[Pid.TestItemList])[0]);
+
+                // Act
+                await item.WithTransaction(async self => {
+                    await self.RemoveFromList(Pid.TestItemList, "a");
+                });
+                // Assert
+                Assert.AreEqual(0, ((ValueList)(await item.GetProperties(PidSet.All))[Pid.TestItemList]).Count);
 
             } finally {
                 // Cleanup

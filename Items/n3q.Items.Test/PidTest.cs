@@ -19,7 +19,7 @@ namespace n3q.Items.Test
                 var prop = Property.GetDefinition(pid);
                 Assert.AreEqual(pid, prop.Id, "Id of PropertyId." + pid.ToString());
                 //Assert.AreEqual(pid.ToString(), prop.Name, "Name of PropertyId." + pid.ToString());
-                Assert.IsNotNull(prop.Type, "Type of PropertyId." + pid.ToString());
+                Assert.IsNotNull(prop.Basic, "Type of PropertyId." + pid.ToString());
                 Assert.IsNotNull(prop.Use, "Use of PropertyId." + pid.ToString());
                 Assert.IsNotNull(prop.Group, "Group of PropertyId." + pid.ToString());
                 Assert.IsNotNull(prop.Access, "Access of PropertyId." + pid.ToString());

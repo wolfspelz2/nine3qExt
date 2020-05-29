@@ -327,11 +327,11 @@ namespace n3q.Web
                 var node = new JsonPath.Node(JsonPath.Node.Type.Dictionary);
                 foreach (var pair in props) {
                     JsonPath.Node propNode = null;
-                    propNode = Property.GetDefinition(pair.Key).Type switch
+                    propNode = Property.GetDefinition(pair.Key).Basic switch
                     {
-                        Property.Type.Int => new JsonPath.Node(JsonPath.Node.Type.Int, (long)pair.Value),
-                        Property.Type.Float => new JsonPath.Node(JsonPath.Node.Type.Float, (double)pair.Value),
-                        Property.Type.Bool => new JsonPath.Node(JsonPath.Node.Type.Bool, (bool)pair.Value),
+                        Property.Basic.Int => new JsonPath.Node(JsonPath.Node.Type.Int, (long)pair.Value),
+                        Property.Basic.Float => new JsonPath.Node(JsonPath.Node.Type.Float, (double)pair.Value),
+                        Property.Basic.Bool => new JsonPath.Node(JsonPath.Node.Type.Bool, (bool)pair.Value),
                         _ => new JsonPath.Node(JsonPath.Node.Type.String, pair.Value.ToString()),
                     };
                     node.AsDictionary.Add(pair.Key.ToString(), propNode);
@@ -353,7 +353,7 @@ namespace n3q.Web
                     s = ShowItemLink(value);
                     break;
                 case Property.Use.ItemList:
-                    var idList = ItemIdList.FromString(value).ToList();
+                    var idList = ValueList.FromString(value).ToList();
                     idList.Sort();
                     s = string.Join(" ", idList.ConvertAll(x => ShowItemLink(x)));
                     break;

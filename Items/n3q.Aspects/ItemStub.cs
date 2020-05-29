@@ -230,7 +230,7 @@ namespace n3q.Aspects
         public async Task<double> GetFloat(Pid pid) { return await Get(pid); }
         public async Task<bool> GetBool(Pid pid) { return await Get(pid); }
         public async Task<string> GetItemId(Pid pid) { return await Get(pid); }
-        public async Task<ItemIdList> GetItemIdSet(Pid pid) { return await Get(pid); }
+        public async Task<ValueList> GetItemIdSet(Pid pid) { return await Get(pid); }
 
         private void AssertTransaction()
         {
