@@ -25,8 +25,16 @@ namespace n3q.Items
         public PropertySet(Dictionary<Pid, string> properties)
         {
             if (properties != null) {
-                _ = properties.Select(pair => this[pair.Key] = new PropertyValue(pair.Value));
+                foreach (var pair in properties) {
+                    this[pair.Key] = new PropertyValue(pair.Value);
+                }
             }
+        }
+
+
+        public void Set(Pid pid, PropertyValue value)
+        {
+            this[pid] = value;
         }
 
         public void Set(Pid pid, string value) { this[pid] = new PropertyValue(value); }
@@ -56,6 +64,5 @@ namespace n3q.Items
                 Remove(pid);
             }
         }
-
     }
 }

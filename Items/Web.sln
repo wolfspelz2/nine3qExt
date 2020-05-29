@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "n3q.GrainInterfaces", "n3q.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JsonPath", "JsonPath\JsonPath.csproj", "{EFE1D030-74E5-46C7-AE71-321DDDFB5F26}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "n3q.Frontend", "n3q.Frontend\n3q.Frontend.csproj", "{623490B7-07FF-4C02-A608-B2A35B9BF794}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "n3q.Common", "n3q.Common\n3q.Common.csproj", "{1FD407D6-80F1-46E8-AED7-1A6F5447191D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +41,10 @@ Global
 		{EFE1D030-74E5-46C7-AE71-321DDDFB5F26}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFE1D030-74E5-46C7-AE71-321DDDFB5F26}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EFE1D030-74E5-46C7-AE71-321DDDFB5F26}.Release|Any CPU.Build.0 = Release|Any CPU
-		{623490B7-07FF-4C02-A608-B2A35B9BF794}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{623490B7-07FF-4C02-A608-B2A35B9BF794}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{623490B7-07FF-4C02-A608-B2A35B9BF794}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{623490B7-07FF-4C02-A608-B2A35B9BF794}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FD407D6-80F1-46E8-AED7-1A6F5447191D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FD407D6-80F1-46E8-AED7-1A6F5447191D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FD407D6-80F1-46E8-AED7-1A6F5447191D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FD407D6-80F1-46E8-AED7-1A6F5447191D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

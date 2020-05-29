@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
+using System.Threading;
+using Orleans.Streams;
+using n3q.Common;
 using n3q.Tools;
 using n3q.Items;
 using n3q.GrainInterfaces;
-using Orleans.Streams;
-using n3q.Common;
-using System.Collections.Generic;
-using System.Threading;
-using Orleans;
+using n3q.Aspects;
+using System.Linq;
 
 namespace IntegrationTests
 {
@@ -22,10 +23,6 @@ namespace IntegrationTests
             var streamNamespace = ItemService.StreamNamespace;
             var stream = streamProvider.GetStream<ItemUpdate>(streamId, streamNamespace);
             return stream;
-        }
-        IItem GetItemGrain(string id)
-        {
-            return GrainClient.GrainFactory.GetGrain<IItem>(id);
         }
 
         public class UpdateReceiver : IAsyncObserver<ItemUpdate>
@@ -61,15 +58,19 @@ namespace IntegrationTests
             var updateReceiver = new UpdateReceiver(are, updates);
 
             var itemId = $"{nameof(ItemGrainTest)}-{nameof(ItemUpdate_after_Set)}-{RandomString.Get(10)}";
-            var item = GetItemGrain(itemId);
-            await item.Set(Pid.TestInt, 41);
+            var item = GrainClient.GetItemStub(itemId);
+            await item.WithTransaction(async self => {
+                await item.ModifyProperties(new PropertySet { [Pid.TestInt] = 41 }, PidSet.Empty);
+            });
 
             var handle = await GetItemStream().SubscribeAsync(updateReceiver);
-            Task.Run(() => { }).ItemStreamTestPerformAsyncTaskWithoutAwait(t => { exceptions.Add(t.Exception); });
+            Task.Run(() => { }).PerformAsyncTaskWithoutAwait(t => { exceptions.Add(t.Exception); });
 
             try {
                 // Act
-                await item.Set(Pid.TestInt, 42);
+                await item.WithTransaction(async self => {
+                    await item.ModifyProperties(new PropertySet { [Pid.TestInt] = 42 }, PidSet.Empty);
+                });
                 are.WaitOne(3000);
 
                 // Assert
@@ -103,40 +104,53 @@ namespace IntegrationTests
 
             var containerId = $"{nameof(ItemGrainTest)}-{nameof(ItemUpdate_Container_AddChild) + "_CONTAINER"}-{RandomString.Get(10)}";
             var childId = $"{nameof(ItemGrainTest)}-{nameof(ItemUpdate_Container_AddChild) + "_CHILD"}-{RandomString.Get(10)}";
-            var container = GetItemGrain(containerId);
-            var child = GetItemGrain(childId);
-            await container.Set(Pid.TestInt, 41);
-            await child.Set(Pid.TestInt, 42);
+            var container = GrainClient.GetItemStub(containerId);
+            var child = GrainClient.GetItemStub(childId);
+            await container.WithTransaction(async self => {
+                await self.ModifyProperties(new PropertySet { [Pid.ContainerAspect] = true, [Pid.TestInt] = 41 }, PidSet.Empty);
+            });
+            await child.WithTransaction(async self => {
+                await self.ModifyProperties(new PropertySet { [Pid.TestInt] = 42 }, PidSet.Empty);
+            });
 
             var handle = await GetItemStream().SubscribeAsync(updateReceiver);
-            Task.Run(() => { }).ItemStreamTestPerformAsyncTaskWithoutAwait(t => { exceptions.Add(t.Exception); });
+            Task.Run(() => { }).PerformAsyncTaskWithoutAwait(t => { exceptions.Add(t.Exception); });
 
             try {
                 // Act
-                await container.AddToItemSet(Pid.Contains, childId);
-                await child.Set(Pid.Container, containerId);
-                await child.Set(Pid.TestInt, 43);
+                //await container.AddToList(Pid.Contains, childId);
+                //await child.ModifyProperties(new PropertySet { [Pid.Container] = containerId }, PidSet.Empty);
+                //await child.ModifyProperties(new PropertySet { [Pid.TestInt] = 43 }, PidSet.Empty);
+
+                await container.WithTransaction(async self => {
+                    var localChild = await self.Item(childId);
+                    await self.AsContainer().AddChild(localChild);
+                    await self.Set(Pid.TestInt, 43);
+                    await localChild.Set(Pid.TestInt, 44);
+                });
+
                 are.WaitOne(3000);
 
                 // Assert
                 Assert.AreEqual(0, exceptions.Count);
 
-                var props = await child.GetProperties(new PidSet { Pid.TestInt });
-                Assert.AreEqual(43, (long)props[Pid.TestInt]);
+                {
+                    var props = await container.GetProperties(PidSet.All);
+                    Assert.IsTrue(props[Pid.Contains].IsInList(childId));
+                    Assert.AreEqual(43, (long)props[Pid.TestInt]);
+                }
+                {
+                    var props = await child.GetProperties(PidSet.All);
+                    Assert.AreEqual(containerId, (string)props[Pid.Container]);
+                    Assert.AreEqual(44, (long)props[Pid.TestInt]);
+                }
 
-                Assert.AreEqual(3, updates.Count);
+                Assert.AreEqual(2, updates.Count);
 
-                Assert.AreEqual(containerId, updates[0].ItemId);
-                Assert.AreEqual(Pid.Contains, updates[0].Changes[0].Pid);
-                Assert.AreEqual(childId, (string)updates[0].Changes[0].Value);
-
-                Assert.AreEqual(childId, updates[1].ItemId);
-                Assert.AreEqual(Pid.Container, updates[1].Changes[0].Pid);
-                Assert.AreEqual(containerId, (string)updates[1].Changes[0].Value);
-
-                Assert.AreEqual(childId, updates[2].ItemId);
-                Assert.AreEqual(Pid.TestInt, updates[2].Changes[0].Pid);
-                Assert.AreEqual(43, (long)updates[2].Changes[0].Value);
+                Assert.IsNotNull(updates.Where(update => update.ItemId == containerId).SelectMany(update => update.Changes).Where(change => change.Pid == Pid.Contains && change.Value == childId).FirstOrDefault());
+                Assert.IsNotNull(updates.Where(update => update.ItemId == containerId).SelectMany(update => update.Changes).Where(change => change.Pid == Pid.TestInt && change.Value == 43).FirstOrDefault());
+                Assert.IsNotNull(updates.Where(update => update.ItemId == childId).SelectMany(update => update.Changes).Where(change => change.Pid == Pid.Container && change.Value == containerId).FirstOrDefault());
+                Assert.IsNotNull(updates.Where(update => update.ItemId == childId).SelectMany(update => update.Changes).Where(change => change.Pid == Pid.TestInt && change.Value == 44).FirstOrDefault());
 
             } finally {
                 // Cleanup
@@ -149,13 +163,4 @@ namespace IntegrationTests
             }
         }
     }
-
-    public static class ItemStreamTestAsyncUtilityExtension
-    {
-        public static void ItemStreamTestPerformAsyncTaskWithoutAwait(this Task task, Action<Task> exceptionHandler)
-        {
-            var dummy = task?.ContinueWith(t => exceptionHandler(t), CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
-        }
-    }
-
 }

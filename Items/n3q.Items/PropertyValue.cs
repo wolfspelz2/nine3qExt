@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -10,9 +11,12 @@ namespace n3q.Items
     public class PropertyValue
     {
         //[DataMember]
-        readonly string _value;
+        string _value;
 
         public static PropertyValue Empty = new PropertyValue();
+
+        const string JoinSeparator = " ";
+        static readonly char[] SplitSeparator = new[] { JoinSeparator[0] };
 
         public PropertyValue()
         {
@@ -24,6 +28,7 @@ namespace n3q.Items
         public PropertyValue(double value) { _value = value != 0D ? value.ToString(CultureInfo.InvariantCulture) : ""; }
         public PropertyValue(bool value) { _value = value ? "true" : ""; }
         public PropertyValue(ItemIdSet ids) { _value = ids.ToString(); }
+
 
         public static implicit operator string(PropertyValue pv)
         {
@@ -56,6 +61,47 @@ namespace n3q.Items
         public static implicit operator ItemIdSet(PropertyValue pv)
         {
             return ItemIdSet.FromString(pv._value);
+        }
+
+        public static implicit operator HashSet<string>(PropertyValue pv)
+        {
+            var result = new HashSet<string>();
+            if (Has.Value(pv._value)) {
+                var parts = pv._value.Split(SplitSeparator, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string part in parts) {
+                    result.Add(part);
+                }
+            }
+            return result;
+        }
+
+        public bool AddToList(PropertyValue value)
+        {
+            var s = value.ToString();
+            var idx = _value.IndexOf(s);
+            if (idx < 0) {
+                _value += s + JoinSeparator;
+                return true;
+            }
+            return false;
+        }
+
+        public bool RemoveFromList(PropertyValue value)
+        {
+            var s = value.ToString();
+            var idx = _value.IndexOf(s);
+            if (idx >= 0) {
+                _value = _value.Replace(s + JoinSeparator, "");
+                return true;
+            }
+            return false;
+        }
+
+        public bool IsInList(PropertyValue value)
+        {
+            var s = value.ToString();
+            var idx = _value.IndexOf(s);
+            return idx >= 0;
         }
 
         public static implicit operator PropertyValue(string value) { return new PropertyValue(value); }
@@ -94,27 +140,17 @@ namespace n3q.Items
             Value2,
         }
 
+        public static explicit operator List<object>(PropertyValue v)
+        {
+            throw new NotImplementedException();
+        }
+
         public static bool AreEquivalent(Pid pid, PropertyValue left, PropertyValue right)
         {
             if (left.ToString() == right.ToString()) {
                 return true;
             }
             return false;
-        }
-
-        public static PropertyValue Default(Pid pid)
-        {
-            var type = Property.GetDefinition(pid).Type;
-            return type switch
-            {
-                Property.Type.Unknown => throw new InvalidOperationException("Property type=" + type.ToString() + " should not never surface."),
-                Property.Type.Int => 0L,
-                Property.Type.String => "",
-                Property.Type.Float => 0.0D,
-                Property.Type.Bool => false,
-                Property.Type.ItemSet => new ItemIdSet(),
-                _ => throw new NotImplementedException("Property type=" + type.ToString() + " not yet implemented."),
-            };
         }
 
         #endregion

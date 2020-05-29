@@ -62,7 +62,7 @@
 
         // Aspect
         FirstAspect = 3000000,
-        TestGreetUserAspect,
+        TestGreetedAspect,
         TestGreeterAspect,
         ContainerAspect,
         ItemCapacityLimitAspect,
@@ -71,11 +71,16 @@
 
         // Method parameters
         FirstParameter = 4000000,
+        TestGreeted_Item,
+        TestGreeted_Name,
+        TestGreeter_Result,
+        TestGreeted_Result,
         RezRoom,
         DerezUser,
 
         // App
         FirstApp = 5000000,
+        TestGreeterPrefix,
         ContainerItemLimit,
         IsRezzing,
         IsRezzed,
@@ -89,7 +94,7 @@
         //WaterLevelMax,
 
         // User Attribute
-        FirstAttribute = 6000000,
+        FirstUserAttribute = 6000000,
 
         LastProperty,
     }
