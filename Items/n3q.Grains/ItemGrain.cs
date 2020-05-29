@@ -104,7 +104,7 @@ namespace n3q.Grains
             AssertCurrentTransaction(tid);
 
             if (Properties.TryGetValue(pid, out var pv)) {
-                if (!pv.IsInList(value)) {
+                if (pv.IsInList(value)) {
                     _changes.Add(new PropertyChange(PropertyChange.Mode.RemoveFromList, pid, value));
                 }
             }

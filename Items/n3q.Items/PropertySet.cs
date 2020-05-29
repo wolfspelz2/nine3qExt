@@ -25,7 +25,9 @@ namespace n3q.Items
         public PropertySet(Dictionary<Pid, string> properties)
         {
             if (properties != null) {
-                _ = properties.Select(pair => this[pair.Key] = new PropertyValue(pair.Value));
+                foreach (var pair in properties) {
+                    this[pair.Key] = new PropertyValue(pair.Value);
+                }
             }
         }
 

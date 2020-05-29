@@ -148,7 +148,7 @@ namespace n3q.Items
             [Pid.FirstGeneric] = new Definition(Pid.FirstGeneric, Type.Unknown, Use.Unknown, Group.Unknown, Access.System, Persistence.Fixed, "", ""),
             //[Pid.Id] = new Definition(Pid.Id, Type.String, Use.Item, Group.Generic, Access.Public, Persistence.Persistent, "10000000001", ""),
             [Pid.Name] = new Definition(Pid.Name, Type.String, Use.String, Group.Generic, Access.Public, Persistence.Persistent, "Avatar", ""),
-            [Pid.TemplateId] = new Definition(Pid.TemplateId, Type.String, Use.String, Group.Generic, Access.System, Persistence.Persistent, "WaterBottleTemplate", "Grain Id of the template item."),
+            [Pid.TemplateId] = new Definition(Pid.TemplateId, Type.String, Use.Item, Group.Generic, Access.System, Persistence.Persistent, "WaterBottleTemplate", "Grain Id of the template item."),
             [Pid.Label] = new Definition(Pid.Label, Type.String, Use.String, Group.Generic, Access.Public, Persistence.Persistent, "WaterBottle", "Used in public displays as primary designation. Will be translated."),
             [Pid.Container] = new Definition(Pid.Container, Type.String, Use.Item, Group.Generic, Access.Owner, Persistence.Persistent, "10000000001", "Id of container item."),
             [Pid.Contains] = new Definition(Pid.Contains, Type.String, Use.ItemList, Group.Generic, Access.Owner, Persistence.Persistent, "10000000001 10000000002", "Container: list of child items."),
