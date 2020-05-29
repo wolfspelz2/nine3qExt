@@ -116,13 +116,36 @@ namespace n3q.Grains
 
         public async Task<PropertySet> GetProperties(PidSet pids, bool native = false)
         {
-            //return await Impl.GetProperties(pids, native);
+            var props = (PropertySet)null;
+
             if (pids == PidSet.All) {
-                return await GetPropertiesAll(native);
+                props = await GetPropertiesAll(native);
             } else if (pids.Count == 1 && (pids.Contains(Pid.PublicAccess) || pids.Contains(Pid.OwnerAccess))) {
-                return await GetPropertiesByAccess(pids.First(), native);
+                props = await GetPropertiesByAccess(pids.First(), native);
+            } else {
+                props = await GetPropertiesByPid(pids, native);
             }
-            return await GetPropertiesByPid(pids, native);
+
+            var result = new PropertySet();
+            if (props != null) {
+                foreach (var pair in props) {
+                    if (Property.IsEmpty(pair.Key, pair.Value)) {
+                        result[pair.Key] = Property.DefaultValue(pair.Key);
+                    } else {
+                        result[pair.Key] = pair.Value;
+                    }
+                }
+            }
+
+            if (pids != null) {
+                foreach (var pid in pids) {
+                    if (!result.ContainsKey(pid) && Property.HasDefaultValue(pid)) {
+                        result[pid] = Property.DefaultValue(pid);
+                    }
+                }
+            }
+
+            return result;
         }
 
         public Task BeginTransaction(Guid tid)

@@ -382,5 +382,33 @@ namespace IntegrationTests
             }
         }
 
+        [TestMethod]
+        [TestCategory(GrainClient.Category)]
+        public async Task GetProperties_with_default_values()
+        {
+            // Arrange
+            var item = GrainClient.GetItemStub(GrainClient.GetRandomItemId());
+
+            try {
+                // Act
+                var props = await item.GetProperties(new PidSet {
+                    Pid.TestIntDefault ,
+                    Pid.TestStringDefault,
+                    Pid.TestFloatDefault,
+                    Pid.TestBoolDefault,
+                });
+
+                // Assert
+                Assert.AreEqual(42, props.GetInt(Pid.TestIntDefault));
+                Assert.AreEqual("42", props.GetString(Pid.TestStringDefault));
+                Assert.AreEqual(3.14D, props.GetFloat(Pid.TestFloatDefault));
+                Assert.AreEqual(true, props.GetBool(Pid.TestBoolDefault));
+
+            } finally {
+                // Cleanup
+                await item.DeletePersistentStorage();
+            }
+        }
+
     }
 }

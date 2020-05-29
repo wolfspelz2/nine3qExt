@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using n3q.Tools;
 
 namespace n3q.Items
 {
@@ -116,6 +117,42 @@ namespace n3q.Items
             throw new NotImplementedException($"Property {pid} not implemented.");
         }
 
+        public static PropertyValue DefaultValue(Pid pid)
+        {
+            return pid switch
+            {
+                Pid.TestIntDefault => 42L,
+                Pid.TestStringDefault => "42",
+                Pid.TestFloatDefault => 3.14D,
+                Pid.TestBoolDefault => true,
+
+                Pid.DeletableAspect => true,
+                Pid.Stacksize => 1,
+
+                _ => PropertyValue.Empty,
+            };
+        }
+
+        public static bool HasDefaultValue(Pid pid)
+        {
+            return DefaultValue(pid) != PropertyValue.Empty;
+        }
+
+        public static bool IsEmpty(Pid key, PropertyValue value)
+        {
+            return !Has.Value((string)value);
+        }
+
+        public class Value
+        {
+            public enum TestEnum
+            {
+                Unknown,
+                Value1,
+                Value2,
+            }
+        }
+
         public static readonly Dictionary<Pid, Definition> Definitions = new Dictionary<Pid, Definition> {
             [Pid.Unknown] = new Definition(Pid.Unknown, Basic.Unknown, Type.Unknown, Use.Unknown, Group.Unknown, Access.System, Persistence.Unknown, "", ""),
             [Pid.FirstOperation] = new Definition(Pid.FirstOperation, Basic.Unknown, Type.Unknown, Use.Unknown, Group.Unknown, Access.System, Persistence.Fixed, "", ""),
@@ -127,22 +164,26 @@ namespace n3q.Items
             [Pid.TestInt1] = new Definition(Pid.TestInt1, Basic.Int, Type.Int, Use.Int, Group.Test, Access.System, Persistence.Persistent, "42", ""),
             [Pid.TestInt2] = new Definition(Pid.TestInt2, Basic.Int, Type.Int, Use.Int, Group.Test, Access.System, Persistence.Persistent, "42", ""),
             [Pid.TestInt3] = new Definition(Pid.TestInt3, Basic.Int, Type.Int, Use.Int, Group.Test, Access.System, Persistence.Persistent, "42", ""),
+            [Pid.TestIntDefault] = new Definition(Pid.TestIntDefault, Basic.Int, Type.Int, Use.Int, Group.Test, Access.System, Persistence.Persistent, "1", "Evaluates to 1 if not set"),
             [Pid.TestString] = new Definition(Pid.TestString, Basic.String, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, "fourtytwo", ""),
             [Pid.TestString1] = new Definition(Pid.TestString1, Basic.String, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, "fourtytwo", ""),
             [Pid.TestString2] = new Definition(Pid.TestString2, Basic.String, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, "fourtytwo", ""),
             [Pid.TestString3] = new Definition(Pid.TestString3, Basic.String, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, "fourtytwo", ""),
             [Pid.TestString4] = new Definition(Pid.TestString4, Basic.String, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, "fourtytwo", ""),
             [Pid.TestString5] = new Definition(Pid.TestString5, Basic.String, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, "fourtytwo", ""),
+            [Pid.TestStringDefault] = new Definition(Pid.TestStringDefault, Basic.String, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, "42", "Evaluates to '42' if not set"),
             [Pid.TestFloat] = new Definition(Pid.TestFloat, Basic.Float, Type.Float, Use.Float, Group.Test, Access.System, Persistence.Persistent, "3.141592653589793238462643383279502", ""),
             [Pid.TestFloat1] = new Definition(Pid.TestFloat1, Basic.Float, Type.Float, Use.Float, Group.Test, Access.System, Persistence.Persistent, "3.141592653589793238462643383279502", ""),
             [Pid.TestFloat2] = new Definition(Pid.TestFloat2, Basic.Float, Type.Float, Use.Float, Group.Test, Access.System, Persistence.Persistent, "3.141592653589793238462643383279502", ""),
             [Pid.TestFloat3] = new Definition(Pid.TestFloat3, Basic.Float, Type.Float, Use.Float, Group.Test, Access.System, Persistence.Persistent, "3.141592653589793238462643383279502", ""),
             [Pid.TestFloat4] = new Definition(Pid.TestFloat4, Basic.Float, Type.Float, Use.Float, Group.Test, Access.System, Persistence.Persistent, "3.141592653589793238462643383279502", ""),
+            [Pid.TestFloatDefault] = new Definition(Pid.TestFloatDefault, Basic.Float, Type.Float, Use.Float, Group.Test, Access.System, Persistence.Persistent, "3.141592653589793238462643383279502", "Evaluates to 3.14 if not set"),
             [Pid.TestBool] = new Definition(Pid.TestBool, Basic.Bool, Type.Bool, Use.Bool, Group.Test, Access.System, Persistence.Persistent, "true", ""),
             [Pid.TestBool1] = new Definition(Pid.TestBool1, Basic.Bool, Type.Bool, Use.Bool, Group.Test, Access.System, Persistence.Persistent, "true", ""),
             [Pid.TestBool2] = new Definition(Pid.TestBool2, Basic.Bool, Type.Bool, Use.Bool, Group.Test, Access.System, Persistence.Persistent, "true", ""),
             [Pid.TestBool3] = new Definition(Pid.TestBool3, Basic.Bool, Type.Bool, Use.Bool, Group.Test, Access.System, Persistence.Persistent, "true", ""),
             [Pid.TestBool4] = new Definition(Pid.TestBool4, Basic.Bool, Type.Bool, Use.Bool, Group.Test, Access.System, Persistence.Persistent, "true", ""),
+            [Pid.TestBoolDefault] = new Definition(Pid.TestBoolDefault, Basic.Bool, Type.Bool, Use.Bool, Group.Test, Access.System, Persistence.Persistent, "true", "Evaluates to true if not set"),
             [Pid.TestItem] = new Definition(Pid.TestItem, Basic.String, Type.Item, Use.Item, Group.Test, Access.System, Persistence.Persistent, "10000000001", ""),
             [Pid.TestItem1] = new Definition(Pid.TestItem1, Basic.String, Type.Item, Use.Item, Group.Test, Access.System, Persistence.Persistent, "10000000001", ""),
             [Pid.TestItem2] = new Definition(Pid.TestItem2, Basic.String, Type.Item, Use.Item, Group.Test, Access.System, Persistence.Persistent, "10000000001", ""),
@@ -151,9 +192,9 @@ namespace n3q.Items
             [Pid.TestItemList1] = new Definition(Pid.TestItemList1, Basic.String, Type.ItemList, Use.ItemList, Group.Test, Access.System, Persistence.Persistent, "10000000001 10000000002", ""),
             [Pid.TestItemList2] = new Definition(Pid.TestItemList2, Basic.String, Type.ItemList, Use.ItemList, Group.Test, Access.System, Persistence.Persistent, "10000000001 10000000002", ""),
             [Pid.TestItemList3] = new Definition(Pid.TestItemList3, Basic.String, Type.ItemList, Use.ItemList, Group.Test, Access.System, Persistence.Persistent, "10000000001 10000000002", ""),
-            [Pid.TestEnum] = new Definition(Pid.TestEnum, Basic.String, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, PropertyValue.TestEnum.Value1.ToString(), ""),
-            [Pid.TestEnum1] = new Definition(Pid.TestEnum1, Basic.String, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, PropertyValue.TestEnum.Value1.ToString(), ""),
-            [Pid.TestEnum2] = new Definition(Pid.TestEnum2, Basic.String, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, PropertyValue.TestEnum.Value1.ToString(), ""),
+            [Pid.TestEnum] = new Definition(Pid.TestEnum, Basic.String, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, Property.Value.TestEnum.Value1.ToString(), ""),
+            [Pid.TestEnum1] = new Definition(Pid.TestEnum1, Basic.String, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, Property.Value.TestEnum.Value1.ToString(), ""),
+            [Pid.TestEnum2] = new Definition(Pid.TestEnum2, Basic.String, Type.String, Use.String, Group.Test, Access.System, Persistence.Persistent, Property.Value.TestEnum.Value1.ToString(), ""),
             [Pid.TestPublic] = new Definition(Pid.TestPublic, Basic.Int, Type.Int, Use.Int, Group.Test, Access.Public, Persistence.Persistent, "42", ""),
             [Pid.TestOwner] = new Definition(Pid.TestOwner, Basic.Int, Type.Int, Use.Int, Group.Test, Access.Owner, Persistence.Persistent, "42", ""),
             [Pid.TestInternal] = new Definition(Pid.TestInternal, Basic.Int, Type.Int, Use.Int, Group.Test, Access.System, Persistence.Persistent, "42", ""),

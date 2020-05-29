@@ -29,7 +29,6 @@ namespace n3q.Items
         public PropertyValue(bool value) { _value = value ? "true" : ""; }
         public PropertyValue(ValueList ids) { _value = ids.ToString(); }
 
-
         public static implicit operator string(PropertyValue pv)
         {
             return pv._value;
@@ -61,18 +60,6 @@ namespace n3q.Items
         public static implicit operator ValueList(PropertyValue pv)
         {
             return ValueList.FromString(pv._value);
-        }
-
-        public static implicit operator HashSet<string>(PropertyValue pv)
-        {
-            var result = new HashSet<string>();
-            if (Has.Value(pv._value)) {
-                var parts = pv._value.Split(SplitSeparator, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string part in parts) {
-                    result.Add(part);
-                }
-            }
-            return result;
         }
 
         public void AddToList(PropertyValue listItem)
@@ -111,44 +98,5 @@ namespace n3q.Items
             return _value;
         }
 
-        #region Defined values
-
-        public enum Roles
-        {
-            Public,
-            User,
-            PowerUser,
-            Moderator,
-            LeadModerator,
-            Janitor,
-            LeadJanitor,
-            Content,
-            LeadContent,
-            Admin,
-            Developer,
-            SecurityAdmin
-        }
-
-        public enum TestEnum
-        {
-            Unknown,
-            Value1,
-            Value2,
-        }
-
-        public static explicit operator List<object>(PropertyValue v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static bool AreEquivalent(Pid pid, PropertyValue left, PropertyValue right)
-        {
-            if (left.ToString() == right.ToString()) {
-                return true;
-            }
-            return false;
-        }
-
-        #endregion
     }
 }
