@@ -386,7 +386,7 @@ namespace n3q.Web
 
             var item = GetItemStub(itemId);
             item.WithTransaction(async self => {
-                await self.AsDeletable().Delete();
+                await self.ModifyProperties(PropertySet.Empty, pids);
             }).Wait();
 
             return "Deleted from " + ShowItemLink(itemId);
@@ -397,9 +397,10 @@ namespace n3q.Web
             args.Next("cmd");
             var itemId = args.Next("item-ID");
 
-            var item = GrainClient.GetGrain<IItem>(itemId);
-            item.DeletePersistentStorage();
-            item.Deactivate();
+            var item = GetItemStub(itemId);
+            item.WithTransaction(async self => {
+                await self.AsDeletable().Delete();
+            }).Wait();
 
             return $"Deleted";
         }
