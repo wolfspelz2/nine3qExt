@@ -225,6 +225,7 @@ namespace IntegrationTests
             } finally {
                 // Cleanup
                 await item.DeletePersistentStorage();
+                await tmpl.DeletePersistentStorage();
             }
         }
 
@@ -270,6 +271,7 @@ namespace IntegrationTests
             } finally {
                 // Cleanup
                 await item.DeletePersistentStorage();
+                await tmpl.DeletePersistentStorage();
             }
         }
 
@@ -314,6 +316,7 @@ namespace IntegrationTests
             } finally {
                 // Cleanup
                 await item.DeletePersistentStorage();
+                await tmpl.DeletePersistentStorage();
             }
         }
 
