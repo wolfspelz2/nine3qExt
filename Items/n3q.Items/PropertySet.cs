@@ -41,7 +41,7 @@ namespace n3q.Items
         public void Set(Pid pid, long value) { this[pid] = new PropertyValue(value); }
         public void Set(Pid pid, double value) { this[pid] = new PropertyValue(value); }
         public void Set(Pid pid, bool value) { this[pid] = new PropertyValue(value); }
-        public void Set(Pid pid, ItemIdSet ids) { this[pid] = new PropertyValue(ids); }
+        public void Set(Pid pid, ItemIdList ids) { this[pid] = new PropertyValue(ids); }
 
         public PropertyValue Get(Pid pid)
         {
@@ -56,7 +56,7 @@ namespace n3q.Items
         public double GetFloat(Pid pid) { return Get(pid); }
         public bool GetBool(Pid pid) { return Get(pid); }
         public string GetItemId(Pid pid) { return Get(pid); }
-        public ItemIdSet GetItemIdSet(Pid pid) { return Get(pid); }
+        public ItemIdList GetItemIdSet(Pid pid) { return Get(pid); }
 
         public void Delete(Pid pid)
         {

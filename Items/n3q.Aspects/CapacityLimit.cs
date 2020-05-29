@@ -21,7 +21,7 @@ namespace n3q.Aspects
             var itemLimit = await self.GetInt(Pid.ContainerItemLimit);
             var stacksize = await newItem.GetInt(Pid.Stacksize);
             var currentTotal = 0L;
-            foreach (var itemId in (ItemIdSet) await self.Get(Pid.Contains)) {
+            foreach (var itemId in (ItemIdList) await self.Get(Pid.Contains)) {
                 var child = await Item(itemId);
                 currentTotal += await child.GetInt(Pid.Stacksize);
             }

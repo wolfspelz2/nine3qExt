@@ -114,20 +114,20 @@ namespace IntegrationTests
                         [Pid.TestString] = "40",
                         [Pid.TestInt] = 40000000000,
                         [Pid.TestFloat] = 40.14159265358979323,
-                        [Pid.TestItemSet] = new ItemIdSet { "4", "0" },
+                        [Pid.TestItemList] = new ItemIdList { "4", "0" },
 
                         // change
                         [Pid.TestString1] = "41",
                         [Pid.TestInt1] = 41000000000,
                         [Pid.TestFloat1] = 41.14159265358979323,
-                        [Pid.TestItemSet1] = new ItemIdSet { "4", "1" },
+                        [Pid.TestItemList1] = new ItemIdList { "4", "1" },
 
                         // delete
                         [Pid.TestString3] = "43",
                         [Pid.TestInt3] = 43000000000,
                         [Pid.TestFloat3] = 43.14159265358979323,
                         [Pid.TestBool3] = true,
-                        [Pid.TestItemSet3] = new ItemIdSet { "4", "3" },
+                        [Pid.TestItemList3] = new ItemIdList { "4", "3" },
                     }, PidSet.Empty);
                 });
 
@@ -138,20 +138,20 @@ namespace IntegrationTests
                         [Pid.TestInt1] = 41200000000,
                         [Pid.TestFloat1] = 412.14159265358979323,
                         [Pid.TestBool1] = true,
-                        [Pid.TestItemSet1] = new ItemIdSet { "4", "1", "2" },
-                        
+                        [Pid.TestItemList1] = new ItemIdList { "4", "1", "2" },
+
                         // add
                         [Pid.TestString2] = "42",
                         [Pid.TestInt2] = 42000000000,
                         [Pid.TestFloat2] = 42.14159265358979323,
                         [Pid.TestBool2] = true,
-                        [Pid.TestItemSet2] = new ItemIdSet { "4", "2" },
+                        [Pid.TestItemList2] = new ItemIdList { "4", "2" },
                     }, new PidSet {
                         Pid.TestString3,
                         Pid.TestInt3,
                         Pid.TestFloat3,
                         Pid.TestBool3,
-                        Pid.TestItemSet3,
+                        Pid.TestItemList3,
                     });
                 });
 
@@ -163,28 +163,28 @@ namespace IntegrationTests
                 Assert.AreEqual(40000000000, props.GetInt(Pid.TestInt));
                 Assert.AreEqual(40.14159265358979323, props.GetFloat(Pid.TestFloat), 0.01);
                 Assert.AreEqual(false, props.GetBool(Pid.TestBool));
-                Assert.AreEqual("4 0", props.GetItemIdSet(Pid.TestItemSet).ToString());
+                Assert.AreEqual("4 0", props.GetItemIdSet(Pid.TestItemList).ToString());
 
                 // change
                 Assert.AreEqual("412", props.GetString(Pid.TestString1));
                 Assert.AreEqual(41200000000, props.GetInt(Pid.TestInt1));
                 Assert.AreEqual(412.14159265358979323, props.GetFloat(Pid.TestFloat1), 0.01);
                 Assert.AreEqual(true, props.GetBool(Pid.TestBool1));
-                Assert.AreEqual("4 1 2", props.GetItemIdSet(Pid.TestItemSet1).ToString());
+                Assert.AreEqual("4 1 2", props.GetItemIdSet(Pid.TestItemList1).ToString());
 
                 // set
                 Assert.AreEqual("42", props.GetString(Pid.TestString2));
                 Assert.AreEqual(42000000000, props.GetInt(Pid.TestInt2));
                 Assert.AreEqual(42.14159265358979323, props.GetFloat(Pid.TestFloat2), 0.01);
                 Assert.AreEqual(true, props.GetBool(Pid.TestBool2));
-                Assert.AreEqual("4 2", props.GetItemIdSet(Pid.TestItemSet2).ToString());
+                Assert.AreEqual("4 2", props.GetItemIdSet(Pid.TestItemList2).ToString());
 
                 // delete
                 Assert.AreEqual("", props.GetString(Pid.TestString3));
                 Assert.AreEqual(0L, props.GetInt(Pid.TestInt3));
                 Assert.AreEqual(0.0D, props.GetFloat(Pid.TestFloat3), 0.01);
                 Assert.AreEqual(false, props.GetBool(Pid.TestBool3));
-                Assert.AreEqual("", props.GetItemIdSet(Pid.TestItemSet3).ToString());
+                Assert.AreEqual("", props.GetItemIdSet(Pid.TestItemList3).ToString());
 
             } finally {
                 // Cleanup
@@ -328,19 +328,25 @@ namespace IntegrationTests
             var item = GrainClient.GetItemStub(GrainClient.GetRandomItemId());
 
             try {
-                // Act
                 await item.WithTransaction(async self => {
                     await self.ModifyProperties(new PropertySet {
-                        [Pid.TestInt] = 42,
-                        [Pid.TestString] = "42",
+                        [Pid.TestItemList] = ItemIdList.FromString("a b"),
                     }, PidSet.Empty);
                 });
 
-                var props = await item.GetProperties(PidSet.All);
-
+                // Act
+                await item.WithTransaction(async self => {
+                    await self.AddToList(Pid.TestItemList, "c");
+                });
                 // Assert
-                Assert.AreEqual(42, props.GetInt(Pid.TestInt));
-                Assert.AreEqual("42", props.GetString(Pid.TestString));
+                Assert.AreEqual("a b c", (string)(await item.GetProperties(PidSet.All))[Pid.TestItemList]);
+
+                // Act
+                await item.WithTransaction(async self => {
+                    await self.RemoveFromList(Pid.TestItemList, "b");
+                });
+                // Assert
+                Assert.AreEqual("a c", (string)(await item.GetProperties(PidSet.All))[Pid.TestItemList]);
 
             } finally {
                 // Cleanup

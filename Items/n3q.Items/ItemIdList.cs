@@ -4,14 +4,14 @@ using n3q.Tools;
 
 namespace n3q.Items
 {
-    public class ItemIdSet : HashSet<string>
+    public class ItemIdList : HashSet<string>
     {
         const string JoinSeparator = " ";
         static readonly char[] SplitSeparator = new[] { JoinSeparator[0] };
 
-        public static ItemIdSet FromString(string blankSeparatedListOfString)
+        public static ItemIdList FromString(string blankSeparatedListOfString)
         {
-            var result = new ItemIdSet();
+            var result = new ItemIdList();
             if (Has.Value(blankSeparatedListOfString)) {
                 var parts = blankSeparatedListOfString.Split(SplitSeparator, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string part in parts) {
@@ -21,9 +21,9 @@ namespace n3q.Items
             return result;
         }
 
-        public ItemIdSet Clone()
+        public ItemIdList Clone()
         {
-            var clone = new ItemIdSet();
+            var clone = new ItemIdList();
             foreach (var id in this) {
                 clone.Add(id);
             }

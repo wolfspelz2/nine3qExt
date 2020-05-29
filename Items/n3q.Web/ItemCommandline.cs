@@ -353,7 +353,7 @@ namespace n3q.Web
                     s = ShowItemLink(value);
                     break;
                 case Property.Use.ItemList:
-                    var idList = ItemIdSet.FromString(value).ToList();
+                    var idList = ItemIdList.FromString(value).ToList();
                     idList.Sort();
                     s = string.Join(" ", idList.ConvertAll(x => ShowItemLink(x)));
                     break;

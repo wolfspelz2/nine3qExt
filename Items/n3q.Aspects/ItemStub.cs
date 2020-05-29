@@ -192,7 +192,7 @@ namespace n3q.Aspects
         public Task ModifyProperties(PropertySet modified, PidSet deleted) { AssertTransaction(); return Grain.ModifyProperties(modified, deleted, Transaction.Id); }
 
         public Task AddToList(Pid pid, PropertyValue value) { AssertTransaction(); return Grain.AddToList(pid, value, Transaction.Id); }
-        public Task DeleteFromList(Pid pid, PropertyValue value) { AssertTransaction(); return Grain.RemoveFromList(pid, value, Transaction.Id); }
+        public Task RemoveFromList(Pid pid, PropertyValue value) { AssertTransaction(); return Grain.RemoveFromList(pid, value, Transaction.Id); }
         public Task<PropertySet> GetProperties(PidSet pids, bool native = false) { return Grain.GetProperties(pids, native); }
 
         public delegate Task TransactionWrappedCode(ItemStub item);
@@ -230,7 +230,7 @@ namespace n3q.Aspects
         public async Task<double> GetFloat(Pid pid) { return await Get(pid); }
         public async Task<bool> GetBool(Pid pid) { return await Get(pid); }
         public async Task<string> GetItemId(Pid pid) { return await Get(pid); }
-        public async Task<ItemIdSet> GetItemIdSet(Pid pid) { return await Get(pid); }
+        public async Task<ItemIdList> GetItemIdSet(Pid pid) { return await Get(pid); }
 
         private void AssertTransaction()
         {

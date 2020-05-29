@@ -23,7 +23,7 @@ namespace n3q.Aspects
             var parentId = await child.GetItemId(Pid.Container);
             if (Has.Value(parentId)) {
                 var currentParent = await Item(parentId);
-                await currentParent.DeleteFromList(Pid.Contains, child.Id);
+                await currentParent.RemoveFromList(Pid.Contains, child.Id);
             }
             await self.AddToList(Pid.Contains, child.Id);
             await child.Set(Pid.Container, Id);
@@ -33,7 +33,7 @@ namespace n3q.Aspects
         {
             await AssertAspect();
 
-            await self.DeleteFromList(Pid.Contains, child.Id);
+            await self.RemoveFromList(Pid.Contains, child.Id);
             await child.Delete(Pid.Container);
         }
     }

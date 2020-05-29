@@ -27,7 +27,7 @@ namespace n3q.Items
         public PropertyValue(long value) { _value = value != 0L ? value.ToString(CultureInfo.InvariantCulture) : ""; }
         public PropertyValue(double value) { _value = value != 0D ? value.ToString(CultureInfo.InvariantCulture) : ""; }
         public PropertyValue(bool value) { _value = value ? "true" : ""; }
-        public PropertyValue(ItemIdSet ids) { _value = ids.ToString(); }
+        public PropertyValue(ItemIdList ids) { _value = ids.ToString(); }
 
 
         public static implicit operator string(PropertyValue pv)
@@ -58,9 +58,9 @@ namespace n3q.Items
             return pv._value.IsTrue();
         }
 
-        public static implicit operator ItemIdSet(PropertyValue pv)
+        public static implicit operator ItemIdList(PropertyValue pv)
         {
-            return ItemIdSet.FromString(pv._value);
+            return ItemIdList.FromString(pv._value);
         }
 
         public static implicit operator HashSet<string>(PropertyValue pv)
@@ -108,7 +108,7 @@ namespace n3q.Items
         public static implicit operator PropertyValue(long value) { return new PropertyValue(value); }
         public static implicit operator PropertyValue(double value) { return new PropertyValue(value); }
         public static implicit operator PropertyValue(bool value) { return new PropertyValue(value); }
-        public static implicit operator PropertyValue(ItemIdSet value) { return new PropertyValue(value); }
+        public static implicit operator PropertyValue(ItemIdList value) { return new PropertyValue(value); }
 
         public override string ToString()
         {
