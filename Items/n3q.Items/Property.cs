@@ -174,6 +174,7 @@ namespace n3q.Items
             [Pid.FirstAspect] = new Definition(Pid.FirstAspect, Basic.Unknown, Type.Unknown, Use.Unknown, Group.Unknown, Access.System, Persistence.Fixed, "", ""),
             [Pid.TestGreetedAspect] = new Definition(Pid.TestGreetedAspect, Basic.Bool, Type.Bool, Use.Bool, Group.Aspect, Access.System, Persistence.Fixed, "true", "Test aspect flag"),
             [Pid.TestGreeterAspect] = new Definition(Pid.TestGreeterAspect, Basic.Bool, Type.Bool, Use.Bool, Group.Aspect, Access.System, Persistence.Fixed, "true", "Test aspect flag"),
+            [Pid.DeletableAspect] = new Definition(Pid.DeletableAspect, Basic.Bool, Type.Bool, Use.Bool, Group.Aspect, Access.System, Persistence.Fixed, "true", "True if item can be deleted, which is the case for most items, hence it should be not set and either not checked or made default true by Property.Default."),
             [Pid.ContainerAspect] = new Definition(Pid.ContainerAspect, Basic.Bool, Type.Bool, Use.Bool, Group.Aspect, Access.System, Persistence.Fixed, "true", "Item is a container for other items."),
             [Pid.ItemCapacityLimitAspect] = new Definition(Pid.ItemCapacityLimitAspect, Basic.Bool, Type.Bool, Use.Bool, Group.Aspect, Access.System, Persistence.Fixed, "true", "Item is a container with capacity limit"),
             [Pid.RezableAspect] = new Definition(Pid.RezableAspect, Basic.Bool, Type.Bool, Use.Bool, Group.Aspect, Access.System, Persistence.Fixed, "true", "True if item can be rezzed to room."),

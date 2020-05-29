@@ -64,6 +64,7 @@
         FirstAspect = 3000000,
         TestGreetedAspect,
         TestGreeterAspect,
+        DeletableAspect,
         ContainerAspect,
         ItemCapacityLimitAspect,
         RezableAspect,

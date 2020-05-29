@@ -28,6 +28,11 @@ namespace n3q.Aspects
         {
             foreach (var item in _items) {
                 await item.EndTransaction(Id, true);
+
+                if (item.MarkedForDeletion) {
+                    await item.DeletePersistentStorage();
+                    await item.Deactivate();
+                }
             }
         }
 
