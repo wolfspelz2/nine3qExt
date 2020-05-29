@@ -42,7 +42,7 @@ namespace n3q.Aspects
             throw new NotImplementedException();
         }
 
-        public Task DeleteFromList(Pid pid, PropertyValue value, Guid tid)
+        public Task RemoveFromList(Pid pid, PropertyValue value, Guid tid)
         {
             throw new NotImplementedException();
         }
@@ -173,7 +173,7 @@ namespace n3q.Aspects
 
         public Task ModifyProperties(PropertySet modified, PidSet deleted, Guid tid) { return Grain.ModifyProperties(modified, deleted, tid); }
         public Task AddToList(Pid pid, PropertyValue value, Guid tid) { return Grain.AddToList(pid, value, tid); }
-        public Task DeleteFromList(Pid pid, PropertyValue value, Guid tid) { return Grain.DeleteFromList(pid, value, tid); }
+        public Task RemoveFromList(Pid pid, PropertyValue value, Guid tid) { return Grain.RemoveFromList(pid, value, tid); }
 
         public Task BeginTransaction(Guid tid) { return Grain.BeginTransaction(tid); }
         public Task EndTransaction(Guid tid, bool success) { return Grain.EndTransaction(tid, success); }
@@ -192,7 +192,7 @@ namespace n3q.Aspects
         public Task ModifyProperties(PropertySet modified, PidSet deleted) { AssertTransaction(); return Grain.ModifyProperties(modified, deleted, Transaction.Id); }
 
         public Task AddToList(Pid pid, PropertyValue value) { AssertTransaction(); return Grain.AddToList(pid, value, Transaction.Id); }
-        public Task DeleteFromList(Pid pid, PropertyValue value) { AssertTransaction(); return Grain.DeleteFromList(pid, value, Transaction.Id); }
+        public Task DeleteFromList(Pid pid, PropertyValue value) { AssertTransaction(); return Grain.RemoveFromList(pid, value, Transaction.Id); }
         public Task<PropertySet> GetProperties(PidSet pids, bool native = false) { return Grain.GetProperties(pids, native); }
 
         public delegate Task TransactionWrappedCode(ItemStub item);

@@ -99,7 +99,7 @@ namespace n3q.Grains
             }
         }
 
-        public async Task DeleteFromList(Pid pid, PropertyValue value, Guid tid)
+        public async Task RemoveFromList(Pid pid, PropertyValue value, Guid tid)
         {
             AssertCurrentTransaction(tid);
 

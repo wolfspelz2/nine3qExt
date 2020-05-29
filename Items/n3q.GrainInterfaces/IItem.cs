@@ -11,7 +11,7 @@ namespace n3q.GrainInterfaces
     {
         Task ModifyProperties(PropertySet modified, PidSet deleted, Guid tid);
         Task AddToList(Pid pid, PropertyValue value, Guid tid);
-        Task DeleteFromList(Pid pid, PropertyValue value, Guid tid);
+        Task RemoveFromList(Pid pid, PropertyValue value, Guid tid);
         Task<PropertySet> GetProperties(PidSet pids, bool native = false);
 
         Task BeginTransaction(Guid tid);
