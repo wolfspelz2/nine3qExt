@@ -80,7 +80,7 @@ namespace IntegrationTests
                 Assert.AreEqual(42, (long)props[Pid.TestInt]);
                 Assert.AreEqual(1, updates.Count);
                 Assert.AreEqual(itemId, updates[0].ItemId);
-                Assert.AreEqual(ItemChange.Mode.SetProperty, updates[1].Changes[0].What);
+                Assert.AreEqual(ItemChange.Mode.SetProperty, updates[0].Changes[0].What);
                 Assert.AreEqual(Pid.TestInt, updates[0].Changes[0].Pid);
                 Assert.AreEqual(42, (long)updates[0].Changes[0].Value);
                 Assert.AreEqual(0, exceptions.Count);

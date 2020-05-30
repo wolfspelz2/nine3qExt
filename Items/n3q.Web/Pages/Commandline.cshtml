@@ -26,7 +26,7 @@
         @foreach (var pair in commandList) {
             var group = pair.Key;
             <div class="cCommandGroup">
-                <span>@group</span>
+                <span class="cGroupTitle">@group</span>
                 @foreach (var pair2 in pair.Value) {
                     var detail = pair2.Value;
                     var cmd = pair2.Key;
@@ -41,7 +41,8 @@
             </div>
         }
 
-        <div id="iFavorites" />
+        <div id="iFavorites" class="cCommandGroup">
+        </div>
 
     </div>
 </div>

@@ -10,10 +10,6 @@ h1 {
     display: inline;
 }
 
-/*div#iFavorites {
-    margin: 10px 0 4px 0;
-}*/
-
 #iCommandline {
     margin-top: 4px;
     width: 100%;
@@ -21,6 +17,11 @@ h1 {
 
 .cCommandGroup {
     display: inline-grid;
+    margin-right: 10px;
+}
+
+.cGroupTitle {
+    font-weight: bold;
 }
 
 .cCommandItem {

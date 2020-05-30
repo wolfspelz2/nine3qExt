@@ -237,7 +237,7 @@ namespace XmppComponent
                 if (roomItem.State != RoomItem.RezState.Rezzing) {
                     Log.Warning($"Unexpected presence-available: room={roomId} item={itemId}", nameof(Connection_OnPresenceAvailable));
                 } else {
-                    Log.Info($"Joined room {roomId} {itemId}", nameof(Connection_OnPresenceAvailable));
+                    Log.Info($"Joined room {roomId} {itemId}");
                     roomItem.State = RoomItem.RezState.Rezzed;
                     await GetWorker().Run(itemId, Pid.RezableAspect, nameof(Rezable.OnRezzed));
                 }
@@ -252,11 +252,11 @@ namespace XmppComponent
             var roomId = jid.Room;
             var itemId = jid.Item;
 
-            Log.Info($"Left room {roomId} {itemId}", nameof(Connection_OnPresenceUnavailable));
+            Log.Info($"Left room {roomId} {itemId}");
 
             var roomItem = GetRoomItem(roomId, itemId);
             if (roomItem != null) {
-//                // Just in case, should already be removed after sending presence-unavailable
+                //                // Just in case, should already be removed after sending presence-unavailable
                 RemoveRoomItem(roomId, itemId);
             }
 
@@ -273,8 +273,9 @@ namespace XmppComponent
 
             if (Has.Value(userId) && Has.Value(itemId) && Has.Value(roomId) && hasX) {
                 Log.Info($"Drop {roomId} {itemId}");
+                await GetItem(roomId).ModifyProperties(new PropertySet(Pid.ContainerAspect, true), PidSet.Empty, ItemTransaction.WithoutTransaction);
+                _ = AddRoomItem(roomId, itemId);
                 await GetWorker().Run(itemId, Pid.RezableAspect, nameof(Rezable.Rez), new PropertySet { [Pid.RezableRoom] = roomId, [Pid.RezableX] = posX });
-                //await OnItemAddedToRoom(roomId, itemId);
             }
         }
 
@@ -291,7 +292,7 @@ namespace XmppComponent
                         Log.Warning($"Unexpected message-cmd-pickupItem: room={roomId} item={itemId}");
                         throw new SurfaceException(roomId, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezzed);
                     } else {
-                        Log.Info($"Pickup {roomId} {itemId}", nameof(Connection_OnPickupItem));
+                        Log.Info($"Pickup {roomId} {itemId}");
                         await GetWorker().Run(itemId, Pid.RezableAspect, nameof(Rezable.Derez), new PropertySet { [Pid.RezableUser] = roomId });
                         await OnItemRemovedFromRoom(roomItem);
 
@@ -359,16 +360,18 @@ namespace XmppComponent
 
             var position_Node = $"<position x='{x_XmlEncoded}' />";
 
-            Log.Info($"Rez '{roomItemJid.Resource}' {roomId} {itemId}", nameof(SendPresenceAvailable));
+            Log.Info($"Rez '{roomItemJid.Resource}' {roomId} {itemId}");
 
             if (_conn != null) {
                 _conn.Send(
+#pragma warning disable format
                     $"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}'>"
-                    + $"<x xmlns='vp:props' type='item' service='n3q' {props_XmlEncoded_All} /> "
-                    + $"< x xmlns='firebat:user:identity' jid='{identityJid_XmlEncoded}' src='{identitySrc_XmlEncoded}' digest='{identityDigest_XmlEncoded}' /> "
-                    + $"< x xmlns='firebat:avatar:state'>{position_Node}</x> "
-                    + $"< x xmlns='http://jabber.org/protocol/muc'><history seconds='0' maxchars='0' maxstanzas='0' /></x> "
+                        + $"<x xmlns='vp:props' type='item' service='n3q' {props_XmlEncoded_All} />"
+                        + $"<x xmlns='firebat:user:identity' jid='{identityJid_XmlEncoded}' src='{identitySrc_XmlEncoded}' digest='{identityDigest_XmlEncoded}' />"
+                        + $"<x xmlns='firebat:avatar:state'>{position_Node}</x>"
+                        + $"<x xmlns='http://jabber.org/protocol/muc'><history seconds='0' maxchars='0' maxstanzas='0' /></x>"
                     + $"</presence>"
+#pragma warning restore format
                 );
 
                 roomItem.Resource = roomItemJid.Resource;
@@ -389,7 +392,7 @@ namespace XmppComponent
             var to_XmlEncoded = WebUtility.HtmlEncode(to);
             var from_XmlEncoded = WebUtility.HtmlEncode(from);
 
-            Log.Info($"Derez '{roomResource}' {roomId} {itemId}", nameof(SendPresenceAvailable));
+            Log.Info($"Derez '{roomResource}' {roomId} {itemId}");
 
             _conn?.Send($"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}' type='unavailable' />");
 
@@ -409,28 +412,29 @@ namespace XmppComponent
 
         public async Task OnItemUpdate(ItemUpdate update)
         {
-                if (IsManagedRoom(update.ItemId)) {
+            if (IsManagedRoom(update.ItemId)) {
 
-                    foreach (var change in update.Changes) {
-                        if (change.Pid == Pid.Contains && change.What == ItemChange.Mode.AddToList) {
-                            var roomId = update.ItemId;
-                            var itemId = change.Value;
-                            await OnItemAddedToRoom(roomId, itemId);
+                foreach (var change in update.Changes) {
+                    if (change.Pid == Pid.Contains && change.What == ItemChange.Mode.AddToList) {
+                        var roomId = update.ItemId;
+                        var itemId = change.Value;
+                        await OnItemAddedToRoom(roomId, itemId);
 
-                        } else if (change.Pid == Pid.Contains && change.What == ItemChange.Mode.RemoveFromList) {
-                            var roomId = update.ItemId;
-                            var itemId = change.Value;
-                            var roomItem = GetRoomItem(roomId, itemId);
-                            if (roomItem != null) {
-                                await OnItemRemovedFromRoom(roomItem);
-                            }
+                    } else if (change.Pid == Pid.Contains && change.What == ItemChange.Mode.RemoveFromList) {
+                        var roomId = update.ItemId;
+                        var itemId = change.Value;
+                        var roomItem = GetRoomItem(roomId, itemId);
+                        if (roomItem != null) {
+                            await OnItemRemovedFromRoom(roomItem);
                         }
                     }
+                }
 
-                } else {
+            } else {
 
-                    var roomItem = GetRoomItem(update.ItemId);
-                    if (roomItem != null) {
+                var roomItem = GetRoomItem(update.ItemId);
+                if (roomItem != null) {
+                    if (roomItem.State == RoomItem.RezState.Rezzed) {
                         var atleastOneOfChangedPropertiesIsPublic = false;
                         foreach (var change in update.Changes) {
                             atleastOneOfChangedPropertiesIsPublic |= Property.GetDefinition(change.Pid).Access == Property.Access.Public;
@@ -438,10 +442,11 @@ namespace XmppComponent
                         if (atleastOneOfChangedPropertiesIsPublic) {
                             await OnPublicItemPropertyChanged(roomItem);
                         }
-
                     }
 
                 }
+
+            }
 
         }
 

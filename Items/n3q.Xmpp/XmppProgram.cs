@@ -54,7 +54,7 @@ namespace XmppComponent
                 .Build();
 
             await client.Connect(RetryFilter);
-            Log.Info("Client connected to silo host", nameof(StartClientWithRetries));
+            Log.Info("Client connected to silo host");
 
             return client;
         }

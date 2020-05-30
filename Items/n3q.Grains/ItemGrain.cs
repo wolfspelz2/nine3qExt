@@ -240,6 +240,7 @@ namespace n3q.Grains
                 var templateId = (string)Properties.Get(Pid.Template);
                 if (Has.Value(templateId)) {
                     result = await Item(templateId).GetProperties(PidSet.All);
+                    result = FilterTemplateProperties(result);
                 }
 
                 result ??= new PropertySet();
@@ -261,6 +262,7 @@ namespace n3q.Grains
                 var templateId = (string)Properties.Get(Pid.Template);
                 if (Has.Value(templateId)) {
                     result = await Item(templateId).GetProperties(pids);
+                    result = FilterTemplateProperties(result);
                 }
 
                 result ??= new PropertySet();
@@ -297,6 +299,7 @@ namespace n3q.Grains
                 var templateId = (string)Properties.Get(Pid.Template);
                 if (Has.Value(templateId)) {
                     result = await Item(templateId).GetProperties(new PidSet { accessPid });
+                    result = FilterTemplateProperties(result);
                 }
 
                 result ??= new PropertySet();
@@ -315,6 +318,14 @@ namespace n3q.Grains
                     }
                 }
             }
+        }
+
+        private PropertySet FilterTemplateProperties(PropertySet props)
+        {
+            if (props.ContainsKey(Pid.Container)) {
+                props.Remove(Pid.Container);
+            }
+            return props;
         }
 
         #endregion

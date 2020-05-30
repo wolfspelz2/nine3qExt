@@ -39,9 +39,9 @@ namespace XmppComponent
         {
             using var tcpClient = new TcpClient();
 
-            Log.Info($"Connecting to server {_host}:{_port}", "Connecton.Run");
+            Log.Info($"Connecting to server {_host}:{_port}");
             await tcpClient.ConnectAsync(_host, _port);
-            Log.Info("Connected", "Connecton.Run");
+            Log.Info("Connected");
 
             _networkStream = tcpClient.GetStream();
             {
