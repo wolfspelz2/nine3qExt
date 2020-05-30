@@ -210,10 +210,12 @@ namespace XmppComponent
             try {
                 var method = stanza.Cmd.ContainsKey("method") ? stanza.Cmd["method"] : "";
                 switch (method) {
+                    case "itemAction": await Connection_OnItemAction(stanza); break;
                     case "dropItem": await Connection_OnDropItem(stanza); break;
                     case "pickupItem": await Connection_OnPickupItem(stanza); break;
                     default: Log.Warning($"Unknown method={method}"); break;
                 }
+
             } catch (Exception ex) {
                 Log.Error(ex);
             }
@@ -239,7 +241,7 @@ namespace XmppComponent
                 } else {
                     Log.Info($"Joined room {roomId} {itemId}");
                     roomItem.State = RoomItem.RezState.Rezzed;
-                    await GetWorker().Run(itemId, Pid.RezableAspect, nameof(Rezable.OnRezzed));
+                    await GetWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.OnRezzed));
                 }
             }
 
@@ -263,6 +265,42 @@ namespace XmppComponent
             await Task.CompletedTask;
         }
 
+        async Task Connection_OnItemAction(XmppMessage message)
+        {
+            var userId = "";
+            var itemId = "";
+            var actionName = "";
+            var args = new Dictionary<string, string>();
+            foreach (var pair in message.Cmd) {
+                switch (pair.Key) {
+                    case "method": break;
+                    case "xmlns": break;
+                    case "user": userId = pair.Value; break;
+                    case "item": itemId = pair.Value; break;
+                    case "action": actionName = pair.Value; break;
+                    default: args[pair.Key] = pair.Value; break;
+                }
+            }
+
+            Log.Info($"ItemAction user={userId} item={itemId} action={actionName}");
+
+            if (actionName == nameof(Rezable.Action.Rez) && Has.Value(userId) && Has.Value(itemId)) {
+                var props = await GetItem(itemId).GetProperties(new PidSet { Pid.RezableAspect });
+                if (props.GetBool(Pid.RezableAspect)) {
+                    var roomId = message.Cmd.ContainsKey("room") ? message.Cmd["room"] : "";
+                    if (Has.Value(roomId)) {
+                        _ = AddRoomItem(roomId, itemId);
+                        await GetItem(roomId).ModifyProperties(new PropertySet(Pid.ContainerAspect, true), PidSet.Empty, ItemTransaction.WithoutTransaction);
+                    }
+                }
+            }
+
+            var executed = await GetWorker().ItemAction(userId, itemId, actionName, args);
+            if (executed.Count > 0) {
+                Log.Info($"ItemAction executed {string.Join(" ", executed.Select(pair => pair.Key + "." + pair.Value))} {string.Join(" ", args.Select(pair => pair.Key + "=" + pair.Value))}");
+            }
+        }
+
         async Task Connection_OnDropItem(XmppMessage message)
         {
             var userId = message.Cmd.ContainsKey("user") ? message.Cmd["user"] : "";
@@ -275,7 +313,7 @@ namespace XmppComponent
                 Log.Info($"Drop {roomId} {itemId}");
                 await GetItem(roomId).ModifyProperties(new PropertySet(Pid.ContainerAspect, true), PidSet.Empty, ItemTransaction.WithoutTransaction);
                 _ = AddRoomItem(roomId, itemId);
-                await GetWorker().Run(itemId, Pid.RezableAspect, nameof(Rezable.Rez), new PropertySet { [Pid.RezableRoom] = roomId, [Pid.RezableX] = posX });
+                await GetWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Rez), new PropertySet { [Pid.RezableRezRoom] = roomId, [Pid.RezableRezX] = posX });
             }
         }
 
@@ -293,7 +331,7 @@ namespace XmppComponent
                         throw new SurfaceException(roomId, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezzed);
                     } else {
                         Log.Info($"Pickup {roomId} {itemId}");
-                        await GetWorker().Run(itemId, Pid.RezableAspect, nameof(Rezable.Derez), new PropertySet { [Pid.RezableUser] = roomId });
+                        await GetWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Derez), new PropertySet { [Pid.RezableDerezUser] = roomId });
                         await OnItemRemovedFromRoom(roomItem);
 
                         // Also: don't wait to cleanup state, just ignore the presence-unavailable
@@ -316,7 +354,7 @@ namespace XmppComponent
             if (string.IsNullOrEmpty(name)) { name = props.Get(Pid.Label); }
             if (string.IsNullOrEmpty(name)) { name = $"Item-{itemId}"; }
 
-            var x = props.GetInt(Pid.RezableX);
+            var x = props.GetInt(Pid.RezableRezX);
 
             var roomItemJid = new RoomItemJid(roomId, itemId, name);
 

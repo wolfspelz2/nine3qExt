@@ -17,6 +17,8 @@ namespace n3q.Aspects
 
         public async Task AddChild(ItemStub child)
         {
+            var props = await child.Grain.GetProperties(new PidSet { Pid.Container }, false);
+
             await AssertAspect();
             await self.AsItemCapacityLimit().AssertLimit(child);
 

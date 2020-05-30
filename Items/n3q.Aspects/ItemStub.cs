@@ -1,8 +1,10 @@
-﻿using Orleans;
-using n3q.GrainInterfaces;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Orleans;
+using n3q.GrainInterfaces;
 using n3q.Items;
-using System;
 using n3q.Tools;
 
 namespace n3q.Aspects
@@ -21,6 +23,9 @@ namespace n3q.Aspects
             ClusterClient = clusterClient;
             Id = itemId;
             Transaction = t;
+            if (t == null) {
+                _ = 1;
+            }
         }
 
         public ItemStub(IGrainFactory grainFactory, string id, ItemTransaction t = null)
@@ -28,6 +33,9 @@ namespace n3q.Aspects
             GrainFactory = grainFactory;
             Id = id;
             Transaction = t;
+            if (t == null) {
+                _ = 1;
+            }
         }
 
         public ItemStub(ItemSiloSimulator simulator, string id, ItemTransaction t = null)
@@ -35,6 +43,9 @@ namespace n3q.Aspects
             Simulator = simulator;
             Id = id;
             Transaction = t;
+            if (t == null) {
+                _ = 1;
+            }
         }
 
         public IItem Grain
@@ -71,6 +82,24 @@ namespace n3q.Aspects
             } else {
                 throw new Exception($"Need valid IClusterClient or IGrainFactory for id={Id}");
             }
+        }
+
+        public async Task ForeachAspect(Action<Aspect> action)
+        {
+            foreach (var key in await GetAspects()) {
+                var aspect = AsAspect(key);
+                if (aspect != null) {
+                    action(aspect);
+                }
+            }
+        }
+
+        public async Task<IEnumerable<Pid>> GetAspects()
+        {
+            var aspectProps = await GetProperties(PidSet.Aspects);
+            var itemAspectPids = aspectProps.Keys;
+            var knownAspectPids = AspectRegistry.Aspects.Keys;
+            return itemAspectPids.Intersect(knownAspectPids);
         }
 
         public Aspect AsAspect(Pid pid)

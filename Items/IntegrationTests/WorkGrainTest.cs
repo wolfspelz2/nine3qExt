@@ -28,20 +28,20 @@ namespace IntegrationTests
                     await self.Set(Pid.TestGreetedAspect, true);
                 });
                 await greeter.WithTransaction(async self => {
-                    await self.ModifyProperties(new PropertySet { [Pid.TestGreeterAspect] = true, [Pid.TestGreeter_Prefix] = "Hello " }, PidSet.Empty);
+                    await self.ModifyProperties(new PropertySet { [Pid.TestGreeterAspect] = true, [Pid.TestGreeterPrefix] = "Hello " }, PidSet.Empty);
                 });
 
                 // Act
-                await GetWorkerGrain().Run(
+                await GetWorkerGrain().AspectAction(
                     greetedId,
                     Pid.TestGreetedAspect,
-                    nameof(TestGreeted.Action.UseGreeter),
-                    new PropertySet { [Pid.TestGreeted_Item] = greeterId, [Pid.TestGreeted_Name] = "World" }
+                    nameof(TestGreeted.Action.GetGreeting),
+                    new PropertySet { [Pid.TestGreetedGetGreetingGreeter] = greeterId, [Pid.TestGreetedGetGreetingName] = "World" }
                 );
 
                 // Assert
-                Assert.AreEqual("Hello World", await greeter.GetString(Pid.TestGreeter_Result));
-                Assert.AreEqual("Hello World", await greeted.GetString(Pid.TestGreeted_Result));
+                Assert.AreEqual("Hello World", await greeter.GetString(Pid.TestGreeterResult));
+                Assert.AreEqual("Hello World", await greeted.GetString(Pid.TestGreetedResult));
 
             } finally {
                 // Cleanup

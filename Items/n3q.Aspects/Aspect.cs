@@ -79,7 +79,7 @@ namespace n3q.Aspects
             return null;
         }
 
-        public async Task Run(string action, PropertySet arguments)
+        public async Task Execute(string action, PropertySet arguments)
         {
             var actions = GetActionList();
             if (actions != null) {
@@ -88,5 +88,6 @@ namespace n3q.Aspects
                 }
             }
         }
+
     }
 }

@@ -131,8 +131,10 @@ namespace n3q.Grains
 
             if (pids == PidSet.All) {
                 props = await GetPropertiesAll(native);
-            } else if (pids.Count == 1 && (pids.Contains(Pid.PublicAccess) || pids.Contains(Pid.OwnerAccess))) {
+            } else if (pids.Count == 1 && (pids.Contains(Pid.MetaPublicAccess) || pids.Contains(Pid.MetaOwnerAccess))) {
                 props = await GetPropertiesByAccess(pids.First(), native);
+            } else if (pids.Count == 1 && (pids.Contains(Pid.MetaAspectGroup))) {
+                props = await GetPropertiesByGroup(pids.First(), native);
             } else {
                 props = await GetPropertiesByPid(pids, native);
             }
@@ -283,18 +285,54 @@ namespace n3q.Grains
             }
         }
 
+        private async Task<PropertySet> GetPropertiesByGroup(Pid groupPid, bool native = false)
+        {
+            var result = new PropertySet();
+
+            var group = Property.Group.Unknown;
+            switch (groupPid) {
+                case Pid.MetaAspectGroup: group = Property.Group.Aspect; break;
+            }
+
+            if (native) {
+                CopyPropertiesByGroup(result, group);
+            } else {
+                var templateId = (string)Properties.Get(Pid.Template);
+                if (Has.Value(templateId)) {
+                    result = await Item(templateId).GetProperties(new PidSet { groupPid });
+                    result = FilterTemplateProperties(result);
+                }
+
+                result ??= new PropertySet();
+                CopyPropertiesByGroup(result, group);
+            }
+
+            return result;
+        }
+
+        private void CopyPropertiesByGroup(PropertySet result, Property.Group group)
+        {
+            foreach (Pid pid in Enum.GetValues(typeof(Pid))) {
+                if (Property.Definitions[pid].Group == group) {
+                    if (Properties.ContainsKey(pid)) {
+                        result[pid] = Properties[pid];
+                    }
+                }
+            }
+        }
+
         private async Task<PropertySet> GetPropertiesByAccess(Pid accessPid, bool native = false)
         {
             var result = new PropertySet();
 
             var access = Property.Access.System;
             switch (accessPid) {
-                case Pid.OwnerAccess: access = Property.Access.Owner; break;
-                case Pid.PublicAccess: access = Property.Access.Public; break;
+                case Pid.MetaOwnerAccess: access = Property.Access.Owner; break;
+                case Pid.MetaPublicAccess: access = Property.Access.Public; break;
             }
 
             if (native) {
-                CopyPropertiesByAccessLevel(result, access);
+                CopyPropertiesByAccess(result, access);
             } else {
                 var templateId = (string)Properties.Get(Pid.Template);
                 if (Has.Value(templateId)) {
@@ -303,13 +341,13 @@ namespace n3q.Grains
                 }
 
                 result ??= new PropertySet();
-                CopyPropertiesByAccessLevel(result, access);
+                CopyPropertiesByAccess(result, access);
             }
 
             return result;
         }
 
-        private void CopyPropertiesByAccessLevel(PropertySet result, Property.Access access)
+        private void CopyPropertiesByAccess(PropertySet result, Property.Access access)
         {
             foreach (Pid pid in Enum.GetValues(typeof(Pid))) {
                 if (Property.Definitions[pid].Access >= access) {

@@ -48,8 +48,9 @@
         // Operational, not real item properties
         FirstOperation = 1000000,
         Item,
-        PublicAccess,
-        OwnerAccess,
+        MetaPublicAccess,
+        MetaOwnerAccess,
+        MetaAspectGroup,
 
         // Generic
         FirstGeneric = 2000000,
@@ -86,32 +87,34 @@
         
         // Public aspect method parameters
         FirstParameter = 4000000,
-        TestGreeted_Item,
-        TestGreeted_Name,
-        TestGreeter_Result,
-        TestGreeted_Result,
+        TestGreetedGetGreetingGreeter,
+        TestGreetedGetGreetingName,
+        RezableRezRoom,
+        RezableRezX,
+        RezableRezDestination,
+        RezableDerezUser,
         PassiveItem,
-        RezableRoom,
-        RezableUser,
 
         // App
         FirstApp = 5000000,
-        TestGreeter_Prefix,
+        TestGreeterPrefix,
+        TestGreeterResult,
+        TestGreetedResult,
         ContainerItemLimit,
         RezableIsRezzing,
         RezableIsRezzed,
         RezableIsDerezzing,
-        RezableX,
+        RezzedX,
         IframeUrl,
         IframeWidth,
         IframeHeight,
         IframeResizeable,
         RezzableProxyTemplate,
         RoleUserRoles,
-        SourceResource, //
-        SinkResource,   //
-        WaterLevel,     //
-        WaterLevelMax,  //
+        SourceResource,
+        SinkResource,  
+        WaterLevel,    
+        WaterLevelMax, 
 
         // User Attribute
         FirstUserAttribute = 6000000,

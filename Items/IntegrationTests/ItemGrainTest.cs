@@ -71,6 +71,45 @@ namespace IntegrationTests
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
+        public async Task GetProperties_by_group_incl_template()
+        {
+            // Arrange
+            var item = GrainClient.GetItemStub(GrainClient.GetRandomItemId());
+            var tmpl = GrainClient.GetItemStub(GrainClient.GetRandomItemId("TEMPLATE"));
+
+            try {
+                await tmpl.WithTransaction(async self => {
+                    await self.ModifyProperties(new PropertySet {
+                        [Pid.TestInt1] = 41,
+                        [Pid.TestGreeterAspect] = true,
+                    }, PidSet.Empty);
+                });
+                await item.WithTransaction(async self => {
+                    await self.ModifyProperties(new PropertySet {
+                        [Pid.TestInt2] = 42,
+                        [Pid.TestGreetedAspect] = true,
+                        [Pid.Template] = tmpl.Id,
+                    }, PidSet.Empty);
+                });
+
+                // Act
+                var props = await item.GetProperties(PidSet.Aspects);
+
+                // Assert
+                Assert.AreEqual(2, props.Count);
+                Assert.AreEqual(0, props.GetInt(Pid.TestInt1));
+                Assert.AreEqual(0, props.GetInt(Pid.TestInt2));
+                Assert.AreEqual(true, props.GetBool(Pid.TestGreeterAspect));
+                Assert.AreEqual(true, props.GetBool(Pid.TestGreetedAspect));
+
+            } finally {
+                // Cleanup
+                await item.DeletePersistentStorage();
+            }
+        }
+
+        [TestMethod]
+        [TestCategory(GrainClient.Category)]
         public async Task GetProperties_by_PidSet()
         {
             // Arrange
@@ -197,7 +236,7 @@ namespace IntegrationTests
         {
             // Arrange
             var itemId = GrainClient.GetRandomItemId();
-            var tmplId = GrainClient.GetRandomItemId($"TEMPLATE");
+            var tmplId = GrainClient.GetRandomItemId("TEMPLATE");
             var item = GrainClient.GetItemStub(itemId);
             var tmpl = GrainClient.GetItemStub(tmplId);
 
@@ -234,7 +273,7 @@ namespace IntegrationTests
         {
             // Arrange
             var itemId = GrainClient.GetRandomItemId();
-            var tmplId = GrainClient.GetRandomItemId($"TEMPLATE");
+            var tmplId = GrainClient.GetRandomItemId("TEMPLATE");
             var item = GrainClient.GetItemStub(itemId);
             var tmpl = GrainClient.GetItemStub(tmplId);
 
@@ -280,7 +319,7 @@ namespace IntegrationTests
         {
             // Arrange
             var itemId = GrainClient.GetRandomItemId();
-            var tmplId = GrainClient.GetRandomItemId($"TEMPLATE");
+            var tmplId = GrainClient.GetRandomItemId("TEMPLATE");
             var item = GrainClient.GetItemStub(itemId);
             var tmpl = GrainClient.GetItemStub(tmplId);
 

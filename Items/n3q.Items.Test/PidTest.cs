@@ -17,8 +17,6 @@ namespace n3q.Items.Test
         {
             foreach (var pid in Enum.GetValues(typeof(Pid)).Cast<Pid>()) {
                 var prop = Property.GetDefinition(pid);
-                Assert.AreEqual(pid, prop.Id, "Id of PropertyId." + pid.ToString());
-                //Assert.AreEqual(pid.ToString(), prop.Name, "Name of PropertyId." + pid.ToString());
                 Assert.IsNotNull(prop.Basic, "Type of PropertyId." + pid.ToString());
                 Assert.IsNotNull(prop.Use, "Use of PropertyId." + pid.ToString());
                 Assert.IsNotNull(prop.Group, "Group of PropertyId." + pid.ToString());

@@ -380,7 +380,7 @@ namespace n3q.Web
                 arg = args.Next("PropertyName", "");
                 if (Has.Value(arg)) {
                     var pid = arg.ToEnum(Pid.Unknown);
-                    pids.Add(Property.GetDefinition(pid).Id);
+                    pids.Add(pid);
                 }
             } while (!string.IsNullOrEmpty(arg));
 
@@ -455,14 +455,14 @@ namespace n3q.Web
                     if (arg.StartsWith("{")) {
                         var jsonNode = new JsonPath.Node(arg);
                         foreach (var pair in jsonNode.AsDictionary) {
-                            props.Add(Property.GetDefinition(pair.Key.ToEnum(Pid.Unknown)).Id, pair.Value.AsString);
+                            props.Add(pair.Key.ToEnum(Pid.Unknown), pair.Value.AsString);
                         }
                     } else {
                         var parts = arg.Split(new[] { '=', ':' }, 2, System.StringSplitOptions.RemoveEmptyEntries);
                         if (parts.Length != 2) {
                             throw new Exception("Parameter needs 2 parts: Property=Value, got arg=" + arg);
                         }
-                        props.Add(Property.GetDefinition(parts[0].ToEnum(Pid.Unknown)).Id, parts[1]);
+                        props.Add(parts[0].ToEnum(Pid.Unknown), parts[1]);
                     }
                 }
             } while (!string.IsNullOrEmpty(arg));

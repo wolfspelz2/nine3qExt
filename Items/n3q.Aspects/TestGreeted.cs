@@ -13,19 +13,19 @@ namespace n3q.Aspects
         public TestGreeted(ItemStub item) { self = item; }
         public override Pid GetAspectPid() => Pid.TestGreetedAspect;
 
-        public enum Action { UseGreeter }
+        public enum Action { GetGreeting }
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { nameof(Action.UseGreeter), new ActionDescription() { Handler = async (args) => await GetGreeting(await Item(args.Get(Pid.TestGreeted_Item)), args.Get(Pid.TestGreeted_Name)) } },
+                { nameof(Action.GetGreeting), new ActionDescription() { Handler = async (args) => await GetGreeting(await Item(args.Get(Pid.TestGreetedGetGreetingGreeter)), args.Get(Pid.TestGreetedGetGreetingName)) } },
             };
         }
 
-        public async Task GetGreeting(ItemStub passiveItem, string name)
+        public async Task GetGreeting(ItemStub greeter, string name)
         {
             //await AssertAspect();
-            var greeting = await passiveItem.AsTestGreeter().Greet(name);
-            await self.Set(Pid.TestGreeted_Result, greeting);
+            var greeting = await greeter.AsTestGreeter().Greet(name);
+            await self.Set(Pid.TestGreetedResult, greeting);
         }
 
     }

@@ -17,7 +17,8 @@ namespace n3q.Items
         {
         }
 
-        public static PidSet Public { get; } = new PidSet { Pid.PublicAccess };
-        public static PidSet Owner { get; } = new PidSet { Pid.OwnerAccess };
+        public static PidSet Public { get; } = new PidSet { Pid.MetaPublicAccess };
+        public static PidSet Owner { get; } = new PidSet { Pid.MetaOwnerAccess };
+        public static PidSet Aspects { get; } = new PidSet { Pid.MetaAspectGroup };
     }
 }
