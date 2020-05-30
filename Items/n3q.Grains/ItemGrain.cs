@@ -32,6 +32,7 @@ namespace n3q.Grains
         IAsyncStream<ItemUpdate> _stream;
 
         Guid _transactionId = Guid.Empty;
+        public PropertySet _savedProperties;
         List<PropertyChange> _changes;
 
         public ItemGrain(
@@ -70,15 +71,20 @@ namespace n3q.Grains
 
             foreach (var pair in modified) {
                 var pid = pair.Key;
-                _changes.Add(new PropertyChange(PropertyChange.Mode.SetProperty, pid, pair.Value));
+                var value = pair.Value;
+                _changes.Add(new PropertyChange(PropertyChange.Mode.SetProperty, pid, value));
+                Properties[pid] = value;
             }
 
             foreach (var pid in deleted) {
+                if (Properties.ContainsKey(pid)) {
+                    Properties.Delete(pid);
+                }
                 _changes.Add(new PropertyChange(PropertyChange.Mode.DeleteProperty, pid, null));
             }
 
             if (!InTransaction()) {
-                await ApplyChanges();
+                await CommitChanges();
             }
         }
 
@@ -89,13 +95,17 @@ namespace n3q.Grains
             if (Properties.TryGetValue(pid, out var pv)) {
                 if (!pv.IsInList(value)) {
                     _changes.Add(new PropertyChange(PropertyChange.Mode.AddToList, pid, value));
+                    pv.AddToList(value);
                 }
             } else {
                 _changes.Add(new PropertyChange(PropertyChange.Mode.AddToList, pid, value));
+                pv = new PropertyValue();
+                pv.AddToList(value);
+                Properties[pid] = pv;
             }
 
             if (!InTransaction()) {
-                await ApplyChanges();
+                await CommitChanges();
             }
         }
 
@@ -106,11 +116,12 @@ namespace n3q.Grains
             if (Properties.TryGetValue(pid, out var pv)) {
                 if (pv.IsInList(value)) {
                     _changes.Add(new PropertyChange(PropertyChange.Mode.RemoveFromList, pid, value));
+                    pv.RemoveFromList(value);
                 }
             }
 
             if (!InTransaction()) {
-                await ApplyChanges();
+                await CommitChanges();
             }
         }
 
@@ -153,11 +164,14 @@ namespace n3q.Grains
             if (InTransaction()) {
                 if (!IsSameTransaction(tid)) {
                     throw new Exception($"BeginTransaction: already in transaction current={_transactionId} tid={tid}");
+                } else {
+                    // Begin same: ignore
                 }
             }
 
             _transactionId = tid;
             _changes = new List<PropertyChange>();
+            _savedProperties = Properties.Clone();
 
             return Task.CompletedTask;
         }
@@ -165,15 +179,19 @@ namespace n3q.Grains
         public async Task EndTransaction(Guid tid, bool success)
         {
             if (InTransaction()) {
-                if (IsSameTransaction(tid)) {
+                if (!IsSameTransaction(tid)) {
+                    throw new Exception($"EndTransaction: in different transaction current={_transactionId} tid={tid}");
+                } else {
                     if (success) {
-                        await ApplyChanges();
+                        await CommitChanges();
+                    } else {
+                        CancelChanges();
                     }
+
+                    _transactionId = Guid.Empty;
+                    _changes = null;
                 }
             }
-
-            _transactionId = Guid.Empty;
-            _changes = null;
         }
 
         #endregion
@@ -287,44 +305,49 @@ namespace n3q.Grains
 
         //WritePersistentStorage();
 
-        private async Task ApplyChanges()
+        private void CancelChanges()
         {
-            foreach (var change in _changes) {
-                var pid = change.Pid;
-                var value = change.Value;
+            Properties = _savedProperties;
+        }
 
-                switch (change.What) {
-                    case PropertyChange.Mode.SetProperty: {
-                        Properties[pid] = value;
-                    }
-                    break;
+        private async Task CommitChanges()
+        {
+            //foreach (var change in _changes) {
+            //    var pid = change.Pid;
+            //    var value = change.Value;
 
-                    case PropertyChange.Mode.AddToList: {
-                        if (Properties.TryGetValue(pid, out var pv)) {
-                            pv.AddToList(value);
-                        } else {
-                            pv = new PropertyValue();
-                            pv.AddToList(value);
-                            Properties[pid] = pv;
-                        }
-                    }
-                    break;
+            //    switch (change.What) {
+            //        case PropertyChange.Mode.SetProperty: {
+            //            Properties[pid] = value;
+            //        }
+            //        break;
 
-                    case PropertyChange.Mode.RemoveFromList: {
-                        if (Properties.TryGetValue(pid, out var pv)) {
-                            pv.RemoveFromList(value);
-                        }
-                    }
-                    break;
+            //        case PropertyChange.Mode.AddToList: {
+            //            if (Properties.TryGetValue(pid, out var pv)) {
+            //                pv.AddToList(value);
+            //            } else {
+            //                pv = new PropertyValue();
+            //                pv.AddToList(value);
+            //                Properties[pid] = pv;
+            //            }
+            //        }
+            //        break;
 
-                    case PropertyChange.Mode.DeleteProperty: {
-                        if (Properties.ContainsKey(pid)) {
-                            Properties.Delete(pid);
-                        }
-                    }
-                    break;
-                }
-            }
+            //        case PropertyChange.Mode.RemoveFromList: {
+            //            if (Properties.TryGetValue(pid, out var pv)) {
+            //                pv.RemoveFromList(value);
+            //            }
+            //        }
+            //        break;
+
+            //        case PropertyChange.Mode.DeleteProperty: {
+            //            if (Properties.ContainsKey(pid)) {
+            //                Properties.Delete(pid);
+            //            }
+            //        }
+            //        break;
+            //    }
+            //}
 
             if (_changes.Count > 0) {
                 // Persist changes

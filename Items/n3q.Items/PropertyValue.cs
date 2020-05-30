@@ -15,6 +15,11 @@ namespace n3q.Items
 
         public static PropertyValue Empty = new PropertyValue();
 
+        public PropertyValue(PropertyValue pv)
+        {
+            _value = pv.ToString();
+        }
+
         public PropertyValue()
         {
             _value = "";

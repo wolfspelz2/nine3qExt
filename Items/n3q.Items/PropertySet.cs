@@ -65,5 +65,13 @@ namespace n3q.Items
             }
         }
 
+        public PropertySet Clone()
+        {
+            var clone = new PropertySet();
+            foreach (var pair in this) {
+                clone[pair.Key] = new PropertyValue(pair.Value);
+            }
+            return clone;
+        }
     }
 }
