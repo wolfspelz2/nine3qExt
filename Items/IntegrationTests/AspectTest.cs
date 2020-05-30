@@ -67,8 +67,6 @@ namespace IntegrationTests
                 // Act
                 await child.WithTransaction(async self => {
                     await self.AsDeletable().Delete();
-                    //self.MarkForDeletion();
-                    //await Task.CompletedTask;
                 });
 
                 // Assert

@@ -5,7 +5,7 @@ using n3q.Items;
 namespace n3q.Items
 {
     [Serializable]
-    public class PropertyChange
+    public class ItemChange
     {
         public enum Mode
         {
@@ -13,17 +13,18 @@ namespace n3q.Items
             AddToList,
             RemoveFromList,
             DeleteProperty,
+            DeleteItem,
         }
 
-        public Mode What { get; set; }
-        public Pid Pid { get; set; }
+        public Mode What { get; }
+        public Pid Pid { get; }
 
         // PropertyChanged: Value contains the new property value
         // AddedToItemList: Value contains the added item id
         // RemovedFromItemList: Value contains the removed item id
         public PropertyValue Value { get; set; }
 
-        public PropertyChange(Mode what, Pid pid, PropertyValue value)
+        public ItemChange(Mode what, Pid pid, PropertyValue value)
         {
             What = what;
             Pid = pid;
@@ -34,10 +35,10 @@ namespace n3q.Items
     [Serializable]
     public class ItemUpdate
     {
-        public string ItemId { get; set; }
-        public List<PropertyChange> Changes = new List<PropertyChange>();
+        public string ItemId { get; }
+        public List<ItemChange> Changes = new List<ItemChange>();
 
-        public ItemUpdate(string itemId, List<PropertyChange> changes)
+        public ItemUpdate(string itemId, List<ItemChange> changes)
         {
             ItemId = itemId;
             Changes = changes;

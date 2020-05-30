@@ -409,39 +409,40 @@ namespace XmppComponent
 
         public async Task OnItemUpdate(ItemUpdate update)
         {
-            if (IsManagedRoom(update.ItemId)) {
+                if (IsManagedRoom(update.ItemId)) {
 
-                foreach (var change in update.Changes) {
-                    if (change.Pid == Pid.Contains && change.What == PropertyChange.Mode.AddToList) {
-                        var roomId = update.ItemId;
-                        var itemId = change.Value;
-                        await OnItemAddedToRoom(roomId, itemId);
+                    foreach (var change in update.Changes) {
+                        if (change.Pid == Pid.Contains && change.What == ItemChange.Mode.AddToList) {
+                            var roomId = update.ItemId;
+                            var itemId = change.Value;
+                            await OnItemAddedToRoom(roomId, itemId);
 
-                    } else if (change.Pid == Pid.Contains && change.What == PropertyChange.Mode.RemoveFromList) {
-                        var roomId = update.ItemId;
-                        var itemId = change.Value;
-                        var roomItem = GetRoomItem(roomId, itemId);
-                        if (roomItem != null) {
-                            await OnItemRemovedFromRoom(roomItem);
+                        } else if (change.Pid == Pid.Contains && change.What == ItemChange.Mode.RemoveFromList) {
+                            var roomId = update.ItemId;
+                            var itemId = change.Value;
+                            var roomItem = GetRoomItem(roomId, itemId);
+                            if (roomItem != null) {
+                                await OnItemRemovedFromRoom(roomItem);
+                            }
                         }
                     }
+
+                } else {
+
+                    var roomItem = GetRoomItem(update.ItemId);
+                    if (roomItem != null) {
+                        var atleastOneOfChangedPropertiesIsPublic = false;
+                        foreach (var change in update.Changes) {
+                            atleastOneOfChangedPropertiesIsPublic |= Property.GetDefinition(change.Pid).Access == Property.Access.Public;
+                        }
+                        if (atleastOneOfChangedPropertiesIsPublic) {
+                            await OnPublicItemPropertyChanged(roomItem);
+                        }
+
+                    }
+
                 }
 
-            } else {
-
-                var roomItem = GetRoomItem(update.ItemId);
-                if (roomItem != null) {
-                    var atleastOneOfChangedPropertiesIsPublic = false;
-                    foreach (var change in update.Changes) {
-                        atleastOneOfChangedPropertiesIsPublic |= Property.GetDefinition(change.Pid).Access == Property.Access.Public;
-                    }
-                    if (atleastOneOfChangedPropertiesIsPublic) {
-                        await OnPublicItemPropertyChanged(roomItem);
-                    }
-
-                }
-
-            }
         }
 
         public Task OnCompletedAsync()

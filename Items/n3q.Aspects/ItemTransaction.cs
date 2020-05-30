@@ -8,6 +8,7 @@ namespace n3q.Aspects
     public class ItemTransaction
     {
         public Guid Id = Guid.NewGuid();
+        public static Guid WithoutTransaction = Guid.Empty;
 
         readonly HashSet<ItemStub> _items = new HashSet<ItemStub>();
 
@@ -28,11 +29,6 @@ namespace n3q.Aspects
         {
             foreach (var item in _items) {
                 await item.EndTransaction(Id, true);
-
-                if (item.MarkedForDeletion) {
-                    await item.DeletePersistentStorage();
-                    await item.Deactivate();
-                }
             }
         }
 

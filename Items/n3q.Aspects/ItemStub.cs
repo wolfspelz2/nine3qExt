@@ -15,7 +15,6 @@ namespace n3q.Aspects
         public IGrainFactory GrainFactory { get; }
         public ItemSiloSimulator Simulator { get; }
         public ItemTransaction Transaction { get; set; }
-        public bool MarkedForDeletion { get; set; } = false;
 
         public ItemStub(IClusterClient clusterClient, string itemId, ItemTransaction t = null)
         {
@@ -93,6 +92,8 @@ namespace n3q.Aspects
         public Task BeginTransaction(Guid tid) { return Grain.BeginTransaction(tid); }
         public Task EndTransaction(Guid tid, bool success) { return Grain.EndTransaction(tid, success); }
 
+        public Task Delete(Guid tid) { return Grain.Delete(tid); }
+
         public Task<Guid> GetStreamId() { return Grain.GetStreamId(); }
         public Task<string> GetStreamNamespace() { return Grain.GetStreamNamespace(); }
         public Task Deactivate() { return Grain.Deactivate(); }
@@ -128,6 +129,8 @@ namespace n3q.Aspects
         }
         public Task EndTransaction(bool success) { AssertTransaction(); return Grain.EndTransaction(Transaction.Id, success); }
 
+        public Task Delete() { return Grain.Delete(Transaction.Id); }
+
         public async Task Set(Pid pid, PropertyValue value) { AssertTransaction(); await Grain.ModifyProperties(new PropertySet(pid, value), PidSet.Empty, Transaction.Id); }
         public async Task Unset(Pid pid) { AssertTransaction(); await Grain.ModifyProperties(PropertySet.Empty, new PidSet { pid }, Transaction.Id); }
 
@@ -156,8 +159,6 @@ namespace n3q.Aspects
                 throw new Exception("No transaction");
             }
         }
-
-        public void MarkForDeletion() { MarkedForDeletion = true; }
 
         #endregion
 
