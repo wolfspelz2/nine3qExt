@@ -23,7 +23,8 @@ namespace n3q.Grains
                 var aspect = item.AsAspect(aspectPid);
                 await aspect.Run(actionName, args);
                 await t.Commit();
-            } catch {
+            } catch (Exception ex) {
+                _ = ex;
                 await t.Cancel();
             }
 

@@ -326,15 +326,17 @@ namespace n3q.Grains
                 }
             }
 
-            // Persist changes
-            var persist = _changes.Aggregate(false, (current, change) => current |= PropertyMustBeSaved(change.Pid, change.Value));
-            if (persist) {
-                await WritePersistentStorage();
-            }
+            if (_changes.Count > 0) {
+                // Persist changes
+                var persist = _changes.Aggregate(false, (current, change) => current |= PropertyMustBeSaved(change.Pid, change.Value));
+                if (persist) {
+                    await WritePersistentStorage();
+                }
 
-            // Notify subscribers
-            var update = new ItemUpdate(Id, _changes);
-            await _stream?.OnNextAsync(update);
+                // Notify subscribers
+                var update = new ItemUpdate(Id, _changes);
+                await _stream?.OnNextAsync(update);
+            }
         }
 
         #endregion
