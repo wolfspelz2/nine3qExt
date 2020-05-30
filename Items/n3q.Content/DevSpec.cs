@@ -5,7 +5,7 @@ using n3q.Items;
 
 namespace n3q.Content
 {
-    public static class Dev
+    public static class DevSpec
     {
         public enum GroupName
         {
@@ -48,6 +48,7 @@ namespace n3q.Content
             //BioWaste,
         }
 
+        public const string TemplateContainer = "DevTemplates";
         public const string TemplateSuffix = "Template";
 
         public static Dictionary<Template, string> TemplateName = typeof(Template).GetEnumNames().ToDictionary(key => (Template)Enum.Parse(typeof(Template), key), key => key + TemplateSuffix);
@@ -60,7 +61,7 @@ namespace n3q.Content
         {
             var result = new List<string>();
 
-            foreach (var group in Dev.Groups) {
+            foreach (var group in DevSpec.Groups) {
                 result.Add(group);
             }
 
@@ -86,15 +87,15 @@ namespace n3q.Content
         //    }
         //}
 
-        public class NamePropertiesCollection : Dictionary<string, PropertySet>
+        public class TemplateCollection : Dictionary<string, PropertySet>
         {
         }
 
-        public class TextSet : Dictionary<string, Dictionary<string, string>>
+        public class TextCollection : Dictionary<string, Dictionary<string, string>>
         {
-            public TextSet()
+            public TextCollection()
             {
-                foreach (var lang in Dev.Languages) {
+                foreach (var lang in DevSpec.Languages) {
                     Add(lang, new Dictionary<string, string>());
                 }
             }

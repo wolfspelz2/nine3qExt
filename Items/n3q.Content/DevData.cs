@@ -10,37 +10,37 @@ namespace n3q.Content
 {
     public static class DevData
     {
-        public static void GetTemplates(string name, Dev.NamePropertiesCollection templates, Dev.TextSet text)
+        public static void GetTemplates(string name, DevSpec.TemplateCollection templates, DevSpec.TextCollection text)
         {
             switch (name) {
-                case nameof(Dev.GroupName.Admin):
-                    GetTemplate(Dev.TemplateName[Dev.Template.Admin], templates, text);
+                case nameof(DevSpec.GroupName.Admin):
+                    GetTemplate(DevSpec.TemplateName[DevSpec.Template.Admin], templates, text);
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.GodMode], templates, text);
                     break;
 
-                case nameof(Dev.GroupName.User):
+                case nameof(DevSpec.GroupName.User):
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.Attributes], templates, text);
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.Backpack], templates, text);
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.TrashCan], templates, text);
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.Settings], templates, text);
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.Nickname], templates, text);
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.Avatar], templates, text);
-                    GetTemplate(Dev.TemplateName[Dev.Template.Admin], templates, text);
+                    GetTemplate(DevSpec.TemplateName[DevSpec.Template.Admin], templates, text);
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.GodMode], templates, text);
                     break;
 
-                case nameof(Dev.GroupName.Room):
-                    GetTemplate(Dev.TemplateName[Dev.Template.PirateFlag], templates, text);
+                case nameof(DevSpec.GroupName.Room):
+                    GetTemplate(DevSpec.TemplateName[DevSpec.Template.PirateFlag], templates, text);
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.Landmark], templates, text);
-                    GetTemplate(Dev.TemplateName[Dev.Template.PageProxy], templates, text);
+                    GetTemplate(DevSpec.TemplateName[DevSpec.Template.PageProxy], templates, text);
                     break;
 
-                case nameof(Dev.GroupName.AvatarTheatre):
-                    GetTemplate(Dev.TemplateName[Dev.Template.TheatreScreenplay], templates, text);
+                case nameof(DevSpec.GroupName.AvatarTheatre):
+                    GetTemplate(DevSpec.TemplateName[DevSpec.Template.TheatreScreenplay], templates, text);
                     break;
 
-                case nameof(Dev.GroupName.WaterResourceTest):
-                    GetTemplate(Dev.TemplateName[Dev.Template.WaterBottle], templates, text);
+                case nameof(DevSpec.GroupName.WaterResourceTest):
+                    GetTemplate(DevSpec.TemplateName[DevSpec.Template.WaterBottle], templates, text);
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.WaterCan], templates, text);
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.WaterSink], templates, text);
                     //GetTemplate(BasicDefinition.TemplateName[BasicDefinition.Template.PottedPlant], templates, text);
@@ -53,17 +53,17 @@ namespace n3q.Content
             }
         }
 
-        public static void GetTemplate(string name, Dev.NamePropertiesCollection templates, Dev.TextSet text)
+        public static void GetTemplate(string name, DevSpec.TemplateCollection templates, DevSpec.TextCollection text)
         {
-            text[Dev.de][$"ItemProperty.{Pid.Label}"] = "Name";
-            text[Dev.en][$"ItemProperty.{Pid.Label}"] = "Name";
+            text[DevSpec.de][$"ItemProperty.{Pid.Label}"] = "Name";
+            text[DevSpec.en][$"ItemProperty.{Pid.Label}"] = "Name";
 
-            text[Dev.de][$"ItemProperty.{Pid.RezableAspect}"] = "Ablegbar";
-            text[Dev.en][$"ItemProperty.{Pid.RezableAspect}"] = "Droppable";
+            text[DevSpec.de][$"ItemProperty.{Pid.RezableAspect}"] = "Ablegbar";
+            text[DevSpec.en][$"ItemProperty.{Pid.RezableAspect}"] = "Droppable";
 
             PropertySet props = null;
 
-            if (name == Dev.TemplateName[Dev.Template.Dummy]) {
+            if (name == DevSpec.TemplateName[DevSpec.Template.Dummy]) {
                 props = new PropertySet {
                     [Pid.Name] = name,
                     [Pid.Label] = "Dummy",
@@ -72,7 +72,7 @@ namespace n3q.Content
                 };
             }
 
-            if (name == Dev.TemplateName[Dev.Template.Admin]) {
+            if (name == DevSpec.TemplateName[DevSpec.Template.Admin]) {
                 props = new PropertySet {
                     [Pid.Name] = name,
                     [Pid.Label] = "Admin",
@@ -81,8 +81,8 @@ namespace n3q.Content
                     [Pid.RoleAspect] = true,
                     [Pid.RoleUserRoles] = ValueList.From(EnumUtil.GetEnumValues<Property.Value.UserRoles>().Where(role => role <= Property.Value.UserRoles.Admin).Select(role => role.ToString())),
                 };
-                text[Dev.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Admin";
-                text[Dev.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Admin";
+                text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Admin";
+                text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Admin";
             }
 
             //if (name == BasicDefinition.TemplateName[BasicDefinition.Template.GodMode]) {
@@ -98,7 +98,7 @@ namespace n3q.Content
             //    text[BasicDefinition.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "All Access Admin";
             //}
 
-            if (name == Dev.TemplateName[Dev.Template.PirateFlag]) {
+            if (name == DevSpec.TemplateName[DevSpec.Template.PirateFlag]) {
                 props = new PropertySet {
                     [Pid.Name] = name,
                     [Pid.Label] = "PirateFlag",
@@ -107,13 +107,13 @@ namespace n3q.Content
                     [Pid.AnimationsUrl] = PropertyFilter.ItemBase + "PirateFlag/animations.xml",
                     [Pid.PageClaimAspect] = true,
                     [Pid.RezableAspect] = true,
-                    [Pid.RezzableProxyTemplate] = Dev.TemplateName[Dev.Template.PageProxy],
+                    [Pid.RezzableProxyTemplate] = DevSpec.TemplateName[DevSpec.Template.PageProxy],
                 };
-                text[Dev.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Piratenflagge";
-                text[Dev.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Pirate Flag";
+                text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Piratenflagge";
+                text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Pirate Flag";
             }
 
-            if (name == Dev.TemplateName[Dev.Template.PageProxy]) {
+            if (name == DevSpec.TemplateName[DevSpec.Template.PageProxy]) {
                 props = new PropertySet {
                     [Pid.Name] = name,
                     [Pid.Label] = "PageProxy",
@@ -121,11 +121,11 @@ namespace n3q.Content
                     [Pid.Image100Url] = PropertyFilter.ItemBase + "PageProxy/image100.png",
                     [Pid.RezzableProxyAspect] = true,
                 };
-                text[Dev.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Webseitenbesitz";
-                text[Dev.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Page Claim";
+                text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Webseitenbesitz";
+                text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Page Claim";
             }
 
-            if (name == Dev.TemplateName[Dev.Template.TheatreScreenplay]) {
+            if (name == DevSpec.TemplateName[DevSpec.Template.TheatreScreenplay]) {
                 props = new PropertySet {
                     [Pid.Name] = name,
                     [Pid.Label] = "TheatreScreenplay",
@@ -138,11 +138,11 @@ namespace n3q.Content
                     [Pid.IframeHeight] = 400,
                     [Pid.IframeResizeable] = true,
                 };
-                text[Dev.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Theater Drehbuch";
-                text[Dev.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Theatre Screenplay";
+                text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Theater Drehbuch";
+                text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Theatre Screenplay";
             }
 
-            if (name == Dev.TemplateName[Dev.Template.WaterBottle]) {
+            if (name == DevSpec.TemplateName[DevSpec.Template.WaterBottle]) {
                 props = new PropertySet {
                     [Pid.Name] = name,
                     [Pid.Label] = "WaterBottle",
@@ -161,8 +161,8 @@ namespace n3q.Content
                     [Pid.Actions] = ValueMap.From(new Dictionary<string, string> { ["ApplyTo"] = nameof(Applier.Action.ApplyTo), ["GetWater"] = nameof(Extractor.Action.Extract), ["PutWater"] = nameof(Injector.Action.Inject) }),
                     [Pid.Stats] = ValueList.From(new[] { Pid.WaterLevel.ToString() }),
                 };
-                text[Dev.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Wasserflasche";
-                text[Dev.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Water Bottle";
+                text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Wasserflasche";
+                text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Water Bottle";
             }
 
             if (props == null) {
@@ -176,8 +176,8 @@ namespace n3q.Content
         {
             var result = new List<string>();
 
-            var translations = new Dev.TextSet();
-            var templates = new Dev.NamePropertiesCollection();
+            var translations = new DevSpec.TextCollection();
+            var templates = new DevSpec.TemplateCollection();
 
             GetTemplates(name, templates, translations);
 

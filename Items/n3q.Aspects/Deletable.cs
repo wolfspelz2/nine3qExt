@@ -22,6 +22,13 @@ namespace n3q.Aspects
                 var container = await Item(containerId);
                 await container.RemoveFromList(Pid.Contains, self.Id);
             }
+
+            var children = await self.GetItemIdList(Pid.Contains);
+            foreach (var childId in children) {
+                var child = await Item(childId);
+                await child.AsDeletable().Delete();
+            }
+
             self.MarkForDeletion();
             return true;
         }
