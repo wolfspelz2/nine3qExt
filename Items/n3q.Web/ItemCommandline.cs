@@ -534,7 +534,7 @@ namespace n3q.Web
             args.Next("cmd");
 
             var cg = GrainClient.GetGrain<IContentGenerator>(Guid.Empty);
-            var groups = cg.GetGroups().Result;
+            var groups = cg.GetGroupNames().Result;
             var s = "";
             foreach (var group in groups) {
                 s += CommandExecuteLink(Fn.Content_Templates.ToString(), new[] { group }, group) + " ";
@@ -548,7 +548,7 @@ namespace n3q.Web
             var name = args.Next("GroupName");
 
             var cg = GrainClient.GetGrain<IContentGenerator>(Guid.Empty);
-            var templates = cg.GetTemplates(name).Result;
+            var templates = cg.GetTemplateNames(name).Result;
             var s = CommandExecuteLink(Fn.Content_Create.ToString(), new[] { name }, "[Create all]") + " Create: ";
             foreach (var template in templates) {
                 s += CommandExecuteLink(Fn.Content_Create.ToString(), new[] { template }, template) + " ";

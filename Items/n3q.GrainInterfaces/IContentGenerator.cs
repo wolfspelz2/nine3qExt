@@ -7,8 +7,8 @@ namespace n3q.GrainInterfaces
 {
     public interface IContentGenerator : IGrainWithGuidKey
     {
-        Task<List<string>> GetGroups();
-        Task<List<string>> GetTemplates(string name);
-        Task<List<string>> CreateTemplates(string name);
+        Task<List<string>> GetGroupNames();
+        Task<List<string>> GetTemplateNames(string groupName);
+        Task<List<string>> CreateTemplates(string templateOrGroupName);
     }
 }

@@ -8,6 +8,7 @@ using n3q.Content;
 using n3q.Items;
 using n3q.Aspects;
 using System;
+using n3q.Tools;
 
 namespace n3q.Grains
 {
@@ -16,40 +17,52 @@ namespace n3q.Grains
     {
         #region Interface
 
-        public Task<List<string>> GetGroups()
+        public Task<List<string>> GetGroupNames()
         {
-            return Task.FromResult(DevSpec.GetGroups());
+            var groupNames = new List<string> { DevSpec.AllGroupsSpecialSelector };
+            groupNames.AddRange(DevSpec.GetGroups());
+            return Task.FromResult(groupNames);
         }
 
-        public Task<List<string>> GetTemplates(string group)
+        public Task<List<string>> GetTemplateNames(string groupSelector)
         {
-            return Task.FromResult(DevData.GetTemplates(group));
+            var names = new List<string> { groupSelector };
+            if (groupSelector == DevSpec.AllGroupsSpecialSelector) {
+                names = DevSpec.AllGroups;
+            }
+
+            var result = new List<string>();
+            foreach (var name in names) {
+                result.AddRange(DevData.GetTemplateNames(name));
+            }
+
+            return Task.FromResult(result);
         }
 
-        public async Task<List<string>> CreateTemplates(string name)
+        public async Task<List<string>> CreateTemplates(string templateOrGroupSelector)
         {
-            var translations = new DevSpec.TextCollection();
-            var templates = new DevSpec.TemplateCollection();
+            var names = new List<string> { templateOrGroupSelector };
+            if (templateOrGroupSelector == DevSpec.AllGroupsSpecialSelector) {
+                names = EnumUtil.GetEnumValues<DevSpec.Group>().Select(group => group.ToString()).ToList();
+            }
 
-            GetTemplates(name, templates, translations);
-            var templateIds = await StoreTemplates(templates);
-            await RegisterTemplates(templateIds, DevSpec.TemplateContainer);
-            await StoreTranslations(translations);
+            var result = new List<string>();
+            foreach (var name in names) {
+                var translations = new DevSpec.TextCollection();
+                var templates = new DevSpec.TemplateCollection();
+                DevData.GetTemplates(name, templates, translations);
+                var templateIds = await StoreTemplates(templates);
+                result.AddRange(templateIds);
+                await RegisterTemplates(templateIds, DevSpec.TemplateContainer);
+                await StoreTranslations(translations);
+            }
 
-            return templateIds;
+            return result;
         }
 
         #endregion
 
-        public void GetTemplates(string name, DevSpec.TemplateCollection templates, DevSpec.TextCollection text)
-        {
-            DevData.GetTemplates(name, templates, text);
-        }
-
-        public void GetTemplate(string name, DevSpec.TemplateCollection templates, DevSpec.TextCollection text)
-        {
-            DevData.GetTemplate(name, templates, text);
-        }
+        #region Internal
 
         private async Task<List<string>> StoreTemplates(DevSpec.TemplateCollection templates)
         {
@@ -96,5 +109,6 @@ namespace n3q.Grains
             });
         }
 
+        #endregion
     }
 }

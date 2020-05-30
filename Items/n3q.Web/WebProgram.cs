@@ -21,7 +21,7 @@ namespace n3q.Web
         public static bool UseIntegratedCluster = false;
     }
 
-    public static class Web
+    public static class WebProgram
     {
         public static void Main(string[] args)
         {

@@ -7,51 +7,53 @@ namespace n3q.Content
 {
     public static class DevSpec
     {
-        public enum GroupName
+        public enum Group
         {
-            Admin,
+            System,
             User,
             Room,
             AvatarTheatre,
             WaterResourceTest,
         }
 
-        public static List<string> Groups = typeof(GroupName).GetEnumNames().ToList();
-
         public enum Template
         {
             Dummy,
 
             Admin,
+            CodeReviewer,
 
             // User
-            //Attributes,
-            //Backpack,
-            //TrashCan,
-            //Settings,
-            //Nickname,
-            //Avatar,
+            Attributes,
+            Backpack,
+            TrashCan,
+            Settings,
+            Nickname,
+            Avatar,
 
             // Room
             PirateFlag,
-            //Landmark,
+            Landmark,
             PageProxy,
 
             // Theatre
             TheatreScreenplay,
 
             // WaterResourceTest
-            //WaterCan,
+            WaterCan,
             WaterBottle,
-            //WaterSink,
-            //PottedPlant,
-            //BioWaste,
+            WaterSink,
+            PottedPlant,
+            BioWaste,
         }
 
+        public const string AllGroupsSpecialSelector = "ALL";
         public const string TemplateContainer = "DevTemplates";
-        public const string TemplateSuffix = "Template";
+        //public const string TemplateSuffix = "Template";
+        public const string TemplateSuffix = "";
 
-        public static Dictionary<Template, string> TemplateName = typeof(Template).GetEnumNames().ToDictionary(key => (Template)Enum.Parse(typeof(Template), key), key => key + TemplateSuffix);
+        public static List<string> AllGroups = typeof(Group).GetEnumNames().ToList();
+        public static List<string> AllTemplates = typeof(Template).GetEnumNames().Select(name => name + TemplateSuffix).ToList();
 
         public static string de = "de-DE";
         public static string en = "en-US";
@@ -61,7 +63,7 @@ namespace n3q.Content
         {
             var result = new List<string>();
 
-            foreach (var group in DevSpec.Groups) {
+            foreach (var group in DevSpec.AllGroups) {
                 result.Add(group);
             }
 

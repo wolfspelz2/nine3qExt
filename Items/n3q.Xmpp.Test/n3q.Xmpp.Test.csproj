@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\XmppComponent\XmppComponent.csproj" />
+    <ProjectReference Include="..\n3q.Xmpp\n3q.Xmpp.csproj" />
   </ItemGroup>
 
 </Project>

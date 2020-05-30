@@ -13,7 +13,7 @@ using n3q.StorageProviders;
 
 namespace LocalSilo
 {
-    public static class LocalSilo
+    public static class LocalSiloProgram
     {
 //        public static int Main(string[] args)
         public static int Main()

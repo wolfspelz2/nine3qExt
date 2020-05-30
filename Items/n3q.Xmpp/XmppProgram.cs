@@ -10,7 +10,7 @@ using n3q.Tools;
 
 namespace XmppComponent
 {
-    public class XmppComponent
+    public class XmppProgram
     {
         const int InitializeAttemptsBeforeFailing = 5;
 
