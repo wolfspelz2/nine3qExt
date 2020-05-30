@@ -33,7 +33,7 @@ namespace n3q.Grains
 
         Guid _transactionId = Guid.Empty;
         public PropertySet _savedProperties;
-        List<PropertyChange> _changes;
+        List<ItemChange> _changes;
 
         public ItemGrain(
             [PersistentState("Item", JsonFileStorage.StorageProviderName)] IPersistentState<ItemState> itemState
@@ -72,7 +72,7 @@ namespace n3q.Grains
             foreach (var pair in modified) {
                 var pid = pair.Key;
                 var value = pair.Value;
-                _changes.Add(new PropertyChange(PropertyChange.Mode.SetProperty, pid, value));
+                _changes.Add(new ItemChange(ItemChange.Mode.SetProperty, pid, value));
                 Properties[pid] = value;
             }
 
@@ -80,7 +80,7 @@ namespace n3q.Grains
                 if (Properties.ContainsKey(pid)) {
                     Properties.Delete(pid);
                 }
-                _changes.Add(new PropertyChange(PropertyChange.Mode.DeleteProperty, pid, null));
+                _changes.Add(new ItemChange(ItemChange.Mode.DeleteProperty, pid, null));
             }
 
             if (!InTransaction()) {
@@ -94,11 +94,11 @@ namespace n3q.Grains
 
             if (Properties.TryGetValue(pid, out var pv)) {
                 if (!pv.IsInList(value)) {
-                    _changes.Add(new PropertyChange(PropertyChange.Mode.AddToList, pid, value));
+                    _changes.Add(new ItemChange(ItemChange.Mode.AddToList, pid, value));
                     pv.AddToList(value);
                 }
             } else {
-                _changes.Add(new PropertyChange(PropertyChange.Mode.AddToList, pid, value));
+                _changes.Add(new ItemChange(ItemChange.Mode.AddToList, pid, value));
                 pv = new PropertyValue();
                 pv.AddToList(value);
                 Properties[pid] = pv;
@@ -115,7 +115,7 @@ namespace n3q.Grains
 
             if (Properties.TryGetValue(pid, out var pv)) {
                 if (pv.IsInList(value)) {
-                    _changes.Add(new PropertyChange(PropertyChange.Mode.RemoveFromList, pid, value));
+                    _changes.Add(new ItemChange(ItemChange.Mode.RemoveFromList, pid, value));
                     pv.RemoveFromList(value);
                 }
             }
@@ -159,6 +159,24 @@ namespace n3q.Grains
             return result;
         }
 
+        public async Task Delete(Guid tid)
+        {
+            if (InTransaction()) {
+                if (!IsSameTransaction(tid)) {
+                    throw new Exception($"BeginTransaction: already in transaction current={_transactionId} tid={tid}");
+                } else {
+                    // Begin same: ignore
+                }
+            }
+
+            _changes.Add(new ItemChange(ItemChange.Mode.DeleteItem, Pid.Unknown, PropertyValue.Empty));
+
+            if (!InTransaction()) {
+                await DeletePersistentStorage();
+                await Deactivate();
+            }
+        }
+
         public Task BeginTransaction(Guid tid)
         {
             if (InTransaction()) {
@@ -170,7 +188,7 @@ namespace n3q.Grains
             }
 
             _transactionId = tid;
-            _changes = new List<PropertyChange>();
+            _changes = new List<ItemChange>();
             _savedProperties = Properties.Clone();
 
             return Task.CompletedTask;
@@ -205,7 +223,7 @@ namespace n3q.Grains
                     throw new Exception($"AssertCurrentTransaction: already in different transaction current={_transactionId} tid={tid}");
                 }
             } else {
-                _changes = new List<PropertyChange>();
+                _changes = new List<ItemChange>();
             }
         }
 
@@ -312,53 +330,60 @@ namespace n3q.Grains
 
         private async Task CommitChanges()
         {
-            //foreach (var change in _changes) {
-            //    var pid = change.Pid;
-            //    var value = change.Value;
+            foreach (var change in _changes) {
+                var pid = change.Pid;
+                var value = change.Value;
 
-            //    switch (change.What) {
-            //        case PropertyChange.Mode.SetProperty: {
-            //            Properties[pid] = value;
-            //        }
-            //        break;
+                switch (change.What) {
+                    //case ItemChange.Mode.SetProperty: {
+                    //    Properties[pid] = value;
+                    //}
+                    //break;
 
-            //        case PropertyChange.Mode.AddToList: {
-            //            if (Properties.TryGetValue(pid, out var pv)) {
-            //                pv.AddToList(value);
-            //            } else {
-            //                pv = new PropertyValue();
-            //                pv.AddToList(value);
-            //                Properties[pid] = pv;
-            //            }
-            //        }
-            //        break;
+                    //case ItemChange.Mode.AddToList: {
+                    //    if (Properties.TryGetValue(pid, out var pv)) {
+                    //        pv.AddToList(value);
+                    //    } else {
+                    //        pv = new PropertyValue();
+                    //        pv.AddToList(value);
+                    //        Properties[pid] = pv;
+                    //    }
+                    //}
+                    //break;
 
-            //        case PropertyChange.Mode.RemoveFromList: {
-            //            if (Properties.TryGetValue(pid, out var pv)) {
-            //                pv.RemoveFromList(value);
-            //            }
-            //        }
-            //        break;
+                    //case ItemChange.Mode.RemoveFromList: {
+                    //    if (Properties.TryGetValue(pid, out var pv)) {
+                    //        pv.RemoveFromList(value);
+                    //    }
+                    //}
+                    //break;
 
-            //        case PropertyChange.Mode.DeleteProperty: {
-            //            if (Properties.ContainsKey(pid)) {
-            //                Properties.Delete(pid);
-            //            }
-            //        }
-            //        break;
-            //    }
-            //}
+                    //case ItemChange.Mode.DeleteProperty: {
+                    //    if (Properties.ContainsKey(pid)) {
+                    //        Properties.Delete(pid);
+                    //    }
+                    //}
+                    //break;
+
+                    case ItemChange.Mode.DeleteItem: {
+                        await DeletePersistentStorage();
+                        await Deactivate();
+                    }
+                    break;
+
+                }
+            }
 
             if (_changes.Count > 0) {
+                // Notify subscribers
+                var update = new ItemUpdate(Id, _changes);
+                await _stream?.OnNextAsync(update);
+
                 // Persist changes
                 var persist = _changes.Aggregate(false, (current, change) => current |= PropertyMustBeSaved(change.Pid, change.Value));
                 if (persist) {
                     await WritePersistentStorage();
                 }
-
-                // Notify subscribers
-                var update = new ItemUpdate(Id, _changes);
-                await _stream?.OnNextAsync(update);
             }
         }
 

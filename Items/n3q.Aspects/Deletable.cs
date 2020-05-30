@@ -29,7 +29,7 @@ namespace n3q.Aspects
                 await child.AsDeletable().Delete();
             }
 
-            self.MarkForDeletion();
+            await self.Delete();
             return true;
         }
     }

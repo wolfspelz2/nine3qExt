@@ -26,7 +26,7 @@ namespace n3q.Aspects
         public async Task<PropertyValue> Rez(ItemStub room, long posX)
         {
             await self.AsRezable().AssertAspect(() => throw new SurfaceException(self.Id, room.Id, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemIsNotRezable));
-            //await self.Set(Pid.ContainerAspect, true);
+            await self.Set(Pid.ContainerAspect, true);
             await room.AsContainer().AddChild(self);
             await self.Set(Pid.RezableX, posX);
             await self.Set(Pid.RezableIsRezzing, true);
@@ -36,7 +36,7 @@ namespace n3q.Aspects
         public async Task<PropertyValue> OnRezzed()
         {
             await self.Set(Pid.RezableIsRezzed, true);
-            await self.Delete(Pid.RezableIsRezzing);
+            await self.Unset(Pid.RezableIsRezzing);
             return true;
         }
 

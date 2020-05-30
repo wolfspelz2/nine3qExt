@@ -73,6 +73,11 @@ namespace n3q.Aspects
         {
             throw new NotImplementedException();
         }
+
+        public Task Delete(Guid tid)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class ItemSiloSimulator

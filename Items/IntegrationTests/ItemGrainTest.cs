@@ -5,6 +5,7 @@ using n3q.Tools;
 using n3q.Items;
 using n3q.GrainInterfaces;
 using System.Threading;
+using n3q.Aspects;
 
 namespace IntegrationTests
 {
@@ -401,6 +402,84 @@ namespace IntegrationTests
                 Assert.AreEqual("42", props.GetString(Pid.TestStringDefault));
                 Assert.AreEqual(3.14D, props.GetFloat(Pid.TestFloatDefault));
                 Assert.AreEqual(true, props.GetBool(Pid.TestBoolDefault));
+
+            } finally {
+                // Cleanup
+                await item.DeletePersistentStorage();
+            }
+        }
+
+        [TestMethod]
+        [TestCategory(GrainClient.Category)]
+        public async Task Get_after_set_during_transaction_returns_changed_value()
+        {
+            // Arrange
+            var item = GrainClient.GetItemStub(GrainClient.GetRandomItemId());
+
+            try {
+                await item.WithTransaction(async self => {
+                    await self.Set(Pid.TestInt, 41);
+                });
+
+                // Act
+                var intermediateValue = 0L;
+                await item.WithTransaction(async self => {
+                    await self.Set(Pid.TestInt, 42);
+                    intermediateValue = await self.GetInt(Pid.TestInt);
+                    await self.Set(Pid.TestInt, 43);
+                });
+
+                // Assert
+                Assert.AreEqual(42L, intermediateValue);
+                Assert.AreEqual(43L, await item.GetInt(Pid.TestInt));
+
+            } finally {
+                // Cleanup
+                await item.DeletePersistentStorage();
+            }
+        }
+
+        [TestMethod]
+        [TestCategory(GrainClient.Category)]
+        public async Task Set_without_transaction_also_works()
+        {
+            // Arrange
+            var item = GrainClient.GetItemStub(GrainClient.GetRandomItemId());
+
+            try {
+                await item.WithTransaction(async self => {
+                    await self.Set(Pid.TestInt, 41);
+                });
+                Assert.AreEqual(41L, await item.GetInt(Pid.TestInt));
+
+                // Act
+                await item.ModifyProperties(new PropertySet(Pid.TestInt, 42), PidSet.Empty, ItemTransaction.WithoutTransaction);
+
+                // Assert
+                Assert.AreEqual(42L, await item.GetInt(Pid.TestInt));
+
+            } finally {
+                // Cleanup
+                await item.DeletePersistentStorage();
+            }
+        }
+
+        [TestMethod]
+        [TestCategory(GrainClient.Category)]
+        public async Task Delete()
+        {
+            // Arrange
+            var item = GrainClient.GetItemStub(GrainClient.GetRandomItemId());
+
+            try {
+                await item.ModifyProperties(new PropertySet(Pid.TestInt, 42), PidSet.Empty, ItemTransaction.WithoutTransaction);
+                Assert.AreEqual(42L, await item.GetInt(Pid.TestInt));
+
+                // Act
+                await item.Delete(ItemTransaction.WithoutTransaction);
+
+                // Assert
+                Assert.AreEqual(0L, await item.GetInt(Pid.TestInt));
 
             } finally {
                 // Cleanup
