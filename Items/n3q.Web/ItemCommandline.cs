@@ -32,8 +32,8 @@ namespace n3q.Web
             Admin_Process,
             //Admin_Request,
 
-            Item_SetProperties,
-            Item_GetProperties,
+            Item_SetCreate,
+            Item_Show,
             Item_DeleteProperties,
             Item_AddToContainer,
             Item_RemoveFromContainer,
@@ -62,8 +62,8 @@ namespace n3q.Web
             Handlers.Add(nameof(Fn.Admin_Process), new Handler { Name = nameof(Fn.Admin_Process), Function = Admin_Process, Role = nameof(Role.Public), ImmediateExecute = true, Description = "Show process info", });
             //Handlers.Add(nameof(Fn.Admin_Request), new Handler { Name = nameof(Fn.Admin_Request), Function = Admin_Request, Role = nameof(Role.Public), ImmediateExecute = false, Description = "Show HTTPrequest info", });
 
-            Handlers.Add(nameof(Fn.Item_SetProperties), new Handler { Name = nameof(Fn.Item_SetProperties), Function = Item_SetProperties, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Set (some or all) item properties", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Properties"] = "Item properties as JSON dictionary or as PropertyName=Value pairs", } });
-            Handlers.Add(nameof(Fn.Item_GetProperties), new Handler { Name = nameof(Fn.Item_GetProperties), Function = Item_GetProperties, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Show item", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Format"] = "Output format [table|json] (optional, default:table)", } });
+            Handlers.Add(nameof(Fn.Item_SetCreate), new Handler { Name = nameof(Fn.Item_SetCreate), Function = Item_SetProperties, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Set (some or all) item properties", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Properties"] = "Item properties as JSON dictionary or as PropertyName=Value pairs", } });
+            Handlers.Add(nameof(Fn.Item_Show), new Handler { Name = nameof(Fn.Item_Show), Function = Item_GetProperties, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Show item", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Format"] = "Output format [table|json] (optional, default:table)", } });
             Handlers.Add(nameof(Fn.Item_DeleteProperties), new Handler { Name = nameof(Fn.Item_DeleteProperties), Function = Item_DeleteProperties, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Delete one or more properties", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", } });
             Handlers.Add(nameof(Fn.Item_AddToContainer), new Handler { Name = nameof(Fn.Item_AddToContainer), Function = Item_AddChildToContainer, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Make item a child of the container", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Container"] = "Container-ID", } });
             Handlers.Add(nameof(Fn.Item_RemoveFromContainer), new Handler { Name = nameof(Fn.Item_RemoveFromContainer), Function = Item_RemoveChildFromContainer, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Remove item from container", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Container"] = "Container-ID", } });
@@ -286,7 +286,7 @@ namespace n3q.Web
                     "Native",
                     "Template",
                     CommandExecuteLink(Fn.Item_Delete.ToString(), new[] { itemId.ToString() }, "DELETE-ITEM"),
-                    CommandExecuteLink(Fn.Item_GetProperties.ToString(), new[] { itemId.ToString(), "json" }, "JSON")
+                    CommandExecuteLink(Fn.Item_Show.ToString(), new[] { itemId.ToString(), "json" }, "JSON")
                 });
 
                 foreach (var pair in props) {
@@ -308,7 +308,7 @@ namespace n3q.Web
                         nativeProps.ContainsKey(pid) ?
                             CommandExecuteLink(Fn.Item_DeleteProperties.ToString(), new[] { itemId.ToString(), pid.ToString() }, "Delete") : "" ,
 
-                        CommandInsertLink(Fn.Item_SetProperties.ToString(), new[] { itemId.ToString(), pid.ToString() + "=\"" + FormatAsArgument(value) + "\"" }, "Set"),
+                        CommandInsertLink(Fn.Item_SetCreate.ToString(), new[] { itemId.ToString(), pid.ToString() + "=\"" + FormatAsArgument(value) + "\"" }, "Set"),
                     });
                 }
 
@@ -317,7 +317,7 @@ namespace n3q.Web
                     props.Count.ToString(),
                     nativeProps.Count.ToString(),
                     templateProps.Count.ToString(),
-                    CommandInsertLink(Fn.Item_SetProperties.ToString(), new[] { itemId.ToString(), "Property=Value" }, "Add"),
+                    CommandInsertLink(Fn.Item_SetCreate.ToString(), new[] { itemId.ToString(), "Property=Value" }, "Add"),
                     "",
                 });
 
@@ -474,7 +474,7 @@ namespace n3q.Web
         {
             var item = GrainClient.GetGrain<IItem>(itemId);
             var text = itemId.ToString();
-            return CommandExecuteLink(Fn.Item_GetProperties.ToString(), new[] { itemId }, text);
+            return CommandExecuteLink(Fn.Item_Show.ToString(), new[] { itemId }, text);
         }
 
         #endregion

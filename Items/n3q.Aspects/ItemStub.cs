@@ -129,7 +129,7 @@ namespace n3q.Aspects
         public Task EndTransaction(bool success) { AssertTransaction(); return Grain.EndTransaction(Transaction.Id, success); }
 
         public async Task Set(Pid pid, PropertyValue value) { AssertTransaction(); await Grain.ModifyProperties(new PropertySet(pid, value), PidSet.Empty, Transaction.Id); }
-        public async Task Delete(Pid pid) { AssertTransaction(); await Grain.ModifyProperties(PropertySet.Empty, new PidSet { pid }, Transaction.Id); }
+        public async Task Unset(Pid pid) { AssertTransaction(); await Grain.ModifyProperties(PropertySet.Empty, new PidSet { pid }, Transaction.Id); }
 
         public async Task<PropertyValue> Get(Pid pid)
         {

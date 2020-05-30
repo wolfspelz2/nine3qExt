@@ -34,7 +34,7 @@ namespace n3q.Aspects
             await AssertAspect();
 
             await self.RemoveFromList(Pid.Contains, child.Id);
-            await child.Delete(Pid.Container);
+            await child.Unset(Pid.Container);
         }
     }
 }

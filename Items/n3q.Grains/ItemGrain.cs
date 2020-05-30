@@ -176,6 +176,20 @@ namespace n3q.Grains
             return Task.CompletedTask;
         }
 
+        public async Task Delete(Guid tid)
+        {
+            if (InTransaction()) {
+                if (!IsSameTransaction(tid)) {
+                    throw new Exception($"BeginTransaction: already in transaction current={_transactionId} tid={tid}");
+                } else {
+                    // Begin same: ignore
+                }
+            }
+
+            var update = new ItemUpdate(Id, _changes);
+            await _stream?.OnNextAsync(update);
+        }
+
         public async Task EndTransaction(Guid tid, bool success)
         {
             if (InTransaction()) {
