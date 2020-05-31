@@ -154,6 +154,12 @@
                 return false;
             });
 
+            $('#iFavorites .cTop').on('click', function (evt) {
+                UpFavorite($(evt.target).data('key'));
+                FocusInput();
+                return false;
+            });
+
             $('#iFavorites .cInsert').on('click', function (evt) {
                 SetInput(atob($(evt.target).data('cmd')));
                 FocusInput();
@@ -185,6 +191,13 @@
 
         function DeleteFavorite(key) {
             PostForm('DeleteFavorite', key, function (html) {
+                SetFavorites(html);
+                FocusInput();
+            });
+        }
+
+        function UpFavorite(key) {
+            PostForm('UpFavorite', key, function (html) {
                 SetFavorites(html);
                 FocusInput();
             });
@@ -262,7 +275,7 @@
             });
         });
 
-        DeleteFavorite('dummy to trigger fetch');
+        DeleteFavorite('not existing dummy to trigger fetch');
 
     </script>
 }

@@ -17,6 +17,7 @@ namespace n3q.Web
     public class CommandSymbols
     {
         public string Delete { get; set; } = "&#10006;";
+        public string Up { get; set; } = "&uArr;";
         public string Insert { get; set; } = "&#10095;"; // &#10095; // &#8690;
         public string Execute { get; set; } = "&#10097;&#10097;"; // &#10097;&#10097; // &larrhk;
         public string Save { get; set; } = "&#9733;"; // &#9733; // &#10029;
@@ -45,10 +46,10 @@ namespace n3q.Web
 
     public class CommandlineFavorites
     {
-        public Dictionary<string, string> Favorites { get; set; }
+        public List<KeyValuePair<string, string>> Favorites { get; set; }
         public CommandSymbols Symbols = new CommandSymbols();
 
-        public CommandlineFavorites(Dictionary<string, string> favorites)
+        public CommandlineFavorites(List<KeyValuePair<string, string>> favorites)
         {
             Favorites = favorites;
         }
@@ -116,7 +117,9 @@ namespace n3q.Web
                 var favoritesNode = await ReadFavorites();
 
                 var key = RandomString.Get(10);
-                favoritesNode.AsDictionary[key] = new Node(Node.Type.String, cmd);
+                var newNode = new JsonPath.Node(JsonPath.Node.Type.Dictionary);
+                newNode.AsDictionary.Add(key, cmd);
+                favoritesNode.AsList.Add(newNode);
 
                 var model = await WriteFavorites(favoritesNode);
                 return Partial("_CommandlineFavorites", model);
@@ -131,9 +134,33 @@ namespace n3q.Web
             try {
                 var favoritesNode = await ReadFavorites();
 
-                if (favoritesNode.AsDictionary.ContainsKey(key)) {
-                    favoritesNode.AsDictionary.Remove(key);
+                var fav = favoritesNode.AsList.Where(node => node.AsDictionary.First().Key == key).FirstOrDefault();
+                if (fav != null) {
+                    favoritesNode.AsList.Remove(fav);
                 }
+
+                var model = await WriteFavorites(favoritesNode);
+                return Partial("_CommandlineFavorites", model);
+            } catch (Exception ex) {
+                return Partial("_CommandlineResult", new CommandResult("<pre>" + string.Join(" | ", ex.GetMessages()) + "</pre>", "text/html"));
+            }
+        }
+
+        public async Task<PartialViewResult> OnPostUpFavorite(string arg)
+        {
+            var key = arg;
+            try {
+                var favoritesNode = await ReadFavorites();
+
+                var fav = favoritesNode.AsList.Where(node => node.AsDictionary.First().Key == key).FirstOrDefault();
+                if (fav != null) {
+                    var idx = favoritesNode.AsList.FindIndex(node => node == fav);
+                    if (idx > 0) {
+                        favoritesNode.AsList.Remove(fav);
+                        favoritesNode.AsList.Insert(idx - 1, fav);
+                    }
+                }
+
 
                 var model = await WriteFavorites(favoritesNode);
                 return Partial("_CommandlineFavorites", model);
@@ -156,7 +183,14 @@ namespace n3q.Web
         {
             var favoritesJson = favoritesNode.ToJson(bFormatted: true, bWrapped: true);
             await _clusterClient.GetGrain<ICachedString>("Web.Favorites").Set(favoritesJson, CachedStringOptions.Timeout.Infinite, CachedStringOptions.Persistence.Persistent);
-            return new CommandlineFavorites(favoritesNode.AsDictionary.Select(pair => new KeyValuePair<string, string>(pair.Key, pair.Value.AsString)).ToDictionary(pair => pair.Key, pair => pair.Value));
+            return new CommandlineFavorites(
+                favoritesNode.AsList
+                .Select(node => {
+                    var first = node.AsDictionary.First();
+                    return new KeyValuePair<string, string>(first.Key, first.Value.AsString);
+                })
+                .ToList()
+            );
         }
     }
 }
