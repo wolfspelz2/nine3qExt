@@ -14,12 +14,14 @@ namespace n3q.Aspects
         public Rezable(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.RezableAspect;
 
-        public enum Action { Rez, Derez }
+        public enum Action { Rez, OnRezzed, Derez, OnDerezzed }
         public override ActionList GetActionList()
         {
             return new ActionList() {
                 { nameof(Action.Rez), new ActionDescription() { Handler = async (args) => await Rez(await Item(args.Get(Pid.RezableRezTo)), args.Get(Pid.RezableRezX), args.Get(Pid.RezableRezDestination)) } },
+                { nameof(Action.OnRezzed), new ActionDescription() { Handler = async (args) => await OnRezzed() } },
                 { nameof(Action.Derez), new ActionDescription() { Handler = async (args) => await Derez(await Item(args.Get(Pid.RezableDerezTo))) } },
+                { nameof(Action.OnDerezzed), new ActionDescription() { Handler = async (args) => await OnDerezzed() } },
             };
         }
 

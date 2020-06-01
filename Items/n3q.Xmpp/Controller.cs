@@ -288,7 +288,7 @@ namespace XmppComponent
                 }
             }
 
-            Log.Info($"ItemAction u<ser={userId} item={itemId} action={actionName}");
+            Log.Info($"ItemAction user={userId} item={itemId} action={actionName}");
 
             switch (actionName) {
                 case nameof(Rezable.Action.Rez): {
@@ -308,6 +308,22 @@ namespace XmppComponent
                                     posX = 200;
                                 }
                                 await GetWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Action.Rez), new PropertySet { [Pid.RezableRezTo] = roomId, [Pid.RezableRezX] = posX });
+
+                            }
+                        }
+                    }
+                }
+                break;
+
+                case nameof(Rezable.Action.Derez): {
+                    if (Has.Value(userId) && Has.Value(itemId)) {
+                        if (await GetItem(itemId).GetBool(Pid.RezableAspect)) {
+                            var inventoryId = message.Cmd.ContainsKey("to") ? message.Cmd["to"] : "";
+                            if (Has.Value(inventoryId)) {
+                                var roomItem = GetRoomItem(itemId);
+                                if (roomItem != null) {
+                                    await GetWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Action.Derez), new PropertySet { [Pid.RezableDerezTo] = inventoryId });
+                                }
 
                             }
                         }
