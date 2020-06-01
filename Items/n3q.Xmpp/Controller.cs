@@ -326,8 +326,14 @@ namespace XmppComponent
 
             if (Has.Value(userId) && Has.Value(itemId) && Has.Value(roomId) && hasX) {
                 Log.Info($"Drop {roomId} {itemId}");
-                await GetItem(roomId).ModifyProperties(new PropertySet(Pid.ContainerAspect, true), PidSet.Empty, ItemTransaction.WithoutTransaction);
+
+                var room = GetItem(roomId);
+                if (!await room.Get(Pid.ContainerAspect)) {
+                    await room.WithTransaction(async self => { await self.Set(Pid.ContainerAspect, true); });
+                }
+
                 _ = AddRoomItem(roomId, itemId);
+
                 await GetWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Rez), new PropertySet { [Pid.RezableRezTo] = roomId, [Pid.RezableRezX] = posX });
             }
         }

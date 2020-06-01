@@ -9,7 +9,7 @@ using n3q.Tools;
 
 namespace n3q.Aspects
 {
-    public class ItemStub : IItem
+    public class ItemStub
     {
         public string Id { get; }
 
@@ -75,6 +75,8 @@ namespace n3q.Aspects
             }
         }
 
+        #region Aspects
+
         public async Task ForeachAspect(Action<Aspect> action)
         {
             foreach (var key in await GetAspects()) {
@@ -102,31 +104,9 @@ namespace n3q.Aspects
             throw new Exception($"Unknown pid/aspect={pid}");
         }
 
-
-        #region IItem
-
-        public async Task ModifyProperties(PropertySet modified, PidSet deleted, Guid tid) { await Grain.ModifyProperties(modified, deleted, tid); }
-        public async Task AddToListProperty(Pid pid, PropertyValue value, Guid tid) { await Grain.AddToListProperty(pid, value, tid); }
-        public async Task RemoveFromListProperty(Pid pid, PropertyValue value, Guid tid) { await Grain.RemoveFromListProperty(pid, value, tid); }
-
-        [ObsoleteAttribute("Do not use the interface directly. Use GetProperties because of the weird transaction corruption workaround")]
-        public async Task<PropertySet> GetPropertiesX(PidSet pids, bool native = false) { AssertStubMethodIsUsed(); await Task.CompletedTask; return PropertySet.Empty; }
-
-        public async Task BeginTransaction(Guid tid) { await Grain.BeginTransaction(tid); }
-        public async Task EndTransaction(Guid tid, bool success) { await Grain.EndTransaction(tid, success); }
-
-        public async Task Delete(Guid tid) { await Grain.Delete(tid); }
-
-        public async Task<Guid> GetStreamId() { return await Grain.GetStreamId(); }
-        public async Task<string> GetStreamNamespace() { return await Grain.GetStreamNamespace(); }
-        public async Task Deactivate() { await Grain.Deactivate(); }
-        public async Task WritePersistentStorage() { await Grain.WritePersistentStorage(); }
-        public async Task ReadPersistentStorage() { await Grain.ReadPersistentStorage(); }
-        public async Task DeletePersistentStorage() { await Grain.DeletePersistentStorage(); }
-
         #endregion
 
-        #region IItem extensions
+        #region IItem stubs
 
         public async Task ModifyProperties(PropertySet modified, PidSet deleted) { AssertTransaction(); await Grain.ModifyProperties(modified, deleted, Transaction.Id); }
         public async Task AddToList(Pid pid, PropertyValue value) { AssertTransaction(); await Grain.AddToListProperty(pid, value, Transaction.Id); }
@@ -142,9 +122,10 @@ namespace n3q.Aspects
             return result;
         }
 
+        public async Task BeginTransaction() { AssertTransaction(); await Grain.BeginTransaction(Transaction.Id); }
         public async Task EndTransaction(bool success) { AssertTransaction(); await Grain.EndTransaction(Transaction.Id, success); }
 
-        public async Task Delete() { await Grain.Delete(Transaction.Id); }
+        public async Task Delete() { AssertTransaction(); await Grain.Delete(Transaction.Id); }
 
         public async Task Set(Pid pid, PropertyValue value) { AssertTransaction(); await Grain.ModifyProperties(new PropertySet(pid, value), PidSet.Empty, Transaction.Id); }
         public async Task Unset(Pid pid) { AssertTransaction(); await Grain.ModifyProperties(PropertySet.Empty, new PidSet { pid }, Transaction.Id); }
@@ -166,6 +147,11 @@ namespace n3q.Aspects
         public async Task<ValueList> GetItemIdList(Pid pid) { return await Get(pid); }
         public async Task<ValueList> GetList(Pid pid) { return await Get(pid); }
         public async Task<ValueMap> GetMap(Pid pid) { return await Get(pid); }
+
+        public async Task Deactivate() { await Grain.Deactivate(); }
+        public async Task WritePersistentStorage() { await Grain.WritePersistentStorage(); }
+        public async Task ReadPersistentStorage() { await Grain.ReadPersistentStorage(); }
+        public async Task DeletePersistentStorage() { await Grain.DeletePersistentStorage(); }
 
         public delegate Task TransactionWrappedCode(ItemStub item);
         public async Task WithTransaction(TransactionWrappedCode transactedCode)

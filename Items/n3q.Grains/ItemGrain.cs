@@ -28,10 +28,20 @@ namespace n3q.Grains
         public PropertySet Properties { get; set; }
 
         private readonly ILogger<ItemGrain> _logger;
-        readonly string _streamNamespace = ItemService.StreamNamespace;
-        readonly Guid _streamId = ItemService.StreamGuid;
         readonly IPersistentState<ItemState> _state;
+
+        readonly Guid _streamId = ItemService.StreamGuid;
+        readonly string _streamNamespace = ItemService.StreamNamespace;
         IAsyncStream<ItemUpdate> _stream;
+        IAsyncStream<ItemUpdate> ItemUpdateStream
+        {
+            get {
+                if (_stream == null) {
+                    _stream = GetStreamProvider(ItemService.StreamProvider).GetStream<ItemUpdate>(_streamId, _streamNamespace);
+                }
+                return _stream;
+            }
+        }
 
         Guid _transactionId = Guid.Empty;
         public PropertySet _savedProperties;
@@ -55,15 +65,13 @@ namespace n3q.Grains
             await base.OnActivateAsync();
 
             await ReadPersistentStorage();
-
-            var streamProvider = GetStreamProvider(ItemService.StreamProvider);
-            _stream = streamProvider.GetStream<ItemUpdate>(_streamId, ItemService.StreamNamespace);
         }
 
         public override async Task OnDeactivateAsync()
         {
             await base.OnDeactivateAsync();
         }
+
 
         #endregion
 
@@ -434,7 +442,7 @@ namespace n3q.Grains
             if (_changes.Count > 0) {
                 // Notify subscribers
                 var update = new ItemUpdate(Id, _changes);
-                await _stream?.OnNextAsync(update);
+                await ItemUpdateStream?.OnNextAsync(update);
 
                 // Persist changes
                 var persist = _changes.Aggregate(false, (current, change) => current |= PropertyMustBeSaved(change.Pid, change.Value));
@@ -447,9 +455,6 @@ namespace n3q.Grains
         #endregion
 
         #region Test / Maintanance / Operation
-
-        public Task<Guid> GetStreamId() { return Task.FromResult(_streamId); }
-        public Task<string> GetStreamNamespace() { return Task.FromResult(_streamNamespace); }
 
         public Task Deactivate()
         {
