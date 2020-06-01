@@ -10,7 +10,7 @@ namespace n3q.Aspects
         public Guid Id = Guid.NewGuid();
         public static Guid WithoutTransaction = Guid.Empty;
 
-        readonly HashSet<ItemStub> _items = new HashSet<ItemStub>();
+        readonly List<ItemStub> _items = new List<ItemStub>();
 
         public async Task Begin(ItemStub item)
         {
@@ -21,7 +21,11 @@ namespace n3q.Aspects
         {
             if (!_items.Contains(item)) {
                 _items.Add(item);
-                await item.BeginTransaction(Id);
+                try {
+                    await item.BeginTransaction(Id);
+                } catch (Exception ex) {
+                    _ = ex;
+                }
             }
         }
 
@@ -29,6 +33,7 @@ namespace n3q.Aspects
         {
             foreach (var item in _items) {
                 await item.EndTransaction(Id, true);
+                item.Transaction = null;
             }
         }
 
@@ -36,6 +41,7 @@ namespace n3q.Aspects
         {
             foreach (var item in _items) {
                 await item.EndTransaction(Id, false);
+                item.Transaction = null;
             }
         }
     }

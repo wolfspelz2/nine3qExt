@@ -16,7 +16,7 @@ namespace n3q.Aspects
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { nameof(Action.Inject), new ActionDescription() { Handler = async (args) => Inject(await Item(args.Get(Pid.PassiveItem))) } },
+                { nameof(Action.Inject), new ActionDescription() { Handler = async (args) => Inject(await Item(args.Get(Pid.InjectorInjectTo))) } },
             };
         }
 

@@ -46,7 +46,7 @@
         TestInternal,
 
         // Operational, not real item properties
-        FirstOperation = 1000000,
+        FirstSystem = 1000000,
         Item,
         MetaPublicAccess,
         MetaOwnerAccess,
@@ -89,11 +89,13 @@
         FirstParameter = 4000000,
         TestGreetedGetGreetingGreeter,
         TestGreetedGetGreetingName,
-        RezableRezRoom,
+        RezableRezTo,
         RezableRezX,
         RezableRezDestination,
-        RezableDerezUser,
-        PassiveItem,
+        RezableDerezTo,
+        InjectorInjectTo,
+        ExtractorExtractFrom,
+        ApplierApplyTo,
 
         // App
         FirstApp = 5000000,

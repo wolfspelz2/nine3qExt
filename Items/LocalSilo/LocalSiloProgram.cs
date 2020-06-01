@@ -15,7 +15,7 @@ namespace LocalSilo
 {
     public static class LocalSiloProgram
     {
-//        public static int Main(string[] args)
+        //        public static int Main(string[] args)
         public static int Main()
         {
             return RunMainAsync().Result;
@@ -52,12 +52,33 @@ namespace LocalSilo
 
                 .ConfigureLogging(logging => {
                     logging.AddConsole();
-                    logging.SetMinimumLevel(LogLevel.Error);
+
+                    //logging.SetMinimumLevel(LogLevel.Error);
+                    //logging.SetMinimumLevel(LogLevel.Warning);
+
+                    logging.AddFilter((provider, category, logLevel) => {
+                        if (category.Contains("Orleans")) {
+                            if (category.Contains(" Orleans.Hosting.SiloHostedService")) {
+                                if (logLevel >= LogLevel.Information) {
+                                    return true;
+                                }
+                            } else {
+                                if (logLevel >= LogLevel.Error) {
+                                    return true;
+                                }
+                            }
+                        } else if (logLevel >= LogLevel.Information) {
+                            return true;
+                        }
+                        return false;
+                    });
+
                 })
 
                 .AddSimpleMessageStreamProvider(ItemService.StreamProvider, options => {
                     options.FireAndForgetDelivery = true;
                 })
+
 
                 .AddMemoryGrainStorage(Cluster.MemoryGrainStorageProviderName)
 

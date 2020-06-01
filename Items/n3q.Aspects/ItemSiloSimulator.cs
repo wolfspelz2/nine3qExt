@@ -19,17 +19,17 @@ namespace n3q.Aspects
             throw new NotImplementedException();
         }
 
-        public Task AddToList(Pid pid, PropertyValue value, Guid tid)
+        public Task AddToListProperty(Pid pid, PropertyValue value, Guid tid)
         {
             throw new NotImplementedException();
         }
 
-        public Task RemoveFromList(Pid pid, PropertyValue value, Guid tid)
+        public Task RemoveFromListProperty(Pid pid, PropertyValue value, Guid tid)
         {
             throw new NotImplementedException();
         }
 
-        public Task<PropertySet> GetProperties(PidSet pids, bool native = false)
+        public Task<PropertySet> GetPropertiesX(PidSet pids, bool native = false)
         {
             throw new NotImplementedException();
         }

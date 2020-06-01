@@ -12,15 +12,15 @@ namespace n3q.Aspects
         public Applier(ItemStub item) { self = item; }
         public override Pid GetAspectPid() => Pid.ApplierAspect;
 
-        public enum Action { ApplyTo }
+        public enum Action { Apply }
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { nameof(Action.ApplyTo), new ActionDescription() { Handler = async (args) => ApplyTo(await Item(args.Get(Pid.PassiveItem))) } },
+                { nameof(Action.Apply), new ActionDescription() { Handler = async (args) => Apply(await Item(args.Get(Pid.ApplierApplyTo))) } },
             };
         }
 
-        public void ApplyTo(ItemStub passive)
+        public void Apply(ItemStub passive)
         {
             //if (this.IsExtractor() && passive.IsSource()) {
             //    if (!this.AsSink().IsFull() && !passive.AsSource().IsEmpty() && this.GetString(Pid.Resource) == passive.GetString(Pid.Resource)) {

@@ -169,7 +169,7 @@ namespace n3q.Content
                         [Pid.ExtractorAspect] = true,
                         [Pid.InjectorAspect] = true,
                         [Pid.ApplierAspect] = true,
-                        [Pid.Actions] = ValueMap.From(new Dictionary<string, string> { ["ApplyTo"] = nameof(Applier.Action.ApplyTo), ["GetWater"] = nameof(Extractor.Action.Extract), ["PutWater"] = nameof(Injector.Action.Inject) }),
+                        [Pid.Actions] = ValueMap.From(new Dictionary<string, string> { ["ApplyTo"] = nameof(Applier.Action.Apply), ["GetWater"] = nameof(Extractor.Action.Extract), ["PutWater"] = nameof(Injector.Action.Inject) }),
                         [Pid.Stats] = ValueList.From(new[] { Pid.WaterLevel.ToString() }),
                     };
                     text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Wasserflasche";

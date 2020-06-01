@@ -285,7 +285,7 @@ namespace XmppComponent
             Log.Info($"ItemAction user={userId} item={itemId} action={actionName}");
 
             if (actionName == nameof(Rezable.Action.Rez) && Has.Value(userId) && Has.Value(itemId)) {
-                var props = await GetItem(itemId).GetProperties(new PidSet { Pid.RezableAspect });
+                var props = await GetItem(itemId).GetPropertiesX(new PidSet { Pid.RezableAspect });
                 if (props.GetBool(Pid.RezableAspect)) {
                     var roomId = message.Cmd.ContainsKey("room") ? message.Cmd["room"] : "";
                     if (Has.Value(roomId)) {
@@ -313,7 +313,7 @@ namespace XmppComponent
                 Log.Info($"Drop {roomId} {itemId}");
                 await GetItem(roomId).ModifyProperties(new PropertySet(Pid.ContainerAspect, true), PidSet.Empty, ItemTransaction.WithoutTransaction);
                 _ = AddRoomItem(roomId, itemId);
-                await GetWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Rez), new PropertySet { [Pid.RezableRezRoom] = roomId, [Pid.RezableRezX] = posX });
+                await GetWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Rez), new PropertySet { [Pid.RezableRezTo] = roomId, [Pid.RezableRezX] = posX });
             }
         }
 
@@ -331,7 +331,7 @@ namespace XmppComponent
                         throw new SurfaceException(roomId, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezzed);
                     } else {
                         Log.Info($"Pickup {roomId} {itemId}");
-                        await GetWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Derez), new PropertySet { [Pid.RezableDerezUser] = roomId });
+                        await GetWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Derez), new PropertySet { [Pid.RezableDerezTo] = roomId });
                         await OnItemRemovedFromRoom(roomItem);
 
                         // Also: don't wait to cleanup state, just ignore the presence-unavailable
@@ -348,13 +348,13 @@ namespace XmppComponent
             var roomId = roomItem.RoomId;
             var itemId = roomItem.ItemId;
 
-            var props = await GetItem(itemId).GetProperties(PidSet.Public);
+            var props = await GetItem(itemId).GetPropertiesX(PidSet.Public);
 
             var name = props.GetString(Pid.Name);
             if (string.IsNullOrEmpty(name)) { name = props.Get(Pid.Label); }
             if (string.IsNullOrEmpty(name)) { name = $"Item-{itemId}"; }
 
-            var x = props.GetInt(Pid.RezableRezX);
+            var x = props.GetInt(Pid.RezzedX);
 
             var roomItemJid = new RoomItemJid(roomId, itemId, name);
 

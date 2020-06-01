@@ -13,39 +13,30 @@ namespace n3q.Aspects
     {
         public string Id { get; }
 
-        public IClusterClient ClusterClient { get; }
-        public IGrainFactory GrainFactory { get; }
-        public ItemSiloSimulator Simulator { get; }
-        public ItemTransaction Transaction { get; set; }
+        public IClusterClient ClusterClient;
+        public IGrainFactory GrainFactory;
+        public ItemSiloSimulator Simulator;
+        public ItemTransaction Transaction;
 
-        public ItemStub(IClusterClient clusterClient, string itemId, ItemTransaction t = null)
+        public ItemStub(IClusterClient clusterClient, string itemId, ItemTransaction transaction = null)
         {
             ClusterClient = clusterClient;
             Id = itemId;
-            Transaction = t;
-            if (t == null) {
-                _ = 1;
-            }
+            Transaction = transaction;
         }
 
-        public ItemStub(IGrainFactory grainFactory, string id, ItemTransaction t = null)
+        public ItemStub(IGrainFactory grainFactory, string id, ItemTransaction transaction = null)
         {
             GrainFactory = grainFactory;
             Id = id;
-            Transaction = t;
-            if (t == null) {
-                _ = 1;
-            }
+            Transaction = transaction;
         }
 
-        public ItemStub(ItemSiloSimulator simulator, string id, ItemTransaction t = null)
+        public ItemStub(ItemSiloSimulator simulator, string id, ItemTransaction transaction = null)
         {
             Simulator = simulator;
             Id = id;
-            Transaction = t;
-            if (t == null) {
-                _ = 1;
-            }
+            Transaction = transaction;
         }
 
         public IItem Grain
@@ -114,58 +105,53 @@ namespace n3q.Aspects
 
         #region IItem
 
-        public Task ModifyProperties(PropertySet modified, PidSet deleted, Guid tid) { return Grain.ModifyProperties(modified, deleted, tid); }
-        public Task AddToList(Pid pid, PropertyValue value, Guid tid) { return Grain.AddToList(pid, value, tid); }
-        public Task RemoveFromList(Pid pid, PropertyValue value, Guid tid) { return Grain.RemoveFromList(pid, value, tid); }
+        public async Task ModifyProperties(PropertySet modified, PidSet deleted, Guid tid) { await Grain.ModifyProperties(modified, deleted, tid); }
+        public async Task AddToListProperty(Pid pid, PropertyValue value, Guid tid) { await Grain.AddToListProperty(pid, value, tid); }
+        public async Task RemoveFromListProperty(Pid pid, PropertyValue value, Guid tid) { await Grain.RemoveFromListProperty(pid, value, tid); }
 
-        public Task BeginTransaction(Guid tid) { return Grain.BeginTransaction(tid); }
-        public Task EndTransaction(Guid tid, bool success) { return Grain.EndTransaction(tid, success); }
+        [ObsoleteAttribute("Do not use the interface directly. Use GetProperties because of the weird transaction corruption workaround")]
+        public async Task<PropertySet> GetPropertiesX(PidSet pids, bool native = false) { AssertStubMethodIsUsed(); await Task.CompletedTask; return PropertySet.Empty; }
 
-        public Task Delete(Guid tid) { return Grain.Delete(tid); }
+        public async Task BeginTransaction(Guid tid) { await Grain.BeginTransaction(tid); }
+        public async Task EndTransaction(Guid tid, bool success) { await Grain.EndTransaction(tid, success); }
 
-        public Task<Guid> GetStreamId() { return Grain.GetStreamId(); }
-        public Task<string> GetStreamNamespace() { return Grain.GetStreamNamespace(); }
-        public Task Deactivate() { return Grain.Deactivate(); }
-        public Task WritePersistentStorage() { return Grain.WritePersistentStorage(); }
-        public Task ReadPersistentStorage() { return Grain.ReadPersistentStorage(); }
-        public Task DeletePersistentStorage() { return Grain.DeletePersistentStorage(); }
+        public async Task Delete(Guid tid) { await Grain.Delete(tid); }
+
+        public async Task<Guid> GetStreamId() { return await Grain.GetStreamId(); }
+        public async Task<string> GetStreamNamespace() { return await Grain.GetStreamNamespace(); }
+        public async Task Deactivate() { await Grain.Deactivate(); }
+        public async Task WritePersistentStorage() { await Grain.WritePersistentStorage(); }
+        public async Task ReadPersistentStorage() { await Grain.ReadPersistentStorage(); }
+        public async Task DeletePersistentStorage() { await Grain.DeletePersistentStorage(); }
 
         #endregion
 
         #region IItem extensions
 
-        public Task ModifyProperties(PropertySet modified, PidSet deleted) { AssertTransaction(); return Grain.ModifyProperties(modified, deleted, Transaction.Id); }
+        public async Task ModifyProperties(PropertySet modified, PidSet deleted) { AssertTransaction(); await Grain.ModifyProperties(modified, deleted, Transaction.Id); }
+        public async Task AddToList(Pid pid, PropertyValue value) { AssertTransaction(); await Grain.AddToListProperty(pid, value, Transaction.Id); }
+        public async Task RemoveFromList(Pid pid, PropertyValue value) { AssertTransaction(); await Grain.RemoveFromListProperty(pid, value, Transaction.Id); }
 
-        public Task AddToList(Pid pid, PropertyValue value) { AssertTransaction(); return Grain.AddToList(pid, value, Transaction.Id); }
-        public Task RemoveFromList(Pid pid, PropertyValue value) { AssertTransaction(); return Grain.RemoveFromList(pid, value, Transaction.Id); }
-        public Task<PropertySet> GetProperties(PidSet pids, bool native = false) { return Grain.GetProperties(pids, native); }
-
-        public delegate Task TransactionWrappedCode(ItemStub item);
-        public async Task WithTransaction(TransactionWrappedCode code)
+        public async Task<PropertySet> GetProperties(PidSet pids, bool native = false)
         {
-            Transaction = new ItemTransaction();
-            await Transaction.Begin(this);
-            try {
-                await code(this);
-                await Transaction.Commit();
-            } catch (Exception ex) {
-                _ = ex;
-                await Transaction.Cancel();
-                throw;
-            } finally {
-                Transaction = null;
+            var t = Transaction;
+            var result = await Grain.GetPropertiesX(pids, native);
+            if (Transaction == null) {
+                Transaction = t;
             }
+            return result;
         }
-        public Task EndTransaction(bool success) { AssertTransaction(); return Grain.EndTransaction(Transaction.Id, success); }
 
-        public Task Delete() { return Grain.Delete(Transaction.Id); }
+        public async Task EndTransaction(bool success) { AssertTransaction(); await Grain.EndTransaction(Transaction.Id, success); }
+
+        public async Task Delete() { await Grain.Delete(Transaction.Id); }
 
         public async Task Set(Pid pid, PropertyValue value) { AssertTransaction(); await Grain.ModifyProperties(new PropertySet(pid, value), PidSet.Empty, Transaction.Id); }
         public async Task Unset(Pid pid) { AssertTransaction(); await Grain.ModifyProperties(PropertySet.Empty, new PidSet { pid }, Transaction.Id); }
 
         public async Task<PropertyValue> Get(Pid pid)
         {
-            var props = await Grain.GetProperties(new PidSet { pid });
+            var props = await GetProperties(new PidSet { pid });
             if (props.TryGetValue(pid, out var value)) {
                 return value;
             }
@@ -181,6 +167,22 @@ namespace n3q.Aspects
         public async Task<ValueList> GetList(Pid pid) { return await Get(pid); }
         public async Task<ValueMap> GetMap(Pid pid) { return await Get(pid); }
 
+        public delegate Task TransactionWrappedCode(ItemStub item);
+        public async Task WithTransaction(TransactionWrappedCode transactedCode)
+        {
+            Transaction = new ItemTransaction();
+            await Transaction.Begin(this);
+            try {
+                await transactedCode(this);
+                await Transaction.Commit();
+            } catch (Exception ex) {
+                _ = ex;
+                await Transaction.Cancel();
+                throw;
+            } finally {
+                Transaction = null;
+            }
+        }
 
         private void AssertTransaction()
         {
@@ -189,14 +191,11 @@ namespace n3q.Aspects
             }
         }
 
+        private void AssertStubMethodIsUsed()
+        {
+            throw new Exception($"Do not use the interface directly. Please use the stub method {nameof(GetProperties)}");
+        }
+
         #endregion
-
-        //#region Aspects
-
-        //public Container AsContainer => new Container(this);
-        //public CapacityLimit AsCapacityLimit => new CapacityLimit(this);
-        //public Rezable AsRezable => new Rezable(this);
-
-        //#endregion
     }
 }

@@ -16,7 +16,7 @@ namespace n3q.Aspects
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { nameof(Action.Extract), new ActionDescription() { Handler = async (args) => Extract(await Item(args.Get(Pid.PassiveItem))) } },
+                { nameof(Action.Extract), new ActionDescription() { Handler = async (args) => Extract(await Item(args.Get(Pid.ExtractorExtractFrom))) } },
             };
         }
 

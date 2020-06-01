@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.Runtime;
 using Orleans.Streams;
@@ -26,6 +27,7 @@ namespace n3q.Grains
         string Id => this.GetPrimaryKeyString();
         public PropertySet Properties { get; set; }
 
+        private readonly ILogger<ItemGrain> _logger;
         readonly string _streamNamespace = ItemService.StreamNamespace;
         readonly Guid _streamId = ItemService.StreamGuid;
         readonly IPersistentState<ItemState> _state;
@@ -36,9 +38,11 @@ namespace n3q.Grains
         List<ItemChange> _changes;
 
         public ItemGrain(
+            ILogger<ItemGrain> logger,
             [PersistentState("Item", JsonFileStorage.StorageProviderName)] IPersistentState<ItemState> itemState
             )
         {
+            _logger = logger;
             _state = itemState;
         }
 
@@ -88,7 +92,7 @@ namespace n3q.Grains
             }
         }
 
-        public async Task AddToList(Pid pid, PropertyValue value, Guid tid)
+        public async Task AddToListProperty(Pid pid, PropertyValue value, Guid tid)
         {
             AssertCurrentTransaction(tid);
 
@@ -109,7 +113,7 @@ namespace n3q.Grains
             }
         }
 
-        public async Task RemoveFromList(Pid pid, PropertyValue value, Guid tid)
+        public async Task RemoveFromListProperty(Pid pid, PropertyValue value, Guid tid)
         {
             AssertCurrentTransaction(tid);
 
@@ -125,7 +129,7 @@ namespace n3q.Grains
             }
         }
 
-        public async Task<PropertySet> GetProperties(PidSet pids, bool native = false)
+        public async Task<PropertySet> GetPropertiesX(PidSet pids, bool native = false)
         {
             var props = (PropertySet)null;
 
@@ -165,7 +169,7 @@ namespace n3q.Grains
         {
             if (InTransaction()) {
                 if (!IsSameTransaction(tid)) {
-                    throw new Exception($"BeginTransaction: already in transaction current={_transactionId} tid={tid}");
+                    throw new Exception($"Delete: #{Id} already in transaction={_transactionId} tid={tid}");
                 } else {
                     // Begin same: ignore
                 }
@@ -183,11 +187,13 @@ namespace n3q.Grains
         {
             if (InTransaction()) {
                 if (!IsSameTransaction(tid)) {
-                    throw new Exception($"BeginTransaction: already in transaction current={_transactionId} tid={tid}");
+                    throw new Exception($"BeginTransaction: #{Id} already in transaction={_transactionId} tid={tid}");
                 } else {
                     // Begin same: ignore
                 }
             }
+
+            _logger.LogInformation($"{nameof(BeginTransaction)} #{Id} {tid} ");
 
             _transactionId = tid;
             _changes = new List<ItemChange>();
@@ -200,8 +206,10 @@ namespace n3q.Grains
         {
             if (InTransaction()) {
                 if (!IsSameTransaction(tid)) {
-                    throw new Exception($"EndTransaction: in different transaction current={_transactionId} tid={tid}");
+                    throw new Exception($"EndTransaction: #{Id} in different transaction={_transactionId} tid={tid}");
                 } else {
+                    _logger.LogInformation($"{nameof(EndTransaction)} #{Id} {tid} ");
+
                     if (success) {
                         await CommitChanges();
                     } else {
@@ -222,7 +230,7 @@ namespace n3q.Grains
         {
             if (InTransaction()) {
                 if (!IsSameTransaction(tid)) {
-                    throw new Exception($"AssertCurrentTransaction: already in different transaction current={_transactionId} tid={tid}");
+                    throw new Exception($"AssertCurrentTransaction: #{Id} in different transaction={_transactionId} tid={tid}");
                 }
             } else {
                 _changes = new List<ItemChange>();
@@ -241,7 +249,7 @@ namespace n3q.Grains
             } else {
                 var templateId = (string)Properties.Get(Pid.Template);
                 if (Has.Value(templateId)) {
-                    result = await Item(templateId).GetProperties(PidSet.All);
+                    result = await Item(templateId).GetPropertiesX(PidSet.All);
                     result = FilterTemplateProperties(result);
                 }
 
@@ -263,7 +271,7 @@ namespace n3q.Grains
             } else {
                 var templateId = (string)Properties.Get(Pid.Template);
                 if (Has.Value(templateId)) {
-                    result = await Item(templateId).GetProperties(pids);
+                    result = await Item(templateId).GetPropertiesX(pids);
                     result = FilterTemplateProperties(result);
                 }
 
@@ -299,7 +307,7 @@ namespace n3q.Grains
             } else {
                 var templateId = (string)Properties.Get(Pid.Template);
                 if (Has.Value(templateId)) {
-                    result = await Item(templateId).GetProperties(new PidSet { groupPid });
+                    result = await Item(templateId).GetPropertiesX(new PidSet { groupPid });
                     result = FilterTemplateProperties(result);
                 }
 
@@ -336,7 +344,7 @@ namespace n3q.Grains
             } else {
                 var templateId = (string)Properties.Get(Pid.Template);
                 if (Has.Value(templateId)) {
-                    result = await Item(templateId).GetProperties(new PidSet { accessPid });
+                    result = await Item(templateId).GetPropertiesX(new PidSet { accessPid });
                     result = FilterTemplateProperties(result);
                 }
 

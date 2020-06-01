@@ -29,3 +29,6 @@ dotnet_diagnostic.IDE0001.severity = silent
 
 # CA1822: Mark members as static
 dotnet_diagnostic.CA1822.severity = silent
+
+# IDE0066: Convert switch statement to expression
+csharp_style_prefer_switch_expression = true:silent
