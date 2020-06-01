@@ -260,10 +260,10 @@ namespace XmppComponent
             var roomId = jid.Room;
             var itemId = jid.Item;
 
-            Log.Info($"Left room {roomId} {itemId}");
-
             var roomItem = GetRoomItem(roomId, itemId);
             if (roomItem != null) {
+                Log.Info($"Left room {roomId} {itemId}");
+
                 //                // Just in case, should already be removed after sending presence-unavailable
                 RemoveRoomItem(roomId, itemId);
             }
