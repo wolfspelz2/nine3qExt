@@ -77,7 +77,7 @@ export class Config
                 configUrl: 'https://avatar.weblin.sui.li/item/config',
                 config: {
                     itemPropertyUrlFilter: [
-                        { key: '{item.nine3q}', value: 'https://nine3q.dev.sui.li/images/Items/' },
+                        { key: '{image.item.nine3q}', value: 'https://nine3q.dev.sui.li/images/Items/' },
                     ]
                 }
             }

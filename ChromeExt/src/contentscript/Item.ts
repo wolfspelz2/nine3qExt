@@ -74,7 +74,9 @@ export class Item extends Entity
                     let itemServiceId = as.String(attrs.service, '');
                     for (let attrName in attrs) {
                         let attrValue = attrs[attrName];
-                        attrValue = Item.itemServiceUrlFilter(itemServiceId, attrName, attrValue);
+                        if (attrName.endsWith('Url')) {
+                            attrValue = Item.itemServiceUrlFilter(itemServiceId, attrName, attrValue);
+                        }
                         newProperties[attrName] = attrValue;
                     }
                     // vpNickname = as.String(attrs.Nickname, '');

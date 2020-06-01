@@ -140,8 +140,8 @@ namespace n3q.Content
                     props = new PropertySet {
                         [Pid.Name] = name,
                         [Pid.Label] = "TheatreScreenplay",
-                        [Pid.Icon32Url] = PropertyFilter.ItemBase + "PageProxy/icon32.png",
-                        [Pid.Image100Url] = PropertyFilter.ItemBase + "PageProxy/image100.png",
+                        [Pid.Icon32Url] = PropertyFilter.ItemBase + "TheatreScreenplay/icon32.png",
+                        [Pid.Image100Url] = PropertyFilter.ItemBase + "TheatreScreenplay/image100.png",
                         [Pid.RezableAspect] = true,
                         [Pid.IframeAspect] = true,
                         [Pid.IframeUrl] = "https://example.com",
@@ -157,8 +157,8 @@ namespace n3q.Content
                     props = new PropertySet {
                         [Pid.Name] = name,
                         [Pid.Label] = "WaterBottle",
-                        [Pid.Icon32Url] = "{item.nine3q}WaterBottle/icon32.png",
-                        [Pid.Image100Url] = "{item.nine3q}WaterBottle/image100.png",
+                        [Pid.Icon32Url] = PropertyFilter.ItemBase + "WaterBottle/icon32.png",
+                        [Pid.Image100Url] = PropertyFilter.ItemBase + "WaterBottle/image100.png",
                         [Pid.RezableAspect] = true,
                         [Pid.SourceAspect] = true,
                         [Pid.SourceResource] = Pid.WaterLevel.ToString(),

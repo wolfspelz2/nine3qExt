@@ -32,7 +32,7 @@ export class BackgroundApp
             let parsed = JSON.parse(devConfig);
             Config.setDevTree(parsed);
         } catch (error) {
-
+            log.error('Parse dev config failed', error);
         }
 
         chrome.runtime?.onMessage.addListener((message, sender, sendResponse) => { return this.onRuntimeMessage(message, sender, sendResponse); });
