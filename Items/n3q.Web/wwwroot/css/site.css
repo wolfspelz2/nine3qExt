@@ -17,6 +17,7 @@ table {
 
 td {
     vertical-align: top;
+    word-break: break-all;
 }
 
 .cMenuItem {
@@ -80,7 +81,6 @@ td {
 
 .cTable td {
     padding: 2px;
-    vertical-align: top;
 }
 
 .cTable .cOdd {
