@@ -9,7 +9,7 @@ namespace n3q.Aspects
 
     public class Sink : Aspect
     {
-        public Sink(ItemStub item) { self = item; }
+        public Sink(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.SinkAspect;
 
         public bool IsFull()

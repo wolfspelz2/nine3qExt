@@ -10,7 +10,7 @@ namespace n3q.Aspects
 
     public class TestGreeted : Aspect
     {
-        public TestGreeted(ItemStub item) { self = item; }
+        public TestGreeted(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.TestGreetedAspect;
 
         public enum Action { GetGreeting }
@@ -25,7 +25,7 @@ namespace n3q.Aspects
         {
             //await AssertAspect();
             var greeting = await greeter.AsTestGreeter().Greet(name);
-            await self.Set(Pid.TestGreetedResult, greeting);
+            await this.Set(Pid.TestGreetedResult, greeting);
         }
 
     }

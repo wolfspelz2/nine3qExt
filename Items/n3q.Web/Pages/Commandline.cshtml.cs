@@ -69,8 +69,8 @@ namespace n3q.Web
             _clusterClient = clusterClient;
 
             if (_commandline is ItemCommandline itemCommandline) {
-                if (itemCommandline.GrainClient == null) {
-                    itemCommandline.GrainClient = clusterClient;
+                if (itemCommandline.ClusterClient == null) {
+                    itemCommandline.ClusterClient = clusterClient;
                 }
             }
         }

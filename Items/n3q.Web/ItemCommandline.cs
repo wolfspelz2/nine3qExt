@@ -14,11 +14,13 @@ namespace n3q.Web
 {
     public class ItemCommandline : Commandline, ICommandline
     {
-        public IClusterClient GrainClient { get; set; }
+        public IClusterClient ClusterClient { get; set; }
 
         public ItemStub GetItemStub(string id)
         {
-            return new ItemStub(GrainClient, id);
+            var itemClient = new OrleansClusterClient(ClusterClient, id);
+            var itemStub = new ItemStub(itemClient);
+            return itemStub;
         }
 
         public enum ItemRole { Content, LeadContent, SecurityAdmin }
@@ -427,7 +429,7 @@ namespace n3q.Web
 
             var item = GetItemStub(itemId);
             item.WithTransaction(async self => {
-                await self.AsDeletable().Delete();
+                await self.AsDeletable().DeleteMe();
             }).Wait();
 
             return $"Deleted";
@@ -472,7 +474,7 @@ namespace n3q.Web
 
         string ShowItemLink(string itemId)
         {
-            var item = GrainClient.GetGrain<IItem>(itemId);
+            var item = ClusterClient.GetGrain<IItem>(itemId);
             var text = itemId.ToString();
             return CommandExecuteLink(Fn.Item_Show.ToString(), new[] { itemId }, text);
         }
@@ -533,7 +535,7 @@ namespace n3q.Web
         {
             args.Next("cmd");
 
-            var cg = GrainClient.GetGrain<IContentGenerator>(Guid.Empty);
+            var cg = ClusterClient.GetGrain<IContentGenerator>(Guid.Empty);
             var groups = cg.GetGroupNames().Result;
             var s = "";
             foreach (var group in groups) {
@@ -547,7 +549,7 @@ namespace n3q.Web
             args.Next("cmd");
             var name = args.Next("GroupName");
 
-            var cg = GrainClient.GetGrain<IContentGenerator>(Guid.Empty);
+            var cg = ClusterClient.GetGrain<IContentGenerator>(Guid.Empty);
             var templates = cg.GetTemplateNames(name).Result;
             var s = CommandExecuteLink(Fn.Content_Create.ToString(), new[] { name }, "[Create all]") + " Create: ";
             foreach (var template in templates) {
@@ -561,7 +563,7 @@ namespace n3q.Web
             args.Next("cmd");
             var name = args.Next("template or group name");
 
-            var cg = GrainClient.GetGrain<IContentGenerator>(Guid.Empty);
+            var cg = ClusterClient.GetGrain<IContentGenerator>(Guid.Empty);
             var ids = cg.CreateTemplates(name).Result;
 
             return string.Join(" ", ids.ConvertAll(id => ShowItemLink(id)));

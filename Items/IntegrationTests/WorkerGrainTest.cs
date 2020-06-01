@@ -9,7 +9,7 @@ using n3q.Aspects;
 namespace IntegrationTests
 {
     [TestClass]
-    public class WorkGrainTest
+    public class WorkerGrainTest
     {
         IWorker GetWorkerGrain() { return GrainClient.GrainFactory.GetGrain<IWorker>(Guid.Empty); }
 

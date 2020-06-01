@@ -9,7 +9,7 @@ namespace n3q.Aspects
 
     public class Injector : Aspect
     {
-        public Injector(ItemStub item) { self = item; }
+        public Injector(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.InjectorAspect;
 
         public enum Action { Inject }

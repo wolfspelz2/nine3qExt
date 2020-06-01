@@ -11,7 +11,7 @@ namespace n3q.Aspects
 
     public class Rezable : Aspect
     {
-        public Rezable(ItemStub item) { self = item; }
+        public Rezable(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.RezableAspect;
 
         public enum Action { Rez, Derez }
@@ -25,32 +25,32 @@ namespace n3q.Aspects
 
         public async Task<PropertyValue> Rez(ItemStub room, long posX, string destination)
         {
-            await self.AsRezable().AssertAspect(() => throw new SurfaceException(self.Id, room.Id, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemIsNotRezable));
-            await room.AsContainer().AddChild(self);
-            await self.Set(Pid.RezzedX, posX);
-            await self.Set(Pid.RezableIsRezzing, true);
+            await this.AsRezable().AssertAspect(() => throw new SurfaceException(this.Id, room.Id, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemIsNotRezable));
+            await room.AsContainer().AddChild(this);
+            await this.Set(Pid.RezzedX, posX);
+            await this.Set(Pid.RezableIsRezzing, true);
             return true;
         }
 
         public async Task<PropertyValue> OnRezzed()
         {
-            await self.Set(Pid.RezableIsRezzed, true);
-            await self.Unset(Pid.RezableIsRezzing);
+            await this.Set(Pid.RezableIsRezzed, true);
+            await this.Unset(Pid.RezableIsRezzing);
             return true;
         }
 
         public async Task<PropertyValue> Derez(ItemStub user)
         {
-            await self.AsRezable().AssertAspect(() => throw new SurfaceException(self.Id, user.Id, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezable));
-            if (!await self.Get(Pid.RezableIsRezzed)) { throw new SurfaceException(self.Id, user.Id, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezzed); }
-            await user.AsContainer().AddChild(self);
-            await self.Set(Pid.RezableIsDerezzing, true);
+            await this.AsRezable().AssertAspect(() => throw new SurfaceException(this.Id, user.Id, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezable));
+            if (!await this.Get(Pid.RezableIsRezzed)) { throw new SurfaceException(this.Id, user.Id, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezzed); }
+            await user.AsContainer().AddChild(this);
+            await this.Set(Pid.RezableIsDerezzing, true);
             return true;
         }
 
         public async Task<PropertyValue> OnDerezzed()
         {
-            await self.ModifyProperties(PropertySet.Empty, new PidSet { Pid.RezableRezX, Pid.RezableIsRezzed, Pid.RezableIsRezzing });
+            await this.ModifyProperties(PropertySet.Empty, new PidSet { Pid.RezableRezX, Pid.RezableIsRezzed, Pid.RezableIsRezzing });
             return true;
         }
     }

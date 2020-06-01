@@ -12,24 +12,24 @@ namespace n3q.Aspects
 
     public class Deletable : Aspect
     {
-        public Deletable(ItemStub item) { self = item; }
+        public Deletable(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.DeletableAspect;
 
-        public async Task<PropertyValue> Delete()
+        public async Task<PropertyValue> DeleteMe()
         {
-            var containerId = await self.GetItemId(Pid.Container);
+            var containerId = await this.GetItemId(Pid.Container);
             if (Has.Value(containerId)) {
                 var container = await Item(containerId);
-                await container.RemoveFromList(Pid.Contains, self.Id);
+                await container.RemoveFromList(Pid.Contains, this.Id);
             }
 
-            var children = await self.GetItemIdList(Pid.Contains);
+            var children = await this.GetItemIdList(Pid.Contains);
             foreach (var childId in children) {
                 var child = await Item(childId);
-                await child.AsDeletable().Delete();
+                await child.AsDeletable().DeleteMe();
             }
 
-            await self.Delete();
+            await this.Delete();
             return true;
         }
     }

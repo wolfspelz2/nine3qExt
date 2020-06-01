@@ -9,7 +9,7 @@ namespace n3q.Aspects
 
     public class Source : Aspect
     {
-        public Source(ItemStub item) { self = item; }
+        public Source(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.SourceAspect;
 
         public bool IsEmpty()

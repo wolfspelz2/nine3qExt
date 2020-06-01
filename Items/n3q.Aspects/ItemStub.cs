@@ -9,49 +9,99 @@ using n3q.Tools;
 
 namespace n3q.Aspects
 {
+    public interface IItemClient
+    {
+        string GetId();
+        IItem GetItem();
+        IItemClient CloneFor(string otherId);
+    }
+
+    public class OrleansClusterClient : IItemClient
+    {
+        readonly string _grainId;
+        readonly IClusterClient _clusterClient;
+
+        public string GetId() => _grainId;
+
+        public OrleansClusterClient(IClusterClient clusterClient, string grainId)
+        {
+            _grainId = grainId;
+            _clusterClient = clusterClient;
+        }
+
+        public IItem GetItem()
+        {
+            return _clusterClient.GetGrain<IItem>(_grainId);
+        }
+
+        public IItemClient CloneFor(string otherId)
+        {
+            return new OrleansClusterClient(_clusterClient, otherId);
+        }
+    }
+
+    public class OrleansGrainFactoryClient : IItemClient
+    {
+        readonly string _grainId;
+        readonly IGrainFactory _grainFactory;
+
+        public string GetId() => _grainId;
+
+        public OrleansGrainFactoryClient(IGrainFactory grainFactory, string grainId)
+        {
+            _grainId = grainId;
+            _grainFactory = grainFactory;
+        }
+
+        public IItem GetItem()
+        {
+            return _grainFactory.GetGrain<IItem>(_grainId);
+        }
+
+        public IItemClient CloneFor(string otherId)
+        {
+            return new OrleansGrainFactoryClient(_grainFactory, otherId);
+        }
+    }
+
+    public class SiloSimulatorClient : IItemClient
+    {
+        readonly string _id;
+        readonly ItemSiloSimulator _simulator;
+
+        public string GetId() => _id;
+
+        public SiloSimulatorClient(ItemSiloSimulator simulator, string id)
+        {
+            _id = id;
+            _simulator = simulator;
+        }
+
+        public IItem GetItem()
+        {
+            return _simulator.GetGrain(_id);
+        }
+
+        public IItemClient CloneFor(string otherId)
+        {
+            return new SiloSimulatorClient(_simulator, otherId);
+        }
+    }
+
     public class ItemStub
     {
-        public string Id { get; }
-
-        public IClusterClient ClusterClient;
-        public IGrainFactory GrainFactory;
-        public ItemSiloSimulator Simulator;
+        public IItemClient Client;
         public ItemTransaction Transaction;
 
-        public ItemStub(IClusterClient clusterClient, string itemId, ItemTransaction transaction = null)
+        public string Id => Client.GetId();
+
+        public ItemStub(IItemClient itemClient, ItemTransaction transaction = null)
         {
-            ClusterClient = clusterClient;
-            Id = itemId;
+            Client = itemClient;
             Transaction = transaction;
         }
 
-        public ItemStub(IGrainFactory grainFactory, string id, ItemTransaction transaction = null)
-        {
-            GrainFactory = grainFactory;
-            Id = id;
-            Transaction = transaction;
-        }
-
-        public ItemStub(ItemSiloSimulator simulator, string id, ItemTransaction transaction = null)
-        {
-            Simulator = simulator;
-            Id = id;
-            Transaction = transaction;
-        }
-
-        public IItem Grain
-        {
-            get {
-                if (ClusterClient != null) {
-                    return ClusterClient.GetGrain<IItem>(Id);
-                } else if (GrainFactory != null) {
-                    return GrainFactory.GetGrain<IItem>(Id);
-                } else if (Simulator != null) {
-                    return Simulator.GetGrain(Id);
-                }
-                throw new Exception($"Need valid IClusterClient or IGrainFactory for id={Id}");
-            }
-        }
+        public IItem Grain => Client.GetItem();
 
         public async Task<ItemStub> Item(string itemId)
         {
@@ -59,20 +109,10 @@ namespace n3q.Aspects
                 throw new Exception($"{nameof(Aspect)}.{nameof(Item)}: Empty or null itemId");
             }
 
-            var item = (ItemStub)null;
-            if (ClusterClient != null) {
-                item = new ItemStub(ClusterClient, itemId, Transaction);
-            } else if (GrainFactory != null) {
-                item = new ItemStub(GrainFactory, itemId, Transaction);
-            } else if (Simulator != null) {
-                item = new ItemStub(Simulator, itemId, Transaction);
-            }
-            if (item != null) {
-                await Transaction.AddItem(item);
-                return item;
-            } else {
-                throw new Exception($"Need valid IClusterClient or IGrainFactory for id={Id}");
-            }
+            var client = Client.CloneFor(itemId);
+            var item = new ItemStub(client, Transaction);
+            await Transaction?.AddItem(item);
+            return item;
         }
 
         #region Aspects

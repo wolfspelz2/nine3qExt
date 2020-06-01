@@ -6,27 +6,21 @@ using n3q.Tools;
 
 namespace n3q.Aspects
 {
-    public class Aspect
+    public class Aspect : ItemStub
     {
-        protected ItemStub self;
-        protected string Id => self.Id;
-
-        protected async Task<ItemStub> Item(string itemId)
-        {
-            return await self.Item(itemId);
-        }
+        public Aspect(ItemStub item) : base(item.Client, item.Transaction) { }
 
         public virtual Pid GetAspectPid() => Pid.FirstAspect;
 
         protected async Task<bool> IsAspect(Pid pid)
         {
-            return await self.Get(pid);
+            return await Get(pid);
         }
 
         protected async Task AssertAspect(Pid pid)
         {
             if (!await IsAspect(pid)) {
-                throw new Exception($"Item={self.Id} has no {pid.ToString()}");
+                throw new Exception($"Item={Id} has no {pid.ToString()}");
             }
         }
 

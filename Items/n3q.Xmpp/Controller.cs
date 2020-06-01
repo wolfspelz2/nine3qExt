@@ -90,7 +90,13 @@ namespace XmppComponent
             }
         }
 
-        ItemStub GetItem(string roomId) => new ItemStub(_clusterClient, roomId);
+        ItemStub GetItem(string itemId)
+        {
+            var itemClient = new OrleansClusterClient(_clusterClient, itemId);
+            var itemStub = new ItemStub(itemClient);
+            return itemStub;
+        }
+
         IWorker GetWorker() => _clusterClient.GetGrain<IWorker>(Guid.Empty);
 
         #endregion

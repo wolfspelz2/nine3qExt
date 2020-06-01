@@ -11,7 +11,7 @@ namespace n3q.Aspects
 
     public class TestGreeter : Aspect
     {
-        public TestGreeter(ItemStub item) { self = item; }
+        public TestGreeter(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.TestGreeterAspect;
 
         // No globally visible actions, only called by other aspects
@@ -26,9 +26,9 @@ namespace n3q.Aspects
 
         public async Task<PropertyValue> Greet(string name)
         {
-            var prefix = await self.Get(Pid.TestGreeterPrefix);
+            var prefix = await this.Get(Pid.TestGreeterPrefix);
             var greeting = prefix + name;
-            await self.Set(Pid.TestGreeterResult, greeting);
+            await this.Set(Pid.TestGreeterResult, greeting);
             return greeting;
         }
     }

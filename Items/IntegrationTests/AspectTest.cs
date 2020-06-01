@@ -27,7 +27,7 @@ namespace IntegrationTests
 
                 // Act
                 await item.WithTransaction(async self => {
-                    await self.AsDeletable().Delete();
+                    await self.AsDeletable().DeleteMe();
                 });
 
                 // Assert
@@ -42,7 +42,7 @@ namespace IntegrationTests
 
         [TestMethod]
         [TestCategory(GrainClient.Category)]
-        public async Task Deletable_Delete_removes_from_container()
+        public async Task Deletable_DeleteMe_removes_from_container()
         {
             // Arrange
             var childId = GrainClient.GetRandomItemId();
@@ -66,7 +66,7 @@ namespace IntegrationTests
 
                 // Act
                 await child.WithTransaction(async self => {
-                    await self.AsDeletable().Delete();
+                    await self.AsDeletable().DeleteMe();
                 });
 
                 // Assert

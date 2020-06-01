@@ -17,24 +17,24 @@ namespace n3q.Grains
 
         public async Task AspectAction(string itemId, Pid aspectPid, string actionName, PropertySet args = null)
         {
-            var t = new ItemTransaction();
-            var item = new ItemStub(GrainFactory, itemId, t);
+            var transaction = new ItemTransaction();
+            var itemClient = new OrleansGrainFactoryClient(GrainFactory, itemId);
+            var item = new ItemStub(itemClient, transaction);
 
             try {
-                await t.Begin(item);
+                await transaction.Begin(item);
                 var aspect = item.AsAspect(aspectPid);
                 await aspect.Execute(actionName, args);
-                await t.Commit();
+                await transaction.Commit();
             } catch (Exception ex) {
                 _ = ex;
-                await t.Cancel();
+                await transaction.Cancel();
             }
 
             // Oder so?
-            //await item.WithTransaction(async () => {
-            //    var aspect = item.AsAspect(aspectPid);
+            //await item.WithTransaction(async self => {
+            //    var aspect = self.AsAspect(aspectPid);
             //    var result = await aspect.Run(actionName, args);
-            //    t.Commit();
             //    return result;
             //});
         }
@@ -43,7 +43,9 @@ namespace n3q.Grains
         {
             var executedActions = new Dictionary<Pid, string>();
 
-            var item = new ItemStub(GrainFactory, itemId);
+            var itemClient = new OrleansGrainFactoryClient(GrainFactory, itemId);
+            var item = new ItemStub(itemClient);
+
             await item.WithTransaction(async self => {
 
                 var actionMap = await self.GetMap(Pid.Actions);

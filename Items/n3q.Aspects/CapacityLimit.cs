@@ -11,18 +11,18 @@ namespace n3q.Aspects
 
     public class CapacityLimit : Aspect
     {
-        public CapacityLimit(ItemStub item) { self = item; }
+        public CapacityLimit(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.ItemCapacityLimitAspect;
 
         public async Task AssertLimit(ItemStub newItem)
         {
             //await AssertAspect();
 
-            var itemLimit = await self.GetInt(Pid.ContainerItemLimit);
+            var itemLimit = await this.GetInt(Pid.ContainerItemLimit);
             if (itemLimit > 0) {
                 var stacksize = await newItem.GetInt(Pid.Stacksize);
                 var currentTotal = 0L;
-                foreach (var itemId in (ValueList)await self.Get(Pid.Contains)) {
+                foreach (var itemId in (ValueList)await this.Get(Pid.Contains)) {
                     var child = await Item(itemId);
                     currentTotal += await child.GetInt(Pid.Stacksize);
                 }

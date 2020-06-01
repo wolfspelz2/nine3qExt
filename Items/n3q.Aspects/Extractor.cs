@@ -9,7 +9,7 @@ namespace n3q.Aspects
 
     public class Extractor : Aspect
     {
-        public Extractor(ItemStub item) { self = item; }
+        public Extractor(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.ExtractorAspect;
 
         public enum Action { Extract }

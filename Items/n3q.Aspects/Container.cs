@@ -12,7 +12,7 @@ namespace n3q.Aspects
 
     public class Container : Aspect
     {
-        public Container(ItemStub item) { self = item; }
+        public Container(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.ContainerAspect;
 
         public async Task AddChild(ItemStub child)
@@ -22,14 +22,14 @@ namespace n3q.Aspects
             //var props = await child.GetProperties(new PidSet { Pid.TestInt }, true);
 
             await AssertAspect();
-            await self.AsItemCapacityLimit().AssertLimit(child);
+            await this.AsItemCapacityLimit().AssertLimit(child);
 
             var parentId = await child.GetItemId(Pid.Container);
             if (Has.Value(parentId)) {
                 var currentParent = await Item(parentId);
                 await currentParent.RemoveFromList(Pid.Contains, child.Id);
             }
-            await self.AddToList(Pid.Contains, child.Id);
+            await this.AddToList(Pid.Contains, child.Id);
             await child.Set(Pid.Container, Id);
         }
 
@@ -37,7 +37,7 @@ namespace n3q.Aspects
         {
             await AssertAspect();
 
-            await self.RemoveFromList(Pid.Contains, child.Id);
+            await this.RemoveFromList(Pid.Contains, child.Id);
             await child.Unset(Pid.Container);
         }
     }
