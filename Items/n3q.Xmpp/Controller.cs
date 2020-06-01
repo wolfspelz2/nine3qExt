@@ -90,7 +90,7 @@ namespace XmppComponent
             }
         }
 
-        IItem GetItem(string roomId) => _clusterClient.GetGrain<IItem>(roomId);
+        ItemStub GetItem(string roomId) => new ItemStub(_clusterClient, roomId);
         IWorker GetWorker() => _clusterClient.GetGrain<IWorker>(Guid.Empty);
 
         #endregion
@@ -282,23 +282,38 @@ namespace XmppComponent
                 }
             }
 
-            Log.Info($"ItemAction user={userId} item={itemId} action={actionName}");
+            Log.Info($"ItemAction u<ser={userId} item={itemId} action={actionName}");
 
-            if (actionName == nameof(Rezable.Action.Rez) && Has.Value(userId) && Has.Value(itemId)) {
-                var props = await GetItem(itemId).GetPropertiesX(new PidSet { Pid.RezableAspect });
-                if (props.GetBool(Pid.RezableAspect)) {
-                    var roomId = message.Cmd.ContainsKey("room") ? message.Cmd["room"] : "";
-                    if (Has.Value(roomId)) {
-                        _ = AddRoomItem(roomId, itemId);
-                        await GetItem(roomId).ModifyProperties(new PropertySet(Pid.ContainerAspect, true), PidSet.Empty, ItemTransaction.WithoutTransaction);
+            switch (actionName) {
+                case nameof(Rezable.Action.Rez): {
+                    if (Has.Value(userId) && Has.Value(itemId)) {
+                        if (await GetItem(itemId).GetBool(Pid.RezableAspect)) {
+                            var roomId = message.Cmd.ContainsKey("to") ? message.Cmd["to"] : "";
+                            if (Has.Value(roomId)) {
+                                _ = AddRoomItem(roomId, itemId);
+
+                                var room = GetItem(roomId);
+                                if (!await room.Get(Pid.ContainerAspect)) {
+                                    await room.WithTransaction(async self => { await self.Set(Pid.ContainerAspect, true); });
+                                }
+
+                                var x = message.Cmd.ContainsKey("x") ? message.Cmd["x"] : "";
+                                if (!long.TryParse(x, NumberStyles.Any, CultureInfo.InvariantCulture, out long posX)) {
+                                    posX = 200;
+                                }
+                                await GetWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Action.Rez), new PropertySet { [Pid.RezableRezTo] = roomId, [Pid.RezableRezX] = posX });
+
+                            }
+                        }
                     }
                 }
+                break;
             }
 
-            var executed = await GetWorker().ItemAction(userId, itemId, actionName, args);
-            if (executed.Count > 0) {
-                Log.Info($"ItemAction executed {string.Join(" ", executed.Select(pair => pair.Key + "." + pair.Value))} {string.Join(" ", args.Select(pair => pair.Key + "=" + pair.Value))}");
-            }
+            //var executed = await GetWorker().ItemAction(userId, itemId, actionName, args);
+            //if (executed.Count > 0) {
+            //    Log.Info($"ItemAction executed {string.Join(" ", executed.Select(pair => pair.Key + "." + pair.Value))} {string.Join(" ", args.Select(pair => pair.Key + "=" + pair.Value))}");
+            //}
         }
 
         async Task Connection_OnDropItem(XmppMessage message)
@@ -348,7 +363,7 @@ namespace XmppComponent
             var roomId = roomItem.RoomId;
             var itemId = roomItem.ItemId;
 
-            var props = await GetItem(itemId).GetPropertiesX(PidSet.Public);
+            var props = await GetItem(itemId).GetProperties(PidSet.Public);
 
             var name = props.GetString(Pid.Name);
             if (string.IsNullOrEmpty(name)) { name = props.Get(Pid.Label); }
