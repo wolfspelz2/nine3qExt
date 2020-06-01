@@ -431,7 +431,7 @@ namespace XmppComponent
                 _conn.Send(
 #pragma warning disable format
                     $"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}'>"
-                        + $"<x xmlns='vp:props' type='item' service='n3q' {props_XmlEncoded_All} />"
+                        + $"<x xmlns='vp:props' type='item' service='nine3q' {props_XmlEncoded_All} />"
                         + $"<x xmlns='firebat:user:identity' jid='{identityJid_XmlEncoded}' src='{identitySrc_XmlEncoded}' digest='{identityDigest_XmlEncoded}' />"
                         + $"<x xmlns='firebat:avatar:state'>{position_Node}</x>"
                         + $"<x xmlns='http://jabber.org/protocol/muc'><history seconds='0' maxchars='0' maxstanzas='0' /></x>"
