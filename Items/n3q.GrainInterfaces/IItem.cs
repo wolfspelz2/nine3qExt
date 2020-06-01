@@ -20,8 +20,6 @@ namespace n3q.GrainInterfaces
         Task BeginTransaction(Guid tid);
         Task EndTransaction(Guid tid, bool success);
 
-        Task<Guid> GetStreamId();
-        Task<string> GetStreamNamespace();
         Task Deactivate();
         Task WritePersistentStorage();
         Task ReadPersistentStorage();

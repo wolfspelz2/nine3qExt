@@ -492,7 +492,7 @@ namespace IntegrationTests
                 Assert.AreEqual(41L, await item.GetInt(Pid.TestInt));
 
                 // Act
-                await item.ModifyProperties(new PropertySet(Pid.TestInt, 42), PidSet.Empty, ItemTransaction.WithoutTransaction);
+                await item.Grain.ModifyProperties(new PropertySet(Pid.TestInt, 42), PidSet.Empty, ItemTransaction.WithoutTransaction);
 
                 // Assert
                 Assert.AreEqual(42L, await item.GetInt(Pid.TestInt));
@@ -511,11 +511,11 @@ namespace IntegrationTests
             var item = GrainClient.GetItemStub(GrainClient.GetRandomItemId());
 
             try {
-                await item.ModifyProperties(new PropertySet(Pid.TestInt, 42), PidSet.Empty, ItemTransaction.WithoutTransaction);
+                await item.Grain.ModifyProperties(new PropertySet(Pid.TestInt, 42), PidSet.Empty, ItemTransaction.WithoutTransaction);
                 Assert.AreEqual(42L, await item.GetInt(Pid.TestInt));
 
                 // Act
-                await item.Delete(ItemTransaction.WithoutTransaction);
+                await item.Grain.Delete(ItemTransaction.WithoutTransaction);
 
                 // Assert
                 Assert.AreEqual(0L, await item.GetInt(Pid.TestInt));
