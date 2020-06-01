@@ -21,7 +21,7 @@ export class Window
         this.onClose = options.onClose;
 
         if (!this.windowElem) {
-            let windowId = Utils.randomString(10);
+            let windowId = Utils.randomString(15);
             let resizable = as.Bool(options.resizable, false);
 
             let windowElem = <HTMLElement>$('<div id="' + windowId + '" class="n3q-base n3q-window n3q-chatwindow n3q-shadow-medium" data-translate="children" />').get(0);
@@ -49,7 +49,7 @@ export class Window
 
             $(this.display).append(windowElem);
 
-            let maskId = Utils.randomString(10);
+            let maskId = Utils.randomString(15);
 
             if (resizable) {
                 $(windowElem).resizable({

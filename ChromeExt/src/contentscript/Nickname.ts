@@ -25,7 +25,7 @@ export class Nickname implements IObserver
         // $(this.elem).on('mouseenter', ev => this.participant?.onMouseEnterAvatar(ev));
         // $(this.elem).on('mouseleave', ev => this.participant?.onMouseLeaveAvatar(ev));
 
-        let menu = new Menu(this.app, Utils.randomString(10));
+        let menu = new Menu(this.app, Utils.randomString(15));
 
         {
             let column = new MenuColumn(menu, 'main');

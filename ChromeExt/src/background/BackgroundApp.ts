@@ -319,7 +319,7 @@ export class BackgroundApp
 
     private async startXmpp()
     {
-        this.resource = Utils.randomString(10);
+        this.resource = Utils.randomString(15);
 
         try {
             var conf = {
