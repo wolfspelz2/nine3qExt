@@ -19,7 +19,7 @@ export class Window
     show(options: any)
     {
         this.onClose = options.onClose;
-        
+
         if (!this.windowElem) {
             let windowId = Utils.randomString(10);
             let resizable = as.Bool(options.resizable, false);
@@ -49,6 +49,8 @@ export class Window
 
             $(this.display).append(windowElem);
 
+            let maskId = Utils.randomString(10);
+
             if (resizable) {
                 $(windowElem).resizable({
                     minWidth: 180,
@@ -59,6 +61,14 @@ export class Window
                     resize: (ev: JQueryEventObject) =>
                     {
                         if (this.onResize) { this.onResize(ev); }
+                    },
+                    start: (ev: JQueryEventObject) =>
+                    {
+                        $(windowElem).append('<div id="' + maskId + '" style="background-color: #ffffff; opacity: 0.001; position: absolute; left: 0; top: 0; right: 0; bottom: 0;"></div>');
+                    },
+                    stop: (ev: JQueryEventObject) =>
+                    {
+                        $('#' + maskId).remove();
                     },
                 });
             }
@@ -71,6 +81,7 @@ export class Window
             $(windowElem).draggable({
                 handle: '.n3q-window-title',
                 scroll: false,
+                iframeFix: true,
                 stack: '.n3q-entity',
                 // opacity: 0.5,
                 distance: 4,
