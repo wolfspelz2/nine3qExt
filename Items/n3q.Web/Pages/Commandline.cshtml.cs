@@ -18,7 +18,7 @@ namespace n3q.Web
     {
         public string Delete { get; set; } = "&#10006;";
         public string Up { get; set; } = "&uArr;";
-        public string Insert { get; set; } = "&#10095;"; // &#10095; // &#8690;
+        public string Insert { get; set; } = "&#8628;"; // &#10095; // &#8690;
         public string Execute { get; set; } = "&#10097;&#10097;"; // &#10097;&#10097; // &larrhk;
         public string Save { get; set; } = "&#9733;"; // &#9733; // &#10029;
     }

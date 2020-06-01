@@ -91,10 +91,15 @@
             $('#iOut').empty();
         }
 
+        function HasLinefeed(cmd) {
+            return cmd.indexOf('\n') >= 0;
+        }
+
         function AddOutput(cmd, text) {
             g_nCnt++;
-            var sId = 'iTransaction' + g_nCnt;
-            var js = ''
+            let sId = 'iTransaction' + g_nCnt;
+            let cmdTagName = HasLinefeed(cmd) ? 'pre' : 'span';
+            let js = ''
                 + '<div id="' + sId + '" class="cTransaction" style="display: none;">'
                 + '  <div class="cOriginalCommand">'
                 + '  <span class="cButtons">'
@@ -103,9 +108,7 @@
                 + '    <a href="#" class="cTextButton cExecute" data-cmd="' + btoa(cmd) + '" title="Execute command">@Html.Raw(@Model.Symbols.Execute)</a>'
                 + '    <a href="#" class="cTextButton cSave" data-cmd="' + btoa(cmd) + '" title="Save favorite">@Html.Raw(@Model.Symbols.Save)</a>'
                 + '  </span>'
-                + '  <span class="cCommand">'
-                + cmd
-                + '  </span>'
+                + '  <' + cmdTagName + ' class="cCommand">'+ cmd + '</' + cmdTagName + '>'
                 + '  </div>'
                 + '  <div class="cResult">'
                 + text

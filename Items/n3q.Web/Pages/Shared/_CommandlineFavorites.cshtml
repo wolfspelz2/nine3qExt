@@ -2,12 +2,18 @@
 
 <span class="cGroupTitle">Favorites</span>
 
-@foreach (var pair in @Model.Favorites) {
-    <div id="iFavorite-@pair.Key" class="cCommandItem">
-        <a href="#" class="cTextButton cDelete" data-key="@pair.Key" title="Delete">@Html.Raw(@Model.Symbols.Delete)</a>
-        <a href="#" class="cTextButton cTop" data-key="@pair.Key" title="Delete">@Html.Raw(@Model.Symbols.Up)</a>
-        <a href="#" class="cTextButton cInsert" data-key="@pair.Key" data-cmd="@Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(pair.Value))" title="Insert command">@Html.Raw(@Model.Symbols.Insert)</a>
-        <a href="#" class="cTextButton cExecute" data-key="@pair.Key" data-cmd="@Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(pair.Value))" title="Execute command">@Html.Raw(@Model.Symbols.Execute)</a>
-        <a href="#" class="cTextButton cLabel" data-key="@pair.Key" data-cmd="@Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(pair.Value))">@pair.Value</a>
-    </div>
-}
+<table>
+    @foreach (var pair in @Model.Favorites) {
+        <tr id="iFavorite-@pair.Key" class="cCommandItem">
+            <td>
+                <a href="#" class="cTextButton cDelete" data-key="@pair.Key" title="Delete">@Html.Raw(@Model.Symbols.Delete)</a>
+                <a href="#" class="cTextButton cTop" data-key="@pair.Key" title="Delete">@Html.Raw(@Model.Symbols.Up)</a>
+                <a href="#" class="cTextButton cInsert" data-key="@pair.Key" data-cmd="@Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(pair.Value))" title="Insert command">@Html.Raw(@Model.Symbols.Insert)</a>
+                <a href="#" class="cTextButton cExecute" data-key="@pair.Key" data-cmd="@Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(pair.Value))" title="Execute command">@Html.Raw(@Model.Symbols.Execute)</a>
+            </td>
+            <td>
+                <pre>@pair.Value</pre>
+            </td>
+        </tr>
+    }
+</table>

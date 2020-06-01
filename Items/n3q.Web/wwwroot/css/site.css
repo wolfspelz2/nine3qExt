@@ -6,6 +6,19 @@
 h1 {
     font-size: 18px;
 }
+
+pre {
+    margin: 0.2em 0;
+}
+
+table {
+    border-spacing: 0;
+}
+
+td {
+    vertical-align: top;
+}
+
 .cMenuItem {
     display: inline;
 }
