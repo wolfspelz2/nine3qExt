@@ -41,6 +41,26 @@ export class BackgroundApp
         await this.configUpdater.getUpdate();
         await this.configUpdater.startUpdateTimer()
 
+        {
+            let itemServices = Config.get('itemServices', {});
+            if (itemServices) {
+                for (let serviceId in itemServices) {
+                    let itemService = itemServices[serviceId];
+                    if (itemService.configUrl) {
+                        try {
+                            var serviceConfig = await this.fetchJSON(itemService.configUrl);
+                            let onlineConfig = Config.getOnlineTree();
+                            if (!onlineConfig.itemServices) { onlineConfig.itemServices = {}; }
+                            onlineConfig.itemServices[serviceId] = serviceConfig;
+                            Config.setOnlineTree(onlineConfig);
+                        } catch (error) {
+                            log.error('Parse itemService config failed', serviceId, itemService.configUrl, error);
+                        }
+                    }
+                }
+            }
+        }
+
         try {
             await this.startXmpp();
         } catch (error) {
@@ -55,7 +75,47 @@ export class BackgroundApp
         // Does not work that way
         // chrome.runtime?.onMessage.removeListener((message, sender, sendResponse) => { return this.onRuntimeMessage(message, sender, sendResponse); });
 
+        this.unsubscribeItemInventories();
         this.stopXmpp();
+    }
+
+    // Item inventory
+
+    private subscribedItemInventories: Array<string> = [];
+
+    subscribeItemInventories()
+    {
+        /*
+        <message id='1' to='items.xmpp.dev.sui.li'><x xmlns='vp:cmd' method='itemAction' action='Derez' item='Script1' user='{2516343F-0D26-4B7B-9510-28FCF67E014D}' to='User1'/></message>
+        */
+
+        let itemServices = Config.get('itemServices', {});
+        if (itemServices) {
+            for (let serviceId in itemServices) {
+                let serviceUrl = Config.get('itemServices.' + serviceId + '.config.serviceUrl', {})
+                let url = new URL(serviceUrl);
+                let protocol = url.protocol;
+
+                if (protocol == 'xmpp:') {
+                    let chatServer = url.pathname;
+                    let roomName = 'User1';
+                    let roomNick = Config.get('xmpp.resource', this.resource);
+                    let to = roomName + '@' + chatServer + '/' + roomNick;
+                    let presence = xml('presence', { 'to': to });
+                    this.sendStanza(presence);
+                    this.subscribedItemInventories.push(to);
+                }
+            }
+        }
+    }
+
+    unsubscribeItemInventories()
+    {
+        for (let i = 0; i < this.subscribedItemInventories.length; i++) {
+            let to = this.subscribedItemInventories[i];
+            let presence = xml('presence', { 'type': 'unavailable', 'to': to });
+            this.sendStanza(presence);
+        }
     }
 
     // IPC
@@ -122,6 +182,18 @@ export class BackgroundApp
             log.debug('BackgroundApp.maintainHttpCache', (now - this.httpCacheTime[key]) / 1000, 'sec', 'delete', key);
             delete this.httpCacheData[key];
             delete this.httpCacheTime[key];
+        });
+    }
+
+    private async fetchJSON(url: string): Promise<any>
+    {
+        log.info('BackgroundApp.fetchUrl', url);
+
+        return new Promise((resolve, reject) =>
+        {
+            $
+                .getJSON(url, data => resolve(data))
+                .fail(reason => reject(null));
         });
     }
 
@@ -234,13 +306,25 @@ export class BackgroundApp
         if (stanza.name == 'presence' || stanza.name == 'message') {
             let from = jid(stanza.attrs.from);
             let room = from.bare().toString();
-            let tabId = this.roomJid2tabId[room];
 
-            if (tabId) {
-                chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
+            if (stanza.name == 'message') {
+                let tabId = this.roomJid2tabId[room];
+                if (tabId) {
+                    chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
+                } else {
+                    for (let roomJid in this.roomJid2tabId) {
+                        let tabId = this.roomJid2tabId[roomJid];
+                        chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
+                    }
+                }
             }
 
             if (stanza.name == 'presence') {
+                let tabId = this.roomJid2tabId[room];
+                if (tabId) {
+                    chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
+                }
+
                 if (stanza.attrs['type'] == 'unavailable') {
                     let nick = from.getResource();
                     let isSelf = this.roomJid2selfNick[room] == nick;
@@ -358,6 +442,8 @@ export class BackgroundApp
                         this.sendStanzaUnbuffered(stanza);
                     }
                 }
+
+                this.subscribeItemInventories();
             });
 
             this.xmpp.on('stanza', (stanza: any) => this.recvStanza(stanza));

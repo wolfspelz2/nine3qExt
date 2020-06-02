@@ -74,11 +74,12 @@ export class Config
             {
                 name: 'weblin Items',
                 description: 'Things on web pages',
-                configUrl: 'https://avatar.weblin.sui.li/item/config',
+                configUrl: 'https://nine3q.weblin.com/Item/Config',
                 config: {
-                    itemPropertyUrlFilter: [
-                        { key: '{image.item.nine3q}', value: 'https://nine3q.dev.sui.li/images/Items/' },
-                    ]
+                    serviceUrl: 'xmpp:items.xmpp.dev.sui.li',
+                    itemPropertyUrlFilter: {
+                        '{image.item.nine3q}': 'https://nine3q.weblin.com/images/Items/',
+                    }
                 }
             }
         },

@@ -153,16 +153,17 @@ export class Item extends Entity
     static itemServiceUrlFilter(itemServiceId: string, attrName: string, attrValue: string): any
     {
         if (itemServiceId) {
-            var itemServices = Config.get('itemServices', []);
+            let itemServices = Config.get('itemServices', []);
             let itemServiceTree = itemServices[itemServiceId];
             if (itemServiceTree) {
                 let itemServiceConfig = itemServiceTree.config;
                 if (itemServiceConfig) {
                     let propertyUrlFilter = itemServiceConfig.itemPropertyUrlFilter;
                     if (propertyUrlFilter) {
-                        for (let i = 0; i < propertyUrlFilter.length; i++) {
-                            if (propertyUrlFilter[i].key && propertyUrlFilter[i].value) {
-                                attrValue = attrValue.replace(propertyUrlFilter[i].key, propertyUrlFilter[i].value);
+                        for (let key in propertyUrlFilter) {
+                            let value = propertyUrlFilter[key];
+                            if (key && value) {
+                                attrValue = attrValue.replace(key, value);
                             }
                         }
                     }
