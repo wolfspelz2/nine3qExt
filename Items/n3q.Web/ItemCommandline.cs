@@ -39,6 +39,8 @@ namespace n3q.Web
             Item_DeleteProperties,
             Item_AddToContainer,
             Item_RemoveFromContainer,
+            Item_AddToList,
+            Item_RemoveFromList,
             Item_Delete,
             Item_Deactivate,
 
@@ -69,6 +71,8 @@ namespace n3q.Web
             Handlers.Add(nameof(Fn.Item_DeleteProperties), new Handler { Name = nameof(Fn.Item_DeleteProperties), Function = Item_DeleteProperties, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Delete one or more properties", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", } });
             Handlers.Add(nameof(Fn.Item_AddToContainer), new Handler { Name = nameof(Fn.Item_AddToContainer), Function = Item_AddChildToContainer, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Make item a child of the container", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Container"] = "Container-ID", } });
             Handlers.Add(nameof(Fn.Item_RemoveFromContainer), new Handler { Name = nameof(Fn.Item_RemoveFromContainer), Function = Item_RemoveChildFromContainer, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Remove item from container", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Container"] = "Container-ID", } });
+            Handlers.Add(nameof(Fn.Item_AddToList), new Handler { Name = nameof(Fn.Item_AddToList), Function = Item_AddToList, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Add list element to list", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Property"] = "Container-ID", ["ListElement"] = "List-Element", } });
+            Handlers.Add(nameof(Fn.Item_RemoveFromList), new Handler { Name = nameof(Fn.Item_RemoveFromList), Function = Item_RemoveFromList, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Remove list element from list", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Property"] = "Container-ID", ["ListElement"] = "List-Element", } });
             Handlers.Add(nameof(Fn.Item_Delete), new Handler { Name = nameof(Fn.Item_Delete), Function = Item_Delete, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Delete item and storage", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", } });
             Handlers.Add(nameof(Fn.Item_Deactivate), new Handler { Name = nameof(Fn.Item_Deactivate), Function = Item_Deactivate, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Remove item from memory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", } });
 
@@ -220,7 +224,7 @@ namespace n3q.Web
         {
             if (!(o is ItemReference)) { return null; }
             var itemRef = o as ItemReference;
-            return ShowItemLink(itemRef.Item);
+            return GetItemLink(itemRef.Item);
         }
 
         string FormatItemList(object o)
@@ -298,14 +302,14 @@ namespace n3q.Web
                     table.Grid.Add(new Table.Row() {
                         pid.ToString(),
 
-                        Item_GetProperties_FormatValue(pid, value),
+                        Item_GetProperties_FormatValue(itemId, pid, value),
 
-                        nativeProps.ContainsKey(pid) ? 
-                            Item_GetProperties_FormatValue(pid, nativeProps[pid]) : "",
+                        nativeProps.ContainsKey(pid) ?
+                            Item_GetProperties_FormatValue(itemId, pid, nativeProps[pid]) : "",
 
                         (pid == Pid.Template && templateUnavailable) ?
                             "(unavailable)" :  templateProps.ContainsKey(pid) ?
-                                Item_GetProperties_FormatValue(pid, templateProps[pid]) : "",
+                                Item_GetProperties_FormatValue(itemId, pid, templateProps[pid]) : "",
 
                         nativeProps.ContainsKey(pid) ?
                             CommandExecuteLink(Fn.Item_DeleteProperties.ToString(), new[] { itemId.ToString(), pid.ToString() }, "Delete") : "" ,
@@ -346,18 +350,17 @@ namespace n3q.Web
 
         enum Item_Result_format { table, json }
 
-        string Item_GetProperties_FormatValue(Pid pid, PropertyValue value)
+        string Item_GetProperties_FormatValue(string itemId, Pid pid, PropertyValue value)
         {
             var s = (string)value;
             s = System.Net.WebUtility.HtmlEncode(s);
             switch (Property.GetDefinition(pid).Use) {
                 case Property.Use.Item:
-                    s = ShowItemLink(value);
+                    s = GetItemLink(value);
                     break;
                 case Property.Use.ItemList:
                     var idList = ValueList.FromString(value).ToList();
-                    idList.Sort();
-                    s = string.Join(" ", idList.ConvertAll(x => ShowItemLink(x)));
+                    s = string.Join("&nbsp;&nbsp;&nbsp;", idList.ConvertAll(x => GetDeleteItemFromListLink(itemId, pid, x) + " " + GetItemLink(x)));
                     break;
             }
             switch (Property.GetDefinition(pid).Use) {
@@ -391,7 +394,7 @@ namespace n3q.Web
                 await self.ModifyProperties(PropertySet.Empty, pids);
             }).Wait();
 
-            return "Deleted from " + ShowItemLink(itemId);
+            return "Deleted from " + GetItemLink(itemId);
         }
 
         object Item_AddChildToContainer(Arglist args)
@@ -418,6 +421,42 @@ namespace n3q.Web
             container.WithTransaction(async self => {
                 await self.AsContainer().RemoveChild(await self.Item(itemId));
             }).Wait();
+
+            return new ItemReference(itemId);
+        }
+
+        object Item_AddToList(Arglist args)
+        {
+            args.Next("cmd");
+            var itemId = args.Next("Item-ID");
+            var propertyId = args.Next("Property");
+            var listElem = args.Next("List-Element");
+
+            var pid = propertyId.ToEnum(Pid.Unknown);
+            if (pid != Pid.Unknown) {
+                var container = GetItemStub(itemId);
+                container.WithTransaction(async self => {
+                    await self.AddToList(pid, listElem);
+                }).Wait();
+            }
+
+            return new ItemReference(itemId);
+        }
+
+        object Item_RemoveFromList(Arglist args)
+        {
+            args.Next("cmd");
+            var itemId = args.Next("Item-ID");
+            var propertyId = args.Next("Property");
+            var listElem = args.Next("List-Element");
+
+            var pid = propertyId.ToEnum(Pid.Unknown);
+            if (pid != Pid.Unknown) {
+                var container = GetItemStub(itemId);
+                container.WithTransaction(async self => {
+                    await self.RemoveFromList(pid, listElem);
+                }).Wait();
+            }
 
             return new ItemReference(itemId);
         }
@@ -472,11 +511,18 @@ namespace n3q.Web
             return props;
         }
 
-        string ShowItemLink(string itemId)
+        string GetItemLink(string itemId)
         {
             var item = ClusterClient.GetGrain<IItem>(itemId);
             var text = itemId.ToString();
             return CommandExecuteLink(Fn.Item_Show.ToString(), new[] { itemId }, text);
+        }
+
+        string GetDeleteItemFromListLink(string itemId, Pid pid, string listItem)
+        {
+            var item = ClusterClient.GetGrain<IItem>(itemId);
+            var text = itemId.ToString();
+            return CommandExecuteLink(Fn.Item_RemoveFromList.ToString(), new[] { itemId, pid.ToString(), listItem }, "&#10006;", new Dictionary<string, string> { { "class", "cSmallTextButton" } });
         }
 
         #endregion
@@ -566,7 +612,7 @@ namespace n3q.Web
             var cg = ClusterClient.GetGrain<IContentGenerator>(Guid.Empty);
             var ids = cg.CreateTemplates(name).Result;
 
-            return string.Join(" ", ids.ConvertAll(id => ShowItemLink(id)));
+            return string.Join(" ", ids.ConvertAll(id => GetItemLink(id)));
         }
 
         #endregion
