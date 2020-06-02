@@ -9,6 +9,7 @@ namespace n3q.Common
     {
         public string Context { get; set; }
         public string ItemId;
+
         public SurfaceNotification.Fact Fact { get; set; }
         public SurfaceNotification.Reason Reason { get; set; }
 
@@ -21,11 +22,19 @@ namespace n3q.Common
             Reason = reason;
         }
 
+        public SurfaceException(SurfaceNotification.Fact fact, SurfaceNotification.Reason reason)
+            : base($"{fact.ToString()} {reason.ToString()}")
+        {
+            Fact = fact;
+            Reason = reason;
+        }
+
         public SurfaceException() { }
         public SurfaceException(string message) : base(message) { }
         public SurfaceException(string message, Exception innerException) : base(message, innerException) { }
         [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter = true)]
         private SurfaceException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+
         public override void GetObjectData(SerializationInfo info, StreamingContext context) { if (info == null) { throw new ArgumentNullException(nameof(info)); } base.GetObjectData(info, context); }
     }
 
@@ -35,9 +44,9 @@ namespace n3q.Common
         {
             NoError = 0,
             Error,
+            NotExecuted,
             NotRezzed,
             NotDerezzed,
-            NotExecuted,
         }
 
         public enum Reason
@@ -46,6 +55,7 @@ namespace n3q.Common
             ItemIsNotRezzed,
             NotYourItem,
             ItemCapacityLimit,
+            ServiceUnavailable,
         }
     }
 }

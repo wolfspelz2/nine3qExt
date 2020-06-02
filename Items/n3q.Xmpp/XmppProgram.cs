@@ -14,7 +14,13 @@ namespace XmppComponent
     {
         const int InitializeAttemptsBeforeFailing = 5;
 
+        private const string ComponentHost = "items.xmpp.dev.sui.li";
+        private const string ComponentDomain = "items.xmpp.dev.sui.li";
+        private const int ComponentPort = 5555;
+        private const string ComponentSecret = "28756a7ff5dce";
+
         private static int _attempt = 0;
+        private static Controller _controller;
 
         static int Main(string[] args)
         {
@@ -49,6 +55,8 @@ namespace XmppComponent
                     options.ClusterId = Cluster.DevClusterId;
                     options.ServiceId = Cluster.ServiceId;
                 })
+                .AddClusterConnectionLostHandler(OnClusterConnectionDown)
+                .AddGatewayCountChangedHandler(OnClusterGatewayCountChanged)
                 .ConfigureLogging(logging => { logging.AddConsole(); logging.SetMinimumLevel(LogLevel.Error); })
                 .AddSimpleMessageStreamProvider(ItemService.StreamProvider)
                 .Build();
@@ -57,6 +65,20 @@ namespace XmppComponent
             Log.Info("Client connected to silo host");
 
             return client;
+        }
+
+        private static void OnClusterGatewayCountChanged(object sender, GatewayCountChangedEventArgs e)
+        {
+            Console.WriteLine($"OnClusterGatewayCountChanged: {e.PreviousNumberOfConnectedGateways} -> {e.NumberOfConnectedGateways}");
+            if (e.PreviousNumberOfConnectedGateways == 0 && e.NumberOfConnectedGateways > 0) {
+                _controller?.OnClusterReconnect();
+            }
+        }
+
+        private static void OnClusterConnectionDown(object sender, EventArgs e)
+        {
+            Console.WriteLine($"OnClusterConnectionDown");
+                _controller?.OnClusterDisconnect();
         }
 
         private static async Task<bool> RetryFilter(Exception exception)
@@ -74,30 +96,25 @@ namespace XmppComponent
             return true;
         }
 
-        private const string ComponentHost = "items.xmpp.dev.sui.li";
-        private const string ComponentDomain = "items.xmpp.dev.sui.li";
-        private const int ComponentPort = 5555;
-        private const string ComponentSecret = "28756a7ff5dce";
-
         private static async Task DoClientWork(IClusterClient client)
         {
-            var controller = new Controller(client,
+            _controller = new Controller(client,
                 ComponentHost,
                 ComponentDomain,
                 ComponentPort,
                 ComponentSecret
             );
 
-            await controller.Start();
+            await _controller.Start();
 
             Console.WriteLine("Press Enter to terminate...");
             var line = "";
             do {
                 line = Console.ReadLine();
-                controller.Send(line);
+                _controller.Send(line);
             } while (Has.Value(line) && line != "q");
 
-            await controller.Shutdown();
+            await _controller.Shutdown();
 
             await Task.CompletedTask;
         }

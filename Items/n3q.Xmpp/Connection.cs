@@ -124,7 +124,7 @@ namespace XmppComponent
 
         private void OnXmppComponentConnectionStarted()
         {
-            //Send($"<presence to='{_componentDomain}' from='item1@{_componentDomain}/backend' />");
+            //Send($"<presence to='{_componentDomain}' from='item1@{_componentDomain}' />");
             _connectionStartHandler?.Invoke(this);
         }
 
@@ -191,7 +191,8 @@ x=345
             var message = new XmppMessage {
                 MessageType = (xmlReader.GetAttribute("type") ?? "normal") == "groupchat" ? XmppMessageType.Groupchat : XmppMessageType.Normal,
                 From = xmlReader.GetAttribute("from") ?? "",
-                To = xmlReader.GetAttribute("to") ?? ""
+                To = xmlReader.GetAttribute("to") ?? "",
+                Id = xmlReader.GetAttribute("id") ?? "",
             };
             Log.Verbose($"<-     from={message.From}");
 

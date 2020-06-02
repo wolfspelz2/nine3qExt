@@ -179,7 +179,6 @@ namespace n3q.StorageProviders
         }
 
         #endregion
-
     }
 
     #region Provider registration

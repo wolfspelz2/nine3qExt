@@ -32,7 +32,8 @@ namespace XmppComponent
         readonly Dictionary<string, ManagedRoom> _rooms = new Dictionary<string, ManagedRoom>();
         readonly Dictionary<string, RoomItem> _items = new Dictionary<string, RoomItem>();
 
-        Connection _conn;
+        private Connection _xmppConnection;
+        private bool _clusterConnected;
 
         public Controller(IClusterClient clusterClient, string componentHost, string componentDomain, int componentPort, string componentSecret)
         {
@@ -48,16 +49,45 @@ namespace XmppComponent
 
         public async Task Start()
         {
-            _subscriptionHandle = await ItemUpdateStream.SubscribeAsync(this);
+            await SubscribeItemUpdateStream();
+            _clusterConnected = true;
 
             StartConnectionInNewThread();
         }
 
+        public void OnClusterDisconnect()
+        {
+            _clusterConnected = false;
+        }
+
+        public async Task OnClusterReconnect()
+        {
+            await SubscribeItemUpdateStream();
+            _clusterConnected = true;
+        }
+
+        private async Task SubscribeItemUpdateStream()
+        {
+            var handles = await ItemUpdateStream.GetAllSubscriptionHandles();
+            if (handles.Count == 0) {
+                if (_subscriptionHandle == null) {
+                    _subscriptionHandle = await ItemUpdateStream.SubscribeAsync(this);
+                } else {
+                    await _subscriptionHandle.ResumeAsync(this);
+                }
+            } else {
+                foreach (var handle in handles) {
+                    await handle.ResumeAsync(this);
+                }
+            }
+            //_subscriptionHandle = await ItemUpdateStream.SubscribeAsync(this);
+        }
+
         private async Task PopulateManagedRooms()
         {
-            var roomList = await GetItem(_roomStorageId).GetItemIdList(Pid.XmppRoomList);
+            var roomList = await MakeItemStub(_roomStorageId).GetItemIdList(Pid.XmppRoomList);
             foreach (var roomId in roomList) {
-                var itemList = await GetItem(roomId).GetItemIdList(Pid.Contains);
+                var itemList = await MakeItemStub(roomId).GetItemIdList(Pid.Contains);
                 foreach (var itemId in itemList) {
                     await ReRezItem(roomId, itemId);
                 }
@@ -80,15 +110,15 @@ namespace XmppComponent
 
         internal void Send(string line)
         {
-            if (_conn != null) {
-                _conn.Send(line);
+            if (_xmppConnection != null) {
+                _xmppConnection.Send(line);
             }
         }
 
         void StartConnectionInNewThread()
         {
             Task.Run(async () => {
-                _conn = new Connection(
+                _xmppConnection = new Connection(
                     _componentHost,
                     _componentDomain,
                     _componentPort,
@@ -99,7 +129,7 @@ namespace XmppComponent
                     conn => { Connection_OnClosed(conn); }
                     );
 
-                await _conn.Run();
+                await _xmppConnection.Run();
             });
         }
 
@@ -116,14 +146,14 @@ namespace XmppComponent
             }
         }
 
-        ItemStub GetItem(string itemId)
+        ItemStub MakeItemStub(string itemId)
         {
             var itemClient = new OrleansClusterClient(_clusterClient, itemId);
             var itemStub = new ItemStub(itemClient);
             return itemStub;
         }
 
-        IWorker GetWorker() => _clusterClient.GetGrain<IWorker>(Guid.Empty);
+        IWorker GetIWorker() => _clusterClient.GetGrain<IWorker>(Guid.Empty);
 
         #endregion
 
@@ -152,7 +182,7 @@ namespace XmppComponent
             }
 
             if (roomCreated && updatePersistentState) {
-                await GetItem(_roomStorageId).WithoutTransaction(async self => await self.AddToList(Pid.XmppRoomList, roomId));
+                await MakeItemStub(_roomStorageId).WithoutTransaction(async self => await self.AddToList(Pid.XmppRoomList, roomId));
             }
 
             return roomItem;
@@ -208,7 +238,7 @@ namespace XmppComponent
             }
 
             if (roomDeleted) {
-                await GetItem(_roomStorageId).WithoutTransaction(async self => await self.RemoveFromList(Pid.XmppRoomList, roomId));
+                await MakeItemStub(_roomStorageId).WithoutTransaction(async self => await self.RemoveFromList(Pid.XmppRoomList, roomId));
             }
         }
 
@@ -223,7 +253,7 @@ namespace XmppComponent
 
         void Connection_OnClosed(Connection conn)
         {
-            _conn = null;
+            _xmppConnection = null;
 
             Thread.Sleep(3000);
 
@@ -233,17 +263,56 @@ namespace XmppComponent
         async Task Connection_OnMessage(XmppMessage stanza)
         {
             try {
+                if (!_clusterConnected) { throw new SurfaceException(SurfaceNotification.Fact.NotExecuted, SurfaceNotification.Reason.ServiceUnavailable); }
+
                 switch (stanza.MessageType) {
                     case XmppMessageType.Normal: await Connection_OnNormalMessage(stanza); break;
                     case XmppMessageType.Groupchat: await Connection_OnGroupchatMessage(stanza); break;
                 }
+            } catch (SurfaceException ex) {
+                SendExceptionResponseMessage(stanza, ex);
+                //Log.Error(ex);
             } catch (Exception ex) {
                 Log.Error(ex);
             }
         }
 
+        /*
+        <message to='fjri7apdci8uv2f4rj29bu49dg@xmpp.weblin.sui.li/V6O4rrkgmwEkWD0' from='d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org' xmlns='jabber:client' type='error'>
+            <body>Hallo</body>
+            <error type='modify' code='406'><not-acceptable xmlns='urn:ietf:params:xml:ns:xmpp-stanzas'/>
+                <text xmlns='urn:ietf:params:xml:ns:xmpp-stanzas'>Improper message type</text>
+            </error>
+        </message>
+        */
+        private void SendExceptionResponseMessage(XmppMessage stanza, SurfaceException ex)
+        {
+            var to = stanza.From;
+            var from = $"{_componentDomain}";
+            var id = stanza.Id;
+            var body = ex.Message;
+
+            var to_XmlEncoded = WebUtility.HtmlEncode(to);
+            var from_XmlEncoded = WebUtility.HtmlEncode(from);
+            var id_XmlEncoded = WebUtility.HtmlEncode(id);
+            var body_XmlEncoded = WebUtility.HtmlEncode(body);
+
+            _xmppConnection?.Send(
+#pragma warning disable format
+                  $"<message to='{to_XmlEncoded}' from='{from_XmlEncoded}' id='{id_XmlEncoded}' xmlns='jabber:client' type='error'>"
+                +       $"<body>{body_XmlEncoded}</body>"
+                +       $"<error type='wait' code='500'><internal-server-error xmlns='urn:ietf:params:xml:ns:xmpp-stanzas'/>"
+                +           $"<text xmlns='urn:ietf:params:xml:ns:xmpp-stanzas'>Service not available</text>"
+                +       $"</error>"
+                + $"</message>"
+#pragma warning restore format
+                );
+        }
+
         async Task Connection_OnPresence(XmppPresence stanza)
         {
+            if (!_clusterConnected) { return; }
+
             try {
                 switch (stanza.PresenceType) {
                     case XmppPresenceType.Available: await Connection_OnPresenceAvailable(stanza); break;
@@ -290,7 +359,7 @@ namespace XmppComponent
                 } else {
                     Log.Info($"Joined room {roomId} {itemId}");
                     roomItem.State = RoomItem.RezState.Rezzed;
-                    await GetWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.OnRezzed));
+                    await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.OnRezzed));
                 }
             }
 
@@ -336,12 +405,12 @@ namespace XmppComponent
             switch (actionName) {
                 case nameof(Rezable.Action.Rez): {
                     if (Has.Value(userId) && Has.Value(itemId)) {
-                        if (await GetItem(itemId).GetBool(Pid.RezableAspect)) {
+                        if (await MakeItemStub(itemId).GetBool(Pid.RezableAspect)) {
                             var roomId = message.Cmd.ContainsKey("to") ? message.Cmd["to"] : "";
                             if (Has.Value(roomId)) {
                                 _ = await AddRoomItem(roomId, itemId);
 
-                                var room = GetItem(roomId);
+                                var room = MakeItemStub(roomId);
                                 if (!await room.Get(Pid.ContainerAspect)) {
                                     await room.WithTransaction(async self => { await self.Set(Pid.ContainerAspect, true); });
                                 }
@@ -350,7 +419,7 @@ namespace XmppComponent
                                 if (!long.TryParse(x, NumberStyles.Any, CultureInfo.InvariantCulture, out long posX)) {
                                     posX = 200;
                                 }
-                                await GetWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Action.Rez), new PropertySet { [Pid.RezableRezTo] = roomId, [Pid.RezableRezX] = posX });
+                                await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Action.Rez), new PropertySet { [Pid.RezableRezTo] = roomId, [Pid.RezableRezX] = posX });
 
                             }
                         }
@@ -360,12 +429,12 @@ namespace XmppComponent
 
                 case nameof(Rezable.Action.Derez): {
                     if (Has.Value(userId) && Has.Value(itemId)) {
-                        if (await GetItem(itemId).GetBool(Pid.RezableAspect)) {
+                        if (await MakeItemStub(itemId).GetBool(Pid.RezableAspect)) {
                             var inventoryId = message.Cmd.ContainsKey("to") ? message.Cmd["to"] : "";
                             if (Has.Value(inventoryId)) {
                                 var roomItem = GetRoomItem(itemId);
                                 if (roomItem != null) {
-                                    await GetWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Action.Derez), new PropertySet { [Pid.RezableDerezTo] = inventoryId });
+                                    await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Action.Derez), new PropertySet { [Pid.RezableDerezTo] = inventoryId });
                                 }
 
                             }
@@ -392,14 +461,14 @@ namespace XmppComponent
             if (Has.Value(userId) && Has.Value(itemId) && Has.Value(roomId) && hasX) {
                 Log.Info($"Drop {roomId} {itemId}");
 
-                var room = GetItem(roomId);
+                var room = MakeItemStub(roomId);
                 if (!await room.Get(Pid.ContainerAspect)) {
                     await room.WithTransaction(async self => { await self.Set(Pid.ContainerAspect, true); });
                 }
 
                 _ = await AddRoomItem(roomId, itemId);
 
-                await GetWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Rez), new PropertySet { [Pid.RezableRezTo] = roomId, [Pid.RezableRezX] = posX });
+                await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Rez), new PropertySet { [Pid.RezableRezTo] = roomId, [Pid.RezableRezX] = posX });
             }
         }
 
@@ -417,7 +486,7 @@ namespace XmppComponent
                         throw new SurfaceException(roomId, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezzed);
                     } else {
                         Log.Info($"Pickup {roomId} {itemId}");
-                        await GetWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Derez), new PropertySet { [Pid.RezableDerezTo] = roomId });
+                        await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Derez), new PropertySet { [Pid.RezableDerezTo] = roomId });
                         await OnItemRemovedFromRoom(roomItem);
 
                         // Also: don't wait to cleanup state, just ignore the presence-unavailable
@@ -434,7 +503,7 @@ namespace XmppComponent
             var roomId = roomItem.RoomId;
             var itemId = roomItem.ItemId;
 
-            var props = await GetItem(itemId).GetProperties(PidSet.Public);
+            var props = await MakeItemStub(itemId).GetProperties(PidSet.Public);
 
             var name = props.GetString(Pid.Name);
             if (string.IsNullOrEmpty(name)) { name = props.Get(Pid.Label); }
@@ -452,7 +521,7 @@ namespace XmppComponent
             }
 
             var to = roomItemJid.Full;
-            var from = $"{itemId}@{_componentDomain}/backend";
+            var from = $"{itemId}@{_componentDomain}";
             var identityJid = $"{itemId}@{_componentDomain}";
             var identityDigest = Math.Abs(string.GetHashCode(name + animationsUrl, StringComparison.InvariantCulture)).ToString(CultureInfo.InvariantCulture);
 
@@ -486,8 +555,8 @@ namespace XmppComponent
 
             Log.Info($"Rez '{roomItemJid.Resource}' {roomId} {itemId}");
 
-            if (_conn != null) {
-                _conn.Send(
+            if (_xmppConnection != null) {
+                _xmppConnection.Send(
 #pragma warning disable format
                     $"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}'>"
                         + $"<x xmlns='vp:props' type='item' service='nine3q' {props_XmlEncoded_All} />"
@@ -511,14 +580,14 @@ namespace XmppComponent
             var roomResource = roomItem.Resource;
 
             var to = $"{roomId}/{roomResource}";
-            var from = $"{itemId}@{_componentDomain}/backend";
+            var from = $"{itemId}@{_componentDomain}";
 
             var to_XmlEncoded = WebUtility.HtmlEncode(to);
             var from_XmlEncoded = WebUtility.HtmlEncode(from);
 
             Log.Info($"Derez '{roomResource}' {roomId} {itemId}");
 
-            _conn?.Send($"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}' type='unavailable' />");
+            _xmppConnection?.Send($"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}' type='unavailable' />");
 
             roomItem.State = RoomItem.RezState.Derezzing;
 
@@ -608,7 +677,6 @@ namespace XmppComponent
         }
 
         #endregion
-
     }
 
 }

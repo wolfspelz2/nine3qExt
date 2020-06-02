@@ -80,7 +80,13 @@ namespace LocalSilo
                 })
 
 
-                .AddMemoryGrainStorage(Cluster.MemoryGrainStorageProviderName)
+                //.AddMemoryGrainStorage(Cluster.MemoryGrainStorageProviderName)
+                .AddJsonFileStorage(
+                    name: Cluster.MemoryGrainStorageProviderName,
+                    configureOptions: options => {
+                        options.RootDirectory = Cluster.MemoryGrainJsonFileStorageRoot;
+                    })
+
 
                 .AddMemoryGrainStorage(ProviderConstants.DEFAULT_STORAGE_PROVIDER_NAME)
 

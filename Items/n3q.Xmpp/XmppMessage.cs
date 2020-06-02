@@ -10,6 +10,7 @@ namespace XmppComponent
         public XmppMessageType MessageType { get; set; }
         public string From { get; set; }
         public string To { get; set; }
+        public string Id { get; set; }
         public Dictionary<string, string> Cmd { get; set; } = new Dictionary<string, string>();
     }
 

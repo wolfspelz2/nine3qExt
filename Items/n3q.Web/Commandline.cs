@@ -231,7 +231,7 @@ namespace n3q.Web
 
             string method = actualArgs[0];
             if (!GetHandlers().ContainsKey(method)) {
-                throw new Exception("Unknown command: " + method);
+                throw new Exception("Unknown command: " + method);  
             }
 
             var handler = GetHandlers()[method];

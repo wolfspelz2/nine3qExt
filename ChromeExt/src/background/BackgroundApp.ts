@@ -236,7 +236,7 @@ export class BackgroundApp
             let room = from.bare().toString();
             let tabId = this.roomJid2tabId[room];
 
-            if (tabId != undefined) {
+            if (tabId) {
                 chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
             }
 
