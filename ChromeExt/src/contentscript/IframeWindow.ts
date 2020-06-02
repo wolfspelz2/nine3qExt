@@ -43,8 +43,15 @@ export class IframeWindow extends Window
                 }
             }
 
-            let uri = options.url;
-            let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-iframewindow-content" src="' + uri + ' " frameborder="0"></iframe>').get(0);
+            let url: string = options.url;
+ 
+            let room = this.app.getRoom();
+            if (room) {
+                let jid = room.getJid();
+                url = url.replace('{room}', jid);
+            }
+
+            let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-iframewindow-content" src="' + url + ' " frameborder="0"></iframe>').get(0);
 
             $(contentElem).append(iframeElem);
 

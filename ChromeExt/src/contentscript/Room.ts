@@ -44,6 +44,8 @@ export class Room
         ];
     }
 
+    getJid(): string { return this.jid; }
+
     iAmAlreadyHere()
     {
         return this.isEntered;

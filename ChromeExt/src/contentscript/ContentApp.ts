@@ -140,6 +140,16 @@ export class ContentApp
 
     getStayOnTabChange(): boolean { return this.stayOnTabChange; }
 
+    getRoom(): Room
+    {
+        let room = null;
+        for (let roomJid in this.rooms) {
+            room = this.rooms[roomJid];
+            break;
+        }
+        return room;
+    }
+
     test()
     {
         let iframeWindow = new IframeWindow(this, this.display);
@@ -149,7 +159,7 @@ export class ContentApp
             'titleText': 'Theatre Screenplay',
             'url': 'https://theatre.weblin.sui.li/iframe.html?room=d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org',
         });
-}
+    }
 
     showXmppWindow()
     {
