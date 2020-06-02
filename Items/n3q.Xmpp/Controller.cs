@@ -351,9 +351,7 @@ namespace XmppComponent
             var itemId = jid.Item;
 
             var roomItem = GetRoomItem(roomId, itemId);
-            if (roomItem == null) {
-                // Not my item
-            } else {
+            if (roomItem != null) {
                 if (roomItem.State != RoomItem.RezState.Rezzing) {
                     Log.Warning($"Unexpected presence-available: room={roomId} item={itemId}", nameof(Connection_OnPresenceAvailable));
                 } else {
@@ -361,6 +359,9 @@ namespace XmppComponent
                     roomItem.State = RoomItem.RezState.Rezzed;
                     await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.OnRezzed));
                 }
+            } else {
+                // Maybe a user
+                var userJid = new XmppJid(stanza.To);
             }
 
             await Task.CompletedTask;

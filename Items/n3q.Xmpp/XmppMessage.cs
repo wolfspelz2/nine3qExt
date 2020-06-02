@@ -18,6 +18,7 @@ namespace XmppComponent
     {
         public XmppPresenceType PresenceType { get; set; }
         public string From { get; set; }
+        public string To { get; set; }
         public Dictionary<string, string> Props { get; set; } = new Dictionary<string, string>();
     }
 }

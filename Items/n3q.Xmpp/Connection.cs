@@ -225,8 +225,9 @@ x=345
             var presence = new XmppPresence {
                 PresenceType = (xmlReader.GetAttribute("type") ?? "available") == "unavailable" ? XmppPresenceType.Unavailable : XmppPresenceType.Available,
                 From = xmlReader.GetAttribute("from") ?? "",
+                To = xmlReader.GetAttribute("to") ?? "",
             };
-            Log.Verbose($"<-     from={presence.From}");
+            Log.Verbose($"<- from={presence.From} to={presence.To}");
 
             Don.t = () => {
                 var nodeReader = xmlReader.ReadSubtree();
