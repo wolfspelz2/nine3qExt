@@ -98,8 +98,8 @@ export class BackgroundApp
 
                 if (protocol == 'xmpp:') {
                     let chatServer = url.pathname;
-                    let roomName = 'User1';
-                    let roomNick = Config.get('xmpp.resource', this.resource);
+                    let roomName = 'user1';
+                    let roomNick = this.resource;
                     let to = roomName + '@' + chatServer + '/' + roomNick;
                     let presence = xml('presence', { 'to': to });
                     this.sendStanza(presence);
@@ -409,7 +409,7 @@ export class BackgroundApp
             var conf = {
                 service: Config.get('xmpp.service', 'wss://xmpp.weblin.sui.li/xmpp-websocket'),// service: 'wss://xmpp.dev.sui.li/xmpp-websocket',
                 domain: Config.get('xmpp.domain', 'xmpp.weblin.sui.li'),
-                resource: Config.get('xmpp.resource', this.resource),
+                resource: this.resource,
                 username: await Config.getPreferSync('xmpp.user', ''),
                 password: await Config.getPreferSync('xmpp.pass', ''),
             };

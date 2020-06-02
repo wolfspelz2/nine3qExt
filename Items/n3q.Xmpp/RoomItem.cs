@@ -14,7 +14,6 @@ namespace XmppComponent
 
         public string Resource;
         public RezState State = RezState.NoState;
-        public PropertySet PublicItemProperties = new PropertySet();
 
         public readonly string RoomId;
         public readonly string ItemId;

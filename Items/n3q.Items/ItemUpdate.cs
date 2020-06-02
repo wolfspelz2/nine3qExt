@@ -36,11 +36,13 @@ namespace n3q.Items
     public class ItemUpdate
     {
         public string ItemId { get; }
+        public string ParentId { get; }
         public List<ItemChange> Changes = new List<ItemChange>();
 
-        public ItemUpdate(string itemId, List<ItemChange> changes)
+        public ItemUpdate(string itemId, string parentId, List<ItemChange> changes)
         {
             ItemId = itemId;
+            ParentId = parentId;
             Changes = changes;
         }
     }

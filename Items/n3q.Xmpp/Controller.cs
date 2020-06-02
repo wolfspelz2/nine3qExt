@@ -31,6 +31,7 @@ namespace XmppComponent
         readonly object _mutex = new object();
         readonly Dictionary<string, ManagedRoom> _rooms = new Dictionary<string, ManagedRoom>();
         readonly Dictionary<string, RoomItem> _items = new Dictionary<string, RoomItem>();
+        readonly Dictionary<string, Inventory> _inventories = new Dictionary<string, Inventory>();
 
         private Connection _xmppConnection;
         private bool _clusterConnected;
@@ -360,12 +361,32 @@ namespace XmppComponent
                     await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.OnRezzed));
                 }
             } else {
+
                 // Maybe a user
                 var userJid = new XmppJid(stanza.To);
+                var userToken = userJid.User;
+                var inventoryId = userToken == "user1" ? "User1" : "";
+                if (Has.Value(inventoryId)) {
+                    if (!_inventories.ContainsKey(inventoryId)) {
+                        _inventories[inventoryId] = new Inventory(inventoryId);
+                    }
+                    var isNewSubscriber = _inventories[inventoryId].AddSubscriber(stanza.From);
+                    if (isNewSubscriber) {
+                    }
+                }
             }
 
             await Task.CompletedTask;
         }
+
+        //private async Task xReRezItem(string roomId, string itemId)
+        //{
+        //    var roomItem = await AddRoomItem(roomId, itemId, updatePersistentState: false);
+
+        //    await SendPresenceAvailable(roomItem);
+
+        //    roomItem.State = RoomItem.RezState.Rezzing;
+        //}
 
         async Task Connection_OnPresenceUnavailable(XmppPresence stanza)
         {
@@ -499,6 +520,10 @@ namespace XmppComponent
             await Task.CompletedTask;
         }
 
+        #endregion
+
+        #region Send presence
+
         async Task SendPresenceAvailable(RoomItem roomItem)
         {
             var roomId = roomItem.RoomId;
@@ -626,6 +651,8 @@ namespace XmppComponent
 
             } else {
 
+                //if (IsManagedRoom(update.ParentId)) {
+                //}
                 var roomItem = GetRoomItem(update.ItemId);
                 if (roomItem != null) {
                     if (roomItem.State == RoomItem.RezState.Rezzed) {

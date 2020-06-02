@@ -442,7 +442,8 @@ namespace n3q.Grains
 
             if (_changes.Count > 0) {
                 // Notify subscribers
-                var update = new ItemUpdate(Id, _changes);
+                _ = Properties.TryGetValue(Pid.Container, out var parentId);
+                var update = new ItemUpdate(Id, parentId, _changes);
                 await ItemUpdateStream?.OnNextAsync(update);
 
                 // Persist changes
