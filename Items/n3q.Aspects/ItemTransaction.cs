@@ -5,12 +5,14 @@ using n3q.Tools;
 
 namespace n3q.Aspects
 {
-    public class ItemTransaction
+    public class ItemTransaction : ITransaction
     {
-        public Guid Id = Guid.NewGuid();
         public static Guid WithoutTransaction = Guid.Empty;
 
+        public Guid _id = Guid.NewGuid();
         readonly List<ItemStub> _items = new List<ItemStub>();
+
+        public Guid Id => _id;
 
         public async Task Begin(ItemStub item)
         {
@@ -44,5 +46,6 @@ namespace n3q.Aspects
                 item.Transaction = null;
             }
         }
+
     }
 }

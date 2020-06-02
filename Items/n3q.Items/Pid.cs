@@ -51,6 +51,7 @@
         MetaPublicAccess,
         MetaOwnerAccess,
         MetaAspectGroup,
+        XmppRoomList,
 
         // Generic
         FirstGeneric = 2000000,

@@ -22,6 +22,7 @@ namespace XmppComponent
         readonly string _componentDomain;
         readonly int _componentPort;
         readonly string _componentSecret;
+        readonly string _componentId;
 
         readonly IClusterClient _clusterClient;
         StreamSubscriptionHandle<ItemUpdate> _subscriptionHandle;
@@ -39,6 +40,8 @@ namespace XmppComponent
             _componentDomain = componentDomain;
             _componentPort = componentPort;
             _componentSecret = componentSecret;
+
+            _componentId = componentDomain;
         }
 
         public async Task Start()
@@ -103,14 +106,16 @@ namespace XmppComponent
 
         #region Management
 
-        RoomItem AddRoomItem(string roomId, string itemId)
+        async Task<RoomItem> AddRoomItem(string roomId, string itemId)
         {
             var roomItem = (RoomItem)null;
+            var roomCreated = false;
 
             lock (_mutex) {
                 var managedRoom = (ManagedRoom)null;
                 if (!_rooms.ContainsKey(roomId)) {
                     _rooms[roomId] = new ManagedRoom(roomId);
+                    roomCreated = true;
                 }
                 managedRoom = _rooms[roomId];
 
@@ -121,6 +126,10 @@ namespace XmppComponent
                     managedRoom.Items.Add(itemId, roomItem);
                     _items.Add(itemId, roomItem);
                 }
+            }
+
+            if (roomCreated) {
+                await GetItem(_componentId).WithoutTransaction(async self => await self.AddToList(Pid.XmppRoomList, roomId));
             }
 
             return roomItem;
@@ -158,19 +167,25 @@ namespace XmppComponent
             }
         }
 
-        void RemoveRoomItem(string roomId, string itemId)
+        async Task RemoveRoomItem(string roomId, string itemId)
         {
+            var roomDeleted = false;
+
             lock (_mutex) {
-                if (_rooms.TryGetValue(itemId, out var managedRoom)) {
+                if (_rooms.TryGetValue(roomId, out var managedRoom)) {
                     if (managedRoom.Items.ContainsKey(itemId)) {
                         managedRoom.Items.Remove(itemId);
+                        _items.Remove(itemId);
                         if (managedRoom.Items.Count == 0) {
-
                             _rooms.Remove(roomId);
-                            _items.Remove(itemId);
+                            roomDeleted = true;
                         }
                     }
                 }
+            }
+
+            if (roomDeleted) {
+                await GetItem(_componentId).WithoutTransaction(async self => await self.RemoveFromList(Pid.XmppRoomList, roomId));
             }
         }
 
@@ -265,7 +280,7 @@ namespace XmppComponent
                 Log.Info($"Left room {roomId} {itemId}");
 
                 //                // Just in case, should already be removed after sending presence-unavailable
-                RemoveRoomItem(roomId, itemId);
+                await RemoveRoomItem(roomId, itemId);
             }
 
             await Task.CompletedTask;
@@ -296,7 +311,7 @@ namespace XmppComponent
                         if (await GetItem(itemId).GetBool(Pid.RezableAspect)) {
                             var roomId = message.Cmd.ContainsKey("to") ? message.Cmd["to"] : "";
                             if (Has.Value(roomId)) {
-                                _ = AddRoomItem(roomId, itemId);
+                                _ = await AddRoomItem(roomId, itemId);
 
                                 var room = GetItem(roomId);
                                 if (!await room.Get(Pid.ContainerAspect)) {
@@ -354,7 +369,7 @@ namespace XmppComponent
                     await room.WithTransaction(async self => { await self.Set(Pid.ContainerAspect, true); });
                 }
 
-                _ = AddRoomItem(roomId, itemId);
+                _ = await AddRoomItem(roomId, itemId);
 
                 await GetWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Rez), new PropertySet { [Pid.RezableRezTo] = roomId, [Pid.RezableRezX] = posX });
             }
@@ -378,7 +393,7 @@ namespace XmppComponent
                         await OnItemRemovedFromRoom(roomItem);
 
                         // Also: don't wait to cleanup state, just ignore the presence-unavailable
-                        RemoveRoomItem(roomId, itemId);
+                        await RemoveRoomItem(roomId, itemId);
                     }
                 }
             }
@@ -547,7 +562,7 @@ namespace XmppComponent
 
         private async Task OnItemAddedToRoom(string roomId, string itemId)
         {
-            var roomItem = AddRoomItem(roomId, itemId);
+            var roomItem = await AddRoomItem(roomId, itemId);
 
             await SendPresenceAvailable(roomItem);
 

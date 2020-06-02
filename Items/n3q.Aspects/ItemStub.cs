@@ -2,100 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Orleans;
 using n3q.GrainInterfaces;
 using n3q.Items;
 using n3q.Tools;
 
 namespace n3q.Aspects
 {
-    public interface IItemClient
-    {
-        string GetId();
-        IItem GetItem();
-        IItemClient CloneFor(string otherId);
-    }
-
-    public class OrleansClusterClient : IItemClient
-    {
-        readonly string _grainId;
-        readonly IClusterClient _clusterClient;
-
-        public string GetId() => _grainId;
-
-        public OrleansClusterClient(IClusterClient clusterClient, string grainId)
-        {
-            _grainId = grainId;
-            _clusterClient = clusterClient;
-        }
-
-        public IItem GetItem()
-        {
-            return _clusterClient.GetGrain<IItem>(_grainId);
-        }
-
-        public IItemClient CloneFor(string otherId)
-        {
-            return new OrleansClusterClient(_clusterClient, otherId);
-        }
-    }
-
-    public class OrleansGrainFactoryClient : IItemClient
-    {
-        readonly string _grainId;
-        readonly IGrainFactory _grainFactory;
-
-        public string GetId() => _grainId;
-
-        public OrleansGrainFactoryClient(IGrainFactory grainFactory, string grainId)
-        {
-            _grainId = grainId;
-            _grainFactory = grainFactory;
-        }
-
-        public IItem GetItem()
-        {
-            return _grainFactory.GetGrain<IItem>(_grainId);
-        }
-
-        public IItemClient CloneFor(string otherId)
-        {
-            return new OrleansGrainFactoryClient(_grainFactory, otherId);
-        }
-    }
-
-    public class SiloSimulatorClient : IItemClient
-    {
-        readonly string _id;
-        readonly ItemSiloSimulator _simulator;
-
-        public string GetId() => _id;
-
-        public SiloSimulatorClient(ItemSiloSimulator simulator, string id)
-        {
-            _id = id;
-            _simulator = simulator;
-        }
-
-        public IItem GetItem()
-        {
-            return _simulator.GetGrain(_id);
-        }
-
-        public IItemClient CloneFor(string otherId)
-        {
-            return new SiloSimulatorClient(_simulator, otherId);
-        }
-    }
-
     public class ItemStub
     {
         public IItemClient Client;
-        public ItemTransaction Transaction;
+        public ITransaction Transaction;
 
         public string Id => Client.GetId();
 
-        public ItemStub(IItemClient itemClient, ItemTransaction transaction = null)
+        public ItemStub(IItemClient itemClient, ITransaction transaction = null)
         {
             Client = itemClient;
             Transaction = transaction;
@@ -194,9 +114,10 @@ namespace n3q.Aspects
         public async Task DeletePersistentStorage() { await Grain.DeletePersistentStorage(); }
 
         public delegate Task TransactionWrappedCode(ItemStub item);
-        public async Task WithTransaction(TransactionWrappedCode transactedCode)
+
+        public async Task WithTransactionCore(TransactionWrappedCode transactedCode, ITransaction transaction)
         {
-            Transaction = new ItemTransaction();
+            Transaction = transaction;
             await Transaction.Begin(this);
             try {
                 await transactedCode(this);
@@ -208,6 +129,16 @@ namespace n3q.Aspects
             } finally {
                 Transaction = null;
             }
+        }
+
+        public async Task WithTransaction(TransactionWrappedCode transactedCode)
+        {
+            await WithTransactionCore(transactedCode, new ItemTransaction());
+        }
+
+        public async Task WithoutTransaction(TransactionWrappedCode transactedCode)
+        {
+            await WithTransactionCore(transactedCode, new VoidTransaction());
         }
 
         private void AssertTransaction()
