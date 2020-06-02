@@ -20,16 +20,18 @@ namespace XmppComponent
         private readonly string _componentDomain;
         private readonly int _port;
         private readonly string _secret;
+        private readonly Action<Connection> _connectionStartHandler;
         private readonly Action<XmppMessage> _xmppMessageHandler;
         private readonly Action<XmppPresence> _xmppPresenceHandler;
         private readonly Action<Connection> _connectionCloseHandler;
 
-        public Connection(string host, string componentDomain, int port, string secret, Action<XmppMessage> xmppMessageHandler, Action<XmppPresence> xmppPresenceHandler, Action<Connection> connectionCloseHandler)
+        public Connection(string host, string componentDomain, int port, string secret, Action<Connection> connectionStartHandler, Action<XmppMessage> xmppMessageHandler, Action<XmppPresence> xmppPresenceHandler, Action<Connection> connectionCloseHandler)
         {
             _host = host;
             _componentDomain = componentDomain;
             _port = port;
             _secret = secret;
+            _connectionStartHandler = connectionStartHandler;
             _xmppMessageHandler = xmppMessageHandler;
             _xmppPresenceHandler = xmppPresenceHandler;
             _connectionCloseHandler = connectionCloseHandler;
@@ -123,6 +125,7 @@ namespace XmppComponent
         private void OnXmppComponentConnectionStarted()
         {
             //Send($"<presence to='{_componentDomain}' from='item1@{_componentDomain}/backend' />");
+            _connectionStartHandler?.Invoke(this);
         }
 
         private void OnXmppComponentConnectionStopped()

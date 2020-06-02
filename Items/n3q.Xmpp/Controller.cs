@@ -22,7 +22,8 @@ namespace XmppComponent
         readonly string _componentDomain;
         readonly int _componentPort;
         readonly string _componentSecret;
-        readonly string _componentId;
+        readonly string _roomStorageId;
+        readonly string _configStorageId;
 
         readonly IClusterClient _clusterClient;
         StreamSubscriptionHandle<ItemUpdate> _subscriptionHandle;
@@ -41,14 +42,35 @@ namespace XmppComponent
             _componentPort = componentPort;
             _componentSecret = componentSecret;
 
-            _componentId = componentDomain;
+            _roomStorageId = "Xmpp-Rooms-jnjnhbgtf7tugzhjktr5ru-" + componentDomain;
+            _configStorageId = "Xmpp-Config-rtfgzuh65rvgbz8hlklkj-" + componentDomain;
         }
 
         public async Task Start()
         {
             _subscriptionHandle = await ItemUpdateStream.SubscribeAsync(this);
 
-            StartConnectionNewThread();
+            StartConnectionInNewThread();
+        }
+
+        private async Task PopulateManagedRooms()
+        {
+            var roomList = await GetItem(_roomStorageId).GetItemIdList(Pid.XmppRoomList);
+            foreach (var roomId in roomList) {
+                var itemList = await GetItem(roomId).GetItemIdList(Pid.Contains);
+                foreach (var itemId in itemList) {
+                    await ReRezItem(roomId, itemId);
+                }
+            }
+        }
+
+        private async Task ReRezItem(string roomId, string itemId)
+        {
+            var roomItem = await AddRoomItem(roomId, itemId, updatePersistentState: false);
+
+            await SendPresenceAvailable(roomItem);
+
+            roomItem.State = RoomItem.RezState.Rezzing;
         }
 
         public async Task Shutdown()
@@ -63,7 +85,7 @@ namespace XmppComponent
             }
         }
 
-        void StartConnectionNewThread()
+        void StartConnectionInNewThread()
         {
             Task.Run(async () => {
                 _conn = new Connection(
@@ -71,6 +93,7 @@ namespace XmppComponent
                     _componentDomain,
                     _componentPort,
                     _componentSecret,
+                    async conn => { await Connection_OnStarted(conn); },
                     async cmd => { await Connection_OnMessage(cmd); },
                     async cmd => { await Connection_OnPresence(cmd); },
                     conn => { Connection_OnClosed(conn); }
@@ -106,7 +129,7 @@ namespace XmppComponent
 
         #region Management
 
-        async Task<RoomItem> AddRoomItem(string roomId, string itemId)
+        async Task<RoomItem> AddRoomItem(string roomId, string itemId, bool updatePersistentState = true)
         {
             var roomItem = (RoomItem)null;
             var roomCreated = false;
@@ -128,8 +151,8 @@ namespace XmppComponent
                 }
             }
 
-            if (roomCreated) {
-                await GetItem(_componentId).WithoutTransaction(async self => await self.AddToList(Pid.XmppRoomList, roomId));
+            if (roomCreated && updatePersistentState) {
+                await GetItem(_roomStorageId).WithoutTransaction(async self => await self.AddToList(Pid.XmppRoomList, roomId));
             }
 
             return roomItem;
@@ -185,13 +208,27 @@ namespace XmppComponent
             }
 
             if (roomDeleted) {
-                await GetItem(_componentId).WithoutTransaction(async self => await self.RemoveFromList(Pid.XmppRoomList, roomId));
+                await GetItem(_roomStorageId).WithoutTransaction(async self => await self.RemoveFromList(Pid.XmppRoomList, roomId));
             }
         }
 
         #endregion
 
         #region OnConnection
+
+        async Task Connection_OnStarted(Connection conn)
+        {
+            await PopulateManagedRooms();
+        }
+
+        void Connection_OnClosed(Connection conn)
+        {
+            _conn = null;
+
+            Thread.Sleep(3000);
+
+            StartConnectionInNewThread();
+        }
 
         async Task Connection_OnMessage(XmppMessage stanza)
         {
@@ -215,15 +252,6 @@ namespace XmppComponent
             } catch (Exception ex) {
                 Log.Error(ex);
             }
-        }
-
-        void Connection_OnClosed(Connection conn)
-        {
-            _conn = null;
-
-            Thread.Sleep(3000);
-
-            StartConnectionNewThread();
         }
 
         async Task Connection_OnNormalMessage(XmppMessage stanza)

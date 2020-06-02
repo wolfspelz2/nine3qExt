@@ -242,6 +242,7 @@ namespace n3q.Grains
                 }
             } else {
                 _changes = new List<ItemChange>();
+                _logger.LogInformation($"Transaction: #{Id} {tid} ");
             }
         }
 
