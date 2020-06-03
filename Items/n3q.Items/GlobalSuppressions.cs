@@ -7,3 +7,4 @@
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2235:Mark all non-serializable fields", Justification = "<Pending>", Scope = "member", Target = "~P:n3q.Items.ItemUpdate.ItemId")]
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2235:Mark all non-serializable fields", Justification = "<Pending>", Scope = "member", Target = "~P:n3q.Items.ItemChange.Value")]
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2235:Mark all non-serializable fields", Justification = "<Pending>", Scope = "member", Target = "~F:n3q.Items.ItemUpdate.Changes")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2235:Mark all non-serializable fields", Justification = "<Pending>", Scope = "member", Target = "~P:n3q.Items.ItemUpdate.ParentId")]
