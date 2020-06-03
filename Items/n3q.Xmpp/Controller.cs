@@ -16,7 +16,7 @@ using n3q.Aspects;
 
 namespace XmppComponent
 {
-    public class Controller : IAsyncObserver<ItemUpdate>
+    public partial class Controller : IAsyncObserver<ItemUpdate>
     {
         readonly string _componentHost;
         readonly string _componentDomain;
@@ -29,9 +29,10 @@ namespace XmppComponent
         StreamSubscriptionHandle<ItemUpdate> _subscriptionHandle;
 
         readonly object _mutex = new object();
-        readonly Dictionary<string, ManagedRoom> _rooms = new Dictionary<string, ManagedRoom>();
-        readonly Dictionary<string, RoomItem> _items = new Dictionary<string, RoomItem>();
+        readonly Dictionary<string, Room> _rooms = new Dictionary<string, Room>();
+        readonly Dictionary<string, RoomItem> _roomItems = new Dictionary<string, RoomItem>();
         readonly Dictionary<string, Inventory> _inventories = new Dictionary<string, Inventory>();
+        readonly Dictionary<string, Inventory> _inventoryItems = new Dictionary<string, Inventory>();
 
         private Connection _xmppConnection;
         private bool _clusterConnected;
@@ -84,24 +85,37 @@ namespace XmppComponent
             //_subscriptionHandle = await ItemUpdateStream.SubscribeAsync(this);
         }
 
-        private async Task PopulateManagedRooms()
+        async Task PopulateRooms()
         {
             var roomList = await MakeItemStub(_roomStorageId).GetItemIdList(Pid.XmppRoomList);
             foreach (var roomId in roomList) {
-                var itemList = await MakeItemStub(roomId).GetItemIdList(Pid.Contains);
-                foreach (var itemId in itemList) {
-                    await ReRezItem(roomId, itemId);
-                }
+                await PopulateRoom(roomId);
             }
         }
 
-        private async Task ReRezItem(string roomId, string itemId)
+        async Task PopulateRoom(string roomId)
         {
-            var roomItem = await AddRoomItem(roomId, itemId, updatePersistentState: false);
+            var itemList = await MakeItemStub(roomId).GetItemIdList(Pid.Contains);
+            foreach (var itemId in itemList) {
+                var roomItem = await AddRoomItem(roomId, itemId, updatePersistentState: false);
+                await SendPresenceAvailable(roomId, itemId);
+                roomItem.State = RoomItem.RezState.Rezzing;
+            }
+        }
 
-            await SendPresenceAvailable(roomItem);
+        async Task SendAllItemPresenceToInventorySubscriber(string inventoryItemId, string presenceFrom, string presenceTo)
+        {
+            var roomItemJid = new XmppJid(presenceFrom);
 
-            roomItem.State = RoomItem.RezState.Rezzing;
+            var itemList = await MakeItemStub(inventoryItemId).GetItemIdList(Pid.Contains);
+            foreach (var itemId in itemList) {
+
+                var itemFrom = roomItemJid.Base + "/" + itemId;
+                await SendInventoryItemPresenceAvailable(itemId, presenceFrom, presenceTo);
+
+                await SendSubscriberPresenceConfirmation(presenceFrom, presenceTo);
+
+            }
         }
 
         public async Task Shutdown()
@@ -160,15 +174,75 @@ namespace XmppComponent
 
         #region Management
 
+        bool IsInventorySubscriber(string userId, string clientJid)
+        {
+            lock (_mutex) {
+                if (_inventories.TryGetValue(userId, out var inv)) {
+                    return inv.Subscribers.ContainsKey(clientJid);
+                }
+            }
+            return false;
+        }
+
+        bool IsInventory(string inventoryItemId)
+        {
+            return GetInventory(inventoryItemId) != null;
+        }
+
+        Inventory GetInventory(string inventoryItemId)
+        {
+            lock (_mutex) {
+                _ = _inventoryItems.TryGetValue(inventoryItemId, out var inv);
+                return inv;
+            }
+        }
+
+        InventorySubscriber AddInventorySubscriber(string userId, string inventoryItemId, string participantJid, string clientJid)
+        {
+            var inventorySubscriber = (InventorySubscriber)null;
+
+            lock (_mutex) {
+                var inv = (Inventory)null;
+                if (!_inventories.ContainsKey(userId)) {
+                    inv = new Inventory(userId, inventoryItemId, participantJid);
+                    _inventories[userId] = inv;
+                    _inventoryItems[inventoryItemId] = inv;
+                } else {
+                    inv = _inventories[userId];
+                }
+                if (!inv.Subscribers.ContainsKey(clientJid)) {
+                    inventorySubscriber = new InventorySubscriber(userId, clientJid);
+                    inv.Subscribers.Add(clientJid, inventorySubscriber);
+                }
+            }
+
+            return inventorySubscriber;
+        }
+
+        void RemoveInventorySubscriber(string userId, string clientJid)
+        {
+            lock (_mutex) {
+                if (_inventories.TryGetValue(userId, out var inv)) {
+                    if (inv.Subscribers.ContainsKey(clientJid)) {
+                        inv.Subscribers.Remove(clientJid);
+                        if (inv.Subscribers.Count == 0) {
+                            _inventoryItems.Remove(inv.InventoryItemId);
+                            _inventories.Remove(userId);
+                        }
+                    }
+                }
+            }
+        }
+
         async Task<RoomItem> AddRoomItem(string roomId, string itemId, bool updatePersistentState = true)
         {
             var roomItem = (RoomItem)null;
             var roomCreated = false;
 
             lock (_mutex) {
-                var managedRoom = (ManagedRoom)null;
+                var managedRoom = (Room)null;
                 if (!_rooms.ContainsKey(roomId)) {
-                    _rooms[roomId] = new ManagedRoom(roomId);
+                    _rooms[roomId] = new Room(roomId);
                     roomCreated = true;
                 }
                 managedRoom = _rooms[roomId];
@@ -178,7 +252,7 @@ namespace XmppComponent
                     roomItem = new RoomItem(roomId, itemId);
 
                     managedRoom.Items.Add(itemId, roomItem);
-                    _items.Add(itemId, roomItem);
+                    _roomItems.Add(itemId, roomItem);
                 }
             }
 
@@ -208,13 +282,13 @@ namespace XmppComponent
             var roomItem = (RoomItem)null;
 
             lock (_mutex) {
-                _ = _items.TryGetValue(itemId, out roomItem);
+                _ = _roomItems.TryGetValue(itemId, out roomItem);
             }
 
             return roomItem;
         }
 
-        bool IsManagedRoom(string roomId)
+        bool IsRoom(string roomId)
         {
             lock (_mutex) {
                 return _rooms.ContainsKey(roomId);
@@ -229,7 +303,7 @@ namespace XmppComponent
                 if (_rooms.TryGetValue(roomId, out var managedRoom)) {
                     if (managedRoom.Items.ContainsKey(itemId)) {
                         managedRoom.Items.Remove(itemId);
-                        _items.Remove(itemId);
+                        _roomItems.Remove(itemId);
                         if (managedRoom.Items.Count == 0) {
                             _rooms.Remove(roomId);
                             roomDeleted = true;
@@ -249,7 +323,7 @@ namespace XmppComponent
 
         async Task Connection_OnStarted(Connection conn)
         {
-            await PopulateManagedRooms();
+            await PopulateRooms();
         }
 
         void Connection_OnClosed(Connection conn)
@@ -330,8 +404,6 @@ namespace XmppComponent
                 var method = stanza.Cmd.ContainsKey("method") ? stanza.Cmd["method"] : "";
                 switch (method) {
                     case "itemAction": await Connection_OnItemAction(stanza); break;
-                    case "dropItem": await Connection_OnDropItem(stanza); break;
-                    case "pickupItem": await Connection_OnPickupItem(stanza); break;
                     default: Log.Warning($"Unknown method={method}"); break;
                 }
 
@@ -345,11 +417,17 @@ namespace XmppComponent
             await Task.CompletedTask;
         }
 
+        // <- <presence to='user1@items.xmpp.dev.sui.li/hbsu6rtfzgasd' from='hbtzfgjhg@xmpp.weblin.sui.li/jhgjzgjuz' />
+
+        // -> <presence to='hbtzfgjhg@xmpp.weblin.sui.li/jhgjzgjuz' from='user1@items.xmpp.dev.sui.li/CoffeeMachine1' />
+        // -> <presence to='hbtzfgjhg@xmpp.weblin.sui.li/jhgjzgjuz' from='user1@items.xmpp.dev.sui.li/Script1' />
+        // -> <presence to='hbtzfgjhg@xmpp.weblin.sui.li/jhgjzgjuz' from='user1@items.xmpp.dev.sui.li/hbsu6rtfzgasd' />
+
         async Task Connection_OnPresenceAvailable(XmppPresence stanza)
         {
-            var jid = new RoomItemJid(stanza.From);
-            var roomId = jid.Room;
-            var itemId = jid.Item;
+            var jid = new XmppJid(stanza.From);
+            var roomId = jid.Base;
+            var itemId = jid.Resource;
 
             var roomItem = GetRoomItem(roomId, itemId);
             if (roomItem != null) {
@@ -363,43 +441,53 @@ namespace XmppComponent
             } else {
 
                 // Maybe a user
-                var userJid = new XmppJid(stanza.To);
-                var userToken = userJid.User;
-                var inventoryId = userToken == "user1" ? "User1" : "";
-                if (Has.Value(inventoryId)) {
-                    if (!_inventories.ContainsKey(inventoryId)) {
-                        _inventories[inventoryId] = new Inventory(inventoryId);
+                var participantJid = stanza.To;
+                var clientJid = stanza.From;
+                var userToken = new XmppJid(participantJid).User;
+                var inventoryItemId = await GetInventoryByUserToken(userToken);
+                if (Has.Value(inventoryItemId)) {
+
+                    if (!IsInventorySubscriber(userToken, stanza.From)) {
+                        AddInventorySubscriber(userToken, inventoryItemId, stanza.To, stanza.From);
+                        await SendAllItemPresenceToInventorySubscriber(inventoryItemId, stanza.To, stanza.From);
                     }
-                    var isNewSubscriber = _inventories[inventoryId].AddSubscriber(stanza.From);
-                    if (isNewSubscriber) {
-                    }
+
                 }
             }
 
             await Task.CompletedTask;
         }
 
-        //private async Task xReRezItem(string roomId, string itemId)
-        //{
-        //    var roomItem = await AddRoomItem(roomId, itemId, updatePersistentState: false);
-
-        //    await SendPresenceAvailable(roomItem);
-
-        //    roomItem.State = RoomItem.RezState.Rezzing;
-        //}
+        async Task<string> GetInventoryByUserToken(string userToken)
+        {
+            await Task.CompletedTask;
+            var inventoryItemId = userToken == "user1" ? "User1" : "";
+            return inventoryItemId;
+        }
 
         async Task Connection_OnPresenceUnavailable(XmppPresence stanza)
         {
-            var jid = new RoomItemJid(stanza.From);
-            var roomId = jid.Room;
-            var itemId = jid.Item;
+            var jid = new XmppJid(stanza.From);
+            var roomId = jid.Base;
+            var itemId = jid.Resource;
 
             var roomItem = GetRoomItem(roomId, itemId);
             if (roomItem != null) {
                 Log.Info($"Left room {roomId} {itemId}");
 
-                //                // Just in case, should already be removed after sending presence-unavailable
+                // Just in case, should already be removed after sending presence-unavailable
                 await RemoveRoomItem(roomId, itemId);
+
+            } else {
+
+                // Maybe a user
+                //var participantJid = stanza.To;
+                var clientJid = stanza.From;
+                var userToken = new XmppJid(stanza.To).User;
+                if (!IsInventorySubscriber(userToken, clientJid)) {
+                    RemoveInventorySubscriber(userToken, clientJid);
+                }
+
             }
 
             await Task.CompletedTask;
@@ -472,62 +560,157 @@ namespace XmppComponent
             //}
         }
 
-        async Task Connection_OnDropItem(XmppMessage message)
+        #endregion
+
+        #region Stream
+
+        public async Task OnNextAsync(ItemUpdate itemUpdate, StreamSequenceToken token = null)
         {
-            var userId = message.Cmd.ContainsKey("user") ? message.Cmd["user"] : "";
-            var itemId = message.Cmd.ContainsKey("item") ? message.Cmd["item"] : "";
-            var roomId = message.Cmd.ContainsKey("room") ? message.Cmd["room"] : "";
-            var hasX = long.TryParse(message.Cmd.ContainsKey("x") ? message.Cmd["x"] : "", out long posX);
-            var destinationUrl = message.Cmd.ContainsKey("destination") ? message.Cmd["destination"] : "";
+            await OnItemUpdate(itemUpdate);
+        }
 
-            if (Has.Value(userId) && Has.Value(itemId) && Has.Value(roomId) && hasX) {
-                Log.Info($"Drop {roomId} {itemId}");
-
-                var room = MakeItemStub(roomId);
-                if (!await room.Get(Pid.ContainerAspect)) {
-                    await room.WithTransaction(async self => { await self.Set(Pid.ContainerAspect, true); });
-                }
-
-                _ = await AddRoomItem(roomId, itemId);
-
-                await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Rez), new PropertySet { [Pid.RezableRezTo] = roomId, [Pid.RezableRezX] = posX });
+        public async Task OnItemUpdate(ItemUpdate update)
+        {
+            if (false) {
+            } else if (IsRoom(update.ItemId)) {
+                await OnItemUpdateRoom(update);
+            } else if (IsRoom(update.ParentId)) {
+                await OnItemUpdateRoomItem(update);
+            } else if (IsInventory(update.ItemId)) {
+                await OnItemUpdateInventory(update);
+            } else if (IsInventory(update.ParentId)) {
+                await OnItemUpdateInventoryItem(update);
             }
         }
 
-        async Task Connection_OnPickupItem(XmppMessage message)
+        private async Task OnItemUpdateInventoryItem(ItemUpdate update)
         {
-            var userId = message.Cmd.ContainsKey("user") ? message.Cmd["user"] : "";
-            var itemId = message.Cmd.ContainsKey("item") ? message.Cmd["item"] : "";
-            var roomId = message.Cmd.ContainsKey("room") ? message.Cmd["room"] : "";
+            var itemId = update.ItemId;
+            var inv = GetInventory(update.ParentId);
+            if (inv != null) {
+                var itemFrom = new XmppJid(inv.ParticipantJid).Base + "/" + itemId;
+                foreach (var pair in inv.Subscribers) {
+                    var subscriber = pair.Value;
+                    await SendInventoryItemPresenceAvailable(itemId, itemFrom, subscriber.ClientJid);
+                }
+            }
+        }
 
-            if (Has.Value(userId) && Has.Value(itemId) && Has.Value(roomId)) {
-                var roomItem = GetRoomItem(roomId, itemId);
-                if (roomItem != null) {
-                    if (roomItem.State != RoomItem.RezState.Rezzed) {
-                        Log.Warning($"Unexpected message-cmd-pickupItem: room={roomId} item={itemId}");
-                        throw new SurfaceException(roomId, itemId, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezzed);
-                    } else {
-                        Log.Info($"Pickup {roomId} {itemId}");
-                        await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Derez), new PropertySet { [Pid.RezableDerezTo] = roomId });
-                        await OnItemRemovedFromRoom(roomItem);
-
-                        // Also: don't wait to cleanup state, just ignore the presence-unavailable
-                        await RemoveRoomItem(roomId, itemId);
+        private async Task OnItemUpdateInventory(ItemUpdate update)
+        {
+            foreach (var change in update.Changes) {
+                if (change.Pid == Pid.Contains && change.What == ItemChange.Mode.AddToList) {
+                    var itemId = change.Value;
+                    var inv = GetInventory(update.ItemId);
+                    if (inv != null) {
+                        var itemFrom = new XmppJid(inv.ParticipantJid).Base + "/" + itemId;
+                        foreach (var pair in inv.Subscribers) {
+                            var subscriber = pair.Value;
+                            await SendInventoryItemPresenceAvailable(itemId, itemFrom, subscriber.ClientJid);
+                        }
+                    }
+                } else if (change.Pid == Pid.Contains && change.What == ItemChange.Mode.RemoveFromList) {
+                    var itemId = change.Value;
+                    var inv = GetInventory(update.ItemId);
+                    if (inv != null) {
+                        var itemFrom = new XmppJid(inv.ParticipantJid).Base + "/" + itemId;
+                        foreach (var pair in inv.Subscribers) {
+                            var subscriber = pair.Value;
+                            await SendInventoryItemPresenceUnavailable(itemFrom, subscriber.ClientJid);
+                        }
                     }
                 }
             }
+        }
 
-            await Task.CompletedTask;
+        private async Task OnItemUpdateRoomItem(ItemUpdate update)
+        {
+            var roomItem = GetRoomItem(update.ItemId);
+            if (roomItem != null) {
+                if (roomItem.State == RoomItem.RezState.Rezzed) {
+                    var atleastOneOfChangedPropertiesIsPublic = false;
+                    foreach (var change in update.Changes) {
+                        atleastOneOfChangedPropertiesIsPublic |= Property.GetDefinition(change.Pid).Access == Property.Access.Public;
+                    }
+                    if (atleastOneOfChangedPropertiesIsPublic) {
+                        await SendPresenceAvailable(roomItem.RoomId, roomItem.ItemId);
+                    }
+                }
+            }
+        }
+
+        private async Task OnItemUpdateRoom(ItemUpdate update)
+        {
+            foreach (var change in update.Changes) {
+                if (change.Pid == Pid.Contains && change.What == ItemChange.Mode.AddToList) {
+                    var roomId = update.ItemId;
+                    var itemId = change.Value;
+                    var roomItem = await AddRoomItem(roomId, itemId);
+                    await SendPresenceAvailable(roomId, itemId);
+                    roomItem.State = RoomItem.RezState.Rezzing;
+
+                } else if (change.Pid == Pid.Contains && change.What == ItemChange.Mode.RemoveFromList) {
+                    var roomId = update.ItemId;
+                    var itemId = change.Value;
+                    var roomItem = GetRoomItem(roomId, itemId);
+                    if (roomItem != null) {
+                        await SendPresenceUnvailable(roomItem.RoomId, roomItem.ItemId);
+                        roomItem.State = RoomItem.RezState.Derezzing;
+                    }
+                }
+            }
+        }
+
+        public Task OnCompletedAsync()
+        {
+            return Task.CompletedTask;
+        }
+        public Task OnErrorAsync(Exception ex)
+        {
+            return Task.CompletedTask;
         }
 
         #endregion
 
         #region Send presence
 
-        async Task SendPresenceAvailable(RoomItem roomItem)
+        async Task SendSubscriberPresenceConfirmation(string presenceFrom, string presenceTo)
         {
-            var roomId = roomItem.RoomId;
-            var itemId = roomItem.ItemId;
+            if (_xmppConnection == null) { return; }
+
+            var to = presenceTo;
+            var from = presenceFrom;
+
+            var to_XmlEncoded = WebUtility.HtmlEncode(to);
+            var from_XmlEncoded = WebUtility.HtmlEncode(from);
+
+            _xmppConnection.Send(
+#pragma warning disable format
+                $"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}' />"
+#pragma warning restore format
+            );
+
+            await Task.CompletedTask;
+        }
+
+        async Task SendInventoryItemPresenceAvailable(string itemId, string from, string to)
+        {
+            Log.Info($"Add to inventory {from}");
+            await SendPresenceAvailableCore(itemId, from, to);
+        }
+
+        async Task SendPresenceAvailable(string roomId, string itemId)
+        {
+            var to = roomId + "/" + itemId;
+            var from = $"{itemId}@{_componentDomain}";
+
+            Log.Info($"Rez {from}");
+            await SendPresenceAvailableCore(itemId, from, to);
+        }
+
+        async Task SendPresenceAvailableCore(string itemId, string from, string to)
+        {
+            if (_xmppConnection == null) { return; }
 
             var props = await MakeItemStub(itemId).GetProperties(PidSet.Public);
 
@@ -537,8 +720,6 @@ namespace XmppComponent
 
             var x = props.GetInt(Pid.RezzedX);
 
-            var roomItemJid = new RoomItemJid(roomId, itemId, name);
-
             var animationsUrl = props.GetString(Pid.AnimationsUrl);
             if (!string.IsNullOrEmpty(animationsUrl)) {
                 if (props.ContainsKey(Pid.Image100Url)) {
@@ -546,8 +727,6 @@ namespace XmppComponent
                 }
             }
 
-            var to = roomItemJid.Full;
-            var from = $"{itemId}@{_componentDomain}";
             var identityJid = $"{itemId}@{_componentDomain}";
             var identityDigest = Math.Abs(string.GetHashCode(name + animationsUrl, StringComparison.InvariantCulture)).ToString(CultureInfo.InvariantCulture);
 
@@ -579,132 +758,49 @@ namespace XmppComponent
 
             var position_Node = $"<position x='{x_XmlEncoded}' />";
 
-            Log.Info($"Rez '{roomItemJid.Resource}' {roomId} {itemId}");
-
-            if (_xmppConnection != null) {
-                _xmppConnection.Send(
+            _xmppConnection.Send(
 #pragma warning disable format
-                    $"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}'>"
-                        + $"<x xmlns='vp:props' type='item' service='nine3q' {props_XmlEncoded_All} />"
-                        + $"<x xmlns='firebat:user:identity' jid='{identityJid_XmlEncoded}' src='{identitySrc_XmlEncoded}' digest='{identityDigest_XmlEncoded}' />"
-                        + $"<x xmlns='firebat:avatar:state'>{position_Node}</x>"
-                        + $"<x xmlns='http://jabber.org/protocol/muc'><history seconds='0' maxchars='0' maxstanzas='0' /></x>"
-                    + $"</presence>"
+                $"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}'>"
+                    + $"<x xmlns='vp:props' type='item' service='nine3q' {props_XmlEncoded_All} />"
+                    + $"<x xmlns='firebat:user:identity' jid='{identityJid_XmlEncoded}' src='{identitySrc_XmlEncoded}' digest='{identityDigest_XmlEncoded}' />"
+                    + $"<x xmlns='firebat:avatar:state'>{position_Node}</x>"
+                    + $"<x xmlns='http://jabber.org/protocol/muc'><history seconds='0' maxchars='0' maxstanzas='0' /></x>"
+                + $"</presence>"
 #pragma warning restore format
-                );
-
-                roomItem.Resource = roomItemJid.Resource;
-            }
+            );
 
             await Task.CompletedTask;
         }
 
-        async Task SendPresenceUnvailable(RoomItem roomItem)
+        async Task SendInventoryItemPresenceUnavailable(string from, string to)
         {
-            var roomId = roomItem.RoomId;
-            var itemId = roomItem.ItemId;
-            var roomResource = roomItem.Resource;
+            Log.Info($"Remove from inventory {from}");
+            await SendPresenceUnvailableCore(from, to);
+        }
+
+        async Task SendPresenceUnvailable(string roomId, string itemId)
+        {
+            var roomResource = itemId;
 
             var to = $"{roomId}/{roomResource}";
             var from = $"{itemId}@{_componentDomain}";
 
+            Log.Info($"Derez '{from}");
+            await SendPresenceUnvailableCore(from, to);
+        }
+
+        async Task SendPresenceUnvailableCore(string from, string to)
+        {
             var to_XmlEncoded = WebUtility.HtmlEncode(to);
             var from_XmlEncoded = WebUtility.HtmlEncode(from);
 
-            Log.Info($"Derez '{roomResource}' {roomId} {itemId}");
-
             _xmppConnection?.Send($"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}' type='unavailable' />");
-
-            roomItem.State = RoomItem.RezState.Derezzing;
 
             await Task.CompletedTask;
         }
 
         #endregion
 
-        #region Stream
-
-        public async Task OnNextAsync(ItemUpdate itemUpdate, StreamSequenceToken token = null)
-        {
-            await OnItemUpdate(itemUpdate);
-        }
-
-        public async Task OnItemUpdate(ItemUpdate update)
-        {
-            if (IsManagedRoom(update.ItemId)) {
-
-                foreach (var change in update.Changes) {
-                    if (change.Pid == Pid.Contains && change.What == ItemChange.Mode.AddToList) {
-                        var roomId = update.ItemId;
-                        var itemId = change.Value;
-                        await OnItemAddedToRoom(roomId, itemId);
-
-                    } else if (change.Pid == Pid.Contains && change.What == ItemChange.Mode.RemoveFromList) {
-                        var roomId = update.ItemId;
-                        var itemId = change.Value;
-                        var roomItem = GetRoomItem(roomId, itemId);
-                        if (roomItem != null) {
-                            await OnItemRemovedFromRoom(roomItem);
-                        }
-                    }
-                }
-
-            } else {
-
-                //if (IsManagedRoom(update.ParentId)) {
-                //}
-                var roomItem = GetRoomItem(update.ItemId);
-                if (roomItem != null) {
-                    if (roomItem.State == RoomItem.RezState.Rezzed) {
-                        var atleastOneOfChangedPropertiesIsPublic = false;
-                        foreach (var change in update.Changes) {
-                            atleastOneOfChangedPropertiesIsPublic |= Property.GetDefinition(change.Pid).Access == Property.Access.Public;
-                        }
-                        if (atleastOneOfChangedPropertiesIsPublic) {
-                            await OnPublicItemPropertyChanged(roomItem);
-                        }
-                    }
-
-                }
-
-            }
-
-        }
-
-        public Task OnCompletedAsync()
-        {
-            return Task.CompletedTask;
-        }
-
-        public Task OnErrorAsync(Exception ex)
-        {
-            return Task.CompletedTask;
-        }
-
-        #endregion
-
-        #region Item events
-
-        private async Task OnItemAddedToRoom(string roomId, string itemId)
-        {
-            var roomItem = await AddRoomItem(roomId, itemId);
-
-            await SendPresenceAvailable(roomItem);
-
-            roomItem.State = RoomItem.RezState.Rezzing;
-        }
-
-        private async Task OnItemRemovedFromRoom(RoomItem roomItem)
-        {
-            await SendPresenceUnvailable(roomItem);
-        }
-
-        private async Task OnPublicItemPropertyChanged(RoomItem roomItem)
-        {
-            await SendPresenceAvailable(roomItem);
-        }
-
-        #endregion
     }
 
 }

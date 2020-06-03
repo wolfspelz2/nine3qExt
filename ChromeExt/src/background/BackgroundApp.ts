@@ -92,13 +92,14 @@ export class BackgroundApp
         let itemServices = Config.get('itemServices', {});
         if (itemServices) {
             for (let serviceId in itemServices) {
-                let serviceUrl = Config.get('itemServices.' + serviceId + '.config.serviceUrl', {})
+                let serviceUrl = Config.get('itemServices.' + serviceId + '.config.serviceUrl', {});
+                let userToken = Config.get('itemServices.' + serviceId + '.config.userToken', '');
                 let url = new URL(serviceUrl);
                 let protocol = url.protocol;
 
-                if (protocol == 'xmpp:') {
+                if (protocol == 'xmpp:' && userToken != '') {
                     let chatServer = url.pathname;
-                    let roomName = 'user1';
+                    let roomName = userToken;
                     let roomNick = this.resource;
                     let to = roomName + '@' + chatServer + '/' + roomNick;
                     let presence = xml('presence', { 'to': to });

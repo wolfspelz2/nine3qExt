@@ -12,17 +12,15 @@ namespace XmppComponent
             Derezzing,
         }
 
-        public string Resource;
         public RezState State = RezState.NoState;
 
         public readonly string RoomId;
         public readonly string ItemId;
 
-        public RoomItem(string roomId, string itemId, string resource = "item")
+        public RoomItem(string roomId, string itemId)
         {
             RoomId = roomId;
             ItemId = itemId;
-            Resource = resource;
         }
     }
 }

@@ -1,26 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace XmppComponent
 {
-    public class Inventory
+    public partial class Controller
     {
-        public readonly string InventoryId;
-        public readonly Dictionary<string, RoomItem> Items = new Dictionary<string, RoomItem>();
-        public readonly List<string> Subscribers= new List<string>();
-
-        public Inventory(string inventoryId)
+        public class Inventory
         {
-            InventoryId = inventoryId;
-        }
+            public readonly string UserId;
+            public readonly string InventoryItemId;
+            public readonly string ParticipantJid;
+            public readonly Dictionary<string, InventorySubscriber> Subscribers = new Dictionary<string, InventorySubscriber>();
 
-        internal bool AddSubscriber(string subscriberJid)
-        {
-            if (!Subscribers.Contains(subscriberJid)) {
-                Subscribers.Add(subscriberJid);
-                return true;
+            public Inventory(string userId, string inventoryItemId, string participantJid)
+            {
+                UserId = userId;
+                InventoryItemId = inventoryItemId;
+                ParticipantJid = participantJid;
             }
-            return false;
         }
     }
+
 }
