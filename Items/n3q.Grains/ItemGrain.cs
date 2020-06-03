@@ -84,7 +84,13 @@ namespace n3q.Grains
             foreach (var pair in modified) {
                 var pid = pair.Key;
                 var value = pair.Value;
-                _changes.Add(new ItemChange(ItemChange.Mode.SetProperty, pid, value));
+                var length = Property.GetDefinition(pid).Type switch
+                {
+                    Property.Type.StringList => ((ValueList)value).Count,
+                    Property.Type.StringStringMap => ((ValueMap)value).Count,
+                    _ => 0L,
+                };
+                _changes.Add(new ItemChange(ItemChange.Mode.SetProperty, pid, value, length));
                 Properties[pid] = value;
             }
 
@@ -92,7 +98,7 @@ namespace n3q.Grains
                 if (Properties.ContainsKey(pid)) {
                     Properties.Delete(pid);
                 }
-                _changes.Add(new ItemChange(ItemChange.Mode.DeleteProperty, pid, null));
+                _changes.Add(new ItemChange(ItemChange.Mode.DeleteProperty, pid, null, 0L));
             }
 
             if (!InTransaction()) {
@@ -106,11 +112,11 @@ namespace n3q.Grains
 
             if (Properties.TryGetValue(pid, out var pv)) {
                 if (!pv.IsInList(value)) {
-                    _changes.Add(new ItemChange(ItemChange.Mode.AddToList, pid, value));
+                    _changes.Add(new ItemChange(ItemChange.Mode.AddToList, pid, value, ((ValueList)pv).Count));
                     pv.AddToList(value);
                 }
             } else {
-                _changes.Add(new ItemChange(ItemChange.Mode.AddToList, pid, value));
+                _changes.Add(new ItemChange(ItemChange.Mode.AddToList, pid, value, ((ValueList)pv).Count));
                 pv = new PropertyValue();
                 pv.AddToList(value);
                 Properties[pid] = pv;
@@ -127,7 +133,7 @@ namespace n3q.Grains
 
             if (Properties.TryGetValue(pid, out var pv)) {
                 if (pv.IsInList(value)) {
-                    _changes.Add(new ItemChange(ItemChange.Mode.RemoveFromList, pid, value));
+                    _changes.Add(new ItemChange(ItemChange.Mode.RemoveFromList, pid, value, ((ValueList)pv).Count));
                     pv.RemoveFromList(value);
                 }
             }
@@ -183,7 +189,7 @@ namespace n3q.Grains
                 }
             }
 
-            _changes.Add(new ItemChange(ItemChange.Mode.DeleteItem, Pid.Unknown, PropertyValue.Empty));
+            _changes.Add(new ItemChange(ItemChange.Mode.DeleteItem, Pid.Unknown, PropertyValue.Empty, 0L));
 
             if (!InTransaction()) {
                 await DeletePersistentStorage();

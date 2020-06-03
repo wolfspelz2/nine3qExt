@@ -20,15 +20,17 @@ namespace n3q.Items
         public Pid Pid { get; }
 
         // PropertyChanged: Value contains the new property value
-        // AddedToItemList: Value contains the added item id
-        // RemovedFromItemList: Value contains the removed item id
+        // AddedToItemList: Value contains the added item id AND Length has the new list size
+        // RemovedFromItemList: Value contains the removed item id AND Length has the new list size
         public PropertyValue Value { get; set; }
+        public long Length { get; set; }
 
-        public ItemChange(Mode what, Pid pid, PropertyValue value)
+        public ItemChange(Mode what, Pid pid, PropertyValue value, long length)
         {
             What = what;
             Pid = pid;
             Value = value;
+            Length = length;
         }
     }
 
@@ -46,5 +48,4 @@ namespace n3q.Items
             Changes = changes;
         }
     }
-
 }
