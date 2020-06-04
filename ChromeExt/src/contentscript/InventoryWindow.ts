@@ -5,20 +5,20 @@ import log = require('loglevel');
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
-import { Environment } from '../lib/Environment';
 import { ContentApp } from './ContentApp';
-import { Room } from './Room';
 import { Window } from './Window';
-import { ChatConsole } from './ChatConsole';
 
 export class InventoryWindow extends Window
 {
-
+    private paneElem: HTMLElement;
+    
     constructor(app: ContentApp)
     {
         super(app);
     }
-    
+
+    getDisplay() { return this.paneElem; }
+
     show(options: any)
     {
         options.titleText = this.app.translateText('InventoryWindow.Inventory', 'Your Stuff');
@@ -61,6 +61,8 @@ export class InventoryWindow extends Window
             this.onResize = (ev: JQueryEventObject) =>
             {
             };
+
+            this.paneElem = paneElem;
         }
     }
 

@@ -438,7 +438,7 @@ export class ContentApp
 
     static itemProviderUrlFilter(providerId: string, attrName: string, attrValue: string): any
     {
-        if (providerId) {
+        if (providerId && providerId != '') {
             let propertyUrlFilter = Config.get('itemProviders.' + providerId + '.config.itemPropertyUrlFilter', {});
             if (propertyUrlFilter) {
                 for (let key in propertyUrlFilter) {

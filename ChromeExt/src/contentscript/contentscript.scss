@@ -662,6 +662,14 @@ $z-index: (
         bottom: 0;
     }
     
+    #n3q div.n3q-base.n3q-inventorywindow .n3q-inventory-item {
+        position: absolute;
+        // left: 0;
+        // top: 0;
+        // width: 32px;
+        // height: 32px;
+    }
+    
     // #n3q div.n3q-chatwindow {}
 
     #n3q div.n3q-chatwindow-chatout {

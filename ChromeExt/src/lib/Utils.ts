@@ -61,7 +61,7 @@ export class Utils
     static hash(s: string): number
     {
         var hash = 0;
-        if (s.length == 0) return hash;
+        if (s.length == 0) return 0;
 
         s += 'abcd';
 

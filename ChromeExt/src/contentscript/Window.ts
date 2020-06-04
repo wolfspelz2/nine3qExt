@@ -99,12 +99,15 @@ export class Window
         return this.windowElem != null;
     }
 
-
+    private isClosing: boolean;
     close(): void
     {
-        if (this.onClose) { this.onClose(); }
-
-        $(this.windowElem).remove();
-        this.windowElem = null;
+        if (!this.isClosing) {
+            this.isClosing = true;
+            
+            if (this.onClose) { this.onClose(); }
+            $(this.windowElem).remove();
+            this.windowElem = null;
+        }
     }
 }

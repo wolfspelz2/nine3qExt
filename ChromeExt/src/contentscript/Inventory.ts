@@ -30,6 +30,7 @@ export class Inventory
     }
 
     getJid(): string { return this.inventoryJid; }
+    getDisplay() { return this.window.getDisplay(); }
 
     open(options: any)
     {

@@ -69,6 +69,10 @@ export class Config
             digest: '',
             identificatorUrlTemplate: 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}&digest={digest}',
         },
+        inventory: {
+            iconSize: 32,
+            borderPadding: 4,
+        },
         itemProviders: {
             'nine3q':
             {

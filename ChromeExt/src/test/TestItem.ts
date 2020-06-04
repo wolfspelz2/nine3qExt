@@ -9,7 +9,7 @@ export class TestItem
     {
         initConfig();
 
-        expect(ContentApp.itemProviderUrlFilter('n3q', 'Icon32Url', '{item.nine3q}PageProxy/icon32.png')).to.equal('https://nine3q.dev.sui.li/images/Items/PageProxy/icon32.png');
+        expect(ContentApp.itemProviderUrlFilter('nine3q', 'Icon32Url', '{item.nine3q}PageProxy/icon32.png')).to.equal('https://nine3q.dev.sui.li/images/Items/PageProxy/icon32.png');
     }
 }
 
@@ -26,15 +26,16 @@ function initConfig()
             maintenanceIntervalSec: 60,
         },
         itemProviders: {
-            'n3q':
+            'nine3q':
             {
                 name: 'weblin Items',
                 description: 'Things on web pages',
                 configUrl: 'https://avatar.weblin.sui.li/item/config',
                 config: {
-                    itemPropertyUrlFilter: [
-                        { key: '{item.nine3q}', value: 'https://nine3q.dev.sui.li/images/Items/' },
-                    ]
+                    itemPropertyUrlFilter:
+                    {
+                        '{item.nine3q}': 'https://nine3q.dev.sui.li/images/Items/'
+                    }
                 }
             }
         },

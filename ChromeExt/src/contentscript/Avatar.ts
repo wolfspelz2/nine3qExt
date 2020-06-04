@@ -41,7 +41,6 @@ export class Avatar implements IObserver
         // var url = 'https://www.virtual-presence.org/images/wolf.png';
         // var url = app.getAssetUrl('default-avatar.png');
         var url = entity.getDefaultAvatar();
-
         this.elem.src = url;
 
         $(this.elem).on('click', ev =>
