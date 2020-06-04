@@ -131,6 +131,8 @@ export class Config
                     'Chatwindow.disappeared': '*disappeared*',
 
                     'Settingswindow.Settings': 'Settings',
+
+                    'InventoryWindow.Inventory': 'Your Stuff',
                 },
                 'de-DE': {
                     'Common.Close': 'Schließen',
@@ -173,6 +175,8 @@ export class Config
                     'Chatwindow.disappeared': '*verschwunden*',
 
                     'Settingswindow.Settings': 'Einstellungen',
+
+                    'InventoryWindow.Inventory': 'Deine Sachen',
                 },
             },
             'serviceUrl': '',

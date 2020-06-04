@@ -652,6 +652,16 @@ $z-index: (
             #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-xmppwindow-in-send { right: 35px; bottom: 13px; border-width: 2px; }
             #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-xmppwindow-in-save { right: 36px; bottom: 40px; }
 
+    // #n3q div.n3q-inventorywindow {}
+
+    #n3q div.n3q-base.n3q-inventorywindow-pane {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+    }
+    
     // #n3q div.n3q-chatwindow {}
 
     #n3q div.n3q-chatwindow-chatout {

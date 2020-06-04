@@ -110,16 +110,13 @@ namespace n3q.Grains
         {
             AssertCurrentTransaction(tid);
 
-            if (Properties.TryGetValue(pid, out var pv)) {
-                if (!pv.IsInList(value)) {
-                    _changes.Add(new ItemChange(ItemChange.Mode.AddToList, pid, value, ((ValueList)pv).Count));
-                    pv.AddToList(value);
-                }
-            } else {
-                _changes.Add(new ItemChange(ItemChange.Mode.AddToList, pid, value, ((ValueList)pv).Count));
+            if (!Properties.TryGetValue(pid, out var pv)) {
                 pv = new PropertyValue();
-                pv.AddToList(value);
                 Properties[pid] = pv;
+            }
+            if (!pv.IsInList(value)) {
+                pv.AddToList(value);
+                _changes.Add(new ItemChange(ItemChange.Mode.AddToList, pid, value, ((ValueList)pv).Count));
             }
 
             if (!InTransaction()) {
@@ -133,8 +130,8 @@ namespace n3q.Grains
 
             if (Properties.TryGetValue(pid, out var pv)) {
                 if (pv.IsInList(value)) {
-                    _changes.Add(new ItemChange(ItemChange.Mode.RemoveFromList, pid, value, ((ValueList)pv).Count));
                     pv.RemoveFromList(value);
+                    _changes.Add(new ItemChange(ItemChange.Mode.RemoveFromList, pid, value, ((ValueList)pv).Count));
                 }
             }
 

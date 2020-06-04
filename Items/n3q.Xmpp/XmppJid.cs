@@ -6,11 +6,31 @@
         public string User { get; set; } = "";
         public string Domain { get; set; } = "";
         public string Resource { get; set; } = "";
-        public string Base => User + "@" + Domain;
+        public string Base => User + (string.IsNullOrEmpty(User) ? "" : "@") + Domain;
+        public string Full => Base + (string.IsNullOrEmpty(Resource) ? "" : "/") + Resource;
+        public string URI => Scheme + (string.IsNullOrEmpty(Scheme) ? "" : ":") + Full;
+
+        public override string ToString()
+        {
+            return Full;
+        }
 
         public XmppJid(string jid)
         {
             Parse(jid);
+        }
+
+        public XmppJid(string user, string domain)
+        {
+            User = user;
+            Domain = domain;
+        }
+
+        public XmppJid(string user, string domain, string resource)
+        {
+            User = user;
+            Domain = domain;
+            Resource = resource;
         }
 
         private void Parse(string jid)

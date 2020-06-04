@@ -152,7 +152,7 @@ namespace IntegrationTests
 
                 Assert.AreEqual(2, updates.Count);
 
-                Assert.IsNotNull(updates.Where(update => update.ItemId == containerId).SelectMany(update => update.Changes).Where(change => change.What == ItemChange.Mode.AddToList && change.Pid == Pid.Contains && change.Value == childId).FirstOrDefault());
+                Assert.IsNotNull(updates.Where(update => update.ItemId == containerId).SelectMany(update => update.Changes).Where(change => change.What == ItemChange.Mode.AddToList && change.Pid == Pid.Contains && change.Value == childId && change.Length == 1L).FirstOrDefault());
                 Assert.IsNotNull(updates.Where(update => update.ItemId == containerId).SelectMany(update => update.Changes).Where(change => change.What == ItemChange.Mode.SetProperty&& change.Pid == Pid.TestInt && change.Value == 43).FirstOrDefault());
                 Assert.IsNotNull(updates.Where(update => update.ItemId == childId).SelectMany(update => update.Changes).Where(change => change.What == ItemChange.Mode.SetProperty && change.Pid == Pid.Container && change.Value == containerId).FirstOrDefault());
                 Assert.IsNotNull(updates.Where(update => update.ItemId == childId).SelectMany(update => update.Changes).Where(change => change.What == ItemChange.Mode.SetProperty && change.Pid == Pid.TestInt && change.Value == 44).FirstOrDefault());

@@ -75,48 +75,8 @@ export class BackgroundApp
         // Does not work that way
         // chrome.runtime?.onMessage.removeListener((message, sender, sendResponse) => { return this.onRuntimeMessage(message, sender, sendResponse); });
 
-        this.unsubscribeItemInventories();
+        // this.unsubscribeItemInventories();
         this.stopXmpp();
-    }
-
-    // Item inventory
-
-    private subscribedItemInventories: Array<string> = [];
-
-    subscribeItemInventories()
-    {
-        /*
-        <message id='1' to='items.xmpp.dev.sui.li'><x xmlns='vp:cmd' method='itemAction' action='Derez' item='Script1' user='{2516343F-0D26-4B7B-9510-28FCF67E014D}' to='User1'/></message>
-        */
-
-        let itemServices = Config.get('itemServices', {});
-        if (itemServices) {
-            for (let serviceId in itemServices) {
-                let serviceUrl = Config.get('itemServices.' + serviceId + '.config.serviceUrl', {});
-                let userToken = Config.get('itemServices.' + serviceId + '.config.userToken', '');
-                let url = new URL(serviceUrl);
-                let protocol = url.protocol;
-
-                if (protocol == 'xmpp:' && userToken != '') {
-                    let chatServer = url.pathname;
-                    let roomName = userToken;
-                    let roomNick = this.resource;
-                    let to = roomName + '@' + chatServer + '/' + roomNick;
-                    let presence = xml('presence', { 'to': to });
-                    this.sendStanza(presence);
-                    this.subscribedItemInventories.push(to);
-                }
-            }
-        }
-    }
-
-    unsubscribeItemInventories()
-    {
-        for (let i = 0; i < this.subscribedItemInventories.length; i++) {
-            let to = this.subscribedItemInventories[i];
-            let presence = xml('presence', { 'type': 'unavailable', 'to': to });
-            this.sendStanza(presence);
-        }
     }
 
     // IPC
@@ -332,7 +292,7 @@ export class BackgroundApp
                     if (isSelf) {
                         delete this.roomJid2tabId[room];
                         delete this.roomJid2selfNick[room];
-                        log.debug('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', this.roomJid2tabId[room], 'now:', this.roomJid2tabId);
+                        log.debug('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId);
                     }
                 }
             }
@@ -444,7 +404,7 @@ export class BackgroundApp
                     }
                 }
 
-                this.subscribeItemInventories();
+                // this.subscribeItemInventories();
             });
 
             this.xmpp.on('stanza', (stanza: any) => this.recvStanza(stanza));

@@ -342,7 +342,7 @@ namespace n3q.Web
                     };
                     node.AsDictionary.Add(pair.Key.ToString(), propNode);
                 }
-                result = node.ToString();
+                result = node.ToJson();
             }
 
             return result;

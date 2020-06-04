@@ -16,7 +16,7 @@ import { VpiResolver } from './VpiResolver';
 import { SettingsWindow } from './SettingsWindow';
 import { XmppWindow } from './XmppWindow';
 import { ChangesWindow } from './ChangesWindow';
-import { IframeWindow } from './IframeWindow';
+import { InventoryWindow } from './InventoryWindow';
 
 interface ILocationMapperResponse
 {
@@ -152,12 +152,9 @@ export class ContentApp
 
     test()
     {
-        let iframeWindow = new IframeWindow(this, this.display);
-        iframeWindow.show({
+        let w = new InventoryWindow(this, this.display);
+        w.show({
             'above': this.display,
-            'resizable': true,
-            'titleText': 'Theatre Screenplay',
-            'url': 'https://theatre.weblin.sui.li/iframe.html?room=d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org',
         });
     }
 
@@ -407,6 +404,53 @@ export class ContentApp
     translateElem(elem: HTMLElement): void
     {
         this.babelfish.translateElem(elem);
+    }
+
+    // Item inventory
+
+    private invSubscribed: { [providerId: string]: string } = {};
+    private invRoomResource: string = Utils.randomString(15);
+
+    subscribeInventory(providerId: string)
+    {
+        if (!this.invSubscribed[providerId]) {
+            let serviceUrl = Config.get('itemServices.' + providerId + '.config.serviceUrl', {});
+            let userToken = Config.get('itemServices.' + providerId + '.config.userToken', '');
+            let url = new URL(serviceUrl);
+            let protocol = url.protocol;
+
+            if (protocol == 'xmpp:' && userToken != '') {
+                let chatServer = url.pathname;
+                let roomName = userToken;
+                let roomNick = this.invRoomResource;
+                let to = roomName + '@' + chatServer + '/' + roomNick;
+                let presence = xml('presence', { 'to': to });
+                this.sendStanza(presence);
+                this.invSubscribed[providerId] = to;
+            }
+        }
+    }
+
+    unsubscribeInventory(providerId: string)
+    {
+        if (this.invSubscribed[providerId]) {
+            let to = this.invSubscribed[providerId];
+            let presence = xml('presence', { 'type': 'unavailable', 'to': to });
+            this.sendStanza(presence);
+            delete this.invSubscribed[providerId];
+        }
+    }
+
+    unsubscribeAllInventories()
+    {
+        let activeInventoryProviderList: Array<string> = [];
+        for (let providerId in this.invSubscribed) {
+            activeInventoryProviderList.push(providerId);
+        }
+        for (let i = 0; i < activeInventoryProviderList.length; i++) {
+            let providerId = activeInventoryProviderList[i];
+            this.unsubscribeInventory(providerId);
+        }
     }
 
     // my active
