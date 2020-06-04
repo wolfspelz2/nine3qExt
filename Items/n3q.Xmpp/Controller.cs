@@ -773,7 +773,7 @@ namespace XmppComponent
             _xmppConnection.Send(
 #pragma warning disable format
                 $"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}'>"
-                    + $"<x xmlns='vp:props' type='item' service='nine3q' {props_XmlEncoded_All} />"
+                    + $"<x xmlns='vp:props' type='item' provider='nine3q' {props_XmlEncoded_All} />"
                     + (forXmppMucWithFirebatSupport ? 
                           $"<x xmlns='firebat:user:identity' jid='{identityJid_XmlEncoded}' src='{identitySrc_XmlEncoded}' digest='{identityDigest_XmlEncoded}' />"
                         + $"<x xmlns='firebat:avatar:state'>{position_Node}</x>"

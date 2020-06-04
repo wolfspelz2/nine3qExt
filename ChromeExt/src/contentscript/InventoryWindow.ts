@@ -13,11 +13,12 @@ import { ChatConsole } from './ChatConsole';
 
 export class InventoryWindow extends Window
 {
-    constructor(app: ContentApp, display: HTMLElement)
-    {
-        super(app, display);
-    }
 
+    constructor(app: ContentApp)
+    {
+        super(app, app.getDisplay());
+    }
+    
     show(options: any)
     {
         options.titleText = this.app.translateText('InventoryWindow.Inventory', 'Your Stuff');
@@ -60,17 +61,6 @@ export class InventoryWindow extends Window
             this.onResize = (ev: JQueryEventObject) =>
             {
             };
-
-            this.onClose = () =>
-            {
-                this.app.unsubscribeInventory('nine3q');
-            };
-
-            this.onDragStop = (ev: JQueryEventObject) =>
-            {
-            };
-
-            this.app.subscribeInventory('nine3q');
         }
     }
 

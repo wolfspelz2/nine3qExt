@@ -1,16 +1,15 @@
 import { expect } from 'chai';
 import { Utils } from '../lib/Utils';
-import { xml } from '@xmpp/client';
-import { Item } from '../contentscript/Item';
 import { Config } from '../lib/Config';
+import { ContentApp } from '../contentscript/ContentApp';
 
 export class TestItem
 {
-    itemServiceUrlFilter_replaces()
+    itemProviderUrlFilter_replaces()
     {
         initConfig();
 
-        expect(Item.itemServiceUrlFilter('n3q', 'Icon32Url', '{item.nine3q}PageProxy/icon32.png')).to.equal('https://nine3q.dev.sui.li/images/Items/PageProxy/icon32.png');
+        expect(ContentApp.itemProviderUrlFilter('n3q', 'Icon32Url', '{item.nine3q}PageProxy/icon32.png')).to.equal('https://nine3q.dev.sui.li/images/Items/PageProxy/icon32.png');
     }
 }
 
@@ -26,7 +25,7 @@ function initConfig()
             maxAgeSec: 3600,
             maintenanceIntervalSec: 60,
         },
-        itemServices: {
+        itemProviders: {
             'n3q':
             {
                 name: 'weblin Items',

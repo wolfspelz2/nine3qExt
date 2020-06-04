@@ -78,16 +78,16 @@ try {
         activate();
     }
 
-    function kill()
+    function onUnload()
     {
         if (app != null) {
-            log.debug('Contentscript.kill');
-            app.kill();
+            log.debug('Contentscript.onUnload');
+            app.onUnload();
             app = null;
         }
     }
 
-    Panic.onNow(kill);
+    Panic.onNow(onUnload);
 
     window.addEventListener('onbeforeunload', deactivate);
 

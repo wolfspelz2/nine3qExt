@@ -16,6 +16,7 @@ import { VpiResolver } from './VpiResolver';
 import { SettingsWindow } from './SettingsWindow';
 import { XmppWindow } from './XmppWindow';
 import { ChangesWindow } from './ChangesWindow';
+import { Inventory } from './Inventory';
 import { InventoryWindow } from './InventoryWindow';
 
 interface ILocationMapperResponse
@@ -38,6 +39,7 @@ export class ContentApp
 {
     private display: HTMLElement;
     private rooms: { [roomJid: string]: Room; } = {};
+    private inventories: { [invJid: string]: Inventory; } = {};
     private propertyStorage: PropertyStorage = new PropertyStorage();
     private babelfish: Translator;
     private stayOnTabChange: boolean = false;
@@ -47,6 +49,7 @@ export class ContentApp
     // Getter
 
     getPropertyStorage(): PropertyStorage { return this.propertyStorage; }
+    getDisplay(): HTMLElement { return this.display; }
 
     constructor(private appendToMe: HTMLElement, private messageHandler: ContentAppNotificationCallback)
     {
@@ -106,12 +109,24 @@ export class ContentApp
     {
         this.stop_pingBackgroundToKeepConnectionAlive();
         this.leavePage();
-        this.kill();
+        this.onUnload();
     }
 
-    kill()
+    onUnload()
     {
-        this.killRooms();
+        for (let inventoryJid in this.inventories) {
+            if (this.inventories[inventoryJid]) {
+                this.inventories[inventoryJid].onUnload();
+                delete this.inventories[inventoryJid];
+            }
+        }
+
+        for (let roomJid in this.rooms) {
+            if (this.rooms[roomJid]) {
+                this.rooms[roomJid].onUnload();
+                delete this.rooms[roomJid];
+            }
+        }
 
         try {
             chrome.runtime?.onMessage.removeListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
@@ -150,12 +165,30 @@ export class ContentApp
         return room;
     }
 
-    test()
+    test(): void
     {
-        let w = new InventoryWindow(this, this.display);
-        w.show({
-            'above': this.display,
-        });
+        this.showInventoryWindow()
+    }
+
+    showInventoryWindow(): void
+    {
+        let inv = new Inventory(this, 'nine3q');
+        let jid = inv.getJid();
+
+        if (!this.inventories[jid]) {
+            this.inventories[jid] = inv;
+
+            inv.open({
+                'above': this.display,
+                onClose: () =>
+                {
+                    if (this.inventories[jid]) {
+                        this.inventories[jid].close();
+                        delete this.inventories[jid];
+                    }
+                },
+            });
+        }
     }
 
     showXmppWindow()
@@ -272,15 +305,10 @@ export class ContentApp
         for (let roomJid in this.rooms) {
             this.leaveRoomByJid(roomJid);
         }
-    }
 
-    killRooms()
-    {
-        for (let roomJid in this.rooms) {
-            if (this.rooms[roomJid] != undefined) {
-                this.rooms[roomJid].kill();
-                delete this.rooms[roomJid];
-            }
+        for (let inventoryJid in this.inventories) {
+            var inv = this.inventories[inventoryJid];
+            inv.close();
         }
     }
 
@@ -353,8 +381,10 @@ export class ContentApp
         let from = jid(stanza.attrs.from);
         let roomOrUser = from.bare();
 
-        if (this.rooms[roomOrUser] != undefined) {
+        if (this.rooms[roomOrUser]) {
             this.rooms[roomOrUser].onPresence(stanza);
+        } else if (this.inventories[roomOrUser]) {
+            this.inventories[roomOrUser].onPresence(stanza);
         }
     }
 
@@ -363,7 +393,7 @@ export class ContentApp
         let from = jid(stanza.attrs.from);
         let roomOrUser = from.bare();
 
-        if (this.rooms[roomOrUser] != undefined) {
+        if (this.rooms[roomOrUser]) {
             this.rooms[roomOrUser].onMessage(stanza);
         }
     }
@@ -406,51 +436,20 @@ export class ContentApp
         this.babelfish.translateElem(elem);
     }
 
-    // Item inventory
-
-    private invSubscribed: { [providerId: string]: string } = {};
-    private invRoomResource: string = Utils.randomString(15);
-
-    subscribeInventory(providerId: string)
+    static itemProviderUrlFilter(providerId: string, attrName: string, attrValue: string): any
     {
-        if (!this.invSubscribed[providerId]) {
-            let serviceUrl = Config.get('itemServices.' + providerId + '.config.serviceUrl', {});
-            let userToken = Config.get('itemServices.' + providerId + '.config.userToken', '');
-            let url = new URL(serviceUrl);
-            let protocol = url.protocol;
-
-            if (protocol == 'xmpp:' && userToken != '') {
-                let chatServer = url.pathname;
-                let roomName = userToken;
-                let roomNick = this.invRoomResource;
-                let to = roomName + '@' + chatServer + '/' + roomNick;
-                let presence = xml('presence', { 'to': to });
-                this.sendStanza(presence);
-                this.invSubscribed[providerId] = to;
+        if (providerId) {
+            let propertyUrlFilter = Config.get('itemProviders.' + providerId + '.config.itemPropertyUrlFilter', {});
+            if (propertyUrlFilter) {
+                for (let key in propertyUrlFilter) {
+                    let value = propertyUrlFilter[key];
+                    if (key && value) {
+                        attrValue = attrValue.replace(key, value);
+                    }
+                }
             }
         }
-    }
-
-    unsubscribeInventory(providerId: string)
-    {
-        if (this.invSubscribed[providerId]) {
-            let to = this.invSubscribed[providerId];
-            let presence = xml('presence', { 'type': 'unavailable', 'to': to });
-            this.sendStanza(presence);
-            delete this.invSubscribed[providerId];
-        }
-    }
-
-    unsubscribeAllInventories()
-    {
-        let activeInventoryProviderList: Array<string> = [];
-        for (let providerId in this.invSubscribed) {
-            activeInventoryProviderList.push(providerId);
-        }
-        for (let i = 0; i < activeInventoryProviderList.length; i++) {
-            let providerId = activeInventoryProviderList[i];
-            this.unsubscribeInventory(providerId);
-        }
+        return attrValue;
     }
 
     // my active

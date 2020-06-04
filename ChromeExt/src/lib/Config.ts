@@ -69,7 +69,7 @@ export class Config
             digest: '',
             identificatorUrlTemplate: 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}&digest={digest}',
         },
-        itemServices: {
+        itemProviders: {
             'nine3q':
             {
                 name: 'weblin Items',

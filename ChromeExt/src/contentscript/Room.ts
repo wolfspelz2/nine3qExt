@@ -72,10 +72,10 @@ export class Room
     {
         this.sendPresenceUnavailable();
         this.removeAllParticipants();
-        this.kill();
+        this.onUnload();
     }
 
-    kill()
+    onUnload()
     {
         this.stopKeepAlive();
     }

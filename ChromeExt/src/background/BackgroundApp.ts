@@ -42,19 +42,19 @@ export class BackgroundApp
         await this.configUpdater.startUpdateTimer()
 
         {
-            let itemServices = Config.get('itemServices', {});
-            if (itemServices) {
-                for (let serviceId in itemServices) {
-                    let itemService = itemServices[serviceId];
-                    if (itemService.configUrl) {
+            let itemProviders = Config.get('itemProviders', {});
+            if (itemProviders) {
+                for (let providerId in itemProviders) {
+                    let itemProvider = itemProviders[providerId];
+                    if (itemProvider.configUrl) {
                         try {
-                            var serviceConfig = await this.fetchJSON(itemService.configUrl);
+                            var providerConfig = await this.fetchJSON(itemProvider.configUrl);
                             let onlineConfig = Config.getOnlineTree();
-                            if (!onlineConfig.itemServices) { onlineConfig.itemServices = {}; }
-                            onlineConfig.itemServices[serviceId] = serviceConfig;
+                            if (!onlineConfig.itemProviders) { onlineConfig.itemProviders = {}; }
+                            onlineConfig.itemProviders[providerId] = providerConfig;
                             Config.setOnlineTree(onlineConfig);
                         } catch (error) {
-                            log.error('Parse itemService config failed', serviceId, itemService.configUrl, error);
+                            log.error('Parse itemProvider config failed', providerId, itemProvider.configUrl, error);
                         }
                     }
                 }

@@ -71,11 +71,11 @@ export class Item extends Entity
             if (vpPropsNode) {
                 let attrs = vpPropsNode.attrs;
                 if (attrs) {
-                    let itemServiceId = as.String(attrs.service, '');
+                    let providerId = as.String(attrs.provider, '');
                     for (let attrName in attrs) {
                         let attrValue = attrs[attrName];
                         if (attrName.endsWith('Url')) {
-                            attrValue = Item.itemServiceUrlFilter(itemServiceId, attrName, attrValue);
+                            attrValue = ContentApp.itemProviderUrlFilter(providerId, attrName, attrValue);
                         }
                         newProperties[attrName] = attrValue;
                     }
@@ -148,29 +148,6 @@ export class Item extends Entity
         }
 
         this.isFirstPresence = false;
-    }
-
-    static itemServiceUrlFilter(itemServiceId: string, attrName: string, attrValue: string): any
-    {
-        if (itemServiceId) {
-            let itemServices = Config.get('itemServices', []);
-            let itemServiceTree = itemServices[itemServiceId];
-            if (itemServiceTree) {
-                let itemServiceConfig = itemServiceTree.config;
-                if (itemServiceConfig) {
-                    let propertyUrlFilter = itemServiceConfig.itemPropertyUrlFilter;
-                    if (propertyUrlFilter) {
-                        for (let key in propertyUrlFilter) {
-                            let value = propertyUrlFilter[key];
-                            if (key && value) {
-                                attrValue = attrValue.replace(key, value);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return attrValue;
     }
 
     onPresenceUnavailable(stanza: any): void
