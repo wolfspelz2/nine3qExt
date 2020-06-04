@@ -24,9 +24,9 @@ export class ChatWindow extends Window
     private chatinInputElem: HTMLElement;
     private lines: Record<string, ChatLine> = {};
 
-    constructor(app: ContentApp, display: HTMLElement, private room: Room)
+    constructor(app: ContentApp, private room: Room)
     {
-        super(app, display);
+        super(app);
 
         if (Environment.isDevelopment()) {
             this.addLine('1', 'Nickname', 'Lorem');
@@ -58,7 +58,7 @@ export class ChatWindow extends Window
                 left = aboveElem.offsetLeft - 180;
                 if (left < 0) { left = 0; }
             }
-            let top = this.display.offsetHeight - height - bottom;
+            let top = this.app.getDisplay().offsetHeight - height - bottom;
             {
                 let minTop = 10;
                 if (top < minTop) {

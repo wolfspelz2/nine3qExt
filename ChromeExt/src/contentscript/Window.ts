@@ -14,7 +14,7 @@ export class Window
     protected windowElem: HTMLElement;
     protected contentElem: HTMLElement;
 
-    constructor(protected app: ContentApp, protected display: HTMLElement) { }
+    constructor(protected app: ContentApp) { }
 
     show(options: any)
     {
@@ -47,7 +47,7 @@ export class Window
             this.contentElem = contentElem;
             this.windowElem = windowElem;
 
-            $(this.display).append(windowElem);
+            $(this.app.getDisplay()).append(windowElem);
 
             let maskId = Utils.randomString(15);
 

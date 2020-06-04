@@ -11,9 +11,9 @@ import { Window } from './Window';
 
 export class SettingsWindow extends Window
 {
-    constructor(app: ContentApp, display: HTMLElement)
+    constructor(app: ContentApp)
     {
-        super(app, display);
+        super(app);
     }
 
     show(options: any)
@@ -38,7 +38,7 @@ export class SettingsWindow extends Window
                 left = aboveElem.offsetLeft - 180;
                 if (left < 0) { left = 0; }
             }
-            let top = this.display.offsetHeight - height - bottom;
+            let top = this.app.getDisplay().offsetHeight - height - bottom;
             {
                 let minTop = 10;
                 if (top < minTop) {

@@ -19,7 +19,7 @@ export class Entity
     protected defaultSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
     protected inMove: boolean = false;
 
-    constructor(protected app: ContentApp, protected room: Room, protected display: HTMLElement, protected isSelf: boolean)
+    constructor(protected app: ContentApp, protected room: Room, protected isSelf: boolean)
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-entity" />').get(0);
         this.elem.style.display = 'none';
@@ -33,7 +33,7 @@ export class Entity
         // this.centerElem = $(e).find('div.n3q-centercell').get(0);
         // this.elem.appendChild(e);
 
-        this.display.appendChild(this.elem);
+        app.getDisplay().appendChild(this.elem);
     }
 
     getRoom(): Room { return this.room; }

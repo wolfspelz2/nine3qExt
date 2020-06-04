@@ -16,9 +16,9 @@ export class Item extends Entity
     private properties: { [pid: string]: string } = {};
     private iframeWindow: IframeWindow;
 
-    constructor(app: ContentApp, room: Room, display: HTMLElement, private nick: string, isSelf: boolean)
+    constructor(app: ContentApp, room: Room, private nick: string, isSelf: boolean)
     {
-        super(app, room, display, isSelf);
+        super(app, room, isSelf);
 
         $(this.getElem()).addClass('n3q-item');
     }
@@ -172,7 +172,7 @@ export class Item extends Entity
         if (this.iframeWindow) {
             this.iframeWindow.close();
         } else {
-            this.iframeWindow = new IframeWindow(this.app, this.display);
+            this.iframeWindow = new IframeWindow(this.app);
             this.iframeWindow.show({
                 above: aboveElem,
                 resizable: as.Bool(this.properties.IframeResizable, true),

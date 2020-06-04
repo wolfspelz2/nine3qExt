@@ -13,9 +13,9 @@ export class XmppWindow extends Window
     private outElem: HTMLElement;
     private inInputElem: HTMLElement;
 
-    constructor(app: ContentApp, display: HTMLElement)
+    constructor(app: ContentApp)
     {
-        super(app, display);
+        super(app);
     }
 
     async show(options: any)
@@ -36,7 +36,7 @@ export class XmppWindow extends Window
             $(windowElem).addClass('n3q-xmppwindow');
 
             let left = 10;
-            let top = this.display.offsetHeight - height - bottom;
+            let top = this.app.getDisplay().offsetHeight - height - bottom;
             {
                 let minTop = 10;
                 if (top < minTop) {

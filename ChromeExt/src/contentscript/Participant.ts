@@ -18,9 +18,9 @@ export class Participant extends Entity
     private isFirstPresence: boolean = true;
     private userId: string;
 
-    constructor(app: ContentApp, room: Room, display: HTMLElement, private nick: string, isSelf: boolean)
+    constructor(app: ContentApp, room: Room, private nick: string, isSelf: boolean)
     {
-        super(app, room, display, isSelf);
+        super(app, room, isSelf);
 
         $(this.getElem()).addClass('n3q-participant');
         if (isSelf) {

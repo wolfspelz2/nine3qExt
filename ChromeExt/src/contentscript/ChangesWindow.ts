@@ -13,9 +13,9 @@ export class ChangesWindow extends Window
 {
     private outElem: HTMLElement;
 
-    constructor(app: ContentApp, display: HTMLElement)
+    constructor(app: ContentApp)
     {
-        super(app, display);
+        super(app);
     }
 
     async show(options: any)
@@ -36,7 +36,7 @@ export class ChangesWindow extends Window
             $(windowElem).addClass('n3q-changeswindow');
 
             let left = 50;
-            let top = this.display.offsetHeight - height - bottom;
+            let top = this.app.getDisplay().offsetHeight - height - bottom;
             {
                 let minTop = 10;
                 if (top < minTop) {

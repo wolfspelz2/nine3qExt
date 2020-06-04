@@ -193,13 +193,13 @@ export class ContentApp
 
     showXmppWindow()
     {
-        this.xmppWindow = new XmppWindow(this, this.display);
+        this.xmppWindow = new XmppWindow(this);
         this.xmppWindow.show({ onClose: () => { this.xmppWindow = null; } });
     }
 
     showChangesWindow()
     {
-        new ChangesWindow(this, this.display).show({});
+        new ChangesWindow(this).show({});
     }
 
     createPageControl()
@@ -222,7 +222,7 @@ export class ContentApp
     showSettings(aboveElem: HTMLElement)
     {
         if (!this.settingsWindow) {
-            this.settingsWindow = new SettingsWindow(this, this.display);
+            this.settingsWindow = new SettingsWindow(this);
             this.settingsWindow.show({ 'above': aboveElem });
         }
     }

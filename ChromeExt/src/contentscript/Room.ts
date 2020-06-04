@@ -34,7 +34,7 @@ export class Room
         }
         this.userJid = user + '@' + domain;
 
-        this.chatWindow = new ChatWindow(app, display, this);
+        this.chatWindow = new ChatWindow(app, this);
     }
 
     getInfo(): IRoomInfo
@@ -157,13 +157,13 @@ export class Room
                     if (isItem) {
                         entity = this.items[resource];
                         if (!entity) {
-                            entity = new Item(this.app, this, this.display, resource, false);
+                            entity = new Item(this.app, this, resource, false);
                             this.items[resource] = entity;
                         }
                     } else {
                         entity = this.participants[resource];
                         if (!entity) {
-                            entity = new Participant(this.app, this, this.display, resource, isSelf);
+                            entity = new Participant(this.app, this, resource, isSelf);
                             this.participants[resource] = entity;
                         }
                     }

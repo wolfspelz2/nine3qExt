@@ -16,7 +16,7 @@ export class InventoryWindow extends Window
 
     constructor(app: ContentApp)
     {
-        super(app, app.getDisplay());
+        super(app);
     }
     
     show(options: any)
@@ -41,7 +41,7 @@ export class InventoryWindow extends Window
                 left = aboveElem.offsetLeft - 120;
                 if (left < 0) { left = 0; }
             }
-            let top = this.display.offsetHeight - height - bottom;
+            let top = this.app.getDisplay().offsetHeight - height - bottom;
             {
                 let minTop = 10;
                 if (top < minTop) {
