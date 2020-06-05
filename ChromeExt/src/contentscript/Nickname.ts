@@ -78,9 +78,9 @@ export class Nickname implements IObserver
         }
 
         this.textElem = <HTMLElement>$('<div class="n3q-base n3q-text" />').get(0);
-        this.elem.appendChild(this.textElem);
+        $(this.elem).append(this.textElem);
 
-        display.appendChild(this.elem);
+        $(display).append(this.elem);
     }
 
     stop()

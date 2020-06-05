@@ -654,22 +654,24 @@ $z-index: (
 
     // #n3q div.n3q-inventorywindow {}
 
-    #n3q div.n3q-base.n3q-inventorywindow-pane {
+    #n3q div.n3q-inventory-pane {
         position: absolute;
         left: 0;
         top: 0;
         right: 0;
         bottom: 0;
+        overflow: hidden;
     }
     
-    #n3q div.n3q-base.n3q-inventorywindow .n3q-inventory-item {
+    #n3q div.n3q-inventory-pane .n3q-inventory-item,
+    #n3q div.n3q-inventory-drag .n3q-inventory-item {
+        display: block;
         position: absolute;
-        // left: 0;
-        // top: 0;
-        // width: 32px;
-        // height: 32px;
+        overflow: hidden;
+        background-size: cover;
+        background-position: center;
     }
-    
+        
     // #n3q div.n3q-chatwindow {}
 
     #n3q div.n3q-chatwindow-chatout {

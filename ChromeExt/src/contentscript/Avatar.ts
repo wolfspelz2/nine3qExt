@@ -64,7 +64,7 @@ export class Avatar implements IObserver
         $(this.elem).mouseenter((ev) => this.entity.onMouseEnterAvatar(ev));
         $(this.elem).mouseleave((ev) => this.entity.onMouseLeaveAvatar(ev));
 
-        display.appendChild(this.elem);
+        $(display).append(this.elem);
 
         $(this.elem).draggable({
             scroll: false,

@@ -27,13 +27,9 @@ export class Entity
         // this.centerElem = this.elem;
 
         this.centerElem = <HTMLDivElement>$('<div class="n3q-base n3q-entity-content" />').get(0);
-        this.elem.appendChild(this.centerElem);
+        $(this.elem).append(this.centerElem);
 
-        // var e = <HTMLElement>$('<div class="n3q-base n3q-centertable"><div class="n3q-base n3q-centercell"></div></div>').get(0);
-        // this.centerElem = $(e).find('div.n3q-centercell').get(0);
-        // this.elem.appendChild(e);
-
-        app.getDisplay().appendChild(this.elem);
+        $(app.getDisplay()).append(this.elem);
     }
 
     getRoom(): Room { return this.room; }

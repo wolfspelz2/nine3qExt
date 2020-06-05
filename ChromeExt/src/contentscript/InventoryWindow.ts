@@ -50,7 +50,7 @@ export class InventoryWindow extends Window
                 }
             }
 
-            let paneElem = <HTMLElement>$('<div class="n3q-base n3q-inventorywindow-pane" data-translate="children" />').get(0);
+            let paneElem = <HTMLElement>$('<div class="n3q-base n3q-inventory-pane" data-translate="children" />').get(0);
 
             $(contentElem).append(paneElem);
 
