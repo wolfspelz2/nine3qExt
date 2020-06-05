@@ -54,7 +54,9 @@ namespace n3q.Web
             });
 
             host.ConfigureWebHostDefaults(webBuilder => {
-                webBuilder.UseStartup<Startup>();
+                webBuilder
+                    .UseUrls("http://*:25343")
+                    .UseStartup<Startup>();
             });
 
             if (Config.UseIntegratedCluster) {

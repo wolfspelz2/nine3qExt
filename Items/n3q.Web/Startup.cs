@@ -7,6 +7,8 @@ using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
 using n3q.Common;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace n3q.Web
 {
@@ -53,7 +55,9 @@ namespace n3q.Web
                 app.UseExceptionHandler("/Error");
             }
 
-            app.UseStaticFiles();
+            app.UseStaticFiles(options: new StaticFileOptions {
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "../wwwroot")),
+            });
 
             app.UseRouting();
 

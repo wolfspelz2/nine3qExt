@@ -9,6 +9,6 @@ namespace n3q.Common
         public const string ServiceId = "WeblinItems";
         public const string SimpleMessageStreamProviderName = "SMSProvider";
         public const string MemoryGrainStorageProviderName = "PubSubStore";
-        public const string MemoryGrainJsonFileStorageRoot = @"C:\Heiner\github-nine3q\Items\Test\MemoryGrainJsonFileStorage";
+        public const string MemoryGrainJsonFileStorageRoot = @"./GrainJsonFileStorage";
     }
 }
