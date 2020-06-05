@@ -10,6 +10,7 @@ using Orleans.Providers;
 using n3q.Common;
 using n3q.Grains;
 using n3q.StorageProviders;
+using System.Threading;
 
 namespace LocalSilo
 {
@@ -27,6 +28,7 @@ namespace LocalSilo
                 var host = await StartSilo();
                 Console.WriteLine("Press Enter to terminate...");
                 Console.ReadLine();
+                new AutoResetEvent(false).WaitOne();
 
                 await host.StopAsync();
 
@@ -48,7 +50,11 @@ namespace LocalSilo
                     options.ServiceId = Cluster.ServiceId;
                 })
 
-                .Configure<EndpointOptions>(options => options.AdvertisedIPAddress = IPAddress.Loopback)
+                .Configure<EndpointOptions>(options => {
+                    options.AdvertisedIPAddress = IPAddress.Loopback;
+                    options.GatewayListeningEndpoint = new IPEndPoint(IPAddress.Any, 30000);
+                    options.SiloListeningEndpoint = new IPEndPoint(IPAddress.Any, 11111);
+                })
 
                 .ConfigureLogging(logging => {
                     logging.AddConsole();
