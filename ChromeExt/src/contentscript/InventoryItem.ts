@@ -64,16 +64,16 @@ export class InventoryItem
             start: (ev: JQueryMouseEventObject, ui) =>
             {
                 this.inDrag = true;
+                this.onDragStart(ev);
                 $(this.elem).hide();
-                this.onStartDrag(ev);
             },
             drag: (ev: JQueryMouseEventObject, ui) =>
             {
             },
             stop: (ev: JQueryMouseEventObject, ui) =>
             {
-                this.onStopDrag(ev);
                 $(this.elem).show();
+                this.onDragStop(ev);
                 this.inDrag = false;
             }
         });
@@ -101,18 +101,26 @@ export class InventoryItem
         $(this.elem).css({ 'left': (x - this.size / 2) + 'px', 'top': (y - this.size / 2) + 'px' });
     }
 
-    private onStartDrag(ev: JQueryMouseEventObject): void
+    private dragClickOffset: Record<string, number> = { dx: 0, dy: 0 };
+    private onDragStart(ev: JQueryMouseEventObject): void
     {
+        let offsetX: number = ev.originalEvent['offsetX'];
+        let offsetY: number = ev.originalEvent['offsetY'];
+        this.dragClickOffset = { 'dx': offsetX - this.size / 2, 'dy': offsetY - this.size / 2 };
     }
 
-    private onStopDrag(ev: JQueryMouseEventObject): void
+    private onDragStop(ev: JQueryMouseEventObject): void
     {
         let x = ev.offsetX;
         let y = ev.offsetY;
         let paneElem = this.inv.getDisplay();
 
-        if (x > 0 && x < paneElem.offsetWidth && y > 0 && y < paneElem.offsetHeight) {
-            this.setPosition(x, y);
+        if (ev.originalEvent['toElement'] == paneElem && x > 0 && x < paneElem.offsetWidth && y > 0 && y < paneElem.offsetHeight) {
+            let newX = x - this.dragClickOffset.dx;
+            let newY = y - this.dragClickOffset.dy;
+            if (newX != this.x || newY != this.y) {
+                this.setPosition(newX, newY);
+            }
         }
     }
 
