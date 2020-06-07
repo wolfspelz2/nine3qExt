@@ -150,10 +150,16 @@ export class Inventory
     {
     }
 
-    derezItem(itemId: string)
+    derezItem(itemId: string, x: number, y: number)
     {
         log.info('Inventory', 'derez', itemId);
-        this.sendCommand(itemId, 'Derez', {});
+
+        let params = {
+            'x': x,
+            'y': y
+        };
+
+        this.sendCommand(itemId, 'Derez', params);
     }
 
     sendCommand(itemId: string, action: string, params: any)

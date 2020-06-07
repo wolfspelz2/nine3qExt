@@ -73,8 +73,12 @@ export class InventoryItem
             },
             stop: (ev: JQueryMouseEventObject, ui) =>
             {
-                this.onDragStop(ev);
-                $(this.elem).delay(1000).show(0);
+                var itemUnchanged = this.onDragStop(ev);
+                if (itemUnchanged) {
+                    $(this.elem).show(0);
+                } else {
+                    $(this.elem).delay(1000).show(0);
+                }
                 this.inDrag = false;
             }
         });
@@ -119,7 +123,7 @@ export class InventoryItem
         }
     }
 
-    private onDragStop(ev: JQueryMouseEventObject): void
+    private onDragStop(ev: JQueryMouseEventObject): boolean
     {
         if (this.isPositionInInventory(ev)) {
             let newX = ev.offsetX - this.dragClickOffset.dx;
@@ -131,7 +135,9 @@ export class InventoryItem
         } else if (this.isPositionInDropzone(ev)) {
             let dropX = ev.pageX - $(this.app.getDisplay()).offset().left;
             this.rezItem(dropX);
+            return false;
         }
+        return true;
     }
 
     private isPositionInInventory(ev: JQueryMouseEventObject): boolean
@@ -227,8 +233,15 @@ export class InventoryItem
             this.setImage(imgUrl);
         }
 
-        if (this.isFirstPresence) {
+        if (newProperties.ContainerX && newProperties.ContainerY) {
+            var x = as.Int(newProperties.ContainerX, -1);
+            var y = as.Int(newProperties.ContainerY, -1);
+            if (x >= 0 && y >= 0 && (x != this.x || y != this.y)) {
+                this.setPosition(x, y);
+            }
+        }
 
+        if (this.isFirstPresence) {
         }
 
         this.properties = newProperties;

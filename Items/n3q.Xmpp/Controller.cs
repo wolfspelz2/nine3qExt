@@ -576,7 +576,17 @@ namespace XmppComponent
                             if (await MakeItemStub(itemId).GetBool(Pid.RezableAspect)) {
                                 var roomItem = GetRoomItem(itemId);
                                 if (roomItem != null) {
-                                    await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Action.Derez), new PropertySet { [Pid.RezableDerezTo] = inventoryItemId });
+
+                                    var x = message.Cmd.ContainsKey("x") ? message.Cmd["x"] : "";
+                                    if (!long.TryParse(x, NumberStyles.Any, CultureInfo.InvariantCulture, out long posX)) {
+                                        posX = -1;
+                                    }
+                                    var y = message.Cmd.ContainsKey("y") ? message.Cmd["y"] : "";
+                                    if (!long.TryParse(y, NumberStyles.Any, CultureInfo.InvariantCulture, out long posY)) {
+                                        posY = -1;
+                                    }
+
+                                    await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Action.Derez), new PropertySet { [Pid.RezableDerezTo] = inventoryItemId, [Pid.RezableDerezX] = x, [Pid.RezableDerezY] = y });
                                 }
 
                             }

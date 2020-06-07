@@ -20,7 +20,7 @@ namespace n3q.Aspects
             return new ActionList() {
                 { nameof(Action.Rez), new ActionDescription() { Handler = async (args) => await Rez(await Item(args.Get(Pid.RezableRezTo)), args.Get(Pid.RezableRezX), args.Get(Pid.RezableRezDestination)) } },
                 { nameof(Action.OnRezzed), new ActionDescription() { Handler = async (args) => await OnRezzed() } },
-                { nameof(Action.Derez), new ActionDescription() { Handler = async (args) => await Derez(await Item(args.Get(Pid.RezableDerezTo))) } },
+                { nameof(Action.Derez), new ActionDescription() { Handler = async (args) => await Derez(await Item(args.Get(Pid.RezableDerezTo)), args.Get(Pid.RezableDerezX), args.Get(Pid.RezableDerezY)) } },
                 { nameof(Action.OnDerezzed), new ActionDescription() { Handler = async (args) => await OnDerezzed() } },
             };
         }
@@ -41,10 +41,13 @@ namespace n3q.Aspects
             return true;
         }
 
-        public async Task<PropertyValue> Derez(ItemStub user)
+        public async Task<PropertyValue> Derez(ItemStub user, long x, long y)
         {
             await this.AsRezable().AssertAspect(() => throw new SurfaceException(this.Id, user.Id, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezable));
             if (!await this.Get(Pid.RezableIsRezzed)) { throw new SurfaceException(this.Id, user.Id, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezzed); }
+            if (x >= 0 && y >= 0) {
+                await this.ModifyProperties(new PropertySet { [Pid.ContainerX] = x, [Pid.ContainerY] = y }, PidSet.Empty);
+            }
             await user.AsContainer().AddChild(this);
             await this.Set(Pid.RezableIsDerezzing, true);
             return true;

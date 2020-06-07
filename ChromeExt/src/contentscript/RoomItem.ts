@@ -1,5 +1,6 @@
 import * as $ from 'jquery';
 import { xml, jid } from '@xmpp/client';
+import log = require('loglevel');
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 import { ContentApp } from './ContentApp';
@@ -169,19 +170,9 @@ export class RoomItem extends Entity
         }
     }
 
-    onStopDragAvatar(ev: JQueryMouseEventObject, ui: any): void
+    beginDerez(): void
     {
-        super.onStopDragAvatar(ev, ui);
-    }
-
-    private isPositionInInventory(ev: JQueryMouseEventObject): boolean
-    {
-        // let x = ev.pageX;
-        // let y = ev.pageY;
-        // let inventoryElem = this.app.getInventory().getPane();
-
-        // return x > 0 && y > 0 && y < dropZoneHeight;
-        return true;
+        $(this.getElem()).hide();
     }
 
     toggleIframe(aboveElem: HTMLElement)

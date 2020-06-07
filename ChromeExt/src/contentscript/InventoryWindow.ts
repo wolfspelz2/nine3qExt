@@ -69,7 +69,10 @@ export class InventoryWindow extends Window
                     let droppedNick: string = $(ui.draggable.get(0).parentElement.parentElement).data('nick');
                     let roomItem = this.app.getRoom().getItem(droppedNick);
                     if (roomItem) {
-                        this.inv.derezItem(roomItem.getNick());
+                        let x = Math.round(ui.offset.left - $(paneElem).offset().left + ui.draggable.width() / 2);
+                        let y = Math.round(ui.offset.top - $(paneElem).offset().top + ui.draggable.height() / 2)
+                        roomItem.beginDerez();
+                        this.inv.derezItem(roomItem.getNick(), x, y);
                     }
                 }
             });
