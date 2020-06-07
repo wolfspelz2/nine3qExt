@@ -6,7 +6,7 @@ import { Utils } from '../lib/Utils';
 import { Panic } from '../lib/Panic';
 import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
-import { Item } from './Item';
+import { RoomItem } from './RoomItem';
 import { ChatWindow } from './ChatWindow'; // Wants to be after Participant and Item otherwise $().resizable does not work
 
 export interface IRoomInfoLine extends Array<string | string> { 0: string, 1: string }
@@ -20,7 +20,7 @@ export class Room
     private enterRetryCount: number = 0;
     private maxEnterRetries: number = as.Int(Config.get('xmpp.maxMucEnterRetries', 4));
     private participants: { [nick: string]: Participant; } = {};
-    private items: { [nick: string]: Item; } = {};
+    private items: { [nick: string]: RoomItem; } = {};
     private isEntered = false; // iAmAlreadyHere() needs isEntered=true to be after onPresenceAvailable
     private chatWindow: ChatWindow;
     private myNick: any;
@@ -158,7 +158,7 @@ export class Room
                     if (isItem) {
                         entity = this.items[resource];
                         if (!entity) {
-                            entity = new Item(this.app, this, resource, false);
+                            entity = new RoomItem(this.app, this, resource, false);
                             this.items[resource] = entity;
                         }
                     } else {

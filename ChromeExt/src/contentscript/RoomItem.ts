@@ -10,7 +10,7 @@ import { IframeWindow } from './IframeWindow';
 
 import imgDefaultItem from '../assets/DefaultItem.png';
 
-export class Item extends Entity
+export class RoomItem extends Entity
 {
     private isFirstPresence: boolean = true;
     private properties: { [pid: string]: string } = {};
