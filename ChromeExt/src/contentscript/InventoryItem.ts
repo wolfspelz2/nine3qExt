@@ -22,7 +22,7 @@ export class InventoryItem
 
     constructor(private app: ContentApp, private inv: Inventory, private itemId: string)
     {
-        let paneElem = this.inv.getDisplay();
+        let paneElem = this.inv.getPane();
         let padding: number = Config.get('inventory.borderPadding', 4);
 
         let size = Config.get('inventory.iconSize', 32);
@@ -138,7 +138,7 @@ export class InventoryItem
     {
         let x = ev.offsetX;
         let y = ev.offsetY;
-        let paneElem = this.inv.getDisplay();
+        let paneElem = this.inv.getPane();
 
         return ev.originalEvent['toElement'] == paneElem && x > 0 && x < paneElem.offsetWidth && y > 0 && y < paneElem.offsetHeight;
     }
@@ -161,29 +161,17 @@ export class InventoryItem
 
     rezItem(x: number)
     {
-        log.info('InventoryItem', 'rez', x);
-
-        /*
-            { "name": "message", "attrs": { "id": "1", "to": "items.xmpp.dev.sui.li" },  "children": [{ "name": "x", "attrs": { "xmlns": "vp:cmd", "method": "itemAction", 
-            "action": "Rez",
-            "item": "Script1",
-            "user": "{2516343F-0D26-4B7B-9510-28FCF67E014D}",
-            "to": "d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org",
-            "destination": "https://www.galactic-developments.de/",
-            "x": "100"
-            }}]}
-        */
+        log.info('InventoryItem', 'rez', this.itemId, x);
 
         let to = this.app.getRoom().getJid();
         let destination = this.app.getRoom().getDestination();
 
         let params = {
             'to': to,
-            'destination': '',
             'x': x,
+            'destination': ''
         };
         this.inv.sendCommand(this.itemId, 'Rez', params);
-
     }
 
     remove(): void

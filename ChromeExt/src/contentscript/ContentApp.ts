@@ -50,6 +50,24 @@ export class ContentApp
 
     getPropertyStorage(): PropertyStorage { return this.propertyStorage; }
     getDisplay(): HTMLElement { return this.display; }
+    getRoom(): Room
+    {
+        let room = null;
+        for (let roomJid in this.rooms) {
+            room = this.rooms[roomJid];
+            break;
+        }
+        return room;
+    }
+    getInventory(): Inventory
+    {
+        let inv = null;
+        for (let invJid in this.inventories) {
+            inv = this.inventories[invJid];
+            break;
+        }
+        return inv;
+    }
 
     constructor(private appendToMe: HTMLElement, private messageHandler: ContentAppNotificationCallback)
     {
@@ -154,16 +172,6 @@ export class ContentApp
     }
 
     getStayOnTabChange(): boolean { return this.stayOnTabChange; }
-
-    getRoom(): Room
-    {
-        let room = null;
-        for (let roomJid in this.rooms) {
-            room = this.rooms[roomJid];
-            break;
-        }
-        return room;
-    }
 
     test(): void
     {

@@ -46,6 +46,7 @@ export class Room
 
     getJid(): string { return this.jid; }
     getDestination(): string { return this.destination; }
+    getItem(nick: string) { return this.items[nick]; }
 
     iAmAlreadyHere()
     {

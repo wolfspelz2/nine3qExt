@@ -568,12 +568,15 @@ namespace XmppComponent
 
                 case nameof(Rezable.Action.Derez): {
                     if (Has.Value(userId) && Has.Value(itemId)) {
-                        if (await MakeItemStub(itemId).GetBool(Pid.RezableAspect)) {
-                            var inventoryId = message.Cmd.ContainsKey("to") ? message.Cmd["to"] : "";
-                            if (Has.Value(inventoryId)) {
+
+                        var userToken = userId;
+                        var inventoryItemId = await GetInventoryFromUserToken(userToken);
+                        if (Has.Value(inventoryItemId)) {
+
+                            if (await MakeItemStub(itemId).GetBool(Pid.RezableAspect)) {
                                 var roomItem = GetRoomItem(itemId);
                                 if (roomItem != null) {
-                                    await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Action.Derez), new PropertySet { [Pid.RezableDerezTo] = inventoryId });
+                                    await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Action.Derez), new PropertySet { [Pid.RezableDerezTo] = inventoryItemId });
                                 }
 
                             }

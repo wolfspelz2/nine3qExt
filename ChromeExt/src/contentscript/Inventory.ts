@@ -31,12 +31,12 @@ export class Inventory
     }
 
     getJid(): string { return this.inventoryJid; }
-    getDisplay() { return this.window.getDisplay(); }
+    getPane() { return this.window.getPane(); }
 
     open(options: any)
     {
         if (!this.window) {
-            this.window = new InventoryWindow(this.app);
+            this.window = new InventoryWindow(this.app, this);
             this.window.show(options);
             this.subscribe();
         }
@@ -150,6 +150,12 @@ export class Inventory
     {
     }
 
+    derezItem(itemId: string)
+    {
+        log.info('Inventory', 'derez', itemId);
+        this.sendCommand(itemId, 'Derez', {});
+    }
+
     sendCommand(itemId: string, action: string, params: any)
     {
         let cmd = {};
@@ -162,7 +168,7 @@ export class Inventory
         }
 
         let to = this.inventoryJid + '/' + itemId;
-        
+
         let message = xml('message', { 'type': 'chat', 'to': to })
             .append(xml('x', cmd))
             ;

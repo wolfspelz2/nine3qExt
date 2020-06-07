@@ -7,17 +7,18 @@ import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
 import { ContentApp } from './ContentApp';
 import { Window } from './Window';
+import { Inventory } from './Inventory';
 
 export class InventoryWindow extends Window
 {
     private paneElem: HTMLElement;
-    
-    constructor(app: ContentApp)
+
+    constructor(app: ContentApp, private inv: Inventory)
     {
         super(app);
     }
 
-    getDisplay() { return this.paneElem; }
+    getPane() { return this.paneElem; }
 
     show(options: any)
     {
@@ -61,6 +62,17 @@ export class InventoryWindow extends Window
             this.onResize = (ev: JQueryEventObject) =>
             {
             };
+
+            $(paneElem).droppable({
+                drop: (ev, ui) =>
+                {
+                    let droppedNick: string = $(ui.draggable.get(0).parentElement.parentElement).data('nick');
+                    let roomItem = this.app.getRoom().getItem(droppedNick);
+                    if (roomItem) {
+                        this.inv.derezItem(roomItem.getNick());
+                    }
+                }
+            });
 
             this.paneElem = paneElem;
         }

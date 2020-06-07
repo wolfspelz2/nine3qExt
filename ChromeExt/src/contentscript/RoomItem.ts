@@ -25,6 +25,7 @@ export class RoomItem extends Entity
     }
 
     getDefaultAvatar(): string { return imgDefaultItem; }
+    getNick(): string { return this.nick; }
 
     remove(): void
     {
@@ -166,6 +167,21 @@ export class RoomItem extends Entity
                 this.toggleIframe(this.getElem());
             }
         }
+    }
+
+    onStopDragAvatar(ev: JQueryMouseEventObject, ui: any): void
+    {
+        super.onStopDragAvatar(ev, ui);
+    }
+
+    private isPositionInInventory(ev: JQueryMouseEventObject): boolean
+    {
+        // let x = ev.pageX;
+        // let y = ev.pageY;
+        // let inventoryElem = this.app.getInventory().getPane();
+
+        // return x > 0 && y > 0 && y < dropZoneHeight;
+        return true;
     }
 
     toggleIframe(aboveElem: HTMLElement)
