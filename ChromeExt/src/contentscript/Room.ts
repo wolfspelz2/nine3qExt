@@ -25,7 +25,7 @@ export class Room
     private chatWindow: ChatWindow;
     private myNick: any;
 
-    constructor(private app: ContentApp, private display: HTMLElement, private jid: string, private posX: number) 
+    constructor(private app: ContentApp, private jid: string, private destination: string, private posX: number) 
     {
         let user = Config.get('xmpp.user', Utils.randomString(0));
         let domain = Config.get('xmpp.domain', '');
@@ -45,6 +45,7 @@ export class Room
     }
 
     getJid(): string { return this.jid; }
+    getDestination(): string { return this.destination; }
 
     iAmAlreadyHere()
     {

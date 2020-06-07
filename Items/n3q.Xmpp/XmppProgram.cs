@@ -16,7 +16,7 @@ namespace XmppComponent
 
         private const string ComponentHost = "items.xmpp.dev.sui.li";
         private const string ComponentDomain = "items.xmpp.dev.sui.li";
-        private const int ComponentPort = 5555;
+        private const int ComponentPort = 5555;//5280;//5555;
         private const string ComponentSecret = "28756a7ff5dce";
 
         private static int _attempt = 0;

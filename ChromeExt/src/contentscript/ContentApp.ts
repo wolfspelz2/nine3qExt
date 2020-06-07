@@ -335,7 +335,7 @@ export class ContentApp
                     let locationUrl = mappingResponse.sLocationURL;
                     log.debug('Mapped', pageUrl, ' => ', locationUrl);
                     let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);
-                    this.enterRoomByJid(roomJid);
+                    this.enterRoomByJid(roomJid, pageUrl);
                 } catch (error) {
                     log.info(error);
                 }
@@ -350,7 +350,7 @@ export class ContentApp
                 let locationUrl = await vpi.map(pageUrl);
                 log.debug('Mapped', pageUrl, ' => ', locationUrl);
                 let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);
-                this.enterRoomByJid(roomJid);
+                this.enterRoomByJid(roomJid, pageUrl);
             } catch (error) {
                 log.info(error);
             }
@@ -358,10 +358,10 @@ export class ContentApp
         }
     }
 
-    async enterRoomByJid(roomJid: string): Promise<void>
+    async enterRoomByJid(roomJid: string, roomDestination: string): Promise<void>
     {
         if (this.rooms[roomJid] === undefined) {
-            this.rooms[roomJid] = new Room(this, this.display, roomJid, await this.getSavedPosition());
+            this.rooms[roomJid] = new Room(this, roomJid, roomDestination, await this.getSavedPosition());
         }
         log.debug('ContentApp.enterRoomByJid', roomJid);
         this.rooms[roomJid].enter();

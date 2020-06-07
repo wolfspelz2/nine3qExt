@@ -9,6 +9,8 @@ import { InventoryItem } from './InventoryItem';
 
 export class Inventory
 {
+    private itemServer: string;
+    private userToken: string;
     private inventoryJid: string;
     private resource: string = Utils.randomString(15);
     private items: { [id: string]: InventoryItem; } = {};
@@ -17,15 +19,14 @@ export class Inventory
 
     constructor(private app: ContentApp, private providerId: string) 
     {
+        this.userToken = Config.get('itemProviders.' + providerId + '.config.userToken', '');
+
         let serviceUrl = Config.get('itemProviders.' + providerId + '.config.serviceUrl', {});
-        let userToken = Config.get('itemProviders.' + providerId + '.config.userToken', '');
         let url = new URL(serviceUrl);
         let protocol = url.protocol;
-
-        if (protocol == 'xmpp:' && userToken != '') {
-            let chatServer = url.pathname;
-            let roomName = userToken;
-            this.inventoryJid = roomName + '@' + chatServer;
+        if (protocol == 'xmpp:' && this.userToken != '') {
+            this.itemServer = url.pathname;
+            this.inventoryJid = this.userToken + '@' + this.itemServer;
         }
     }
 
@@ -147,5 +148,24 @@ export class Inventory
 
     populateComplete()
     {
+    }
+
+    sendCommand(itemId: string, action: string, params: any)
+    {
+        let cmd = {};
+        cmd['xmlns'] = 'vp:cmd';
+        // cmd['user'] = this.userToken;
+        cmd['method'] = 'itemAction';
+        cmd['action'] = action;
+        for (let paramName in params) {
+            cmd[paramName] = params[paramName];
+        }
+
+        let to = this.inventoryJid + '/' + itemId;
+        
+        let message = xml('message', { 'type': 'chat', 'to': to })
+            .append(xml('x', cmd))
+            ;
+        this.app.sendStanza(message);
     }
 }

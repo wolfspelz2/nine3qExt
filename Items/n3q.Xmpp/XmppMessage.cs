@@ -2,7 +2,12 @@
 
 namespace XmppComponent
 {
-    public enum XmppMessageType { Normal, Groupchat }
+    public enum XmppMessageType
+    {
+        Normal,
+        Groupchat,
+        PrivateChat,
+    }
     public enum XmppPresenceType { Available, Unavailable }
 
     public class XmppMessage

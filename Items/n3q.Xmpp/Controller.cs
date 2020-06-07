@@ -319,6 +319,7 @@ namespace XmppComponent
 
         async Task Connection_OnStarted(Connection conn)
         {
+            Log.Info("Component connected to XMPP server");
             await PopulateRooms();
         }
 
@@ -339,6 +340,7 @@ namespace XmppComponent
                 switch (stanza.MessageType) {
                     case XmppMessageType.Normal: await Connection_OnNormalMessage(stanza); break;
                     case XmppMessageType.Groupchat: await Connection_OnGroupchatMessage(stanza); break;
+                    case XmppMessageType.PrivateChat: await Connection_OnPrivateMessage(stanza); break;
                 }
             } catch (SurfaceException ex) {
                 SendExceptionResponseMessage(stanza, ex);
@@ -395,6 +397,20 @@ namespace XmppComponent
         }
 
         async Task Connection_OnNormalMessage(XmppMessage stanza)
+        {
+            try {
+                var method = stanza.Cmd.ContainsKey("method") ? stanza.Cmd["method"] : "";
+                switch (method) {
+                    case "itemAction": await Connection_OnItemAction(stanza); break;
+                    default: Log.Warning($"Unknown method={method}"); break;
+                }
+
+            } catch (Exception ex) {
+                Log.Error(ex);
+            }
+        }
+
+        async Task Connection_OnPrivateMessage(XmppMessage stanza)
         {
             try {
                 var method = stanza.Cmd.ContainsKey("method") ? stanza.Cmd["method"] : "";
@@ -506,16 +522,18 @@ namespace XmppComponent
 
         async Task Connection_OnItemAction(XmppMessage message)
         {
-            var userId = "";
-            var itemId = "";
+            var to = new XmppJid(message.To);
+            var userId = to.User;
+            var itemId = to.Resource;
+
             var actionName = "";
             var args = new Dictionary<string, string>();
             foreach (var pair in message.Cmd) {
                 switch (pair.Key) {
                     case "method": break;
                     case "xmlns": break;
-                    case "user": userId = pair.Value; break;
-                    case "item": itemId = pair.Value; break;
+                    //case "user": userId = pair.Value; break;
+                    //case "item": itemId = pair.Value; break;
                     case "action": actionName = pair.Value; break;
                     default: args[pair.Key] = pair.Value; break;
                 }
@@ -708,7 +726,7 @@ namespace XmppComponent
         async Task SendInventoryItemPresenceAvailable(string itemId, string from, string to)
         {
             Log.Info($"{from}");
-            await SendItemPresenceAvailableCore(itemId, from, to, false);
+            await SendItemPresenceAvailableCore(itemId, from, to, forXmppMucWithFirebatSupport: false);
         }
 
         async Task SendRoomItemPresenceAvailable(string roomId, string itemId)

@@ -72,6 +72,7 @@ export class Config
         inventory: {
             iconSize: 32,
             borderPadding: 4,
+            dropZoneHeight: 100,
         },
         itemProviders: {
             'nine3q':

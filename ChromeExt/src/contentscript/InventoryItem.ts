@@ -1,5 +1,6 @@
 import * as $ from 'jquery';
 import { xml, jid } from '@xmpp/client';
+import log = require('loglevel');
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
@@ -7,7 +8,6 @@ import { ContentApp } from './ContentApp';
 import { Inventory } from './Inventory';
 
 import imgDefaultItem from '../assets/DefaultIcon.png';
-import { timingSafeEqual } from 'crypto';
 
 export class InventoryItem
 {
@@ -20,16 +20,16 @@ export class InventoryItem
     private size: number = 48;
     private inDrag: boolean = false;
 
-    constructor(app: ContentApp, private inv: Inventory, private id: string)
+    constructor(private app: ContentApp, private inv: Inventory, private itemId: string)
     {
         let paneElem = this.inv.getDisplay();
         let padding: number = Config.get('inventory.borderPadding', 4);
 
         let size = Config.get('inventory.iconSize', 32);
-        let x = this.getPseudoRandomCoordinate(paneElem.offsetWidth, this.size, padding, id, 11345);
-        let y = this.getPseudoRandomCoordinate(paneElem.offsetHeight, this.size, padding, id, 13532);
+        let x = this.getPseudoRandomCoordinate(paneElem.offsetWidth, this.size, padding, itemId, 11345);
+        let y = this.getPseudoRandomCoordinate(paneElem.offsetHeight, this.size, padding, itemId, 13532);
 
-        this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-inventory-item" />').get(0);
+        this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-inventory-item" data-id="' + this.itemId + '" />').get(0);
         // this.iconElem = <HTMLImageElement>$('<img class="n3q-base n3q-item-icon" />').get(0);
         // $(this.elem).append(this.iconElem);
 
@@ -69,11 +69,12 @@ export class InventoryItem
             },
             drag: (ev: JQueryMouseEventObject, ui) =>
             {
+                this.onDrag(ev);
             },
             stop: (ev: JQueryMouseEventObject, ui) =>
             {
-                $(this.elem).show();
                 this.onDragStop(ev);
+                $(this.elem).delay(1000).show(0);
                 this.inDrag = false;
             }
         });
@@ -102,26 +103,87 @@ export class InventoryItem
     }
 
     private dragClickOffset: Record<string, number> = { dx: 0, dy: 0 };
+    private dragIsRezable: boolean = false;
     private onDragStart(ev: JQueryMouseEventObject): void
     {
         let offsetX: number = ev.originalEvent['offsetX'];
         let offsetY: number = ev.originalEvent['offsetY'];
         this.dragClickOffset = { 'dx': offsetX - this.size / 2, 'dy': offsetY - this.size / 2 };
+        this.dragIsRezable = as.Bool(this.properties.RezableAspect, false);
+    }
+
+    private onDrag(ev: JQueryMouseEventObject): void
+    {
+        if (this.dragIsRezable) {
+            this.isPositionInDropzone(ev);
+        }
     }
 
     private onDragStop(ev: JQueryMouseEventObject): void
+    {
+        if (this.isPositionInInventory(ev)) {
+            let newX = ev.offsetX - this.dragClickOffset.dx;
+            let newY = ev.offsetY - this.dragClickOffset.dy;
+            if (newX != this.x || newY != this.y) {
+                this.setPosition(newX, newY);
+                this.moveItem(newX, newY);
+            }
+        } else if (this.isPositionInDropzone(ev)) {
+            let dropX = ev.pageX - $(this.app.getDisplay()).offset().left;
+            this.rezItem(dropX);
+        }
+    }
+
+    private isPositionInInventory(ev: JQueryMouseEventObject): boolean
     {
         let x = ev.offsetX;
         let y = ev.offsetY;
         let paneElem = this.inv.getDisplay();
 
-        if (ev.originalEvent['toElement'] == paneElem && x > 0 && x < paneElem.offsetWidth && y > 0 && y < paneElem.offsetHeight) {
-            let newX = x - this.dragClickOffset.dx;
-            let newY = y - this.dragClickOffset.dy;
-            if (newX != this.x || newY != this.y) {
-                this.setPosition(newX, newY);
-            }
-        }
+        return ev.originalEvent['toElement'] == paneElem && x > 0 && x < paneElem.offsetWidth && y > 0 && y < paneElem.offsetHeight;
+    }
+
+    private isPositionInDropzone(ev: JQueryMouseEventObject): boolean
+    {
+        let x = ev.pageX;
+        let y = ev.pageY;
+        let displayElem = this.app.getDisplay();
+        let dropZoneHeight: number = Config.get('inventory.dropZoneHeight', 100);
+        x = x - $(displayElem).offset().left;
+        y = $(displayElem).height() - y;
+        return x > 0 && y > 0 && y < dropZoneHeight;
+    }
+
+    moveItem(x: number, y: number)
+    {
+        log.info('InventoryItem', 'move', x, y);
+    }
+
+    rezItem(x: number)
+    {
+        log.info('InventoryItem', 'rez', x);
+
+        /*
+            { "name": "message", "attrs": { "id": "1", "to": "items.xmpp.dev.sui.li" },  "children": [{ "name": "x", "attrs": { "xmlns": "vp:cmd", "method": "itemAction", 
+            "action": "Rez",
+            "item": "Script1",
+            "user": "{2516343F-0D26-4B7B-9510-28FCF67E014D}",
+            "to": "d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org",
+            "destination": "https://www.galactic-developments.de/",
+            "x": "100"
+            }}]}
+        */
+
+        let to = this.app.getRoom().getJid();
+        let destination = this.app.getRoom().getDestination();
+
+        let params = {
+            'to': to,
+            'destination': '',
+            'x': x,
+        };
+        this.inv.sendCommand(this.itemId, 'Rez', params);
+
     }
 
     remove(): void

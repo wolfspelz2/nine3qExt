@@ -21,6 +21,7 @@ export class Item extends Entity
         super(app, room, isSelf);
 
         $(this.getElem()).addClass('n3q-item');
+        $(this.getElem()).attr('data-nick', nick);
     }
 
     getDefaultAvatar(): string { return imgDefaultItem; }

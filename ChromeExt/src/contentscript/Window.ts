@@ -73,6 +73,7 @@ export class Window
                 });
             }
 
+            this.isClosing = false;
             $(closeElem).click(ev =>
             {
                 this.close();
