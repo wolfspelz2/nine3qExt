@@ -554,11 +554,10 @@ namespace XmppComponent
                                     await room.WithTransaction(async self => { await self.Set(Pid.ContainerAspect, true); });
                                 }
 
-                                var x = message.Cmd.ContainsKey("x") ? message.Cmd["x"] : "";
-                                if (!long.TryParse(x, NumberStyles.Any, CultureInfo.InvariantCulture, out long posX)) {
-                                    posX = 200;
-                                }
-                                await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Action.Rez), new PropertySet { [Pid.RezableRezTo] = roomId, [Pid.RezableRezX] = posX });
+                                await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Action.Rez), new PropertySet {
+                                    [Pid.RezableRezTo] = roomId,
+                                    [Pid.RezableRezX] = message.Get("x", 200)
+                                });
 
                             }
                         }
@@ -577,17 +576,32 @@ namespace XmppComponent
                                 var roomItem = GetRoomItem(itemId);
                                 if (roomItem != null) {
 
-                                    var x = message.Cmd.ContainsKey("x") ? message.Cmd["x"] : "";
-                                    if (!long.TryParse(x, NumberStyles.Any, CultureInfo.InvariantCulture, out long posX)) {
-                                        posX = -1;
-                                    }
-                                    var y = message.Cmd.ContainsKey("y") ? message.Cmd["y"] : "";
-                                    if (!long.TryParse(y, NumberStyles.Any, CultureInfo.InvariantCulture, out long posY)) {
-                                        posY = -1;
-                                    }
-
-                                    await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Action.Derez), new PropertySet { [Pid.RezableDerezTo] = inventoryItemId, [Pid.RezableDerezX] = x, [Pid.RezableDerezY] = y });
+                                    await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Action.Derez), new PropertySet {
+                                        [Pid.RezableDerezTo] = inventoryItemId,
+                                        [Pid.RezableDerezX] = message.Get("x", -1),
+                                        [Pid.RezableDerezY] = message.Get("y", -1)
+                                    });
                                 }
+
+                            }
+                        }
+                    }
+                }
+                break;
+
+                case nameof(n3q.Aspects.Inventory.Action.SetCoordinate): {
+                    if (Has.Value(userId) && Has.Value(itemId)) {
+
+                        var userToken = userId;
+                        var inventoryItemId = await GetInventoryFromUserToken(userToken);
+                        if (Has.Value(inventoryItemId)) {
+
+                            if (await MakeItemStub(inventoryItemId).GetBool(Pid.InventoryAspect)) {
+                                await GetIWorker().AspectAction(inventoryItemId, Pid.InventoryAspect, nameof(n3q.Aspects.Inventory.Action.SetCoordinate), new PropertySet {
+                                    [Pid.InventorySetCoordinateItem] = itemId,
+                                    [Pid.InventorySetCoordinateX] = message.Get("x", -1),
+                                    [Pid.InventorySetCoordinateY] = message.Get("y", -1)
+                                });
 
                             }
                         }

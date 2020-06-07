@@ -25,10 +25,10 @@ namespace n3q.Aspects
             };
         }
 
-        public async Task<PropertyValue> Rez(ItemStub room, long posX, string destination)
+        public async Task<PropertyValue> Rez(ItemStub toRoom, long posX, string destination)
         {
-            await this.AsRezable().AssertAspect(() => throw new SurfaceException(this.Id, room.Id, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemIsNotRezable));
-            await room.AsContainer().AddChild(this);
+            await this.AsRezable().AssertAspect(() => throw new SurfaceException(this.Id, toRoom.Id, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemIsNotRezable));
+            await toRoom.AsContainer().AddChild(this);
             await this.Set(Pid.RezzedX, posX);
             await this.Set(Pid.RezableIsRezzing, true);
             return true;
@@ -41,15 +41,18 @@ namespace n3q.Aspects
             return true;
         }
 
-        public async Task<PropertyValue> Derez(ItemStub user, long x, long y)
+        public async Task<PropertyValue> Derez(ItemStub toUser, long x, long y)
         {
-            await this.AsRezable().AssertAspect(() => throw new SurfaceException(this.Id, user.Id, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezable));
-            if (!await this.Get(Pid.RezableIsRezzed)) { throw new SurfaceException(this.Id, user.Id, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezzed); }
+            await this.AsRezable().AssertAspect(() => throw new SurfaceException(this.Id, toUser.Id, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezable));
+            if (!await this.Get(Pid.RezableIsRezzed)) { throw new SurfaceException(this.Id, toUser.Id, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezzed); }
+
+            await toUser.AsContainer().AddChild(this);
+
             if (x >= 0 && y >= 0) {
-                await this.ModifyProperties(new PropertySet { [Pid.ContainerX] = x, [Pid.ContainerY] = y }, PidSet.Empty);
+                await toUser.AsInventory().SetCoordinate(this, x, y);
             }
-            await user.AsContainer().AddChild(this);
             await this.Set(Pid.RezableIsDerezzing, true);
+
             return true;
         }
 

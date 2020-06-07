@@ -163,6 +163,8 @@ export class InventoryItem
     moveItem(x: number, y: number)
     {
         log.info('InventoryItem', 'move', x, y);
+
+        this.inv.sendCommand(this.itemId, 'SetCoordinate', { 'x': x, 'y': y });
     }
 
     rezItem(x: number)

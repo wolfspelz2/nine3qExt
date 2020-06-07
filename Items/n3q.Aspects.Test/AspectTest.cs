@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using n3q.Aspects;
@@ -9,6 +10,17 @@ namespace n3q.Items.Test
     [TestClass]
     public class AspectTest
     {
+        [TestMethod]
+        public void All_aspects_are_registered_at_AspectRegistry()
+        {
+            foreach (var pid in Enum.GetValues(typeof(Pid)).Cast<Pid>()) {
+                var prop = Property.GetDefinition(pid);
+                if (prop.Group == Property.Group.Aspect) {
+                    Assert.IsTrue(AspectRegistry.Aspects.ContainsKey(pid), "" + pid);
+                }
+            }
+        }
+
         [TestMethod]
         public void AsAspect()
         {
