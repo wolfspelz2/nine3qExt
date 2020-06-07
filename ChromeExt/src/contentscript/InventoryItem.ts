@@ -235,9 +235,9 @@ export class InventoryItem
             this.setImage(imgUrl);
         }
 
-        if (newProperties.ContainerX && newProperties.ContainerY) {
-            var x = as.Int(newProperties.ContainerX, -1);
-            var y = as.Int(newProperties.ContainerY, -1);
+        if (newProperties.InventoryX && newProperties.InventoryY) {
+            var x = as.Int(newProperties.InventoryX, -1);
+            var y = as.Int(newProperties.InventoryY, -1);
             if (x >= 0 && y >= 0 && (x != this.x || y != this.y)) {
                 this.setPosition(x, y);
             }
