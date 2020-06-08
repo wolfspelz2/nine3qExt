@@ -425,6 +425,18 @@ export class Participant extends Entity
         this.toggleChatWindow();
     }
 
+    onDraggedTo(newX: number): void
+    {
+        if (this.getPosition() != newX) {
+            if (this.isSelf) {
+                this.app.savePosition(newX);
+                this.room?.sendMoveMessage(newX);
+            } else {
+                this.quickSlide(newX);
+            }
+        }
+    }
+
     do(what: string): void
     {
         this.room?.sendGroupChat('/do ' + what);

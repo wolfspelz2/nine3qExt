@@ -98,8 +98,8 @@ namespace XmppComponent
             var itemList = await MakeItemStub(roomId).GetItemIdList(Pid.Contains);
             foreach (var itemId in itemList) {
                 var roomItem = await AddRoomItem(roomId, itemId, updatePersistentState: false);
-                await SendRoomItemPresenceAvailable(roomId, itemId);
                 roomItem.State = RoomItem.RezState.Rezzing;
+                await SendRoomItemPresenceAvailable(roomId, itemId);
             }
         }
 
@@ -180,12 +180,25 @@ namespace XmppComponent
             return false;
         }
 
-        bool IsInventory(string inventoryItemId)
+        bool IsInventoryByUserId(string userId)
         {
-            return GetInventory(inventoryItemId) != null;
+            return GetInventoryByUserId(userId) != null;
         }
 
-        Inventory GetInventory(string inventoryItemId)
+        bool IsInventoryByItemId(string inventoryItemId)
+        {
+            return GetInventoryByItemId(inventoryItemId) != null;
+        }
+
+        Inventory GetInventoryByUserId(string userId)
+        {
+            lock (_mutex) {
+                _ = _inventories.TryGetValue(userId, out var inv);
+                return inv;
+            }
+        }
+
+        Inventory GetInventoryByItemId(string inventoryItemId)
         {
             lock (_mutex) {
                 _ = _inventoryItems.TryGetValue(inventoryItemId, out var inv);
@@ -247,8 +260,8 @@ namespace XmppComponent
                 if (roomItem == null) {
                     roomItem = new RoomItem(roomId, itemId);
 
-                    managedRoom.Items.Add(itemId, roomItem);
-                    _roomItems.Add(itemId, roomItem);
+                    managedRoom.Items[itemId] = roomItem;
+                    _roomItems[itemId] = roomItem;
                 }
             }
 
@@ -401,7 +414,12 @@ namespace XmppComponent
             try {
                 var method = stanza.Cmd.ContainsKey("method") ? stanza.Cmd["method"] : "";
                 switch (method) {
-                    case "itemAction": await Connection_OnItemAction(stanza); break;
+                    case "itemAction": {
+                        var user = stanza.Cmd.ContainsKey("user") ? stanza.Cmd["user"] : "";
+                        var to = new XmppJid(stanza.To);
+                        await Connection_OnItemAction(stanza, user, to.Resource);
+                    }
+                    break;
                     default: Log.Warning($"Unknown method={method}"); break;
                 }
 
@@ -415,7 +433,17 @@ namespace XmppComponent
             try {
                 var method = stanza.Cmd.ContainsKey("method") ? stanza.Cmd["method"] : "";
                 switch (method) {
-                    case "itemAction": await Connection_OnItemAction(stanza); break;
+                    case "itemAction": {
+                        var from = new XmppJid(stanza.From);
+                        var to = new XmppJid(stanza.To);
+                        if (IsRoom(from.Base)) {
+                            await Connection_OnItemAction(stanza, "", to.User);
+                        }
+                        if (IsInventoryByUserId(to.User)) {
+                            await Connection_OnItemAction(stanza, to.User, to.Resource);
+                        }
+                    }
+                    break;
                     default: Log.Warning($"Unknown method={method}"); break;
                 }
 
@@ -443,14 +471,14 @@ namespace XmppComponent
 
             var roomItem = GetRoomItem(roomId, itemId);
             if (roomItem != null) {
-                if (roomItem.State != RoomItem.RezState.Rezzed) {
-                    // Another of my items, already rezzed;
-                } else if (roomItem.State != RoomItem.RezState.Rezzing) {
-                    Log.Warning($"Unexpected presence-available: room={roomId} item={itemId} {nameof(RoomItem.RezState.Rezzing)}", nameof(Connection_OnPresenceAvailable));
-                } else {
+                if (roomItem.State == RoomItem.RezState.Rezzed) {
+                    // Any of my items, already rezzed;
+                } else if (roomItem.State == RoomItem.RezState.Rezzing) {
                     Log.Info($"Joined room {roomId} {itemId}");
                     roomItem.State = RoomItem.RezState.Rezzed;
                     await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.OnRezzed));
+                } else {
+                    Log.Warning($"Unexpected presence-available: room={roomId} item={itemId} State={roomItem.State}", nameof(Connection_OnPresenceAvailable));
                 }
             } else {
 
@@ -482,7 +510,7 @@ namespace XmppComponent
         async Task<string> GetInventoryFromUserToken(string userToken)
         {
             await Task.CompletedTask;
-            var inventoryItemId = userToken == "user1" ? "User1" : "";
+            var inventoryItemId = userToken == "random-user-token-jhg2fu7kjjl4koi8tgi" ? "random-user-inventory-576gzfezgfr54u6l9" : "";
             return inventoryItemId;
         }
 
@@ -522,30 +550,27 @@ namespace XmppComponent
             await Task.CompletedTask;
         }
 
-        async Task Connection_OnItemAction(XmppMessage message)
+        async Task Connection_OnItemAction(XmppMessage message, string user, string itemId)
         {
-            var to = new XmppJid(message.To);
-            var userId = to.User;
-            var itemId = to.Resource;
-
-            var actionName = "";
+            var action = "";
             var args = new Dictionary<string, string>();
             foreach (var pair in message.Cmd) {
                 switch (pair.Key) {
                     case "method": break;
                     case "xmlns": break;
-                    //case "user": userId = pair.Value; break;
-                    //case "item": itemId = pair.Value; break;
-                    case "action": actionName = pair.Value; break;
+                    case "action": action = pair.Value; break;
+                    case "user": user = pair.Value; break;
                     default: args[pair.Key] = pair.Value; break;
                 }
             }
 
-            Log.Info($"ItemAction user={userId} item={itemId} action={actionName}");
+            Log.Info($"ItemAction user={user} item={itemId} action={action}");
 
-            switch (actionName) {
+            switch (action) {
+
                 case nameof(Rezable.Action.Rez): {
-                    if (Has.Value(userId) && Has.Value(itemId)) {
+                    var inventoryItemId = await GetInventoryFromUserToken(user);
+                    if (Has.Value(inventoryItemId) && Has.Value(itemId)) {
                         if (await MakeItemStub(itemId).GetBool(Pid.RezableAspect)) {
                             var roomId = message.Cmd.ContainsKey("to") ? message.Cmd["to"] : "";
                             if (Has.Value(roomId)) {
@@ -568,44 +593,51 @@ namespace XmppComponent
                 break;
 
                 case nameof(Rezable.Action.Derez): {
-                    if (Has.Value(userId) && Has.Value(itemId)) {
+                    var inventoryItemId = await GetInventoryFromUserToken(user);
+                    if (Has.Value(inventoryItemId) && Has.Value(itemId)) {
 
-                        var userToken = userId;
-                        var inventoryItemId = await GetInventoryFromUserToken(userToken);
-                        if (Has.Value(inventoryItemId)) {
+                        if (await MakeItemStub(itemId).GetBool(Pid.RezableAspect)) {
+                            var roomItem = GetRoomItem(itemId);
+                            if (roomItem != null) {
 
-                            if (await MakeItemStub(itemId).GetBool(Pid.RezableAspect)) {
-                                var roomItem = GetRoomItem(itemId);
-                                if (roomItem != null) {
-
-                                    await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Action.Derez), new PropertySet {
-                                        [Pid.RezableDerezTo] = inventoryItemId,
-                                        [Pid.RezableDerezX] = message.Get("x", -1),
-                                        [Pid.RezableDerezY] = message.Get("y", -1)
-                                    });
-                                }
-
+                                await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Action.Derez), new PropertySet {
+                                    [Pid.RezableDerezTo] = inventoryItemId,
+                                    [Pid.RezableDerezX] = message.Get("x", -1),
+                                    [Pid.RezableDerezY] = message.Get("y", -1)
+                                });
                             }
+
                         }
                     }
                 }
                 break;
 
+                case nameof(Movable.Action.MoveTo): {
+                    var inventoryItemId = await GetInventoryFromUserToken(user);
+                    if (Has.Value(inventoryItemId) && Has.Value(itemId)) {
+
+                        var roomItem = GetRoomItem(itemId);
+                        if (roomItem != null) {
+                            await GetIWorker().AspectAction(itemId, Pid.MovableAspect, nameof(Movable.Action.MoveTo), new PropertySet {
+                                [Pid.MovableMoveToX] = message.Get("x", -1),
+                            });
+                        }
+
+                    }
+                }
+                break;
+
                 case nameof(n3q.Aspects.Inventory.Action.SetCoordinate): {
-                    if (Has.Value(userId) && Has.Value(itemId)) {
+                    var inventoryItemId = await GetInventoryFromUserToken(user);
+                    if (Has.Value(inventoryItemId) && Has.Value(itemId)) {
 
-                        var userToken = userId;
-                        var inventoryItemId = await GetInventoryFromUserToken(userToken);
-                        if (Has.Value(inventoryItemId)) {
+                        if (await MakeItemStub(inventoryItemId).GetBool(Pid.InventoryAspect)) {
+                            await GetIWorker().AspectAction(inventoryItemId, Pid.InventoryAspect, nameof(n3q.Aspects.Inventory.Action.SetCoordinate), new PropertySet {
+                                [Pid.InventorySetCoordinateItem] = itemId,
+                                [Pid.InventorySetCoordinateX] = message.Get("x", -1),
+                                [Pid.InventorySetCoordinateY] = message.Get("y", -1)
+                            });
 
-                            if (await MakeItemStub(inventoryItemId).GetBool(Pid.InventoryAspect)) {
-                                await GetIWorker().AspectAction(inventoryItemId, Pid.InventoryAspect, nameof(n3q.Aspects.Inventory.Action.SetCoordinate), new PropertySet {
-                                    [Pid.InventorySetCoordinateItem] = itemId,
-                                    [Pid.InventorySetCoordinateX] = message.Get("x", -1),
-                                    [Pid.InventorySetCoordinateY] = message.Get("y", -1)
-                                });
-
-                            }
                         }
                     }
                 }
@@ -636,10 +668,10 @@ namespace XmppComponent
             } else if (IsRoom(update.ParentId)) {
                 await OnItemUpdateRoomItem(update);
 
-            } else if (IsInventory(update.ItemId)) {
+            } else if (IsInventoryByItemId(update.ItemId)) {
                 await OnItemUpdateInventory(update);
 
-            } else if (IsInventory(update.ParentId)) {
+            } else if (IsInventoryByItemId(update.ParentId)) {
                 await OnItemUpdateInventoryItem(update);
 
             }
@@ -648,7 +680,7 @@ namespace XmppComponent
         private async Task OnItemUpdateInventoryItem(ItemUpdate update)
         {
             var itemId = update.ItemId;
-            var inv = GetInventory(update.ParentId);
+            var inv = GetInventoryByItemId(update.ParentId);
             if (inv != null) {
                 var itemFrom = new XmppJid(inv.ParticipantJid).Base + "/" + itemId;
                 foreach (var pair in inv.Subscribers) {
@@ -663,7 +695,7 @@ namespace XmppComponent
             foreach (var change in update.Changes) {
                 if (change.Pid == Pid.Contains && change.What == ItemChange.Mode.AddToList) {
                     var itemId = change.Value;
-                    var inv = GetInventory(update.ItemId);
+                    var inv = GetInventoryByItemId(update.ItemId);
                     if (inv != null) {
                         var itemFrom = new XmppJid(inv.ParticipantJid).Base + "/" + itemId;
                         foreach (var pair in inv.Subscribers) {
@@ -673,7 +705,7 @@ namespace XmppComponent
                     }
                 } else if (change.Pid == Pid.Contains && change.What == ItemChange.Mode.RemoveFromList) {
                     var itemId = change.Value;
-                    var inv = GetInventory(update.ItemId);
+                    var inv = GetInventoryByItemId(update.ItemId);
                     if (inv != null) {
                         var itemFrom = new XmppJid(inv.ParticipantJid).Base + "/" + itemId;
                         foreach (var pair in inv.Subscribers) {
@@ -708,8 +740,8 @@ namespace XmppComponent
                     var roomId = update.ItemId;
                     var itemId = change.Value;
                     var roomItem = await AddRoomItem(roomId, itemId);
-                    await SendRoomItemPresenceAvailable(roomId, itemId);
                     roomItem.State = RoomItem.RezState.Rezzing;
+                    await SendRoomItemPresenceAvailable(roomId, itemId);
 
                 } else if (change.Pid == Pid.Contains && change.What == ItemChange.Mode.RemoveFromList) {
                     var roomId = update.ItemId;

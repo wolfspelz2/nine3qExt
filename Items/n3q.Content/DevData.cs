@@ -141,7 +141,7 @@ namespace n3q.Content
                         [Pid.ImageUrl] = PropertyFilter.ItemBase + "PageProxy/image.png",
                         [Pid.DeletableAspect] = false,
                         [Pid.RezableAspect] = false,
-                        [Pid.RezzableProxyAspect] = true,
+                        [Pid.RezableProxyAspect] = true,
                     };
                     text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Webseitenbesitz";
                     text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Page Claim";

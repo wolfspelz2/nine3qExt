@@ -43,6 +43,7 @@ export class Avatar implements IObserver
         // var url = app.getAssetUrl('default-avatar.png');
         var url = entity.getDefaultAvatar();
         // this.elem.src = url;
+        this.setImage(url);
 
         $(this.elem).on('click', ev =>
         {
@@ -79,7 +80,7 @@ export class Avatar implements IObserver
             {
                 this.app.enableScreen(true);
                 this.inDrag = true;
-                this.entity.onStartDragAvatar(ev, ui);
+                this.entity.onDragAvatarStart(ev, ui);
             },
             drag: (ev: JQueryMouseEventObject, ui) =>
             {
@@ -87,7 +88,7 @@ export class Avatar implements IObserver
             },
             stop: (ev: JQueryMouseEventObject, ui) =>
             {
-                this.entity.onStopDragAvatar(ev, ui);
+                this.entity.onDragAvatarStop(ev, ui);
                 this.inDrag = false;
                 this.app.enableScreen(false);
             }

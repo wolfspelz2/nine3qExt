@@ -14,6 +14,7 @@ import imgDefaultItem from '../assets/DefaultItem.png';
 export class RoomItem extends Entity
 {
     private isFirstPresence: boolean = true;
+    private userToken: string;
     private properties: { [pid: string]: string } = {};
     private iframeWindow: IframeWindow;
 
@@ -75,6 +76,10 @@ export class RoomItem extends Entity
                 let attrs = vpPropsNode.attrs;
                 if (attrs) {
                     let providerId = as.String(attrs.provider, '');
+                    if (providerId && this.isFirstPresence) {
+                        this.userToken = Config.get('itemProviders.' + providerId + '.config.userToken', '');
+                    }
+
                     for (let attrName in attrs) {
                         let attrValue = attrs[attrName];
                         if (attrName.endsWith('Url')) {
@@ -82,6 +87,7 @@ export class RoomItem extends Entity
                         }
                         newProperties[attrName] = attrValue;
                     }
+
                     // vpNickname = as.String(attrs.Nickname, '');
                     vpAnimationsUrl = as.String(newProperties.AnimationsUrl, '');
                     vpImageUrl = as.String(newProperties.ImageUrl, '');
@@ -169,8 +175,43 @@ export class RoomItem extends Entity
         }
     }
 
+    onQuickSlideReached(newX: number): void
+    {
+        super.onQuickSlideReached(newX);
+
+        if (!this.isDerezzing) {
+            this.sendMoveMessage(newX);
+        }
+    }
+
+    sendMoveMessage(newX: number): void
+    {
+        this.sendCommand(this.nick, 'MoveTo', { 'x': newX });
+    }
+
+    sendCommand(itemId: string, action: string, params: any)
+    {
+        let cmd = {};
+        cmd['xmlns'] = 'vp:cmd';
+        cmd['user'] = this.userToken;
+        cmd['method'] = 'itemAction';
+        cmd['action'] = action;
+        for (let paramName in params) {
+            cmd[paramName] = params[paramName];
+        }
+
+        let to = this.room.getJid() + '/' + itemId;
+
+        let message = xml('message', { 'type': 'chat', 'to': to })
+            .append(xml('x', cmd))
+            ;
+        this.app.sendStanza(message);
+    }
+
+    private isDerezzing: boolean = false;
     beginDerez(): void
     {
+        this.isDerezzing = true;
         $(this.getElem()).hide();
     }
 

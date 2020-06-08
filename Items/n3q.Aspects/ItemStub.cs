@@ -61,7 +61,7 @@ namespace n3q.Aspects
                 var aspect = AspectRegistry.Aspects[pid](this);
                 return aspect;
             }
-            throw new Exception($"Unknown pid/aspect={pid}");
+            throw new Exception($"{nameof(ItemStub)}.{nameof(AsAspect)}: Unknown pid/aspect={pid}");
         }
 
         #endregion
