@@ -12,7 +12,6 @@ import imgDefaultAvatar from '../assets/DefaultAvatar.png';
 export class Entity
 {
     protected elem: HTMLElement;
-    protected centerElem: HTMLElement;
     protected visible: boolean = false;
     protected avatarDisplay: Avatar;
     protected positionX: number = -1;
@@ -24,17 +23,13 @@ export class Entity
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-entity" />').get(0);
         this.elem.style.display = 'none';
 
-        // this.centerElem = this.elem;
-
-        this.centerElem = <HTMLDivElement>$('<div class="n3q-base n3q-entity-content" />').get(0);
-        $(this.elem).append(this.centerElem);
+        $(this.elem).append(this.elem);
 
         $(app.getDisplay()).append(this.elem);
     }
 
     getRoom(): Room { return this.room; }
     getElem(): HTMLElement { return this.elem; }
-    getCenterElem(): HTMLElement { return this.centerElem; }
     getDefaultAvatar(): string { return imgDefaultAvatar; }
     
     show(visible: boolean, durationSec: number = 0.0): void

@@ -21,8 +21,7 @@ class AvatarGetAnimationResult
 
 export class Avatar implements IObserver
 {
-    private elem: HTMLImageElement;
-    private imageUrl: string;
+    private elem: HTMLDivElement;
     private hasAnimation = false;
     private animations: AnimationsXml.AnimationsDefinition;
     private defaultGroup: string;
@@ -35,13 +34,15 @@ export class Avatar implements IObserver
 
     private clickDblClickSeparationTimer: number;
 
-    constructor(private app: ContentApp, private entity: Entity, private display: HTMLElement, private isSelf: boolean)
+    constructor(private app: ContentApp, private entity: Entity, private isSelf: boolean)
     {
-        this.elem = <HTMLImageElement>$('<img class="n3q-base n3q-avatar" />').get(0);
+        this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-avatar" />').get(0);
+        // this.elem = <HTMLImageElement>$('<img class="n3q-base n3q-avatar" />').get(0);
+
         // var url = 'https://www.virtual-presence.org/images/wolf.png';
         // var url = app.getAssetUrl('default-avatar.png');
         var url = entity.getDefaultAvatar();
-        this.elem.src = url;
+        // this.elem.src = url;
 
         $(this.elem).on('click', ev =>
         {
@@ -64,7 +65,7 @@ export class Avatar implements IObserver
         $(this.elem).mouseenter((ev) => this.entity.onMouseEnterAvatar(ev));
         $(this.elem).mouseleave((ev) => this.entity.onMouseLeaveAvatar(ev));
 
-        $(display).append(this.elem);
+        $(entity.getElem()).append(this.elem);
 
         $(this.elem).draggable({
             scroll: false,
@@ -127,8 +128,13 @@ export class Avatar implements IObserver
 
     setImage(url: string): void
     {
-        this.imageUrl = url;
-        this.elem.src = this.imageUrl;
+        $(this.elem).css({ 'background-image': 'url("' + url + '")' });
+        // this.elem.src = this.imageUrl;
+    }
+
+    setSize(w: number, h: number)
+    {
+        $(this.elem).css({ 'width': w + 'px', 'height': h + 'px', 'left': -(w / 2) });
     }
 
     setCondition(condition: string): void
@@ -195,11 +201,11 @@ export class Avatar implements IObserver
             durationSec = 1.0;
         }
 
-        this.currentSpeedPixelPerSec = Math.abs(animation.dx) / 1.0;
-        // dx means pixels per sec, not pixels per duration
         // this.currentSpeedPixelPerSec = Math.abs(animation.dx) / durationSec;
+        // dx means pixels per sec, not pixels per duration
+        this.currentSpeedPixelPerSec = Math.abs(animation.dx) / 1.0;
 
-        this.elem.src = animation.url;
+        this.setImage(animation.url);
 
         if (this.animationTimer != undefined) {
             clearTimeout(this.animationTimer);

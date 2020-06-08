@@ -154,7 +154,7 @@ export class Participant extends Entity
         // vpImageUrl = '';
 
         if (this.isFirstPresence) {
-            this.avatarDisplay = new Avatar(this.app, this, this.getCenterElem(), this.isSelf);
+            this.avatarDisplay = new Avatar(this.app, this, this.isSelf);
 
             this.nicknameDisplay = new Nickname(this.app, this, this.isSelf, this.getElem());
             if (!this.isSelf) {

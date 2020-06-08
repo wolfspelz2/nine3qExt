@@ -79,7 +79,7 @@ export class Chatin
                         } else if (Array.isArray(data)) {
                             if (Array.isArray(data[0])) {
                                 if (this.participant) {
-                                    this.participant.getRoom().showChatWindow(this.participant.getCenterElem());
+                                    this.participant.getRoom().showChatWindow(this.participant.getElem());
                                     data.forEach(line =>
                                     {
                                         this.participant.getRoom().showChatMessage(line[0], line[1]);

@@ -151,7 +151,7 @@ namespace n3q.Content
                     props = new PropertySet {
                         [Pid.Name] = name,
                         [Pid.Label] = "TheatreScreenplay",
-                        [Pid.Width] = 64,
+                        [Pid.Width] = 44,
                         [Pid.Height] = 64,
                         [Pid.ImageUrl] = PropertyFilter.ItemBase + "TheatreScreenplay/image.png",
                         [Pid.IframeAspect] = true,

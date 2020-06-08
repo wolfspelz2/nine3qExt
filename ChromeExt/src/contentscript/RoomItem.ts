@@ -97,7 +97,7 @@ export class RoomItem extends Entity
         // vpImageUrl = '';
 
         if (this.isFirstPresence) {
-            this.avatarDisplay = new Avatar(this.app, this, this.getCenterElem(), this.isSelf);
+            this.avatarDisplay = new Avatar(this.app, this, this.isSelf);
         }
 
         if (this.avatarDisplay) {
@@ -108,6 +108,14 @@ export class RoomItem extends Entity
                 if (vpImageUrl != '') {
                     this.avatarDisplay?.updateObservableProperty('ImageUrl', vpImageUrl);
                 }
+            }
+        }
+
+        if (newProperties.Width && newProperties.Height) {
+            var w = as.Int(newProperties.Width, -1);
+            var h = as.Int(newProperties.Height, -1);
+            if (w > 0 && h > 0) {
+                this.avatarDisplay?.setSize(w, h);
             }
         }
 
