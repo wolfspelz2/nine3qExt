@@ -74,8 +74,9 @@ namespace n3q.Content
                     props = new PropertySet {
                         [Pid.Name] = name,
                         [Pid.Label] = "Dummy",
-                        [Pid.Icon32Url] = PropertyFilter.ItemBase + "Default/icon32.png",
-                        [Pid.Image100Url] = PropertyFilter.ItemBase + "Default/image100.png",
+                        [Pid.Width] = 100,
+                        [Pid.Height] = 100,
+                        [Pid.ImageUrl] = PropertyFilter.ItemBase + "Default/image.png",
                     };
                     break;
 
@@ -83,8 +84,11 @@ namespace n3q.Content
                     props = new PropertySet {
                         [Pid.Name] = name,
                         [Pid.Label] = "Admin",
-                        [Pid.Icon32Url] = PropertyFilter.ItemBase + "Admin/icon32.png",
-                        [Pid.Image100Url] = PropertyFilter.ItemBase + "Admin/image100.jpg",
+                        [Pid.Width] = 50,
+                        [Pid.Height] = 50,
+                        [Pid.ImageUrl] = PropertyFilter.ItemBase + "Admin/image.png",
+                        [Pid.DeletableAspect] = false,
+                        [Pid.RezableAspect] = false,
                         [Pid.RoleAspect] = true,
                         [Pid.RoleUserRoles] = ValueList.From(EnumUtil.GetEnumValues<Property.Value.UserRoles>().Where(role => role <= Property.Value.UserRoles.Admin).Select(role => role.ToString())),
                     };
@@ -98,8 +102,11 @@ namespace n3q.Content
                         props = new PropertySet {
                             [Pid.Name] = name,
                             [Pid.Label] = "CodeReviewer",
-                            [Pid.Icon32Url] = PropertyFilter.ItemBase + "Admin/icon32.png",
-                            [Pid.Image100Url] = PropertyFilter.ItemBase + "Admin/image100.jpg",
+                            [Pid.Width] = 75,
+                            [Pid.Height] = 75,
+                            [Pid.ImageUrl] = PropertyFilter.ItemBase + "Admin/image.png",
+                            [Pid.DeletableAspect] = false,
+                            [Pid.RezableAspect] = false,
                             [Pid.RoleAspect] = true,
                             [Pid.RoleUserRoles] = ValueList.From(EnumUtil.GetEnumValues<Property.Value.UserRoles>().Where(role => role <= Property.Value.UserRoles.CodeReview).Select(role => role.ToString())),
                         };
@@ -113,8 +120,9 @@ namespace n3q.Content
                     props = new PropertySet {
                         [Pid.Name] = name,
                         [Pid.Label] = "PirateFlag",
-                        [Pid.Icon32Url] = PropertyFilter.ItemBase + "PirateFlag/icon32.png",
-                        [Pid.Image100Url] = PropertyFilter.ItemBase + "PirateFlag/image100.png",
+                        [Pid.Width] = 43,
+                        [Pid.Height] = 65,
+                        [Pid.ImageUrl] = PropertyFilter.ItemBase + "PirateFlag/image.png",
                         [Pid.AnimationsUrl] = PropertyFilter.ItemBase + "PirateFlag/animations.xml",
                         [Pid.PageClaimAspect] = true,
                         [Pid.RezableAspect] = true,
@@ -128,8 +136,11 @@ namespace n3q.Content
                     props = new PropertySet {
                         [Pid.Name] = name,
                         [Pid.Label] = "PageProxy",
-                        [Pid.Icon32Url] = PropertyFilter.ItemBase + "PageProxy/icon32.png",
-                        [Pid.Image100Url] = PropertyFilter.ItemBase + "PageProxy/image100.png",
+                        [Pid.Width] = 40,
+                        [Pid.Height] = 65,
+                        [Pid.ImageUrl] = PropertyFilter.ItemBase + "PageProxy/image.png",
+                        [Pid.DeletableAspect] = false,
+                        [Pid.RezableAspect] = false,
                         [Pid.RezzableProxyAspect] = true,
                     };
                     text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Webseitenbesitz";
@@ -140,9 +151,9 @@ namespace n3q.Content
                     props = new PropertySet {
                         [Pid.Name] = name,
                         [Pid.Label] = "TheatreScreenplay",
-                        [Pid.Icon32Url] = PropertyFilter.ItemBase + "TheatreScreenplay/icon32.png",
-                        [Pid.Image100Url] = PropertyFilter.ItemBase + "TheatreScreenplay/image100.png",
-                        [Pid.RezableAspect] = true,
+                        [Pid.Width] = 64,
+                        [Pid.Height] = 64,
+                        [Pid.ImageUrl] = PropertyFilter.ItemBase + "TheatreScreenplay/image.png",
                         [Pid.IframeAspect] = true,
                         [Pid.IframeUrl] = "https://example.com",
                         [Pid.IframeWidth] = 400,
@@ -157,9 +168,9 @@ namespace n3q.Content
                     props = new PropertySet {
                         [Pid.Name] = name,
                         [Pid.Label] = "WaterBottle",
-                        [Pid.Icon32Url] = PropertyFilter.ItemBase + "WaterBottle/icon32.png",
-                        [Pid.Image100Url] = PropertyFilter.ItemBase + "WaterBottle/image100.png",
-                        [Pid.RezableAspect] = true,
+                        [Pid.Width] = 18,
+                        [Pid.Height] = 60,
+                        [Pid.ImageUrl] = PropertyFilter.ItemBase + "WaterBottle/image.png",
                         [Pid.SourceAspect] = true,
                         [Pid.SourceResource] = Pid.WaterLevel.ToString(),
                         [Pid.SinkAspect] = true,

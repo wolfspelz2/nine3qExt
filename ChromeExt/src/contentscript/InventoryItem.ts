@@ -17,7 +17,8 @@ export class InventoryItem
     private iconElem: HTMLImageElement;
     private x: number = 100;
     private y: number = 100;
-    private size: number = 48;
+    private w: number = 64;
+    private h: number = 64;
     private inDrag: boolean = false;
 
     constructor(private app: ContentApp, private inv: Inventory, private itemId: string)
@@ -25,9 +26,9 @@ export class InventoryItem
         let paneElem = this.inv.getPane();
         let padding: number = Config.get('inventory.borderPadding', 4);
 
-        let size = Config.get('inventory.iconSize', 32);
-        let x = this.getPseudoRandomCoordinate(paneElem.offsetWidth, this.size, padding, itemId, 11345);
-        let y = this.getPseudoRandomCoordinate(paneElem.offsetHeight, this.size, padding, itemId, 13532);
+        let size = Config.get('inventory.iconSize', 64);
+        let x = this.getPseudoRandomCoordinate(paneElem.offsetWidth, this.w, padding, itemId, 11345);
+        let y = this.getPseudoRandomCoordinate(paneElem.offsetHeight, this.w, padding, itemId, 13532);
 
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-inventory-item" data-id="' + this.itemId + '" />').get(0);
         // this.iconElem = <HTMLImageElement>$('<img class="n3q-base n3q-item-icon" />').get(0);
@@ -35,7 +36,7 @@ export class InventoryItem
 
         // this.iconElem.src = imgDefaultItem;
         this.setImage(imgDefaultItem);
-        this.setSize(size);
+        this.setSize(size, size);
         this.setPosition(x, y);
 
         $(paneElem).append(this.elem);
@@ -86,24 +87,25 @@ export class InventoryItem
 
     getX(): number { return this.x; }
     getY(): number { return this.y; }
-    geSize(): number { return this.size; }
+    geSize(): number { return this.w; }
 
     setImage(url: string): void
     {
         $(this.elem).css({ 'background-image': 'url("' + url + '")' });
     }
 
-    setSize(size: number)
+    setSize(w: number, h: number)
     {
-        this.size = size;
-        $(this.elem).css({ 'width': size + 'px', 'height': size + 'px' });
+        this.w = w;
+        this.h = h;
+        $(this.elem).css({ 'width': w + 'px', 'height': h + 'px' });
     }
 
     setPosition(x: number, y: number)
     {
         this.x = x;
         this.y = y;
-        $(this.elem).css({ 'left': (x - this.size / 2) + 'px', 'top': (y - this.size / 2) + 'px' });
+        $(this.elem).css({ 'left': (x - this.w / 2) + 'px', 'top': (y - this.w / 2) + 'px' });
     }
 
     private dragClickOffset: Record<string, number> = { dx: 0, dy: 0 };
@@ -112,7 +114,7 @@ export class InventoryItem
     {
         let offsetX: number = ev.originalEvent['offsetX'];
         let offsetY: number = ev.originalEvent['offsetY'];
-        this.dragClickOffset = { 'dx': offsetX - this.size / 2, 'dy': offsetY - this.size / 2 };
+        this.dragClickOffset = { 'dx': offsetX - this.w / 2, 'dy': offsetY - this.w / 2 };
         this.dragIsRezable = as.Bool(this.properties.RezableAspect, false);
     }
 
@@ -202,7 +204,6 @@ export class InventoryItem
     onPresenceAvailable(stanza: any): void
     {
         let newProperties: { [pid: string]: string } = {};
-        let imgUrl: string;
 
         let vpPropsNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
         if (vpPropsNode) {
@@ -219,20 +220,16 @@ export class InventoryItem
             }
         }
 
-        if (!imgUrl) {
-            if (newProperties.Icon32Url) {
-                imgUrl = newProperties.Image100Url;
-            }
+        if (newProperties.ImageUrl) {
+            this.setImage(newProperties.ImageUrl);
         }
 
-        if (!imgUrl) {
-            if (newProperties.Icon32Url) {
-                imgUrl = newProperties.Icon32Url;
+        if (newProperties.Width && newProperties.Height) {
+            var w = as.Int(newProperties.Width, -1);
+            var h = as.Int(newProperties.Height, -1);
+            if (w > 0 && h > 0 && (w != this.w || h != this.h)) {
+                this.setSize(w, h);
             }
-        }
-
-        if (imgUrl) {
-            this.setImage(imgUrl);
         }
 
         if (newProperties.InventoryX && newProperties.InventoryY) {

@@ -83,8 +83,8 @@ export class RoomItem extends Entity
                         newProperties[attrName] = attrValue;
                     }
                     // vpNickname = as.String(attrs.Nickname, '');
-                    vpAnimationsUrl = as.String(attrs.AnimationsUrl, '');
-                    vpImageUrl = as.String(attrs.ImageUrl, '');
+                    vpAnimationsUrl = as.String(newProperties.AnimationsUrl, '');
+                    vpImageUrl = as.String(newProperties.ImageUrl, '');
                 }
             }
         }
@@ -95,15 +95,6 @@ export class RoomItem extends Entity
         // vpAnimationsUrl = '';
         // vpImageUrl = 'https://weblin-avatar.dev.sui.li/items/baum/idle.png';
         // vpImageUrl = '';
-
-        {
-            this.properties = newProperties;
-            if (vpImageUrl == '') {
-                if (this.properties.Image100Url) {
-                    vpImageUrl = this.properties.Image100Url;
-                }
-            }
-        }
 
         if (this.isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, this.getCenterElem(), this.isSelf);

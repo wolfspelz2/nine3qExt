@@ -443,8 +443,10 @@ namespace XmppComponent
 
             var roomItem = GetRoomItem(roomId, itemId);
             if (roomItem != null) {
-                if (roomItem.State != RoomItem.RezState.Rezzing) {
-                    Log.Warning($"Unexpected presence-available: room={roomId} item={itemId}", nameof(Connection_OnPresenceAvailable));
+                if (roomItem.State != RoomItem.RezState.Rezzed) {
+                    // Another of my items, already rezzed;
+                } else if (roomItem.State != RoomItem.RezState.Rezzing) {
+                    Log.Warning($"Unexpected presence-available: room={roomId} item={itemId} {nameof(RoomItem.RezState.Rezzing)}", nameof(Connection_OnPresenceAvailable));
                 } else {
                     Log.Info($"Joined room {roomId} {itemId}");
                     roomItem.State = RoomItem.RezState.Rezzed;
@@ -778,19 +780,21 @@ namespace XmppComponent
             var x = props.GetInt(Pid.RezzedX);
 
             var animationsUrl = props.GetString(Pid.AnimationsUrl);
-            if (!string.IsNullOrEmpty(animationsUrl)) {
-                if (props.ContainsKey(Pid.Image100Url)) {
-                    props.Delete(Pid.Image100Url);
-                }
-            }
+            var imageUrl = props.GetString(Pid.ImageUrl);
+            //if (!string.IsNullOrEmpty(animationsUrl)) {
+            //    if (props.ContainsKey(Pid.ImageUrl)) {
+            //        props.Delete(Pid.ImageUrl);
+            //    }
+            //}
 
             var identityJid = $"{itemId}@{_componentDomain}";
             var identityDigest = Math.Abs(string.GetHashCode(name + animationsUrl, StringComparison.InvariantCulture)).ToString(CultureInfo.InvariantCulture);
 
             var name_UrlEncoded = WebUtility.UrlEncode(name);
             var animationsUrl_UrlEncoded = string.IsNullOrEmpty(animationsUrl) ? "" : WebUtility.UrlEncode(animationsUrl);
+            var imageUrl_UrlEncoded = string.IsNullOrEmpty(imageUrl) ? "" : WebUtility.UrlEncode(imageUrl);
             var digest_UrlEncoded = WebUtility.UrlEncode(identityDigest);
-            var identitySrc = $"https://avatar.weblin.sui.li/identity/?avatarUrl={animationsUrl_UrlEncoded}&nickname={name_UrlEncoded}&digest={digest_UrlEncoded}";
+            var identitySrc = $"https://avatar.weblin.sui.li/identity/?imageUrl={imageUrl_UrlEncoded}?avatarUrl={animationsUrl_UrlEncoded}&nickname={name_UrlEncoded}&digest={digest_UrlEncoded}";
 
             var props_XmlEncoded = props.Select(pair => {
                 var value = pair.Value.ToString();

@@ -66,7 +66,8 @@ export class InventoryWindow extends Window
             $(paneElem).droppable({
                 drop: (ev, ui) =>
                 {
-                    let droppedNick: string = $(ui.draggable.get(0).parentElement.parentElement).data('nick');
+                    let draggedElem = ui.draggable.get(0);
+                    let droppedNick: string = $(draggedElem.parentElement.parentElement).data('nick');
                     let roomItem = this.app.getRoom().getItem(droppedNick);
                     if (roomItem) {
                         let x = Math.round(ui.offset.left - $(paneElem).offset().left + ui.draggable.width() / 2);
