@@ -9,7 +9,13 @@ namespace XmppComponent
         Groupchat,
         PrivateChat,
     }
-    public enum XmppPresenceType { Available, Unavailable }
+
+    public enum XmppPresenceType
+    {
+        Available,
+        Unavailable,
+        Error
+    }
 
     public class XmppMessage
     {

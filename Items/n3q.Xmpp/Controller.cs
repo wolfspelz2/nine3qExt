@@ -403,6 +403,7 @@ namespace XmppComponent
                 switch (stanza.PresenceType) {
                     case XmppPresenceType.Available: await Connection_OnPresenceAvailable(stanza); break;
                     case XmppPresenceType.Unavailable: await Connection_OnPresenceUnavailable(stanza); break;
+                    case XmppPresenceType.Error: await Connection_OnPresenceError(stanza); break;
                 }
             } catch (Exception ex) {
                 Log.Error(ex);
@@ -462,6 +463,25 @@ namespace XmppComponent
         // -> <presence to='hbtzfgjhg@xmpp.weblin.sui.li/jhgjzgjuz' from='user1@items.xmpp.dev.sui.li/CoffeeMachine1' />
         // -> <presence to='hbtzfgjhg@xmpp.weblin.sui.li/jhgjzgjuz' from='user1@items.xmpp.dev.sui.li/Script1' />
         // -> <presence to='hbtzfgjhg@xmpp.weblin.sui.li/jhgjzgjuz' from='user1@items.xmpp.dev.sui.li/hbsu6rtfzgasd' />
+
+        async Task Connection_OnPresenceError(XmppPresence stanza)
+        {
+            Log.Warning($"{nameof(Connection_OnPresenceError)}: from={stanza.From} to={stanza.To}");
+
+            var jid = new XmppJid(stanza.From);
+            var roomId = jid.Base;
+            var itemId = jid.Resource;
+
+            var roomItem = GetRoomItem(roomId, itemId);
+            if (roomItem != null) {
+                if (roomItem.State == RoomItem.RezState.Rezzing) {
+                    await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.OnRezFailed));
+                    await RemoveRoomItem(roomId, itemId);
+                }
+            }
+            
+            await Task.CompletedTask;
+        }
 
         async Task Connection_OnPresenceAvailable(XmppPresence stanza)
         {

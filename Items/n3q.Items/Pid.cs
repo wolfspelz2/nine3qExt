@@ -118,6 +118,7 @@
         RezableIsRezzing,
         RezableIsRezzed,
         RezableIsDerezzing,
+        RezableOrigin,
         RezzedX,
         IframeUrl,
         IframeWidth,

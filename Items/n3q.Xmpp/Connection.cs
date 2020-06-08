@@ -227,10 +227,25 @@ x=345
             }
         }
 
+        /*
+        <presence type="error" to="random-id-hgf5767tigbjhu8ozljnk-09@items.xmpp.dev.sui.li" from="berlin-meetup@conference.conversations.im/random-id-hgf5767tigbjhu8ozljnk-09">
+            <error type="cancel" by="items.xmpp.dev.sui.li">
+                <remote-server-not-found xmlns="urn:ietf:params:xml:ns:xmpp-stanzas"/>
+                <text xmlns="urn:ietf:params:xml:ns:xmpp-stanzas">
+                    Server-to-server connection failed: dialback authentication failed
+                </text>
+            </error>
+        </presence>
+        */
         private void OnPresence(XmlReader xmlReader)
         {
             var presence = new XmppPresence {
-                PresenceType = (xmlReader.GetAttribute("type") ?? "available") == "unavailable" ? XmppPresenceType.Unavailable : XmppPresenceType.Available,
+                PresenceType = xmlReader.GetAttribute("type") switch
+                {
+                    "unavailable" => XmppPresenceType.Unavailable,
+                    "error" => XmppPresenceType.Error,
+                    _ => XmppPresenceType.Available,
+                },
                 From = xmlReader.GetAttribute("from") ?? "",
                 To = xmlReader.GetAttribute("to") ?? "",
             };
