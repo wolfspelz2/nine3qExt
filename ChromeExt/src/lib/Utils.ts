@@ -45,6 +45,14 @@ export class Utils
         return i;
     }
 
+    static pseudoRandomInt(min: number, max: number, key: string, suffix: string, mod: number): number
+    {
+        let hash = Utils.hash(key + suffix) % mod;
+        let f = min + (max - min) / mod * hash;
+        let i = Math.trunc(f);
+        return i;
+    }
+
     static randomNickname(): string
     {
         const customConfig: Config = {

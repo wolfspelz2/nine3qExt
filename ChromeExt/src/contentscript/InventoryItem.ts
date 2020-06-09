@@ -191,12 +191,9 @@ export class InventoryItem
 
     getPseudoRandomCoordinate(space: number, size: number, padding: number, id: string, mod: number): number
     {
-        let result = 50;
-        let hash = Utils.hash(id) % mod;
         let min = size / 2 + padding;
         let max = space - min;
-        result = min + (max - min) / mod * hash;
-        return result;
+        return Utils.pseudoRandomInt(min, max, id, '', mod);
     }
 
     // presence

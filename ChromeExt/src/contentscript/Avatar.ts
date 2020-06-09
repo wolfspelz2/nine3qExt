@@ -5,6 +5,7 @@ import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Config } from '../lib/Config';
+import { Utils } from '../lib/Utils';
 import { IObserver, IObservable } from '../lib/ObservableProperty';
 import * as AnimationsXml from './AnimationsXml';
 
@@ -29,10 +30,13 @@ export class Avatar implements IObserver
     private currentState: string = '';
     private currentAction: string = '';
     private inDrag: boolean = false;
+    private isDefault: boolean = true;
     private currentSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
     private defaultSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
 
     private clickDblClickSeparationTimer: number;
+
+    isDefaultAvatar(): boolean { return this.isDefault; }
 
     constructor(private app: ContentApp, private entity: Entity, private isSelf: boolean)
     {
@@ -44,6 +48,7 @@ export class Avatar implements IObserver
         // this.elem.src = url;
         this.setImage(url);
         this.setSize(38, 94);
+        this.isDefault = true;
 
         $(this.elem).on('click', ev =>
         {
@@ -117,13 +122,24 @@ export class Avatar implements IObserver
         switch (key) {
             case 'ImageUrl': {
                 if (!this.hasAnimation) {
-                    this.setSize(100, 100);
+                    let defaultSize = Config.get('room.defaultStillimageSize', 80);
+                    this.setSize(defaultSize, defaultSize);
+                    this.setImage(value);
+                }
+            } break;
+            case 'VCardImageUrl': {
+                if (!this.hasAnimation) {
+                    let maxSize = Config.get('room.defaultStillimageSize', 80);
+                    let minSize = maxSize *0.75;
+                    let defaultSize = Utils.randomInt(minSize, maxSize);
+                    this.setSize(defaultSize, defaultSize);
                     this.setImage(value);
                 }
             } break;
             case 'AnimationsUrl': {
                 this.hasAnimation = true;
-                this.setSize(100, 100);
+                let defaultSize = Config.get('room.defaultAnimationSize', 100);
+                this.setSize(defaultSize, defaultSize);
                 this.setAnimations(value);
             } break;
         }
@@ -132,6 +148,7 @@ export class Avatar implements IObserver
     setImage(url: string): void
     {
         $(this.elem).css({ 'background-image': 'url("' + url + '")' });
+        this.isDefault = false;
     }
 
     setSize(w: number, h: number)

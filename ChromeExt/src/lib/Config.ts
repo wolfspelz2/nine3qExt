@@ -51,6 +51,10 @@ export class Config
             chatWindowMaxHeight: 800,
             keepAliveSec: 120,
             nicknameOnHover: true,
+            defaultStillimageSize: 80,
+            defaultAnimationSize: 100,
+            vCardAvatarFallback: false,
+            vCardAvatarFallbackOnHover: true,
         },
         xmpp: {
             service: 'wss://xmpp.weblin.sui.li/xmpp-websocket',

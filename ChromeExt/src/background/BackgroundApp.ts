@@ -22,6 +22,7 @@ export class BackgroundApp
     private readonly stanzaQ: Array<xml> = [];
     private readonly roomJid2tabId: Map<string, number> = new Map<string, number>();
     private readonly roomJid2selfNick: Map<string, string> = new Map<string, string>();
+    private readonly iqStanzaTabId: Map<string, number> = new Map<string, number>();
     private readonly httpCacheData: Map<string, string> = new Map<string, string>();
     private readonly httpCacheTime: Map<string, number> = new Map<string, number>();
 
@@ -264,6 +265,20 @@ export class BackgroundApp
             }
         }
 
+        if (stanza.name == 'iq') {
+            if (stanza.attrs) {
+                let stanzaType = stanza.attrs.type;
+                let stanzaId = stanza.attrs.id;
+                if (stanzaType == 'result' && stanzaId) {
+                    let tabId = this.iqStanzaTabId[stanzaId];
+                    if (tabId) {
+                        delete this.iqStanzaTabId[stanzaId];
+                        chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
+                    }
+                }
+            }
+        }
+
         if (stanza.name == 'presence' || stanza.name == 'message') {
             let from = jid(stanza.attrs.from);
             let room = from.bare().toString();
@@ -317,6 +332,16 @@ export class BackgroundApp
                     this.roomJid2tabId[room] = tabId;
                     this.roomJid2selfNick[room] = nick;
                     if (thisIsNew) { log.debug('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId); }
+                }
+            }
+
+            if (stanza.name == 'iq') {
+                if (stanza.attrs) {
+                    let stanzaType = stanza.attrs.type;
+                    let stanzaId = stanza.attrs.id;
+                    if ((stanzaType == 'get' || stanzaType == 'set') && stanzaId) {
+                        this.iqStanzaTabId[stanzaId] = tabId;
+                    }
                 }
             }
 

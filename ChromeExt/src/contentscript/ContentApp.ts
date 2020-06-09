@@ -17,7 +17,6 @@ import { SettingsWindow } from './SettingsWindow';
 import { XmppWindow } from './XmppWindow';
 import { ChangesWindow } from './ChangesWindow';
 import { Inventory } from './Inventory';
-import { InventoryWindow } from './InventoryWindow';
 
 interface ILocationMapperResponse
 {
@@ -34,6 +33,7 @@ export class ContentAppNotification
 }
 
 interface ContentAppNotificationCallback { (msg: any): void }
+interface StanzaResponseHandler { (stanza: xml): void }
 
 export class ContentApp
 {
@@ -45,6 +45,7 @@ export class ContentApp
     private stayOnTabChange: boolean = false;
     private xmppWindow: XmppWindow;
     private settingsWindow: SettingsWindow;
+    private stanzasResponses: { [stanzaId: string]: StanzaResponseHandler } = {}
 
     // Getter
 
@@ -294,6 +295,7 @@ export class ContentApp
         switch (stanza.name) {
             case 'presence': this.onPresence(stanza); break;
             case 'message': this.onMessage(stanza); break;
+            case 'iq': this.onIq(stanza); break;
         }
     }
 
@@ -406,13 +408,30 @@ export class ContentApp
         }
     }
 
-    async sendStanza(stanza: xml): Promise<void>
+    onIq(stanza: xml): void
+    {
+        if (stanza.attrs) {
+            let id = stanza.attrs.id;
+            if (id) {
+                if (this.stanzasResponses[id]) {
+                    this.stanzasResponses[id](stanza);
+                    delete this.stanzasResponses[id];
+                }
+            }
+        }
+    }
+
+    async sendStanza(stanza: xml, stanzaId: string = null, responseHandler: StanzaResponseHandler = null): Promise<void>
     {
         log.debug('ContentApp.sendStanza', stanza);
         try {
             if (this.xmppWindow) {
                 let stanzaText = stanza.toString();
                 this.xmppWindow.showLine('OUT', stanzaText);
+            }
+
+            if (stanzaId && responseHandler) {
+                this.stanzasResponses[stanzaId] = responseHandler;
             }
 
             await BackgroundMessage.sendStanza(stanza);
@@ -572,14 +591,22 @@ export class ContentApp
         }
 
         if (x <= 0) {
-            x = this.getDefaultPosition();
+            x = this.getDefaultPosition(await this.getUserNickname());
         }
 
         return x;
     }
 
-    getDefaultPosition(): number
+    getDefaultPosition(key: string = null): number
     {
-        return Utils.randomInt(100, 500);
+        let pos: number = 300;
+        let width = this.display.offsetWidth;
+        if (!width) { width = 500; }
+        if (key) {
+            pos = Utils.pseudoRandomInt(250, width - 80, key, '', 7237);
+        } else {
+            pos = Utils.randomInt(250, width - 80);
+        }
+        return pos;
     }
 }

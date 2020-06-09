@@ -2,6 +2,8 @@ import * as $ from 'jquery';
 import { xml, jid } from '@xmpp/client';
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';
+import { Utils } from '../lib/Utils';
+import { IObserver } from '../lib/ObservableProperty';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
@@ -9,6 +11,7 @@ import { Avatar } from './Avatar';
 import { Nickname } from './Nickname';
 import { Chatout } from './Chatout';
 import { Chatin } from './Chatin';
+import { url } from 'inspector';
 
 export class Participant extends Entity
 {
@@ -31,6 +34,7 @@ export class Participant extends Entity
         }
     }
 
+    getNick(): string { return this.nick; }
     getChatout(): Chatout { return this.chatoutDisplay; }
 
     remove(): void
@@ -178,20 +182,25 @@ export class Participant extends Entity
             }
         }
 
+        let hasAvatar = false;
         if (this.avatarDisplay) {
             if (vpAvatarId != '') {
                 let animationsUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'http://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', vpAvatarId);
                 let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(animationsUrl));
                 this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
+                hasAvatar = true;
             } else if (vpAnimationsUrl != '') {
                 let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(vpAnimationsUrl));
                 this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
+                hasAvatar = true;
             } else {
                 if (vpImageUrl != '') {
                     this.avatarDisplay?.updateObservableProperty('ImageUrl', vpImageUrl);
+                    hasAvatar = true;
                 }
                 if (hasIdentityUrl) {
                     this.app.getPropertyStorage().watch(this.userId, 'AnimationsUrl', this.avatarDisplay);
+                    hasAvatar = true;
                 }
             }
         }
@@ -217,7 +226,7 @@ export class Participant extends Entity
 
         if (this.isFirstPresence) {
             if (!presenceHasPosition) {
-                newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition();
+                newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition(this.nick);
             }
             if (newX < 0) { newX = 100; }
             this.setPosition(newX);
@@ -250,6 +259,12 @@ export class Participant extends Entity
             }
         }
 
+        if (this.isFirstPresence) {
+            if (!hasAvatar && Config.get('room.vCardAvatarFallback', false)) {
+                this.fetchVcardImage(this.avatarDisplay);
+            }
+        }
+
         this.isFirstPresence = false;
     }
 
@@ -258,6 +273,52 @@ export class Participant extends Entity
         this.remove();
 
         this.room?.showChatMessage(this.nick, 'left the room');
+    }
+
+    fetchVcardImage(avatarDisplay: IObserver)
+    {
+        let stanzaId = Utils.randomString(15);
+        let iq = xml('iq', { 'type': 'get', 'id': stanzaId, 'to': this.room.getJid() + '/' + this.nick })
+            .append(xml('vCard', { 'xmlns': 'vcard-temp' }))
+            ;
+        this.app.sendStanza(iq, stanzaId, (stanza) =>
+        {
+            let imageUrl = this.decodeVcardImage2DataUrl(stanza);
+            if (imageUrl && imageUrl != '') {
+                avatarDisplay.updateObservableProperty('VCardImageUrl', imageUrl);
+            }
+        });
+    }
+
+    decodeVcardImage2DataUrl(stanza: xml): string
+    {
+        let url: string;
+
+        if (this.nick == 'kurtz') {
+            let x = 1;
+        }
+
+        let vCardNode = stanza.getChildren('vCard').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vcard-temp');
+        if (vCardNode) {
+            let photoNodes = vCardNode.getChildren('PHOTO');
+            let photoNode = photoNodes[0];
+            if (photoNode) {
+                let binvalNodes = photoNode.getChildren('BINVAL');
+                let binvalNode = binvalNodes[0];
+                let typeNodes = photoNode.getChildren('TYPE');
+                let typeNode = typeNodes[0];
+                if (binvalNode && typeNode) {
+                    let data = binvalNode.text();
+                    let type = typeNode.text();
+                    if (data && data != '' && type && type != '') {
+                        data = data.replace(/(\r\n|\n|\r)/gm, '').replace(/ /g,'');
+                        url = 'data:' + type + ';base64,' + data;
+                    }
+                }
+            }
+        }
+
+        return url;
     }
 
     // message
@@ -362,7 +423,7 @@ export class Participant extends Entity
     }
 
     // /do WaterBottle ApplyTo WaterCan
-    chat_command_apply: string = '/action';
+    private chat_command_apply: string = '/action';
     sendGroupChat(text: string, handler?: (IMessage: any) => any): void
     {
         //hw later
@@ -408,6 +469,19 @@ export class Participant extends Entity
     }
 
     // Mouse
+
+    private onMouseEnterAvatarVcardImageFallbackAlreadyTriggered: boolean = false;
+    onMouseEnterAvatar(ev: JQuery.Event): void
+    {
+        if (!this.onMouseEnterAvatarVcardImageFallbackAlreadyTriggered
+            && this.avatarDisplay
+            && this.avatarDisplay.isDefaultAvatar()
+            && Config.get('room.vCardAvatarFallbackOnHover', false)
+        ) {
+            this.onMouseEnterAvatarVcardImageFallbackAlreadyTriggered = true;
+            this.fetchVcardImage(this.avatarDisplay);
+        }
+    }
 
     onMouseClickAvatar(ev: JQuery.Event): void
     {
