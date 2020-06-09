@@ -78,10 +78,21 @@
         return res;
     }
 
+    static makeLinksClickable(text): string
+    {
+        var urlRegex = /(https?:\/\/[^\s]+)/g;
+        return text.replace(urlRegex, url => 
+        {
+            return '<a href="' + url + '">' + url + '</a>';
+        });
+    }
+
     static Html(val: any, alt?: string): string
     {
-        var res = as.String(val, alt);
-        return String(res).replace(/[&<>'"]/g, (s) => this.escapeHtml_entityMap[s]);
+        let res = as.String(val, alt);
+        let htmlEncoded = String(res).replace(/[&<>'"]/g, (s) => this.escapeHtml_entityMap[s]);
+        let clickableEncoded = as.makeLinksClickable(htmlEncoded);
+        return clickableEncoded;
     }
 
     static HtmlLink(val: any, text?: string, urlFilter?: (s: string) => string, alt?: string): string

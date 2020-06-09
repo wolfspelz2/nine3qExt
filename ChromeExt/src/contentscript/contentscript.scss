@@ -82,6 +82,34 @@
     display: inline;
 }
 
+#n3q a {
+    font: normal 11px/12px Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #000000;
+    background-color: transparent;
+    text-decoration: none;
+}
+
+#n3q a:link {
+    color: #0000EE;//#151cee;
+    text-decoration: none;
+}
+
+#n3q a:visited {
+    color: #551A8B;//#49238b;
+}
+
+#n3q a:hover {
+    color: #EE0000;//#d63b09;
+    text-decoration: underline;
+}
+
+#n3q a:active {
+    color: #EE0000;//#d63b09;
+    text-decoration: underline;
+}
+
 // zeit.de
 #n3q input.n3q-base:focus {
     background-color: white;
@@ -128,14 +156,16 @@
     font: normal 11px/12px Arial, sans-serif;
     margin: 0;
     padding: 0;
-    // user-select: auto;    
 }
 
-#n3q p.n3q-text {
+#n3q span.n3q-text {
     font: normal 11px/12px Arial, sans-serif;
     margin: 0;
     padding: 0;
-    // user-select: auto;    
+}
+
+#n3q span.n3q-text.n3q-chat {
+    margin: 5px;
 }
 
 #n3q div.n3q-shadow-small {
@@ -362,7 +392,7 @@
         line-break: loose;
         word-wrap: break-word;
         text-align: center;
-        padding: 2px;
+        padding: 4px;
         background-color: #fff;
         border: 1px solid #888;
         border-radius: 8px;
