@@ -1,17 +1,17 @@
 
-@function z-index($key) {
-    @return map-get($z-index, $key);
-}
+// @function z-index($key) {
+//     @return map-get($z-index, $key);
+// }
 
-$z-index: (
-    Page        : 1000000000,
-    Item        : 1001000000,
-    Participant : 1002000000,
-    Avatar      : 1002001000,
-    Nickname    : 1002002000,
-    Chatout     : 1002003000,
-    Chatin      : 1002004000,
-);
+// $z-index: (
+//     Page        : 1000000000,
+//     Item        : 1001000000,
+//     Participant : 1002000000,
+//     Avatar      : 1002001000,
+//     Nickname    : 1002002000,
+//     Chatout     : 1002003000,
+//     Chatin      : 1002004000,
+// );
 
 @media print {
     div.n3q-hidden-print {
@@ -34,15 +34,13 @@ $z-index: (
     // background-image: url("page-bg.png");
     pointer-events: none;
     // user-select: none;
-    z-index: z-index(Page);
+    // z-index: z-index(Page);
 }
 
 #n3q div.n3q-base {
     all: revert;
     font: normal 11px/12px Arial, sans-serif;
     display: block;
-    // width: unset;
-    // height: unset;
     color: black;
     background-color: unset;
     padding: 0;
@@ -79,23 +77,6 @@ $z-index: (
     box-shadow: none;
     text-align: left;
 }
-
-// #n3q div.n3q-base, 
-// #n3q span.n3q-base, 
-// #n3q textarea.n3q-base
-// #n3q input[type=text].n3q-base
-// #n3q input[type=text].n3q-base:focus
-// #n3q input[type=checkbox].n3q-base
-// #n3q input[type=checkbox].n3q-base:focus
-// {
-//     width: unset;
-//     height: unset;
-// }
-
-// #n3q label.n3q-base {
-//     all: initial;
-//     display: inline;
-// }
 
 #n3q input.n3q-base {
     display: inline;
@@ -206,20 +187,8 @@ $z-index: (
 
 // Entity
 
-// #n3q div.n3q-entity-content {
-//     position: relative;
-//     left: -50px;
-//     display: flex;
-//     justify-content: center;
-//     // border-left: 1px solid #808080;
-//     // border-right: 1px solid #808080;
-// }
-
 #n3q div.n3q-entity div.n3q-avatar {
     position: relative;
-    // left: -50px;
-    // width: 100px;
-    // height: 100px;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -233,19 +202,19 @@ $z-index: (
 
 // Item
 
-#n3q div.n3q-entity.n3q-item {
-    z-index: z-index(Item);
-}
+// #n3q div.n3q-entity.n3q-item {
+//     z-index: z-index(Item);
+// }
 
 // Participant
 
-#n3q div.n3q-entity.n3q-participant {
-    z-index: z-index(Participant);
-}
+// #n3q div.n3q-entity.n3q-participant {
+//     z-index: z-index(Participant);
+// }
 
-    #n3q div.n3q-participant div.n3q-avatar {
-        z-index: z-index(Avatar);
-    }
+    // #n3q div.n3q-participant div.n3q-avatar {
+    //     z-index: z-index(Avatar);
+    // }
 
     #n3q div.n3q-participant div.n3q-nickname {
         position: absolute;
@@ -255,7 +224,7 @@ $z-index: (
         padding: 1px 2px 1px 2px;
         background-color: #f5f5f5;
         white-space: nowrap;
-        z-index: z-index(Nickname);
+        // z-index: z-index(Nickname);
     }
 
     #n3q div.n3q-participant div.n3q-nickname div.n3q-text {
@@ -272,10 +241,6 @@ $z-index: (
     margin-right: 2px;
   }
   
-    // #n3q div.n3q-participant-other div.n3q-nickname div.n3q-menu {
-    //     display: none;
-    // }
-    
     #n3q input[type=checkbox].n3q-menu-open + label.n3q-menu-open-button { 
         all: initial; 
         display: inline-block;
@@ -389,7 +354,7 @@ $z-index: (
     min-width: 100px;
     max-width: 140px;
     max-height: 200px;
-    z-index: z-index(Chatout);
+    // z-index: z-index(Chatout);
 }
 
     #n3q div.n3q-speech {
@@ -436,8 +401,6 @@ $z-index: (
 // Chat Window
 
 #n3q div.n3q-window {
-    // width: 400px;
-    // height: 300px;
     position: absolute;
     background-color: #ffffff;
     pointer-events: auto;
@@ -506,7 +469,6 @@ $z-index: (
     
         #n3q div.n3q-window-resize {
             position: absolute;
-            // border: 1px solid #000000;
         }
     
         #n3q div.n3q-window-resize-se {
@@ -553,11 +515,6 @@ $z-index: (
             flex-direction: column;
         }
 
-        // #n3q div.n3q-xmppwindow-out {
-        //     flex: 1 1 auto;
-        //     overflow-y: scroll;
-        // }
-        
         #n3q div.n3q-xmppwindow-out {
             position: absolute;
             top: 8px;
@@ -567,12 +524,6 @@ $z-index: (
             overflow-y: scroll;
         }
         
-        // #n3q div.n3q-xmppwindow-in {
-        //     flex: 1 1 auto;
-        //     border: 1px solid #808080;
-        //     border-radius: 4px;
-        // }
-
         #n3q div.n3q-xmppwindow-in {
             position: absolute;
             height: 300px;
@@ -589,10 +540,6 @@ $z-index: (
             margin: 0 0.4em 0 0;
             // user-select: auto;
         }
-
-        // #n3q div.n3q-xmppwindow-line span.n3q-xmppwindow-text {
-        //     // user-select: auto;
-        // }
 
         #n3q div.n3q-xmppwindow-line { 
             font-size: 12px;
@@ -672,8 +619,6 @@ $z-index: (
         right: 8px;
         bottom: 38px;
         overflow-y: scroll;
-        // box-shadow: 1px 1px 5px #555 inset;
-        // padding: 4px;
     }
     
         #n3q div.n3q-chatwindow-line {
@@ -685,16 +630,11 @@ $z-index: (
         #n3q div.n3q-chatwindow-line span.n3q-nick {
                 font-weight: bold;
                 margin: 0 0.4em 0 0;
-                // user-select: auto;
             }
 
             #n3q div.n3q-chatwindow-line span.n3q-nick:after {
                     content: ':';
                 }
-
-        // #n3q div.n3q-chatwindow-line span.n3q-chat {
-        // // user-select: auto;
-        // }
 
     #n3q div.n3q-chatwindow-chatin {
         position: absolute;
@@ -704,14 +644,11 @@ $z-index: (
         bottom: 8px;
         border: 1px solid #808080;
         border-radius: 4px;
-        // display: flex;
     }
     
     #n3q textarea.n3q-chatwindow-chatin-input, 
     #n3q input[type=text].n3q-chatwindow-chatin-input
     {
-        // flex: 1 0 auto;
-        // margin: 5px 0px 5px 6px;
         position: absolute;
         left: 8px;
         right: 22px;
@@ -723,9 +660,7 @@ $z-index: (
         overflow: hidden;
         white-space: nowrap;
         resize: none;
-        // font-size: 12px;
         border-width: 0;
-        // border-color: #000000;
     }
 
         #n3q textarea.n3q-chatwindow-chatin-input:focus,
@@ -735,8 +670,6 @@ $z-index: (
         }
 
     #n3q div.n3q-chatwindow-chatin div.n3q-button-sendchat {
-        // flex: 0 1 14px;
-        // margin: 4px 4px 0 4px;
         position: absolute;
         right: 4px;
         top: 4px;
@@ -759,7 +692,7 @@ $z-index: (
     white-space: nowrap;
     padding: 0px 2px 0px 4px;
     -events: auto;
-    z-index: z-index(Chatin);
+    // z-index: z-index(Chatin);
 }
 
 #n3q div.n3q-chatin input[type=text].n3q-text {

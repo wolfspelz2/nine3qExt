@@ -443,6 +443,13 @@ export class ContentApp
 
     // Window management
 
+    private maxZIndex: number = 1;
+    pullToFront(elem: HTMLElement)
+    {
+        this.maxZIndex++;
+        elem.style.zIndex = '' + this.maxZIndex;
+    }
+
     enableScreen(on: boolean): void
     {
         // if (on) {

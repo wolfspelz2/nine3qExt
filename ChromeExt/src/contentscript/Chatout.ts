@@ -8,6 +8,7 @@ export class Chatout
     private elem: HTMLElement;
     private textElem: HTMLElement;
     private closeElem: HTMLElement;
+    private hasText: boolean;
 
     constructor(private app: ContentApp, private participant: Participant, private display: HTMLElement)
     {
@@ -51,6 +52,8 @@ export class Chatout
             return;
         }
 
+        this.hasText = true;
+
         $(this.elem).stop(true).fadeTo('fast', 1);
 
         $(this.textElem).html(as.Html(text));
@@ -71,6 +74,12 @@ export class Chatout
     toggleVisibility(): void
     {
         var visible = this.elem.style.display == 'block';
-        this.setVisibility(!visible);
+        if (visible) {
+            this.setVisibility(!visible);
+        } else {
+            if (this.hasText) {
+                this.setVisibility(!visible);
+            }
+        }
     }
 }

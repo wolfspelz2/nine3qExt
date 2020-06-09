@@ -486,6 +486,7 @@ export class Participant extends Entity
     onMouseClickAvatar(ev: JQuery.Event): void
     {
         super.onMouseClickAvatar(ev)
+
         if (this.isSelf) {
             this.toggleChatin();
         } else {

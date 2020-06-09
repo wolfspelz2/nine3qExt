@@ -150,8 +150,7 @@ export class Entity
 
     select(): void
     {
-        //$(this.elem).siblings().zIndex(1);
-        //$(this.elem).zIndex(100);
+        this.app.pullToFront(this.elem);
     }
 
     // Drag
@@ -160,6 +159,7 @@ export class Entity
     onDragAvatarStart(ev: JQueryMouseEventObject, ui: any): void
     {
         this.dragStartPosition = ui.position;
+        this.app.pullToFront(this.elem);
     }
 
     onDragAvatar(ev: JQueryMouseEventObject, ui: any): void
