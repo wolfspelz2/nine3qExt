@@ -43,7 +43,7 @@ namespace n3q.Web.Controllers
         {
             await Task.CompletedTask;
             return new ItemServiceConfig {
-                ServiceUrl = "xmpp:items.xmpp.dev.sui.li",
+                ServiceUrl = "xmpp:itemsxmpp.dev.sui.li",
                 ItemPropertyUrlFilter = new Dictionary<string, string> {
                     { "{image.item.nine3q}", "https://nine3q.dev.sui.li/images/Items/" },
                 },

@@ -37,13 +37,13 @@ export class Avatar implements IObserver
     constructor(private app: ContentApp, private entity: Entity, private isSelf: boolean)
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-avatar" />').get(0);
-        // this.elem = <HTMLImageElement>$('<img class="n3q-base n3q-avatar" />').get(0);
 
         // var url = 'https://www.virtual-presence.org/images/wolf.png';
         // var url = app.getAssetUrl('default-avatar.png');
         var url = entity.getDefaultAvatar();
         // this.elem.src = url;
         this.setImage(url);
+        this.setSize(38, 94);
 
         $(this.elem).on('click', ev =>
         {
@@ -117,11 +117,13 @@ export class Avatar implements IObserver
         switch (key) {
             case 'ImageUrl': {
                 if (!this.hasAnimation) {
+                    this.setSize(100, 100);
                     this.setImage(value);
                 }
             } break;
             case 'AnimationsUrl': {
                 this.hasAnimation = true;
+                this.setSize(100, 100);
                 this.setAnimations(value);
             } break;
         }
@@ -130,7 +132,6 @@ export class Avatar implements IObserver
     setImage(url: string): void
     {
         $(this.elem).css({ 'background-image': 'url("' + url + '")' });
-        // this.elem.src = this.imageUrl;
     }
 
     setSize(w: number, h: number)
