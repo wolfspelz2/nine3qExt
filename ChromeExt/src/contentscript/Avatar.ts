@@ -68,8 +68,8 @@ export class Avatar implements IObserver
             }
         });
 
-        $(this.elem).mouseenter((ev) => this.entity.onMouseEnterAvatar(ev));
-        $(this.elem).mouseleave((ev) => this.entity.onMouseLeaveAvatar(ev));
+        $(this.elem).mouseenter(ev => this.entity.onMouseEnterAvatar(ev));
+        $(this.elem).mouseleave(ev => this.entity.onMouseLeaveAvatar(ev));
 
         $(entity.getElem()).append(this.elem);
 

@@ -473,6 +473,8 @@ export class Participant extends Entity
     private onMouseEnterAvatarVcardImageFallbackAlreadyTriggered: boolean = false;
     onMouseEnterAvatar(ev: JQuery.Event): void
     {
+        super.onMouseEnterAvatar(ev);
+        
         if (!this.onMouseEnterAvatarVcardImageFallbackAlreadyTriggered
             && this.avatarDisplay
             && this.avatarDisplay.isDefaultAvatar()
