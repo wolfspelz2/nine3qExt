@@ -131,11 +131,11 @@ export class InventoryItem
             let pos = this.getPositionRelativeToPane(ev, ui);
             if (pos.x != this.x || pos.y != this.y) {
                 this.setPosition(pos.x, pos.y);
-                this.moveItem(pos.x, pos.y);
+                this.sendSetItemCoordinates(pos.x, pos.y);
             }
         } else if (this.isPositionInDropzone(ev, ui)) {
             let dropX = ev.pageX - $(this.app.getDisplay()).offset().left;
-            this.rezItem(dropX);
+            this.sendRezItem(dropX);
             return false;
         }
         return true;
@@ -195,14 +195,20 @@ export class InventoryItem
         return inDropzone;
     }
 
-    moveItem(x: number, y: number)
+    sendSetItemCoordinates(x: number, y: number)
     {
         log.info('InventoryItem', 'move', x, y);
 
-        this.inv.sendCommand(this.itemId, 'SetCoordinate', { 'x': x, 'y': y });
+        let params = {
+            'x': Math.round(x),
+            'y': Math.round(y),
+            'destination': ''
+        };
+
+        this.inv.sendCommand(this.itemId, 'SetItemCoordinates', params);
     }
 
-    rezItem(x: number)
+    sendRezItem(x: number)
     {
         log.info('InventoryItem', 'rez', this.itemId, x);
 
@@ -211,9 +217,10 @@ export class InventoryItem
 
         let params = {
             'to': to,
-            'x': x,
+            'x': Math.round(x),
             'destination': ''
         };
+
         this.inv.sendCommand(this.itemId, 'Rez', params);
     }
 

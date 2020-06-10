@@ -647,15 +647,32 @@ namespace XmppComponent
                 }
                 break;
 
-                case nameof(n3q.Aspects.Inventory.Action.SetCoordinate): {
+                case nameof(n3q.Aspects.Inventory.Action.SetItemCoordinates): {
                     var inventoryItemId = await GetInventoryFromUserToken(user);
                     if (Has.Value(inventoryItemId) && Has.Value(itemId)) {
 
                         if (await MakeItemStub(inventoryItemId).GetBool(Pid.InventoryAspect)) {
-                            await GetIWorker().AspectAction(inventoryItemId, Pid.InventoryAspect, nameof(n3q.Aspects.Inventory.Action.SetCoordinate), new PropertySet {
-                                [Pid.InventorySetCoordinateItem] = itemId,
-                                [Pid.InventorySetCoordinateX] = message.Get("x", -1),
-                                [Pid.InventorySetCoordinateY] = message.Get("y", -1)
+                            await GetIWorker().AspectAction(inventoryItemId, Pid.InventoryAspect, nameof(n3q.Aspects.Inventory.Action.SetItemCoordinates), new PropertySet {
+                                [Pid.InventorySetItemCoordinatesItem] = itemId,
+                                [Pid.InventorySetItemCoordinatesX] = message.Get("x", -1),
+                                [Pid.InventorySetItemCoordinatesY] = message.Get("y", -1)
+                            });
+
+                        }
+                    }
+                }
+                break;
+
+                case nameof(n3q.Aspects.Inventory.Action.SetCoordinates): {
+                    var inventoryItemId = await GetInventoryFromUserToken(user);
+                    if (Has.Value(inventoryItemId)) {
+
+                        if (await MakeItemStub(inventoryItemId).GetBool(Pid.InventoryAspect)) {
+                            await GetIWorker().AspectAction(inventoryItemId, Pid.InventoryAspect, nameof(n3q.Aspects.Inventory.Action.SetCoordinates), new PropertySet {
+                                [Pid.InventorySetCoordinatesLeft] = message.Get("left", -1),
+                                [Pid.InventorySetCoordinatesBottom] = message.Get("bottom", -1),
+                                [Pid.InventorySetCoordinatesWidth] = message.Get("width", -1),
+                                [Pid.InventorySetCoordinatesHeight] = message.Get("height", -1)
                             });
 
                         }

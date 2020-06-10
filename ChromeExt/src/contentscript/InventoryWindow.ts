@@ -61,7 +61,9 @@ export class InventoryWindow extends Window
 
             this.onResizeStop = (ev: JQueryEventObject, ui: JQueryUI.ResizableUIParams) =>
             {
-                this.inv.resizeInventory(ui.size.width, ui.size.height);
+                let left = ui.position.left;
+                let bottom = this.app.getDisplay().offsetHeight - (ui.position.top + ui.size.height);
+                this.inv.sendSetCoordinates(left, bottom, ui.size.width, ui.size.height);
             };
 
             $(paneElem).droppable({
@@ -78,7 +80,7 @@ export class InventoryWindow extends Window
                                     let x = Math.round(ui.offset.left - $(paneElem).offset().left + ui.draggable.width() / 2);
                                     let y = Math.round(ui.offset.top - $(paneElem).offset().top + ui.draggable.height() / 2)
                                     roomItem.beginDerez();
-                                    this.inv.derezItem(roomItem.getNick(), x, y);
+                                    this.inv.sendDerezItem(roomItem.getNick(), x, y);
                                 }
                             }
                         }

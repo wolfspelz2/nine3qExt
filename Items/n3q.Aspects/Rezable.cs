@@ -62,7 +62,7 @@ namespace n3q.Aspects
             await toUser.AsContainer().AddChild(this);
 
             if (x >= 0 && y >= 0) {
-                await toUser.AsInventory().SetCoordinate(this, x, y);
+                await toUser.AsInventory().SetItemCoordinates(this, x, y);
             }
             await this.Set(Pid.RezableIsDerezzing, true);
 

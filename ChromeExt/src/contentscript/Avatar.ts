@@ -53,8 +53,6 @@ export class Avatar implements IObserver
 
         $(this.elem).on('click', ev =>
         {
-            log.info('click');
-
             if (this.hackSuppressNextClickOtherwiseDraggableClicks) {
                 this.hackSuppressNextClickOtherwiseDraggableClicks = false;
                 return;
@@ -90,7 +88,6 @@ export class Avatar implements IObserver
             containment: 'document',
             start: (ev: JQueryMouseEventObject, ui) =>
             {
-                log.info('drag start');
                 this.app.enableScreen(true);
                 this.inDrag = true;
                 this.entity.onDragAvatarStart(ev, ui);
@@ -101,7 +98,6 @@ export class Avatar implements IObserver
             },
             stop: (ev: JQueryMouseEventObject, ui) =>
             {
-                log.info('drag stop');
                 this.entity.onDragAvatarStop(ev, ui);
                 this.inDrag = false;
                 this.app.enableScreen(false);

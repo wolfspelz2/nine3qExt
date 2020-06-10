@@ -150,28 +150,30 @@ export class Inventory
     {
     }
 
-    derezItem(itemId: string, x: number, y: number)
+    sendDerezItem(itemId: string, x: number, y: number)
     {
         log.info('Inventory', 'derez', itemId);
 
         let params = {
-            'x': x,
-            'y': y
+            'x': Math.round(x),
+            'y': Math.round(y)
         };
 
         this.sendCommand(itemId, 'Derez', params);
     }
 
-    resizeInventory(width: number, height: number)
+    sendSetCoordinates(left: number, bottom: number, width: number, height: number)
     {
-        log.info('Inventory', 'resize', width, height);
+        log.info('Inventory', 'sendSetCoordinates', left, bottom, width, height);
 
         let params = {
-            'width': width,
-            'height': height
+            'left': Math.round(left),
+            'bottom': Math.round(bottom),
+            'width': Math.round(width),
+            'height': Math.round(height)
         };
 
-        this.sendCommand(this.inventoryJid, 'SetSize', params);
+        this.sendCommand(null, 'SetCoordinates', params);
     }
 
     sendCommand(itemId: string, action: string, params: any)
@@ -185,7 +187,7 @@ export class Inventory
             cmd[paramName] = params[paramName];
         }
 
-        let to = this.inventoryJid + '/' + itemId;
+        let to = this.inventoryJid + (itemId? '/' + itemId : '');
 
         let message = xml('message', { 'type': 'chat', 'to': to })
             .append(xml('x', cmd))
