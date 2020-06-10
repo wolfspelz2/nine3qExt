@@ -74,7 +74,7 @@ export class Config
             identificatorUrlTemplate: 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}&digest={digest}',
         },
         inventory: {
-            iconSize: 32,
+            iconSize: 64,
             borderPadding: 4,
             dropZoneHeight: 100,
         },

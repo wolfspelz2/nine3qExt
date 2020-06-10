@@ -55,7 +55,7 @@ export class BackgroundApp
                             onlineConfig.itemProviders[providerId] = providerConfig;
                             Config.setOnlineTree(onlineConfig);
                         } catch (error) {
-                            log.error('Parse itemProvider config failed', providerId, itemProvider.configUrl, error);
+                            log.info('Fetch itemProvider config failed', providerId, itemProvider.configUrl, error);
                         }
                     }
                 }
@@ -352,7 +352,7 @@ export class BackgroundApp
         }
     }
 
-    private sendStanza(stanza: any): void
+    private sendStanza(stanza: xml): void
     {
         if (!this.xmppConnected) {
             this.stanzaQ.push(stanza);
@@ -361,22 +361,25 @@ export class BackgroundApp
         }
     }
 
-    private sendStanzaUnbuffered(stanza: any): void
+    private sendStanzaUnbuffered(stanza: xml): void
     {
         try {
-            {
-                let isConnectionPresence = false;
-                if (stanza.name == 'presence') {
-                    isConnectionPresence = (stanza.attrs == undefined || stanza.attrs.to == undefined || jid(stanza.attrs.to).getResource() == this.resource);
-                }
-                if (!isConnectionPresence) {
-                    log.info('BackgroundApp.sendStanza', stanza);
-                }
-            }
+            this.logStanzaButNotBasicConnectionPresence(stanza);
 
             this.xmpp.send(stanza);
         } catch (error) {
             log.info('BackgroundApp.sendStanza', error.message ?? '');
+        }
+    }
+
+    private logStanzaButNotBasicConnectionPresence(stanza: xml)
+    {
+        let isConnectionPresence = false;
+        if (stanza.name == 'presence') {
+            isConnectionPresence = (!stanza.attrs || !stanza.attrs.to || jid(stanza.attrs.to).getResource() == this.resource);
+        }
+        if (!isConnectionPresence) {
+            log.info('BackgroundApp.sendStanza', stanza);
         }
     }
 
@@ -421,15 +424,11 @@ export class BackgroundApp
 
                 this.sendPresence();
 
-                if (!this.xmppConnected) {
-                    this.xmppConnected = true;
-                    while (this.stanzaQ.length > 0) {
-                        let stanza = this.stanzaQ.shift();
-                        this.sendStanzaUnbuffered(stanza);
-                    }
+                this.xmppConnected = true;
+                while (this.stanzaQ.length > 0) {
+                    let stanza = this.stanzaQ.shift();
+                    this.sendStanzaUnbuffered(stanza);
                 }
-
-                // this.subscribeItemInventories();
             });
 
             this.xmpp.on('stanza', (stanza: any) => this.recvStanza(stanza));
