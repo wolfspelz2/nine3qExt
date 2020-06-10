@@ -176,10 +176,10 @@ export class ContentApp
 
     test(): void
     {
-        this.showInventoryWindow()
+        this.showInventoryWindow(this.display)
     }
 
-    showInventoryWindow(): void
+    showInventoryWindow(aboveElem: HTMLElement): void
     {
         let inv = new Inventory(this, 'nine3q');
         let jid = inv.getJid();
@@ -188,7 +188,7 @@ export class ContentApp
             this.inventories[jid] = inv;
 
             inv.open({
-                'above': this.display,
+                'above': aboveElem,
                 onClose: () =>
                 {
                     if (this.inventories[jid]) {

@@ -39,6 +39,7 @@ export class Nickname implements IObserver
 
             if (this.isSelf) {
                 column.addItem('settings', 'Settings', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { if (this.participant) { this.app.showSettings(this.participant.getElem()); } });
+                column.addItem('inventory', 'Inventory', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showInventoryWindow(); });
                 column.addItem('chatwin', 'Chat Window', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showChatWindow(); });
                 column.addItem(
                     'tabstay',

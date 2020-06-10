@@ -118,6 +118,7 @@ export class Config
 
                     'Menu.Settings': 'Settings',
                     'Menu.Stay Here': 'Stay Here',
+                    'Menu.Inventory': 'Your Stuff',
                     'Menu.Chat Window': 'History',
                     'Menu.Chat': 'Chat',
                     'Menu.Actions:': 'Actions:',
@@ -162,6 +163,7 @@ export class Config
 
                     'Menu.Settings': 'Einstellungen',
                     'Menu.Stay Here': 'Hier bleiben',
+                    'Menu.Inventory': 'Deine Sachen',
                     'Menu.Chat Window': 'Chatverlauf',
                     'Menu.Chat': 'Sprechblase',
                     'Menu.Actions:': 'Aktionen:',
