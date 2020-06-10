@@ -215,18 +215,16 @@
 // Item
 
 // #n3q div.n3q-entity.n3q-item {
-//     z-index: z-index(Item);
 // }
 
 // Participant
 
 // #n3q div.n3q-entity.n3q-participant {
-//     z-index: z-index(Participant);
 // }
 
-    // #n3q div.n3q-participant div.n3q-avatar {
-    //     z-index: z-index(Avatar);
-    // }
+    #n3q div.n3q-participant div.n3q-avatar {
+        z-index: 1;
+    }
 
     #n3q div.n3q-participant div.n3q-nickname {
         position: absolute;
@@ -236,7 +234,7 @@
         padding: 1px 2px 1px 2px;
         background-color: #f5f5f5;
         white-space: nowrap;
-        // z-index: z-index(Nickname);
+        z-index: 2;
     }
 
     #n3q div.n3q-participant div.n3q-nickname div.n3q-text {
@@ -366,7 +364,7 @@
     min-width: 100px;
     max-width: 140px;
     max-height: 200px;
-    // z-index: z-index(Chatout);
+    z-index: 3;
 }
 
     #n3q div.n3q-speech {
@@ -704,7 +702,7 @@
     white-space: nowrap;
     padding: 0px 2px 0px 4px;
     -events: auto;
-    // z-index: z-index(Chatin);
+    z-index: 4;
 }
 
 #n3q div.n3q-chatin input[type=text].n3q-text {
