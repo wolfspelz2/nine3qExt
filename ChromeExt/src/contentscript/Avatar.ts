@@ -35,6 +35,7 @@ export class Avatar implements IObserver
     private defaultSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
 
     private clickDblClickSeparationTimer: number;
+    private hackSuppressNextClickOtherwiseDraggableClicks: boolean = false;
 
     isDefaultAvatar(): boolean { return this.isDefault; }
 
@@ -52,12 +53,18 @@ export class Avatar implements IObserver
 
         $(this.elem).on('click', ev =>
         {
+            log.info('click');
+
+            if (this.hackSuppressNextClickOtherwiseDraggableClicks) {
+                this.hackSuppressNextClickOtherwiseDraggableClicks = false;
+                return;
+            }
+
             if (!this.clickDblClickSeparationTimer) {
                 this.clickDblClickSeparationTimer = <number><unknown>setTimeout(() =>
                 {
                     this.clickDblClickSeparationTimer = null;
                     this.entity.onMouseClickAvatar(ev);
-                    //hw later app.zIndexTop(this.elem);
                 }, as.Float(Config.get('avatarDoubleClickDelaySec', 0.25)) * 1000);
             } else {
                 if (this.clickDblClickSeparationTimer) {
@@ -83,6 +90,7 @@ export class Avatar implements IObserver
             containment: 'document',
             start: (ev: JQueryMouseEventObject, ui) =>
             {
+                log.info('drag start');
                 this.app.enableScreen(true);
                 this.inDrag = true;
                 this.entity.onDragAvatarStart(ev, ui);
@@ -93,9 +101,14 @@ export class Avatar implements IObserver
             },
             stop: (ev: JQueryMouseEventObject, ui) =>
             {
+                log.info('drag stop');
                 this.entity.onDragAvatarStop(ev, ui);
                 this.inDrag = false;
                 this.app.enableScreen(false);
+                $(this.elem).css('z-index', '');
+
+                this.hackSuppressNextClickOtherwiseDraggableClicks = true;
+                setTimeout(() => { this.hackSuppressNextClickOtherwiseDraggableClicks = false; }, 200);
             }
         });
     }
@@ -130,7 +143,7 @@ export class Avatar implements IObserver
             case 'VCardImageUrl': {
                 if (!this.hasAnimation) {
                     let maxSize = Config.get('room.defaultStillimageSize', 80);
-                    let minSize = maxSize *0.75;
+                    let minSize = maxSize * 0.75;
                     let defaultSize = Utils.randomInt(minSize, maxSize);
                     this.setSize(defaultSize, defaultSize);
                     this.setImage(value);
