@@ -162,6 +162,18 @@ export class Inventory
         this.sendCommand(itemId, 'Derez', params);
     }
 
+    resizeInventory(width: number, height: number)
+    {
+        log.info('Inventory', 'resize', width, height);
+
+        let params = {
+            'width': width,
+            'height': height
+        };
+
+        this.sendCommand(this.inventoryJid, 'SetSize', params);
+    }
+
     sendCommand(itemId: string, action: string, params: any)
     {
         let cmd = {};

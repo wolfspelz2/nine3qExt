@@ -40,7 +40,6 @@ export class ChangesWindow extends Window
             {
                 let minTop = 10;
                 if (top < minTop) {
-                    //height -= minTop - top;
                     top = minTop;
                 }
             }

@@ -20,8 +20,8 @@ export class BackgroundApp
     private resource: string;
 
     private readonly stanzaQ: Array<xml> = [];
-    private readonly roomJid2tabId: Map<string, number> = new Map<string, number>();
-    private readonly roomJid2selfNick: Map<string, string> = new Map<string, string>();
+    private readonly roomJid2tabId: Map<string, Array<number>> = new Map<string, Array<number>>();
+    private readonly fullJid2TabWhichSentUnavailable: Map<string, number> = new Map<string, number>();
     private readonly iqStanzaTabId: Map<string, number> = new Map<string, number>();
     private readonly httpCacheData: Map<string, string> = new Map<string, string>();
     private readonly httpCacheTime: Map<string, number> = new Map<string, number>();
@@ -251,68 +251,49 @@ export class BackgroundApp
         }
     }
 
-    // send/recv stanza
+    // manage stanza from 2 tabId mappings
 
-    private recvStanza(stanza: any)
+    addRoomJid2TabId(room: string, tabId: number): void
     {
-        {
-            let isConnectionPresence = false;
-            if (stanza.name == 'presence') {
-                isConnectionPresence = stanza.attrs.from && (jid(stanza.attrs.from).getResource() == this.resource);
-            }
-            if (!isConnectionPresence) {
-                log.info('BackgroundApp.recvStanza', stanza);
-            }
+        let tabIds = this.getRoomJid2TabIds(room);
+        if (!tabIds) {
+            tabIds = new Array<number>();
+            this.roomJid2tabId[room] = tabIds;
         }
-
-        if (stanza.name == 'iq') {
-            if (stanza.attrs) {
-                let stanzaType = stanza.attrs.type;
-                let stanzaId = stanza.attrs.id;
-                if (stanzaType == 'result' && stanzaId) {
-                    let tabId = this.iqStanzaTabId[stanzaId];
-                    if (tabId) {
-                        delete this.iqStanzaTabId[stanzaId];
-                        chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
-                    }
-                }
-            }
+        if (!tabIds.includes(tabId)) {
+            tabIds.push(tabId);
         }
+    }
 
-        if (stanza.name == 'presence' || stanza.name == 'message') {
-            let from = jid(stanza.attrs.from);
-            let room = from.bare().toString();
-
-            if (stanza.name == 'message') {
-                let tabId = this.roomJid2tabId[room];
-                if (tabId) {
-                    chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
-                } else {
-                    for (let roomJid in this.roomJid2tabId) {
-                        let tabId = this.roomJid2tabId[roomJid];
-                        chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
-                    }
-                }
-            }
-
-            if (stanza.name == 'presence') {
-                let tabId = this.roomJid2tabId[room];
-                if (tabId) {
-                    chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
-                }
-
-                if (stanza.attrs['type'] == 'unavailable') {
-                    let nick = from.getResource();
-                    let isSelf = this.roomJid2selfNick[room] == nick;
-                    if (isSelf) {
-                        delete this.roomJid2tabId[room];
-                        delete this.roomJid2selfNick[room];
-                        log.debug('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId);
-                    }
+    removeRoomJid2TabId(room: string, tabId: number): void
+    {
+        let tabIds = this.getRoomJid2TabIds(room);
+        if (tabIds) {
+            const index = tabIds.indexOf(tabId, 0);
+            if (index > -1) {
+                tabIds.splice(index, 1);
+                if (tabIds.length == 0) {
+                    delete this.roomJid2tabId[room];
                 }
             }
         }
     }
+
+    getRoomJid2TabIds(room: string): Array<number>
+    {
+        return this.roomJid2tabId[room];
+    }
+
+    hasRoomJid2TabId(room: string, tabId: number): boolean
+    {
+        var tabIds = this.getRoomJid2TabIds(room);
+        if (tabIds) {
+            return tabIds.includes(tabId);
+        }
+        return false;
+    }
+
+    // send/recv stanza
 
     handle_sendStanza(stanza: any, tabId: number, sendResponse: any): void
     {
@@ -327,11 +308,12 @@ export class BackgroundApp
                 let nick = to.getResource();
 
                 if (as.String(stanza.attrs['type'], 'available') == 'available') {
-                    let thisIsNew = false;
-                    if (this.roomJid2tabId[room] == undefined) { thisIsNew = true; }
-                    this.roomJid2tabId[room] = tabId;
-                    this.roomJid2selfNick[room] = nick;
-                    if (thisIsNew) { log.debug('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId); }
+                    if (!this.hasRoomJid2TabId(room, tabId)) {
+                        this.addRoomJid2TabId(room, tabId);
+                        log.debug('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId);
+                    }
+                } else {
+                    this.fullJid2TabWhichSentUnavailable[to] = tabId;
                 }
             }
 
@@ -386,6 +368,74 @@ export class BackgroundApp
     private sendPresence()
     {
         this.sendStanza(xml('presence'));
+    }
+
+    private recvStanza(stanza: any)
+    {
+        {
+            let isConnectionPresence = false;
+            if (stanza.name == 'presence') {
+                isConnectionPresence = stanza.attrs.from && (jid(stanza.attrs.from).getResource() == this.resource);
+            }
+            if (!isConnectionPresence) {
+                log.info('BackgroundApp.recvStanza', stanza);
+            }
+        }
+
+        if (stanza.name == 'iq') {
+            if (stanza.attrs) {
+                let stanzaType = stanza.attrs.type;
+                let stanzaId = stanza.attrs.id;
+                if (stanzaType == 'result' && stanzaId) {
+                    let tabId = this.iqStanzaTabId[stanzaId];
+                    if (tabId) {
+                        delete this.iqStanzaTabId[stanzaId];
+                        chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
+                    }
+                }
+            }
+        }
+
+        if (stanza.name == 'message') {
+            let from = jid(stanza.attrs.from);
+            let room = from.bare().toString();
+
+            let tabIds = this.getRoomJid2TabIds(room);
+            if (tabIds) {
+                for (let i = 0; i < tabIds.length; i++) {
+                    let tabId = tabIds[i];
+                    chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
+                }
+            }
+        }
+
+        if (stanza.name == 'presence') {
+            let from = jid(stanza.attrs.from);
+            let room = from.bare().toString();
+            let nick = from.getResource();
+
+            let unavailableTabId: number = -1;
+            if (stanza.attrs && stanza.attrs['type'] == 'unavailable') {
+                unavailableTabId = this.fullJid2TabWhichSentUnavailable[from];
+                if (unavailableTabId) {
+                    delete this.fullJid2TabWhichSentUnavailable[from];
+                }
+            }
+
+            if (unavailableTabId >= 0) {
+                chrome.tabs.sendMessage(unavailableTabId, { 'type': 'recvStanza', 'stanza': stanza });
+                this.removeRoomJid2TabId(room, unavailableTabId);
+                log.debug('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', unavailableTabId, 'now:', this.roomJid2tabId);
+            } else {
+                let tabIds = this.getRoomJid2TabIds(room);
+                if (tabIds) {
+                    for (let i = 0; i < tabIds.length; i++) {
+                        let tabId = tabIds[i];
+                        chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
+                    }
+                }
+            }
+        }
     }
 
     // xmpp

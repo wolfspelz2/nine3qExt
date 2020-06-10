@@ -7,8 +7,12 @@ import { ContentApp } from './ContentApp';
 
 export class Window
 {
-    onResize: { (ev: JQueryEventObject): void };
-    onDragStop: { (ev: JQueryEventObject): void };
+    onResizeStart: { (ev: JQueryEventObject, ui: JQueryUI.ResizableUIParams): void };
+    onResizeStop: { (ev: JQueryEventObject, ui: JQueryUI.ResizableUIParams): void };
+    onResize: { (ev: JQueryEventObject, ui: JQueryUI.ResizableUIParams): void };
+    onDragStart: { (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams): void };
+    onDrag: { (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams): void };
+    onDragStop: { (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams): void };
     onClose: { (): void };
 
     protected windowElem: HTMLElement;
@@ -58,17 +62,19 @@ export class Window
                     handles: {
                         'se': '#n3q #' + windowId + ' .n3q-window-resize-se',
                     },
-                    resize: (ev: JQueryEventObject) =>
-                    {
-                        if (this.onResize) { this.onResize(ev); }
-                    },
-                    start: (ev: JQueryEventObject) =>
+                    start: (ev: JQueryEventObject, ui: JQueryUI.ResizableUIParams) =>
                     {
                         $(windowElem).append('<div id="' + maskId + '" style="background-color: #ffffff; opacity: 0.001; position: absolute; left: 0; top: 0; right: 0; bottom: 0;"></div>');
+                        if (this.onResize) { this.onResize(ev, ui); }
                     },
-                    stop: (ev: JQueryEventObject) =>
+                    resize: (ev: JQueryEventObject, ui: JQueryUI.ResizableUIParams) =>
+                    {
+                        if (this.onResizeStart) { this.onResizeStart(ev, ui); }
+                    },
+                    stop: (ev: JQueryEventObject, ui: JQueryUI.ResizableUIParams) =>
                     {
                         $('#' + maskId).remove();
+                        if (this.onResizeStop) { this.onResizeStop(ev, ui); }
                     },
                 });
             }
@@ -79,6 +85,11 @@ export class Window
                 this.close();
             });
 
+            $(windowElem).click(ev =>
+            {
+                this.app.toFront(windowElem);
+            });
+
             $(windowElem).draggable({
                 handle: '.n3q-window-title',
                 scroll: false,
@@ -87,9 +98,18 @@ export class Window
                 // opacity: 0.5,
                 distance: 4,
                 containment: 'document',
-                stop: (ev: JQueryEventObject) =>
+                start: (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) =>
                 {
-                    if (this.onDragStop) { this.onDragStop(ev); }
+                    this.app.toFront(windowElem);
+                    if (this.onDragStart) { this.onDragStart(ev, ui); }
+                },
+                drag: (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) =>
+                {
+                    if (this.onDrag) { this.onDrag(ev, ui); }
+                },
+                stop: (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) =>
+                {
+                    if (this.onDragStop) { this.onDragStop(ev, ui); }
                 },
             });
         }
@@ -105,7 +125,7 @@ export class Window
     {
         if (!this.isClosing) {
             this.isClosing = true;
-            
+
             if (this.onClose) { this.onClose(); }
             $(this.windowElem).remove();
             this.windowElem = null;

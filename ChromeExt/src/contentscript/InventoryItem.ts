@@ -31,20 +31,17 @@ export class InventoryItem
         let y = this.getPseudoRandomCoordinate(paneElem.offsetHeight, this.w, padding, itemId, 13532);
 
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-inventory-item" data-id="' + this.itemId + '" />').get(0);
-        // this.iconElem = <HTMLImageElement>$('<img class="n3q-base n3q-item-icon" />').get(0);
-        // $(this.elem).append(this.iconElem);
 
-        // this.iconElem.src = imgDefaultItem;
         this.setImage(imgDefaultItem);
         this.setSize(size, size);
         this.setPosition(x, y);
 
         $(paneElem).append(this.elem);
 
-        // let x = $('<div class="n3q-base n3q-item-icon-drag" />');
-        // $(x).css({ 'width': this.elem.offsetWidth + 'px', 'height': this.elem.offsetHeight + 'px' });
-        // $(x).append($(this.elem).clone());
-        // $(app.getDisplay()).append(x);
+        $(this.elem).click(ev =>
+        {
+            this.app.toFront(this.elem);
+        });
 
         $(this.elem).draggable({
             scroll: false,
@@ -53,17 +50,19 @@ export class InventoryItem
             //opacity: 0.5,
             helper: function ()
             {
-                let elem = $('<div class="n3q-base n3q-inventory-drag" />');
-                let item = $(this).clone();
-                item.css({ 'left': '0', 'top': '0' });
-                $(elem).append(item);
-                $(app.getDisplay()).append(elem);
-                return elem;
+                let dragElem = $('<div class="n3q-base n3q-inventory-drag" />').get(0);
+                let itemElem = $(this).clone().get(0);
+                $(itemElem).css({ 'left': '0', 'top': '0' });
+                $(dragElem).append(itemElem);
+                app.toFront(itemElem);
+                $(app.getDisplay()).append(dragElem);
+                return dragElem;
             },
-            zIndex: 2000000000,
+            // zIndex: 2000000000,
             containment: '#n3q',
             start: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
+                this.app.toFront(this.elem);
                 this.inDrag = true;
                 this.onDragStart(ev, ui);
                 $(this.elem).hide();
@@ -129,11 +128,10 @@ export class InventoryItem
     private onDragStop(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
     {
         if (this.isPositionInInventory(ev, ui)) {
-            let newX = ev.offsetX - this.dragClickOffset.dx;
-            let newY = ev.offsetY - this.dragClickOffset.dy;
-            if (newX != this.x || newY != this.y) {
-                this.setPosition(newX, newY);
-                this.moveItem(newX, newY);
+            let pos = this.getPositionRelativeToPane(ev, ui);
+            if (pos.x != this.x || pos.y != this.y) {
+                this.setPosition(pos.x, pos.y);
+                this.moveItem(pos.x, pos.y);
             }
         } else if (this.isPositionInDropzone(ev, ui)) {
             let dropX = ev.pageX - $(this.app.getDisplay()).offset().left;
@@ -145,13 +143,36 @@ export class InventoryItem
 
     private isPositionInInventory(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
     {
+        let paneElem = this.inv.getPane();
+        let toElem = ev.originalEvent['toElement'];
+        let isDoppedOnPane = toElem == paneElem || (toElem.parentElement && toElem.parentElement == paneElem);
+
+        if (isDoppedOnPane) {
+            let pos = this.getPositionRelativeToPane(ev, ui);
+            return pos.x > 0 && pos.x < paneElem.offsetWidth && pos.y > 0 && pos.y < paneElem.offsetHeight;
+        }
+
+        return false;
+    }
+
+    private getPositionRelativeToPane(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): any
+    {
         let mouseX = ev.offsetX;
         let mouseY = ev.offsetY;
+
+        let toElem = ev.originalEvent['toElement'];
         let paneElem = this.inv.getPane();
 
-        let inInventory = ev.originalEvent['toElement'] == paneElem && mouseX > 0 && mouseX < paneElem.offsetWidth && mouseY > 0 && mouseY < paneElem.offsetHeight;
-        log.info('InInventory', inInventory);
-        return inInventory;
+        if (toElem == paneElem) {
+        } else if (toElem.parentElement && toElem.parentElement == paneElem) {
+            mouseX = mouseX + toElem.offsetLeft;
+            mouseY = mouseY + toElem.offsetTop;
+        }
+
+        let newX = mouseX - this.dragClickOffset.dx;
+        let newY = mouseY - this.dragClickOffset.dy;
+
+        return { 'x': newX, 'y': newY };
     }
 
     private isPositionInDropzone(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
@@ -171,7 +192,6 @@ export class InventoryItem
         let y = draggedTop + draggedHeight;
 
         let inDropzone = x > 0 && y > dropzoneTop && y < dropzoneBottom;
-        log.info('InDropzone', inDropzone);
         return inDropzone;
     }
 

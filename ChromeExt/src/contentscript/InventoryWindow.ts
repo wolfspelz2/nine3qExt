@@ -59,8 +59,9 @@ export class InventoryWindow extends Window
 
             $(windowElem).css({ 'width': width + 'px', 'height': height + 'px', 'left': left + 'px', 'top': top + 'px' });
 
-            this.onResize = (ev: JQueryEventObject) =>
+            this.onResizeStop = (ev: JQueryEventObject, ui: JQueryUI.ResizableUIParams) =>
             {
+                this.inv.resizeInventory(ui.size.width, ui.size.height);
             };
 
             $(paneElem).droppable({

@@ -219,21 +219,21 @@ namespace XmppComponent
                 } else {
                     inv = _inventories[userId];
                 }
-                if (!inv.Subscribers.ContainsKey(clientJid)) {
-                    inventorySubscriber = new InventorySubscriber(userId, clientJid);
-                    inv.Subscribers.Add(clientJid, inventorySubscriber);
+                if (!inv.Subscribers.ContainsKey(participantJid)) {
+                    inventorySubscriber = new InventorySubscriber(userId, participantJid, clientJid);
+                    inv.Subscribers.Add(participantJid, inventorySubscriber);
                 }
             }
 
             return inventorySubscriber;
         }
 
-        void RemoveInventorySubscriber(string userId, string clientJid)
+        void RemoveInventorySubscriber(string userId, string participantJid)
         {
             lock (_mutex) {
                 if (_inventories.TryGetValue(userId, out var inv)) {
-                    if (inv.Subscribers.ContainsKey(clientJid)) {
-                        inv.Subscribers.Remove(clientJid);
+                    if (inv.Subscribers.ContainsKey(participantJid)) {
+                        inv.Subscribers.Remove(participantJid);
                         if (inv.Subscribers.Count == 0) {
                             _inventoryItems.Remove(inv.InventoryItemId);
                             _inventories.Remove(userId);
@@ -514,7 +514,7 @@ namespace XmppComponent
                     var inventoryItemId = await GetInventoryFromUserToken(userToken);
                     if (Has.Value(inventoryItemId)) {
 
-                        if (!IsInventorySubscriber(userToken, clientJid)) {
+                        if (!IsInventorySubscriber(userToken, participantJid)) {
                             AddInventorySubscriber(userToken, inventoryItemId, participantJid, clientJid);
                             await SendAllItemPresenceToInventorySubscriber(inventoryItemId, participantJid, clientJid);
                             await SendSubscriberPresenceAvailableConfirmation(participantJid, clientJid);
@@ -559,8 +559,8 @@ namespace XmppComponent
                 } else {
 
                     var userToken = new XmppJid(stanza.To).User;
-                    if (IsInventorySubscriber(userToken, clientJid)) {
-                        RemoveInventorySubscriber(userToken, clientJid);
+                    if (IsInventorySubscriber(userToken, participantJid)) {
+                        RemoveInventorySubscriber(userToken, participantJid);
                         await SendSubscriberPresenceUnavailableConfirmation(participantJid, clientJid);
                     }
 

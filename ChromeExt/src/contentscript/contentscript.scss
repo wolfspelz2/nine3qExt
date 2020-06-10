@@ -20,7 +20,7 @@
     // background-image: url("page-bg.png");
     pointer-events: none;
     // user-select: none;
-    z-index: 1000000000;
+    z-index: 2147483647;
 }
 
 #n3q div.n3q-base {
@@ -622,6 +622,9 @@
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
+        background-color: #ffffff;
+        // border: 1px dashed #cccccc;
+        filter: drop-shadow(1px 1px 2px #505050);
     }
         
     // #n3q div.n3q-chatwindow {}

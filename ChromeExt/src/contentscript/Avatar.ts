@@ -79,7 +79,7 @@ export class Avatar implements IObserver
             opacity: 0.5,
             distance: 4,
             helper: 'clone',
-            zIndex: 1100000000,
+            // zIndex: 1100000000,
             containment: 'document',
             start: (ev: JQueryMouseEventObject, ui) =>
             {

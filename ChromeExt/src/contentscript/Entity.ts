@@ -150,7 +150,7 @@ export class Entity
 
     select(): void
     {
-        this.app.pullToFront(this.elem);
+        this.app.toFront(this.elem);
     }
 
     // Drag
@@ -159,7 +159,7 @@ export class Entity
     onDragAvatarStart(ev: JQueryMouseEventObject, ui: any): void
     {
         this.dragStartPosition = ui.position;
-        this.app.pullToFront(this.elem);
+        this.app.toFront(this.elem);
     }
 
     onDragAvatar(ev: JQueryMouseEventObject, ui: any): void
