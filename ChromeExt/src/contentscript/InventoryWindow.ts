@@ -67,15 +67,19 @@ export class InventoryWindow extends Window
                 drop: (ev, ui) =>
                 {
                     let droppedAvatar = ui.draggable.get(0);
-                    let droppedEntity = droppedAvatar.parentElement;
-                    let droppedId: string = $(droppedEntity).data('nick');
-                    if (droppedId) {
-                        let roomItem = this.app.getRoom().getItem(droppedId);
-                        if (roomItem) {
-                            let x = Math.round(ui.offset.left - $(paneElem).offset().left + ui.draggable.width() / 2);
-                            let y = Math.round(ui.offset.top - $(paneElem).offset().top + ui.draggable.height() / 2)
-                            roomItem.beginDerez();
-                            this.inv.derezItem(roomItem.getNick(), x, y);
+                    if (droppedAvatar) {
+                        let droppedEntity = droppedAvatar.parentElement;
+                        if (droppedEntity) {
+                            let droppedId: string = $(droppedEntity).data('nick');
+                            if (droppedId) {
+                                let roomItem = this.app.getRoom().getItem(droppedId);
+                                if (roomItem) {
+                                    let x = Math.round(ui.offset.left - $(paneElem).offset().left + ui.draggable.width() / 2);
+                                    let y = Math.round(ui.offset.top - $(paneElem).offset().top + ui.draggable.height() / 2)
+                                    roomItem.beginDerez();
+                                    this.inv.derezItem(roomItem.getNick(), x, y);
+                                }
+                            }
                         }
                     }
                 }
