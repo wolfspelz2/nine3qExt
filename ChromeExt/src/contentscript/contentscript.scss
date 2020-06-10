@@ -1,18 +1,4 @@
 
-// @function z-index($key) {
-//     @return map-get($z-index, $key);
-// }
-
-// $z-index: (
-//     Page        : 1000000000,
-//     Item        : 1001000000,
-//     Participant : 1002000000,
-//     Avatar      : 1002001000,
-//     Nickname    : 1002002000,
-//     Chatout     : 1002003000,
-//     Chatin      : 1002004000,
-// );
-
 @media print {
     div.n3q-hidden-print {
         display: none !important;
@@ -34,7 +20,7 @@
     // background-image: url("page-bg.png");
     pointer-events: none;
     // user-select: none;
-    // z-index: z-index(Page);
+    z-index: 1000000000;
 }
 
 #n3q div.n3q-base {
