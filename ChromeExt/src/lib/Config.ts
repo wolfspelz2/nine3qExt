@@ -85,11 +85,11 @@ export class Config
                 description: 'Things on web pages',
                 configUrl: 'https://nine3q.weblin.com/Item/Config',
                 config: {
-                    serviceUrl: 'xmpp:items.xmpp.dev.sui.li',
-                    userToken: 'dummyUserToken',
-                    itemPropertyUrlFilter: {
-                        '{image.item.nine3q}': 'https://nine3q.weblin.com/images/Items/',
-                    }
+                    // serviceUrl: 'xmpp:items.xmpp.dev.sui.li',
+                    // userToken: 'dummyUserToken',
+                    // itemPropertyUrlFilter: {
+                    //     '{image.item.nine3q}': 'https://nine3q.weblin.com/images/Items/',
+                    // }
                 }
             }
         },

@@ -37,6 +37,29 @@ namespace n3q.Web.Controllers
         //    return samples;
         //}
 
+        /*
+            {
+              "config": {
+                "serviceUrl": "https://config.weblin.sui.li/"
+              },
+              "inventory": {
+                "iconSize": 64
+              },
+              "itemProviders": {
+                "nine3q": {
+                  "configUrl": "http://localhost:5000/Item/Config",
+                  "config": {
+                    "serviceUrl": "xmpp:itemsxmpp.dev.sui.li",
+                    "userToken": "random-user-token-jhg2fu7kjjl4koi8tgi",
+                    "itemPropertyUrlFilter": {
+                      "{image.item.nine3q}": "http://localhost:5000/images/Items/"
+                    }
+                  }
+                }
+              }
+            }
+        */
+
         [Route("[controller]/Config")]
         [HttpGet]
         public async Task<ItemServiceConfig> Get()
@@ -44,8 +67,10 @@ namespace n3q.Web.Controllers
             await Task.CompletedTask;
             return new ItemServiceConfig {
                 ServiceUrl = "xmpp:itemsxmpp.dev.sui.li",
+                UserToken = "random-user-token-jhg2fu7kjjl4koi8tgi",
                 ItemPropertyUrlFilter = new Dictionary<string, string> {
-                    { "{image.item.nine3q}", "https://nine3q.dev.sui.li/images/Items/" },
+                    //{ "{image.item.nine3q}", "https://nine3q.dev.sui.li/images/Items/" },
+                    { "{image.item.nine3q}", "http://localhost:5000/images/Items/" },
                 },
             };
         }

@@ -38,9 +38,13 @@ export class Nickname implements IObserver
             }
 
             if (this.isSelf) {
-                column.addItem('settings', 'Settings', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { if (this.participant) { this.app.showSettings(this.participant.getElem()); } });
-                column.addItem('inventory', 'Inventory', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showInventoryWindow(); });
-                column.addItem('chatwin', 'Chat Window', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showChatWindow(); });
+
+                let providerId = 'nine3q';
+                let serviceUrl = Config.get('itemProviders.' + providerId + '.config.serviceUrl', null);
+                if (serviceUrl) {
+                    column.addItem('inventory', 'Inventory', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showInventoryWindow(); });
+                }
+
                 column.addItem(
                     'tabstay',
                     'Stay Here',
@@ -53,6 +57,10 @@ export class Nickname implements IObserver
                         menu.setCheckbox('main', 'tabstay', app.getStayOnTabChange() ? MenuHasCheckbox.YesChecked : MenuHasCheckbox.YesUnchecked);
                     }
                 );
+
+                column.addItem('settings', 'Settings', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { if (this.participant) { this.app.showSettings(this.participant.getElem()); } });
+
+                column.addItem('chatwin', 'Chat Window', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showChatWindow(); });
             }
 
             menu.addColumn(column);

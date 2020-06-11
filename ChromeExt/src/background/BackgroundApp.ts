@@ -52,7 +52,8 @@ export class BackgroundApp
                             var providerConfig = await this.fetchJSON(itemProvider.configUrl);
                             let onlineConfig = Config.getOnlineTree();
                             if (!onlineConfig.itemProviders) { onlineConfig.itemProviders = {}; }
-                            onlineConfig.itemProviders[providerId] = providerConfig;
+                            onlineConfig.itemProviders[providerId] = itemProviders[providerId];
+                            onlineConfig.itemProviders[providerId].config = providerConfig;
                             Config.setOnlineTree(onlineConfig);
                         } catch (error) {
                             log.info('Fetch itemProvider config failed', providerId, itemProvider.configUrl, error);
