@@ -155,6 +155,7 @@ export class RoomItem extends Entity
             }
         }
 
+        this.properties = newProperties;
         this.isFirstPresence = false;
     }
 

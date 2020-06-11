@@ -277,11 +277,7 @@ export class InventoryItem
             }
         }
 
-        if (this.isFirstPresence) {
-        }
-
         this.properties = newProperties;
-
         this.isFirstPresence = false;
     }
 
