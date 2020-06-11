@@ -26,9 +26,9 @@ namespace n3q.Items
         }
 
         public PropertyValue(string value) { _value = value; }
-        public PropertyValue(long value) { _value = value != 0L ? value.ToString(CultureInfo.InvariantCulture) : ""; }
-        public PropertyValue(double value) { _value = value != 0D ? value.ToString(CultureInfo.InvariantCulture) : ""; }
-        public PropertyValue(bool value) { _value = value ? "true" : ""; }
+        public PropertyValue(long value) { _value = value != 0L ? value.ToString(CultureInfo.InvariantCulture) : "0"; }
+        public PropertyValue(double value) { _value = value != 0D ? value.ToString(CultureInfo.InvariantCulture) : "0"; }
+        public PropertyValue(bool value) { _value = value ? "true" : "false"; }
         public PropertyValue(ValueList list) { _value = list.ToString(); }
         public PropertyValue(ValueMap map) { _value = map.ToString(); }
 

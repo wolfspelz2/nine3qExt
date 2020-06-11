@@ -21,6 +21,8 @@ export class InventoryItem
     private h: number = 64;
     private inDrag: boolean = false;
 
+    getProperties(): { [pid: string]: string } { return this.properties; }
+
     constructor(private app: ContentApp, private inv: Inventory, private itemId: string)
     {
         let paneElem = this.inv.getPane();
@@ -64,12 +66,12 @@ export class InventoryItem
             {
                 this.app.toFront(this.elem);
                 this.inDrag = true;
-                this.onDragStart(ev, ui);
                 $(this.elem).hide();
+                return this.onDragStart(ev, ui);
             },
             drag: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
-                this.onDrag(ev, ui);
+                return this.onDrag(ev, ui);
             },
             stop: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
@@ -80,6 +82,7 @@ export class InventoryItem
                     $(this.elem).delay(1000).show(0);
                 }
                 this.inDrag = false;
+                return true;
             }
         });
     }
@@ -87,6 +90,16 @@ export class InventoryItem
     getX(): number { return this.x; }
     getY(): number { return this.y; }
     geSize(): number { return this.w; }
+
+    match(pid: string, value: any)
+    {
+        if (this.properties[pid]) {
+            if (value) {
+                return as.String(this.properties[pid], null) == as.String(value, null);
+            }
+        }
+        return false;
+    }
 
     setImage(url: string): void
     {
@@ -104,25 +117,28 @@ export class InventoryItem
     {
         this.x = x;
         this.y = y;
-        $(this.elem).css({ 'left': (x - this.w / 2) + 'px', 'top': (y - this.w / 2) + 'px' });
+        $(this.elem).css({ 'left': (x - this.w / 2) + 'px', 'top': (y - this.h / 2) + 'px' });
     }
 
     private dragClickOffset: Record<string, number> = { dx: 0, dy: 0 };
     private dragIsRezable: boolean = false;
-    private onDragStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
+    private onDragStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
     {
         let offsetX: number = ev.originalEvent['offsetX'];
         let offsetY: number = ev.originalEvent['offsetY'];
         this.dragClickOffset = { 'dx': offsetX - this.w / 2, 'dy': offsetY - this.w / 2 };
         this.dragIsRezable = as.Bool(this.properties.RezableAspect, true);
+        return true;
     }
 
-    private onDrag(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
+    private onDrag(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
     {
-        if (this.dragIsRezable) {
-            // this.isPositionInInventory(ev, ui);
-            // this.isPositionInDropzone(ev, ui);
+        if (!this.dragIsRezable) {
+            if (!this.isPositionInInventory(ev, ui)) {
+                return false;
+            }
         }
+        return true;
     }
 
     private onDragStop(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
@@ -143,37 +159,79 @@ export class InventoryItem
 
     private isPositionInInventory(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
     {
+        let scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+        let position = $(ui.helper).position();
+        let itemElem = $(ui.helper).children().get(0);
+        let width = $(itemElem).width();
+        let height = $(itemElem).height();
+        let x = position.left + width / 2;
+        let y = position.top + height / 2;
+
         let paneElem = this.inv.getPane();
-        let toElem = ev.originalEvent['toElement'];
-        let isDoppedOnPane = toElem == paneElem || (toElem.parentElement && toElem.parentElement == paneElem);
+        let panePosition = $(paneElem).offset();
+        panePosition.left -= scrollLeft;
+        panePosition.top -= scrollTop;
+        let paneWidth = $(paneElem).width();
+        let paneHeight = $(paneElem).height();
 
-        if (isDoppedOnPane) {
-            let pos = this.getPositionRelativeToPane(ev, ui);
-            return pos.x > 0 && pos.x < paneElem.offsetWidth && pos.y > 0 && pos.y < paneElem.offsetHeight;
-        }
-
-        return false;
+        return x > panePosition.left && x < panePosition.left + paneWidth && y < panePosition.top + paneHeight && y > panePosition.top;
     }
 
     private getPositionRelativeToPane(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): any
     {
-        let mouseX = ev.offsetX;
-        let mouseY = ev.offsetY;
+        let scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-        let toElem = ev.originalEvent['toElement'];
+        let position = $(ui.helper).position();
+        let itemElem = $(ui.helper).children().get(0);
+        let width = $(itemElem).width();
+        let height = $(itemElem).height();
+        let x = position.left + width / 2;
+        let y = position.top + height / 2;
+
         let paneElem = this.inv.getPane();
+        let panePosition = $(paneElem).offset();
+        panePosition.left -= scrollLeft;
+        panePosition.top -= scrollTop;
 
-        if (toElem == paneElem) {
-        } else if (toElem.parentElement && toElem.parentElement == paneElem) {
-            mouseX = mouseX + toElem.offsetLeft;
-            mouseY = mouseY + toElem.offsetTop;
-        }
-
-        let newX = mouseX - this.dragClickOffset.dx;
-        let newY = mouseY - this.dragClickOffset.dy;
-
-        return { 'x': newX, 'y': newY };
+        return { 'x': x - panePosition.left, 'y': y - panePosition.top };
     }
+
+    // private isPositionInInventory(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
+    // {
+    // let paneElem = this.inv.getPane();
+    // let toElem = ev.originalEvent['toElement'];
+    // let isOnPane = toElem == paneElem || (toElem.parentElement && toElem.parentElement == paneElem);
+
+    // if (isOnPane) {
+    //     let pos = this.getPositionRelativeToPane(ev, ui);
+    //     return pos.x > 0 && pos.x < paneElem.offsetWidth && pos.y > 0 && pos.y < paneElem.offsetHeight;
+    // }
+
+    // return false;
+    // }
+
+    // private getPositionRelativeToPane(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): any
+    // {
+    //     let mouseX = ev.offsetX;
+    //     let mouseY = ev.offsetY;
+
+    //     let toElem = ev.originalEvent['toElement'];
+    //     let paneElem = this.inv.getPane();
+
+    //     if (toElem == paneElem) {
+    //     } else if (toElem.parentElement && toElem.parentElement == paneElem) {
+    //         mouseX = mouseX + toElem.offsetLeft;
+    //         mouseY = mouseY + toElem.offsetTop;
+    //     }
+
+    //     let newX = mouseX - this.dragClickOffset.dx;
+    //     let newY = mouseY - this.dragClickOffset.dy;
+
+    //     return { 'x': newX, 'y': newY };
+    // }
 
     private isPositionInDropzone(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
     {
@@ -278,6 +336,17 @@ export class InventoryItem
         }
 
         this.properties = newProperties;
+
+        if (this.match('SettingsAspect', true)) {
+            var left = as.Int(this.properties.InventoryLeft, -1);
+            var bottom = as.Int(this.properties.InventoryBottom, -1);
+            var width = as.Int(this.properties.InventoryWidth, -1);
+            var height = as.Int(this.properties.InventoryHeight, -1);
+            if (width > 0 && height > 0) {
+                this.inv?.getWindow()?.setCoordinates(left, bottom, width, height);
+            }
+        }
+
         this.isFirstPresence = false;
     }
 

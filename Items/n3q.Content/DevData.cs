@@ -18,14 +18,14 @@ namespace n3q.Content
                     break;
 
                 case nameof(DevSpec.Group.User):
-                    Don.t = () => {
-                        GetTemplate(nameof(DevSpec.Template.Attributes), templates, text);
-                        GetTemplate(nameof(DevSpec.Template.Backpack), templates, text);
-                        GetTemplate(nameof(DevSpec.Template.TrashCan), templates, text);
+                    //Don.t = () => {
+                    //    GetTemplate(nameof(DevSpec.Template.Attributes), templates, text);
+                    //    GetTemplate(nameof(DevSpec.Template.Backpack), templates, text);
+                    //    GetTemplate(nameof(DevSpec.Template.TrashCan), templates, text);
+                    //    GetTemplate(nameof(DevSpec.Template.Nickname), templates, text);
+                    //    GetTemplate(nameof(DevSpec.Template.Avatar), templates, text);
+                    //};
                         GetTemplate(nameof(DevSpec.Template.Settings), templates, text);
-                        GetTemplate(nameof(DevSpec.Template.Nickname), templates, text);
-                        GetTemplate(nameof(DevSpec.Template.Avatar), templates, text);
-                    };
                     break;
 
                 case nameof(DevSpec.Group.Room):
@@ -86,7 +86,7 @@ namespace n3q.Content
                         [Pid.Label] = "Admin",
                         [Pid.Width] = 50,
                         [Pid.Height] = 50,
-                        [Pid.ImageUrl] = PropertyFilter.ItemBase + "Admin/image.png",
+                        [Pid.ImageUrl] = PropertyFilter.ItemBase + "System/Admin.png",
                         [Pid.DeletableAspect] = false,
                         [Pid.RezableAspect] = false,
                         [Pid.RoleAspect] = true,
@@ -104,7 +104,7 @@ namespace n3q.Content
                             [Pid.Label] = "CodeReviewer",
                             [Pid.Width] = 75,
                             [Pid.Height] = 75,
-                            [Pid.ImageUrl] = PropertyFilter.ItemBase + "Admin/image.png",
+                            [Pid.ImageUrl] = PropertyFilter.ItemBase + "System/Admin.png",
                             [Pid.DeletableAspect] = false,
                             [Pid.RezableAspect] = false,
                             [Pid.RoleAspect] = true,
@@ -115,6 +115,24 @@ namespace n3q.Content
                     };
                     break;
                 }
+
+                case nameof(DevSpec.Template.Settings):
+                    props = new PropertySet {
+                        [Pid.Name] = name,
+                        [Pid.Label] = "Settings",
+                        [Pid.Width] = 32,
+                        [Pid.Height] = 32,
+                        [Pid.ImageUrl] = PropertyFilter.ItemBase + "User/Settings.png",
+                        [Pid.SettingsAspect] = true,
+                        [Pid.RezableAspect] = false,
+                        [Pid.InventoryLeft] = -1,
+                        [Pid.InventoryBottom] = 250,
+                        [Pid.InventoryWidth] = 400,
+                        [Pid.InventoryHeight] = 300,
+                    };
+                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Einstellungen";
+                    text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Settings";
+                    break;
 
                 case nameof(DevSpec.Template.PirateFlag):
                     props = new PropertySet {

@@ -32,6 +32,7 @@ export class Inventory
 
     getJid(): string { return this.inventoryJid; }
     getPane() { return this.window.getPane(); }
+    getWindow() { return this.window; }
 
     open(options: any)
     {
@@ -162,9 +163,9 @@ export class Inventory
         this.sendCommand(itemId, 'Derez', params);
     }
 
-    sendSetCoordinates(left: number, bottom: number, width: number, height: number)
+    sendSetInventoryCoordinates(left: number, bottom: number, width: number, height: number)
     {
-        log.info('Inventory', 'sendSetCoordinates', left, bottom, width, height);
+        log.info('Inventory', 'sendSetInventoryCoordinates', left, bottom, width, height);
 
         let params = {
             'left': Math.round(left),
@@ -173,7 +174,20 @@ export class Inventory
             'height': Math.round(height)
         };
 
-        this.sendCommand(null, 'SetCoordinates', params);
+        let itemId = this.findItem('SettingsAspect', true);
+        if (itemId) {
+            this.sendCommand(itemId, 'SetInventoryCoordinates', params);
+        }
+    }
+
+    findItem(pid: string, value: any)
+    {
+        for (var itemId in this.items) {
+            if (this.items[itemId].match(pid, value)) {
+                return itemId;
+            }
+        }
+        return null;
     }
 
     sendCommand(itemId: string, action: string, params: any)
@@ -187,7 +201,7 @@ export class Inventory
             cmd[paramName] = params[paramName];
         }
 
-        let to = this.inventoryJid + (itemId? '/' + itemId : '');
+        let to = this.inventoryJid + (itemId ? '/' + itemId : '');
 
         let message = xml('message', { 'type': 'chat', 'to': to })
             .append(xml('x', cmd))

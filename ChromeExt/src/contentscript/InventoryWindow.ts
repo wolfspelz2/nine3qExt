@@ -63,7 +63,15 @@ export class InventoryWindow extends Window
             {
                 let left = ui.position.left;
                 let bottom = this.app.getDisplay().offsetHeight - (ui.position.top + ui.size.height);
-                this.inv.sendSetCoordinates(left, bottom, ui.size.width, ui.size.height);
+                this.inv.sendSetInventoryCoordinates(left, bottom, ui.size.width, ui.size.height);
+            };
+
+            this.onDragStop = (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) =>
+            {
+                let size = { width: $(this.windowElem).width(), height: $(this.windowElem).height() }
+                let left = ui.position.left;
+                let bottom = this.app.getDisplay().offsetHeight - (ui.position.top + size.height);
+                this.inv.sendSetInventoryCoordinates(left, bottom, size.width, size.height);
             };
 
             $(paneElem).droppable({
@@ -90,6 +98,17 @@ export class InventoryWindow extends Window
 
             this.paneElem = paneElem;
         }
+    }
+
+    setCoordinates(left: number, bottom: number, width: number, height: number)
+    {
+        let coords = {};
+        if (left > 0) { coords['left'] = left; }
+        if (bottom > 0 && height > 0) { coords['top'] = this.app.getDisplay().offsetHeight - bottom - height; }
+        if (width > 0) { coords['width'] = width; }
+        if (height > 0) { coords['height'] = height; }
+
+        $(this.windowElem).css(coords);
     }
 
     isOpen(): boolean

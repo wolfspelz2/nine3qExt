@@ -14,6 +14,7 @@ namespace n3q.Aspects
             { Pid.ItemCapacityLimitAspect, item => item.AsItemCapacityLimit()},
             { Pid.DeletableAspect, item => item.AsDeletable()},
             { Pid.InventoryAspect, item => item.AsInventory()},
+            { Pid.SettingsAspect, item => item.AsSettings()},
             { Pid.IframeAspect, item => item.AsIframeInteractionItem()},
             { Pid.PageClaimAspect, item => item.AsPageClaimer()},
             { Pid.RezableProxyAspect, item => item.AsRezableProxy()},

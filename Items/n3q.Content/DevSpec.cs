@@ -24,12 +24,12 @@ namespace n3q.Content
             CodeReviewer,
 
             // User
-            Attributes,
-            Backpack,
-            TrashCan,
+            //Attributes,
+            //Backpack,
+            //TrashCan,
             Settings,
-            Nickname,
-            Avatar,
+            //Nickname,
+            //Avatar,
 
             // Room
             PirateFlag,

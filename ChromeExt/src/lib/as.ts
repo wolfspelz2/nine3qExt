@@ -19,10 +19,14 @@
             res = val;
         } else {
             if (typeof val === this.typeString) {
-                if (val == 'true' || val == 'True' || val == 'TRUE' || val == '1' || val == 'yes') { res = true; }
+                if (val == 'true' || val == 'True' || val == 'TRUE' || val == '1' || val == 'yes') {
+                    res = true;
+                } else { res = false; }
             } else {
                 if (typeof val === this.typeNumber) {
-                    if (val == 1) { res = true; }
+                    if (val >= 1) {
+                        res = true;
+                    } else { res = false; }
                 }
             }
         }

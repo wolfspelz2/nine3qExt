@@ -14,21 +14,12 @@ namespace n3q.Aspects
         public Inventory(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.InventoryAspect;
 
-        public enum Action { SetCoordinates, SetItemCoordinates }
+        public enum Action { SetItemCoordinates }
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { nameof(Action.SetCoordinates), new ActionDescription() { Handler = async (args) => await SetCoordinates(args.Get(Pid.InventorySetCoordinatesLeft), args.Get(Pid.InventorySetCoordinatesBottom), args.Get(Pid.InventorySetCoordinatesWidth), args.Get(Pid.InventorySetCoordinatesHeight)) } },
                 { nameof(Action.SetItemCoordinates), new ActionDescription() { Handler = async (args) => await SetItemCoordinates(await Item(args.Get(Pid.InventorySetItemCoordinatesItem)), args.Get(Pid.InventorySetItemCoordinatesX), args.Get(Pid.InventorySetItemCoordinatesY)) } },
             };
-        }
-
-        public async Task SetCoordinates(long left, long bottom, long width, long height)
-        {
-            //await AssertAspect();
-            if (left >= 0 && bottom >= 0 && width >= 0 && height >= 0) {
-                await this.ModifyProperties(new PropertySet { [Pid.Left] = left, [Pid.Bottom] = bottom, [Pid.Width] = left, [Pid.Height] = bottom }, PidSet.Empty);
-            }
         }
 
         public async Task SetItemCoordinates(ItemStub item, long x, long y)
