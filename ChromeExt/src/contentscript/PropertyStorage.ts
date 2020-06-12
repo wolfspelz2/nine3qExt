@@ -32,7 +32,7 @@ export class PropertyStorage
         }
     }
 
-    setProperty(entity: string, key: string, value: any)
+    setProperty(entity: string, key: string, value: string)
     {
         // Log.debug('PropertyStorage.setProperty', entity, key,value);
         this.setObservable(entity, key, value);
@@ -48,7 +48,7 @@ export class PropertyStorage
         this.properties[combinedKey].attach(observer);
     }
 
-    private setObservable(entity: string, key: string, value: any)
+    private setObservable(entity: string, key: string, value: string)
     {
         var combinedKey = this.combineKey(entity, key);
         if (!(combinedKey in this.properties)) {

@@ -25,7 +25,7 @@ export class Room
     private isEntered = false; // iAmAlreadyHere() needs isEntered=true to be after onPresenceAvailable
     private chatWindow: ChatWindow;
     private vidconfWindow: VidconfWindow;
-    private myNick: any;
+    private myNick: string;
 
     constructor(private app: ContentApp, private jid: string, private destination: string, private posX: number) 
     {

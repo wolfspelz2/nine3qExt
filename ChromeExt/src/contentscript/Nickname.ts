@@ -99,7 +99,7 @@ export class Nickname implements IObserver
         // Nothing to do
     }
 
-    updateObservableProperty(name: string, value: any): void
+    updateObservableProperty(name: string, value: string): void
     {
         this.setNickname(value);
     }

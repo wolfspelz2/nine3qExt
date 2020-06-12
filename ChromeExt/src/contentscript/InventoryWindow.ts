@@ -75,7 +75,7 @@ export class InventoryWindow extends Window
             };
 
             $(paneElem).droppable({
-                drop: (ev, ui) =>
+                drop: (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
                 {
                     let droppedAvatar = ui.draggable.get(0);
                     if (droppedAvatar) {

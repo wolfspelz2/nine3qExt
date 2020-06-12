@@ -179,7 +179,7 @@ export class InventoryItem
         return x > panePosition.left && x < panePosition.left + paneWidth && y < panePosition.top + paneHeight && y > panePosition.top;
     }
 
-    private getPositionRelativeToPane(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): any
+    private getPositionRelativeToPane(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): { x: number, y: number }
     {
         let scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
         let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -198,40 +198,6 @@ export class InventoryItem
 
         return { 'x': x - panePosition.left, 'y': y - panePosition.top };
     }
-
-    // private isPositionInInventory(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
-    // {
-    // let paneElem = this.inv.getPane();
-    // let toElem = ev.originalEvent['toElement'];
-    // let isOnPane = toElem == paneElem || (toElem.parentElement && toElem.parentElement == paneElem);
-
-    // if (isOnPane) {
-    //     let pos = this.getPositionRelativeToPane(ev, ui);
-    //     return pos.x > 0 && pos.x < paneElem.offsetWidth && pos.y > 0 && pos.y < paneElem.offsetHeight;
-    // }
-
-    // return false;
-    // }
-
-    // private getPositionRelativeToPane(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): any
-    // {
-    //     let mouseX = ev.offsetX;
-    //     let mouseY = ev.offsetY;
-
-    //     let toElem = ev.originalEvent['toElement'];
-    //     let paneElem = this.inv.getPane();
-
-    //     if (toElem == paneElem) {
-    //     } else if (toElem.parentElement && toElem.parentElement == paneElem) {
-    //         mouseX = mouseX + toElem.offsetLeft;
-    //         mouseY = mouseY + toElem.offsetTop;
-    //     }
-
-    //     let newX = mouseX - this.dragClickOffset.dx;
-    //     let newY = mouseY - this.dragClickOffset.dy;
-
-    //     return { 'x': newX, 'y': newY };
-    // }
 
     private isPositionInDropzone(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
     {

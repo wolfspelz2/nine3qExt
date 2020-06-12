@@ -86,17 +86,17 @@ export class Avatar implements IObserver
             helper: 'clone',
             // zIndex: 1100000000,
             containment: 'document',
-            start: (ev: JQueryMouseEventObject, ui) =>
+            start: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
                 this.app.enableScreen(true);
                 this.inDrag = true;
                 this.entity.onDragAvatarStart(ev, ui);
             },
-            drag: (ev: JQueryMouseEventObject, ui) =>
+            drag: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
                 this.entity.onDragAvatar(ev, ui);
             },
-            stop: (ev: JQueryMouseEventObject, ui) =>
+            stop: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
                 this.entity.onDragAvatarStop(ev, ui);
                 this.inDrag = false;
@@ -126,7 +126,7 @@ export class Avatar implements IObserver
         }
     }
 
-    updateObservableProperty(key: string, value: any): void
+    updateObservableProperty(key: string, value: string): void
     {
         switch (key) {
             case 'ImageUrl': {
@@ -196,7 +196,7 @@ export class Avatar implements IObserver
         }
     }
 
-    onAnimations(data: any): void
+    onAnimations(data: AnimationsXml.AnimationsDefinition): void
     {
         this.animations = data;
         this.defaultGroup = this.getDefaultGroup();

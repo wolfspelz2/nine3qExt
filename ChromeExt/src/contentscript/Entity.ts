@@ -155,18 +155,18 @@ export class Entity
 
     // Drag
 
-    private dragStartPosition: any;
-    onDragAvatarStart(ev: JQueryMouseEventObject, ui: any): void
+    private dragStartPosition: { top: number; left: number; };
+    onDragAvatarStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
     {
         this.dragStartPosition = ui.position;
         this.app.toFront(this.elem);
     }
 
-    onDragAvatar(ev: JQueryMouseEventObject, ui: any): void
+    onDragAvatar(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
     {
     }
 
-    onDragAvatarStop(ev: JQueryMouseEventObject, ui: any): void
+    onDragAvatarStop(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
     {
         let dX = ui.position.left - this.dragStartPosition.left;
         let newX = this.getPosition() + dX;

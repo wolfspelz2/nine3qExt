@@ -472,7 +472,7 @@ export class ContentApp
         this.babelfish.translateElem(elem);
     }
 
-    static itemProviderUrlFilter(providerId: string, attrName: string, attrValue: string): any
+    static itemProviderUrlFilter(providerId: string, attrName: string, attrValue: string): string
     {
         if (providerId && providerId != '') {
             let propertyUrlFilter = Config.get('itemProviders.' + providerId + '.config.itemPropertyUrlFilter', {});
