@@ -76,6 +76,8 @@ export class ContentApp
 
     async start()
     {
+        await BackgroundMessage.waitReady();
+
         if (!await this.getActive()) {
             this.messageHandler({ 'type': ContentAppNotification.type_stopped });
             return;

@@ -18,6 +18,7 @@ export class BackgroundApp
     private xmppConnected = false;
     private configUpdater: ConfigUpdater;
     private resource: string;
+    private isReady: boolean = false;
 
     private readonly stanzaQ: Array<xml> = [];
     private readonly roomJid2tabId: Map<string, Array<number>> = new Map<string, Array<number>>();
@@ -28,6 +29,8 @@ export class BackgroundApp
 
     async start(): Promise<void>
     {
+        this.isReady = false;
+
         let devConfig = await Config.getSync('dev.config', '{}');
         try {
             let parsed = JSON.parse(devConfig);
@@ -68,6 +71,8 @@ export class BackgroundApp
         } catch (error) {
             throw error;
         }
+
+        this.isReady = true;
     }
 
     stop(): void
@@ -88,6 +93,10 @@ export class BackgroundApp
         switch (message.type) {
             case BackgroundMessage.type_fetchUrl: {
                 return this.handle_fetchUrl(message.url, message.version, sendResponse);
+            } break;
+
+            case BackgroundMessage.type_waitReady: {
+                return this.handle_waitReady(sendResponse);
             } break;
 
             case BackgroundMessage.type_getConfigTree: {
@@ -215,9 +224,30 @@ export class BackgroundApp
         return false;
     }
 
+    handle_waitReady(sendResponse: (response?: any) => void)
+    {
+        log.debug('BackgroundApp.handle_waitReady');
+        let sendResponseIsAsync = false;
+
+        if (this.isReady) {
+            sendResponse({});
+            return sendResponseIsAsync;
+        }
+
+        sendResponseIsAsync = true;
+        let pollTimer = setInterval(() =>
+        {
+            if (this.isReady) {
+                clearInterval(pollTimer);
+                sendResponse({});
+            }
+        }, 100);
+        return sendResponseIsAsync;
+    }
+
     handle_getConfigTree(name: any)
     {
-        log.debug('BackgroundApp.handle_getConfigTree', name);
+        log.debug('BackgroundApp.handle_getConfigTree', name, this.isReady);
         switch (as.String(name, Config.onlineConfigName)) {
             case Config.devConfigName:
                 return Config.getDevTree();

@@ -19,7 +19,7 @@ export class Utils
         return xml(stanza.name, stanza.attrs, children);
     }
 
-    static async sleep(ms): Promise<void>
+    static async sleep(ms: number): Promise<void>
     {
         ms = ms < 0 ? 0 : ms;
         return new Promise(resolve => setTimeout(resolve, ms));

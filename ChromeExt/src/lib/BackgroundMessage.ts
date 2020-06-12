@@ -29,6 +29,22 @@ export class BackgroundMessage
         });
     }
 
+    static type_waitReady = 'waitReady';
+    static async waitReady(): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            try {
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_waitReady }, response =>
+                {
+                    resolve(response);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
     static type_getConfigTree = 'getConfigTree';
     static async getConfigTree(name: string): Promise<any>
     {
