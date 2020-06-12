@@ -227,6 +227,8 @@ export class RoomItem extends Entity
                 resizable: as.Bool(this.properties.IframeResizable, true),
                 titleText: as.String(this.properties.Label, 'Item'),
                 url: as.String(this.properties.IframeUrl, 'https://example.com'),
+                width: as.Int(this.properties.IframeWidth, 400),
+                height: as.Int(this.properties.IframeHeight, 400),
                 onClose: () => { this.iframeWindow = null; },
             });
         }

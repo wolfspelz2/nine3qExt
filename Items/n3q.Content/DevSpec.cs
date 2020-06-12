@@ -14,6 +14,7 @@ namespace n3q.Content
             Room,
             AvatarTheatre,
             WaterResourceTest,
+            FridaysForFuture,
         }
 
         public enum Template
@@ -45,6 +46,16 @@ namespace n3q.Content
             WaterSink,
             PottedPlant,
             BioWaste,
+
+            // FridaysForFuture
+            PosterHowDareYou                  ,
+            PosterThereIsNoPlanetB                  ,
+            PosterWirStreikenBisIhrHandelt                  ,
+            RallySpeaker                          ,
+            FieldMapleTree                  ,
+            MapleTree                              ,
+            PlatanusOccidentalis                  ,
+            SmallMapleTree                  ,
         }
 
         public const string AllGroupsSpecialSelector = "ALL";

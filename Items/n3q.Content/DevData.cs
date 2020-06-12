@@ -25,7 +25,7 @@ namespace n3q.Content
                     //    GetTemplate(nameof(DevSpec.Template.Nickname), templates, text);
                     //    GetTemplate(nameof(DevSpec.Template.Avatar), templates, text);
                     //};
-                        GetTemplate(nameof(DevSpec.Template.Settings), templates, text);
+                    GetTemplate(nameof(DevSpec.Template.Settings), templates, text);
                     break;
 
                 case nameof(DevSpec.Group.Room):
@@ -48,6 +48,17 @@ namespace n3q.Content
                         GetTemplate(nameof(DevSpec.Template.PottedPlant), templates, text);
                         GetTemplate(nameof(DevSpec.Template.BioWaste), templates, text);
                     };
+                    break;
+
+                case nameof(DevSpec.Group.FridaysForFuture):
+                    GetTemplate(nameof(DevSpec.Template.PosterHowDareYou), templates, text);
+                    GetTemplate(nameof(DevSpec.Template.PosterThereIsNoPlanetB), templates, text);
+                    GetTemplate(nameof(DevSpec.Template.PosterWirStreikenBisIhrHandelt), templates, text);
+                    GetTemplate(nameof(DevSpec.Template.RallySpeaker), templates, text);
+                    GetTemplate(nameof(DevSpec.Template.FieldMapleTree), templates, text);
+                    GetTemplate(nameof(DevSpec.Template.MapleTree), templates, text);
+                    GetTemplate(nameof(DevSpec.Template.PlatanusOccidentalis), templates, text);
+                    GetTemplate(nameof(DevSpec.Template.SmallMapleTree), templates, text);
                     break;
 
                 default:
@@ -205,11 +216,49 @@ namespace n3q.Content
                     text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Water Bottle";
                     break;
 
+#pragma warning disable format
+                case nameof(DevSpec.Template.PosterHowDareYou              ): props = GetImageTemplate(DevSpec.Template.PosterHowDareYou               , 123, 226, "FridaysForFuture/PosterHowDareYou.png"               ); break;
+                case nameof(DevSpec.Template.PosterThereIsNoPlanetB        ): props = GetImageTemplate(DevSpec.Template.PosterThereIsNoPlanetB         , 158, 161, "FridaysForFuture/PosterThereIsNoPlanetB.png"         ); break;
+                case nameof(DevSpec.Template.PosterWirStreikenBisIhrHandelt): props = GetImageTemplate(DevSpec.Template.PosterWirStreikenBisIhrHandelt , 255, 204, "FridaysForFuture/PosterWirStreikenBisIhrHandelt.png" ); break;
+                case nameof(DevSpec.Template.FieldMapleTree                ): props = GetImageTemplate(DevSpec.Template.FieldMapleTree                 , 156, 200, "Trees/FieldMapleTree.png"                            ); break;
+                case nameof(DevSpec.Template.MapleTree                     ): props = GetImageTemplate(DevSpec.Template.MapleTree                      , 174, 250, "Trees/MapleTree.png"                                 ); break;
+                case nameof(DevSpec.Template.PlatanusOccidentalis          ): props = GetImageTemplate(DevSpec.Template.PlatanusOccidentalis           , 136, 300, "Trees/PlatanusOccidentalis.png"                      ); break;
+                case nameof(DevSpec.Template.SmallMapleTree                ): props = GetImageTemplate(DevSpec.Template.SmallMapleTree                 ,  58,  80, "Trees/SmallMapleTree.png"                            ); break;
+                case nameof(DevSpec.Template.RallySpeaker                  ): props = GetIframeTemplate(DevSpec.Template.RallySpeaker                  ,  75,  80, "FridaysForFuture/RallySpeaker.png"                   , "https://meet.jit.si/{room}", 600, 400); break;
+#pragma warning restore format
+
                 default:
                     throw new Exception($"No template for name={name}");
             }
 
             templates.Add(name, props);
+        }
+
+        public static PropertySet GetImageTemplate(DevSpec.Template id, int imgWidth, int imgHeight, string relativeImagePath)
+        {
+            return new PropertySet {
+                [Pid.Name] = id.ToString(),
+                [Pid.Label] = id.ToString(),
+                [Pid.Width] = (long)imgWidth,
+                [Pid.Height] = (long)imgHeight,
+                [Pid.ImageUrl] = PropertyFilter.ItemBase + relativeImagePath,
+            };
+        }
+
+        public static PropertySet GetIframeTemplate(DevSpec.Template id, int imgWidth, int imgHeight, string relativeImagePath, string iframeUrl, int iframeWidth, int iframeHeight)
+        {
+            return new PropertySet {
+                [Pid.Name] = id.ToString(),
+                [Pid.Label] = id.ToString(),
+                [Pid.Width] = (long)imgWidth,
+                [Pid.Height] = (long)imgHeight,
+                [Pid.ImageUrl] = PropertyFilter.ItemBase + relativeImagePath,
+                [Pid.IframeAspect] = true,
+                [Pid.IframeUrl] = iframeUrl,
+                [Pid.IframeWidth] = (long)iframeWidth,
+                [Pid.IframeHeight] = (long)iframeHeight,
+                [Pid.IframeResizeable] = true,
+            };
         }
 
         public static List<string> GetTemplateNames(string name)
