@@ -8,6 +8,7 @@ import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
 import { RoomItem } from './RoomItem';
 import { ChatWindow } from './ChatWindow'; // Wants to be after Participant and Item otherwise $().resizable does not work
+import { VidconfWindow } from './VidconfWindow';
 
 export interface IRoomInfoLine extends Array<string | string> { 0: string, 1: string }
 export interface IRoomInfo extends Array<IRoomInfoLine> { }
@@ -23,6 +24,7 @@ export class Room
     private items: { [nick: string]: RoomItem; } = {};
     private isEntered = false; // iAmAlreadyHere() needs isEntered=true to be after onPresenceAvailable
     private chatWindow: ChatWindow;
+    private vidconfWindow: VidconfWindow;
     private myNick: any;
 
     constructor(private app: ContentApp, private jid: string, private destination: string, private posX: number) 
@@ -319,6 +321,18 @@ export class Room
     showChatMessage(nick: string, text: string)
     {
         this.chatWindow.addLine(nick + Date.now(), nick, text);
+    }
+
+    showVideoConference(aboveElem: HTMLElement): void
+    {
+        if (!this.vidconfWindow) {
+            this.vidconfWindow = new VidconfWindow(this.app);
+            this.vidconfWindow.show({
+                'above': aboveElem,
+                url: Config.get('room.vidconfUrl', 'https://meet.jit.si/{room}'),
+                onClose: () => { this.vidconfWindow = null; },
+            });
+        }
     }
 
     sendMoveMessage(newX: number): void

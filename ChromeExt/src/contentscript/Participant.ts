@@ -539,6 +539,11 @@ export class Participant extends Entity
         this.room?.showChatWindow(this.getElem());
     }
 
+    showVideoConference(): void
+    {
+        this.room?.showVideoConference(this.getElem());
+    }
+
     showInventoryWindow(): void
     {
         this.app.showInventoryWindow(this.getElem());

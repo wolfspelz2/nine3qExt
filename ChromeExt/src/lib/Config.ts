@@ -55,6 +55,7 @@ export class Config
             defaultAnimationSize: 100,
             vCardAvatarFallback: false,
             vCardAvatarFallbackOnHover: true,
+            vidconfUrl: 'https://meet.jit.si/{room}',
         },
         xmpp: {
             service: 'wss://xmpp.weblin.sui.li/xmpp-websocket',
@@ -120,6 +121,7 @@ export class Config
                     'Menu.Stay Here': 'Stay Here',
                     'Menu.Inventory': 'Your Stuff',
                     'Menu.Chat Window': 'History',
+                    'Menu.Video Conference': 'Video Conference',
                     'Menu.Chat': 'Chat',
                     'Menu.Actions:': 'Actions:',
                     'Menu.wave': 'Wave',
@@ -140,8 +142,8 @@ export class Config
                     'Chatwindow.is present': '*is present*',
                     'Chatwindow.disappeared': '*disappeared*',
 
+                    'Vidconfwindow.Video Conference': 'Video Conference',
                     'Settingswindow.Settings': 'Settings',
-
                     'InventoryWindow.Inventory': 'Your Stuff',
                 },
                 'de-DE': {
@@ -165,6 +167,7 @@ export class Config
                     'Menu.Stay Here': 'Hier bleiben',
                     'Menu.Inventory': 'Deine Sachen',
                     'Menu.Chat Window': 'Chatverlauf',
+                    'Menu.Video Conference': 'Videokonferenz',
                     'Menu.Chat': 'Sprechblase',
                     'Menu.Actions:': 'Aktionen:',
                     'Menu.wave': 'Winken',
@@ -185,9 +188,9 @@ export class Config
                     'Chatwindow.is present': '*ist da*',
                     'Chatwindow.disappeared': '*verschwunden*',
 
+                    'Vidconfwindow.Video Conference': 'Videokonferenz',
                     'Settingswindow.Settings': 'Einstellungen',
-
-                    'InventoryWindow.Inventory': 'Deine Sachen',
+                    'InventoryWindow.Inventory': 'Deine Gegenstände',
                 },
             },
             'serviceUrl': '',
