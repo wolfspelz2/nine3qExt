@@ -39,6 +39,13 @@ export class TestVpiResolver
         expect(mapped).to.equal('xmpp:zweitgeistde2@muc4.virtual-presence.org');
     }
 
+    async VpiResolver_map_weblin_ex_bugfix_had_an_undefined()
+    {
+        let vpi = new VpiResolver(new TestDataProvider(), new TestConfigInstance());
+        let mapped = await vpi.map('https://www.weblin.com/ex/');
+        expect(mapped).to.equal('xmpp:zweitgeist@muc4.virtual-presence.org');
+    }
+
     async VpiResolver_map_galdev()
     {
         let vpi = new VpiResolver(new TestDataProvider(), new TestConfigInstance());

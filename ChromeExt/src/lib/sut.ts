@@ -68,9 +68,9 @@ export class sut
             this.countStarted++;
             try {
                 if (this.tests[name].isAsync) {
-                result = await this.tests[name].fn();
+                    result = await this.tests[name].fn();
                 } else {
-                result = this.tests[name].fn();
+                    result = this.tests[name].fn();
                 }
             } catch (error) {
                 result = error;
