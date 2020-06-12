@@ -46,14 +46,8 @@ export class VidconfWindow extends Window
                 }
             }
 
-            let url: string = options.url;
- 
-            let room = this.app.getRoom();
-            if (room) {
-                let jid = room.getJid();
-                url = url.replace('{room}', jid);
-            }
-
+            let url: string = options.url; 
+            url = encodeURI(url);
             let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-iframewindow-content" src="' + url + ' " frameborder="0" allow="camera; microphone; display-capture"></iframe>').get(0);
 
             $(contentElem).append(iframeElem);

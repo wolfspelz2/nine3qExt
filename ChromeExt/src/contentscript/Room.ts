@@ -323,13 +323,16 @@ export class Room
         this.chatWindow.addLine(nick + Date.now(), nick, text);
     }
 
-    showVideoConference(aboveElem: HTMLElement): void
+    showVideoConference(aboveElem: HTMLElement, displayName: string): void
     {
         if (!this.vidconfWindow) {
+            let urlTemplate = Config.get('room.vidconfUrl', 'https://meet.jit.si/{room}#userInfo.displayName="{name}"');
+            let url = urlTemplate.replace('{room}', this.jid).replace('{name}', displayName);
+
             this.vidconfWindow = new VidconfWindow(this.app);
             this.vidconfWindow.show({
                 'above': aboveElem,
-                url: Config.get('room.vidconfUrl', 'https://meet.jit.si/{room}'),
+                'url': url,
                 onClose: () => { this.vidconfWindow = null; },
             });
         }

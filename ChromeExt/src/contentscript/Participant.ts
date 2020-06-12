@@ -541,7 +541,7 @@ export class Participant extends Entity
 
     showVideoConference(): void
     {
-        this.room?.showVideoConference(this.getElem());
+        this.room?.showVideoConference(this.getElem(), this.nicknameDisplay ? this.nicknameDisplay.getNickname() : this.nick);
     }
 
     showInventoryWindow(): void

@@ -55,7 +55,7 @@ export class Config
             defaultAnimationSize: 100,
             vCardAvatarFallback: false,
             vCardAvatarFallbackOnHover: true,
-            vidconfUrl: 'https://meet.jit.si/{room}',
+            vidconfUrl: 'https://meet.jit.si/{room}#userInfo.displayName="{name}"',
         },
         xmpp: {
             service: 'wss://xmpp.weblin.sui.li/xmpp-websocket',
