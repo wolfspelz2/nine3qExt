@@ -48,14 +48,14 @@ namespace n3q.Content
             BioWaste,
 
             // FridaysForFuture
-            PosterHowDareYou                  ,
-            PosterThereIsNoPlanetB                  ,
-            PosterWirStreikenBisIhrHandelt                  ,
-            RallySpeaker                          ,
-            FieldMapleTree                  ,
-            MapleTree                              ,
-            PlatanusOccidentalis                  ,
-            SmallMapleTree                  ,
+            PosterHowDareYou,
+            PosterThereIsNoPlanetB,
+            PosterWirStreikenBisIhrHandelt,
+            RallySpeaker,
+            FieldMapleTree,
+            MapleTree,
+            PlatanusOccidentalis,
+            SmallMapleTree,
         }
 
         public const string AllGroupsSpecialSelector = "ALL";
