@@ -76,7 +76,13 @@ export class ContentApp
 
     async start()
     {
-        await BackgroundMessage.waitReady();
+        try {
+            await BackgroundMessage.waitReady();
+        } catch (error) {
+            log.debug(error.message);
+            Panic.now();
+        }
+        if (Panic.isOn) { return; }
 
         if (!await this.getActive()) {
             this.messageHandler({ 'type': ContentAppNotification.type_stopped });
