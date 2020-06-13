@@ -3,6 +3,7 @@ import 'webpack-jquery-ui';
 import log = require('loglevel');
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
+import { Config } from '../lib/Config';
 import { ContentApp } from './ContentApp';
 
 export class Window
@@ -113,6 +114,28 @@ export class Window
                 },
             });
         }
+    }
+
+    async getSavedOptions(options: any, name: string): Promise<any>
+    {
+        options = await this.getSavedOption(options, name, 'bottom');
+        options = await this.getSavedOption(options, name, 'width');
+        options = await this.getSavedOption(options, name, 'height');
+        return options;
+    }
+
+    async getSavedOption(options: any, name: string, key: string): Promise<any>
+    {
+        let value = await Config.getSync('window.' + name + '.' + key, null);
+        if (value) {
+            options[key] = value;
+        }
+        return options;
+    }
+
+    async saveOption(name: string, key: string, value: any): Promise<void>
+    {
+        await Config.setSync('window.' + name + '.' + key, value);
     }
 
     isOpen(): boolean

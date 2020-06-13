@@ -28,7 +28,7 @@ export class InventoryItem
         let paneElem = this.inv.getPane();
         let padding: number = Config.get('inventory.borderPadding', 4);
 
-        let size = Config.get('inventory.iconSize', 64);
+        let size = Config.get('inventory.itemSize', 64);
         let x = this.getPseudoRandomCoordinate(paneElem.offsetWidth, this.w, padding, itemId, 11345);
         let y = this.getPseudoRandomCoordinate(paneElem.offsetHeight, this.w, padding, itemId, 13532);
 
@@ -303,15 +303,15 @@ export class InventoryItem
 
         this.properties = newProperties;
 
-        if (this.match('SettingsAspect', true)) {
-            var left = as.Int(this.properties.InventoryLeft, -1);
-            var bottom = as.Int(this.properties.InventoryBottom, -1);
-            var width = as.Int(this.properties.InventoryWidth, -1);
-            var height = as.Int(this.properties.InventoryHeight, -1);
-            if (width > 0 && height > 0) {
-                this.inv?.getWindow()?.setCoordinates(left, bottom, width, height);
-            }
-        }
+        // if (this.match('SettingsAspect', true)) {
+        //     var left = as.Int(this.properties.InventoryLeft, -1);
+        //     var bottom = as.Int(this.properties.InventoryBottom, -1);
+        //     var width = as.Int(this.properties.InventoryWidth, -1);
+        //     var height = as.Int(this.properties.InventoryHeight, -1);
+        //     if (width > 0 && height > 0) {
+        //         this.inv?.getWindow()?.setCoordinates(left, bottom, width, height);
+        //     }
+        // }
 
         this.isFirstPresence = false;
     }

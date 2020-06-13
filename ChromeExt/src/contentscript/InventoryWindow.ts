@@ -20,8 +20,10 @@ export class InventoryWindow extends Window
 
     getPane() { return this.paneElem; }
 
-    show(options: any)
+    async show(options: any)
     {
+        options = await this.getSavedOptions(options, InventoryWindow.name);
+
         options.titleText = this.app.translateText('InventoryWindow.Inventory', 'Your Stuff');
         options.resizable = true;
 
@@ -63,7 +65,7 @@ export class InventoryWindow extends Window
             {
                 let left = ui.position.left;
                 let bottom = this.app.getDisplay().offsetHeight - (ui.position.top + ui.size.height);
-                this.inv.sendSetInventoryCoordinates(left, bottom, ui.size.width, ui.size.height);
+                this.saveCoordinates(left, bottom, ui.size.width, ui.size.height);
             };
 
             this.onDragStop = (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) =>
@@ -71,7 +73,7 @@ export class InventoryWindow extends Window
                 let size = { width: $(this.windowElem).width(), height: $(this.windowElem).height() }
                 let left = ui.position.left;
                 let bottom = this.app.getDisplay().offsetHeight - (ui.position.top + size.height);
-                this.inv.sendSetInventoryCoordinates(left, bottom, size.width, size.height);
+                this.saveCoordinates(left, bottom, size.width, size.height);
             };
 
             $(paneElem).droppable({
@@ -109,6 +111,14 @@ export class InventoryWindow extends Window
         if (height > 0) { coords['height'] = height; }
 
         $(this.windowElem).css(coords);
+    }
+
+    async saveCoordinates(left: number, bottom: number, width: number, height: number)
+    {
+        await this.saveOption(InventoryWindow.name, 'left', left);
+        await this.saveOption(InventoryWindow.name, 'bottom', bottom);
+        await this.saveOption(InventoryWindow.name, 'width', width);
+        await this.saveOption(InventoryWindow.name, 'height', height);
     }
 
     isOpen(): boolean

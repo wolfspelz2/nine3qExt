@@ -163,23 +163,6 @@ export class Inventory
         this.sendCommand(itemId, 'Derez', params);
     }
 
-    sendSetInventoryCoordinates(left: number, bottom: number, width: number, height: number)
-    {
-        log.info('Inventory', 'sendSetInventoryCoordinates', left, bottom, width, height);
-
-        let params = {
-            'left': Math.round(left),
-            'bottom': Math.round(bottom),
-            'width': Math.round(width),
-            'height': Math.round(height)
-        };
-
-        let itemId = this.findItem('SettingsAspect', true);
-        if (itemId) {
-            this.sendCommand(itemId, 'SetInventoryCoordinates', params);
-        }
-    }
-
     findItem(pid: string, value: any)
     {
         for (var itemId in this.items) {

@@ -663,22 +663,22 @@ namespace XmppComponent
                 }
                 break;
 
-                case nameof(n3q.Aspects.Settings.Action.SetInventoryCoordinates): {
-                    var inventoryItemId = await GetInventoryFromUserToken(user);
-                    if (Has.Value(inventoryItemId) && Has.Value(itemId)) {
+                //case nameof(n3q.Aspects.Settings.Action.SetInventoryCoordinates): {
+                //    var inventoryItemId = await GetInventoryFromUserToken(user);
+                //    if (Has.Value(inventoryItemId) && Has.Value(itemId)) {
 
-                        if (await MakeItemStub(itemId).GetBool(Pid.SettingsAspect)) {
-                            await GetIWorker().AspectAction(itemId, Pid.SettingsAspect, nameof(n3q.Aspects.Settings.Action.SetInventoryCoordinates), new PropertySet {
-                                [Pid.SettingsSetInventoryCoordinatesLeft] = message.Get("left", -1),
-                                [Pid.SettingsSetInventoryCoordinatesBottom] = message.Get("bottom", -1),
-                                [Pid.SettingsSetInventoryCoordinatesWidth] = message.Get("width", -1),
-                                [Pid.SettingsSetInventoryCoordinatesHeight] = message.Get("height", -1)
-                            });
+                //        if (await MakeItemStub(itemId).GetBool(Pid.SettingsAspect)) {
+                //            await GetIWorker().AspectAction(itemId, Pid.SettingsAspect, nameof(n3q.Aspects.Settings.Action.SetInventoryCoordinates), new PropertySet {
+                //                [Pid.SettingsSetInventoryCoordinatesLeft] = message.Get("left", -1),
+                //                [Pid.SettingsSetInventoryCoordinatesBottom] = message.Get("bottom", -1),
+                //                [Pid.SettingsSetInventoryCoordinatesWidth] = message.Get("width", -1),
+                //                [Pid.SettingsSetInventoryCoordinatesHeight] = message.Get("height", -1)
+                //            });
 
-                        }
-                    }
-                }
-                break;
+                //        }
+                //    }
+                //}
+                //break;
             }
 
             //var executed = await GetWorker().ItemAction(userId, itemId, actionName, args);

@@ -39,9 +39,7 @@ export class Nickname implements IObserver
 
             if (this.isSelf) {
 
-                let providerId = 'nine3q';
-                let serviceUrl = Config.get('itemProviders.' + providerId + '.config.serviceUrl', null);
-                if (serviceUrl) {
+                if (Config.get('inventory.enabled', false)) {
                     column.addItem('inventory', 'Inventory', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showInventoryWindow(); });
                 }
 

@@ -136,10 +136,10 @@ namespace n3q.Content
                         [Pid.ImageUrl] = PropertyFilter.ItemBase + "User/Settings.png",
                         [Pid.SettingsAspect] = true,
                         [Pid.RezableAspect] = false,
-                        [Pid.InventoryLeft] = -1,
-                        [Pid.InventoryBottom] = 250,
-                        [Pid.InventoryWidth] = 400,
-                        [Pid.InventoryHeight] = 300,
+                        //[Pid.InventoryLeft] = -1,
+                        //[Pid.InventoryBottom] = 250,
+                        //[Pid.InventoryWidth] = 400,
+                        //[Pid.InventoryHeight] = 300,
                     };
                     text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Einstellungen";
                     text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Settings";
