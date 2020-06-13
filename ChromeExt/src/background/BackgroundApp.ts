@@ -549,9 +549,11 @@ export class BackgroundApp
         log.debug('BackgroundApp.handle_userSettingsChanged');
         try {
             for (let room in this.roomJid2tabId) {
-                let tabId = this.roomJid2tabId[room];
-                if (tabId != undefined) {
-                    chrome.tabs.sendMessage(tabId, { 'type': 'userSettingsChanged' });
+                let tabIds = this.roomJid2tabId[room];
+                if (tabIds) {
+                    tabIds.forEach(tabId => {
+                        chrome.tabs.sendMessage(tabId, { 'type': 'userSettingsChanged' });
+                    });
                 }
             }
 
