@@ -81,7 +81,7 @@ export class ChangesWindow extends Window
     {
         let lineElem = <HTMLElement>$(
             `<div class="n3q-base n3q-changeswindow-line">
-                <span class="n3q-base n3q-text n3q-changeswindow-text">`+ as.Html(text) + `</span>
+                <span class="n3q-base n3q-text n3q-changeswindow-text">`+ as.HtmlWithClickableLinks(text) + `</span>
             <div>`
         ).get(0);
 

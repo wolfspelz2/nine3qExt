@@ -82,21 +82,33 @@
         return res;
     }
 
-    static makeLinksClickable(text): string
-    {
-        var urlRegex = /(https?:\/\/[^\s]+)/g;
-        return text.replace(urlRegex, url => 
-        {
-            return '<a href="' + url + '">' + url + '</a>';
-        });
-    }
-
     static Html(val: any, alt?: string): string
     {
         let res = as.String(val, alt);
         let htmlEncoded = String(res).replace(/[&<>'"]/g, (s) => this.escapeHtml_entityMap[s]);
-        let clickableEncoded = as.makeLinksClickable(htmlEncoded);
+        return htmlEncoded;
+    }
+
+    static HtmlWithClickableLinks(val: any, alt?: string): string
+    {
+        let html = as.Html(val, alt);
+        let clickableEncoded = as.makeLinksClickable(html);
         return clickableEncoded;
+    }
+
+    static makeLinksClickable(text): string
+    {
+        var urlRegex = /(https?:\/\/[^\s]+|www\.[^. ]+\.[^ ]+|[^. ]+\.(com|org|net|[a-z]{2}))/g;
+        return text.replace(urlRegex, url => 
+        {
+            let navigateUrl = url;
+            if (navigateUrl.startsWith('http://') || navigateUrl.startsWith('https://')) {
+                //
+            } else {
+                navigateUrl = 'http://' + url;
+            }
+            return '<a href="' + navigateUrl + '" target="_blank">' + url + '</a>';
+        });
     }
 
     static HtmlLink(val: any, text?: string, urlFilter?: (s: string) => string, alt?: string): string

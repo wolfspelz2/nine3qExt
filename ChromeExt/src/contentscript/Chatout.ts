@@ -56,7 +56,7 @@ export class Chatout
 
         $(this.elem).stop(true).fadeTo('fast', 1);
 
-        $(this.textElem).html(as.Html(text));
+        $(this.textElem).html(as.HtmlWithClickableLinks(text));
 
         this.elem.style.display = 'block';
         $(this.elem).delay(10000).fadeOut(10000);

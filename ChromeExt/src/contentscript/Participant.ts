@@ -50,10 +50,10 @@ export class Participant extends Entity
 
     async onPresenceAvailable(stanza: any): Promise<void>
     {
-        let presenceHasPosition: boolean = false;
+        let hasPosition: boolean = false;
         let newX: number = 123;
 
-        let presenceHasCondition: boolean = false;
+        let hasCondition: boolean = false;
         let newCondition: string = '';
 
         let xmppNickname = '';
@@ -83,10 +83,10 @@ export class Participant extends Entity
                 if (positionNode) {
                     newX = as.Int(positionNode.attrs.x, -1);
                     if (newX != -1) {
-                        presenceHasPosition = true;
+                        hasPosition = true;
                     }
                 }
-                presenceHasCondition = true;
+                hasCondition = true;
                 let conditionNode = stateNode.getChild('condition');
                 if (conditionNode) {
                     newCondition = as.String(conditionNode.attrs.status, '');
@@ -131,11 +131,11 @@ export class Participant extends Entity
             if (showNode != null) {
                 showAvailability = showNode.getText();
                 switch (showAvailability) {
-                    case 'chat': newCondition = ''; presenceHasCondition = true; break;
-                    case 'available': newCondition = ''; presenceHasCondition = true; break;
-                    case 'away': newCondition = 'sleep'; presenceHasCondition = true; break;
-                    case 'dnd': newCondition = 'sleep'; presenceHasCondition = true; break;
-                    case 'xa': newCondition = 'sleep'; presenceHasCondition = true; break;
+                    case 'chat': newCondition = ''; hasCondition = true; break;
+                    case 'available': newCondition = ''; hasCondition = true; break;
+                    case 'away': newCondition = 'sleep'; hasCondition = true; break;
+                    case 'dnd': newCondition = 'sleep'; hasCondition = true; break;
+                    case 'xa': newCondition = 'sleep'; hasCondition = true; break;
                     default: break;
                 }
             }
@@ -220,18 +220,18 @@ export class Participant extends Entity
             }
         }
 
-        if (presenceHasCondition) {
+        if (hasCondition) {
             this.avatarDisplay?.setCondition(newCondition);
         }
 
         if (this.isFirstPresence) {
-            if (!presenceHasPosition) {
+            if (!hasPosition) {
                 newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition(this.nick);
             }
             if (newX < 0) { newX = 100; }
             this.setPosition(newX);
         } else {
-            if (presenceHasPosition) {
+            if (hasPosition) {
                 if (this.getPosition() != newX) {
                     this.move(newX);
                 }
