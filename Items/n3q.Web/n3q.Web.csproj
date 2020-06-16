@@ -18,13 +18,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\JsonPath\JsonPath.csproj" />
+    <ProjectReference Include="..\..\Shared\JsonPath\JsonPath.csproj" />
+    <ProjectReference Include="..\..\Shared\n3q.Tools\n3q.Tools.csproj" />
     <ProjectReference Include="..\n3q.Common\n3q.Common.csproj" />
     <ProjectReference Include="..\n3q.Content\n3q.Content.csproj" />
     <ProjectReference Include="..\n3q.GrainInterfaces\n3q.GrainInterfaces.csproj" />
     <ProjectReference Include="..\n3q.Grains\n3q.Grains.csproj" />
     <ProjectReference Include="..\n3q.StorageProviders\n3q.StorageProviders.csproj" />
-    <ProjectReference Include="..\n3q.Tools\n3q.Tools.csproj" />
   </ItemGroup>
 
 </Project>

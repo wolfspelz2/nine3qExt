@@ -11,8 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\JsonPath\JsonPath.csproj" />
-    <ProjectReference Include="..\n3q.Tools\n3q.Tools.csproj" />
+    <ProjectReference Include="..\..\Shared\n3q.Tools\n3q.Tools.csproj" />
   </ItemGroup>
 
 </Project>

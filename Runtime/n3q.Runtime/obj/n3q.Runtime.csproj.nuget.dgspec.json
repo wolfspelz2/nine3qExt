@@ -1,0 +1,125 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Heiner\\github-nine3q\\Runtime\\n3q.Runtime\\n3q.Runtime.csproj": {}
+  },
+  "projects": {
+    "C:\\Heiner\\github-nine3q\\Runtime\\n3q.Runtime\\n3q.Runtime.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Heiner\\github-nine3q\\Runtime\\n3q.Runtime\\n3q.Runtime.csproj",
+        "projectName": "n3q.Runtime",
+        "projectPath": "C:\\Heiner\\github-nine3q\\Runtime\\n3q.Runtime\\n3q.Runtime.csproj",
+        "packagesPath": "C:\\Users\\wolf\\.nuget\\packages\\",
+        "outputPath": "C:\\Heiner\\github-nine3q\\Runtime\\n3q.Runtime\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\wolf\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "projectReferences": {
+              "C:\\Heiner\\github-nine3q\\Shared\\n3q.Tools\\n3q.Tools.csproj": {
+                "projectPath": "C:\\Heiner\\github-nine3q\\Shared\\n3q.Tools\\n3q.Tools.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.301\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Heiner\\github-nine3q\\Shared\\n3q.Tools\\n3q.Tools.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Heiner\\github-nine3q\\Shared\\n3q.Tools\\n3q.Tools.csproj",
+        "projectName": "n3q.Tools",
+        "projectPath": "C:\\Heiner\\github-nine3q\\Shared\\n3q.Tools\\n3q.Tools.csproj",
+        "packagesPath": "C:\\Users\\wolf\\.nuget\\packages\\",
+        "outputPath": "C:\\Heiner\\github-nine3q\\Shared\\n3q.Tools\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\wolf\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netstandard2.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netstandard2.1": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netstandard2.1": {
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "NETStandard.Library": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.301\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
