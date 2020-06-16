@@ -6,16 +6,12 @@ import { Config } from '../lib/Config';
 import { Environment } from '../lib/Environment';
 import { ContentApp, ContentAppNotification } from './ContentApp';
 
-console.log('Contentscript');
-
-let debug = Environment.isDevelopment();
-console.log('Contentscript', 'debug', debug);
+let dev = Environment.isDevelopment();
+console.log('Contentscript', 'dev', dev);
 
 log.setLevel(log.levels.INFO);
 
-if (debug) {
-    // Config.getAllStatic().room.randomEnterPosXMin = 200;
-    // Config.getAllStatic().room.randomEnterPosXMax= 200;
+if (dev) {
     // Config.getAllStatic().vp.deferPageEnterSec = 0;
     log.setLevel(log.levels.DEBUG);
 }
