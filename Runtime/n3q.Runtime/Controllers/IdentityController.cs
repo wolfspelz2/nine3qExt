@@ -58,6 +58,7 @@ namespace n3q.Runtime.Controllers
             var avatarUrl_XmlEncoded = WebUtility.HtmlEncode(avatarUrl);
             var nickname_XmlEncoded = WebUtility.HtmlEncode(nickname);
 
+#pragma warning disable format
             var xml =
 $@"<?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE identity-xml>
@@ -67,6 +68,7 @@ $@"<?xml version='1.0' encoding='UTF-8'?>
     <item id='properties' contenttype='properties' digest='{digest_XmlEncoded}' encoding='plain' mimetype='text/plain' order='1'><![CDATA[Nickname={nickname_XmlEncoded}]]></item>
 </identity>
 ".Replace("'", "\"");
+#pragma warning restore format
 
             //var xmlDoc = new XmlDocument();
             //var rootNode = xmlDoc.CreateElement("identity", "http://schema.bluehands.de/digest-container");
