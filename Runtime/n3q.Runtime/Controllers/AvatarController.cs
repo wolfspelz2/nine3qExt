@@ -1,21 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
-using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Globalization;
 using System.Xml;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
+using Microsoft.Extensions.Caching.Memory;
 using n3q.Tools;
-using System.Globalization;
 
 namespace n3q.Runtime.Controllers
 {
@@ -23,16 +17,36 @@ namespace n3q.Runtime.Controllers
     public class AvatarController : ControllerBase
     {
         private readonly ILogger<AvatarController> _logger;
+        private readonly IMemoryCache _cache;
 
-        public AvatarController(ILogger<AvatarController> logger)
+        public AvatarController(ILogger<AvatarController> logger, IMemoryCache memoryCache)
         {
-            _logger = logger;
-            _ = _logger;
+            _logger = logger; _ = _logger;
+            _cache = memoryCache;
         }
 
         [Route("[controller]/InlineData")]
         [HttpGet]
         public async Task<string> InlineData(string avatarUrl)
+        {
+            var xml = _cache.Get(avatarUrl) as string;
+
+            if (xml != null) {
+                return xml;
+            }
+
+            xml = await CreateXml(avatarUrl);
+
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromSeconds(3600))
+                        .SetSize(xml.Length)
+                        ;
+            _cache.Set(avatarUrl, xml, cacheEntryOptions);
+
+            return xml;
+        }
+
+        private async Task<string> CreateXml(string avatarUrl)
         {
             var baseUrl = "";
             var idx = avatarUrl.LastIndexOf("/");
@@ -140,7 +154,6 @@ namespace n3q.Runtime.Controllers
 
             xml = xml.Replace(" xmlns=\"\"", "");
             xml = xml.Replace("encoding=\"utf-16\"", "encoding=\"UTF-8\"");
-
             return xml;
         }
 
