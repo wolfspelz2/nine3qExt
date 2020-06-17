@@ -14,13 +14,3 @@
 /Items/Test
 *.user
 /Runtime/.vs
-/Runtime/Runtime/bin
-/Runtime/Runtime/obj
-/Shared/JsonPath/bin
-/Shared/JsonPath/obj
-/Shared/JsonPath.Test/bin
-/Shared/JsonPath.Test/obj
-/Shared/n3q.Tools/bin
-/Shared/n3q.Tools/obj
-/Shared/n3q.Tools.Test/bin
-/Shared/n3q.Tools.Test/obj
