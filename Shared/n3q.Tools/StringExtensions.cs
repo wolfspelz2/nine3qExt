@@ -17,28 +17,28 @@ namespace n3q.Tools
 
     public static class StringExtensions
     {
-        public static bool IsSomething(this string self)
-        {
-            return !string.IsNullOrEmpty(self);
-        }
-
-        public static int ToInteger(this string self)
-        {
-            int.TryParse(self, out var value);
-            return value;
-        }
-
-        public static bool IsInteger(this string self)
-        {
-            return int.TryParse(self, out _);
-        }
-
         public static T ToEnum<T>(this string self, T defaultValue) where T : struct
         {
             if (!Enum.TryParse<T>(self, out var value)) {
                 value = defaultValue;
             }
             return value;
+        }
+
+        public static long ToLong(this string self)
+        {
+            if (long.TryParse(self, NumberStyles.Any, CultureInfo.InvariantCulture, out long value)) {
+                return value;
+            }
+            return 0L;
+        }
+
+        public static double ToDouble(this string self)
+        {
+            if (double.TryParse(self, NumberStyles.Any, CultureInfo.InvariantCulture, out double value)) {
+                return value;
+            }
+            return 0.0D;
         }
 
         public static bool IsTrue(this string self)

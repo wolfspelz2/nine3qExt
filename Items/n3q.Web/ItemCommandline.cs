@@ -333,7 +333,7 @@ namespace n3q.Web
                 var node = new JsonPath.Node(JsonPath.Node.Type.Dictionary);
                 foreach (var pair in props) {
                     JsonPath.Node propNode = null;
-                    propNode = Property.GetDefinition(pair.Key).Basic switch
+                    propNode = Property.GetDefinition(pair.Key).Storage switch
                     {
                         Property.Storage.Int => new JsonPath.Node(JsonPath.Node.Type.Int, (long)pair.Value),
                         Property.Storage.Float => new JsonPath.Node(JsonPath.Node.Type.Float, (double)pair.Value),

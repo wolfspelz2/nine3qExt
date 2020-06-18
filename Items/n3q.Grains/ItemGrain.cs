@@ -14,13 +14,6 @@ using n3q.Common;
 
 namespace n3q.Grains
 {
-    [Serializable]
-    public class ItemState
-    {
-        public string Id;
-        public Dictionary<Pid, string> Properties;
-    }
-
     class ItemGrain : Grain, IItem
     //, IAsyncObserver<ItemUpdate>
     {

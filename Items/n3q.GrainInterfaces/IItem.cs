@@ -26,4 +26,10 @@ namespace n3q.GrainInterfaces
         Task DeletePersistentStorage();
     }
 
+    [Serializable]
+    public class ItemState
+    {
+        public string Id;
+        public Dictionary<Pid, string> Properties;
+    }
 }

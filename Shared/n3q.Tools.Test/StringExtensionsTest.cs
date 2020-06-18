@@ -8,8 +8,6 @@ namespace n3q.Tools.Test
         [TestMethod]
         public void IsSomething()
         {
-            Assert.IsTrue("x".IsSomething());
-            Assert.IsFalse("".IsSomething());
             Assert.IsTrue(Has.Value("x"));
             Assert.IsFalse(Has.Value(""));
             Assert.IsFalse(Has.Value((string)null));

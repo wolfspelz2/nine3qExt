@@ -5,8 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.Cosmos.Table" Version="1.0.7" />
     <PackageReference Include="Microsoft.Orleans.OrleansProviders" Version="3.1.7" />
     <PackageReference Include="Microsoft.Orleans.Runtime.Abstractions" Version="3.1.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\n3q.GrainInterfaces\n3q.GrainInterfaces.csproj" />
+    <ProjectReference Include="..\n3q.Items\n3q.Items.csproj" />
   </ItemGroup>
 
 </Project>

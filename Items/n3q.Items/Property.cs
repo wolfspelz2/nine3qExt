@@ -87,7 +87,7 @@ namespace n3q.Items
 
         public class Definition
         {
-            public Storage Basic { get; set; }
+            public Storage Storage { get; set; }
             public Type Type { get; set; }
             public Use Use { get; set; }
             public Group Group { get; set; }
@@ -97,9 +97,9 @@ namespace n3q.Items
             public string Example { get; set; }
             public string Description { get; set; }
 
-            public Definition(Storage basic, Type type, Use usage, Group group, Access access, Persistence persistence, PropertyValue defaultValue, string example, string description)
+            public Definition(Storage storage, Type type, Use usage, Group group, Access access, Persistence persistence, PropertyValue defaultValue, string example, string description)
             {
-                Basic = basic;
+                Storage = storage;
                 Type = type;
                 Use = usage;
                 Group = group;
