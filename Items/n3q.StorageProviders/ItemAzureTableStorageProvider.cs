@@ -35,7 +35,7 @@ namespace n3q.StorageProviders
     public class ItemAzureTableStorageOptions
     {
         public string ConnectionString = "DataConnectionString";
-        public string TableName = "Grains";
+        public string TableName = "Items";
 
         public int InitStage { get; set; } = DEFAULT_INIT_STAGE;
         public const int DEFAULT_INIT_STAGE = ServiceLifecycleStage.ApplicationServices;

@@ -42,7 +42,8 @@ namespace n3q.Grains
 
         public ItemGrain(
             ILogger<ItemGrain> logger,
-            [PersistentState("Item", JsonFileStorage.StorageProviderName)] IPersistentState<ItemState> itemState
+            //[PersistentState("Item", JsonFileStorage.StorageProviderName)] IPersistentState<ItemState> itemState
+            [PersistentState("Item", ItemAzureTableStorage.StorageProviderName)] IPersistentState<ItemState> itemState
             )
         {
             _logger = logger;

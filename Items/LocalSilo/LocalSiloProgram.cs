@@ -96,6 +96,20 @@ namespace LocalSilo
                         options.RootDirectory = ItemService.JsonFileStorageRoot;
                     })
 
+                .AddItemAzureTableStorage(
+                    name: ItemAzureTableStorage.StorageProviderName,
+                    configureOptions: options => {
+                        options.TableName = "Items";
+                        options.ConnectionString = "UseDevelopmentStorage=true";
+                    })
+
+                .AddAzureTableGrainStorage(
+                    name: "AzureTableGrainStorage",
+                    configureOptions: options => {
+                        options.UseJson = true;
+                        options.ConnectionString = "UseDevelopmentStorage=true";
+                    })
+
                 .UsePerfCounterEnvironmentStatistics()
 
                 .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(TestStringGrain).Assembly).WithReferences())
