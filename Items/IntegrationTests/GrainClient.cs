@@ -56,6 +56,12 @@ namespace IntegrationTests
                         options.RootDirectory = ItemService.JsonFileStorageRoot;
                     })
 
+                .AddKeyValueFileStorage(
+                    name: KeyValueFileStorage.StorageProviderName,
+                    configureOptions: options => {
+                        options.RootDirectory = ItemService.KeyValueFileStorageRoot;
+                    })
+
                 .UsePerfCounterEnvironmentStatistics()
 
                 .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(TestStringGrain).Assembly).WithReferences())

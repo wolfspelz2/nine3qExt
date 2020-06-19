@@ -125,17 +125,17 @@ namespace n3q.StorageProviders
 
         #region Internal
 
-        IDictionary<string, EntityProperty> ItemProperties2EntityProperties(Dictionary<Pid, string> itemProps)
+        IDictionary<string, EntityProperty> ItemProperties2EntityProperties(Dictionary<string, object> itemProps)
         {
             var entityProps = new Dictionary<string, EntityProperty>();
 
             foreach (var pair in itemProps) {
-                var prop = Property.GetDefinition(pair.Key).Storage switch
+                var prop = pair.Value.GetType().Name switch
                 {
-                    Property.Storage.Int => new EntityProperty(pair.Value.ToLong()),
-                    Property.Storage.Float => new EntityProperty(pair.Value.ToDouble()),
-                    Property.Storage.Bool => new EntityProperty(pair.Value.IsTrue()),
-                    _ => new EntityProperty(pair.Value),
+                    //"" => new EntityProperty(pair.Value.ToLong()),
+                    //Property.Storage.Float => new EntityProperty(pair.Value.ToDouble()),
+                    //Property.Storage.Bool => new EntityProperty(pair.Value.IsTrue()),
+                    _ => new EntityProperty(pair.Value.ToString()),
                 };
                 entityProps.Add(pair.Key.ToString(), prop);
             }
@@ -143,15 +143,13 @@ namespace n3q.StorageProviders
             return entityProps;
         }
 
-        Dictionary<Pid, string> EntityProperties2ItemProperties(IDictionary<string, EntityProperty> entityProps)
+        Dictionary<string, object> EntityProperties2ItemProperties(IDictionary<string, EntityProperty> entityProps)
         {
-            var itemProps = new Dictionary<Pid, string>();
+            var itemProps = new Dictionary<string, object>();
 
             foreach (var pair in entityProps) {
-                var pid = pair.Key.ToEnum(Pid.Unknown);
-                if (pid != Pid.Unknown) {
-                    itemProps.Add(pid, pair.Value.ToString());
-                }
+                object value = pair.Value;
+                itemProps.Add(pair.Key, value.ToString());
             }
 
             return itemProps;

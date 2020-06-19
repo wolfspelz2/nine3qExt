@@ -96,12 +96,18 @@ namespace LocalSilo
                         options.RootDirectory = ItemService.JsonFileStorageRoot;
                     })
 
-                .AddItemAzureTableStorage(
-                    name: ItemAzureTableStorage.StorageProviderName,
+                .AddKeyValueFileStorage(
+                    name: KeyValueFileStorage.StorageProviderName,
                     configureOptions: options => {
-                        options.TableName = "Items";
-                        options.ConnectionString = "UseDevelopmentStorage=true";
+                        options.RootDirectory = ItemService.KeyValueFileStorageRoot;
                     })
+
+                //.AddItemAzureTableStorage(
+                //    name: ItemAzureTableStorage.StorageProviderName,
+                //    configureOptions: options => {
+                //        options.TableName = "Items";
+                //        options.ConnectionString = "UseDevelopmentStorage=true";
+                //    })
 
                 .AddAzureTableGrainStorage(
                     name: "AzureTableGrainStorage",

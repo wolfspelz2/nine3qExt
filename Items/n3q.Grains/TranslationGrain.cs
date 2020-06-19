@@ -8,44 +8,36 @@ using n3q.GrainInterfaces;
 
 namespace UtilityGrains
 {
-    [Serializable]
-    public class TranslationState
-    {
-        public string Data;
-    }
-
     public class TranslationGrain : Grain, ITranslation
     {
-        private readonly IPersistentState<TranslationState> _state;
+        readonly IPersistentState<KeyValueStorageData> _state;
+        const string TEXT = "Text";
 
         public TranslationGrain(
-            [PersistentState("Translation", JsonFileStorage.StorageProviderName)] IPersistentState<TranslationState> state
+            [PersistentState("Translation", KeyValueFileStorage.StorageProviderName)] IPersistentState<KeyValueStorageData> state
             )
         {
             _state = state;
         }
 
-        public override async Task OnActivateAsync()
-        {
-            await base.OnActivateAsync();
-            await _state.ReadStateAsync();
-        }
-
         public async Task Set(string data)
         {
-            _state.State.Data = data;
-                await _state.WriteStateAsync();
+            _state.State[TEXT] = data;
+            await _state.WriteStateAsync();
         }
 
         public async Task<string> Get()
         {
             await Task.CompletedTask;
-            return _state.State.Data;
+            if (_state.State.TryGetValue(TEXT, out var translation)) {
+                return translation.ToString();
+            }
+            return null;
         }
 
         public async Task Unset()
         {
-            _state.State.Data = "";
+            _state.State[TEXT] = "";
             await _state.ClearStateAsync();
         }
 
@@ -58,6 +50,7 @@ namespace UtilityGrains
 
         public async Task ReloadPersistentStorage()
         {
+            _state.State = new KeyValueStorageData();
             await _state.ReadStateAsync();
         }
 

@@ -64,21 +64,6 @@ namespace n3q.StorageProviders
 
         #region Interface
 
-        public Task ClearStateAsync(string grainType, GrainReference grainReference, IGrainState grainState)
-        {
-            var filePath = GetFilePath(grainType, grainReference, grainState);
-            try {
-                var fileInfo = new FileInfo(filePath);
-                if (fileInfo.Exists) {
-                    fileInfo.Delete();
-                }
-            } catch (Exception ex) {
-                _logger.Error(0, $"Error deleting: filePath={filePath} {ex.Message}");
-                throw;
-            }
-            return Task.CompletedTask;
-        }
-
         public async Task WriteStateAsync(string grainType, GrainReference grainReference, IGrainState grainState)
         {
             await Task.CompletedTask;
@@ -107,6 +92,21 @@ namespace n3q.StorageProviders
                 _logger.Error(0, $"Error reading: filePath={filePath} {ex.Message}");
                 throw;
             }
+        }
+
+        public Task ClearStateAsync(string grainType, GrainReference grainReference, IGrainState grainState)
+        {
+            var filePath = GetFilePath(grainType, grainReference, grainState);
+            try {
+                var fileInfo = new FileInfo(filePath);
+                if (fileInfo.Exists) {
+                    fileInfo.Delete();
+                }
+            } catch (Exception ex) {
+                _logger.Error(0, $"Error deleting: filePath={filePath} {ex.Message}");
+                throw;
+            }
+            return Task.CompletedTask;
         }
 
         #endregion

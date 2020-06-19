@@ -109,8 +109,6 @@ namespace n3q.Aspects
         public async Task<ValueMap> GetMap(Pid pid) { return await Get(pid); }
 
         public async Task Deactivate() { await Grain.Deactivate(); }
-        public async Task WritePersistentStorage() { await Grain.WritePersistentStorage(); }
-        public async Task ReadPersistentStorage() { await Grain.ReadPersistentStorage(); }
         public async Task DeletePersistentStorage() { await Grain.DeletePersistentStorage(); }
 
         public delegate Task TransactionWrappedCode(ItemStub item);

@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ItemAzureTableStorageProvider.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Cosmos.Table" Version="1.0.7" />
     <PackageReference Include="Microsoft.Orleans.OrleansProviders" Version="3.2.0" />
     <PackageReference Include="Microsoft.Orleans.Runtime.Abstractions" Version="3.2.0" />

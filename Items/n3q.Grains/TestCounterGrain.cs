@@ -20,7 +20,7 @@ namespace n3q.Grains
         private readonly IPersistentState<TestCounterState> _state;
 
         public TestCounterGrain(
-            [PersistentState("TestCounter", JsonFileStorage.StorageProviderName)] IPersistentState<TestCounterState> state
+            [PersistentState("TestCounter", KeyValueFileStorage.StorageProviderName)] IPersistentState<TestCounterState> state
             )
         {
             _state = state;

@@ -21,7 +21,7 @@ namespace n3q.Grains
         public PropertySet Properties { get; set; }
 
         private readonly ILogger<ItemGrain> _logger;
-        readonly IPersistentState<ItemState> _state;
+        readonly IPersistentState<KeyValueStorageData> _state;
 
         readonly Guid _streamId = ItemService.StreamGuid;
         readonly string _streamNamespace = ItemService.StreamNamespace;
@@ -42,12 +42,13 @@ namespace n3q.Grains
 
         public ItemGrain(
             ILogger<ItemGrain> logger,
-            [PersistentState("Item", JsonFileStorage.StorageProviderName)] IPersistentState<ItemState> itemState
-            //[PersistentState("Item", ItemAzureTableStorage.StorageProviderName)] IPersistentState<ItemState> itemState
+            //[PersistentState("Item", JsonFileStorage.StorageProviderName)] IPersistentState<ItemState> state
+            [PersistentState("Item", KeyValueFileStorage.StorageProviderName)] IPersistentState<KeyValueStorageData> state
+            //[PersistentState("Item", ItemAzureTableStorage.StorageProviderName)] IPersistentState<ItemState> state
             )
         {
             _logger = logger;
-            _state = itemState;
+            _state = state;
         }
 
         private IItem Item(string id) => GrainFactory.GetGrain<IItem>(id);
@@ -57,8 +58,7 @@ namespace n3q.Grains
         public override async Task OnActivateAsync()
         {
             await base.OnActivateAsync();
-
-            await ReadPersistentStorage();
+            ApplyState();
         }
 
         public override async Task OnDeactivateAsync()
@@ -384,8 +384,6 @@ namespace n3q.Grains
 
         #region Changes
 
-        //WritePersistentStorage();
-
         private void CancelChanges()
         {
             Properties = _savedProperties;
@@ -451,27 +449,26 @@ namespace n3q.Grains
             }
         }
 
-        #endregion
-
-        #region Test / Maintanance / Operation
-
-        public Task Deactivate()
-        {
-            base.DeactivateOnIdle();
-            return Task.CompletedTask;
-        }
-
         public async Task WritePersistentStorage()
         {
-            _state.State.Id = this.GetPrimaryKeyString();
+            //_state.State.Id = this.GetPrimaryKeyString();
 
-            var propsToBeSaved = new Dictionary<Pid, string>();
+            var propsToBeSaved = new KeyValueStorageData();
             foreach (var pair in Properties) {
                 if (PropertyMustBeSaved(pair.Key, pair.Value)) {
-                    propsToBeSaved.Add(pair.Key, pair.Value);
+
+                    object value = Property.GetDefinition(pair.Key).Storage switch
+                    {
+                        Property.Storage.Int => (long)pair.Value,
+                        Property.Storage.Float => (double)pair.Value,
+                        Property.Storage.Bool => (bool)pair.Value,
+                        _ => (string)pair.Value,
+                    };
+
+                    propsToBeSaved.Add(pair.Key.ToString(), value);
                 }
             }
-            _state.State.Properties = propsToBeSaved;
+            _state.State = propsToBeSaved;
 
             await _state.WriteStateAsync();
         }
@@ -490,11 +487,39 @@ namespace n3q.Grains
             };
         }
 
-        public async Task ReadPersistentStorage()
+        public void ApplyState()
         {
-            await _state.ReadStateAsync();
+            Properties = new PropertySet();
 
-            Properties = new PropertySet(_state.State.Properties);
+            foreach (var pair in _state.State) {
+                var pid = pair.Key.ToEnum(Pid.Unknown);
+                if (pid != Pid.Unknown) {
+
+                    PropertyValue pv;
+                    if (false) {
+                    } else if (pair.Value.GetType() == typeof(long)) {
+                        pv = new PropertyValue((long)pair.Value);
+                    } else if (pair.Value.GetType() == typeof(double)) {
+                        pv = new PropertyValue((double)pair.Value);
+                    } else if (pair.Value.GetType() == typeof(bool)) {
+                        pv = new PropertyValue((bool)pair.Value);
+                    } else {
+                        pv = new PropertyValue(pair.Value.ToString());
+                    }
+
+                    Properties.Add(pid, pv);
+                }
+            }
+        }
+
+        #endregion
+
+        #region Test / Maintanance / Operation
+
+        public Task Deactivate()
+        {
+            base.DeactivateOnIdle();
+            return Task.CompletedTask;
         }
 
         public async Task DeletePersistentStorage()

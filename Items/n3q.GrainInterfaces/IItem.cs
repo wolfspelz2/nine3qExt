@@ -21,15 +21,6 @@ namespace n3q.GrainInterfaces
         Task EndTransaction(Guid tid, bool success);
 
         Task Deactivate();
-        Task WritePersistentStorage();
-        Task ReadPersistentStorage();
         Task DeletePersistentStorage();
-    }
-
-    [Serializable]
-    public class ItemState
-    {
-        public string Id;
-        public Dictionary<Pid, string> Properties;
     }
 }
