@@ -56,6 +56,20 @@ namespace n3q.Tools
             return self.Substring(0, nMax) + tail;
         }
 
+        public static int SimpleHash(this string self)
+        {
+            var s = "abcd" + self;
+
+            var hash = 0;
+            for (var i = 0; i < s.Length; i++) {
+                var c = s[i];
+                hash <<= 5;
+                hash ^= c | c << 16;
+            }
+
+            return Math.Abs(hash);
+        }
+
         public static string IfEmpty(this string self, string defaultValue)
         {
             if (string.IsNullOrEmpty(self)) {

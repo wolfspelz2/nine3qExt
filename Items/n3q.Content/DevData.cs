@@ -208,7 +208,7 @@ namespace n3q.Content
                 case nameof(DevSpec.Template.SmallMapleTree): props = GetImageTemplate(name, text, name, "Small maple tree", "kleiner Ahornbaum", 58, 80, "Trees/SmallMapleTree.png"); break;
 
                 case nameof(DevSpec.Template.TheatreScreenplay): props = GetIframeTemplate(name, text, name, "Theater Drehbuch", "Theatre Screenplay", 44, 64, "FridaysForFuture/RallySpeaker.png", "https://meet.jit.si/{room}", 400, 500); break;
-                case nameof(DevSpec.Template.RallySpeaker): props = GetIframeTemplate(name, text, name, "xxxx", "xxxx", 75, 80, "FridaysForFuture/RallySpeaker.png", "https://meet.jit.si/{room}", 600, 400); break;
+                case nameof(DevSpec.Template.RallySpeaker): props = GetIframeTemplate(name, text, name, "Lautsprecher", "Speaker", 75, 80, "FridaysForFuture/RallySpeaker.png", "https://meet.jit.si/{room}", 600, 400); break;
 
                 default:
                     throw new Exception($"No template for name={name}");

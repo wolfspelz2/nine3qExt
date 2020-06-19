@@ -72,9 +72,9 @@ namespace n3q.StorageProviders
             try {
 
                 var data = "";
-                if (grainState is GrainState<KeyValueStorageData> kvdgs) {
+                if (grainState is GrainState<KeyValueStorageData> kvGrainState) {
                     filePath = GetFilePath(grainType, grainReference, grainState, _options.SrpcFileExtension);
-                    data = kvdgs.State.ToSrpc();
+                    data = kvGrainState.State.ToSrpc();
                 } else {
                     filePath = GetFilePath(grainType, grainReference, grainState, _options.JsonFileExtension);
                     data = JsonConvert.SerializeObject(grainState, _jsonSettings);
@@ -94,12 +94,12 @@ namespace n3q.StorageProviders
             var filePath = "";
             try {
 
-                if (grainState is GrainState<KeyValueStorageData> kvdgs) {
+                if (grainState is GrainState<KeyValueStorageData> kvGrainState) {
                     filePath = GetFilePath(grainType, grainReference, grainState, _options.SrpcFileExtension);
                     if (File.Exists(filePath)) {
                         var data = File.ReadAllText(filePath, Encoding.UTF8);
-                        kvdgs.State.FromSrpc(data);
-                        grainState = kvdgs;
+                        kvGrainState.State.FromSrpc(data);
+                        grainState = kvGrainState;
                     }
                 } else {
                     filePath = GetFilePath(grainType, grainReference, grainState, _options.JsonFileExtension);
@@ -122,7 +122,7 @@ namespace n3q.StorageProviders
             var filePath = "";
             try {
 
-                if (grainState is GrainState<KeyValueStorageData> kvdgs) {
+                if (grainState is GrainState<KeyValueStorageData> kvGrainState) {
                     filePath = GetFilePath(grainType, grainReference, grainState, _options.SrpcFileExtension);
                     if (File.Exists(filePath)) {
                         File.Delete(filePath);

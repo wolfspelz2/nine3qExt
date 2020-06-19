@@ -4,18 +4,28 @@ namespace n3q.Tools
 {
     public class RandomString
     {
-        private static readonly Random Rng = new Random();
-        private const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+        static readonly Random _rnd = new Random();
+        const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
 
         public static string Get(int nLen)
         {
             var aChars = new char[nLen];
 
             for (int i = 0; i < nLen; i++) {
-                aChars[i] = Chars[Rng.Next(Chars.Length)];
+                aChars[i] = Chars[_rnd.Next(Chars.Length)];
             }
 
             return new string(aChars);
+        }
+    }
+
+    public class RandomInt
+    {
+        static readonly Random _rnd = new Random();
+
+        public static int Get(int min, int max)
+        {
+            return _rnd.Next(min, max);
         }
     }
 }

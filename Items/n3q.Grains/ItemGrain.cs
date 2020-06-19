@@ -43,8 +43,8 @@ namespace n3q.Grains
         public ItemGrain(
             ILogger<ItemGrain> logger,
             //[PersistentState("Item", JsonFileStorage.StorageProviderName)] IPersistentState<ItemState> state
-            [PersistentState("Item", KeyValueFileStorage.StorageProviderName)] IPersistentState<KeyValueStorageData> state
-            //[PersistentState("Item", ItemAzureTableStorage.StorageProviderName)] IPersistentState<ItemState> state
+            //[PersistentState("Item", KeyValueFileStorage.StorageProviderName)] IPersistentState<KeyValueStorageData> state
+            [PersistentState("Item", AzureKeyValueTableStorage.StorageProviderName)] IPersistentState<KeyValueStorageData> state
             )
         {
             _logger = logger;
@@ -65,7 +65,6 @@ namespace n3q.Grains
         {
             await base.OnDeactivateAsync();
         }
-
 
         #endregion
 
@@ -451,8 +450,6 @@ namespace n3q.Grains
 
         public async Task WritePersistentStorage()
         {
-            //_state.State.Id = this.GetPrimaryKeyString();
-
             var propsToBeSaved = new KeyValueStorageData();
             foreach (var pair in Properties) {
                 if (PropertyMustBeSaved(pair.Key, pair.Value)) {

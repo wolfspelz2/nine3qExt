@@ -14,7 +14,7 @@ namespace UtilityGrains
         const string TEXT = "Text";
 
         public TranslationGrain(
-            [PersistentState("Translation", KeyValueFileStorage.StorageProviderName)] IPersistentState<KeyValueStorageData> state
+            [PersistentState("Translation", AzureKeyValueTableStorage.StorageProviderName)] IPersistentState<KeyValueStorageData> state
             )
         {
             _state = state;
