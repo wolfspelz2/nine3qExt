@@ -185,7 +185,7 @@ namespace n3q.StorageProviders
         private Task Init(CancellationToken ct)
         {
             _connectionString = _options.ConnectionString;
-            _tableName = _options.ConnectionString;
+            _tableName = _options.TableName;
 
             _logger.LogInformation($"Init: name={this._name} table={_tableName} connectionString={ConfigUtilities.RedactConnectionStringInfo(_connectionString)}");
 
