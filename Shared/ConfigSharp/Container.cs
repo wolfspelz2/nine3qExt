@@ -25,13 +25,9 @@ namespace ConfigSharp
         public string BaseFolder { get; set; }
         public string CurrentFile { get; protected set; }
         public const string AnyPublicMember = "_public";
+        public const string LoadMember = "Load";
         public const string Not = "!";
-        public List<string> Functions = new List<string> { "Load" }; // "_public"
-
-        public static void Log(string message)
-        {
-            ConfigSharp.Log.Info(message);
-        }
+        public List<string> Functions = new List<string> { AnyPublicMember };
 
         public Container Include(string fileName)
         {
@@ -78,12 +74,12 @@ namespace ConfigSharp
                         BaseFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, pathPart);
                     }
                     BaseFolder = Path.GetFullPath(BaseFolder);
-                    ConfigSharp.Log.Info("Base folder: " + BaseFolder);
+                    Log.Info("Base folder: " + BaseFolder);
                 }
 
                 var filePath = Path.Combine(BaseFolder, filePart);
 
-                ConfigSharp.Log.Info(filePath);
+                Log.Info(filePath);
                 code = File.ReadAllText(filePath);
             } catch (Exception ex) {
                 ConfigSharp.Log.Error(ex.Message + "(" + fileName + ")");
@@ -97,7 +93,7 @@ namespace ConfigSharp
             string code = "";
 
             try {
-                ConfigSharp.Log.Info(url);
+                Log.Info(url);
                 var req = (HttpWebRequest)WebRequest.Create(url);
                 var resp = (HttpWebResponse)req.GetResponse();
                 var stream = resp.GetResponseStream();

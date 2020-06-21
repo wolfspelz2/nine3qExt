@@ -21,9 +21,15 @@ namespace LocalSilo
             return RunMainAsync().Result;
         }
 
+        static string ConfigFilePath { get; set; } = "ConfigRoot.cs";
+        static LocalSiloConfig Config { get; set; } = new LocalSiloConfig();
+
         private static async Task<int> RunMainAsync()
         {
             try {
+                Config.Include(ConfigFilePath);
+                Console.WriteLine($"RunMode={Config.Mode}");
+
                 var host = await StartSilo();
                 Console.WriteLine("Press Enter to terminate...");
                 Console.ReadLine();
@@ -106,14 +112,14 @@ namespace LocalSilo
                     name: AzureKeyValueTableStorage.StorageProviderName,
                     configureOptions: options => {
                         options.TableName = "n3qGrains";
-                        options.ConnectionString = "UseDevelopmentStorage=true";
+                        options.ConnectionString = Config.GrainStateAzureTableConnectionString;
                     })
 
                 .AddAzureTableGrainStorage(
                     name: "AzureTableGrainStorage",
                     configureOptions: options => {
                         options.UseJson = true;
-                        options.ConnectionString = "UseDevelopmentStorage=true";
+                        options.ConnectionString = Config.GrainStateAzureTableConnectionString;
                     })
 
                 .UsePerfCounterEnvironmentStatistics()
