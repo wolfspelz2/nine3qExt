@@ -393,6 +393,7 @@ export class Participant extends Entity
         if (delayMSec * 1000 < as.Float(Config.get('room.maxChatAgeSec', 60))) {
             if (!this.isChatCommand(text)) {
                 this.chatoutDisplay?.setText(text);
+                this.app.toFront(this.elem);
             }
         }
 
