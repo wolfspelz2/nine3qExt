@@ -28,9 +28,6 @@ namespace ConfigSharp
         public const string Not = "!";
         public List<string> Functions = new List<string> { "Load" }; // "_public"
 
-        [Obsolete("Loading all members of all classes is still supported, but must be activated. The feature will be removed later.")]
-        public bool LoadAllStaticMembers = false;
-
         public static void Log(string message)
         {
             ConfigSharp.Log.Info(message);
