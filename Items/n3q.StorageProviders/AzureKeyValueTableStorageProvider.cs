@@ -1,27 +1,21 @@
 ﻿using System;
 using System.Threading.Tasks;
-using System.IO;
 using System.Linq;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Newtonsoft.Json;
 using Orleans;
 using Orleans.Storage;
 using Orleans.Providers;
 using Orleans.Runtime;
 using Orleans.Hosting;
 using Orleans.Configuration;
-using Orleans.Serialization;
 using System.Threading;
 using Orleans.Runtime.Configuration;
 using Microsoft.Azure.Cosmos.Table;
-using System.Threading.Tasks.Sources;
-using Microsoft.OData.UriParser;
 using System.Collections.Generic;
-using n3q.Items;
 using n3q.Tools;
 
 namespace n3q.StorageProviders
@@ -109,17 +103,21 @@ namespace n3q.StorageProviders
             }
         }
 
-        public Task ClearStateAsync(string grainType, GrainReference grainReference, IGrainState grainState)
+        public async Task ClearStateAsync(string grainType, GrainReference grainReference, IGrainState grainState)
         {
             try {
-                //if (fileInfo.Exists) {
-                //    fileInfo.Delete();
-                //}
+                var pk = KeySafeName(GetPartitionKey(grainType, grainReference, grainState));
+                var rk = KeySafeName(GetRowKey(grainType, grainReference, grainState));
+                _logger.LogInformation($"Reading item={grainReference.GetPrimaryKeyString()} GrainType={grainType} Pk={pk} Rk={rk} Table={_tableName}");
+                var res = await GetTable().ExecuteAsync(TableOperation.Retrieve<DynamicTableEntity>(pk, rk));
+                if (res.Result == null) { return; }
+                var entity = res.Result as DynamicTableEntity;
+                if (entity == null) { return; }
+                await GetTable().ExecuteAsync(TableOperation.Delete(entity));
             } catch (Exception ex) {
                 _logger.Error(0, $"Error deleting: {ex.Message}");
                 throw;
             }
-            return Task.CompletedTask;
         }
 
         #endregion
