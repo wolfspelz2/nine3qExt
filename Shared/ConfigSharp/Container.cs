@@ -31,9 +31,9 @@ namespace ConfigSharp
         [Obsolete("Loading all members of all classes is still supported, but must be activated. The feature will be removed later.")]
         public bool LoadAllStaticMembers = false;
 
-        public void _Log(string message)
+        public static void Log(string message)
         {
-            Log.Info(message);
+            ConfigSharp.Log.Info(message);
         }
 
         public Container Include(string fileName)
@@ -81,15 +81,15 @@ namespace ConfigSharp
                         BaseFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, pathPart);
                     }
                     BaseFolder = Path.GetFullPath(BaseFolder);
-                    Log.Info("Base folder: " + BaseFolder);
+                    ConfigSharp.Log.Info("Base folder: " + BaseFolder);
                 }
 
                 var filePath = Path.Combine(BaseFolder, filePart);
 
-                Log.Info(filePath);
+                ConfigSharp.Log.Info(filePath);
                 code = File.ReadAllText(filePath);
             } catch (Exception ex) {
-                Log.Error(ex.Message + "(" + fileName + ")");
+                ConfigSharp.Log.Error(ex.Message + "(" + fileName + ")");
             }
 
             return code;
@@ -100,7 +100,7 @@ namespace ConfigSharp
             string code = "";
 
             try {
-                Log.Info(url);
+                ConfigSharp.Log.Info(url);
                 var req = (HttpWebRequest)WebRequest.Create(url);
                 var resp = (HttpWebResponse)req.GetResponse();
                 var stream = resp.GetResponseStream();
@@ -110,7 +110,7 @@ namespace ConfigSharp
                 var sr = new StreamReader(stream, encoding: Encoding.UTF8);
                 code = sr.ReadToEnd();
             } catch (Exception ex) {
-                Log.Error(ex.Message + "(" + url + ")");
+                ConfigSharp.Log.Error(ex.Message + "(" + url + ")");
             }
 
             return code;
@@ -118,7 +118,7 @@ namespace ConfigSharp
 
         public void Execute(string code, IEnumerable<string> customReferences = null)
         {
-            customReferences = customReferences ?? new List<string>();
+            customReferences ??= new List<string>();
             var references = customReferences.ToList();
 
             // Netstandard & runtime
@@ -150,43 +150,42 @@ namespace ConfigSharp
                 references.Select(r => MetadataReference.CreateFromFile(r)),
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
-            using (var assemblyStream = new MemoryStream()) {
-                var compilationResult = compilation.Emit(assemblyStream);
-                if (compilationResult.Success) {
-                    var compiledAssembly = assemblyStream.ToArray();
-                    var loadedAssembly = Assembly.Load(compiledAssembly);
-                    var assemblyTypes = loadedAssembly.GetTypes();
-                    foreach (var type in assemblyTypes) {
-                        try {
+            using var assemblyStream = new MemoryStream();
+            var compilationResult = compilation.Emit(assemblyStream);
+            if (compilationResult.Success) {
+                var compiledAssembly = assemblyStream.ToArray();
+                var loadedAssembly = Assembly.Load(compiledAssembly);
+                var assemblyTypes = loadedAssembly.GetTypes();
+                foreach (var type in assemblyTypes) {
+                    try {
 
-                            var loadMethods = type
-                                .GetMembers(BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance)
-                                .Where(m => {
-                                    if (m is ConstructorInfo) { return false; }
-                                    if (Functions.Contains(Not + m.Name)) { return false; }
-                                    if (Functions.Contains(m.Name)) { return true; }
-                                    if (Functions.Contains(AnyPublicMember)) { return true; }
-                                    return false;
-                                });
+                        var loadMethods = type
+                            .GetMembers(BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance)
+                            .Where(m => {
+                                if (m is ConstructorInfo) { return false; }
+                                if (Functions.Contains(Not + m.Name)) { return false; }
+                                if (Functions.Contains(m.Name)) { return true; }
+                                if (Functions.Contains(AnyPublicMember)) { return true; }
+                                return false;
+                            });
 
-                            if (loadMethods == null || loadMethods.Count() == 0) { throw new Exception("No Load method"); }
+                        if (loadMethods == null || loadMethods.Count() == 0) { throw new Exception("No Load method"); }
 
-                            foreach (var loadMethod in loadMethods) {
-                                var cfgObject = Activator.CreateInstance(type);
-                                CopyValues(this, cfgObject);
-                                type.InvokeMember(loadMethod.Name, BindingFlags.InvokeMethod, null, cfgObject, new object[] { });
-                                CopyValues(cfgObject, this);
-                            }
-
-                        } catch (Exception ex) {
-                            Log.Error(CurrentFile + " Exception: " + ex.Message);
+                        foreach (var loadMethod in loadMethods) {
+                            var cfgObject = Activator.CreateInstance(type);
+                            CopyValues(this, cfgObject);
+                            type.InvokeMember(loadMethod.Name, BindingFlags.InvokeMethod, null, cfgObject, Array.Empty<object>());
+                            CopyValues(cfgObject, this);
                         }
+
+                    } catch (Exception ex) {
+                        ConfigSharp.Log.Error(CurrentFile + " Exception: " + ex.Message);
                     }
-                } else {
-                    Log.Error(CurrentFile + " Diagnostics:");
-                    foreach (var diagnostic in compilationResult.Diagnostics) {
-                        Log.Error(diagnostic.ToString());
-                    }
+                }
+            } else {
+                ConfigSharp.Log.Error(CurrentFile + " Diagnostics:");
+                foreach (var diagnostic in compilationResult.Diagnostics) {
+                    ConfigSharp.Log.Error(diagnostic.ToString());
                 }
             }
         }
@@ -211,14 +210,14 @@ namespace ConfigSharp
             }
         }
 
-        public IEnumerable<string> GetReferences(string code)
+        public static IEnumerable<string> GetReferences(string code)
         {
             var references = new List<string>();
 
             var lines = code.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
             foreach (var line in lines) {
                 if (line.StartsWith("//reference ")) {
-                    var tokens = line.ParseCommandline();
+                    var tokens = ParseReference(line);
                     if (tokens.Count != 2) {
                         throw new Exception("//reference needs an argument (absolute path or AQN)");
                     }
@@ -238,6 +237,58 @@ namespace ConfigSharp
             }
 
             return references;
+        }
+
+        public static List<string> ParseReference(string s)
+        {
+            var args = new List<string>();
+
+            bool done = false;
+            bool inString = false;
+            string token = "";
+            int pos = 0;
+            while (!done) {
+                bool isData = false;
+                switch (s[pos]) {
+                    case '"':
+                        if (!inString) {
+                            inString = true;
+                        } else {
+                            inString = false;
+                        }
+                        break;
+                    case '\0':
+                        done = true;
+                        break;
+                    case ' ':
+                        if (inString) {
+                            isData = true;
+                        } else {
+                            if (!string.IsNullOrEmpty(token)) {
+                                args.Add(token);
+                                token = "";
+                            }
+                        }
+                        break;
+                    default:
+                        isData = true;
+                        break;
+                }
+
+                if (!done) {
+                    if (isData) {
+                        token += s[pos];
+                    }
+                    pos++;
+                    done = (pos >= s.Length);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(token)) {
+                args.Add(token);
+            }
+
+            return args;
         }
     }
 }

@@ -98,10 +98,8 @@ namespace ConfigSharp.Test
     }
 }
 ";
-            var config = new TestConfig();
-
             // Act
-            var references = config.GetReferences(code).ToArray();
+            var references = TestConfig.GetReferences(code).ToArray();
 
             // Assert
             Assert.AreEqual(2, references.Length);
@@ -410,7 +408,7 @@ namespace ConfigSharp.Test
         }
 
 //        [TestMethod]
-        public void LogLoad()
+        public static void LogLoad()
         {
             // Arrange
             const string code =
@@ -443,7 +441,7 @@ namespace ConfigSharp.Test
         }
 
 //        [TestMethod]
-        public void _Log()
+        public static void Log()
         {
             // Arrange
             const string code =
