@@ -7,10 +7,11 @@ using System.Text;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using System.Globalization;
 
 namespace ConfigSharp
 {
-    public class Container
+    public class ConfigBag
     {
         public int Get(string key, int defaultValue) { return this.GetMemberValue(key, defaultValue); }
         public string Get(string key, string defaultValue) { return this.GetMemberValue(key, defaultValue); }
@@ -19,8 +20,10 @@ namespace ConfigSharp
         public bool Get(string key, bool defaultValue) { return this.GetMemberValue(key, defaultValue); }
         public T Get<T>(string key) { return (T)this.GetMemberValue(key); }
 
+        public bool Set(string key, string value) { return this.SetMemberValue(key, value); }
+
         public ILoader Loader { get; set; } // public so that CopyValues copies it
-        public Container Use(ILoader loader) { Loader = loader; return this; }
+        public ConfigBag Use(ILoader loader) { Loader = loader; return this; }
 
         public string BaseFolder { get; set; }
         public string CurrentFile { get; protected set; }
@@ -29,7 +32,7 @@ namespace ConfigSharp
         public const string Not = "!";
         public List<string> Functions = new List<string> { AnyPublicMember };
 
-        public Container Include(string fileName)
+        public ConfigBag Include(string fileName)
         {
             string code = Loader == null ? Load(fileName) : Loader.Load(fileName);
             if (string.IsNullOrEmpty(code)) { throw new Exception($"No code: {fileName} cwd={Directory.GetCurrentDirectory()}"); }
@@ -123,7 +126,7 @@ namespace ConfigSharp
             // Basics & config lib
             references.Add(typeof(Object).Assembly.Location);
             references.Add(typeof(Uri).Assembly.Location);
-            references.Add(typeof(Container).Assembly.Location);
+            references.Add(typeof(ConfigBag).Assembly.Location);
 
             // Application dll
             var baseType = GetType().BaseType;
@@ -282,6 +285,33 @@ namespace ConfigSharp
             }
 
             return args;
+        }
+
+        public void ParseCommandline(IList<string> args)
+        {
+            var q = new Queue<string>(args);
+            while (q.Count > 0) {
+                var arg = q.Dequeue();
+                arg = arg.Trim();
+                var kv = arg.Split(new[] { '=' }, 2);
+                var key = arg;
+                var value = "1";
+                if (kv.Length > 0) {
+                    key = kv[0];
+                }
+                if (kv.Length > 1) {
+                    value = kv[1];
+                }
+                try {
+                    if (Set(key, value)) {
+                        Log.Info($"{key}={value}");
+                    } else {
+                        Log.Warning($"No such option: {key}");
+                    }
+                } catch (Exception ex) {
+                    Log.Warning(ex);
+                }
+            }
         }
     }
 }

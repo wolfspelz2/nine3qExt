@@ -15,21 +15,22 @@ namespace LocalSilo
 {
     public static class LocalSiloProgram
     {
-        //        public static int Main(string[] args)
-        public static int Main()
+        static LocalSiloConfig Config { get; set; } = new LocalSiloConfig();
+
+        public static int Main(string[] args)
         {
+            ConfigSharp.Log.LogLevel = ConfigSharp.Log.Level.Info;
+            ConfigSharp.Log.LogHandler = (lvl, ctx, msg) => { Console.WriteLine($"{lvl} {ctx} {msg}"); };
+            Config.ParseCommandline(args);
+            Config.Include(Config.ConfigFile);
+            Console.WriteLine($"RunMode={Config.Mode} ConfigSequence={Config.ConfigSequence}");
+
             return RunMainAsync().Result;
         }
-
-        static string ConfigFilePath { get; set; } = "ConfigRoot.cs";
-        static LocalSiloConfig Config { get; set; } = new LocalSiloConfig();
 
         private static async Task<int> RunMainAsync()
         {
             try {
-                Config.Include(ConfigFilePath);
-                Console.WriteLine($"RunMode={Config.Mode}");
-
                 var host = await StartSilo();
                 Console.WriteLine("Press Enter to terminate...");
                 Console.ReadLine();

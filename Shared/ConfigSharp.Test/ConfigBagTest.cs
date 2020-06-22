@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace ConfigSharp.Test
 {
     [TestClass]
-    public class ContainerTest
+    public class ConfigBagTest
     {
         private class TestLogLine
         {

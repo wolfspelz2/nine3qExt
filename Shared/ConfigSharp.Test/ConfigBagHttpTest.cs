@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Http;
 namespace ConfigSharp.Test
 {
     [TestClass]
-    public partial class ContainerHttpTest
+    public partial class ConfigBagHttpTest
     {
         [TestMethod]
         public async Task ExecuteCodeWithHttpIncludeAsync()

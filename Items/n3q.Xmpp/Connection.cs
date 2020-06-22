@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using n3q.Tools;
 
-namespace XmppComponent
+namespace n3q.Xmpp
 {
     public class Connection : IDisposable
     {

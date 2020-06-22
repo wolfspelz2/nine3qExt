@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 
-namespace XmppComponent
+namespace n3q.Xmpp
 {
     public enum XmppMessageType
     {

@@ -14,7 +14,7 @@ using n3q.Common;
 using n3q.Tools;
 using n3q.Aspects;
 
-namespace XmppComponent
+namespace n3q.Xmpp
 {
     public partial class Controller : IAsyncObserver<ItemUpdate>
     {

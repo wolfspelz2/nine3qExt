@@ -2,7 +2,7 @@
 
 namespace ConfigSharp.Test
 {
-    public class TestConfig : Container
+    public class TestConfig : ConfigBag
     {
         public int IntMember;
         public string StringMember;

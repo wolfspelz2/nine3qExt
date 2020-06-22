@@ -11,9 +11,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Shared\ConfigSharp\ConfigSharp.csproj" />
     <ProjectReference Include="..\n3q.Aspects\n3q.Aspects.csproj" />
     <ProjectReference Include="..\n3q.Common\n3q.Common.csproj" />
     <ProjectReference Include="..\n3q.GrainInterfaces\n3q.GrainInterfaces.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="ConfigRoot.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
   </ItemGroup>
 
 </Project>

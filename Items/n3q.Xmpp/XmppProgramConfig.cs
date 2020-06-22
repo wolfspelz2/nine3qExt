@@ -1,6 +1,6 @@
-﻿namespace LocalSilo
+﻿namespace n3q.Xmpp
 {
-    public class LocalSiloConfig : ConfigSharp.ConfigBag
+    public class XmppProgramConfig : ConfigSharp.ConfigBag
     {
         public enum RunModes
         {
@@ -20,6 +20,10 @@
         public string ConfigSequence = "";
         public string ConfigFile = "ConfigRoot.cs";
         public string Mode = "_empty_";
-        public string GrainStateAzureTableConnectionString = "UseDevelopmentStorage=true";
+
+        public string ComponentHost = "itemsxmpp.dev.sui.li";
+        public string ComponentDomain = "itemsxmpp.dev.sui.li";
+        public int ComponentPort = 5555;//5280;//5555;
+        public string ComponentSecret = "28756a7ff5dce";
     }
 }

@@ -6,7 +6,7 @@ using ConfigSharpTester.Configuration;
 
 namespace ConfigSharpTester
 {
-    public class MyConfig : ConfigSharp.Container
+    public class MyConfig : ConfigSharp.ConfigBag
     {
         public string SetupName = "Production";
         public string StringMemberFromRootCs = "-empty-";
@@ -31,8 +31,8 @@ namespace ConfigSharpTester
         {
             ConfigSharp.Log.LogHandler = (level, context, message) => Console.WriteLine($"ConfigSharp {level} {context} {message}");
             var Config = new MyConfig();
-            Config.Functions.Add(ConfigSharp.Container.AnyPublicMember);
-            Config.Functions.Add(ConfigSharp.Container.Not + nameof(Finally.DontLoadThisCustomFunction));
+            Config.Functions.Add(ConfigSharp.ConfigBag.AnyPublicMember);
+            Config.Functions.Add(ConfigSharp.ConfigBag.Not + nameof(Finally.DontLoadThisCustomFunction));
 
             Config.Include("../../../MyConfiguration/Root.cs");
 
