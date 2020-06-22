@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Orleans.Hosting;
@@ -13,6 +8,7 @@ using Orleans;
 using n3q.Common;
 using n3q.StorageProviders;
 using n3q.Grains;
+using ConfigSharp;
 
 namespace n3q.Web
 {
@@ -56,6 +52,12 @@ namespace n3q.Web
             host.ConfigureWebHostDefaults(webBuilder => {
                 webBuilder.UseStartup<Startup>();
             });
+
+            host.ConfigureAppConfiguration((builderContext, config) => {
+                 config.AddSharpConfiguration(options => {
+                     options.ConfigFile = "ConfigRoot.cs";
+                 });
+             });
 
             if (Config.UseIntegratedCluster) {
                 host.UseOrleans(builder => {

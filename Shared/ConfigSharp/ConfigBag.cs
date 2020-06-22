@@ -35,7 +35,7 @@ namespace ConfigSharp
         public ConfigBag Include(string fileName)
         {
             string code = Loader == null ? Load(fileName) : Loader.Load(fileName);
-            if (string.IsNullOrEmpty(code)) { throw new Exception($"No code: {fileName} cwd={Directory.GetCurrentDirectory()}"); }
+            if (string.IsNullOrEmpty(code)) { throw new Exception($"No code: {fileName} cwd={Directory.GetCurrentDirectory()} BaseFolder={BaseFolder}"); }
 
             var references = GetReferences(code);
 
@@ -122,9 +122,11 @@ namespace ConfigSharp
             var coreFolder = Directory.GetParent(aTypicalCoreAssembly);
             references.Add(coreFolder.FullName + Path.DirectorySeparatorChar + "netstandard.dll");
             references.Add(coreFolder.FullName + Path.DirectorySeparatorChar + "System.Runtime.dll");
+            references.Add(coreFolder.FullName + Path.DirectorySeparatorChar + "System.Collections.dll");
 
             // Basics & config lib
             references.Add(typeof(Object).Assembly.Location);
+            references.Add(typeof(Dictionary<string, string>).Assembly.Location);
             references.Add(typeof(Uri).Assembly.Location);
             references.Add(typeof(ConfigBag).Assembly.Location);
 
