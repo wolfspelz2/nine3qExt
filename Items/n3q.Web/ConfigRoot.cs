@@ -7,6 +7,10 @@ namespace n3q.Xmpp
         public void Load()
         {
             Data["GrainBName"] = "b";
+
+            if (RunMode == RunModes.Development) {
+                Data["AdminTokens"] = "Token";
+            }
         }
     }
 }

@@ -7,6 +7,7 @@ using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
 using n3q.Common;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace n3q.Web
 {
@@ -21,6 +22,10 @@ namespace n3q.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options => {
+            });
+            
             services.AddRazorPages();
             services.AddControllers();
 
@@ -55,6 +60,7 @@ namespace n3q.Web
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => {

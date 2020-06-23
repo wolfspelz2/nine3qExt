@@ -20,6 +20,10 @@ td {
     word-break: break-all;
 }
 
+td:first-child {
+    word-break: normal;
+}
+
 .cMenuItem {
     display: inline;
 }

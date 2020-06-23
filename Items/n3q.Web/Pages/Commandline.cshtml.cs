@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.Configuration;
 using Orleans;
 using n3q.GrainInterfaces;
 using n3q.Tools;
-using JsonPath;
 
 namespace n3q.Web
 {
@@ -63,11 +62,12 @@ namespace n3q.Web
         public readonly Dictionary<string, CommandDetail> Commands = new Dictionary<string, CommandDetail>();
         public CommandSymbols Symbols = new CommandSymbols();
 
-        public CommandlineModel(ICommandline commandline, IClusterClient clusterClient)
+        public CommandlineModel(ICommandline commandline, IClusterClient clusterClient, IConfiguration configuration)
         {
             _commandline = commandline;
-            _clusterClient = clusterClient;
+            _commandline.AdminTokens = configuration.GetValue("AdminTokens", "").Split(new char[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
+            _clusterClient = clusterClient;
             if (_commandline is ItemCommandline itemCommandline) {
                 if (itemCommandline.ClusterClient == null) {
                     itemCommandline.ClusterClient = clusterClient;
@@ -75,15 +75,24 @@ namespace n3q.Web
             }
         }
 
-        public void OnGet()
+        public void PrepCommandline()
         {
             _commandline.HttpContext = HttpContext;
-            
-            var user = new Commandline.User(User.Claims);
 
+            if (User == null) {
+                var claims = new List<Claim> { new Claim(ClaimTypes.Role, Commandline.Role.Public.ToString()) };
+                _commandline.ActiveUser = new Commandline.User(claims);
+            } else {
+                _commandline.ActiveUser = new Commandline.User(User.Claims);
+            }
+        }
+
+        public void OnGet()
+        {
+            PrepCommandline();
             foreach (var pair in _commandline.GetHandlers()) {
                 var handler = pair.Value;
-                if (string.IsNullOrEmpty(_commandline.CheckRole(handler, user))) {
+                if (string.IsNullOrEmpty(_commandline.CheckRole(handler, _commandline.ActiveUser))) {
                     Commands.Add(pair.Key, new CommandDetail {
                         Name = pair.Key,
                         Description = handler.Description,
@@ -101,13 +110,10 @@ namespace n3q.Web
 
         public PartialViewResult OnPostRun(string arg)
         {
-            _commandline.HttpContext = HttpContext;
-
+            PrepCommandline();
             var cmd = arg;
-            var user = new Commandline.User(User.Claims);
-
             try {
-                var html = string.IsNullOrEmpty(cmd) ? "" : _commandline.Run(cmd, user);
+                var html = string.IsNullOrEmpty(cmd) ? "" : _commandline.Run(cmd);
                 return Partial("_CommandlineResult", new CommandResult(html, "text/html"));
             } catch (Exception ex) {
                 return Partial("_CommandlineResult", new CommandResult("<pre>" + string.Join(" | ", ex.GetMessages()) + "</pre>", "text/html"));
@@ -116,8 +122,7 @@ namespace n3q.Web
 
         public async Task<PartialViewResult> OnPostSaveFavorite(string arg)
         {
-            _commandline.HttpContext = HttpContext;
-
+            PrepCommandline();
             var cmd = arg;
             try {
                 var favoritesNode = await ReadFavorites();
@@ -136,8 +141,7 @@ namespace n3q.Web
 
         public async Task<PartialViewResult> OnPostDeleteFavorite(string arg)
         {
-            _commandline.HttpContext = HttpContext;
-
+            PrepCommandline();
             var key = arg;
             try {
                 var favoritesNode = await ReadFavorites();
@@ -156,8 +160,7 @@ namespace n3q.Web
 
         public async Task<PartialViewResult> OnPostUpFavorite(string arg)
         {
-            _commandline.HttpContext = HttpContext;
-
+            PrepCommandline();
             var key = arg;
             try {
                 var favoritesNode = await ReadFavorites();
@@ -170,7 +173,6 @@ namespace n3q.Web
                         favoritesNode.AsList.Insert(idx - 1, fav);
                     }
                 }
-
 
                 var model = await WriteFavorites(favoritesNode);
                 return Partial("_CommandlineFavorites", model);

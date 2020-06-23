@@ -5,11 +5,16 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using n3q.Tools;
+using Orleans;
 
 namespace n3q.Web
 {
     public class Commandline : ICommandline
     {
+        public HttpContext HttpContext { get; set; }
+        public User ActiveUser { get; set; }
+        public List<string> AdminTokens { get; set; }
+
         public Commandline()
         {
             Handlers.Add("Echo", new Handler { Name = "Echo", Function = Echo, Role = Role.Public.ToString(), ImmediateExecute = true, Description = "Return all arguments", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { { "arg1", "first argument" }, { "...", "more arguments" } } });
@@ -27,13 +32,10 @@ namespace n3q.Web
             ArgumentFormatters.Add(FormatStringAsArgument);
         }
 
-        Dictionary<string, string> _vars;
-
-        public HandlerMap Handlers = new HandlerMap(StringComparer.OrdinalIgnoreCase);
-        public FormatterList Formatters = new FormatterList();
-        public ArgumentFormatterList ArgumentFormatters = new ArgumentFormatterList();
-
-        public HttpContext HttpContext { get; set; }
+        protected Dictionary<string, string> Vars;
+        protected HandlerMap Handlers = new HandlerMap(StringComparer.OrdinalIgnoreCase);
+        protected FormatterList Formatters = new FormatterList();
+        protected ArgumentFormatterList ArgumentFormatters = new ArgumentFormatterList();
 
         public HandlerMap GetHandlers() => Handlers;
 
@@ -45,6 +47,14 @@ namespace n3q.Web
             public string Arguments { get; set; }
         }
 
+        public enum Role
+        {
+            Unknown,
+            Public,
+            Admin,
+            Developer,
+        }
+
         public interface ICommandlineUser
         {
             IEnumerable<string> Roles { get; }
@@ -52,15 +62,22 @@ namespace n3q.Web
 
         public class User : ICommandlineUser
         {
-            private readonly IEnumerable<Claim> _claims;
-
-            public IEnumerable<string> Roles { get; } = new[] { Role.Public.ToString(), Role.Admin.ToString(), Role.Developer.ToString(), ItemCommandline.ItemRole.Content.ToString(), ItemCommandline.ItemRole.LeadContent.ToString(), ItemCommandline.ItemRole.SecurityAdmin.ToString() };
-            //public User(IEnumerable<string> roles) { Roles = roles; }
+            public IEnumerable<string> Roles { get; } = new[] { Role.Public.ToString() };//, Role.Admin.ToString(), Role.Developer.ToString(), ItemCommandline.ItemRole.Content.ToString(), ItemCommandline.ItemRole.LeadContent.ToString(), ItemCommandline.ItemRole.SecurityAdmin.ToString() };
 
             public User(IEnumerable<Claim> claims)
             {
-                _claims = claims;
-                _ = _claims;
+                var roles = new List<string> { Role.Public.ToString() };
+                foreach (var claim in claims) {
+                    if (claim.Type == ClaimTypes.Role) {
+                        var role = claim.Value.ToEnum(Role.Unknown);
+                        if (role != Role.Unknown) {
+                            roles.Add(role.ToString());
+                        }
+                    }
+                }
+                if (roles.Count > 0) {
+                    Roles = roles;
+                }
             }
         }
 
@@ -113,8 +130,6 @@ namespace n3q.Web
         }
         public enum ArgumentListType { KeyValue, Tokens }
         public class ArgumentDescriptionList : Dictionary<string, string> { }
-
-        public enum Role { Public, Admin, Developer }
 
         public delegate object HandlerFunction(Arglist args);
 
@@ -189,17 +204,17 @@ namespace n3q.Web
         public delegate string ArgumentFormatterFunction(object o);
         public class ArgumentFormatterList : List<ArgumentFormatterFunction> { }
 
-        public string Run(string script, ICommandlineUser user)
+        public string Run(string script)
         {
             var html = "";
             var lines = ParseScript(script);
-            _vars = new Dictionary<string, string>();
+            Vars = new Dictionary<string, string>();
             var lineCount = 0;
             foreach (var line in lines) {
                 lineCount++;
                 if (line.Count > 0) {
                     try {
-                        var result = Run(line, user);
+                        var result = Run(line);
                         var formatted = FormatAsHtml(result);
                         html += (string.IsNullOrEmpty(html) ? "" : "<br />\n") + formatted;
                     } catch (Exception ex) {
@@ -210,7 +225,7 @@ namespace n3q.Web
             return html;
         }
 
-        public object Run(Arglist args, ICommandlineUser user)
+        public object Run(Arglist args)
         {
             var actualArgs = new Arglist();
             foreach (var arg in args) {
@@ -218,7 +233,7 @@ namespace n3q.Web
                 if (!string.IsNullOrEmpty(embeddedLine)) {
                     var unescapedLine = Unescape(embeddedLine);
                     var subArgs = ParseLine(unescapedLine);
-                    var subResult = Run(subArgs, user);
+                    var subResult = Run(subArgs);
                     var subReplacement = FormatAsArgument(subResult);
                     var replacedArg = arg.Replace("`" + embeddedLine + "`", subReplacement);
                     actualArgs.Add(replacedArg);
@@ -234,7 +249,7 @@ namespace n3q.Web
 
             var handler = GetHandlers()[method];
 
-            AssertRole(handler, user);
+            AssertRole(handler, ActiveUser);
 
             var result = handler.Function(actualArgs);
 
@@ -483,11 +498,11 @@ namespace n3q.Web
             var arg = args.Next("Name[=Value]");
             var parts = arg.Split(new[] { '=' }, 2, StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length == 1) {
-                if (!_vars.ContainsKey(arg)) { throw new Exception("No such variable name=" + arg); }
-                return _vars[arg];
+                if (!Vars.ContainsKey(arg)) { throw new Exception("No such variable name=" + arg); }
+                return Vars[arg];
             }
             if (parts.Length == 2) {
-                _vars[parts[0]] = parts[1];
+                Vars[parts[0]] = parts[1];
                 return new VariableAssignment { Name = parts[0], Value = parts[1] };
             }
             throw new Exception("Need Name=Value or Name");
