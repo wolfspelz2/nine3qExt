@@ -67,6 +67,7 @@ namespace n3q.Web.Controllers
             await Task.CompletedTask;
             return new ItemServiceConfig {
                 serviceUrl = "xmpp:itemsxmpp.dev.sui.li",
+                accountUrl = "http://localhost:5000/Account",
                 userToken = "random-user-token-jhg2fu7kjjl4koi8tgi",
                 itemPropertyUrlFilter = new Dictionary<string, string> {
                     //{ "{image.item.nine3q}", "https://nine3q.dev.sui.li/images/Items/" },

@@ -27,13 +27,13 @@ namespace n3q.Grains
 
         public string Data
         {
-            get { return _state.State.TryGetValue(DATA, out var value) ? (string)value : null; }
+            get { return _state.State.Get(DATA, null); }
             set { _state.State[DATA] = value; }
         }
 
         public long Expires
         {
-            get { return _state.State.TryGetValue(EXPIRES, out var value) ? (long)value : 0L; }
+            get { return _state.State.Get(EXPIRES, 0L); }
             set { _state.State[EXPIRES] = value; }
         }
 
