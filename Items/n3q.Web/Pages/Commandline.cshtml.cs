@@ -183,9 +183,9 @@ namespace n3q.Web
 
         public async Task<JsonPath.Node> ReadFavorites()
         {
-            var favoritesJson = await _clusterClient.GetGrain<ICachedString>("Web.Favorites").Get();
+            var favoritesJson = await _clusterClient.GetGrain<ICachedString>("Web.Favorites." + User.Identity.Name).Get();
             if (string.IsNullOrEmpty(favoritesJson)) {
-                favoritesJson = "{}";
+                favoritesJson = "[]";
             }
             var favoritesNode = new JsonPath.Node(favoritesJson);
             return favoritesNode;
@@ -194,7 +194,7 @@ namespace n3q.Web
         public async Task<CommandlineFavorites> WriteFavorites(JsonPath.Node favoritesNode)
         {
             var favoritesJson = favoritesNode.ToJson(bFormatted: true, bWrapped: true);
-            await _clusterClient.GetGrain<ICachedString>("Web.Favorites").Set(favoritesJson, CachedStringOptions.Timeout.Infinite, CachedStringOptions.Persistence.Persistent);
+            await _clusterClient.GetGrain<ICachedString>("Web.Favorites." + User.Identity.Name).Set(favoritesJson, CachedStringOptions.Timeout.Infinite, CachedStringOptions.Persistence.Persistent);
             return new CommandlineFavorites(
                 favoritesNode.AsList
                 .Select(node => {

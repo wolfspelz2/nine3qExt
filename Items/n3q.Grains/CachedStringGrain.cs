@@ -8,25 +8,40 @@ using n3q.Tools;
 
 namespace n3q.Grains
 {
-    public static class CachedStringState
-    {
-        [Serializable]
-        public class CachedString
-        {
-            public string Data;
-            public long Expires;
-        }
-    }
+    //public static class CachedStringState
+    //{
+    //    [Serializable]
+    //    public class CachedString
+    //    {
+    //        public string Data;
+    //        public long Expires;
+    //    }
+    //}
 
     public class CachedStringGrain : Grain, ICachedString
     {
-        private readonly IPersistentState<CachedStringState.CachedString> _state;
+        //private readonly IPersistentState<CachedStringState.CachedString> _state;
+        readonly IPersistentState<KeyValueStorageData> _state;
+        const string DATA = "Data";
+        const string EXPIRES = "Expires";
+
+        public string Data
+        {
+            get { return _state.State.TryGetValue(DATA, out var value) ? (string)value : null; }
+            set { _state.State[DATA] = value; }
+        }
+
+        public long Expires
+        {
+            get { return _state.State.TryGetValue(EXPIRES, out var value) ? (long)value : 0L; }
+            set { _state.State[EXPIRES] = value; }
+        }
 
         public DateTime Time { get; set; } = DateTime.MinValue;
         public CachedStringOptions.Persistence Persistence { get; set; } = CachedStringOptions.Persistence.Transient;
 
         public CachedStringGrain(
-            [PersistentState("CachedString", JsonFileStorage.StorageProviderName)] IPersistentState<CachedStringState.CachedString> state
+            [PersistentState("CachedString", AzureKeyValueTableStorage.StorageProviderName)] IPersistentState<KeyValueStorageData> state
             )
         {
             _state = state;
@@ -36,13 +51,13 @@ namespace n3q.Grains
 
         public async Task Set(string data, long timeout = CachedStringOptions.Timeout.Infinite, CachedStringOptions.Persistence persistence = CachedStringOptions.Persistence.Transient)
         {
-            _state.State.Data = data;
+            Data = data;
             Persistence = persistence;
 
             if (timeout == CachedStringOptions.Timeout.Infinite) {
-                _state.State.Expires = 0;
+                Expires = 0;
             } else {
-                _state.State.Expires = GetCurrentTime().AddSeconds(timeout).ToLong();
+                Expires = GetCurrentTime().AddSeconds(timeout).ToLong();
             }
 
             if (Persistence == CachedStringOptions.Persistence.Persistent) {
@@ -54,12 +69,12 @@ namespace n3q.Grains
         {
             string result = null;
 
-            if (_state.State.Data != null) {
-                if (_state.State.Expires == 0) {
-                    result = _state.State.Data;
+            if (Data != null) {
+                if (Expires == 0) {
+                    result = Data;
                 } else {
-                    if (GetCurrentTime() < new DateTime().FromLong(_state.State.Expires)) {
-                        result = _state.State.Data;
+                    if (GetCurrentTime() < new DateTime().FromLong(Expires)) {
+                        result = Data;
                     } else {
                         if (Persistence == CachedStringOptions.Persistence.Persistent) {
                             await _state.ClearStateAsync();
@@ -105,17 +120,17 @@ namespace n3q.Grains
             await base.OnActivateAsync();
             await _state.ReadStateAsync();
 
-            if (!string.IsNullOrEmpty(_state.State.Data)) {
+            if (!string.IsNullOrEmpty(Data)) {
                 Persistence = CachedStringOptions.Persistence.Persistent;
             }
         }
 
         public async Task Unset()
         {
-            bool wasSet = (_state.State.Data != null);
+            bool wasSet = (Data != null);
 
-            _state.State.Data = null;
-            _state.State.Expires = 0;
+            Data = null;
+            Expires = 0;
 
             await _state.ClearStateAsync();
         }

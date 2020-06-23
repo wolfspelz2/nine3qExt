@@ -67,7 +67,7 @@ namespace n3q.Web
             //Handlers.Add(nameof(Fn.Admin_TokenLogon), new Handler { Name = nameof(Fn.Admin_TokenLogon), Function = Admin_TokenLogon, Role = nameof(Role.Public), ImmediateExecute = false, Description = "Log in as admin with token (for system bootstrap)", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Token"] = "Secret", } });
             //Handlers.Add(nameof(Fn.Admin_TokenLogoff), new Handler { Name = nameof(Fn.Admin_TokenLogoff), Function = Admin_TokenLogoff, Role = nameof(Role.Public), ImmediateExecute = false, Description = "Log out as admin", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { } });
             //Handlers.Add(nameof(Fn.Admin_CreateRole), new Handler { Name = nameof(Fn.Admin_CreateRole), Function = Admin_CreateRole, Role = nameof(Role.Public), ImmediateExecute = false, Description = "Create role item for accessing user", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Secret", } });
-            Handlers.Add(nameof(Fn.Admin_Logon), new Handler { Name = nameof(Fn.Admin_Logon), Function = Admin_Logon, Role = nameof(Role.Public), ImmediateExecute = false, Description = "Log in as admin with token (for system bootstrap)", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Token"] = "Secret", } });
+            Handlers.Add(nameof(Fn.Admin_Logon), new Handler { Name = nameof(Fn.Admin_Logon), Function = Admin_Logon, Role = nameof(Role.Public), ImmediateExecute = true, Description = "Log in as admin with token (for system bootstrap)", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Token"] = "Secret", } });
             Handlers.Add(nameof(Fn.Admin_Logoff), new Handler { Name = nameof(Fn.Admin_Logoff), Function = Admin_Logoff, Role = nameof(Role.Public), ImmediateExecute = true, Description = "Log out as admin", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { } });
             Handlers.Add(nameof(Fn.Admin_Environment), new Handler { Name = nameof(Fn.Admin_Environment), Function = Admin_Environment, Role = nameof(Role.Admin), ImmediateExecute = true, Description = "Show environment variables", });
             Handlers.Add(nameof(Fn.Admin_Process), new Handler { Name = nameof(Fn.Admin_Process), Function = Admin_Process, Role = nameof(Role.Admin), ImmediateExecute = true, Description = "Show process info", });
@@ -150,9 +150,13 @@ namespace n3q.Web
             if (!AdminTokens.Contains(token)) { return "Unauthorized"; }
 
             var claims = new List<Claim> {
-                new Claim(ClaimTypes.Role, Commandline.Role.Public.ToString()),
-                new Claim(ClaimTypes.Role, Commandline.Role.Admin.ToString()),
+                new Claim(ClaimTypes.Name, "AnonymousAdmin")
             };
+            claims.AddRange(EnumUtil.GetEnumValues<Commandline.Role>().Select(e => new Claim(ClaimTypes.Role, e.ToString())));
+            claims.AddRange(EnumUtil.GetEnumValues<ItemRole>().Select(e => new Claim(ClaimTypes.Role, e.ToString())));
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
             var authProperties = new AuthenticationProperties {
                 //AllowRefresh = <bool>,
                 // Refreshing the authentication session should be allowed.
@@ -175,7 +179,6 @@ namespace n3q.Web
                 // The full path or absolute URI to be used as an http 
                 // redirect response value.
             };
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
             HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,

@@ -62,17 +62,14 @@ namespace n3q.Web
 
         public class User : ICommandlineUser
         {
-            public IEnumerable<string> Roles { get; } = new[] { Role.Public.ToString() };//, Role.Admin.ToString(), Role.Developer.ToString(), ItemCommandline.ItemRole.Content.ToString(), ItemCommandline.ItemRole.LeadContent.ToString(), ItemCommandline.ItemRole.SecurityAdmin.ToString() };
+            public IEnumerable<string> Roles { get; } = new List<string>();// Role.Public.ToString(), Role.Admin.ToString(), Role.Developer.ToString(), ItemCommandline.ItemRole.Content.ToString(), ItemCommandline.ItemRole.LeadContent.ToString(), ItemCommandline.ItemRole.SecurityAdmin.ToString() };
 
             public User(IEnumerable<Claim> claims)
             {
                 var roles = new List<string> { Role.Public.ToString() };
                 foreach (var claim in claims) {
                     if (claim.Type == ClaimTypes.Role) {
-                        var role = claim.Value.ToEnum(Role.Unknown);
-                        if (role != Role.Unknown) {
-                            roles.Add(role.ToString());
-                        }
+                        roles.Add(claim.Value);
                     }
                 }
                 if (roles.Count > 0) {
