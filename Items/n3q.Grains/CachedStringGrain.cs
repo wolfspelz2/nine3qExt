@@ -8,16 +8,6 @@ using n3q.Tools;
 
 namespace n3q.Grains
 {
-    //public static class CachedStringState
-    //{
-    //    [Serializable]
-    //    public class CachedString
-    //    {
-    //        public string Data;
-    //        public long Expires;
-    //    }
-    //}
-
     public class CachedStringGrain : Grain, ICachedString
     {
         //private readonly IPersistentState<CachedStringState.CachedString> _state;

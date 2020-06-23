@@ -16,6 +16,7 @@ export class Inventory
     private items: { [id: string]: InventoryItem; } = {};
     private window: InventoryWindow;
     private isSubscribed: boolean;
+    private isAvailable: boolean;
 
     constructor(private app: ContentApp, private providerId: string) 
     {
@@ -27,18 +28,21 @@ export class Inventory
         if (protocol == 'xmpp:' && this.userToken != '') {
             this.itemServer = url.pathname;
             this.inventoryJid = this.userToken + '@' + this.itemServer;
+            this.isAvailable = true;
         }
     }
 
     getJid(): string { return this.inventoryJid; }
     getPane() { return this.window.getPane(); }
     getWindow() { return this.window; }
+    getAvailable() { return this.isAvailable; }
+    getProviderId() { return this.providerId; }
 
-    open(options: any)
+    async open(options: any)
     {
         if (!this.window) {
             this.window = new InventoryWindow(this.app, this);
-            this.window.show(options);
+            await this.window.show(options);
             this.subscribe();
         }
     }
