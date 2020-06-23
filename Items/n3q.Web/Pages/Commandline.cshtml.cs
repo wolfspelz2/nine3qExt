@@ -63,7 +63,7 @@ namespace n3q.Web
         public readonly Dictionary<string, CommandDetail> Commands = new Dictionary<string, CommandDetail>();
         public CommandSymbols Symbols = new CommandSymbols();
 
-        public CommandlineModel(ICommandlineSingletonInstance commandline, IClusterClient clusterClient)
+        public CommandlineModel(ICommandline commandline, IClusterClient clusterClient)
         {
             _commandline = commandline;
             _clusterClient = clusterClient;
@@ -77,6 +77,8 @@ namespace n3q.Web
 
         public void OnGet()
         {
+            _commandline.HttpContext = HttpContext;
+            
             var user = new Commandline.User(User.Claims);
 
             foreach (var pair in _commandline.GetHandlers()) {
@@ -99,6 +101,8 @@ namespace n3q.Web
 
         public PartialViewResult OnPostRun(string arg)
         {
+            _commandline.HttpContext = HttpContext;
+
             var cmd = arg;
             var user = new Commandline.User(User.Claims);
 
@@ -112,6 +116,8 @@ namespace n3q.Web
 
         public async Task<PartialViewResult> OnPostSaveFavorite(string arg)
         {
+            _commandline.HttpContext = HttpContext;
+
             var cmd = arg;
             try {
                 var favoritesNode = await ReadFavorites();
@@ -130,6 +136,8 @@ namespace n3q.Web
 
         public async Task<PartialViewResult> OnPostDeleteFavorite(string arg)
         {
+            _commandline.HttpContext = HttpContext;
+
             var key = arg;
             try {
                 var favoritesNode = await ReadFavorites();
@@ -148,6 +156,8 @@ namespace n3q.Web
 
         public async Task<PartialViewResult> OnPostUpFavorite(string arg)
         {
+            _commandline.HttpContext = HttpContext;
+
             var key = arg;
             try {
                 var favoritesNode = await ReadFavorites();

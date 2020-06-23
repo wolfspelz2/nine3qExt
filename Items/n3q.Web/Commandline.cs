@@ -8,13 +8,10 @@ using n3q.Tools;
 
 namespace n3q.Web
 {
-    public class Commandline : ICommandlineSingletonInstance
+    public class Commandline : ICommandline
     {
-        public Commandline(string path)
+        public Commandline()
         {
-            _path = path;
-            _ = _path;
-
             Handlers.Add("Echo", new Handler { Name = "Echo", Function = Echo, Role = Role.Public.ToString(), ImmediateExecute = true, Description = "Return all arguments", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { { "arg1", "first argument" }, { "...", "more arguments" } } });
             Handlers.Add("Dev_TestTable", new Handler { Name = "Dev_TestTable", Function = Dev_TestTable, ImmediateExecute = true, Role = Role.Developer.ToString(), Description = "Full table example" });
             Handlers.Add("Dev_Exception", new Handler { Name = "Dev_Exception", Function = Dev_Exception, ImmediateExecute = true, Role = Role.Developer.ToString(), Description = "Throw exception" });
@@ -30,12 +27,13 @@ namespace n3q.Web
             ArgumentFormatters.Add(FormatStringAsArgument);
         }
 
-        readonly string _path;
         Dictionary<string, string> _vars;
 
         public HandlerMap Handlers = new HandlerMap(StringComparer.OrdinalIgnoreCase);
         public FormatterList Formatters = new FormatterList();
         public ArgumentFormatterList ArgumentFormatters = new ArgumentFormatterList();
+
+        public HttpContext HttpContext { get; set; }
 
         public HandlerMap GetHandlers() => Handlers;
 
@@ -231,7 +229,7 @@ namespace n3q.Web
 
             string method = actualArgs[0];
             if (!GetHandlers().ContainsKey(method)) {
-                throw new Exception("Unknown command: " + method);  
+                throw new Exception("Unknown command: " + method);
             }
 
             var handler = GetHandlers()[method];

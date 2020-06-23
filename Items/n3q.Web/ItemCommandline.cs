@@ -32,7 +32,7 @@ namespace n3q.Web
             //Admin_CreateRole,
             Admin_Environment,
             Admin_Process,
-            //Admin_Request,
+            Admin_Request,
 
             Item_SetCreate,
             Item_Show,
@@ -55,7 +55,7 @@ namespace n3q.Web
             Content_Create,
         }
 
-        public ItemCommandline(string path) : base(path)
+        public ItemCommandline()
         {
             Handlers.Add("Dev_Item", new Handler { Name = "Dev_Item", Function = Dev_Item, Role = nameof(Role.Developer), Arguments = new ArgumentDescriptionList { ["ID"] = "Item-ID" } });
 
@@ -64,7 +64,7 @@ namespace n3q.Web
             //Handlers.Add(nameof(Fn.Admin_CreateRole), new Handler { Name = nameof(Fn.Admin_CreateRole), Function = Admin_CreateRole, Role = nameof(Role.Public), ImmediateExecute = false, Description = "Create role item for accessing user", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Secret", } });
             Handlers.Add(nameof(Fn.Admin_Environment), new Handler { Name = nameof(Fn.Admin_Environment), Function = Admin_Environment, Role = nameof(Role.Public), ImmediateExecute = true, Description = "Show environment variables", });
             Handlers.Add(nameof(Fn.Admin_Process), new Handler { Name = nameof(Fn.Admin_Process), Function = Admin_Process, Role = nameof(Role.Public), ImmediateExecute = true, Description = "Show process info", });
-            //Handlers.Add(nameof(Fn.Admin_Request), new Handler { Name = nameof(Fn.Admin_Request), Function = Admin_Request, Role = nameof(Role.Public), ImmediateExecute = false, Description = "Show HTTPrequest info", });
+            Handlers.Add(nameof(Fn.Admin_Request), new Handler { Name = nameof(Fn.Admin_Request), Function = Admin_Request, Role = nameof(Role.Public), ImmediateExecute = true, Description = "Show HTTP-request info", });
 
             Handlers.Add(nameof(Fn.Item_SetCreate), new Handler { Name = nameof(Fn.Item_SetCreate), Function = Item_SetProperties, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Set (some or all) item properties", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Properties"] = "Item properties as JSON dictionary or as PropertyName=Value pairs", } });
             Handlers.Add(nameof(Fn.Item_Show), new Handler { Name = nameof(Fn.Item_Show), Function = Item_GetProperties, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Show item", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Format"] = "Output format [table|json] (optional, default:table)", } });
@@ -148,34 +148,33 @@ namespace n3q.Web
             return table;
         }
 
-        //private object Admin_Request(Commandline.Arglist args)
-        //{
-        //    var table = new Commandline.Table();
+        private object Admin_Request(Commandline.Arglist args)
+        {
+            var table = new Commandline.Table();
 
-        //    table.Grid.Add(new Table.Row { "IsLocal", ContextAccessor.HttpContext.Connection.IsLocal.ToString() });
-        //    table.Grid.Add(new Table.Row { "LocalIpAddress", ContextAccessor.HttpContext.Connection.LocalIpAddress?.ToString() });
-        //    table.Grid.Add(new Table.Row { "LocalPort", ContextAccessor.HttpContext.Connection.LocalPort.ToString() });
-        //    table.Grid.Add(new Table.Row { "RemoteIpAddress", ContextAccessor.HttpContext.Connection.RemoteIpAddress?.ToString() });
-        //    table.Grid.Add(new Table.Row { "RemotePort", ContextAccessor.HttpContext.Connection.RemotePort.ToString() });
+            table.Grid.Add(new Table.Row { "LocalIpAddress", HttpContext.Connection.LocalIpAddress?.ToString() });
+            table.Grid.Add(new Table.Row { "LocalPort", HttpContext.Connection.LocalPort.ToString() });
+            table.Grid.Add(new Table.Row { "RemoteIpAddress", HttpContext.Connection.RemoteIpAddress?.ToString() });
+            table.Grid.Add(new Table.Row { "RemotePort", HttpContext.Connection.RemotePort.ToString() });
 
-        //    foreach (var header in ContextAccessor.HttpContext.Request.Headers) {
-        //        table.Grid.Add(new Table.Row { header.Key, header.Value.ToString() });
-        //    }
-        //    table.Grid.Add(new Table.Row { "IsHttps", ContextAccessor.HttpContext.Request.IsHttps.ToString() });
-        //    table.Grid.Add(new Table.Row { "Method", ContextAccessor.HttpContext.Request.Method?.ToString() });
-        //    table.Grid.Add(new Table.Row { "ContentLength", ContextAccessor.HttpContext.Request.ContentLength?.ToString() });
-        //    table.Grid.Add(new Table.Row { "ContentType", ContextAccessor.HttpContext.Request.ContentType?.ToString() });
-        //    foreach (var cookie in ContextAccessor.HttpContext.Request.Cookies) {
-        //        table.Grid.Add(new Table.Row { "Cookie-" + cookie.Key, cookie.Value });
-        //    }
-        //    table.Grid.Add(new Table.Row { "Host", ContextAccessor.HttpContext.Request.Host.ToString() });
-        //    table.Grid.Add(new Table.Row { "Path", ContextAccessor.HttpContext.Request.Path.ToString() });
-        //    table.Grid.Add(new Table.Row { "Protocol", ContextAccessor.HttpContext.Request.Protocol?.ToString() });
-        //    table.Grid.Add(new Table.Row { "Protocol", ContextAccessor.HttpContext.Request.QueryString.ToString() });
-        //    table.Grid.Add(new Table.Row { "Scheme", ContextAccessor.HttpContext.Request.Scheme?.ToString() });
+            foreach (var header in HttpContext.Request.Headers) {
+                table.Grid.Add(new Table.Row { header.Key, header.Value.ToString() });
+            }
+            table.Grid.Add(new Table.Row { "IsHttps", HttpContext.Request.IsHttps.ToString() });
+            table.Grid.Add(new Table.Row { "Method", HttpContext.Request.Method?.ToString() });
+            table.Grid.Add(new Table.Row { "ContentLength", HttpContext.Request.ContentLength?.ToString() });
+            table.Grid.Add(new Table.Row { "ContentType", HttpContext.Request.ContentType?.ToString() });
+            foreach (var cookie in HttpContext.Request.Cookies) {
+                table.Grid.Add(new Table.Row { "Cookie-" + cookie.Key, cookie.Value });
+            }
+            table.Grid.Add(new Table.Row { "Host", HttpContext.Request.Host.ToString() });
+            table.Grid.Add(new Table.Row { "Path", HttpContext.Request.Path.ToString() });
+            table.Grid.Add(new Table.Row { "Protocol", HttpContext.Request.Protocol?.ToString() });
+            table.Grid.Add(new Table.Row { "Protocol", HttpContext.Request.QueryString.ToString() });
+            table.Grid.Add(new Table.Row { "Scheme", HttpContext.Request.Scheme?.ToString() });
 
-        //    return table;
-        //}
+            return table;
+        }
 
         private object Admin_Process(Commandline.Arglist args)
         {
