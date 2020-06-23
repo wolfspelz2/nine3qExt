@@ -61,7 +61,6 @@ namespace n3q.Web
 
             if (Config.UseIntegratedCluster) {
                 host.UseOrleans(builder => {
-                    // EnableDirectClient is no longer needed as it is enabled by default
                     builder.UseLocalhostClustering()
 
                     .AddSimpleMessageStreamProvider(ItemService.StreamProvider, options => {

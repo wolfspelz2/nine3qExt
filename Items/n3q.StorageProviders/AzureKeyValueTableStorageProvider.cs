@@ -31,9 +31,9 @@ namespace n3q.StorageProviders
         public string TableName = "Items";
 
         // if you change these, then partitions keys will change
-        public int PartitionCount = 100; 
+        public int PartitionCount = 100;
         public string PartitionMask = "D2";
-        
+
         public int InitStage { get; set; } = DEFAULT_INIT_STAGE;
         public const int DEFAULT_INIT_STAGE = ServiceLifecycleStage.ApplicationServices;
     }
@@ -44,9 +44,6 @@ namespace n3q.StorageProviders
         readonly AzureKeyValueTableStorageOptions _options;
         readonly ILogger _logger;
         readonly ILoggerFactory _loggerFactory;
-        readonly IGrainFactory _grainFactory;
-        readonly long _id;
-        static long _counter;
         string _connectionString;
         string _tableName;
         CloudTable _table;
@@ -60,10 +57,8 @@ namespace n3q.StorageProviders
         {
             _name = name;
             _options = options;
-            _grainFactory = grainFactory;
             _loggerFactory = loggerFactory;
             _logger = _loggerFactory.CreateLogger($"{typeof(AzureKeyValueTableStorageProvider).FullName}.{name}");
-            _id = Interlocked.Increment(ref _counter);
         }
 
         #region Interface
@@ -91,12 +86,11 @@ namespace n3q.StorageProviders
                 var rk = KeySafeName(GetRowKey(grainType, grainReference, grainState));
                 _logger.LogInformation($"Reading item={grainReference.GetPrimaryKeyString()} GrainType={grainType} Pk={pk} Rk={rk} Table={_tableName}");
                 var res = await GetTable().ExecuteAsync(TableOperation.Retrieve<DynamicTableEntity>(pk, rk));
-                if (res.Result == null) { return; }
-                var entity = res.Result as DynamicTableEntity;
-                if (entity == null) { return; }
-                var kvGrainState = grainState as GrainState<KeyValueStorageData>;
-                kvGrainState.State = EntityProperties2StateDictionary(entity.Properties);
-                grainState.ETag = entity.ETag;
+                if (res.Result is DynamicTableEntity entity) {
+                    var kvGrainState = grainState as GrainState<KeyValueStorageData>;
+                    kvGrainState.State = EntityProperties2StateDictionary(entity.Properties);
+                    grainState.ETag = entity.ETag;
+                }
             } catch (Exception ex) {
                 _logger.Error(0, $"Error reading: {ex.Message}");
                 throw;
@@ -110,10 +104,9 @@ namespace n3q.StorageProviders
                 var rk = KeySafeName(GetRowKey(grainType, grainReference, grainState));
                 _logger.LogInformation($"Reading item={grainReference.GetPrimaryKeyString()} GrainType={grainType} Pk={pk} Rk={rk} Table={_tableName}");
                 var res = await GetTable().ExecuteAsync(TableOperation.Retrieve<DynamicTableEntity>(pk, rk));
-                if (res.Result == null) { return; }
-                var entity = res.Result as DynamicTableEntity;
-                if (entity == null) { return; }
-                await GetTable().ExecuteAsync(TableOperation.Delete(entity));
+                if (res.Result is DynamicTableEntity entity) {
+                    await GetTable().ExecuteAsync(TableOperation.Delete(entity));
+                }
             } catch (Exception ex) {
                 _logger.Error(0, $"Error deleting: {ex.Message}");
                 throw;
@@ -172,10 +165,24 @@ namespace n3q.StorageProviders
             }
 
             var primaryKey = grainReference.GetPrimaryKeyString();
-            var hash = primaryKey.SimpleHash() % _options.PartitionCount;
+            var hash = SimpleHash(primaryKey) % _options.PartitionCount;
             var partitionId = hash.ToString(_options.PartitionMask);
 
             return type + "-" + partitionId;
+        }
+
+        static int SimpleHash(string self)
+        {
+            var s = "abcd" + self;
+
+            var hash = 0;
+            for (var i = 0; i < s.Length; i++) {
+                var c = s[i];
+                hash <<= 5;
+                hash ^= c << 16 | c;
+            }
+
+            return Math.Abs(hash);
         }
 
         string GetRowKey(string grainType, GrainReference grainReference, IGrainState grainState)
@@ -184,7 +191,7 @@ namespace n3q.StorageProviders
             return primaryKey;
         }
 
-        static char[] KeyInvalidChars = { '/', '\\', '#', '?', '|', '[', ']', '{', '}', '<', '>', '$', '^', '&', '%', '+', '\'' };
+        static readonly char[] KeyInvalidChars = { '/', '\\', '#', '?', '|', '[', ']', '{', '}', '<', '>', '$', '^', '&', '%', '+', '\'' };
         protected string KeySafeName(string name)
         {
             var safeName = new StringBuilder();

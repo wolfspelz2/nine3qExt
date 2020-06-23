@@ -1,6 +1,6 @@
 ﻿using ConfigSharp;
 
-namespace n3q.Xmpp
+namespace n3q.Runtime
 {
     class ConfigRoot : SharpConfigurationBag
     {

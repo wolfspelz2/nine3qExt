@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 using Orleans;
 using n3q.Web.Models;
 using n3q.GrainInterfaces;
@@ -13,13 +12,15 @@ namespace n3q.Web.Controllers
     [ApiController]
     public class SampleController : ControllerBase
     {
-        private readonly ILogger<SampleController> _logger;
-        private readonly IClusterClient _clusterClient;
+        readonly ILogger<SampleController> _logger;
+        readonly IClusterClient _clusterClient;
+        readonly IConfiguration _configuration;
 
-        public SampleController(ILogger<SampleController> logger, IClusterClient clusterClient)
+        public SampleController(ILogger<SampleController> logger, IClusterClient clusterClient, IConfiguration configuration)
         {
             _logger = logger;
             _clusterClient = clusterClient;
+            _configuration = configuration;
         }
 
         [Route("[controller]")]
@@ -27,7 +28,7 @@ namespace n3q.Web.Controllers
         public async Task<IEnumerable<Sample>> Get()
         {
             _logger.LogInformation("Get");
-            var ids = new[] { "a", "b" };
+            var ids = new[] { "a", _configuration.GetValue("GrainBName", "x") };
             var samples = new List<Sample>();
             foreach (var id in ids) {
                 samples.Add(new Sample {

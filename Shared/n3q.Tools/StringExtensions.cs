@@ -64,7 +64,7 @@ namespace n3q.Tools
             for (var i = 0; i < s.Length; i++) {
                 var c = s[i];
                 hash <<= 5;
-                hash ^= c | c << 16;
+                hash ^= c << 16 | c;
             }
 
             return Math.Abs(hash);

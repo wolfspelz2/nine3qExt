@@ -105,7 +105,7 @@ namespace ConfigSharp
         internal static bool IsTrue(this string self)
         {
             string s = self.ToLower(CultureInfo.InvariantCulture);
-            return s == "true" || s == "1" || s == "on" || s == "yes" || s == "ja" || s == "oui" || s == "ok" || s == "sure" || s == "yessir" || s == "youbet";
+            return s == "true" || s == "1" || s == "on" || s == "yes";
         }
     }
 }
