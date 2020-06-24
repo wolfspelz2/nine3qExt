@@ -130,15 +130,23 @@ namespace ConfigSharp
             references.Add(typeof(Uri).Assembly.Location);
             references.Add(typeof(ConfigBag).Assembly.Location);
 
-            // Application dll
-            var baseType = GetType().BaseType;
-            var typeAssembly = GetType().Assembly;
-            var appLocation = typeAssembly.Location;
-            if (string.IsNullOrEmpty(appLocation) && baseType != null) {
-                var baseTypeAssembly = baseType.Assembly;
-                appLocation = baseTypeAssembly.Location;
+            {
+                // Application dlls
+                //var baseType = GetType().BaseType;
+                //var typeAssembly = GetType().Assembly;
+                //var appLocation = typeAssembly.Location;
+                //if (string.IsNullOrEmpty(appLocation) && baseType != null) {
+                //    var baseTypeAssembly = baseType.Assembly;
+                //    appLocation = baseTypeAssembly.Location;
+                //}
+                //references.Add(appLocation);
+                var assembly = Assembly.GetExecutingAssembly();
+                var path = assembly.Location;
+                var dir = Directory.GetParent(path).FullName;
+                foreach (var file in Directory.EnumerateFiles(dir, "*.dll")) {
+                    references.Add(file);
+                }
             }
-            references.Add(appLocation);
 
             var syntaxTree = CSharpSyntaxTree.ParseText(code);
 

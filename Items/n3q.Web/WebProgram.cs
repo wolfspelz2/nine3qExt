@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -21,6 +22,9 @@ namespace n3q.Web
     {
         public static void Main(string[] args)
         {
+            ConfigSharp.Log.LogLevel = ConfigSharp.Log.Level.Info;
+            ConfigSharp.Log.LogHandler = (lvl, ctx, msg) => { Console.WriteLine($"{lvl} {ctx} {msg}"); };
+
             CreateHostBuilder(args).Build().Run();
         }
 

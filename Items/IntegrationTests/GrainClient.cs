@@ -69,6 +69,13 @@ namespace IntegrationTests
                         options.ConnectionString = "UseDevelopmentStorage=true";
                     })
 
+                .AddAzureReflectingTableStorage(
+                    name: AzureReflectingTableStorage.StorageProviderName,
+                    configureOptions: options => {
+                        options.TableName = "n3qTest";
+                        options.ConnectionString = "UseDevelopmentStorage=true";
+                    })
+
                 .UsePerfCounterEnvironmentStatistics()
 
                 .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(TestStringGrain).Assembly).WithReferences())

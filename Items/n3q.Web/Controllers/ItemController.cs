@@ -7,18 +7,21 @@ using Microsoft.Extensions.Logging;
 using Orleans;
 using n3q.Web.Models;
 using n3q.GrainInterfaces;
+using Microsoft.Extensions.Configuration;
+using n3q.Tools;
 
 namespace n3q.Web.Controllers
 {
     [ApiController]
     public class ItemController : ControllerBase
     {
-        private readonly ILogger<ItemController> _logger;
+        public ICallbackLogger Log { get; set; }
+        readonly IConfiguration _configuration;
 
-        public ItemController(ILogger<ItemController> logger)
+        public ItemController(ILogger<ItemController> logger, IConfiguration configuration)
         {
-            _logger = logger;
-            _ = _logger;
+            Log = new FrameworkCallbackLogger(logger);
+            _configuration = configuration;
         }
 
         [Route("[controller]/Config")]
@@ -28,14 +31,19 @@ namespace n3q.Web.Controllers
             await Task.CompletedTask;
 
             if (string.IsNullOrEmpty(id)) { throw new Exception("No id"); }
+            Log.Info(id, nameof(Config), nameof(ItemController));
+
+            var secretToken = "";
+
+            if (string.IsNullOrEmpty(id)) { throw new Exception("No use token generated"); }
 
             var config = new ItemServiceConfig {
-                serviceUrl = "xmpp:itemsxmpp.dev.sui.li",
-                unavailableUrl = $"http://localhost:5000/Embedded/Account?id={id}",
-                //userToken = "random-user-token-jhg2fu7kjjl4koi8tgi",
+                serviceUrl = _configuration.GetValue(nameof(WebConfig.ItemServiceXmppUrl), "xmpp:itemsxmpp.dev.sui.li"),
+                unavailableUrl = _configuration.GetValue(nameof(WebConfig.WebBaseUrl),  "http://localhost:5000/") + "Embedded/Account?id={id}",
+                userToken = secretToken,
                 itemPropertyUrlFilter = new Dictionary<string, string> {
                     //{ "{image.item.nine3q}", "https://nine3q.dev.sui.li/images/Items/" },
-                    { "{image.item.nine3q}", "http://localhost:5000/images/Items/" },
+                    { "{image.item.nine3q}", _configuration.GetValue(nameof(WebConfig.WebBaseUrl),  "http://localhost:5000/") + "images/Items/" },
                 },
             };
             return config;

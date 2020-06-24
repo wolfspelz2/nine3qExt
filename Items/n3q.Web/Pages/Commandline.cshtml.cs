@@ -65,7 +65,7 @@ namespace n3q.Web
         public CommandlineModel(ICommandline commandline, IClusterClient clusterClient, IConfiguration configuration)
         {
             _commandline = commandline;
-            _commandline.AdminTokens = configuration.GetValue("AdminTokens", "").Split(new char[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            _commandline.AdminTokens = configuration.GetValue(nameof(WebConfig.AdminTokens), "").Split(new char[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
             _clusterClient = clusterClient;
             if (_commandline is ItemCommandline itemCommandline) {

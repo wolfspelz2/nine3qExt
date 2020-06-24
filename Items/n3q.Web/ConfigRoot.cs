@@ -1,15 +1,21 @@
-﻿using ConfigSharp;
-
-namespace n3q.Xmpp
+﻿namespace n3q.Web
 {
-    class ConfigRoot : SharpConfigurationBag
+    public class ConfigRoot : WebConfig
     {
         public void Load()
         {
             Data["GrainBName"] = "b";
 
             if (RunMode == RunModes.Development) {
-                Data["AdminTokens"] = "Token";
+
+                Data[nameof(WebConfig.AdminTokens)] = "Token";
+                Data[nameof(WebConfig.WebBaseUrl)] = "http://localhost:5000/";
+
+            } else {
+
+                var serverAddress = "localhost";
+                Data[nameof(WebConfig.WebBaseUrl)] = $"http://{serverAddress}/";
+
             }
         }
     }

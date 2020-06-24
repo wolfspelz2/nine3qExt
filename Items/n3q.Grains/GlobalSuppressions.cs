@@ -6,3 +6,7 @@
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2235:Mark all non-serializable fields", Justification = "<Pending>", Scope = "member", Target = "~F:n3q.Grains.ItemState.Id")]
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2235:Mark all non-serializable fields", Justification = "<Pending>", Scope = "member", Target = "~F:n3q.Grains.ItemState.Properties")]
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2235:Mark all non-serializable fields", Justification = "<Pending>", Scope = "member", Target = "~F:n3q.Grains.CachedStringState.CachedString.Data")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2235:Mark all non-serializable fields", Justification = "<Pending>", Scope = "member", Target = "~F:n3q.Grains.TestStringState.TestString.Data")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2235:Mark all non-serializable fields", Justification = "<Pending>", Scope = "member", Target = "~F:n3q.Grains.TestReflectingState.StringField")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2235:Mark all non-serializable fields", Justification = "<Pending>", Scope = "member", Target = "~F:UtilityGrains.TranslationState.Text")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2235:Mark all non-serializable fields", Justification = "<Pending>", Scope = "member", Target = "~F:n3q.Grains.CachedStringState.Data")]
