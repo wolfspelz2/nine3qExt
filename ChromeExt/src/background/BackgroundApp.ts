@@ -61,12 +61,18 @@ export class BackgroundApp
                     let itemProvider = itemProviders[providerId];
                     if (itemProvider.configUrl) {
                         try {
-                            var providerConfig = await this.fetchJSON(itemProvider.configUrl);
+
+                            let url = itemProvider.configUrl;
+                            let uniqueId = await Config.getSync('me.id', '');
+                            url = url.replace('{id}', encodeURIComponent(uniqueId));
+
+                            var providerConfig = await this.fetchJSON(url);
                             let onlineConfig = Config.getOnlineTree();
                             if (!onlineConfig.itemProviders) { onlineConfig.itemProviders = {}; }
                             onlineConfig.itemProviders[providerId] = itemProviders[providerId];
                             onlineConfig.itemProviders[providerId].config = providerConfig;
                             Config.setOnlineTree(onlineConfig);
+
                         } catch (error) {
                             log.info('Fetch itemProvider config failed', providerId, itemProvider.configUrl, error);
                         }
