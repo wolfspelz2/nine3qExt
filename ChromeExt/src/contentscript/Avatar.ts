@@ -212,19 +212,23 @@ export class Avatar implements IObserver
     {
         this.currentSpeedPixelPerSec = this.defaultSpeedPixelPerSec;
 
-        var once = true;
-        var group = this.currentAction;
+        let once = true;
+        let group = this.currentAction;
         this.currentAction = '';
         if (group == '') { group = this.currentCondition; once = false; }
         if (group == '') { group = this.currentState; once = false; }
         if (group == '') { group = this.defaultGroup; }
 
-        var animation = this.getAnimationByGroup(group);
-        if (animation == null || animation == undefined) {
-            return;
+        let animation = this.getAnimationByGroup(group);
+        if (!animation) {
+            group = this.defaultGroup;
+            animation = this.getAnimationByGroup(group);
+            if (!animation) {
+                return;
+            }
         }
 
-        var durationSec: number = animation.duration / 1000;
+        let durationSec: number = animation.duration / 1000;
         if (durationSec < 0.1) {
             durationSec = 1.0;
         }
