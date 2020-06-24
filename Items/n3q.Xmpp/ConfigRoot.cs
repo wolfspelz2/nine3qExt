@@ -1,6 +1,6 @@
 ﻿namespace n3q.Xmpp
 {
-    class ConfigRoot : XmppProgramConfig
+    class ConfigRoot : XmppConfig
     {
         public void Load()
         {

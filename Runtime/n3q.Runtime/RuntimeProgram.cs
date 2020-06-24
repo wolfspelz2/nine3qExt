@@ -19,11 +19,6 @@ namespace n3q.Runtime
                     webBuilder.UseStartup<Startup>();
                 })
 
-                .ConfigureAppConfiguration((builderContext, config) => {
-                    config.AddSharpConfiguration(options => {
-                        options.ConfigFile = "ConfigRoot.cs";
-                    });
-                })
                 
                 ;
         }

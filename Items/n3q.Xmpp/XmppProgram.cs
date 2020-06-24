@@ -15,7 +15,7 @@ namespace n3q.Xmpp
         const int InitializeAttemptsBeforeFailing = 5;
         private static int _attempt = 0;
 
-        static readonly XmppProgramConfig Config = new XmppProgramConfig();
+        static readonly XmppConfig Config = new XmppConfig();
         static Controller _controller;
 
         static int Main(string[] args)

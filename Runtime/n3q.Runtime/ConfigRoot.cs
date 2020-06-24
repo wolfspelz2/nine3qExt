@@ -2,11 +2,11 @@
 
 namespace n3q.Runtime
 {
-    class ConfigRoot : SharpConfigurationBag
+    class ConfigRoot : RuntimeConfig
     {
         public void Load()
         {
-            Data["GrainBName"] = "b";
+            Dummy = "x";
         }
     }
 }

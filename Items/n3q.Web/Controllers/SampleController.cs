@@ -14,13 +14,11 @@ namespace n3q.Web.Controllers
     {
         readonly ILogger<SampleController> _logger;
         readonly IClusterClient _clusterClient;
-        readonly IConfiguration _configuration;
 
-        public SampleController(ILogger<SampleController> logger, IClusterClient clusterClient, IConfiguration configuration)
+        public SampleController(ILogger<SampleController> logger, IClusterClient clusterClient)
         {
             _logger = logger;
             _clusterClient = clusterClient;
-            _configuration = configuration;
         }
 
         [Route("[controller]")]
@@ -28,7 +26,7 @@ namespace n3q.Web.Controllers
         public async Task<IEnumerable<Sample>> Get()
         {
             _logger.LogInformation("Get");
-            var ids = new[] { "a", _configuration.GetValue("GrainBName", "x") };
+            var ids = new[] { "a", "b" };
             var samples = new List<Sample>();
             foreach (var id in ids) {
                 samples.Add(new Sample {

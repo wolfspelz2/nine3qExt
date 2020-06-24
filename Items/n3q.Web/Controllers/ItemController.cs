@@ -16,37 +16,37 @@ namespace n3q.Web.Controllers
     public class ItemController : ControllerBase
     {
         public ICallbackLogger Log { get; set; }
-        readonly IConfiguration _configuration;
+        readonly WebConfig _config;
 
-        public ItemController(ILogger<ItemController> logger, IConfiguration configuration)
+        public ItemController(ILogger<ItemController> logger, WebConfig config)
         {
             Log = new FrameworkCallbackLogger(logger);
-            _configuration = configuration;
+            _config = config;
         }
 
         [Route("[controller]/Config")]
         [HttpGet]
-        public async Task<ItemServiceConfig> Get(string id)
+        public async Task<ItemServiceConfig> Config(string id)
         {
             await Task.CompletedTask;
 
             if (string.IsNullOrEmpty(id)) { throw new Exception("No id"); }
-            Log.Info(id, nameof(Config), nameof(ItemController));
+            Log.Info(id, "Config", nameof(ItemController));
 
             var secretToken = "";
 
             if (string.IsNullOrEmpty(id)) { throw new Exception("No use token generated"); }
 
-            var config = new ItemServiceConfig {
-                serviceUrl = _configuration.GetValue(nameof(WebConfig.ItemServiceXmppUrl), "xmpp:itemsxmpp.dev.sui.li"),
-                unavailableUrl = _configuration.GetValue(nameof(WebConfig.WebBaseUrl),  "http://localhost:5000/") + "Embedded/Account?id={id}",
+            var result = new ItemServiceConfig {
+                serviceUrl = _config.ItemServiceXmppUrl,
+                unavailableUrl = _config.WebBaseUrl + "Embedded/Account?id={id}",
                 userToken = secretToken,
                 itemPropertyUrlFilter = new Dictionary<string, string> {
                     //{ "{image.item.nine3q}", "https://nine3q.dev.sui.li/images/Items/" },
-                    { "{image.item.nine3q}", _configuration.GetValue(nameof(WebConfig.WebBaseUrl),  "http://localhost:5000/") + "images/Items/" },
+                    { "{image.item.nine3q}", _config.WebBaseUrl + "images/Items/" },
                 },
             };
-            return config;
+            return result;
         }
     }
 }
