@@ -21,59 +21,24 @@ namespace n3q.Web.Controllers
             _ = _logger;
         }
 
-        //[Route("[controller]")]
-        //[HttpGet]
-        //public async Task<IEnumerable<Sample>> Get()
-        //{
-        //    _logger.LogInformation("Get");
-        //    var ids = new[] { "a", "b" };
-        //    var samples = new List<Sample>();
-        //    foreach (var id in ids) {
-        //        samples.Add(new Sample {
-        //            Key = id,
-        //            Value = await _clusterClient.GetGrain<ITestString>(id).Get()
-        //        });
-        //    }
-        //    return samples;
-        //}
-
-        /*
-            {
-              "config": {
-                "serviceUrl": "https://config.weblin.sui.li/"
-              },
-              "inventory": {
-                "iconSize": 64
-              },
-              "itemProviders": {
-                "nine3q": {
-                  "configUrl": "http://localhost:5000/Item/Config",
-                  "config": {
-                    "serviceUrl": "xmpp:itemsxmpp.dev.sui.li",
-                    "userToken": "random-user-token-jhg2fu7kjjl4koi8tgi",
-                    "itemPropertyUrlFilter": {
-                      "{image.item.nine3q}": "http://localhost:5000/images/Items/"
-                    }
-                  }
-                }
-              }
-            }
-        */
-
         [Route("[controller]/Config")]
         [HttpGet]
-        public async Task<ItemServiceConfig> Get()
+        public async Task<ItemServiceConfig> Get(string id)
         {
             await Task.CompletedTask;
-            return new ItemServiceConfig {
+
+            if (string.IsNullOrEmpty(id)) { throw new Exception("No id"); }
+
+            var config = new ItemServiceConfig {
                 serviceUrl = "xmpp:itemsxmpp.dev.sui.li",
-                accountUrl = "http://localhost:5000/Account",
+                unavailableUrl = $"http://localhost:5000/Embedded/Account?id={id}",
                 //userToken = "random-user-token-jhg2fu7kjjl4koi8tgi",
                 itemPropertyUrlFilter = new Dictionary<string, string> {
                     //{ "{image.item.nine3q}", "https://nine3q.dev.sui.li/images/Items/" },
                     { "{image.item.nine3q}", "http://localhost:5000/images/Items/" },
                 },
             };
+            return config;
         }
     }
 }

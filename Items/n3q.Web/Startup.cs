@@ -50,11 +50,11 @@ namespace n3q.Web
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment()) {
-                app.UseDeveloperExceptionPage();
-            } else {
-                app.UseExceptionHandler("/Error");
-            }
+            //if (env.IsDevelopment()) {
+            //    app.UseDeveloperExceptionPage();
+            //} else {
+            //    app.UseExceptionHandler("/Error");
+            //}
 
             app.UseStaticFiles();
 
