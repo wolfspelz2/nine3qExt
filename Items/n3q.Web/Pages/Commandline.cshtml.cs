@@ -62,10 +62,10 @@ namespace n3q.Web
         public readonly Dictionary<string, CommandDetail> Commands = new Dictionary<string, CommandDetail>();
         public CommandSymbols Symbols = new CommandSymbols();
 
-        public CommandlineModel(ICommandline commandline, IClusterClient clusterClient, IConfiguration configuration)
+        public CommandlineModel(ICommandline commandline, IClusterClient clusterClient, WebConfig config)
         {
             _commandline = commandline;
-            _commandline.AdminTokens = configuration.GetValue("AdminTokens", "").Split(new char[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            _commandline.AdminTokens = config.AdminTokens;
 
             _clusterClient = clusterClient;
             if (_commandline is ItemCommandline itemCommandline) {

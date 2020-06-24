@@ -25,7 +25,7 @@ export class Utils
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    private static randomStringChars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    private static randomStringChars = '0123456789abcdefghijklmnopqrstuvwxyz';
     static randomString(length: number): string
     {
         var maxIndex: number = Utils.randomStringChars.length - 1;

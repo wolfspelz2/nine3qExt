@@ -187,7 +187,7 @@ export class ContentApp
         this.showInventoryWindow(this.display)
     }
 
-    showInventoryWindow(aboveElem: HTMLElement): void
+    async showInventoryWindow(aboveElem: HTMLElement): Promise<void>
     {
         let inv = new Inventory(this, 'nine3q');
         let jid = inv.getJid();
@@ -195,7 +195,7 @@ export class ContentApp
         if (!this.inventories[jid]) {
             this.inventories[jid] = inv;
 
-            inv.open({
+            await inv.open({
                 'above': aboveElem,
                 onClose: () =>
                 {

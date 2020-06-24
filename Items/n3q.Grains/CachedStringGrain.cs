@@ -8,40 +8,34 @@ using n3q.Tools;
 
 namespace n3q.Grains
 {
-    //public static class CachedStringState
-    //{
-    //    [Serializable]
-    //    public class CachedString
-    //    {
-    //        public string Data;
-    //        public long Expires;
-    //    }
-    //}
+    [Serializable]
+    public class CachedStringState
+    {
+        public string Data;
+        public long Expires;
+    }
 
     public class CachedStringGrain : Grain, ICachedString
     {
-        //private readonly IPersistentState<CachedStringState.CachedString> _state;
-        readonly IPersistentState<KeyValueStorageData> _state;
-        const string DATA = "Data";
-        const string EXPIRES = "Expires";
+        readonly IPersistentState<CachedStringState> _state;
 
         public string Data
         {
-            get { return _state.State.Get(DATA, null); }
-            set { _state.State[DATA] = value; }
+            get { return _state.State.Data; }
+            set { _state.State.Data = value; }
         }
 
         public long Expires
         {
-            get { return _state.State.Get(EXPIRES, 0L); }
-            set { _state.State[EXPIRES] = value; }
+            get { return _state.State.Expires; }
+            set { _state.State.Expires = value; }
         }
 
         public DateTime Time { get; set; } = DateTime.MinValue;
         public CachedStringOptions.Persistence Persistence { get; set; } = CachedStringOptions.Persistence.Transient;
 
         public CachedStringGrain(
-            [PersistentState("CachedString", AzureKeyValueTableStorage.StorageProviderName)] IPersistentState<KeyValueStorageData> state
+            [PersistentState("CachedString", AzureReflectingTableStorage.StorageProviderName)] IPersistentState<CachedStringState> state
             )
         {
             _state = state;

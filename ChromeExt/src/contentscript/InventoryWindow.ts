@@ -8,6 +8,7 @@ import { Config } from '../lib/Config';
 import { ContentApp } from './ContentApp';
 import { Window } from './Window';
 import { Inventory } from './Inventory';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 
 export class InventoryWindow extends Window
 {
@@ -54,8 +55,17 @@ export class InventoryWindow extends Window
             }
 
             let paneElem = <HTMLElement>$('<div class="n3q-base n3q-inventory-pane" data-translate="children" />').get(0);
-
             $(contentElem).append(paneElem);
+
+            if (!this.inv.getAvailable()) {
+                let url = Config.get('itemProviders.' + this.inv.getProviderId() + '.config.unavailableUrl', '');
+                if (url != '') {
+                    let uniqueId = await Config.getSync('me.id', '');
+                    url = url.replace('{id}', encodeURIComponent(uniqueId));
+                    let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-inventory-iframe" src="' + url + ' " frameborder="0"></iframe>').get(0);
+                    $(contentElem).append(iframeElem);
+                }
+            }
 
             this.app.translateElem(windowElem);
 

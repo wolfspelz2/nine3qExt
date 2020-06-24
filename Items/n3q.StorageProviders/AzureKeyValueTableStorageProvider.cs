@@ -30,9 +30,9 @@ namespace n3q.StorageProviders
         public string ConnectionString = "DataConnectionString";
         public string TableName = "Items";
 
-        // if you change these, then partitions keys will change
-        public int PartitionCount = 100;
-        public string PartitionMask = "D2";
+        // if you change these, then partition keys will change
+        //public int PartitionCount = 100;
+        //public string PartitionMask = "D2";
 
         public int InitStage { get; set; } = DEFAULT_INIT_STAGE;
         public const int DEFAULT_INIT_STAGE = ServiceLifecycleStage.ApplicationServices;
@@ -163,26 +163,7 @@ namespace n3q.StorageProviders
                     type = typeParts[typeParts.Length - 1];
                 }
             }
-
-            var primaryKey = grainReference.GetPrimaryKeyString();
-            var hash = SimpleHash(primaryKey) % _options.PartitionCount;
-            var partitionId = hash.ToString(_options.PartitionMask);
-
-            return type + "-" + partitionId;
-        }
-
-        static int SimpleHash(string self)
-        {
-            var s = "abcd" + self;
-
-            var hash = 0;
-            for (var i = 0; i < s.Length; i++) {
-                var c = s[i];
-                hash <<= 5;
-                hash ^= c << 16 | c;
-            }
-
-            return Math.Abs(hash);
+            return type;
         }
 
         string GetRowKey(string grainType, GrainReference grainReference, IGrainState grainState)

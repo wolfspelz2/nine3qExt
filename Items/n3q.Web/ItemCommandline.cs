@@ -19,13 +19,6 @@ namespace n3q.Web
     {
         public IClusterClient ClusterClient { get; set; }
 
-        public ItemStub GetItemStub(string id)
-        {
-            var itemClient = new OrleansClusterClient(ClusterClient, id);
-            var itemStub = new ItemStub(itemClient);
-            return itemStub;
-        }
-
         public enum ItemRole { Content, LeadContent, SecurityAdmin }
 
         enum Fn
@@ -315,7 +308,7 @@ namespace n3q.Web
             var itemId = args.Next("Item");
             var props = GetPropertySetFromNextArgs(args);
 
-            var item = GetItemStub(itemId);
+            var item = ClusterClient.GetItemStub(itemId);
             item.WithTransaction(async self => {
                 await self.ModifyProperties(props, PidSet.Empty);
             }).Wait();
@@ -329,7 +322,7 @@ namespace n3q.Web
             var itemId = args.Next("Item");
             var format = args.Next("Format", Item_Result_format.table.ToString());
 
-            var item = GetItemStub(itemId);
+            var item = ClusterClient.GetItemStub(itemId);
             var props = item.GetProperties(PidSet.All).Result;
             var nativeProps = item.GetProperties(PidSet.All, native: true).Result;
             var templateProps = new PropertySet();
@@ -337,7 +330,7 @@ namespace n3q.Web
             var templateUnavailable = false;
 
             if (Has.Value(templateId)) {
-                var template = GetItemStub(templateId);
+                var template = ClusterClient.GetItemStub(templateId);
                 templateProps = template.GetProperties(PidSet.All).Result;
             }
 
@@ -448,7 +441,7 @@ namespace n3q.Web
                 }
             } while (!string.IsNullOrEmpty(arg));
 
-            var item = GetItemStub(itemId);
+            var item = ClusterClient.GetItemStub(itemId);
             item.WithTransaction(async self => {
                 await self.ModifyProperties(PropertySet.Empty, pids);
             }).Wait();
@@ -462,7 +455,7 @@ namespace n3q.Web
             var itemId = args.Next("item-ID");
             var containerId = args.Next("container-ID");
 
-            var container = GetItemStub(containerId);
+            var container = ClusterClient.GetItemStub(containerId);
             container.WithTransaction(async self => {
                 await self.AsContainer().AddChild(await self.Item(itemId));
             }).Wait();
@@ -476,7 +469,7 @@ namespace n3q.Web
             var itemId = args.Next("item-ID");
             var containerId = args.Next("container-ID");
 
-            var container = GetItemStub(containerId);
+            var container = ClusterClient.GetItemStub(containerId);
             container.WithTransaction(async self => {
                 await self.AsContainer().RemoveChild(await self.Item(itemId));
             }).Wait();
@@ -493,7 +486,7 @@ namespace n3q.Web
 
             var pid = propertyId.ToEnum(Pid.Unknown);
             if (pid != Pid.Unknown) {
-                var container = GetItemStub(itemId);
+                var container = ClusterClient.GetItemStub(itemId);
                 container.WithTransaction(async self => {
                     await self.AddToList(pid, listElem);
                 }).Wait();
@@ -511,7 +504,7 @@ namespace n3q.Web
 
             var pid = propertyId.ToEnum(Pid.Unknown);
             if (pid != Pid.Unknown) {
-                var container = GetItemStub(itemId);
+                var container = ClusterClient.GetItemStub(itemId);
                 container.WithTransaction(async self => {
                     await self.RemoveFromList(pid, listElem);
                 }).Wait();
@@ -525,7 +518,7 @@ namespace n3q.Web
             args.Next("cmd");
             var itemId = args.Next("item-ID");
 
-            var item = GetItemStub(itemId);
+            var item = ClusterClient.GetItemStub(itemId);
             item.WithTransaction(async self => {
                 await self.AsDeletable().DeleteMe();
             }).Wait();
@@ -538,7 +531,7 @@ namespace n3q.Web
             args.Next("cmd");
             var itemId = args.Next("item-ID");
 
-            var item = GetItemStub(itemId);
+            var item = ClusterClient.GetItemStub(itemId);
             item.Deactivate().Wait();
 
             return $"Deactivated";

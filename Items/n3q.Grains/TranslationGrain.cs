@@ -8,13 +8,18 @@ using n3q.GrainInterfaces;
 
 namespace UtilityGrains
 {
+    [Serializable]
+    public class TranslationState
+    {
+        public string Text;
+    }
+
     public class TranslationGrain : Grain, ITranslation
     {
-        readonly IPersistentState<KeyValueStorageData> _state;
-        const string TEXT = "Text";
+        readonly IPersistentState<TranslationState> _state;
 
         public TranslationGrain(
-            [PersistentState("Translation", AzureKeyValueTableStorage.StorageProviderName)] IPersistentState<KeyValueStorageData> state
+            [PersistentState("Translation", AzureReflectingTableStorage.StorageProviderName)] IPersistentState<TranslationState> state
             )
         {
             _state = state;
@@ -22,22 +27,19 @@ namespace UtilityGrains
 
         public async Task Set(string data)
         {
-            _state.State[TEXT] = data;
+            _state.State.Text = data;
             await _state.WriteStateAsync();
         }
 
         public async Task<string> Get()
         {
             await Task.CompletedTask;
-            if (_state.State.TryGetValue(TEXT, out var translation)) {
-                return translation.ToString();
-            }
-            return null;
+            return _state.State.Text;
         }
 
         public async Task Unset()
         {
-            _state.State[TEXT] = "";
+            _state.State.Text = null;
             await _state.ClearStateAsync();
         }
 
@@ -50,7 +52,7 @@ namespace UtilityGrains
 
         public async Task ReloadPersistentStorage()
         {
-            _state.State = new KeyValueStorageData();
+            _state.State = new TranslationState();
             await _state.ReadStateAsync();
         }
 

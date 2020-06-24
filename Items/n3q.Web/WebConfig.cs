@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using ConfigSharp;
 
-namespace ConfigSharp
+namespace n3q.Web
 {
-    public class SharpConfigurationBag : ConfigBag
+    public class WebConfig : ConfigBag
     {
         public enum RunModes
         {
@@ -19,11 +20,9 @@ namespace ConfigSharp
             RunModes.Production;
 #endif
 
-        public Dictionary<string, string> Data = new Dictionary<string, string>();
-
-        public SharpConfigurationBag()
-        {
-            Data["RunMode"] = RunMode.ToString();
-        }
+        public bool UseIntegratedCluster = false;
+        public List<string> AdminTokens;
+        public string ItemServiceXmppUrl;
+        public string WebBaseUrl;
     }
 }

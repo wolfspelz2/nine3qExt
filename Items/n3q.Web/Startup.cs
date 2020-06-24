@@ -22,14 +22,17 @@ namespace n3q.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var config = new WebConfig().Include("ConfigRoot.cs") as WebConfig;
+            services.AddSingleton<WebConfig>(config);
+
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options => {
-            });
-            
+                });
+
             services.AddRazorPages();
             services.AddControllers();
-
-            if (!Config.UseIntegratedCluster) {
+            
+            if (!config.UseIntegratedCluster) {
                 services.AddSingleton<IClusterClient>((s) => {
                     var client = new ClientBuilder()
                         .UseLocalhostClustering()

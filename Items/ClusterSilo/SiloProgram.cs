@@ -116,6 +116,13 @@ namespace ClusterSilo
                         options.ConnectionString = Config.GrainStateAzureTableConnectionString;
                     })
 
+                .AddAzureReflectingTableStorage(
+                    name: AzureReflectingTableStorage.StorageProviderName,
+                    configureOptions: options => {
+                        options.TableName = "n3qGrains";
+                        options.ConnectionString = Config.GrainStateAzureTableConnectionString;
+                    })
+
                 .AddAzureTableGrainStorage(
                     name: "AzureTableGrainStorage",
                     configureOptions: options => {

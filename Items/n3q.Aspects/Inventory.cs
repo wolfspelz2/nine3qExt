@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using n3q.Common;
 using n3q.Items;
 
 namespace n3q.Aspects
@@ -14,12 +13,19 @@ namespace n3q.Aspects
         public Inventory(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.InventoryAspect;
 
-        public enum Action { SetItemCoordinates }
+        public enum Action { Initialize, SetItemCoordinates }
         public override ActionList GetActionList()
         {
             return new ActionList() {
+                { nameof(Action.Initialize), new ActionDescription() { Handler = async (args) => await Initialize() } },
                 { nameof(Action.SetItemCoordinates), new ActionDescription() { Handler = async (args) => await SetItemCoordinates(await Item(args.Get(Pid.InventorySetItemCoordinatesItem)), args.Get(Pid.InventorySetItemCoordinatesX), args.Get(Pid.InventorySetItemCoordinatesY)) } },
             };
+        }
+
+        public async Task Initialize()
+        {
+            var flag = await NewItemFromTemplate("PirateFlag");
+            await this.AsContainer().AddChild(flag);
         }
 
         public async Task SetItemCoordinates(ItemStub item, long x, long y)

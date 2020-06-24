@@ -1,6 +1,6 @@
 ﻿namespace n3q.Xmpp
 {
-    public class XmppProgramConfig : ConfigSharp.ConfigBag
+    public class XmppConfig : ConfigSharp.ConfigBag
     {
         public enum RunModes
         {

@@ -21,9 +21,8 @@ namespace n3q.Runtime.Controllers
 
         [Route("[controller]/Config")]
         [HttpGet]
-        public async Task<ClientConfig> Config()
+        public static Task<ClientConfig> Config()
         {
-            await Task.CompletedTask;
             var config = new ClientConfig();
 
             config.xmpp.service = "wss://xmpp.weblin.sui.li/xmpp-websocket";
@@ -271,7 +270,7 @@ namespace n3q.Runtime.Controllers
                 "006/Ghandi",
                 };
 
-            return config;
+            return Task.FromResult(config);
         }
     }
 }

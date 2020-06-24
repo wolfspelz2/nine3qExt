@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -12,15 +13,13 @@ using ConfigSharp;
 
 namespace n3q.Web
 {
-    public static class Config
-    {
-        public static bool UseIntegratedCluster = false;
-    }
-
     public static class WebProgram
     {
         public static void Main(string[] args)
         {
+            ConfigSharp.Log.LogLevel = ConfigSharp.Log.Level.Info;
+            ConfigSharp.Log.LogHandler = (lvl, ctx, msg) => { Console.WriteLine($"{lvl} {ctx} {msg}"); };
+
             CreateHostBuilder(args).Build().Run();
         }
 
@@ -53,13 +52,8 @@ namespace n3q.Web
                 webBuilder.UseStartup<Startup>();
             });
 
-            host.ConfigureAppConfiguration((builderContext, config) => {
-                 config.AddSharpConfiguration(options => {
-                     options.ConfigFile = "ConfigRoot.cs";
-                 });
-             });
-
-            if (Config.UseIntegratedCluster) {
+            var useIntegratedCluster = false;
+            if (useIntegratedCluster) {
                 host.UseOrleans(builder => {
                     builder.UseLocalhostClustering()
 
