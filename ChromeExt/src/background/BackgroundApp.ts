@@ -31,12 +31,21 @@ export class BackgroundApp
     {
         this.isReady = false;
 
-        let devConfig = await Config.getSync('dev.config', '{}');
-        try {
-            let parsed = JSON.parse(devConfig);
-            Config.setDevTree(parsed);
-        } catch (error) {
-            log.error('Parse dev config failed', error);
+        {
+            let devConfig = await Config.getSync('dev.config', '{}');
+            try {
+                let parsed = JSON.parse(devConfig);
+                Config.setDevTree(parsed);
+            } catch (error) {
+                log.error('Parse dev config failed', error);
+            }
+        }
+
+        {
+            let uniqueId = await Config.getSync('me.id', '');
+            if (uniqueId == '') {
+                await Config.setSync('me.id', Utils.randomString(50));
+            }
         }
 
         chrome.runtime?.onMessage.addListener((message, sender, sendResponse) => { return this.onRuntimeMessage(message, sender, sendResponse); });
@@ -159,7 +168,7 @@ export class BackgroundApp
 
     private async fetchJSON(url: string): Promise<any>
     {
-        log.info('BackgroundApp.fetchUrl', url);
+        log.info('BackgroundApp.fetchJSON', url);
 
         return new Promise((resolve, reject) =>
         {
@@ -192,7 +201,7 @@ export class BackgroundApp
             sendResponse({ 'ok': true, 'data': this.httpCacheData[key] });
         } else {
             try {
-                fetch(url)
+                fetch(url, {cache: 'reload'})
                     .then(httpResponse =>
                     {
                         // log.debug('BackgroundApp.handle_fetchUrl', 'httpResponse', url, httpResponse);
@@ -551,7 +560,8 @@ export class BackgroundApp
             for (let room in this.roomJid2tabId) {
                 let tabIds = this.roomJid2tabId[room];
                 if (tabIds) {
-                    tabIds.forEach(tabId => {
+                    tabIds.forEach(tabId =>
+                    {
                         chrome.tabs.sendMessage(tabId, { 'type': 'userSettingsChanged' });
                     });
                 }

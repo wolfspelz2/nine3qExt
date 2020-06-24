@@ -6,6 +6,9 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
+        ['1.0.5', '?', [
+            ['Fix', 'No avatar in sleep state without sleep animation'],
+        ]],
         ['1.0.4', 'Vidconf', [
             ['Add', 'Videoconf demo'],
             ['Add', 'Support for animationsUrl in presence-x-vp:props'],
