@@ -85,7 +85,7 @@ namespace ConfigSharp
                 Log.Info(filePath);
                 code = File.ReadAllText(filePath);
             } catch (Exception ex) {
-                ConfigSharp.Log.Error(ex.Message + "(" + fileName + ")");
+                Log.Error(ex.Message + "(" + fileName + ")");
             }
 
             return code;
@@ -106,7 +106,7 @@ namespace ConfigSharp
                 var sr = new StreamReader(stream, encoding: Encoding.UTF8);
                 code = sr.ReadToEnd();
             } catch (Exception ex) {
-                ConfigSharp.Log.Error(ex.Message + "(" + url + ")");
+                Log.Error(ex.Message + "(" + url + ")");
             }
 
             return code;
@@ -115,36 +115,27 @@ namespace ConfigSharp
         public void Execute(string code, IEnumerable<string> customReferences = null)
         {
             customReferences ??= new List<string>();
-            var references = customReferences.ToList();
+            var references = customReferences.Select(r => new KeyValuePair<string, bool>(r, true)).ToDictionary(kv => kv.Key, kv => kv.Value);
 
             // Netstandard & runtime
             var aTypicalCoreAssembly = typeof(Enumerable).GetTypeInfo().Assembly.Location;
             var coreFolder = Directory.GetParent(aTypicalCoreAssembly);
-            references.Add(coreFolder.FullName + Path.DirectorySeparatorChar + "netstandard.dll");
-            references.Add(coreFolder.FullName + Path.DirectorySeparatorChar + "System.Runtime.dll");
-            references.Add(coreFolder.FullName + Path.DirectorySeparatorChar + "System.Collections.dll");
+            references[coreFolder.FullName + Path.DirectorySeparatorChar + "netstandard.dll"] = true;
+            references[coreFolder.FullName + Path.DirectorySeparatorChar + "System.Runtime.dll"] = true;
+            references[coreFolder.FullName + Path.DirectorySeparatorChar + "System.Collections.dll"] = true;
 
             // Basics & config lib
-            references.Add(typeof(Object).Assembly.Location);
-            references.Add(typeof(Dictionary<string, string>).Assembly.Location);
-            references.Add(typeof(Uri).Assembly.Location);
-            references.Add(typeof(ConfigBag).Assembly.Location);
+            references[typeof(Object).Assembly.Location] = true;
+            references[typeof(Dictionary<string, string>).Assembly.Location] = true;
+            references[typeof(Uri).Assembly.Location] = true;
+            references[typeof(ConfigBag).Assembly.Location] = true;
 
             {
-                // Application dlls
-                //var baseType = GetType().BaseType;
-                //var typeAssembly = GetType().Assembly;
-                //var appLocation = typeAssembly.Location;
-                //if (string.IsNullOrEmpty(appLocation) && baseType != null) {
-                //    var baseTypeAssembly = baseType.Assembly;
-                //    appLocation = baseTypeAssembly.Location;
-                //}
-                //references.Add(appLocation);
                 var assembly = Assembly.GetExecutingAssembly();
                 var path = assembly.Location;
                 var dir = Directory.GetParent(path).FullName;
                 foreach (var file in Directory.EnumerateFiles(dir, "*.dll")) {
-                    references.Add(file);
+                    references[file] = true;
                 }
             }
 
@@ -153,7 +144,7 @@ namespace ConfigSharp
             var compilation = CSharpCompilation.Create(
                 "ConfigSnippet",
                 new[] { syntaxTree },
-                references.Select(r => MetadataReference.CreateFromFile(r)),
+                references.Select(kv => MetadataReference.CreateFromFile(kv.Key)),
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
             using var assemblyStream = new MemoryStream();
@@ -185,13 +176,13 @@ namespace ConfigSharp
                         }
 
                     } catch (Exception ex) {
-                        ConfigSharp.Log.Error(CurrentFile + " Exception: " + ex.Message);
+                        Log.Error(CurrentFile + " Exception: " + ex.Message);
                     }
                 }
             } else {
-                ConfigSharp.Log.Error(CurrentFile + " Diagnostics:");
+                Log.Error(CurrentFile + " Diagnostics:");
                 foreach (var diagnostic in compilationResult.Diagnostics) {
-                    ConfigSharp.Log.Error(diagnostic.ToString());
+                    Log.Error(diagnostic.ToString());
                 }
             }
         }

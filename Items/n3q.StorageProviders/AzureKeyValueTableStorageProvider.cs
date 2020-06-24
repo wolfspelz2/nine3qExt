@@ -30,7 +30,7 @@ namespace n3q.StorageProviders
         public string ConnectionString = "DataConnectionString";
         public string TableName = "Items";
 
-        // if you change these, then partitions keys will change
+        // if you change these, then partition keys will change
         public int PartitionCount = 100;
         public string PartitionMask = "D2";
 

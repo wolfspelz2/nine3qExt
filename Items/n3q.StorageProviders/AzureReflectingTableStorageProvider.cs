@@ -31,7 +31,7 @@ namespace n3q.StorageProviders
         public string ConnectionString = "DataConnectionString";
         public string TableName = "Items";
 
-        // if you change these, then partitions keys will change
+        // if you change these, then partition keys will change
         public int PartitionCount = 100;
         public string PartitionMask = "D2";
 
@@ -69,7 +69,7 @@ namespace n3q.StorageProviders
             try {
                 var pk = KeySafeName(GetPartitionKey(grainType, grainReference, grainState));
                 var rk = KeySafeName(GetRowKey(grainType, grainReference, grainState));
-                _logger.LogInformation($"Writing item={grainReference.GetPrimaryKeyString()} GrainType={grainType} Pk={pk} Rk={rk} Table={_tableName}");
+                _logger.LogInformation($"Write item={grainReference.GetPrimaryKeyString()} GrainType={grainType} Pk={pk} Rk={rk} Table={_tableName}");
                 var entityProperties = GetEntityPropertiesFromState(grainState.State);
                 var entity = new DynamicTableEntity(pk, rk, grainState.ETag, entityProperties);
                 await GetTable().ExecuteAsync(TableOperation.InsertOrReplace(entity));
@@ -84,7 +84,7 @@ namespace n3q.StorageProviders
             try {
                 var pk = KeySafeName(GetPartitionKey(grainType, grainReference, grainState));
                 var rk = KeySafeName(GetRowKey(grainType, grainReference, grainState));
-                _logger.LogInformation($"Reading item={grainReference.GetPrimaryKeyString()} GrainType={grainType} Pk={pk} Rk={rk} Table={_tableName}");
+                _logger.LogInformation($"Read item={grainReference.GetPrimaryKeyString()} GrainType={grainType} Pk={pk} Rk={rk} Table={_tableName}");
                 var res = await GetTable().ExecuteAsync(TableOperation.Retrieve<DynamicTableEntity>(pk, rk));
                 if (res.Result is DynamicTableEntity entity) {
                     AddEntityPropertiesToState(entity.Properties, grainState.State);
@@ -101,7 +101,7 @@ namespace n3q.StorageProviders
             try {
                 var pk = KeySafeName(GetPartitionKey(grainType, grainReference, grainState));
                 var rk = KeySafeName(GetRowKey(grainType, grainReference, grainState));
-                _logger.LogInformation($"Reading item={grainReference.GetPrimaryKeyString()} GrainType={grainType} Pk={pk} Rk={rk} Table={_tableName}");
+                _logger.LogInformation($"Clear item={grainReference.GetPrimaryKeyString()} GrainType={grainType} Pk={pk} Rk={rk} Table={_tableName}");
                 var res = await GetTable().ExecuteAsync(TableOperation.Retrieve<DynamicTableEntity>(pk, rk));
                 if (res.Result is DynamicTableEntity entity) {
                     await GetTable().ExecuteAsync(TableOperation.Delete(entity));
