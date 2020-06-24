@@ -10,11 +10,13 @@ namespace n3q.Web
 
                 AdminTokens = new List<string> { "Token" };
                 WebBaseUrl = "http://localhost:5000/";
+                ItemServiceXmppUrl = "xmpp:itemsxmpp.dev.sui.li";
 
             } else {
 
                 var serverAddress = "localhost";
                 WebBaseUrl = $"http://{serverAddress}/";
+                ItemServiceXmppUrl = "xmpp:itemsxmpp.weblin.com";
 
             }
         }

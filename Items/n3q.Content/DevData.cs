@@ -25,6 +25,7 @@ namespace n3q.Content
                     //    GetTemplate(nameof(DevSpec.Template.Nickname), templates, text);
                     //    GetTemplate(nameof(DevSpec.Template.Avatar), templates, text);
                     //};
+                    GetTemplate(nameof(DevSpec.Template.Inventory), templates, text);
                     GetTemplate(nameof(DevSpec.Template.Settings), templates, text);
                     break;
 
@@ -122,10 +123,22 @@ namespace n3q.Content
                             [Pid.RoleUserRoles] = ValueList.From(EnumUtil.GetEnumValues<Property.Value.UserRoles>().Where(role => role <= Property.Value.UserRoles.CodeReview).Select(role => role.ToString())),
                         };
                         text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Admin mit Rechten zur Softwareprüfung";
-                        text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Admin with code review access";
+                        text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Admin with code review privilege";
                     };
                     break;
                 }
+
+                case nameof(DevSpec.Template.Inventory):
+                    props = new PropertySet {
+                        [Pid.Name] = name,
+                        [Pid.Label] = "Inventory",
+                        [Pid.InventoryAspect] = true,
+                        [Pid.ContainerAspect] = true,
+                        [Pid.RezableAspect] = false,
+                    };
+                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Inventar";
+                    text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Inventory";
+                    break;
 
                 case nameof(DevSpec.Template.Settings):
                     props = new PropertySet {

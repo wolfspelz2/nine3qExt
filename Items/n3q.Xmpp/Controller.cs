@@ -529,8 +529,15 @@ namespace n3q.Xmpp
 
         async Task<string> GetInventoryFromUserToken(string userToken)
         {
-            await Task.CompletedTask;
-            var inventoryItemId = userToken == "random-user-token-jhg2fu7kjjl4koi8tgi" ? "random-user-inventory-576gzfezgfr54u6l9" : "";
+            //await Task.CompletedTask;
+            //var inventoryItemId = userToken == "random-user-token-jhg2fu7kjjl4koi8tgi" ? "random-user-inventory-576gzfezgfr54u6l9" : "";
+
+            var inventoryItemId = await _clusterClient.GetGrain<IItemRef>(userToken).GetItem();
+
+            if (!Has.Value(inventoryItemId)) {
+                throw new Exception($"No inventory for userToken");
+            }
+
             return inventoryItemId;
         }
 

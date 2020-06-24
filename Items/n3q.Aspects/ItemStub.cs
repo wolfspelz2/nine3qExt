@@ -35,6 +35,14 @@ namespace n3q.Aspects
             return item;
         }
 
+        public async Task<ItemStub> NewItemFromTemplate(string templateId)
+        {
+            var itemId = $"{templateId}-{RandomString.GetAlphanumLowercase(20)}".ToLower();
+            var item = await Item(itemId);
+            await item.ModifyProperties(new PropertySet { [Pid.Template] = templateId }, PidSet.Empty);
+            return item;
+        }
+
         #region Aspects
 
         public async Task ForeachAspect(Action<Aspect> action)

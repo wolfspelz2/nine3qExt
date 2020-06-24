@@ -2,30 +2,46 @@
 
 namespace n3q.Tools
 {
-    public class RandomString
+    public static class RandomCommon
     {
-        static readonly Random _rnd = new Random();
-        const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+        public static readonly Random Rnd = new Random();
+    }
+    
+    public static class RandomString
+    {
+        const string AlphanumChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+        const string AlphanumLowercaseChars = "abcdefghijklmnopqrstuvwxyz1234567890";
 
         public static string Get(int nLen)
         {
             var aChars = new char[nLen];
+            var src = AlphanumChars;
 
             for (int i = 0; i < nLen; i++) {
-                aChars[i] = Chars[_rnd.Next(Chars.Length)];
+                aChars[i] = src[RandomCommon.Rnd.Next(src.Length)];
+            }
+
+            return new string(aChars);
+        }
+
+        public static string GetAlphanumLowercase(int nLen)
+        {
+            var aChars = new char[nLen];
+            var src = AlphanumLowercaseChars;
+
+            for (int i = 0; i < nLen; i++) {
+                aChars[i] = src[RandomCommon.Rnd.Next(src.Length)];
             }
 
             return new string(aChars);
         }
     }
 
-    public class RandomInt
+    public static class RandomInt
     {
-        static readonly Random _rnd = new Random();
-
         public static int Get(int min, int max)
         {
-            return _rnd.Next(min, max);
+            return RandomCommon.Rnd.Next(min, max);
         }
     }
 }

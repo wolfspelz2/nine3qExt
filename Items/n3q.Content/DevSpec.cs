@@ -25,6 +25,7 @@ namespace n3q.Content
             CodeReviewer,
 
             // User
+            Inventory,
             //Attributes,
             //Backpack,
             //TrashCan,
