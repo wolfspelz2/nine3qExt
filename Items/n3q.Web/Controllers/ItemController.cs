@@ -17,28 +17,26 @@ namespace n3q.Web.Controllers
     public class ItemController : ControllerBase
     {
         public ICallbackLogger Log { get; set; }
-        readonly WebConfig _config;
-        readonly IClusterClient _clusterClient;
+        public WebConfig Config { get; set; }
+        public IClusterClient Cluster { get; set; }
 
         public ItemController(ILogger<ItemController> logger, WebConfig config, IClusterClient clusterClient)
         {
             Log = new FrameworkCallbackLogger(logger);
-            _config = config;
-            _clusterClient = clusterClient;
+            Config = config;
+            Cluster = clusterClient;
         }
 
         [Route("[controller]/Config")]
         [HttpGet]
-        public async Task<ItemServiceConfig> Config(string id)
+        public async Task<ItemServiceConfig> Get(string id)
         {
-            await Task.CompletedTask;
-
             if (string.IsNullOrEmpty(id)) { throw new Exception("No id"); }
 
             var token = GetLowercaseTokenBecauseWillBeSentAsXmppUser(id);
             Log.Info(token, "Config", nameof(ItemController));
 
-            var itemRef = _clusterClient.GetGrain<IItemRef>(token);
+            var itemRef = Cluster.GetGrain<IItemRef>(token);
             var itemId = await itemRef.GetItem();
             if (string.IsNullOrEmpty(itemId)) {
                 itemId = await CreateInventory();
@@ -46,12 +44,12 @@ namespace n3q.Web.Controllers
             }
 
             var result = new ItemServiceConfig {
-                serviceUrl = _config.ItemServiceXmppUrl,
-                unavailableUrl = _config.WebBaseUrl + "Embedded/Account?id={id}",
+                serviceUrl = Config.ItemServiceXmppUrl,
+                unavailableUrl = Config.WebBaseUrl + "Embedded/Account?id={id}",
                 userToken = token,
                 itemPropertyUrlFilter = new Dictionary<string, string> {
                     //{ "{image.item.nine3q}", "https://nine3q.dev.sui.li/images/Items/" },
-                    { "{image.item.nine3q}", _config.WebBaseUrl + "images/Items/" },
+                    { "{image.item.nine3q}", Config.WebBaseUrl + "images/Items/" },
                 },
             };
             return result;
@@ -67,12 +65,12 @@ namespace n3q.Web.Controllers
             var tmpl = DevSpec.Template.Inventory;
             var itemId = $"{tmpl.ToString()}-{RandomString.GetAlphanumLowercase(20)}".ToLower();
 
-            var item = _clusterClient.GetItemStub(itemId);
+            var item = Cluster.GetItemStub(itemId);
             await item.WithTransaction(async self => {
                 await self.ModifyProperties(new PropertySet { [Pid.Template] = tmpl.ToString() }, PidSet.Empty);
             });
 
-            await _clusterClient.GetGrain<IWorker>(Guid.Empty).AspectAction(itemId, Pid.InventoryAspect, nameof(Inventory.Action.Initialize), PropertySet.Empty);
+            await Cluster.GetGrain<IWorker>(Guid.Empty).AspectAction(itemId, Pid.InventoryAspect, nameof(Inventory.Action.Initialize), PropertySet.Empty);
 
             return itemId;
         }

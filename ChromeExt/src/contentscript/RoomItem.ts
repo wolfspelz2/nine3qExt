@@ -192,21 +192,25 @@ export class RoomItem extends Entity
 
     sendCommand(itemId: string, action: string, params: any)
     {
-        let cmd = {};
-        cmd['xmlns'] = 'vp:cmd';
-        cmd['user'] = this.userToken;
-        cmd['method'] = 'itemAction';
-        cmd['action'] = action;
-        for (let paramName in params) {
-            cmd[paramName] = params[paramName];
+        if (this.userToken) {
+
+            let cmd = {};
+            cmd['xmlns'] = 'vp:cmd';
+            cmd['user'] = this.userToken;
+            cmd['method'] = 'itemAction';
+            cmd['action'] = action;
+            for (let paramName in params) {
+                cmd[paramName] = params[paramName];
+            }
+
+            let to = this.room.getJid() + '/' + itemId;
+
+            let message = xml('message', { 'type': 'chat', 'to': to })
+                .append(xml('x', cmd))
+                ;
+            this.app.sendStanza(message);
+
         }
-
-        let to = this.room.getJid() + '/' + itemId;
-
-        let message = xml('message', { 'type': 'chat', 'to': to })
-            .append(xml('x', cmd))
-            ;
-        this.app.sendStanza(message);
     }
 
     private isDerezzing: boolean = false;

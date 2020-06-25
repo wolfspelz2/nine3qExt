@@ -1,39 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using n3q.Tools;
 
 namespace n3q.Runtime.Controllers
 {
     [ApiController]
     public class ClientController : ControllerBase
     {
-        private readonly ILogger<ClientController> _logger;
+        public ICallbackLogger Log { get; set; }
+        public RuntimeConfig Config { get; set; }
 
-        public ClientController(ILogger<ClientController> logger)
+        public ClientController(ILogger<ClientController> logger, RuntimeConfig config)
         {
-            _logger = logger;
-            _ = _logger;
+            Log = new FrameworkCallbackLogger(logger);
+            Config = config;
         }
 
         [Route("[controller]/Config")]
         [HttpGet]
-        public static Task<ClientConfig> Config()
+        public Task<ClientConfig> Get()
         {
+            Log.Info("", "Config");
+
             var config = new ClientConfig();
 
-            config.xmpp.service = "wss://xmpp.weblin.sui.li/xmpp-websocket";
-            config.xmpp.domain = "xmpp.weblin.sui.li";
-            config.xmpp.user = Tools.RandomString.Get(40);
-            config.xmpp.pass = Tools.RandomString.Get(40);
+            //sha1("3b6f88f2bed0f392" .. username, true);
+            var user = Tools.RandomString.GetAlphanumLowercase(26);
+            var computedPass = Crypto.SHA1Hex(Config.XmppUserPasswordSHA1Secret + user);
 
-            config.identity.identificatorUrlTemplate = "https://avatar.weblin.sui.li/identity/?avatarUrl={avatarUrl}&nickname={nickname}";
+            config.xmpp.service = Config.XmppServiceUrl;
+            config.xmpp.domain = Config.XmppDomain;
+            config.xmpp.user = user;// "5qo9ek5q459bdch9qjmj1q4kb8";// "adobm56lv3hkch3n8ijmdukbf8";// Tools.RandomString.GetAlphanumLowercase(26);
+            config.xmpp.pass = computedPass;// "1c60915db9b2d2a1b5aff96d709b135501cc992d";// Tools.RandomString.GetAlphanumLowercase(40);
 
-            config.avatars.animationsUrlTemplate = "https://avatar.zweitgeist.com/gif/{id}/config.xml";
-            config.avatars.animationsProxyUrlTemplate = "https://avatar.weblin.sui.li/avatar/?url={url}";
+            config.identity.identificatorUrlTemplate = Config.IdentificatorUrlTemplate;
+
+            config.avatars.animationsUrlTemplate = Config.AnimationsUrlTemplate;
+            config.avatars.animationsProxyUrlTemplate = Config.AnimationsProxyUrlTemplate;
             config.avatars.list = new List<string> {
                 "0901/japan02_f",
                 "0901/japan06_f",

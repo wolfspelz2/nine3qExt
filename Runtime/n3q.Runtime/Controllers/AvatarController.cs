@@ -27,21 +27,19 @@ namespace n3q.Runtime.Controllers
 
         [Route("[controller]/InlineData")]
         [HttpGet]
-        public async Task<string> InlineData(string avatarUrl)
+        public async Task<string> InlineData(string url)
         {
-            var xml = _cache.Get(avatarUrl) as string;
-
-            if (xml != null) {
+            if (_cache.Get(url) is string xml) {
                 return xml;
             }
 
-            xml = await CreateXml(avatarUrl);
+            xml = await CreateXml(url);
 
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                         .SetSlidingExpiration(TimeSpan.FromSeconds(3600))
                         .SetSize(xml.Length)
                         ;
-            _cache.Set(avatarUrl, xml, cacheEntryOptions);
+            _cache.Set(url, xml, cacheEntryOptions);
 
             return xml;
         }

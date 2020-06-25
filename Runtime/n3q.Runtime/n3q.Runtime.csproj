@@ -7,12 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\ConfigSharp\ConfigSharp.csproj" />
     <ProjectReference Include="..\..\Shared\n3q.Tools\n3q.Tools.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="ConfigRoot.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
   </ItemGroup>
 
 

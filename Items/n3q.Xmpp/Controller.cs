@@ -534,10 +534,6 @@ namespace n3q.Xmpp
 
             var inventoryItemId = await _clusterClient.GetGrain<IItemRef>(userToken).GetItem();
 
-            if (!Has.Value(inventoryItemId)) {
-                throw new Exception($"No inventory for userToken");
-            }
-
             return inventoryItemId;
         }
 

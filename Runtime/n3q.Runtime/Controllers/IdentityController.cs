@@ -18,12 +18,11 @@ namespace n3q.Runtime.Controllers
     [ApiController]
     public class IdentityController : ControllerBase
     {
-        private readonly ILogger<IdentityController> _logger;
+        public ICallbackLogger Log { get; set; }
 
         public IdentityController(ILogger<IdentityController> logger)
         {
-            _logger = logger;
-            _ = _logger;
+            Log = new FrameworkCallbackLogger(logger);
         }
 
         /*
@@ -46,12 +45,16 @@ namespace n3q.Runtime.Controllers
         {
             await Task.CompletedTask;
 
+            Log.Info($"{digest} {nickname} {avatarUrl} {imageUrl}");
+
             if (!Has.Value(imageUrl)) {
                 var idx = avatarUrl.LastIndexOf("/");
                 if (idx >= 0) {
                     imageUrl = avatarUrl.Substring(0, idx) + "/idle.gif";
                 }
             }
+
+            var useImageUrl = Has.Value(imageUrl) && imageUrl != "{imageUrl}";
 
             var digest_XmlEncoded = WebUtility.HtmlEncode(digest);
             var imageUrl_XmlEncoded = WebUtility.HtmlEncode(imageUrl);
@@ -63,71 +66,26 @@ namespace n3q.Runtime.Controllers
 $@"<?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE identity-xml>
 <identity xmlns='http://schema.bluehands.de/digest-container' digest='{digest_XmlEncoded}'>
-    <item id='avatar' contenttype='avatar' digest='{digest_XmlEncoded}' src='{imageUrl_XmlEncoded}' order='1'/>
-    <item id='avatar2' contenttype='avatar2' digest='{digest_XmlEncoded}' src='{avatarUrl_XmlEncoded}' mimetype='avatar/gif' order='1'/>
+"
+
++ (useImageUrl ? $@"    <item id='avatar' contenttype='avatar' digest='{digest_XmlEncoded}' src='{imageUrl_XmlEncoded}' order='1'/>
+" : "")
+
++$@"    <item id='avatar2' contenttype='avatar2' digest='{digest_XmlEncoded}' src='{avatarUrl_XmlEncoded}' mimetype='avatar/gif' order='1'/>
     <item id='properties' contenttype='properties' digest='{digest_XmlEncoded}' encoding='plain' mimetype='text/plain' order='1'><![CDATA[Nickname={nickname_XmlEncoded}]]></item>
 </identity>
-".Replace("'", "\"");
+"
+.Replace("'", "\"");
 #pragma warning restore format
-
-            //var xmlDoc = new XmlDocument();
-            //var rootNode = xmlDoc.CreateElement("identity", "http://schema.bluehands.de/digest-container");
-            //AddXmlAttribute(xmlDoc, rootNode, "digest", digest);
-            //xmlDoc.AppendChild(rootNode);
-
-            //{
-            //    var itemNode = xmlDoc.CreateElement("item", "");
-            //    AddXmlAttribute(xmlDoc, itemNode, "id", "avatar");
-            //    AddXmlAttribute(xmlDoc, itemNode, "contenttype", "avatar");
-            //    AddXmlAttribute(xmlDoc, itemNode, "digest", digest);
-            //    AddXmlAttribute(xmlDoc, itemNode, "src", imageUrl);
-            //    AddXmlAttribute(xmlDoc, itemNode, "order", "1");
-            //    rootNode.AppendChild(itemNode);
-            //}
-
-            //{
-            //    var itemNode = xmlDoc.CreateElement("item");
-            //    AddXmlAttribute(xmlDoc, itemNode, "id", "avatar2");
-            //    AddXmlAttribute(xmlDoc, itemNode, "contenttype", "avatar2");
-            //    AddXmlAttribute(xmlDoc, itemNode, "digest", digest);
-            //    AddXmlAttribute(xmlDoc, itemNode, "src", avatarUrl);
-            //    AddXmlAttribute(xmlDoc, itemNode, "order", "1");
-            //    rootNode.AppendChild(itemNode);
-            //}
-
-            //{
-            //    var itemNode = xmlDoc.CreateElement("item");
-            //    AddXmlAttribute(xmlDoc, itemNode, "id", "properties");
-            //    AddXmlAttribute(xmlDoc, itemNode, "contenttype", "properties");
-            //    AddXmlAttribute(xmlDoc, itemNode, "digest", digest);
-            //    AddXmlAttribute(xmlDoc, itemNode, "mimetype", "text/plain");
-            //    AddXmlAttribute(xmlDoc, itemNode, "order", "1");
-            //    itemNode.InnerText = $"Nickname={nickname}"; 
-            //    rootNode.AppendChild(itemNode);
-            //}
-
-            //var xml = "";
-            //using (var stringWriter = new StringWriter())
-            //using (var xmlTextWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings {
-            //    Indent = true,
-            //    Encoding = Encoding.UTF8,
-            //})) {
-            //    xmlDoc.WriteTo(xmlTextWriter);
-            //    xmlTextWriter.Flush();
-            //    xml = stringWriter.GetStringBuilder().ToString();
-            //}
-
-            //xml = xml.Replace(" xmlns=\"\"", "");
-            //xml = xml.Replace("encoding=\"utf-16\"", "encoding=\"UTF-8\"");
 
             return xml;
         }
 
-        private void AddXmlAttribute(XmlDocument doc, XmlElement node, string name, string value)
-        {
-            var attr = doc.CreateAttribute(name);
-            attr.Value = value;
-            node.Attributes.Append(attr);
-        }
+        //private void AddXmlAttribute(XmlDocument doc, XmlElement node, string name, string value)
+        //{
+        //    var attr = doc.CreateAttribute(name);
+        //    attr.Value = value;
+        //    node.Attributes.Append(attr);
+        //}
     }
 }

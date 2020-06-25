@@ -21,8 +21,8 @@ namespace n3q.Web
 #endif
 
         public bool UseIntegratedCluster = false;
-        public List<string> AdminTokens;
-        public string ItemServiceXmppUrl;
+        public List<string> AdminTokens = new List<string> { };
+        public string ItemServiceXmppUrl = "xmpp:itemsxmpp.weblin.com";
         public string WebBaseUrl;
     }
 }
