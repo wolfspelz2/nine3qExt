@@ -47,12 +47,12 @@ export class Nickname implements IObserver
                     'tabstay',
                     'Stay Here',
                     MenuHasIcon.Yes,
-                    app.getStayOnTabChange() ? MenuHasCheckbox.YesChecked : MenuHasCheckbox.YesUnchecked,
+                    app.getStayHereIsChecked() ? MenuHasCheckbox.YesChecked : MenuHasCheckbox.YesUnchecked,
                     MenuOnClickClose.Yes,
                     ev =>
                     {
-                        this.app.toggleStayOnTabChange();
-                        menu.setCheckbox('main', 'tabstay', app.getStayOnTabChange() ? MenuHasCheckbox.YesChecked : MenuHasCheckbox.YesUnchecked);
+                        this.app.toggleStayHereIsChecked();
+                        menu.setCheckbox('main', 'tabstay', app.getStayHereIsChecked() ? MenuHasCheckbox.YesChecked : MenuHasCheckbox.YesUnchecked);
                     }
                 );
 

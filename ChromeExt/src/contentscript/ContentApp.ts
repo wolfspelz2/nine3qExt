@@ -42,10 +42,12 @@ export class ContentApp
     private inventories: { [invJid: string]: Inventory; } = {};
     private propertyStorage: PropertyStorage = new PropertyStorage();
     private babelfish: Translator;
-    private stayOnTabChange: boolean = false;
     private xmppWindow: XmppWindow;
     private settingsWindow: SettingsWindow;
     private stanzasResponses: { [stanzaId: string]: StanzaResponseHandler } = {}
+    private stayHereIsChecked: boolean = false;
+    private inventoryIsOpen: boolean = false;
+    private vidconfIsOpen: boolean = false;
 
     // Getter
 
@@ -170,21 +172,8 @@ export class ContentApp
         this.display = null;
     }
 
-    toggleStayOnTabChange(): void
-    {
-        this.stayOnTabChange = !this.stayOnTabChange;
-        if (this.stayOnTabChange) {
-            this.messageHandler({ 'type': ContentAppNotification.type_onTabChangeStay });
-        } else {
-            this.messageHandler({ 'type': ContentAppNotification.type_onTabChangeLeave });
-        }
-    }
-
-    getStayOnTabChange(): boolean { return this.stayOnTabChange; }
-
     test(): void
     {
-        this.showInventoryWindow(this.display)
     }
 
     async showInventoryWindow(aboveElem: HTMLElement): Promise<void>
@@ -195,6 +184,8 @@ export class ContentApp
         if (!this.inventories[jid]) {
             this.inventories[jid] = inv;
 
+            this.setInventoryIsOpen(true);
+
             await inv.open({
                 'above': aboveElem,
                 onClose: () =>
@@ -203,6 +194,7 @@ export class ContentApp
                         this.inventories[jid].close();
                         delete this.inventories[jid];
                     }
+                    this.setInventoryIsOpen(false);
                 },
             });
         }
@@ -241,6 +233,35 @@ export class ContentApp
         if (!this.settingsWindow) {
             this.settingsWindow = new SettingsWindow(this);
             this.settingsWindow.show({ 'above': aboveElem });
+        }
+    }
+
+    // Stay on tab change
+
+    setInventoryIsOpen(value: boolean): void
+    {
+        this.inventoryIsOpen = value; this.evaluateStayOnTabChange();
+    }
+
+    setVidconfIsOpen(value: boolean): void
+    {
+        this.vidconfIsOpen = value; this.evaluateStayOnTabChange();
+    }
+
+    getStayHereIsChecked(): boolean { return this.stayHereIsChecked; }
+    toggleStayHereIsChecked(): void
+    {
+        this.stayHereIsChecked = !this.stayHereIsChecked;
+        this.evaluateStayOnTabChange();
+    }
+
+    evaluateStayOnTabChange(): void
+    {
+        let stay = this.inventoryIsOpen || this.vidconfIsOpen || this.stayHereIsChecked;
+        if (stay) {
+            this.messageHandler({ 'type': ContentAppNotification.type_onTabChangeStay });
+        } else {
+            this.messageHandler({ 'type': ContentAppNotification.type_onTabChangeLeave });
         }
     }
 
