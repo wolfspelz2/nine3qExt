@@ -9,6 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="S:\github-nine3q-production\WebConfigDevelopment.cs" Link="WebConfigDevelopment.cs" />
+    <Compile Include="S:\github-nine3q-production\WebConfigProduction.cs" Link="WebConfigProduction.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.6.0" />
     <PackageReference Include="Microsoft.Orleans.CodeGenerator.MSBuild" Version="3.2.0">
       <PrivateAssets>all</PrivateAssets>
@@ -33,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="ConfigRoot.cs">
+    <Compile Update="WebConfigRoot.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
   </ItemGroup>

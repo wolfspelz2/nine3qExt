@@ -1,11 +1,10 @@
-﻿using ConfigSharp;
-
-namespace n3q.Runtime
+﻿namespace n3q.Runtime
 {
-    class ConfigRoot : RuntimeConfig
+    class RuntimeConfigRoot : RuntimeConfig
     {
         public void Load()
         {
+            ConfigSequence += "RuntimeConfigRoot";
             if (RunMode == RunModes.Development) {
 
                 XmppServiceUrl = "wss://xmpp.weblin.sui.li/xmpp-websocket";
@@ -21,8 +20,8 @@ namespace n3q.Runtime
                 XmppDomain = "xmpp.weblin.sui.li";
                 XmppUserPasswordSHA1Secret = "3b6f88f2bed0f392";
 
-                IdentificatorUrlTemplate = "http://runtime.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}";
-                AnimationsProxyUrlTemplate = "http://runtime.weblin.com/Avatar/InlineData?url={url}";
+                IdentificatorUrlTemplate = "https://runtime.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}";
+                AnimationsProxyUrlTemplate = "https://runtime.weblin.com/Avatar/InlineData?url={url}";
                 AnimationsUrlTemplate = "https://avatar.zweitgeist.com/gif/{id}/config.xml";
 
             }

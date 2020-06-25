@@ -18,7 +18,8 @@
 #endif
 
         public string ConfigSequence = "";
-        public string ConfigFile = "ConfigRoot.cs";
+        public string ConfigFile = "XmppConfigRoot.cs";
+        public bool DevelopmentRemoteConfig = true;
         public string Mode = "_empty_";
 
         public string ComponentHost = "itemsxmpp.dev.sui.li";

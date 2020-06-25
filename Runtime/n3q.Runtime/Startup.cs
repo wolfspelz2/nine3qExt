@@ -17,7 +17,7 @@ namespace n3q.Runtime
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var config = new RuntimeConfig().Include("ConfigRoot.cs") as RuntimeConfig;
+            var config = new RuntimeConfig().Include("RuntimeConfigRoot.cs") as RuntimeConfig;
             services.AddSingleton<RuntimeConfig>(config);
 
             services.AddControllers();

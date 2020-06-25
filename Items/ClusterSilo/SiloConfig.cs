@@ -18,7 +18,8 @@
 #endif
 
         public string ConfigSequence = "";
-        public string ConfigFile = "ConfigRoot.cs";
+        public string ConfigFile = "SiloConfigRoot.cs";
+        public bool DevelopmentRemoteConfig = true;
         public string Mode = "_empty_";
         public string GrainStateAzureTableConnectionString = "UseDevelopmentStorage=true";
     }

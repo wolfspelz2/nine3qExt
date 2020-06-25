@@ -20,9 +20,12 @@ namespace n3q.Web
             RunModes.Production;
 #endif
 
+        public string ConfigSequence = "";
+        public bool DevelopmentRemoteConfig = true;
         public bool UseIntegratedCluster = false;
         public List<string> AdminTokens = new List<string> { };
         public string ItemServiceXmppUrl = "xmpp:itemsxmpp.weblin.com";
-        public string WebBaseUrl;
+        public string UnavailableUrl = "https://items.weblin.com/Embedded/Account?id={id}";
+        public string ItemBaseUrl = "https://items.weblin.com/images/Items/";
     }
 }

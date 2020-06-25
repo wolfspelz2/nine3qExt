@@ -63,7 +63,7 @@ namespace n3q.Xmpp
                                     Log.Verbose($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
                                     var id = xmlReader.GetAttribute("id");
                                     var data = id + _secret;
-                                    var sha1 = SHA1(data);
+                                    var sha1 = Crypto.SHA1Hex(data);
                                     Send($"<handshake>{sha1}</handshake>");
                                 }
                                 break;
@@ -280,14 +280,6 @@ x=345
             Log.Verbose($"-> {text}");
             var bytes = Encoding.UTF8.GetBytes(text);
             _networkStream.WriteAsync(bytes, 0, bytes.Length).PerformAsyncTaskWithoutAwait(t => Log.Error(t.Exception));
-        }
-
-
-        static string SHA1(string input)
-        {
-            using var sha1 = new SHA1Managed();
-            var hash = sha1.ComputeHash(Encoding.UTF8.GetBytes(input));
-            return string.Concat(hash.Select(b => b.ToString("x2", CultureInfo.InvariantCulture)));
         }
 
         public void Dispose()
