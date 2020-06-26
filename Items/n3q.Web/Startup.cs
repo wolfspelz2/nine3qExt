@@ -61,9 +61,7 @@ namespace n3q.Web
                 app.UseExceptionHandler("/Error");
             }
 
-            app.UseStaticFiles(options: new StaticFileOptions {
-                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "../wwwroot")),
-            });
+            app.UseStaticFiles();
 
             app.UseRouting();
 
