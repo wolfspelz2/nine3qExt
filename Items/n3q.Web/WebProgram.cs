@@ -49,36 +49,39 @@ namespace n3q.Web
             });
 
             host.ConfigureWebHostDefaults(webBuilder => {
-                webBuilder
-                    //.UseUrls("http://*:25343")
-                    .UseStartup<Startup>();
+                webBuilder.UseStartup<Startup>();
             });
 
-            var useIntegratedCluster = false;
-            if (useIntegratedCluster) {
-                host.UseOrleans(builder => {
-                    builder.UseLocalhostClustering()
+            //var useIntegratedCluster = false;
+            //if (useIntegratedCluster) {
+            //    host.UseOrleans(builder => {
 
-                    .AddSimpleMessageStreamProvider(ItemService.StreamProvider, options => {
-                        options.FireAndForgetDelivery = true;
-                    })
+            //        if (config.LocalhostClustering) {
+            //            builder.UseLocalhostClustering();
+            //        } else {
+            //            builder.UseAzureStorageClustering(options => options.ConnectionString = config.ClusteringAzureTableConnectionString);
+            //        }
 
-                    .AddMemoryGrainStorage(Cluster.MemoryGrainStorageProviderName)
+            //        builder.AddSimpleMessageStreamProvider(ItemService.StreamProvider, options => {
+            //            options.FireAndForgetDelivery = true;
+            //        });
 
-                    .AddMemoryGrainStorage(ProviderConstants.DEFAULT_STORAGE_PROVIDER_NAME)
+            //        builder.AddMemoryGrainStorage(Cluster.MemoryGrainStorageProviderName);
 
-                    .AddJsonFileStorage(
-                        name: JsonFileStorage.StorageProviderName,
-                        configureOptions: options => {
-                            options.RootDirectory = ItemService.JsonFileStorageRoot;
-                        })
+            //        builder.AddMemoryGrainStorage(ProviderConstants.DEFAULT_STORAGE_PROVIDER_NAME);
 
-                    .UsePerfCounterEnvironmentStatistics()
+            //        builder.AddJsonFileStorage(
+            //            name: JsonFileStorage.StorageProviderName,
+            //            configureOptions: options => {
+            //                options.RootDirectory = ItemService.JsonFileStorageRoot;
+            //            });
 
-                    .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(TestStringGrain).Assembly).WithReferences())
-                    ;
-                });
-            }
+            //        builder.UsePerfCounterEnvironmentStatistics();
+
+            //        builder.ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(TestStringGrain).Assembly).WithReferences());
+
+            //    });
+            //}
 
             return host;
         }

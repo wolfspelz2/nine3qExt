@@ -19,8 +19,10 @@
 
         public string ConfigSequence = "";
         public string ConfigFile = "XmppConfigRoot.cs";
-        public bool DevelopmentRemoteConfig = true;
-        public string Mode = "_empty_";
+
+        public string ClusterId = "dev";
+        public bool LocalhostClustering = true;
+        public string ClusteringAzureTableConnectionString = "UseDevelopmentStorage=true";
 
         public string ComponentHost = "itemsxmpp.dev.sui.li";
         public string ComponentDomain = "itemsxmpp.dev.sui.li";

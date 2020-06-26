@@ -34,7 +34,6 @@ namespace LocalSilo
             try {
                 var host = await StartSilo();
                 Console.WriteLine("Press Enter to terminate...");
-                Console.ReadLine();
                 new AutoResetEvent(false).WaitOne();
 
                 await host.StopAsync();
@@ -53,15 +52,11 @@ namespace LocalSilo
                 .UseLocalhostClustering()
 
                 .Configure<ClusterOptions>(options => {
-                    options.ClusterId = Cluster.DevClusterId;
+                    options.ClusterId = "dev";
                     options.ServiceId = Cluster.ServiceId;
                 })
 
-                .Configure<EndpointOptions>(options => {
-                    options.AdvertisedIPAddress = IPAddress.Loopback;
-                    options.GatewayListeningEndpoint = new IPEndPoint(IPAddress.Any, 30000);
-                    options.SiloListeningEndpoint = new IPEndPoint(IPAddress.Any, 11111);
-                })
+                .Configure<EndpointOptions>(options => options.AdvertisedIPAddress = IPAddress.Loopback)
 
                 .ConfigureLogging(logging => {
                     logging.AddConsole();
@@ -97,7 +92,7 @@ namespace LocalSilo
                 .AddJsonFileStorage(
                     name: Cluster.MemoryGrainStorageProviderName,
                     configureOptions: options => {
-                        options.RootDirectory = Cluster.MemoryGrainJsonFileStorageRoot;
+                        options.RootDirectory = "./GrainJsonFileStorage";
                     })
 
 
