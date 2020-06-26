@@ -85,15 +85,7 @@ export class Config
             {
                 name: 'weblin Items',
                 description: 'Things on web pages',
-                configUrl: 'https://nine3q.weblin.com/Item/Config/{id}',
-                config: {
-                    // serviceUrl: 'xmpp:items.xmpp.dev.sui.li',
-                    // userToken: 'dummyUserToken',
-                    // unavailableUrl: 'http://localhost:5000/Embedded/Account/{id}',
-                    // itemPropertyUrlFilter: {
-                    //     '{image.item.nine3q}': 'https://nine3q.weblin.com/images/Items/',
-                    // }
-                }
+                configUrl: 'https://items.weblin.com/Item/Config/{id}',
             }
         },
         i18n: {

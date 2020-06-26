@@ -154,10 +154,47 @@ export class Avatar implements IObserver
         }
     }
 
+    getImageBlob(url: string): Promise<Blob>
+    {
+        return new Promise(async resolve =>
+        {
+            let response = await fetch(url);
+            let blob = response.blob();
+            resolve(blob);
+        });
+    }
+
+    blobToBase64(blob: Blob): Promise<string | ArrayBuffer>
+    {
+        return new Promise(resolve =>
+        {
+            let reader = new FileReader();
+            reader.onload = function ()
+            {
+                let dataUrl = reader.result;
+                resolve(dataUrl);
+            };
+            reader.readAsDataURL(blob);
+        });
+    }
+
+    async getBase64Image(url: string): Promise<string | ArrayBuffer>
+    {
+        let blob = await this.getImageBlob(url);
+        let base64 = await this.blobToBase64(blob);
+        return base64;
+    }
+
     setImage(url: string): void
     {
-        $(this.elem).css({ 'background-image': 'url("' + url + '")' });
-        this.isDefault = false;
+        if (url.startsWith('data:')) {
+            $(this.elem).css({ 'background-image': 'url("' + url + '")' });
+        } else {
+            this.getBase64Image(url).then(base64Image =>
+            {
+                $(this.elem).css({ 'background-image': 'url("' + base64Image + '")' });
+            });
+        }
     }
 
     setSize(w: number, h: number)

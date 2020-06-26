@@ -62,16 +62,12 @@ export class BackgroundApp
                     if (itemProvider.configUrl) {
                         try {
 
+                            let userId = await this.getOrCreateItemProviderUserId(providerId);
                             let url = itemProvider.configUrl;
-                            let uniqueId = await Config.getSync('me.id', '');
-                            url = url.replace('{id}', encodeURIComponent(uniqueId));
+                            url = url.replace('{id}', encodeURIComponent(userId));
 
                             var providerConfig = await this.fetchJSON(url);
-                            let onlineConfig = Config.getOnlineTree();
-                            if (!onlineConfig.itemProviders) { onlineConfig.itemProviders = {}; }
-                            onlineConfig.itemProviders[providerId] = itemProviders[providerId];
-                            onlineConfig.itemProviders[providerId].config = providerConfig;
-                            Config.setOnlineTree(onlineConfig);
+                            await Config.setSync(Utils.syncStorageKey_ItemProviderConfig(providerId), providerConfig);
 
                         } catch (error) {
                             log.info('Fetch itemProvider config failed', providerId, itemProvider.configUrl, error);
@@ -99,6 +95,16 @@ export class BackgroundApp
 
         // this.unsubscribeItemInventories();
         this.stopXmpp();
+    }
+
+    async getOrCreateItemProviderUserId(providerId: string): Promise<string>
+    {
+        let userId = await Config.getSync(Utils.syncStorageKey_ItemProviderUserId(providerId), '');
+        if (userId == '') {
+            userId = 'ext-' + Utils.randomString(40).toLowerCase();
+            await Config.setSync(Utils.syncStorageKey_ItemProviderUserId(providerId), userId);
+        }
+        return userId;
     }
 
     // IPC
@@ -207,7 +213,7 @@ export class BackgroundApp
             sendResponse({ 'ok': true, 'data': this.httpCacheData[key] });
         } else {
             try {
-                fetch(url, {cache: 'reload'})
+                fetch(url, { cache: 'reload' })
                     .then(httpResponse =>
                     {
                         // log.debug('BackgroundApp.handle_fetchUrl', 'httpResponse', url, httpResponse);

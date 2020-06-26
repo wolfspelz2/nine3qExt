@@ -58,7 +58,7 @@ export class InventoryWindow extends Window
             $(contentElem).append(paneElem);
 
             if (!this.inv.getAvailable()) {
-                let url = Config.get('itemProviders.' + this.inv.getProviderId() + '.config.unavailableUrl', '');
+                let url = this.app.getItemProviderConfigValue(this.inv.getProviderId(), 'unavailableUrl', '');
                 if (url != '') {
                     let uniqueId = await Config.getSync('me.id', '');
                     url = url.replace('{id}', encodeURIComponent(uniqueId));

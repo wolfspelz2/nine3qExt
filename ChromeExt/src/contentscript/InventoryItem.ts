@@ -7,7 +7,7 @@ import { Utils } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { Inventory } from './Inventory';
 
-import imgDefaultItem from '../assets/DefaultIcon.png';
+import imgDefaultItem from '../assets/DefaultItem.png';
 
 export class InventoryItem
 {
@@ -35,7 +35,7 @@ export class InventoryItem
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-inventory-item" data-id="' + this.itemId + '" />').get(0);
 
         this.setImage(imgDefaultItem);
-        this.setSize(size, size);
+        this.setSize(50, 50);
         this.setPosition(x, y);
 
         $(paneElem).append(this.elem);
@@ -270,7 +270,7 @@ export class InventoryItem
                 for (let attrName in attrs) {
                     let attrValue = attrs[attrName];
                     if (attrName.endsWith('Url')) {
-                        attrValue = ContentApp.itemProviderUrlFilter(providerId, attrName, attrValue);
+                        attrValue = this.app.itemProviderUrlFilter(providerId, attrName, attrValue);
                     }
                     newProperties[attrName] = attrValue;
                 }

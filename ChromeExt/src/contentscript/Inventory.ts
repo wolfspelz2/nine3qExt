@@ -20,8 +20,8 @@ export class Inventory
 
     constructor(private app: ContentApp, private providerId: string) 
     {
-        this.userToken = Config.get('itemProviders.' + providerId + '.config.userToken', '');
-        let serviceUrl = Config.get('itemProviders.' + providerId + '.config.serviceUrl', {});
+        this.userToken = this.app.getItemProviderConfigValue(providerId, 'userToken', '');
+        let serviceUrl = this.app.getItemProviderConfigValue(providerId, 'serviceUrl', '');
 
         let url = new URL(serviceUrl);
         let protocol = url.protocol;

@@ -3,6 +3,13 @@ import { uniqueNamesGenerator, Config, adjectives, colors, animals } from 'uniqu
 
 export class Utils
 {
+    static syncStorageKey_Nickname(): string { return 'me.nickname'; }
+    static syncStorageKey_Avatar(): string { return 'me.avatar'; }
+    static syncStorageKey_X(): string { return 'me.x'; }
+    static syncStorageKey_Active(): string { return 'me.active'; }
+    static syncStorageKey_ItemProviderUserId(providerId: string): string { return 'itemProvider.' + providerId + '.userId'; }
+    static syncStorageKey_ItemProviderConfig(providerId: string): string { return 'itemProvider.' + providerId + '.config'; }
+
     static jsObject2xmlObject(stanza: any): xml
     {
         let children = [];
@@ -81,4 +88,5 @@ export class Utils
 
         return Math.abs(hash);
     }
+
 }

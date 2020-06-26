@@ -16,12 +16,14 @@ namespace n3q.Runtime.Controllers
     [ApiController]
     public class AvatarController : ControllerBase
     {
-        private readonly ILogger<AvatarController> _logger;
+        public ICallbackLogger Log { get; set; }
+        public RuntimeConfig Config { get; set; }
         private readonly IMemoryCache _cache;
 
-        public AvatarController(ILogger<AvatarController> logger, IMemoryCache memoryCache)
+        public AvatarController(ILogger<AvatarController> logger, RuntimeConfig config, IMemoryCache memoryCache)
         {
-            _logger = logger; _ = _logger;
+            Log = new FrameworkCallbackLogger(logger);
+            Config = config;
             _cache = memoryCache;
         }
 
@@ -125,15 +127,17 @@ namespace n3q.Runtime.Controllers
                 var info = new GifInfo.GifInfo(stream);
                 var duration = (int)Math.Round(info.AnimationDuration.TotalMilliseconds);
 
-                var outDataBase64Encoded = Convert.ToBase64String(imageData);
-                var outDataUrl = "data:image/gif;base64," + outDataBase64Encoded;
-
                 var xpath = $"//sequence[@name='{sequenceName}']";
                 var sequenceNodes = outDoc.SelectNodes(xpath);
                 if (sequenceNodes.Count > 0) {
                     var sequenceNode = sequenceNodes[0];
                     var animationNode = sequenceNode.FirstChild;
-                    SetXmlAttribute(outDoc, animationNode, "src", outDataUrl);
+
+                    if (Config.AvatarProxyPreloadSequenceNames.Contains(sequenceName)) {
+                        var outDataBase64Encoded = Convert.ToBase64String(imageData);
+                        var outDataUrl = "data:image/gif;base64," + outDataBase64Encoded;
+                        SetXmlAttribute(outDoc, animationNode, "src", outDataUrl);
+                    }
 
                     SetXmlAttribute(outDoc, animationNode, "duration", duration.ToString(CultureInfo.InvariantCulture));
                 }

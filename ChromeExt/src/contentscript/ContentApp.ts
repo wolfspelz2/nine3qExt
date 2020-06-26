@@ -17,6 +17,7 @@ import { SettingsWindow } from './SettingsWindow';
 import { XmppWindow } from './XmppWindow';
 import { ChangesWindow } from './ChangesWindow';
 import { Inventory } from './Inventory';
+import { ItemProvider } from './ItemProvider';
 
 interface ILocationMapperResponse
 {
@@ -40,6 +41,7 @@ export class ContentApp
     private display: HTMLElement;
     private rooms: { [roomJid: string]: Room; } = {};
     private inventories: { [invJid: string]: Inventory; } = {};
+    private itemProviders: { [providerId: string]: ItemProvider; } = {};
     private propertyStorage: PropertyStorage = new PropertyStorage();
     private babelfish: Translator;
     private xmppWindow: XmppWindow;
@@ -106,6 +108,8 @@ export class ContentApp
         } catch (error) {
             log.debug(error.message);
         }
+
+        await this.initItemProviders();
 
         await Utils.sleep(as.Float(Config.get('vp.deferPageEnterSec', 1)) * 1000);
 
@@ -499,20 +503,38 @@ export class ContentApp
         this.babelfish.translateElem(elem);
     }
 
-    static itemProviderUrlFilter(providerId: string, attrName: string, attrValue: string): string
+    // Item provider
+
+    async initItemProviders(): Promise<void>
     {
-        if (providerId && providerId != '') {
-            let propertyUrlFilter = Config.get('itemProviders.' + providerId + '.config.itemPropertyUrlFilter', {});
-            if (propertyUrlFilter) {
-                for (let key in propertyUrlFilter) {
-                    let value = propertyUrlFilter[key];
-                    if (key && value) {
-                        attrValue = attrValue.replace(key, value);
-                    }
-                }
+        let itemProviders = Config.get('itemProviders', {});
+        for (let providerId in itemProviders) {
+            let providerConfig = await Config.getSync(Utils.syncStorageKey_ItemProviderConfig(providerId), null);
+            if (providerConfig) {
+                this.itemProviders[providerId] = new ItemProvider(providerConfig);
             }
         }
-        return attrValue;
+    }
+
+    getItemProviderConfigValue(providerId: string, configKey: string, defaultValue: any): any
+    {
+        if (providerId) {
+            var itemProvider = this.itemProviders[providerId];
+            if (itemProvider) {
+                return itemProvider.getConfig(configKey, defaultValue);
+            }
+        }
+        return defaultValue;
+    }
+
+    itemProviderUrlFilter(providerId: string, propName: string, propValue: string): string
+    {
+        if (providerId) {
+            if (this.itemProviders[providerId]) {
+                return this.itemProviders[providerId].propertyUrlFilter(propValue);
+            }
+        }
+        return propValue;
     }
 
     // my active
@@ -520,9 +542,9 @@ export class ContentApp
     async assertActive()
     {
         try {
-            let active = await Config.getSync('me.active', '');
+            let active = await Config.getSync(Utils.syncStorageKey_Active(), '');
             if (active == '') {
-                await Config.setSync('me.active', 'true');
+                await Config.setSync(Utils.syncStorageKey_Active(), 'true');
             }
         } catch (error) {
             log.info(error);
@@ -533,7 +555,7 @@ export class ContentApp
     async getActive(): Promise<boolean>
     {
         try {
-            let active = await Config.getSync('me.active', 'true');
+            let active = await Config.getSync(Utils.syncStorageKey_Active(), 'true');
             return as.Bool(active, false);
         } catch (error) {
             log.info(error);
@@ -546,9 +568,9 @@ export class ContentApp
     async assertUserNickname()
     {
         try {
-            let nickname = await Config.getSync('me.nickname', '');
+            let nickname = await Config.getSync(Utils.syncStorageKey_Nickname(), '');
             if (nickname == '') {
-                await Config.setSync('me.nickname', 'Your name');
+                await Config.setSync(Utils.syncStorageKey_Nickname(), 'Your name');
             }
         } catch (error) {
             log.info(error);
@@ -559,7 +581,7 @@ export class ContentApp
     async getUserNickname(): Promise<string>
     {
         try {
-            return await Config.getSync('me.nickname', 'no name');
+            return await Config.getSync(Utils.syncStorageKey_Nickname(), 'no name');
         } catch (error) {
             log.info(error);
             return 'no name';
@@ -571,10 +593,10 @@ export class ContentApp
     async assertUserAvatar()
     {
         try {
-            let avatar = await Config.getSync('me.avatar', '');
+            let avatar = await Config.getSync(Utils.syncStorageKey_Avatar(), '');
             if (avatar == '') {
                 avatar = AvatarGallery.getRandomAvatar();
-                await Config.setSync('me.avatar', avatar);
+                await Config.setSync(Utils.syncStorageKey_Avatar(), avatar);
             }
         } catch (error) {
             log.info(error);
@@ -585,7 +607,7 @@ export class ContentApp
     async getUserAvatar(): Promise<string>
     {
         try {
-            return await Config.getSync('me.avatar', '004/pinguin');
+            return await Config.getSync(Utils.syncStorageKey_Avatar(), '004/pinguin');
         } catch (error) {
             log.info(error);
             return '004/pinguin';
@@ -597,7 +619,7 @@ export class ContentApp
     async assertSavedPosition()
     {
         try {
-            let x = as.Int(await BackgroundMessage.getSessionConfig('me.x', -1), -1);
+            let x = as.Int(await BackgroundMessage.getSessionConfig(Utils.syncStorageKey_X(), -1), -1);
             if (x < 0) {
                 x = Utils.randomInt(as.Int(Config.get('room.randomEnterPosXMin', 400)), as.Int(Config.get('room.randomEnterPosXMax', 700)))
                 await this.savePosition(x);
@@ -610,7 +632,7 @@ export class ContentApp
     async savePosition(x: number): Promise<void>
     {
         try {
-            await BackgroundMessage.setSessionConfig('me.x', x);
+            await BackgroundMessage.setSessionConfig(Utils.syncStorageKey_X(), x);
         } catch (error) {
             log.info(error);
         }
@@ -621,7 +643,7 @@ export class ContentApp
         let x = 0;
 
         try {
-            x = as.Int(await BackgroundMessage.getSessionConfig('me.x', -1), -1);
+            x = as.Int(await BackgroundMessage.getSessionConfig(Utils.syncStorageKey_X(), -1), -1);
         } catch (error) {
             log.info(error);
         }

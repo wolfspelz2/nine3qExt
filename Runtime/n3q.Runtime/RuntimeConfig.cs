@@ -1,4 +1,5 @@
-﻿using ConfigSharp;
+﻿using System.Collections.Generic;
+using ConfigSharp;
 
 namespace n3q.Runtime
 {
@@ -26,5 +27,6 @@ namespace n3q.Runtime
         public string IdentificatorUrlTemplate = "https://runtime.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}";
         public string AnimationsProxyUrlTemplate = "https://runtime.weblin.com/Avatar/InlineData?url={url}";
         public string AnimationsUrlTemplate = "https://avatar.zweitgeist.com/gif/{id}/config.xml";
+        public List<string> AvatarProxyPreloadSequenceNames = new List<string> { "idle", "moveright", "moveleft" };
     }
 }

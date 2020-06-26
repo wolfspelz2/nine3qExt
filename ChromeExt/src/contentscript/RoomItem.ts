@@ -14,7 +14,7 @@ import imgDefaultItem from '../assets/DefaultItem.png';
 export class RoomItem extends Entity
 {
     private isFirstPresence: boolean = true;
-    private userToken: string;
+    private providerId: string;
     private properties: { [pid: string]: string } = {};
     private iframeWindow: IframeWindow;
 
@@ -22,7 +22,7 @@ export class RoomItem extends Entity
     {
         super(app, room, isSelf);
 
-        $(this.getElem()).addClass('n3q-item');
+        $(this.getElem()).addClass('n3q-item');        
         $(this.getElem()).attr('data-nick', nick);
     }
 
@@ -75,15 +75,12 @@ export class RoomItem extends Entity
             if (vpPropsNode) {
                 let attrs = vpPropsNode.attrs;
                 if (attrs) {
-                    let providerId = as.String(attrs.provider, '');
-                    if (providerId && this.isFirstPresence) {
-                        this.userToken = Config.get('itemProviders.' + providerId + '.config.userToken', '');
-                    }
+                    this.providerId = as.String(attrs.provider, null);
 
                     for (let attrName in attrs) {
                         let attrValue = attrs[attrName];
                         if (attrName.endsWith('Url')) {
-                            attrValue = ContentApp.itemProviderUrlFilter(providerId, attrName, attrValue);
+                            attrValue = this.app.itemProviderUrlFilter(this.providerId, attrName, attrValue);
                         }
                         newProperties[attrName] = attrValue;
                     }
@@ -192,11 +189,12 @@ export class RoomItem extends Entity
 
     sendCommand(itemId: string, action: string, params: any)
     {
-        if (this.userToken) {
+        let userToken = this.app.getItemProviderConfigValue(this.providerId, 'userToken', '');
+        if (userToken != '') {
 
             let cmd = {};
             cmd['xmlns'] = 'vp:cmd';
-            cmd['user'] = this.userToken;
+            cmd['user'] = userToken;
             cmd['method'] = 'itemAction';
             cmd['action'] = action;
             for (let paramName in params) {
