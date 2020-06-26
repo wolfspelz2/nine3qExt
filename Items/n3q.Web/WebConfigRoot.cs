@@ -9,11 +9,7 @@ namespace n3q.Web
             ConfigSequence += "WebConfigRoot";
             if (RunMode == RunModes.Development) {
 
-                if (DevelopmentRemoteConfig) {
-                    Include("https://raw.githubusercontent.com/wolfspelz/EQtldeHSgvqFPObzet/master/WebConfigDevelopment.cs?token=AATIDC4T7QYAFAUCSD2SMFK67X4R6");
-                } else {
-                    AdminTokens = new List<string> { "Token" };
-                }
+                AdminTokens = new List<string> { "Token" };
 
                 ItemServiceXmppUrl = "xmpp:itemsxmpp.dev.sui.li";
                 UnavailableUrl = "http://localhost:5000/Embedded/Account?id={id}";
@@ -21,7 +17,7 @@ namespace n3q.Web
 
             } else {
 
-                Include("https://raw.githubusercontent.com/wolfspelz/EQtldeHSgvqFPObzet/master/WebConfigProduction.cs?token=AATIDC3ATAUPCGLGAXBCY7C67X4TM");
+                Include("WebConfigProduction.cs");
 
                 ItemServiceXmppUrl = "xmpp:itemsxmpp.weblin.com";
                 UnavailableUrl = "https://items.weblin.com/Embedded/Account?id={id}";
