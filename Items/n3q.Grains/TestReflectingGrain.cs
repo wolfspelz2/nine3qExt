@@ -21,7 +21,7 @@ namespace n3q.Grains
         private readonly IPersistentState<TestReflectingState> _state;
 
         public TestReflectingGrain(
-            [PersistentState("TestReflecting", AzureReflectingTableStorage.StorageProviderName)] IPersistentState<TestReflectingState> state
+            [PersistentState("TestReflecting", ReflectingAzureTableStorage.StorageProviderName)] IPersistentState<TestReflectingState> state
             )
         {
             _state = state;

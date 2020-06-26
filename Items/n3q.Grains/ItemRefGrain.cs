@@ -22,7 +22,7 @@ namespace n3q.Grains
         public CachedStringOptions.Persistence Persistence { get; set; } = CachedStringOptions.Persistence.Transient;
 
         public ItemRefGrain(
-            [PersistentState("ItemRef", AzureReflectingTableStorage.StorageProviderName)] IPersistentState<ItemRefState> state
+            [PersistentState("ItemRef", ReflectingAzureTableStorage.StorageProviderName)] IPersistentState<ItemRefState> state
             )
         {
             _state = state;

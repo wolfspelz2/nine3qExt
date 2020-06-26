@@ -62,15 +62,15 @@ namespace IntegrationTests
                         options.RootDirectory = ItemService.KeyValueFileStorageRoot;
                     })
 
-                .AddAzureKeyValueTableStorage(
-                    name: AzureKeyValueTableStorage.StorageProviderName,
+                .AddItemAzureTableStorage(
+                    name: ItemAzureTableStorage.StorageProviderName,
                     configureOptions: options => {
                         options.TableName = "n3qTest";
                         options.ConnectionString = "UseDevelopmentStorage=true";
                     })
 
-                .AddAzureReflectingTableStorage(
-                    name: AzureReflectingTableStorage.StorageProviderName,
+                .AddReflectingAzureTableStorage(
+                    name: ReflectingAzureTableStorage.StorageProviderName,
                     configureOptions: options => {
                         options.TableName = "n3qTest";
                         options.ConnectionString = "UseDevelopmentStorage=true";

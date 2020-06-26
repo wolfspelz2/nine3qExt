@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.Concurrency;
 using n3q.Tools;
@@ -13,6 +14,13 @@ namespace n3q.Grains
     [StatelessWorker]
     class WorkerGrain : Grain, IWorker
     {
+        readonly ILogger _logger;
+
+        public WorkerGrain(ILogger<WorkerGrain> logger)
+        {
+            _logger = logger;
+        }
+
         #region Interface
 
         public async Task AspectAction(string itemId, Pid aspectPid, string actionName, PropertySet args = null)
@@ -27,7 +35,7 @@ namespace n3q.Grains
                 await aspect.Execute(actionName, args);
                 await transaction.Commit();
             } catch (Exception ex) {
-                _ = ex;
+                _logger.LogWarning(ex, $"{nameof(AspectAction)} {aspectPid} {actionName} cancel transaction {transaction.Id}");
                 await transaction.Cancel();
             }
 

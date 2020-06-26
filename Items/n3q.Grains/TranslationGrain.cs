@@ -19,7 +19,7 @@ namespace UtilityGrains
         readonly IPersistentState<TranslationState> _state;
 
         public TranslationGrain(
-            [PersistentState("Translation", AzureReflectingTableStorage.StorageProviderName)] IPersistentState<TranslationState> state
+            [PersistentState("Translation", ReflectingAzureTableStorage.StorageProviderName)] IPersistentState<TranslationState> state
             )
         {
             _state = state;

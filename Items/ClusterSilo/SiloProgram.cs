@@ -103,15 +103,15 @@ namespace ClusterSilo
 
             builder.AddMemoryGrainStorage(ProviderConstants.DEFAULT_STORAGE_PROVIDER_NAME);
 
-            builder.AddAzureKeyValueTableStorage(
-                name: AzureKeyValueTableStorage.StorageProviderName,
+            builder.AddItemAzureTableStorage(
+                name: ItemAzureTableStorage.StorageProviderName,
                 configureOptions: options => {
-                    options.TableName = "n3qGrains";
-                    options.ConnectionString = Config.GrainStateAzureTableConnectionString;
+                    options.TableName = "n3qItems";
+                    options.ConnectionString = Config.ItemStateAzureTableConnectionString;
                 });
 
-            builder.AddAzureReflectingTableStorage(
-                name: AzureReflectingTableStorage.StorageProviderName,
+            builder.AddReflectingAzureTableStorage(
+                name: ReflectingAzureTableStorage.StorageProviderName,
                 configureOptions: options => {
                     options.TableName = "n3qGrains";
                     options.ConnectionString = Config.GrainStateAzureTableConnectionString;

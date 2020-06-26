@@ -21,12 +21,12 @@ using System.Reflection;
 
 namespace n3q.StorageProviders
 {
-    public static class AzureReflectingTableStorage
+    public static class ReflectingAzureTableStorage
     {
-        public const string StorageProviderName = "AzureReflectingTableStorage";
+        public const string StorageProviderName = "ReflectingAzureTableStorage";
     }
 
-    public class AzureReflectingTableStorageOptions
+    public class ReflectingAzureTableStorageOptions
     {
         public string ConnectionString = "DataConnectionString";
         public string TableName = "Items";
@@ -39,18 +39,18 @@ namespace n3q.StorageProviders
         public const int DEFAULT_INIT_STAGE = ServiceLifecycleStage.ApplicationServices;
     }
 
-    public class AzureReflectingTableStorageProvider : IGrainStorage, ILifecycleParticipant<ISiloLifecycle>
+    public class ReflectingAzureTableStorageProvider : IGrainStorage, ILifecycleParticipant<ISiloLifecycle>
     {
         readonly string _name;
-        readonly AzureReflectingTableStorageOptions _options;
+        readonly ReflectingAzureTableStorageOptions _options;
         readonly ILogger _logger;
         readonly ILoggerFactory _loggerFactory;
         string _connectionString;
         string _tableName;
         CloudTable _table;
 
-        public AzureReflectingTableStorageProvider(string name,
-            AzureReflectingTableStorageOptions options,
+        public ReflectingAzureTableStorageProvider(string name,
+            ReflectingAzureTableStorageOptions options,
             IGrainFactory grainFactory,
             ITypeResolver typeResolver,
             ILoggerFactory loggerFactory
@@ -59,7 +59,7 @@ namespace n3q.StorageProviders
             _name = name;
             _options = options;
             _loggerFactory = loggerFactory;
-            _logger = _loggerFactory.CreateLogger($"{typeof(AzureReflectingTableStorageProvider).FullName}.{name}");
+            _logger = _loggerFactory.CreateLogger($"{typeof(ReflectingAzureTableStorageProvider).FullName}.{name}");
         }
 
         #region Interface
@@ -233,7 +233,7 @@ namespace n3q.StorageProviders
 
         public void Participate(ISiloLifecycle lifecycle)
         {
-            lifecycle.Subscribe(OptionFormattingUtilities.Name<AzureReflectingTableStorageProvider>(_name), _options.InitStage, Init);
+            lifecycle.Subscribe(OptionFormattingUtilities.Name<ReflectingAzureTableStorageProvider>(_name), _options.InitStage, Init);
         }
 
         private Task Init(CancellationToken ct)
@@ -264,46 +264,46 @@ namespace n3q.StorageProviders
 
     #region Provider registration
 
-    public class AzureReflectingTableStorageOptionsValidator : IConfigurationValidator
+    public class ReflectingAzureTableStorageOptionsValidator : IConfigurationValidator
     {
-        public AzureReflectingTableStorageOptionsValidator(AzureReflectingTableStorageOptions options, string name) { }
+        public ReflectingAzureTableStorageOptionsValidator(ReflectingAzureTableStorageOptions options, string name) { }
         public void ValidateConfiguration() { }
     }
 
-    public static class AzureReflectingTableStorageFactory
+    public static class ReflectingAzureTableStorageFactory
     {
         public static IGrainStorage Create(IServiceProvider services, string name)
         {
-            var optionsMonitor = services.GetRequiredService<IOptionsMonitor<AzureReflectingTableStorageOptions>>();
-            return ActivatorUtilities.CreateInstance<AzureReflectingTableStorageProvider>(services, name, optionsMonitor.Get(name));
+            var optionsMonitor = services.GetRequiredService<IOptionsMonitor<ReflectingAzureTableStorageOptions>>();
+            return ActivatorUtilities.CreateInstance<ReflectingAzureTableStorageProvider>(services, name, optionsMonitor.Get(name));
         }
     }
 
-    public static class AzureReflectingTableStorageSiloBuilderExtensions
+    public static class ReflectingAzureTableStorageSiloBuilderExtensions
     {
-        public static ISiloHostBuilder AddAzureReflectingTableStorage(this ISiloHostBuilder builder, string name, Action<AzureReflectingTableStorageOptions> configureOptions)
+        public static ISiloHostBuilder AddReflectingAzureTableStorage(this ISiloHostBuilder builder, string name, Action<ReflectingAzureTableStorageOptions> configureOptions)
         {
-            return builder.ConfigureServices(services => services.AddAzureReflectingTableStorage(name, configureOptions));
+            return builder.ConfigureServices(services => services.AddReflectingAzureTableStorage(name, configureOptions));
         }
 
-        public static ISiloBuilder AddAzureReflectingTableStorage(this ISiloBuilder builder, string name, Action<AzureReflectingTableStorageOptions> configureOptions)
+        public static ISiloBuilder AddReflectingAzureTableStorage(this ISiloBuilder builder, string name, Action<ReflectingAzureTableStorageOptions> configureOptions)
         {
-            return builder.ConfigureServices(services => services.AddAzureReflectingTableStorage(name, configureOptions));
+            return builder.ConfigureServices(services => services.AddReflectingAzureTableStorage(name, configureOptions));
         }
 
-        public static IServiceCollection AddAzureReflectingTableStorage(this IServiceCollection services, string name, Action<AzureReflectingTableStorageOptions> configureOptions)
+        public static IServiceCollection AddReflectingAzureTableStorage(this IServiceCollection services, string name, Action<ReflectingAzureTableStorageOptions> configureOptions)
         {
-            return services.AddAzureReflectingTableStorage(name, ob => ob.Configure(configureOptions));
+            return services.AddReflectingAzureTableStorage(name, ob => ob.Configure(configureOptions));
         }
 
-        public static IServiceCollection AddAzureReflectingTableStorage(this IServiceCollection services, string name,
-            Action<OptionsBuilder<AzureReflectingTableStorageOptions>> configureOptions = null)
+        public static IServiceCollection AddReflectingAzureTableStorage(this IServiceCollection services, string name,
+            Action<OptionsBuilder<ReflectingAzureTableStorageOptions>> configureOptions = null)
         {
-            configureOptions?.Invoke(services.AddOptions<AzureReflectingTableStorageOptions>(name));
-            services.AddTransient<IConfigurationValidator>(sp => new AzureReflectingTableStorageOptionsValidator(sp.GetRequiredService<IOptionsMonitor<AzureReflectingTableStorageOptions>>().Get(name), name));
-            services.ConfigureNamedOptionForLogging<AzureReflectingTableStorageOptions>(name);
+            configureOptions?.Invoke(services.AddOptions<ReflectingAzureTableStorageOptions>(name));
+            services.AddTransient<IConfigurationValidator>(sp => new ReflectingAzureTableStorageOptionsValidator(sp.GetRequiredService<IOptionsMonitor<ReflectingAzureTableStorageOptions>>().Get(name), name));
+            services.ConfigureNamedOptionForLogging<ReflectingAzureTableStorageOptions>(name);
             services.TryAddSingleton<IGrainStorage>(sp => sp.GetServiceByName<IGrainStorage>(ProviderConstants.DEFAULT_STORAGE_PROVIDER_NAME));
-            return services.AddSingletonNamedService<IGrainStorage>(name, AzureReflectingTableStorageFactory.Create)
+            return services.AddSingletonNamedService<IGrainStorage>(name, ReflectingAzureTableStorageFactory.Create)
                            .AddSingletonNamedService<ILifecycleParticipant<ISiloLifecycle>>(name, (s, n) => (ILifecycleParticipant<ISiloLifecycle>)s.GetRequiredServiceByName<IGrainStorage>(n));
         }
     }

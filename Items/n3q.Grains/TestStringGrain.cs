@@ -26,7 +26,7 @@ namespace n3q.Grains
         public Task<Guid> GetStreamId() { return Task.FromResult(_streamId); }
 
         public TestStringGrain(
-            [PersistentState("TestString", JsonFileStorage.StorageProviderName)] IPersistentState<TestStringState.TestString> state
+            [PersistentState("TestString", ReflectingAzureTableStorage.StorageProviderName)] IPersistentState<TestStringState.TestString> state
             )
         {
             _state = state;

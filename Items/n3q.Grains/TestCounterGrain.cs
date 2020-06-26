@@ -19,7 +19,7 @@ namespace n3q.Grains
         }
 
         public TestCounterGrain(
-            [PersistentState("TestCounter", AzureKeyValueTableStorage.StorageProviderName)] IPersistentState<KeyValueStorageData> state
+            [PersistentState("TestCounter", ItemAzureTableStorage.StorageProviderName)] IPersistentState<KeyValueStorageData> state
             )
         {
             _state = state;

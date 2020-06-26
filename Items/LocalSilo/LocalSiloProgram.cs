@@ -110,10 +110,10 @@ namespace LocalSilo
                         options.RootDirectory = ItemService.KeyValueFileStorageRoot;
                     })
 
-                .AddAzureKeyValueTableStorage(
-                    name: AzureKeyValueTableStorage.StorageProviderName,
+                .AddItemAzureTableStorage(
+                    name: ItemAzureTableStorage.StorageProviderName,
                     configureOptions: options => {
-                        options.TableName = "n3qGrains";
+                        options.TableName = "n3qItems";
                         options.ConnectionString = Config.GrainStateAzureTableConnectionString;
                     })
 

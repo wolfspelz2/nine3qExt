@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\n3q.Items\n3q.Items.csproj" />
+    <ProjectReference Include="..\n3q.StorageProviders\n3q.StorageProviders.csproj" />
   </ItemGroup>
 
 </Project>
