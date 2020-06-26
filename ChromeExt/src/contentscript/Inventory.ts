@@ -21,10 +21,11 @@ export class Inventory
     constructor(private app: ContentApp, private providerId: string) 
     {
         this.userToken = Config.get('itemProviders.' + providerId + '.config.userToken', '');
-
         let serviceUrl = Config.get('itemProviders.' + providerId + '.config.serviceUrl', {});
+
         let url = new URL(serviceUrl);
         let protocol = url.protocol;
+
         if (protocol == 'xmpp:' && this.userToken != '') {
             this.itemServer = url.pathname;
             this.inventoryJid = this.userToken + '@' + this.itemServer;

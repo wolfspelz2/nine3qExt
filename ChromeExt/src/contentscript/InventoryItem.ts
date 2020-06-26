@@ -54,7 +54,7 @@ export class InventoryItem
             {
                 let dragElem = $('<div class="n3q-base n3q-inventory-drag" />').get(0);
                 let itemElem = $(this).clone().get(0);
-                $(itemElem).css({ 'left': '0', 'top': '0' });
+                $(itemElem).css({ 'left': '0', 'top': '0', 'width' : this.w, 'height': this.h});
                 $(dragElem).append(itemElem);
                 app.toFront(itemElem);
                 $(app.getDisplay()).append(dragElem);
@@ -120,13 +120,9 @@ export class InventoryItem
         $(this.elem).css({ 'left': (x - this.w / 2) + 'px', 'top': (y - this.h / 2) + 'px' });
     }
 
-    private dragClickOffset: Record<string, number> = { dx: 0, dy: 0 };
     private dragIsRezable: boolean = false;
     private onDragStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
     {
-        let offsetX: number = ev.originalEvent['offsetX'];
-        let offsetY: number = ev.originalEvent['offsetY'];
-        this.dragClickOffset = { 'dx': offsetX - this.w / 2, 'dy': offsetY - this.w / 2 };
         this.dragIsRezable = as.Bool(this.properties.RezableAspect, true);
         return true;
     }
