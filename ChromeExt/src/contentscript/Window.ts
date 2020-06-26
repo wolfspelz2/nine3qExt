@@ -3,12 +3,17 @@ import 'webpack-jquery-ui';
 import log = require('loglevel');
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
+import { Config } from '../lib/Config';
 import { ContentApp } from './ContentApp';
 
 export class Window
 {
-    onResize: { (ev: JQueryEventObject): void };
-    onDragStop: { (ev: JQueryEventObject): void };
+    onResizeStart: { (ev: JQueryEventObject, ui: JQueryUI.ResizableUIParams): void };
+    onResizeStop: { (ev: JQueryEventObject, ui: JQueryUI.ResizableUIParams): void };
+    onResize: { (ev: JQueryEventObject, ui: JQueryUI.ResizableUIParams): void };
+    onDragStart: { (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams): void };
+    onDrag: { (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams): void };
+    onDragStop: { (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams): void };
     onClose: { (): void };
 
     protected windowElem: HTMLElement;
@@ -58,24 +63,32 @@ export class Window
                     handles: {
                         'se': '#n3q #' + windowId + ' .n3q-window-resize-se',
                     },
-                    resize: (ev: JQueryEventObject) =>
-                    {
-                        if (this.onResize) { this.onResize(ev); }
-                    },
-                    start: (ev: JQueryEventObject) =>
+                    start: (ev: JQueryEventObject, ui: JQueryUI.ResizableUIParams) =>
                     {
                         $(windowElem).append('<div id="' + maskId + '" style="background-color: #ffffff; opacity: 0.001; position: absolute; left: 0; top: 0; right: 0; bottom: 0;"></div>');
+                        if (this.onResize) { this.onResize(ev, ui); }
                     },
-                    stop: (ev: JQueryEventObject) =>
+                    resize: (ev: JQueryEventObject, ui: JQueryUI.ResizableUIParams) =>
+                    {
+                        if (this.onResizeStart) { this.onResizeStart(ev, ui); }
+                    },
+                    stop: (ev: JQueryEventObject, ui: JQueryUI.ResizableUIParams) =>
                     {
                         $('#' + maskId).remove();
+                        if (this.onResizeStop) { this.onResizeStop(ev, ui); }
                     },
                 });
             }
 
+            this.isClosing = false;
             $(closeElem).click(ev =>
             {
                 this.close();
+            });
+
+            $(windowElem).click(ev =>
+            {
+                this.app.toFront(windowElem);
             });
 
             $(windowElem).draggable({
@@ -86,12 +99,43 @@ export class Window
                 // opacity: 0.5,
                 distance: 4,
                 containment: 'document',
-                stop: (ev: JQueryEventObject) =>
+                start: (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) =>
                 {
-                    if (this.onDragStop) { this.onDragStop(ev); }
+                    this.app.toFront(windowElem);
+                    if (this.onDragStart) { this.onDragStart(ev, ui); }
+                },
+                drag: (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) =>
+                {
+                    if (this.onDrag) { this.onDrag(ev, ui); }
+                },
+                stop: (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) =>
+                {
+                    if (this.onDragStop) { this.onDragStop(ev, ui); }
                 },
             });
         }
+    }
+
+    async getSavedOptions(options: any, name: string): Promise<any>
+    {
+        options = await this.getSavedOption(options, name, 'bottom');
+        options = await this.getSavedOption(options, name, 'width');
+        options = await this.getSavedOption(options, name, 'height');
+        return options;
+    }
+
+    async getSavedOption(options: any, name: string, key: string): Promise<any>
+    {
+        let value = await Config.getSync('window.' + name + '.' + key, null);
+        if (value) {
+            options[key] = value;
+        }
+        return options;
+    }
+
+    async saveOption(name: string, key: string, value: any): Promise<void>
+    {
+        await Config.setSync('window.' + name + '.' + key, value);
     }
 
     isOpen(): boolean
@@ -99,12 +143,15 @@ export class Window
         return this.windowElem != null;
     }
 
-
+    private isClosing: boolean;
     close(): void
     {
-        if (this.onClose) { this.onClose(); }
+        if (!this.isClosing) {
+            this.isClosing = true;
 
-        $(this.windowElem).remove();
-        this.windowElem = null;
+            if (this.onClose) { this.onClose(); }
+            $(this.windowElem).remove();
+            this.windowElem = null;
+        }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace XmppComponent.Test
+namespace n3q.Xmpp.Test
 {
     [TestClass]
     public class XmppJidTest

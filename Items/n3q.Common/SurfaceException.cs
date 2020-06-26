@@ -47,6 +47,7 @@ namespace n3q.Common
             NotExecuted,
             NotRezzed,
             NotDerezzed,
+            NotMoved,
         }
 
         public enum Reason
@@ -56,6 +57,7 @@ namespace n3q.Common
             NotYourItem,
             ItemCapacityLimit,
             ServiceUnavailable,
+            ItemIsNotMovable,
         }
     }
 }

@@ -12,7 +12,6 @@ import imgDefaultAvatar from '../assets/DefaultAvatar.png';
 export class Entity
 {
     protected elem: HTMLElement;
-    protected centerElem: HTMLElement;
     protected visible: boolean = false;
     protected avatarDisplay: Avatar;
     protected positionX: number = -1;
@@ -24,23 +23,15 @@ export class Entity
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-entity" />').get(0);
         this.elem.style.display = 'none';
 
-        // this.centerElem = this.elem;
+        $(this.elem).append(this.elem);
 
-        this.centerElem = <HTMLDivElement>$('<div class="n3q-base n3q-entity-content" />').get(0);
-        this.elem.appendChild(this.centerElem);
-
-        // var e = <HTMLElement>$('<div class="n3q-base n3q-centertable"><div class="n3q-base n3q-centercell"></div></div>').get(0);
-        // this.centerElem = $(e).find('div.n3q-centercell').get(0);
-        // this.elem.appendChild(e);
-
-        app.getDisplay().appendChild(this.elem);
+        $(app.getDisplay()).append(this.elem);
     }
 
     getRoom(): Room { return this.room; }
     getElem(): HTMLElement { return this.elem; }
-    getCenterElem(): HTMLElement { return this.centerElem; }
     getDefaultAvatar(): string { return imgDefaultAvatar; }
-    
+
     show(visible: boolean, durationSec: number = 0.0): void
     {
         if (visible != this.visible) {
@@ -127,11 +118,11 @@ export class Entity
                 { left: newX + 'px' },
                 100,
                 'linear',
-                () => this.quickSlideDestinationReached(newX)
+                () => this.onQuickSlideReached(newX)
             );
     }
 
-    private quickSlideDestinationReached(newX: number): void
+    onQuickSlideReached(newX: number): void
     {
         this.positionX = newX;
     }
@@ -159,39 +150,33 @@ export class Entity
 
     select(): void
     {
-        //$(this.elem).siblings().zIndex(1);
-        //$(this.elem).zIndex(100);
+        this.app.toFront(this.elem);
     }
 
     // Drag
 
-    private dragStartPosition: any;
-    onStartDragAvatar(ev: JQueryMouseEventObject, ui: any): void
+    private dragStartPosition: { top: number; left: number; };
+    onDragAvatarStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
     {
         this.dragStartPosition = ui.position;
+        this.app.toFront(this.elem);
     }
 
-    onDragAvatar(ev: JQueryMouseEventObject, ui: any): void
+    onDragAvatar(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
     {
     }
 
-    onStopDragAvatar(ev: JQueryMouseEventObject, ui: any): void
+    onDragAvatarStop(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
     {
-        this.onDraggedBy((ui.position.left - this.dragStartPosition.left), (ui.position.top - this.dragStartPosition.top));
+        let dX = ui.position.left - this.dragStartPosition.left;
+        let newX = this.getPosition() + dX;
+        this.onDraggedTo(newX);
     }
 
-    onDraggedBy(dX: number, dY: number): void
+    onDraggedTo(newX: number): void
     {
-        var newX = this.getPosition() + dX;
-
         if (this.getPosition() != newX) {
-            if (this.isSelf) {
-                this.app.savePosition(newX);
-                this.room?.sendMoveMessage(newX);
-            } else {
-                this.quickSlide(newX);
-            }
+            this.quickSlide(newX);
         }
     }
-
 }

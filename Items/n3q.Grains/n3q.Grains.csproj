@@ -8,12 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Orleans.CodeGenerator.MSBuild" Version="3.1.7">
+    <PackageReference Include="Microsoft.Orleans.CodeGenerator.MSBuild" Version="3.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="3.1.7" />
-    <PackageReference Include="Microsoft.Orleans.Runtime.Abstractions" Version="3.1.7" />
+    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="3.2.0" />
+    <PackageReference Include="Microsoft.Orleans.Runtime.Abstractions" Version="3.2.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,7 +22,6 @@
     <ProjectReference Include="..\n3q.Content\n3q.Content.csproj" />
     <ProjectReference Include="..\n3q.GrainInterfaces\n3q.GrainInterfaces.csproj" />
     <ProjectReference Include="..\n3q.StorageProviders\n3q.StorageProviders.csproj" />
-    <ProjectReference Include="..\n3q.Tools\n3q.Tools.csproj" />
   </ItemGroup>
 
 </Project>

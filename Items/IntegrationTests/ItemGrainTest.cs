@@ -105,6 +105,7 @@ namespace IntegrationTests
             } finally {
                 // Cleanup
                 await item.DeletePersistentStorage();
+                await tmpl.DeletePersistentStorage();
             }
         }
 
@@ -430,13 +431,15 @@ namespace IntegrationTests
             try {
                 // Act
                 var props = await item.GetProperties(new PidSet {
-                    Pid.TestIntDefault ,
+                    Pid.TestInt,
+                    Pid.TestIntDefault,
                     Pid.TestStringDefault,
                     Pid.TestFloatDefault,
                     Pid.TestBoolDefault,
                 });
 
                 // Assert
+                Assert.AreEqual(0, props.GetInt(Pid.TestInt));
                 Assert.AreEqual(42, props.GetInt(Pid.TestIntDefault));
                 Assert.AreEqual("42", props.GetString(Pid.TestStringDefault));
                 Assert.AreEqual(3.14D, props.GetFloat(Pid.TestFloatDefault));

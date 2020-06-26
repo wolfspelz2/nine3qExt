@@ -51,6 +51,11 @@ export class Config
             chatWindowMaxHeight: 800,
             keepAliveSec: 120,
             nicknameOnHover: true,
+            defaultStillimageSize: 80,
+            defaultAnimationSize: 100,
+            vCardAvatarFallback: false,
+            vCardAvatarFallbackOnHover: true,
+            vidconfUrl: 'https://meet.jit.si/{room}#userInfo.displayName="{name}"',
         },
         xmpp: {
             service: 'wss://xmpp.weblin.sui.li/xmpp-websocket',
@@ -69,19 +74,18 @@ export class Config
             digest: '',
             identificatorUrlTemplate: 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}&digest={digest}',
         },
+        inventory: {
+            enabled: false,
+            itemSize: 64,
+            borderPadding: 4,
+            dropZoneHeight: 100,
+        },
         itemProviders: {
             'nine3q':
             {
                 name: 'weblin Items',
                 description: 'Things on web pages',
-                configUrl: 'https://nine3q.weblin.com/Item/Config',
-                config: {
-                    serviceUrl: 'xmpp:items.xmpp.dev.sui.li',
-                    userToken: 'dummyUserToken',
-                    itemPropertyUrlFilter: {
-                        '{image.item.nine3q}': 'https://nine3q.weblin.com/images/Items/',
-                    }
-                }
+                configUrl: 'https://items.weblin.com/Item/Config/{id}',
             }
         },
         i18n: {
@@ -109,7 +113,9 @@ export class Config
 
                     'Menu.Settings': 'Settings',
                     'Menu.Stay Here': 'Stay Here',
+                    'Menu.Inventory': 'Your Stuff',
                     'Menu.Chat Window': 'History',
+                    'Menu.Video Conference': 'Video Conference',
                     'Menu.Chat': 'Chat',
                     'Menu.Actions:': 'Actions:',
                     'Menu.wave': 'Wave',
@@ -130,8 +136,8 @@ export class Config
                     'Chatwindow.is present': '*is present*',
                     'Chatwindow.disappeared': '*disappeared*',
 
+                    'Vidconfwindow.Video Conference': 'Video Conference',
                     'Settingswindow.Settings': 'Settings',
-
                     'InventoryWindow.Inventory': 'Your Stuff',
                 },
                 'de-DE': {
@@ -153,7 +159,9 @@ export class Config
 
                     'Menu.Settings': 'Einstellungen',
                     'Menu.Stay Here': 'Hier bleiben',
+                    'Menu.Inventory': 'Deine Sachen',
                     'Menu.Chat Window': 'Chatverlauf',
+                    'Menu.Video Conference': 'Videokonferenz',
                     'Menu.Chat': 'Sprechblase',
                     'Menu.Actions:': 'Aktionen:',
                     'Menu.wave': 'Winken',
@@ -174,9 +182,9 @@ export class Config
                     'Chatwindow.is present': '*ist da*',
                     'Chatwindow.disappeared': '*verschwunden*',
 
+                    'Vidconfwindow.Video Conference': 'Videokonferenz',
                     'Settingswindow.Settings': 'Einstellungen',
-
-                    'InventoryWindow.Inventory': 'Deine Sachen',
+                    'InventoryWindow.Inventory': 'Deine Gegenstände',
                 },
             },
             'serviceUrl': '',

@@ -54,9 +54,9 @@ export class PopupApp
 
         this.display = $('<div id="n3q-id-popup" class="n3q-base" data-translate="children"/>').get(0);
 
-        let nickname = as.String(await Config.getSync('me.nickname', 'Your name'));
-        let avatar = as.String(await Config.getSync('me.avatar', ''));
-        let active = as.String(await Config.getSync('me.active', 'true'));
+        let nickname = as.String(await Config.getSync(Utils.syncStorageKey_Nickname(), 'Your name'));
+        let avatar = as.String(await Config.getSync(Utils.syncStorageKey_Avatar(), ''));
+        let active = as.String(await Config.getSync(Utils.syncStorageKey_Active(), 'true'));
 
         {
             let group = $('<div class="n3q-base n3q-popup-header" data-translate="children"/>').get(0);
@@ -134,7 +134,7 @@ export class PopupApp
                 if (avatarIdx < 0) {
                     avatar = '004/pinguin';
                 }
-                await Config.setSync('me.avatar', avatar);
+                await Config.setSync(Utils.syncStorageKey_Avatar(), avatar);
             }
 
             let group = $('<div class="n3q-base n3q-popup-group n3q-popup-group-avatar" data-translate="children"/>').get(0);
@@ -203,20 +203,20 @@ export class PopupApp
             {
                 $(saving).fadeTo(200, 1.0);
                 let nickname2Save = $('#n3q-id-popup-nickname').val();
-                await Config.setSync('me.nickname', nickname2Save);
+                await Config.setSync(Utils.syncStorageKey_Nickname(), nickname2Save);
 
                 let avatar2Save = $('#n3q-id-popup-avatar').val();
-                await Config.setSync('me.avatar', avatar2Save);
+                await Config.setSync(Utils.syncStorageKey_Avatar(), avatar2Save);
 
                 let isActive = $('#n3q-id-popup-active').prop('checked');
                 let active2Save = as.String(isActive, 'false');
-                await Config.setSync('me.active', active2Save);
+                await Config.setSync(Utils.syncStorageKey_Active(), active2Save);
 
                 // Verify
                 {
-                    let nickname2Verify = await Config.getSync('me.nickname', '');
-                    let avatar2Verify = await Config.getSync('me.avatar', '');
-                    let active2Verify = await Config.getSync('me.active', '');
+                    let nickname2Verify = await Config.getSync(Utils.syncStorageKey_Nickname(), '');
+                    let avatar2Verify = await Config.getSync(Utils.syncStorageKey_Avatar(), '');
+                    let active2Verify = await Config.getSync(Utils.syncStorageKey_Active(), '');
                     $(saving).fadeTo(100, 0.0);
                     
                     if (true

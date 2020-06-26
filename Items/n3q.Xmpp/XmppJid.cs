@@ -1,4 +1,4 @@
-﻿namespace XmppComponent
+﻿namespace n3q.Xmpp
 {
     public class XmppJid
     {

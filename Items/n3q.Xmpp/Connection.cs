@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using n3q.Tools;
 
-namespace XmppComponent
+namespace n3q.Xmpp
 {
     public class Connection : IDisposable
     {
@@ -63,7 +63,7 @@ namespace XmppComponent
                                     Log.Verbose($"<- {new String(' ', xmlReader.Depth * 2)}{xmlReader.Name}");
                                     var id = xmlReader.GetAttribute("id");
                                     var data = id + _secret;
-                                    var sha1 = SHA1(data);
+                                    var sha1 = Crypto.SHA1Hex(data);
                                     Send($"<handshake>{sha1}</handshake>");
                                 }
                                 break;
@@ -105,15 +105,15 @@ namespace XmppComponent
                             }
                             break;
 
-                        //case XmlNodeType.EndElement:
-                        //    Log.Info($"<- {xmlReader.NodeType.ToString()}");
-                        //    if (xmlReader.Depth == 1) {
-                        //    }
-                        //    break;
+                            //case XmlNodeType.EndElement:
+                            //    Log.Info($"<- {xmlReader.NodeType.ToString()}");
+                            //    if (xmlReader.Depth == 1) {
+                            //    }
+                            //    break;
 
-                        //default:
-                        //    Log.Info($"<- {xmlReader.NodeType.ToString()}");
-                        //    break;
+                            //default:
+                            //    Log.Info($"<- {xmlReader.NodeType.ToString()}");
+                            //    break;
                     }
                 }
 
@@ -189,7 +189,14 @@ x=345
         private void OnMessage(XmlReader xmlReader)
         {
             var message = new XmppMessage {
-                MessageType = (xmlReader.GetAttribute("type") ?? "normal") == "groupchat" ? XmppMessageType.Groupchat : XmppMessageType.Normal,
+                //MessageType = (xmlReader.GetAttribute("type") ?? "normal") == "groupchat" ? XmppMessageType.Groupchat : XmppMessageType.Normal,
+                MessageType = xmlReader.GetAttribute("type") switch
+                {
+                    "normal" => XmppMessageType.Normal,
+                    "groupchat" => XmppMessageType.Groupchat,
+                    "chat" => XmppMessageType.PrivateChat,
+                    _ => XmppMessageType.Normal,
+                },
                 From = xmlReader.GetAttribute("from") ?? "",
                 To = xmlReader.GetAttribute("to") ?? "",
                 Id = xmlReader.GetAttribute("id") ?? "",
@@ -220,10 +227,25 @@ x=345
             }
         }
 
+        /*
+        <presence type="error" to="random-id-hgf5767tigbjhu8ozljnk-09@items.xmpp.dev.sui.li" from="berlin-meetup@conference.conversations.im/random-id-hgf5767tigbjhu8ozljnk-09">
+            <error type="cancel" by="items.xmpp.dev.sui.li">
+                <remote-server-not-found xmlns="urn:ietf:params:xml:ns:xmpp-stanzas"/>
+                <text xmlns="urn:ietf:params:xml:ns:xmpp-stanzas">
+                    Server-to-server connection failed: dialback authentication failed
+                </text>
+            </error>
+        </presence>
+        */
         private void OnPresence(XmlReader xmlReader)
         {
             var presence = new XmppPresence {
-                PresenceType = (xmlReader.GetAttribute("type") ?? "available") == "unavailable" ? XmppPresenceType.Unavailable : XmppPresenceType.Available,
+                PresenceType = xmlReader.GetAttribute("type") switch
+                {
+                    "unavailable" => XmppPresenceType.Unavailable,
+                    "error" => XmppPresenceType.Error,
+                    _ => XmppPresenceType.Available,
+                },
                 From = xmlReader.GetAttribute("from") ?? "",
                 To = xmlReader.GetAttribute("to") ?? "",
             };
@@ -258,14 +280,6 @@ x=345
             Log.Verbose($"-> {text}");
             var bytes = Encoding.UTF8.GetBytes(text);
             _networkStream.WriteAsync(bytes, 0, bytes.Length).PerformAsyncTaskWithoutAwait(t => Log.Error(t.Exception));
-        }
-
-
-        static string SHA1(string input)
-        {
-            using var sha1 = new SHA1Managed();
-            var hash = sha1.ComputeHash(Encoding.UTF8.GetBytes(input));
-            return string.Concat(hash.Select(b => b.ToString("x2", CultureInfo.InvariantCulture)));
         }
 
         public void Dispose()

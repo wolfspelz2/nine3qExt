@@ -19,10 +19,14 @@
             res = val;
         } else {
             if (typeof val === this.typeString) {
-                if (val == 'true' || val == 'True' || val == 'TRUE' || val == '1' || val == 'yes') { res = true; }
+                if (val == 'true' || val == 'True' || val == 'TRUE' || val == '1' || val == 'yes') {
+                    res = true;
+                } else { res = false; }
             } else {
                 if (typeof val === this.typeNumber) {
-                    if (val == 1) { res = true; }
+                    if (val >= 1) {
+                        res = true;
+                    } else { res = false; }
                 }
             }
         }
@@ -80,8 +84,31 @@
 
     static Html(val: any, alt?: string): string
     {
-        var res = as.String(val, alt);
-        return String(res).replace(/[&<>'"]/g, (s) => this.escapeHtml_entityMap[s]);
+        let res = as.String(val, alt);
+        let htmlEncoded = String(res).replace(/[&<>'"]/g, (s) => this.escapeHtml_entityMap[s]);
+        return htmlEncoded;
+    }
+
+    static HtmlWithClickableLinks(val: any, alt?: string): string
+    {
+        let html = as.Html(val, alt);
+        let clickableEncoded = as.makeLinksClickable(html);
+        return clickableEncoded;
+    }
+
+    static makeLinksClickable(text): string
+    {
+        var urlRegex = /(https?:\/\/[^\s]+|www\.[^. ]+\.[^ ]+|[^. ]+\.(com|org|net|[a-z]{2}))/g;
+        return text.replace(urlRegex, url => 
+        {
+            let navigateUrl = url;
+            if (navigateUrl.startsWith('http://') || navigateUrl.startsWith('https://')) {
+                //
+            } else {
+                navigateUrl = 'http://' + url;
+            }
+            return '<a href="' + navigateUrl + '" target="_blank">' + url + '</a>';
+        });
     }
 
     static HtmlLink(val: any, text?: string, urlFilter?: (s: string) => string, alt?: string): string

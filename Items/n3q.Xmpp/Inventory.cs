@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace XmppComponent
+namespace n3q.Xmpp
 {
     public partial class Controller
     {

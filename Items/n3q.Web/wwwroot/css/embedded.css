@@ -1,0 +1,18 @@
+﻿* {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+}
+
+ul.cMenu {
+    list-style-type: none;
+    display: inline;
+    /*margin-block-start: 0;
+    margin-block-end: 0;
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+    padding-inline-start: 0;*/
+}
+
+li.cMenuItem {
+    display: inline;
+}

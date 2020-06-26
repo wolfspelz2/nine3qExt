@@ -1,6 +1,6 @@
 ﻿using n3q.Items;
 
-namespace XmppComponent
+namespace n3q.Xmpp
 {
     public class RoomItem
     {

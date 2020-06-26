@@ -14,6 +14,7 @@ namespace n3q.Content
             Room,
             AvatarTheatre,
             WaterResourceTest,
+            FridaysForFuture,
         }
 
         public enum Template
@@ -24,12 +25,13 @@ namespace n3q.Content
             CodeReviewer,
 
             // User
-            Attributes,
-            Backpack,
-            TrashCan,
+            Inventory,
+            //Attributes,
+            //Backpack,
+            //TrashCan,
             Settings,
-            Nickname,
-            Avatar,
+            //Nickname,
+            //Avatar,
 
             // Room
             PirateFlag,
@@ -45,6 +47,16 @@ namespace n3q.Content
             WaterSink,
             PottedPlant,
             BioWaste,
+
+            // FridaysForFuture
+            PosterHowDareYou,
+            PosterThereIsNoPlanetB,
+            PosterWirStreikenBisIhrHandelt,
+            RallySpeaker,
+            FieldMapleTree,
+            MapleTree,
+            PlatanusOccidentalis,
+            SmallMapleTree,
         }
 
         public const string AllGroupsSpecialSelector = "ALL";
@@ -72,22 +84,8 @@ namespace n3q.Content
 
         public static string GetTranslationCacheKey(string key, string lang)
         {
-            return "Text-" + lang + "-" + key;
+            return lang + "-" + key;
         }
-
-        //public static class ActionName
-        //{
-        //    public class Test1
-        //    {
-        //        public static string Nop = Test1Aspect.Action.Nop.ToString();
-        //        public static string AddTestInt = Test1Aspect.Action.AddTestInt.ToString();
-        //    }
-        //    public class Container
-        //    {
-        //        public static string SetChild = ContainerAspect.Action.SetChild.ToString();
-        //        public static string RemoveChild = ContainerAspect.Action.RemoveChild.ToString();
-        //    }
-        //}
 
         public class TemplateCollection : Dictionary<string, PropertySet>
         {

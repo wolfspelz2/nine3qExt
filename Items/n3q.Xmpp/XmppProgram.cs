@@ -8,24 +8,26 @@ using Orleans.Hosting;
 using n3q.Common;
 using n3q.Tools;
 
-namespace XmppComponent
+namespace n3q.Xmpp
 {
     public class XmppProgram
     {
         const int InitializeAttemptsBeforeFailing = 5;
-
-        private const string ComponentHost = "items.xmpp.dev.sui.li";
-        private const string ComponentDomain = "items.xmpp.dev.sui.li";
-        private const int ComponentPort = 5555;
-        private const string ComponentSecret = "28756a7ff5dce";
-
         private static int _attempt = 0;
-        private static Controller _controller;
+
+        static readonly XmppConfig Config = new XmppConfig();
+        static Controller _controller;
 
         static int Main(string[] args)
         {
             Log.LogLevel = Log.Level.Info;
-            Log.LogHandler = (level, context, message) => { Console.WriteLine($"{Log.LevelFromString(level.ToString())} {context} {message}"); };
+            Log.LogHandler = (lvl, ctx, msg) => { Console.WriteLine($"{lvl} {ctx} {msg}"); };
+
+            ConfigSharp.Log.LogLevel = ConfigSharp.Log.Level.Info;
+            ConfigSharp.Log.LogHandler = (lvl, ctx, msg) => { Log.DoLog(Log.LevelFromString(lvl.ToString()), ctx, msg); };
+            Config.ParseCommandline(args);
+            Config.Include(Config.ConfigFile);
+            Console.WriteLine($"RunMode={Config.Mode} ConfigSequence={Config.ConfigSequence}");
 
             return RunMainAsync().Result;
         }
@@ -99,10 +101,10 @@ namespace XmppComponent
         private static async Task DoClientWork(IClusterClient client)
         {
             _controller = new Controller(client,
-                ComponentHost,
-                ComponentDomain,
-                ComponentPort,
-                ComponentSecret
+                Config.ComponentHost,
+                Config.ComponentDomain,
+                Config.ComponentPort,
+                Config.ComponentSecret
             );
 
             await _controller.Start();

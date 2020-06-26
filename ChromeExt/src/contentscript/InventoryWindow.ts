@@ -5,22 +5,26 @@ import log = require('loglevel');
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
-import { Environment } from '../lib/Environment';
 import { ContentApp } from './ContentApp';
-import { Room } from './Room';
 import { Window } from './Window';
-import { ChatConsole } from './ChatConsole';
+import { Inventory } from './Inventory';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 
 export class InventoryWindow extends Window
 {
+    private paneElem: HTMLElement;
 
-    constructor(app: ContentApp)
+    constructor(app: ContentApp, private inv: Inventory)
     {
         super(app);
     }
-    
-    show(options: any)
+
+    getPane() { return this.paneElem; }
+
+    async show(options: any)
     {
+        options = await this.getSavedOptions(options, InventoryWindow.name);
+
         options.titleText = this.app.translateText('InventoryWindow.Inventory', 'Your Stuff');
         options.resizable = true;
 
@@ -50,18 +54,81 @@ export class InventoryWindow extends Window
                 }
             }
 
-            let paneElem = <HTMLElement>$('<div class="n3q-base n3q-inventorywindow-pane" data-translate="children" />').get(0);
-
+            let paneElem = <HTMLElement>$('<div class="n3q-base n3q-inventory-pane" data-translate="children" />').get(0);
             $(contentElem).append(paneElem);
+
+            if (!this.inv.getAvailable()) {
+                let url = this.app.getItemProviderConfigValue(this.inv.getProviderId(), 'unavailableUrl', '');
+                if (url != '') {
+                    let uniqueId = await Config.getSync('me.id', '');
+                    url = url.replace('{id}', encodeURIComponent(uniqueId));
+                    let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-inventory-iframe" src="' + url + ' " frameborder="0"></iframe>').get(0);
+                    $(contentElem).append(iframeElem);
+                }
+            }
 
             this.app.translateElem(windowElem);
 
             $(windowElem).css({ 'width': width + 'px', 'height': height + 'px', 'left': left + 'px', 'top': top + 'px' });
 
-            this.onResize = (ev: JQueryEventObject) =>
+            this.onResizeStop = (ev: JQueryEventObject, ui: JQueryUI.ResizableUIParams) =>
             {
+                let left = ui.position.left;
+                let bottom = this.app.getDisplay().offsetHeight - (ui.position.top + ui.size.height);
+                this.saveCoordinates(left, bottom, ui.size.width, ui.size.height);
             };
+
+            this.onDragStop = (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) =>
+            {
+                let size = { width: $(this.windowElem).width(), height: $(this.windowElem).height() }
+                let left = ui.position.left;
+                let bottom = this.app.getDisplay().offsetHeight - (ui.position.top + size.height);
+                this.saveCoordinates(left, bottom, size.width, size.height);
+            };
+
+            $(paneElem).droppable({
+                drop: (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
+                {
+                    let droppedAvatar = ui.draggable.get(0);
+                    if (droppedAvatar) {
+                        let droppedEntity = droppedAvatar.parentElement;
+                        if (droppedEntity) {
+                            let droppedId: string = $(droppedEntity).data('nick');
+                            if (droppedId) {
+                                let roomItem = this.app.getRoom().getItem(droppedId);
+                                if (roomItem) {
+                                    let x = Math.round(ui.offset.left - $(paneElem).offset().left + ui.draggable.width() / 2);
+                                    let y = Math.round(ui.offset.top - $(paneElem).offset().top + ui.draggable.height() / 2)
+                                    roomItem.beginDerez();
+                                    this.inv.sendDerezItem(roomItem.getNick(), x, y);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            this.paneElem = paneElem;
         }
+    }
+
+    setCoordinates(left: number, bottom: number, width: number, height: number)
+    {
+        let coords = {};
+        if (left > 0) { coords['left'] = left; }
+        if (bottom > 0 && height > 0) { coords['top'] = this.app.getDisplay().offsetHeight - bottom - height; }
+        if (width > 0) { coords['width'] = width; }
+        if (height > 0) { coords['height'] = height; }
+
+        $(this.windowElem).css(coords);
+    }
+
+    async saveCoordinates(left: number, bottom: number, width: number, height: number)
+    {
+        await this.saveOption(InventoryWindow.name, 'left', left);
+        await this.saveOption(InventoryWindow.name, 'bottom', bottom);
+        await this.saveOption(InventoryWindow.name, 'width', width);
+        await this.saveOption(InventoryWindow.name, 'height', height);
     }
 
     isOpen(): boolean

@@ -9,19 +9,15 @@ using n3q.Items;
 using n3q.Tools;
 using n3q.Common;
 using n3q.Aspects;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 
 namespace n3q.Web
 {
     public class ItemCommandline : Commandline, ICommandline
     {
         public IClusterClient ClusterClient { get; set; }
-
-        public ItemStub GetItemStub(string id)
-        {
-            var itemClient = new OrleansClusterClient(ClusterClient, id);
-            var itemStub = new ItemStub(itemClient);
-            return itemStub;
-        }
 
         public enum ItemRole { Content, LeadContent, SecurityAdmin }
 
@@ -30,9 +26,11 @@ namespace n3q.Web
             //Admin_TokenLogon,
             //Admin_TokenLogoff,
             //Admin_CreateRole,
+            Admin_Logon,
+            Admin_Logoff,
             Admin_Environment,
             Admin_Process,
-            //Admin_Request,
+            Admin_Request,
 
             Item_SetCreate,
             Item_Show,
@@ -55,16 +53,18 @@ namespace n3q.Web
             Content_Create,
         }
 
-        public ItemCommandline(string path) : base(path)
+        public ItemCommandline()
         {
             Handlers.Add("Dev_Item", new Handler { Name = "Dev_Item", Function = Dev_Item, Role = nameof(Role.Developer), Arguments = new ArgumentDescriptionList { ["ID"] = "Item-ID" } });
 
             //Handlers.Add(nameof(Fn.Admin_TokenLogon), new Handler { Name = nameof(Fn.Admin_TokenLogon), Function = Admin_TokenLogon, Role = nameof(Role.Public), ImmediateExecute = false, Description = "Log in as admin with token (for system bootstrap)", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Token"] = "Secret", } });
             //Handlers.Add(nameof(Fn.Admin_TokenLogoff), new Handler { Name = nameof(Fn.Admin_TokenLogoff), Function = Admin_TokenLogoff, Role = nameof(Role.Public), ImmediateExecute = false, Description = "Log out as admin", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { } });
             //Handlers.Add(nameof(Fn.Admin_CreateRole), new Handler { Name = nameof(Fn.Admin_CreateRole), Function = Admin_CreateRole, Role = nameof(Role.Public), ImmediateExecute = false, Description = "Create role item for accessing user", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Secret", } });
-            Handlers.Add(nameof(Fn.Admin_Environment), new Handler { Name = nameof(Fn.Admin_Environment), Function = Admin_Environment, Role = nameof(Role.Public), ImmediateExecute = true, Description = "Show environment variables", });
-            Handlers.Add(nameof(Fn.Admin_Process), new Handler { Name = nameof(Fn.Admin_Process), Function = Admin_Process, Role = nameof(Role.Public), ImmediateExecute = true, Description = "Show process info", });
-            //Handlers.Add(nameof(Fn.Admin_Request), new Handler { Name = nameof(Fn.Admin_Request), Function = Admin_Request, Role = nameof(Role.Public), ImmediateExecute = false, Description = "Show HTTPrequest info", });
+            Handlers.Add(nameof(Fn.Admin_Logon), new Handler { Name = nameof(Fn.Admin_Logon), Function = Admin_Logon, Role = nameof(Role.Public), ImmediateExecute = true, Description = "Log in as admin with token (for system bootstrap)", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Token"] = "Secret", } });
+            Handlers.Add(nameof(Fn.Admin_Logoff), new Handler { Name = nameof(Fn.Admin_Logoff), Function = Admin_Logoff, Role = nameof(Role.Public), ImmediateExecute = true, Description = "Log out as admin", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { } });
+            Handlers.Add(nameof(Fn.Admin_Environment), new Handler { Name = nameof(Fn.Admin_Environment), Function = Admin_Environment, Role = nameof(Role.Admin), ImmediateExecute = true, Description = "Show environment variables", });
+            Handlers.Add(nameof(Fn.Admin_Process), new Handler { Name = nameof(Fn.Admin_Process), Function = Admin_Process, Role = nameof(Role.Admin), ImmediateExecute = true, Description = "Show process info", });
+            Handlers.Add(nameof(Fn.Admin_Request), new Handler { Name = nameof(Fn.Admin_Request), Function = Admin_Request, Role = nameof(Role.Admin), ImmediateExecute = true, Description = "Show HTTP-request info", });
 
             Handlers.Add(nameof(Fn.Item_SetCreate), new Handler { Name = nameof(Fn.Item_SetCreate), Function = Item_SetProperties, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Set (some or all) item properties", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Properties"] = "Item properties as JSON dictionary or as PropertyName=Value pairs", } });
             Handlers.Add(nameof(Fn.Item_Show), new Handler { Name = nameof(Fn.Item_Show), Function = Item_GetProperties, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Show item", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Format"] = "Output format [table|json] (optional, default:table)", } });
@@ -136,6 +136,59 @@ namespace n3q.Web
         //    return "Token removed";
         //}
 
+        object Admin_Logon(Arglist args)
+        {
+            args.Next("cmd");
+            var token = args.Next("Token");
+            if (!AdminTokens.Contains(token)) { return "Unauthorized"; }
+
+            var claims = new List<Claim> {
+                new Claim(ClaimTypes.Name, "AnonymousAdmin")
+            };
+            claims.AddRange(EnumUtil.GetEnumValues<Commandline.Role>().Select(e => new Claim(ClaimTypes.Role, e.ToString())));
+            claims.AddRange(EnumUtil.GetEnumValues<ItemRole>().Select(e => new Claim(ClaimTypes.Role, e.ToString())));
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            var authProperties = new AuthenticationProperties {
+                //AllowRefresh = <bool>,
+                // Refreshing the authentication session should be allowed.
+
+                ExpiresUtc = DateTimeOffset.UtcNow.AddYears(10),
+                // The time at which the authentication ticket expires. A 
+                // value set here overrides the ExpireTimeSpan option of 
+                // CookieAuthenticationOptions set with AddCookie.
+
+                IsPersistent = true,
+                // Whether the authentication session is persisted across 
+                // multiple requests. When used with cookies, controls
+                // whether the cookie's lifetime is absolute (matching the
+                // lifetime of the authentication ticket) or session-based.
+
+                //IssuedUtc = <DateTimeOffset>,
+                // The time at which the authentication ticket was issued.
+
+                RedirectUri = HttpContext.Request.Path,
+                // The full path or absolute URI to be used as an http 
+                // redirect response value.
+            };
+
+            HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                authProperties
+            ).Wait();
+
+            return "Logged on";
+        }
+
+        object Admin_Logoff(Arglist args)
+        {
+            HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme).Wait();
+
+            return "Logged off";
+        }
+
         private object Admin_Environment(Commandline.Arglist args)
         {
             var table = new Commandline.Table();
@@ -148,34 +201,33 @@ namespace n3q.Web
             return table;
         }
 
-        //private object Admin_Request(Commandline.Arglist args)
-        //{
-        //    var table = new Commandline.Table();
+        private object Admin_Request(Commandline.Arglist args)
+        {
+            var table = new Commandline.Table();
 
-        //    table.Grid.Add(new Table.Row { "IsLocal", ContextAccessor.HttpContext.Connection.IsLocal.ToString() });
-        //    table.Grid.Add(new Table.Row { "LocalIpAddress", ContextAccessor.HttpContext.Connection.LocalIpAddress?.ToString() });
-        //    table.Grid.Add(new Table.Row { "LocalPort", ContextAccessor.HttpContext.Connection.LocalPort.ToString() });
-        //    table.Grid.Add(new Table.Row { "RemoteIpAddress", ContextAccessor.HttpContext.Connection.RemoteIpAddress?.ToString() });
-        //    table.Grid.Add(new Table.Row { "RemotePort", ContextAccessor.HttpContext.Connection.RemotePort.ToString() });
+            table.Grid.Add(new Table.Row { "LocalIpAddress", HttpContext.Connection.LocalIpAddress?.ToString() });
+            table.Grid.Add(new Table.Row { "LocalPort", HttpContext.Connection.LocalPort.ToString() });
+            table.Grid.Add(new Table.Row { "RemoteIpAddress", HttpContext.Connection.RemoteIpAddress?.ToString() });
+            table.Grid.Add(new Table.Row { "RemotePort", HttpContext.Connection.RemotePort.ToString() });
 
-        //    foreach (var header in ContextAccessor.HttpContext.Request.Headers) {
-        //        table.Grid.Add(new Table.Row { header.Key, header.Value.ToString() });
-        //    }
-        //    table.Grid.Add(new Table.Row { "IsHttps", ContextAccessor.HttpContext.Request.IsHttps.ToString() });
-        //    table.Grid.Add(new Table.Row { "Method", ContextAccessor.HttpContext.Request.Method?.ToString() });
-        //    table.Grid.Add(new Table.Row { "ContentLength", ContextAccessor.HttpContext.Request.ContentLength?.ToString() });
-        //    table.Grid.Add(new Table.Row { "ContentType", ContextAccessor.HttpContext.Request.ContentType?.ToString() });
-        //    foreach (var cookie in ContextAccessor.HttpContext.Request.Cookies) {
-        //        table.Grid.Add(new Table.Row { "Cookie-" + cookie.Key, cookie.Value });
-        //    }
-        //    table.Grid.Add(new Table.Row { "Host", ContextAccessor.HttpContext.Request.Host.ToString() });
-        //    table.Grid.Add(new Table.Row { "Path", ContextAccessor.HttpContext.Request.Path.ToString() });
-        //    table.Grid.Add(new Table.Row { "Protocol", ContextAccessor.HttpContext.Request.Protocol?.ToString() });
-        //    table.Grid.Add(new Table.Row { "Protocol", ContextAccessor.HttpContext.Request.QueryString.ToString() });
-        //    table.Grid.Add(new Table.Row { "Scheme", ContextAccessor.HttpContext.Request.Scheme?.ToString() });
+            foreach (var header in HttpContext.Request.Headers) {
+                table.Grid.Add(new Table.Row { header.Key, header.Value.ToString() });
+            }
+            table.Grid.Add(new Table.Row { "IsHttps", HttpContext.Request.IsHttps.ToString() });
+            table.Grid.Add(new Table.Row { "Method", HttpContext.Request.Method?.ToString() });
+            table.Grid.Add(new Table.Row { "ContentLength", HttpContext.Request.ContentLength?.ToString() });
+            table.Grid.Add(new Table.Row { "ContentType", HttpContext.Request.ContentType?.ToString() });
+            foreach (var cookie in HttpContext.Request.Cookies) {
+                table.Grid.Add(new Table.Row { "Cookie-" + cookie.Key, cookie.Value });
+            }
+            table.Grid.Add(new Table.Row { "Host", HttpContext.Request.Host.ToString() });
+            table.Grid.Add(new Table.Row { "Path", HttpContext.Request.Path.ToString() });
+            table.Grid.Add(new Table.Row { "Protocol", HttpContext.Request.Protocol?.ToString() });
+            table.Grid.Add(new Table.Row { "Protocol", HttpContext.Request.QueryString.ToString() });
+            table.Grid.Add(new Table.Row { "Scheme", HttpContext.Request.Scheme?.ToString() });
 
-        //    return table;
-        //}
+            return table;
+        }
 
         private object Admin_Process(Commandline.Arglist args)
         {
@@ -256,7 +308,7 @@ namespace n3q.Web
             var itemId = args.Next("Item");
             var props = GetPropertySetFromNextArgs(args);
 
-            var item = GetItemStub(itemId);
+            var item = ClusterClient.GetItemStub(itemId);
             item.WithTransaction(async self => {
                 await self.ModifyProperties(props, PidSet.Empty);
             }).Wait();
@@ -270,7 +322,7 @@ namespace n3q.Web
             var itemId = args.Next("Item");
             var format = args.Next("Format", Item_Result_format.table.ToString());
 
-            var item = GetItemStub(itemId);
+            var item = ClusterClient.GetItemStub(itemId);
             var props = item.GetProperties(PidSet.All).Result;
             var nativeProps = item.GetProperties(PidSet.All, native: true).Result;
             var templateProps = new PropertySet();
@@ -278,7 +330,7 @@ namespace n3q.Web
             var templateUnavailable = false;
 
             if (Has.Value(templateId)) {
-                var template = GetItemStub(templateId);
+                var template = ClusterClient.GetItemStub(templateId);
                 templateProps = template.GetProperties(PidSet.All).Result;
             }
 
@@ -333,7 +385,7 @@ namespace n3q.Web
                 var node = new JsonPath.Node(JsonPath.Node.Type.Dictionary);
                 foreach (var pair in props) {
                     JsonPath.Node propNode = null;
-                    propNode = Property.GetDefinition(pair.Key).Basic switch
+                    propNode = Property.GetDefinition(pair.Key).Storage switch
                     {
                         Property.Storage.Int => new JsonPath.Node(JsonPath.Node.Type.Int, (long)pair.Value),
                         Property.Storage.Float => new JsonPath.Node(JsonPath.Node.Type.Float, (double)pair.Value),
@@ -389,7 +441,7 @@ namespace n3q.Web
                 }
             } while (!string.IsNullOrEmpty(arg));
 
-            var item = GetItemStub(itemId);
+            var item = ClusterClient.GetItemStub(itemId);
             item.WithTransaction(async self => {
                 await self.ModifyProperties(PropertySet.Empty, pids);
             }).Wait();
@@ -403,7 +455,7 @@ namespace n3q.Web
             var itemId = args.Next("item-ID");
             var containerId = args.Next("container-ID");
 
-            var container = GetItemStub(containerId);
+            var container = ClusterClient.GetItemStub(containerId);
             container.WithTransaction(async self => {
                 await self.AsContainer().AddChild(await self.Item(itemId));
             }).Wait();
@@ -417,7 +469,7 @@ namespace n3q.Web
             var itemId = args.Next("item-ID");
             var containerId = args.Next("container-ID");
 
-            var container = GetItemStub(containerId);
+            var container = ClusterClient.GetItemStub(containerId);
             container.WithTransaction(async self => {
                 await self.AsContainer().RemoveChild(await self.Item(itemId));
             }).Wait();
@@ -434,7 +486,7 @@ namespace n3q.Web
 
             var pid = propertyId.ToEnum(Pid.Unknown);
             if (pid != Pid.Unknown) {
-                var container = GetItemStub(itemId);
+                var container = ClusterClient.GetItemStub(itemId);
                 container.WithTransaction(async self => {
                     await self.AddToList(pid, listElem);
                 }).Wait();
@@ -452,7 +504,7 @@ namespace n3q.Web
 
             var pid = propertyId.ToEnum(Pid.Unknown);
             if (pid != Pid.Unknown) {
-                var container = GetItemStub(itemId);
+                var container = ClusterClient.GetItemStub(itemId);
                 container.WithTransaction(async self => {
                     await self.RemoveFromList(pid, listElem);
                 }).Wait();
@@ -466,7 +518,7 @@ namespace n3q.Web
             args.Next("cmd");
             var itemId = args.Next("item-ID");
 
-            var item = GetItemStub(itemId);
+            var item = ClusterClient.GetItemStub(itemId);
             item.WithTransaction(async self => {
                 await self.AsDeletable().DeleteMe();
             }).Wait();
@@ -479,7 +531,7 @@ namespace n3q.Web
             args.Next("cmd");
             var itemId = args.Next("item-ID");
 
-            var item = GetItemStub(itemId);
+            var item = ClusterClient.GetItemStub(itemId);
             item.Deactivate().Wait();
 
             return $"Deactivated";

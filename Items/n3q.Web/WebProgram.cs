@@ -1,9 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Orleans.Hosting;
@@ -13,18 +9,17 @@ using Orleans;
 using n3q.Common;
 using n3q.StorageProviders;
 using n3q.Grains;
+using ConfigSharp;
 
 namespace n3q.Web
 {
-    public static class Config
-    {
-        public static bool UseIntegratedCluster = false;
-    }
-
     public static class WebProgram
     {
         public static void Main(string[] args)
         {
+            ConfigSharp.Log.LogLevel = ConfigSharp.Log.Level.Info;
+            ConfigSharp.Log.LogHandler = (lvl, ctx, msg) => { Console.WriteLine($"{lvl} {ctx} {msg}"); };
+
             CreateHostBuilder(args).Build().Run();
         }
 
@@ -59,9 +54,9 @@ namespace n3q.Web
                     .UseStartup<Startup>();
             });
 
-            if (Config.UseIntegratedCluster) {
+            var useIntegratedCluster = false;
+            if (useIntegratedCluster) {
                 host.UseOrleans(builder => {
-                    // EnableDirectClient is no longer needed as it is enabled by default
                     builder.UseLocalhostClustering()
 
                     .AddSimpleMessageStreamProvider(ItemService.StreamProvider, options => {

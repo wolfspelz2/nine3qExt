@@ -49,16 +49,6 @@ namespace n3q.Aspects
             throw new NotImplementedException();
         }
 
-        public Task WritePersistentStorage()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task ReadPersistentStorage()
-        {
-            throw new NotImplementedException();
-        }
-
         public Task DeletePersistentStorage()
         {
             throw new NotImplementedException();

@@ -9,33 +9,41 @@ import { InventoryItem } from './InventoryItem';
 
 export class Inventory
 {
+    private itemServer: string;
+    private userToken: string;
     private inventoryJid: string;
     private resource: string = Utils.randomString(15);
     private items: { [id: string]: InventoryItem; } = {};
     private window: InventoryWindow;
     private isSubscribed: boolean;
+    private isAvailable: boolean;
 
     constructor(private app: ContentApp, private providerId: string) 
     {
-        let serviceUrl = Config.get('itemProviders.' + providerId + '.config.serviceUrl', {});
-        let userToken = Config.get('itemProviders.' + providerId + '.config.userToken', '');
+        this.userToken = this.app.getItemProviderConfigValue(providerId, 'userToken', '');
+        let serviceUrl = this.app.getItemProviderConfigValue(providerId, 'serviceUrl', '');
+
         let url = new URL(serviceUrl);
         let protocol = url.protocol;
 
-        if (protocol == 'xmpp:' && userToken != '') {
-            let chatServer = url.pathname;
-            let roomName = userToken;
-            this.inventoryJid = roomName + '@' + chatServer;
+        if (protocol == 'xmpp:' && this.userToken != '') {
+            this.itemServer = url.pathname;
+            this.inventoryJid = this.userToken + '@' + this.itemServer;
+            this.isAvailable = true;
         }
     }
 
     getJid(): string { return this.inventoryJid; }
+    getPane() { return this.window.getPane(); }
+    getWindow() { return this.window; }
+    getAvailable() { return this.isAvailable; }
+    getProviderId() { return this.providerId; }
 
-    open(options: any)
+    async open(options: any)
     {
         if (!this.window) {
-            this.window = new InventoryWindow(this.app);
-            this.window.show(options);
+            this.window = new InventoryWindow(this.app, this);
+            await this.window.show(options);
             this.subscribe();
         }
     }
@@ -146,5 +154,46 @@ export class Inventory
 
     populateComplete()
     {
+    }
+
+    sendDerezItem(itemId: string, x: number, y: number)
+    {
+        log.info('Inventory', 'derez', itemId);
+
+        let params = {
+            'x': Math.round(x),
+            'y': Math.round(y)
+        };
+
+        this.sendCommand(itemId, 'Derez', params);
+    }
+
+    findItem(pid: string, value: any)
+    {
+        for (var itemId in this.items) {
+            if (this.items[itemId].match(pid, value)) {
+                return itemId;
+            }
+        }
+        return null;
+    }
+
+    sendCommand(itemId: string, action: string, params: any)
+    {
+        let cmd = {};
+        cmd['xmlns'] = 'vp:cmd';
+        // cmd['user'] = this.userToken;
+        cmd['method'] = 'itemAction';
+        cmd['action'] = action;
+        for (let paramName in params) {
+            cmd[paramName] = params[paramName];
+        }
+
+        let to = this.inventoryJid + (itemId ? '/' + itemId : '');
+
+        let message = xml('message', { 'type': 'chat', 'to': to })
+            .append(xml('x', cmd))
+            ;
+        this.app.sendStanza(message);
     }
 }

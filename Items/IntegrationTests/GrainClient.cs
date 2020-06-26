@@ -56,6 +56,26 @@ namespace IntegrationTests
                         options.RootDirectory = ItemService.JsonFileStorageRoot;
                     })
 
+                .AddKeyValueFileStorage(
+                    name: KeyValueFileStorage.StorageProviderName,
+                    configureOptions: options => {
+                        options.RootDirectory = ItemService.KeyValueFileStorageRoot;
+                    })
+
+                .AddAzureKeyValueTableStorage(
+                    name: AzureKeyValueTableStorage.StorageProviderName,
+                    configureOptions: options => {
+                        options.TableName = "n3qTest";
+                        options.ConnectionString = "UseDevelopmentStorage=true";
+                    })
+
+                .AddAzureReflectingTableStorage(
+                    name: AzureReflectingTableStorage.StorageProviderName,
+                    configureOptions: options => {
+                        options.TableName = "n3qTest";
+                        options.ConnectionString = "UseDevelopmentStorage=true";
+                    })
+
                 .UsePerfCounterEnvironmentStatistics()
 
                 .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(TestStringGrain).Assembly).WithReferences())

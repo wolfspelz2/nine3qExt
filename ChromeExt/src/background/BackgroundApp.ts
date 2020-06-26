@@ -18,21 +18,34 @@ export class BackgroundApp
     private xmppConnected = false;
     private configUpdater: ConfigUpdater;
     private resource: string;
+    private isReady: boolean = false;
 
     private readonly stanzaQ: Array<xml> = [];
-    private readonly roomJid2tabId: Map<string, number> = new Map<string, number>();
-    private readonly roomJid2selfNick: Map<string, string> = new Map<string, string>();
+    private readonly roomJid2tabId: Map<string, Array<number>> = new Map<string, Array<number>>();
+    private readonly fullJid2TabWhichSentUnavailable: Map<string, number> = new Map<string, number>();
+    private readonly iqStanzaTabId: Map<string, number> = new Map<string, number>();
     private readonly httpCacheData: Map<string, string> = new Map<string, string>();
     private readonly httpCacheTime: Map<string, number> = new Map<string, number>();
 
     async start(): Promise<void>
     {
-        let devConfig = await Config.getSync('dev.config', '{}');
-        try {
-            let parsed = JSON.parse(devConfig);
-            Config.setDevTree(parsed);
-        } catch (error) {
-            log.error('Parse dev config failed', error);
+        this.isReady = false;
+
+        {
+            let devConfig = await Config.getSync('dev.config', '{}');
+            try {
+                let parsed = JSON.parse(devConfig);
+                Config.setDevTree(parsed);
+            } catch (error) {
+                log.error('Parse dev config failed', error);
+            }
+        }
+
+        {
+            let uniqueId = await Config.getSync('me.id', '');
+            if (uniqueId == '') {
+                await Config.setSync('me.id', 'ext-' + Utils.randomString(40).toLowerCase());
+            }
         }
 
         chrome.runtime?.onMessage.addListener((message, sender, sendResponse) => { return this.onRuntimeMessage(message, sender, sendResponse); });
@@ -48,13 +61,16 @@ export class BackgroundApp
                     let itemProvider = itemProviders[providerId];
                     if (itemProvider.configUrl) {
                         try {
-                            var providerConfig = await this.fetchJSON(itemProvider.configUrl);
-                            let onlineConfig = Config.getOnlineTree();
-                            if (!onlineConfig.itemProviders) { onlineConfig.itemProviders = {}; }
-                            onlineConfig.itemProviders[providerId] = providerConfig;
-                            Config.setOnlineTree(onlineConfig);
+
+                            let userId = await this.getOrCreateItemProviderUserId(providerId);
+                            let url = itemProvider.configUrl;
+                            url = url.replace('{id}', encodeURIComponent(userId));
+
+                            var providerConfig = await this.fetchJSON(url);
+                            await Config.setSync(Utils.syncStorageKey_ItemProviderConfig(providerId), providerConfig);
+
                         } catch (error) {
-                            log.error('Parse itemProvider config failed', providerId, itemProvider.configUrl, error);
+                            log.info('Fetch itemProvider config failed', providerId, itemProvider.configUrl, error);
                         }
                     }
                 }
@@ -66,6 +82,8 @@ export class BackgroundApp
         } catch (error) {
             throw error;
         }
+
+        this.isReady = true;
     }
 
     stop(): void
@@ -79,6 +97,16 @@ export class BackgroundApp
         this.stopXmpp();
     }
 
+    async getOrCreateItemProviderUserId(providerId: string): Promise<string>
+    {
+        let userId = await Config.getSync(Utils.syncStorageKey_ItemProviderUserId(providerId), '');
+        if (userId == '') {
+            userId = 'ext-' + Utils.randomString(40).toLowerCase();
+            await Config.setSync(Utils.syncStorageKey_ItemProviderUserId(providerId), userId);
+        }
+        return userId;
+    }
+
     // IPC
 
     private onRuntimeMessage(message, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void): boolean
@@ -86,6 +114,10 @@ export class BackgroundApp
         switch (message.type) {
             case BackgroundMessage.type_fetchUrl: {
                 return this.handle_fetchUrl(message.url, message.version, sendResponse);
+            } break;
+
+            case BackgroundMessage.type_waitReady: {
+                return this.handle_waitReady(sendResponse);
             } break;
 
             case BackgroundMessage.type_getConfigTree: {
@@ -148,7 +180,7 @@ export class BackgroundApp
 
     private async fetchJSON(url: string): Promise<any>
     {
-        log.info('BackgroundApp.fetchUrl', url);
+        log.info('BackgroundApp.fetchJSON', url);
 
         return new Promise((resolve, reject) =>
         {
@@ -181,7 +213,7 @@ export class BackgroundApp
             sendResponse({ 'ok': true, 'data': this.httpCacheData[key] });
         } else {
             try {
-                fetch(url)
+                fetch(url, { cache: 'reload' })
                     .then(httpResponse =>
                     {
                         // log.debug('BackgroundApp.handle_fetchUrl', 'httpResponse', url, httpResponse);
@@ -213,9 +245,30 @@ export class BackgroundApp
         return false;
     }
 
+    handle_waitReady(sendResponse: (response?: any) => void)
+    {
+        log.debug('BackgroundApp.handle_waitReady');
+        let sendResponseIsAsync = false;
+
+        if (this.isReady) {
+            sendResponse({});
+            return sendResponseIsAsync;
+        }
+
+        sendResponseIsAsync = true;
+        let pollTimer = setInterval(() =>
+        {
+            if (this.isReady) {
+                clearInterval(pollTimer);
+                sendResponse({});
+            }
+        }, 100);
+        return sendResponseIsAsync;
+    }
+
     handle_getConfigTree(name: any)
     {
-        log.debug('BackgroundApp.handle_getConfigTree', name);
+        log.debug('BackgroundApp.handle_getConfigTree', name, this.isReady);
         switch (as.String(name, Config.onlineConfigName)) {
             case Config.devConfigName:
                 return Config.getDevTree();
@@ -250,54 +303,49 @@ export class BackgroundApp
         }
     }
 
-    // send/recv stanza
+    // manage stanza from 2 tabId mappings
 
-    private recvStanza(stanza: any)
+    addRoomJid2TabId(room: string, tabId: number): void
     {
-        {
-            let isConnectionPresence = false;
-            if (stanza.name == 'presence') {
-                isConnectionPresence = stanza.attrs.from && (jid(stanza.attrs.from).getResource() == this.resource);
-            }
-            if (!isConnectionPresence) {
-                log.info('BackgroundApp.recvStanza', stanza);
-            }
+        let tabIds = this.getRoomJid2TabIds(room);
+        if (!tabIds) {
+            tabIds = new Array<number>();
+            this.roomJid2tabId[room] = tabIds;
         }
+        if (!tabIds.includes(tabId)) {
+            tabIds.push(tabId);
+        }
+    }
 
-        if (stanza.name == 'presence' || stanza.name == 'message') {
-            let from = jid(stanza.attrs.from);
-            let room = from.bare().toString();
-
-            if (stanza.name == 'message') {
-                let tabId = this.roomJid2tabId[room];
-                if (tabId) {
-                    chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
-                } else {
-                    for (let roomJid in this.roomJid2tabId) {
-                        let tabId = this.roomJid2tabId[roomJid];
-                        chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
-                    }
-                }
-            }
-
-            if (stanza.name == 'presence') {
-                let tabId = this.roomJid2tabId[room];
-                if (tabId) {
-                    chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
-                }
-
-                if (stanza.attrs['type'] == 'unavailable') {
-                    let nick = from.getResource();
-                    let isSelf = this.roomJid2selfNick[room] == nick;
-                    if (isSelf) {
-                        delete this.roomJid2tabId[room];
-                        delete this.roomJid2selfNick[room];
-                        log.debug('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId);
-                    }
+    removeRoomJid2TabId(room: string, tabId: number): void
+    {
+        let tabIds = this.getRoomJid2TabIds(room);
+        if (tabIds) {
+            const index = tabIds.indexOf(tabId, 0);
+            if (index > -1) {
+                tabIds.splice(index, 1);
+                if (tabIds.length == 0) {
+                    delete this.roomJid2tabId[room];
                 }
             }
         }
     }
+
+    getRoomJid2TabIds(room: string): Array<number>
+    {
+        return this.roomJid2tabId[room];
+    }
+
+    hasRoomJid2TabId(room: string, tabId: number): boolean
+    {
+        var tabIds = this.getRoomJid2TabIds(room);
+        if (tabIds) {
+            return tabIds.includes(tabId);
+        }
+        return false;
+    }
+
+    // send/recv stanza
 
     handle_sendStanza(stanza: any, tabId: number, sendResponse: any): void
     {
@@ -312,11 +360,22 @@ export class BackgroundApp
                 let nick = to.getResource();
 
                 if (as.String(stanza.attrs['type'], 'available') == 'available') {
-                    let thisIsNew = false;
-                    if (this.roomJid2tabId[room] == undefined) { thisIsNew = true; }
-                    this.roomJid2tabId[room] = tabId;
-                    this.roomJid2selfNick[room] = nick;
-                    if (thisIsNew) { log.debug('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId); }
+                    if (!this.hasRoomJid2TabId(room, tabId)) {
+                        this.addRoomJid2TabId(room, tabId);
+                        log.debug('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId);
+                    }
+                } else {
+                    this.fullJid2TabWhichSentUnavailable[to] = tabId;
+                }
+            }
+
+            if (stanza.name == 'iq') {
+                if (stanza.attrs) {
+                    let stanzaType = stanza.attrs.type;
+                    let stanzaId = stanza.attrs.id;
+                    if ((stanzaType == 'get' || stanzaType == 'set') && stanzaId) {
+                        this.iqStanzaTabId[stanzaId] = tabId;
+                    }
                 }
             }
 
@@ -327,7 +386,7 @@ export class BackgroundApp
         }
     }
 
-    private sendStanza(stanza: any): void
+    private sendStanza(stanza: xml): void
     {
         if (!this.xmppConnected) {
             this.stanzaQ.push(stanza);
@@ -336,18 +395,10 @@ export class BackgroundApp
         }
     }
 
-    private sendStanzaUnbuffered(stanza: any): void
+    private sendStanzaUnbuffered(stanza: xml): void
     {
         try {
-            {
-                let isConnectionPresence = false;
-                if (stanza.name == 'presence') {
-                    isConnectionPresence = (stanza.attrs == undefined || stanza.attrs.to == undefined || jid(stanza.attrs.to).getResource() == this.resource);
-                }
-                if (!isConnectionPresence) {
-                    log.info('BackgroundApp.sendStanza', stanza);
-                }
-            }
+            this.logStanzaButNotBasicConnectionPresence(stanza);
 
             this.xmpp.send(stanza);
         } catch (error) {
@@ -355,9 +406,88 @@ export class BackgroundApp
         }
     }
 
+    private logStanzaButNotBasicConnectionPresence(stanza: xml)
+    {
+        let isConnectionPresence = false;
+        if (stanza.name == 'presence') {
+            isConnectionPresence = (!stanza.attrs || !stanza.attrs.to || jid(stanza.attrs.to).getResource() == this.resource);
+        }
+        if (!isConnectionPresence) {
+            log.info('BackgroundApp.sendStanza', stanza);
+        }
+    }
+
     private sendPresence()
     {
         this.sendStanza(xml('presence'));
+    }
+
+    private recvStanza(stanza: any)
+    {
+        {
+            let isConnectionPresence = false;
+            if (stanza.name == 'presence') {
+                isConnectionPresence = stanza.attrs.from && (jid(stanza.attrs.from).getResource() == this.resource);
+            }
+            if (!isConnectionPresence) {
+                log.info('BackgroundApp.recvStanza', stanza);
+            }
+        }
+
+        if (stanza.name == 'iq') {
+            if (stanza.attrs) {
+                let stanzaType = stanza.attrs.type;
+                let stanzaId = stanza.attrs.id;
+                if (stanzaType == 'result' && stanzaId) {
+                    let tabId = this.iqStanzaTabId[stanzaId];
+                    if (tabId) {
+                        delete this.iqStanzaTabId[stanzaId];
+                        chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
+                    }
+                }
+            }
+        }
+
+        if (stanza.name == 'message') {
+            let from = jid(stanza.attrs.from);
+            let room = from.bare().toString();
+
+            let tabIds = this.getRoomJid2TabIds(room);
+            if (tabIds) {
+                for (let i = 0; i < tabIds.length; i++) {
+                    let tabId = tabIds[i];
+                    chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
+                }
+            }
+        }
+
+        if (stanza.name == 'presence') {
+            let from = jid(stanza.attrs.from);
+            let room = from.bare().toString();
+            let nick = from.getResource();
+
+            let unavailableTabId: number = -1;
+            if (stanza.attrs && stanza.attrs['type'] == 'unavailable') {
+                unavailableTabId = this.fullJid2TabWhichSentUnavailable[from];
+                if (unavailableTabId) {
+                    delete this.fullJid2TabWhichSentUnavailable[from];
+                }
+            }
+
+            if (unavailableTabId >= 0) {
+                chrome.tabs.sendMessage(unavailableTabId, { 'type': 'recvStanza', 'stanza': stanza });
+                this.removeRoomJid2TabId(room, unavailableTabId);
+                log.debug('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', unavailableTabId, 'now:', this.roomJid2tabId);
+            } else {
+                let tabIds = this.getRoomJid2TabIds(room);
+                if (tabIds) {
+                    for (let i = 0; i < tabIds.length; i++) {
+                        let tabId = tabIds[i];
+                        chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
+                    }
+                }
+            }
+        }
     }
 
     // xmpp
@@ -396,15 +526,11 @@ export class BackgroundApp
 
                 this.sendPresence();
 
-                if (!this.xmppConnected) {
-                    this.xmppConnected = true;
-                    while (this.stanzaQ.length > 0) {
-                        let stanza = this.stanzaQ.shift();
-                        this.sendStanzaUnbuffered(stanza);
-                    }
+                this.xmppConnected = true;
+                while (this.stanzaQ.length > 0) {
+                    let stanza = this.stanzaQ.shift();
+                    this.sendStanzaUnbuffered(stanza);
                 }
-
-                // this.subscribeItemInventories();
             });
 
             this.xmpp.on('stanza', (stanza: any) => this.recvStanza(stanza));
@@ -444,9 +570,12 @@ export class BackgroundApp
         log.debug('BackgroundApp.handle_userSettingsChanged');
         try {
             for (let room in this.roomJid2tabId) {
-                let tabId = this.roomJid2tabId[room];
-                if (tabId != undefined) {
-                    chrome.tabs.sendMessage(tabId, { 'type': 'userSettingsChanged' });
+                let tabIds = this.roomJid2tabId[room];
+                if (tabIds) {
+                    tabIds.forEach(tabId =>
+                    {
+                        chrome.tabs.sendMessage(tabId, { 'type': 'userSettingsChanged' });
+                    });
                 }
             }
 

@@ -6,11 +6,22 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
-        ['1.0.4', 'x', [
+        ['1.0.5', '?', [
+            ['Fix', 'No avatar in sleep state without sleep animation'],
+            ['Add', 'Stay in the room if vidconf or inventory are open'],
+        ]],
+        ['1.0.4', 'Vidconf', [
+            ['Add', 'Videoconf demo'],
             ['Add', 'Support for animationsUrl in presence-x-vp:props'],
+            ['Add', 'Clickable chat links'],
+            ['Add', 'XMPP vCard on hover'],
+            ['Add', 'Avatar and item stacking order'],
             ['Change', 'Prefer presence-x-vp:props attributes over identity'],
             ['Change', 'Settings title to brand name (lowercase)'],
+            ['Change', 'Variable avatar size'],
+            ['Change', 'Nicknames only on jovere'],
             ['Fix', 'Window position on small screens'],
+            ['Fix', 'Url mapping (JS undefined)'],
         ]],
         ['1.0.3', 'XmppWindow SettingsDialog', [
             ['Add', 'Change history'],

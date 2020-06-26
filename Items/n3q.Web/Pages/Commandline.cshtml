@@ -214,7 +214,7 @@
             $.ajax({
                 async: true,
                 type: 'POST',
-                url: '/Commandline?handler=' + handler,
+                url: '@Model.HttpContext.Request.Path?handler=' + handler,
                 data: postData
             }).done(function (text) {
                 callback(text);

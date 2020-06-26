@@ -1,6 +1,6 @@
 ﻿﻿export interface IObserver
 {
-    updateObservableProperty(name: string, value: any): void;
+    updateObservableProperty(name: string, value: string): void;
 }
 
 export interface IObservable
@@ -11,7 +11,7 @@ export interface IObservable
 
 export class ObservableProperty implements IObservable
 {
-    public value: any;
+    public value: string;
     protected observers: IObserver[] = [];
 
     constructor(private name: string) { }
@@ -36,7 +36,7 @@ export class ObservableProperty implements IObservable
         }
     }
 
-    set(value: any): void
+    set(value: string): void
     {
         if (value === this.value) {
             // unchanged
@@ -48,7 +48,7 @@ export class ObservableProperty implements IObservable
 
     notifyOne(observer: IObserver): void
     {
-        if (this.value != undefined) {
+        if (this.value) {
             observer.updateObservableProperty(this.name, this.value);
         }
     }
@@ -57,7 +57,7 @@ export class ObservableProperty implements IObservable
     {
         // log.debug('IObservable: Notifying observers', this.name);
         for (const observer of this.observers) {
-            if (this.value != undefined) {
+            if (this.value) {
                 observer.updateObservableProperty(this.name, this.value);
             }
         }

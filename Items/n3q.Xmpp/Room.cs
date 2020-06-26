@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace XmppComponent
+namespace n3q.Xmpp
 {
     public class Room
     {

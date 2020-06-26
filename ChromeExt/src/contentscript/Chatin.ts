@@ -19,14 +19,14 @@ export class Chatin
 
         this.chatinInputElem = <HTMLElement>$('<input type="text" class="n3q-base n3q-input n3q-text" placeholder="Enter chat here..." data-translate="attr:placeholder:Chatin" />').get(0);
         $(this.chatinInputElem).on('keydown', ev => { this.onKeydown(ev); });
-        this.elem.appendChild(this.chatinInputElem);
+        $(this.elem).append(this.chatinInputElem);
 
         this.sendElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-inline" title="SendChat" data-translate="attr:title:Chatin"><div class="n3q-base n3q-button-symbol n3q-button-sendchat" />').get(0);
         $(this.sendElem).click(ev =>
         {
             this.sendChat();
         });
-        this.elem.appendChild(this.sendElem);
+        $(this.elem).append(this.sendElem);
 
         this.closeElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-overlay n3q-shadow-small" title="Close" data-translate="attr:title:Common"><div class="n3q-base n3q-button-symbol n3q-button-close-small" />').get(0);
         $(this.closeElem).click(ev =>
@@ -35,10 +35,10 @@ export class Chatin
             this.setVisibility(false);
             ev.stopPropagation();
         });
-        this.elem.appendChild(this.closeElem);
+        $(this.elem).append(this.closeElem);
 
         this.app.translateElem(this.elem);
-        display.appendChild(this.elem);
+        $(display).append(this.elem);
     }
 
     stop()
@@ -79,7 +79,7 @@ export class Chatin
                         } else if (Array.isArray(data)) {
                             if (Array.isArray(data[0])) {
                                 if (this.participant) {
-                                    this.participant.getRoom().showChatWindow(this.participant.getCenterElem());
+                                    this.participant.getRoom().showChatWindow(this.participant.getElem());
                                     data.forEach(line =>
                                     {
                                         this.participant.getRoom().showChatMessage(line[0], line[1]);

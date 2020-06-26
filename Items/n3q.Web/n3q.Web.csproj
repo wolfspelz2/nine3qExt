@@ -4,27 +4,43 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>n3q.Web</RootNamespace>
     <AssemblyName>n3q.Web</AssemblyName>
+    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+    <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Orleans.CodeGenerator.MSBuild" Version="3.1.7">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Orleans.Core" Version="3.1.7" />
-    <PackageReference Include="Microsoft.Orleans.OrleansTelemetryConsumers.Counters" Version="3.1.7" />
-    <PackageReference Include="Microsoft.Orleans.Server" Version="3.1.7" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.3" />
+    <Compile Include="S:\github-nine3q-production\WebConfigDevelopment.cs" Link="WebConfigDevelopment.cs" />
+    <Compile Include="S:\github-nine3q-production\WebConfigProduction.cs" Link="WebConfigProduction.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\JsonPath\JsonPath.csproj" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.6.0" />
+    <PackageReference Include="Microsoft.Orleans.CodeGenerator.MSBuild" Version="3.2.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Orleans.Core" Version="3.2.0" />
+    <PackageReference Include="Microsoft.Orleans.OrleansTelemetryConsumers.Counters" Version="3.2.0" />
+    <PackageReference Include="Microsoft.Orleans.Persistence.AzureStorage" Version="3.2.0" />
+    <PackageReference Include="Microsoft.Orleans.Server" Version="3.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Shared\ConfigSharp\ConfigSharp.csproj" />
+    <ProjectReference Include="..\..\Shared\JsonPath\JsonPath.csproj" />
+    <ProjectReference Include="..\..\Shared\n3q.Tools\n3q.Tools.csproj" />
+    <ProjectReference Include="..\n3q.Aspects\n3q.Aspects.csproj" />
     <ProjectReference Include="..\n3q.Common\n3q.Common.csproj" />
     <ProjectReference Include="..\n3q.Content\n3q.Content.csproj" />
     <ProjectReference Include="..\n3q.GrainInterfaces\n3q.GrainInterfaces.csproj" />
     <ProjectReference Include="..\n3q.Grains\n3q.Grains.csproj" />
     <ProjectReference Include="..\n3q.StorageProviders\n3q.StorageProviders.csproj" />
-    <ProjectReference Include="..\n3q.Tools\n3q.Tools.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="WebConfigRoot.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
   </ItemGroup>
 
 </Project>

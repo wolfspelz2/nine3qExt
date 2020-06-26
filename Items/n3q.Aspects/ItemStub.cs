@@ -35,6 +35,14 @@ namespace n3q.Aspects
             return item;
         }
 
+        public async Task<ItemStub> NewItemFromTemplate(string templateId)
+        {
+            var itemId = $"{templateId}-{RandomString.GetAlphanumLowercase(20)}".ToLower();
+            var item = await Item(itemId);
+            await item.ModifyProperties(new PropertySet { [Pid.Template] = templateId }, PidSet.Empty);
+            return item;
+        }
+
         #region Aspects
 
         public async Task ForeachAspect(Action<Aspect> action)
@@ -61,7 +69,7 @@ namespace n3q.Aspects
                 var aspect = AspectRegistry.Aspects[pid](this);
                 return aspect;
             }
-            throw new Exception($"Unknown pid/aspect={pid}");
+            throw new Exception($"{nameof(ItemStub)}.{nameof(AsAspect)}: Unknown pid/aspect={pid}");
         }
 
         #endregion
@@ -109,8 +117,6 @@ namespace n3q.Aspects
         public async Task<ValueMap> GetMap(Pid pid) { return await Get(pid); }
 
         public async Task Deactivate() { await Grain.Deactivate(); }
-        public async Task WritePersistentStorage() { await Grain.WritePersistentStorage(); }
-        public async Task ReadPersistentStorage() { await Grain.ReadPersistentStorage(); }
         public async Task DeletePersistentStorage() { await Grain.DeletePersistentStorage(); }
 
         public delegate Task TransactionWrappedCode(ItemStub item);

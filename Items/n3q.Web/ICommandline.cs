@@ -1,17 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
+using Orleans;
 
 namespace n3q.Web
 {
     public interface ICommandline
     {
-        Commandline.HandlerMap GetHandlers();
-        //Commandline.Runner NewRunner(HttpContext httpContext);
-        string Run(string script, Commandline.ICommandlineUser user);
-        string CheckRole(Commandline.Handler handler, Commandline.ICommandlineUser user);
-    }
+        HttpContext HttpContext { get; set; }
+        Commandline.User ActiveUser { get; set; }
+        List<string> AdminTokens { get; set; }
 
-    public interface ICommandlineSingletonInstance : ICommandline
-    {
+        Commandline.HandlerMap GetHandlers();
+        string Run(string script);
+        string CheckRole(Commandline.Handler handler, Commandline.ICommandlineUser user);
     }
 }

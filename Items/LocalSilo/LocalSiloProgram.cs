@@ -16,9 +16,16 @@ namespace LocalSilo
 {
     public static class LocalSiloProgram
     {
-        //        public static int Main(string[] args)
-        public static int Main()
+        static LocalSiloConfig Config { get; set; } = new LocalSiloConfig();
+
+        public static int Main(string[] args)
         {
+            ConfigSharp.Log.LogLevel = ConfigSharp.Log.Level.Info;
+            ConfigSharp.Log.LogHandler = (lvl, ctx, msg) => { Console.WriteLine($"{lvl} {ctx} {msg}"); };
+            Config.ParseCommandline(args);
+            Config.Include(Config.ConfigFile);
+            Console.WriteLine($"RunMode={Config.Mode} ConfigSequence={Config.ConfigSequence}");
+
             return RunMainAsync().Result;
         }
 
@@ -100,6 +107,26 @@ namespace LocalSilo
                     name: JsonFileStorage.StorageProviderName,
                     configureOptions: options => {
                         options.RootDirectory = ItemService.JsonFileStorageRoot;
+                    })
+
+                .AddKeyValueFileStorage(
+                    name: KeyValueFileStorage.StorageProviderName,
+                    configureOptions: options => {
+                        options.RootDirectory = ItemService.KeyValueFileStorageRoot;
+                    })
+
+                .AddAzureKeyValueTableStorage(
+                    name: AzureKeyValueTableStorage.StorageProviderName,
+                    configureOptions: options => {
+                        options.TableName = "n3qGrains";
+                        options.ConnectionString = Config.GrainStateAzureTableConnectionString;
+                    })
+
+                .AddAzureTableGrainStorage(
+                    name: "AzureTableGrainStorage",
+                    configureOptions: options => {
+                        options.UseJson = true;
+                        options.ConnectionString = Config.GrainStateAzureTableConnectionString;
                     })
 
                 .UsePerfCounterEnvironmentStatistics()

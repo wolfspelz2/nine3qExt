@@ -17,7 +17,7 @@ import { SettingsWindow } from './SettingsWindow';
 import { XmppWindow } from './XmppWindow';
 import { ChangesWindow } from './ChangesWindow';
 import { Inventory } from './Inventory';
-import { InventoryWindow } from './InventoryWindow';
+import { ItemProvider } from './ItemProvider';
 
 interface ILocationMapperResponse
 {
@@ -34,22 +34,45 @@ export class ContentAppNotification
 }
 
 interface ContentAppNotificationCallback { (msg: any): void }
+interface StanzaResponseHandler { (stanza: xml): void }
 
 export class ContentApp
 {
     private display: HTMLElement;
     private rooms: { [roomJid: string]: Room; } = {};
     private inventories: { [invJid: string]: Inventory; } = {};
+    private itemProviders: { [providerId: string]: ItemProvider; } = {};
     private propertyStorage: PropertyStorage = new PropertyStorage();
     private babelfish: Translator;
-    private stayOnTabChange: boolean = false;
     private xmppWindow: XmppWindow;
     private settingsWindow: SettingsWindow;
+    private stanzasResponses: { [stanzaId: string]: StanzaResponseHandler } = {}
+    private stayHereIsChecked: boolean = false;
+    private inventoryIsOpen: boolean = false;
+    private vidconfIsOpen: boolean = false;
 
     // Getter
 
     getPropertyStorage(): PropertyStorage { return this.propertyStorage; }
     getDisplay(): HTMLElement { return this.display; }
+    getRoom(): Room
+    {
+        let room = null;
+        for (let roomJid in this.rooms) {
+            room = this.rooms[roomJid];
+            break;
+        }
+        return room;
+    }
+    getInventory(): Inventory
+    {
+        let inv = null;
+        for (let invJid in this.inventories) {
+            inv = this.inventories[invJid];
+            break;
+        }
+        return inv;
+    }
 
     constructor(private appendToMe: HTMLElement, private messageHandler: ContentAppNotificationCallback)
     {
@@ -57,6 +80,14 @@ export class ContentApp
 
     async start()
     {
+        try {
+            await BackgroundMessage.waitReady();
+        } catch (error) {
+            log.debug(error.message);
+            Panic.now();
+        }
+        if (Panic.isOn) { return; }
+
         if (!await this.getActive()) {
             this.messageHandler({ 'type': ContentAppNotification.type_stopped });
             return;
@@ -77,6 +108,8 @@ export class ContentApp
         } catch (error) {
             log.debug(error.message);
         }
+
+        await this.initItemProviders();
 
         await Utils.sleep(as.Float(Config.get('vp.deferPageEnterSec', 1)) * 1000);
 
@@ -143,34 +176,11 @@ export class ContentApp
         this.display = null;
     }
 
-    toggleStayOnTabChange(): void
-    {
-        this.stayOnTabChange = !this.stayOnTabChange;
-        if (this.stayOnTabChange) {
-            this.messageHandler({ 'type': ContentAppNotification.type_onTabChangeStay });
-        } else {
-            this.messageHandler({ 'type': ContentAppNotification.type_onTabChangeLeave });
-        }
-    }
-
-    getStayOnTabChange(): boolean { return this.stayOnTabChange; }
-
-    getRoom(): Room
-    {
-        let room = null;
-        for (let roomJid in this.rooms) {
-            room = this.rooms[roomJid];
-            break;
-        }
-        return room;
-    }
-
     test(): void
     {
-        this.showInventoryWindow()
     }
 
-    showInventoryWindow(): void
+    async showInventoryWindow(aboveElem: HTMLElement): Promise<void>
     {
         let inv = new Inventory(this, 'nine3q');
         let jid = inv.getJid();
@@ -178,14 +188,17 @@ export class ContentApp
         if (!this.inventories[jid]) {
             this.inventories[jid] = inv;
 
-            inv.open({
-                'above': this.display,
+            this.setInventoryIsOpen(true);
+
+            await inv.open({
+                'above': aboveElem,
                 onClose: () =>
                 {
                     if (this.inventories[jid]) {
                         this.inventories[jid].close();
                         delete this.inventories[jid];
                     }
+                    this.setInventoryIsOpen(false);
                 },
             });
         }
@@ -224,6 +237,35 @@ export class ContentApp
         if (!this.settingsWindow) {
             this.settingsWindow = new SettingsWindow(this);
             this.settingsWindow.show({ 'above': aboveElem });
+        }
+    }
+
+    // Stay on tab change
+
+    setInventoryIsOpen(value: boolean): void
+    {
+        this.inventoryIsOpen = value; this.evaluateStayOnTabChange();
+    }
+
+    setVidconfIsOpen(value: boolean): void
+    {
+        this.vidconfIsOpen = value; this.evaluateStayOnTabChange();
+    }
+
+    getStayHereIsChecked(): boolean { return this.stayHereIsChecked; }
+    toggleStayHereIsChecked(): void
+    {
+        this.stayHereIsChecked = !this.stayHereIsChecked;
+        this.evaluateStayOnTabChange();
+    }
+
+    evaluateStayOnTabChange(): void
+    {
+        let stay = this.inventoryIsOpen || this.vidconfIsOpen || this.stayHereIsChecked;
+        if (stay) {
+            this.messageHandler({ 'type': ContentAppNotification.type_onTabChangeStay });
+        } else {
+            this.messageHandler({ 'type': ContentAppNotification.type_onTabChangeLeave });
         }
     }
 
@@ -286,6 +328,7 @@ export class ContentApp
         switch (stanza.name) {
             case 'presence': this.onPresence(stanza); break;
             case 'message': this.onMessage(stanza); break;
+            case 'iq': this.onIq(stanza); break;
         }
     }
 
@@ -335,7 +378,7 @@ export class ContentApp
                     let locationUrl = mappingResponse.sLocationURL;
                     log.debug('Mapped', pageUrl, ' => ', locationUrl);
                     let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);
-                    this.enterRoomByJid(roomJid);
+                    this.enterRoomByJid(roomJid, pageUrl);
                 } catch (error) {
                     log.info(error);
                 }
@@ -350,7 +393,7 @@ export class ContentApp
                 let locationUrl = await vpi.map(pageUrl);
                 log.debug('Mapped', pageUrl, ' => ', locationUrl);
                 let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);
-                this.enterRoomByJid(roomJid);
+                this.enterRoomByJid(roomJid, pageUrl);
             } catch (error) {
                 log.info(error);
             }
@@ -358,10 +401,10 @@ export class ContentApp
         }
     }
 
-    async enterRoomByJid(roomJid: string): Promise<void>
+    async enterRoomByJid(roomJid: string, roomDestination: string): Promise<void>
     {
         if (this.rooms[roomJid] === undefined) {
-            this.rooms[roomJid] = new Room(this, this.display, roomJid, await this.getSavedPosition());
+            this.rooms[roomJid] = new Room(this, roomJid, roomDestination, await this.getSavedPosition());
         }
         log.debug('ContentApp.enterRoomByJid', roomJid);
         this.rooms[roomJid].enter();
@@ -398,13 +441,30 @@ export class ContentApp
         }
     }
 
-    async sendStanza(stanza: xml): Promise<void>
+    onIq(stanza: xml): void
+    {
+        if (stanza.attrs) {
+            let id = stanza.attrs.id;
+            if (id) {
+                if (this.stanzasResponses[id]) {
+                    this.stanzasResponses[id](stanza);
+                    delete this.stanzasResponses[id];
+                }
+            }
+        }
+    }
+
+    async sendStanza(stanza: xml, stanzaId: string = null, responseHandler: StanzaResponseHandler = null): Promise<void>
     {
         log.debug('ContentApp.sendStanza', stanza);
         try {
             if (this.xmppWindow) {
                 let stanzaText = stanza.toString();
                 this.xmppWindow.showLine('OUT', stanzaText);
+            }
+
+            if (stanzaId && responseHandler) {
+                this.stanzasResponses[stanzaId] = responseHandler;
             }
 
             await BackgroundMessage.sendStanza(stanza);
@@ -415,6 +475,13 @@ export class ContentApp
     }
 
     // Window management
+
+    private toFrontMaxZIndex: number = 1;
+    toFront(elem: HTMLElement)
+    {
+        this.toFrontMaxZIndex++;
+        elem.style.zIndex = '' + this.toFrontMaxZIndex;
+    }
 
     enableScreen(on: boolean): void
     {
@@ -436,20 +503,38 @@ export class ContentApp
         this.babelfish.translateElem(elem);
     }
 
-    static itemProviderUrlFilter(providerId: string, attrName: string, attrValue: string): any
+    // Item provider
+
+    async initItemProviders(): Promise<void>
     {
-        if (providerId) {
-            let propertyUrlFilter = Config.get('itemProviders.' + providerId + '.config.itemPropertyUrlFilter', {});
-            if (propertyUrlFilter) {
-                for (let key in propertyUrlFilter) {
-                    let value = propertyUrlFilter[key];
-                    if (key && value) {
-                        attrValue = attrValue.replace(key, value);
-                    }
-                }
+        let itemProviders = Config.get('itemProviders', {});
+        for (let providerId in itemProviders) {
+            let providerConfig = await Config.getSync(Utils.syncStorageKey_ItemProviderConfig(providerId), null);
+            if (providerConfig) {
+                this.itemProviders[providerId] = new ItemProvider(providerConfig);
             }
         }
-        return attrValue;
+    }
+
+    getItemProviderConfigValue(providerId: string, configKey: string, defaultValue: any): any
+    {
+        if (providerId) {
+            var itemProvider = this.itemProviders[providerId];
+            if (itemProvider) {
+                return itemProvider.getConfig(configKey, defaultValue);
+            }
+        }
+        return defaultValue;
+    }
+
+    itemProviderUrlFilter(providerId: string, propName: string, propValue: string): string
+    {
+        if (providerId) {
+            if (this.itemProviders[providerId]) {
+                return this.itemProviders[providerId].propertyUrlFilter(propValue);
+            }
+        }
+        return propValue;
     }
 
     // my active
@@ -457,9 +542,9 @@ export class ContentApp
     async assertActive()
     {
         try {
-            let active = await Config.getSync('me.active', '');
+            let active = await Config.getSync(Utils.syncStorageKey_Active(), '');
             if (active == '') {
-                await Config.setSync('me.active', 'true');
+                await Config.setSync(Utils.syncStorageKey_Active(), 'true');
             }
         } catch (error) {
             log.info(error);
@@ -470,7 +555,7 @@ export class ContentApp
     async getActive(): Promise<boolean>
     {
         try {
-            let active = await Config.getSync('me.active', 'true');
+            let active = await Config.getSync(Utils.syncStorageKey_Active(), 'true');
             return as.Bool(active, false);
         } catch (error) {
             log.info(error);
@@ -483,9 +568,9 @@ export class ContentApp
     async assertUserNickname()
     {
         try {
-            let nickname = await Config.getSync('me.nickname', '');
+            let nickname = await Config.getSync(Utils.syncStorageKey_Nickname(), '');
             if (nickname == '') {
-                await Config.setSync('me.nickname', 'Your name');
+                await Config.setSync(Utils.syncStorageKey_Nickname(), 'Your name');
             }
         } catch (error) {
             log.info(error);
@@ -496,7 +581,7 @@ export class ContentApp
     async getUserNickname(): Promise<string>
     {
         try {
-            return await Config.getSync('me.nickname', 'no name');
+            return await Config.getSync(Utils.syncStorageKey_Nickname(), 'no name');
         } catch (error) {
             log.info(error);
             return 'no name';
@@ -508,10 +593,10 @@ export class ContentApp
     async assertUserAvatar()
     {
         try {
-            let avatar = await Config.getSync('me.avatar', '');
+            let avatar = await Config.getSync(Utils.syncStorageKey_Avatar(), '');
             if (avatar == '') {
                 avatar = AvatarGallery.getRandomAvatar();
-                await Config.setSync('me.avatar', avatar);
+                await Config.setSync(Utils.syncStorageKey_Avatar(), avatar);
             }
         } catch (error) {
             log.info(error);
@@ -522,7 +607,7 @@ export class ContentApp
     async getUserAvatar(): Promise<string>
     {
         try {
-            return await Config.getSync('me.avatar', '004/pinguin');
+            return await Config.getSync(Utils.syncStorageKey_Avatar(), '004/pinguin');
         } catch (error) {
             log.info(error);
             return '004/pinguin';
@@ -534,7 +619,7 @@ export class ContentApp
     async assertSavedPosition()
     {
         try {
-            let x = as.Int(await BackgroundMessage.getSessionConfig('me.x', -1), -1);
+            let x = as.Int(await BackgroundMessage.getSessionConfig(Utils.syncStorageKey_X(), -1), -1);
             if (x < 0) {
                 x = Utils.randomInt(as.Int(Config.get('room.randomEnterPosXMin', 400)), as.Int(Config.get('room.randomEnterPosXMax', 700)))
                 await this.savePosition(x);
@@ -547,7 +632,7 @@ export class ContentApp
     async savePosition(x: number): Promise<void>
     {
         try {
-            await BackgroundMessage.setSessionConfig('me.x', x);
+            await BackgroundMessage.setSessionConfig(Utils.syncStorageKey_X(), x);
         } catch (error) {
             log.info(error);
         }
@@ -558,20 +643,28 @@ export class ContentApp
         let x = 0;
 
         try {
-            x = as.Int(await BackgroundMessage.getSessionConfig('me.x', -1), -1);
+            x = as.Int(await BackgroundMessage.getSessionConfig(Utils.syncStorageKey_X(), -1), -1);
         } catch (error) {
             log.info(error);
         }
 
         if (x <= 0) {
-            x = this.getDefaultPosition();
+            x = this.getDefaultPosition(await this.getUserNickname());
         }
 
         return x;
     }
 
-    getDefaultPosition(): number
+    getDefaultPosition(key: string = null): number
     {
-        return Utils.randomInt(100, 500);
+        let pos: number = 300;
+        let width = this.display.offsetWidth;
+        if (!width) { width = 500; }
+        if (key) {
+            pos = Utils.pseudoRandomInt(250, width - 80, key, '', 7237);
+        } else {
+            pos = Utils.randomInt(250, width - 80);
+        }
+        return pos;
     }
 }

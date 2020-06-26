@@ -11,41 +11,35 @@ namespace UtilityGrains
     [Serializable]
     public class TranslationState
     {
-        public string Data;
+        public string Text;
     }
 
     public class TranslationGrain : Grain, ITranslation
     {
-        private readonly IPersistentState<TranslationState> _state;
+        readonly IPersistentState<TranslationState> _state;
 
         public TranslationGrain(
-            [PersistentState("Translation", JsonFileStorage.StorageProviderName)] IPersistentState<TranslationState> state
+            [PersistentState("Translation", AzureReflectingTableStorage.StorageProviderName)] IPersistentState<TranslationState> state
             )
         {
             _state = state;
         }
 
-        public override async Task OnActivateAsync()
-        {
-            await base.OnActivateAsync();
-            await _state.ReadStateAsync();
-        }
-
         public async Task Set(string data)
         {
-            _state.State.Data = data;
-                await _state.WriteStateAsync();
+            _state.State.Text = data;
+            await _state.WriteStateAsync();
         }
 
         public async Task<string> Get()
         {
             await Task.CompletedTask;
-            return _state.State.Data;
+            return _state.State.Text;
         }
 
         public async Task Unset()
         {
-            _state.State.Data = "";
+            _state.State.Text = null;
             await _state.ClearStateAsync();
         }
 
@@ -58,6 +52,7 @@ namespace UtilityGrains
 
         public async Task ReloadPersistentStorage()
         {
+            _state.State = new TranslationState();
             await _state.ReadStateAsync();
         }
 

@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 using Orleans;
 using n3q.Web.Models;
 using n3q.GrainInterfaces;
@@ -13,8 +12,8 @@ namespace n3q.Web.Controllers
     [ApiController]
     public class SampleController : ControllerBase
     {
-        private readonly ILogger<SampleController> _logger;
-        private readonly IClusterClient _clusterClient;
+        readonly ILogger<SampleController> _logger;
+        readonly IClusterClient _clusterClient;
 
         public SampleController(ILogger<SampleController> logger, IClusterClient clusterClient)
         {

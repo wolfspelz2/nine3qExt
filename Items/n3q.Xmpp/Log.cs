@@ -5,7 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace XmppComponent
+namespace n3q.Xmpp
 {
     internal static class Log
     {
@@ -23,16 +23,15 @@ namespace XmppComponent
 
         internal delegate void CallbackToApplication(Level level, string context, string message);
 
-        internal static void Error(Exception ex, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { _Log(Level.Error, GetContext(context, callerFilePath), "Exception: " + ExceptionDetail(ex)); } catch (Exception) { } }
-
-        internal static void Warning(Exception ex, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { _Log(Level.Warning, GetContext(context, callerFilePath), "Exception: " + ExceptionDetail(ex)); } catch (Exception) { } }
-        internal static void Error(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { _Log(Level.Error, GetContext(context, callerFilePath), message); } catch (Exception) { } }
-        internal static void Warning(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { _Log(Level.Warning, GetContext(context, callerFilePath), message); } catch (Exception) { } }
-        internal static void Debug(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { _Log(Level.Debug, GetContext(context, callerFilePath), message); } catch (Exception) { } }
-        internal static void User(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { _Log(Level.User, GetContext(context, callerFilePath), message); } catch (Exception) { } }
-        internal static void Info(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { _Log(Level.Info, GetContext(context, callerFilePath), message); } catch (Exception) { } }
-        internal static void Verbose(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { _Log(Level.Verbose, GetContext(context, callerFilePath), message); } catch (Exception) { } }
-        internal static void Flooding(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { _Log(Level.Flooding, GetContext(context, callerFilePath), message); } catch (Exception) { } }
+        internal static void Error(Exception ex, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { DoLog(Level.Error, GetContext(context, callerFilePath), "Exception: " + ExceptionDetail(ex)); } catch (Exception) { } }
+        internal static void Warning(Exception ex, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { DoLog(Level.Warning, GetContext(context, callerFilePath), "Exception: " + ExceptionDetail(ex)); } catch (Exception) { } }
+        internal static void Error(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { DoLog(Level.Error, GetContext(context, callerFilePath), message); } catch (Exception) { } }
+        internal static void Warning(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { DoLog(Level.Warning, GetContext(context, callerFilePath), message); } catch (Exception) { } }
+        internal static void Debug(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { DoLog(Level.Debug, GetContext(context, callerFilePath), message); } catch (Exception) { } }
+        internal static void User(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { DoLog(Level.User, GetContext(context, callerFilePath), message); } catch (Exception) { } }
+        internal static void Info(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { DoLog(Level.Info, GetContext(context, callerFilePath), message); } catch (Exception) { } }
+        internal static void Verbose(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { DoLog(Level.Verbose, GetContext(context, callerFilePath), message); } catch (Exception) { } }
+        internal static void Flooding(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { DoLog(Level.Flooding, GetContext(context, callerFilePath), message); } catch (Exception) { } }
 
         internal static bool IsVerbose => LogLevel >= Level.Verbose;
         internal static bool IsFlooding => LogLevel >= Level.Flooding;
@@ -88,7 +87,7 @@ namespace XmppComponent
         private static int _pid = -1;
         private static int Pid { get { if (_pid == -1) { try { _pid = Process.GetCurrentProcess().Id; } catch (Exception) { } } return _pid; } set { _pid = value; } }
 
-        internal static void _Log(Level level, string context, string message)
+        internal static void DoLog(Level level, string context, string message)
         {
             if (context == null) { context = ""; }
             if (message == null) { message = ""; }

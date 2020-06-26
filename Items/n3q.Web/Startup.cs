@@ -7,6 +7,7 @@ using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
 using n3q.Common;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 
@@ -21,13 +22,19 @@ namespace n3q.Web
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var config = new WebConfig().Include("WebConfigRoot.cs") as WebConfig;
+            services.AddSingleton<WebConfig>(config);
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options => {
+                });
+
             services.AddRazorPages();
             services.AddControllers();
-
-            if (!Config.UseIntegratedCluster) {
+            
+            if (!config.UseIntegratedCluster) {
                 services.AddSingleton<IClusterClient>((s) => {
                     var client = new ClientBuilder()
                         .UseLocalhostClustering()
@@ -43,10 +50,9 @@ namespace n3q.Web
                 });
             }
 
-            services.AddSingleton<ICommandlineSingletonInstance>(new ItemCommandline("/Commandline"));
+            services.AddTransient<ICommandline>(sp => { return new ItemCommandline(); });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment()) {
@@ -61,6 +67,7 @@ namespace n3q.Web
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => {

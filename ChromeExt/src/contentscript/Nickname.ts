@@ -38,20 +38,29 @@ export class Nickname implements IObserver
             }
 
             if (this.isSelf) {
-                column.addItem('settings', 'Settings', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { if (this.participant) { this.app.showSettings(this.participant.getElem()); } });
-                column.addItem('chatwin', 'Chat Window', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showChatWindow(); });
+
+                if (Config.get('inventory.enabled', false)) {
+                    column.addItem('inventory', 'Inventory', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showInventoryWindow(); });
+                }
+
                 column.addItem(
                     'tabstay',
                     'Stay Here',
                     MenuHasIcon.Yes,
-                    app.getStayOnTabChange() ? MenuHasCheckbox.YesChecked : MenuHasCheckbox.YesUnchecked,
+                    app.getStayHereIsChecked() ? MenuHasCheckbox.YesChecked : MenuHasCheckbox.YesUnchecked,
                     MenuOnClickClose.Yes,
                     ev =>
                     {
-                        this.app.toggleStayOnTabChange();
-                        menu.setCheckbox('main', 'tabstay', app.getStayOnTabChange() ? MenuHasCheckbox.YesChecked : MenuHasCheckbox.YesUnchecked);
+                        this.app.toggleStayHereIsChecked();
+                        menu.setCheckbox('main', 'tabstay', app.getStayHereIsChecked() ? MenuHasCheckbox.YesChecked : MenuHasCheckbox.YesUnchecked);
                     }
                 );
+
+                column.addItem('settings', 'Settings', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { if (this.participant) { this.app.showSettings(this.participant.getElem()); } });
+
+                column.addItem('vidconf', 'Video Conference', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { if (this.participant) { this.participant?.showVideoConference(); } });
+
+                column.addItem('chatwin', 'Chat Window', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showChatWindow(); });
             }
 
             menu.addColumn(column);
@@ -78,9 +87,9 @@ export class Nickname implements IObserver
         }
 
         this.textElem = <HTMLElement>$('<div class="n3q-base n3q-text" />').get(0);
-        this.elem.appendChild(this.textElem);
+        $(this.elem).append(this.textElem);
 
-        display.appendChild(this.elem);
+        $(display).append(this.elem);
     }
 
     stop()
@@ -88,7 +97,7 @@ export class Nickname implements IObserver
         // Nothing to do
     }
 
-    updateObservableProperty(name: string, value: any): void
+    updateObservableProperty(name: string, value: string): void
     {
         this.setNickname(value);
     }

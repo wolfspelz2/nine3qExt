@@ -3,6 +3,13 @@ import { uniqueNamesGenerator, Config, adjectives, colors, animals } from 'uniqu
 
 export class Utils
 {
+    static syncStorageKey_Nickname(): string { return 'me.nickname'; }
+    static syncStorageKey_Avatar(): string { return 'me.avatar'; }
+    static syncStorageKey_X(): string { return 'me.x'; }
+    static syncStorageKey_Active(): string { return 'me.active'; }
+    static syncStorageKey_ItemProviderUserId(providerId: string): string { return 'itemProvider.' + providerId + '.userId'; }
+    static syncStorageKey_ItemProviderConfig(providerId: string): string { return 'itemProvider.' + providerId + '.config'; }
+
     static jsObject2xmlObject(stanza: any): xml
     {
         let children = [];
@@ -19,13 +26,13 @@ export class Utils
         return xml(stanza.name, stanza.attrs, children);
     }
 
-    static async sleep(ms): Promise<void>
+    static async sleep(ms: number): Promise<void>
     {
         ms = ms < 0 ? 0 : ms;
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    private static randomStringChars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    private static randomStringChars = '0123456789abcdefghijklmnopqrstuvwxyz';
     static randomString(length: number): string
     {
         var maxIndex: number = Utils.randomStringChars.length - 1;
@@ -41,6 +48,14 @@ export class Utils
         let f = Math.random() * (max - min) + min;
         f = Math.min(max - 0.001, f);
         f = Math.max(min, f);
+        let i = Math.trunc(f);
+        return i;
+    }
+
+    static pseudoRandomInt(min: number, max: number, key: string, suffix: string, mod: number): number
+    {
+        let hash = Utils.hash(key + suffix) % mod;
+        let f = min + (max - min) / mod * hash;
         let i = Math.trunc(f);
         return i;
     }
@@ -61,7 +76,7 @@ export class Utils
     static hash(s: string): number
     {
         var hash = 0;
-        if (s.length == 0) return hash;
+        if (s.length == 0) return 0;
 
         s += 'abcd';
 
@@ -73,4 +88,5 @@ export class Utils
 
         return Math.abs(hash);
     }
+
 }

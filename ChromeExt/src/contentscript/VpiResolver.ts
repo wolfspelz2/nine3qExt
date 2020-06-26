@@ -98,7 +98,15 @@ export class VpiResolver
                 }
 
                 let regex = new RegExp(matchExpr);
-                let matchResult = regex.exec(documentUrl);
+                let unsafeMatchResult = regex.exec(documentUrl);
+
+                let matchResult : Array<string> = null;
+                if (unsafeMatchResult) {
+                    matchResult = new Array<string>();
+                    for (let iMatch = 0; iMatch < unsafeMatchResult.length; iMatch++) {
+                        matchResult[iMatch] = unsafeMatchResult[iMatch] ? unsafeMatchResult[iMatch] : '';
+                    }
+                }
 
                 if (matchResult) {
                     if (vpiChild.tagName == 'delegate') {
