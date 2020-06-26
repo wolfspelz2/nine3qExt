@@ -50,7 +50,7 @@ namespace n3q.Web
 
             host.ConfigureWebHostDefaults(webBuilder => {
                 webBuilder
-                    .UseUrls("http://*:25343")
+                    //.UseUrls("http://*:25343")
                     .UseStartup<Startup>();
             });
 
