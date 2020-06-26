@@ -95,6 +95,7 @@ export class Room
                 .replace('{nickname}', encodeURIComponent(this.resource))
                 .replace('{avatarUrl}', encodeURIComponent(avatarUrl))
                 .replace('{digest}', encodeURIComponent(identityDigest))
+                .replace('{imageUrl}', encodeURIComponent(''))
                 ;
         }
 
