@@ -52,7 +52,7 @@ namespace ConfigSharp.Test
             const string code =
 @"
 namespace ConfigSharp.Test
-
+{
     class LoadCodeFromRelativePathConfigFile : TestConfig
     {
         public void Load()
