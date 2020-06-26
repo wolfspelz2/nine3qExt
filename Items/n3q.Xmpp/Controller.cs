@@ -45,8 +45,8 @@ namespace n3q.Xmpp
             _componentPort = componentPort;
             _componentSecret = componentSecret;
 
-            _roomStorageId = "Xmpp-Rooms-jnjnhbgtf7tugzhjktr5ru-" + componentDomain;
-            _configStorageId = "Xmpp-Config-rtfgzuh65rvgbz8hlklkj-" + componentDomain;
+            _roomStorageId = "Xmpp-Rooms-" + componentDomain;
+            _configStorageId = "Xmpp-Config-" + componentDomain;
         }
 
         public async Task Start()
