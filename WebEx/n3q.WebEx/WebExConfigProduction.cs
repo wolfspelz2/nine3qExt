@@ -4,6 +4,7 @@
     {
         public void Load()
         {
+            XmppUserPasswordSHA1Secret = "3b6f88f2bed0f392";
         }
     }
 }
