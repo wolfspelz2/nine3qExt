@@ -4,7 +4,7 @@
     {
         public void Load()
         {
-            ConfigSequence += "XmppConfigRoot";
+            ConfigSequence += nameof(XmppConfigRoot);
 
             if (RunMode == RunModes.Development) {
 
@@ -22,10 +22,9 @@
                 //hw TODO recreate and change all
                 ClusterId = "prod";
                 LocalhostClustering = false;
-                ClusteringAzureTableConnectionString = "DefaultEndpointsProtocol=https;AccountName=nine3qstorage;AccountKey=HnJJaHTKXvgvGbmQGe6ptVeyz7TIJY5E1EDabtxq5KCmzrxmiz66YpiK7Zj9HdnNuqRHxoWXG8WDCjIfM/7wQg==;EndpointSuffix=core.windows.net";
 
-                ComponentHost = "itemsxmpp.weblin.com";
-                ComponentDomain = "itemsxmpp.weblin.com";
+                ComponentHost = "itemsxmpp.dev.sui.li";
+                ComponentDomain = "itemsxmpp.dev.sui.li";
                 ComponentPort = 5280;
 
                 Include("XmppConfigProduction.cs");

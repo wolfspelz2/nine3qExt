@@ -6,7 +6,7 @@ namespace n3q.Web
     {
         public void Load()
         {
-            ConfigSequence += " WebConfigProduction";
+            ConfigSequence += " " + nameof(WebConfigProduction);
 
             //hw TODO recreate and change all
             ClusteringAzureTableConnectionString = "DefaultEndpointsProtocol=https;AccountName=nine3qstorage;AccountKey=HnJJaHTKXvgvGbmQGe6ptVeyz7TIJY5E1EDabtxq5KCmzrxmiz66YpiK7Zj9HdnNuqRHxoWXG8WDCjIfM/7wQg==;EndpointSuffix=core.windows.net";

@@ -6,10 +6,9 @@ namespace n3q.Web
     {
         public void Load()
         {
-            ConfigSequence += "WebConfigRoot";
+            ConfigSequence += nameof(WebConfigRoot);
             if (RunMode == RunModes.Development) {
 
-                UseIntegratedCluster = false;
                 ClusterId = "dev";
                 LocalhostClustering = false;
                 ClusteringAzureTableConnectionString = "DefaultEndpointsProtocol=https;AccountName=nine3qstoragetest;AccountKey=4Ov/kZAXYi4seMphX/t6jyTmvOuXVqf8P0M5QHd3b+mpHWJOzvo5gED9H23R4hMzxhMNueXoRyW4rk4BCctRuQ==;EndpointSuffix=core.windows.net";
@@ -21,14 +20,13 @@ namespace n3q.Web
 
             } else {
 
-                UseIntegratedCluster = false;
                 ClusterId = "prod";
                 LocalhostClustering = false;
 
                 AdminTokens = new List<string>();
                 ItemServiceXmppUrl = "xmpp:itemsxmpp.weblin.com";
-                UnavailableUrl = "https://items.weblin.com/Embedded/Account?id={id}";
-                ItemBaseUrl = "https://items.weblin.com/images/Items/";
+                UnavailableUrl = "https://itemsweb.weblin.com/Embedded/Account?id={id}";
+                ItemBaseUrl = "https://itemsweb.weblin.com/images/Items/";
 
                 Include("WebConfigProduction.cs");
 

@@ -29,7 +29,7 @@ namespace n3q.Web
 
         public List<string> AdminTokens = new List<string> { };
         public string ItemServiceXmppUrl = "xmpp:itemsxmpp.weblin.com";
-        public string UnavailableUrl = "https://items.weblin.com/Embedded/Account?id={id}";
-        public string ItemBaseUrl = "https://items.weblin.com/images/Items/";
+        public string UnavailableUrl = "https://itemsweb.weblin.com/Embedded/Account?id={id}";
+        public string ItemBaseUrl = "https://itemsweb.weblin.com/images/Items/";
     }
 }
