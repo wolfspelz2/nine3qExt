@@ -20,8 +20,8 @@
                 XmppServiceUrl = "wss://xmpp.weblin.sui.li/xmpp-websocket";
                 XmppDomain = "xmpp.weblin.sui.li";
 
-                IdentificatorUrlTemplate = "https://runtime.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}";
-                AnimationsProxyUrlTemplate = "https://runtime.weblin.com/Avatar/InlineData?url={url}";
+                IdentificatorUrlTemplate = "https://webex.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}";
+                AnimationsProxyUrlTemplate = "https://webex.weblin.com/Avatar/InlineData?url={url}";
                 AnimationsUrlTemplate = "https://avatar.zweitgeist.com/gif/{id}/config.xml";
 
                 Include("WebExConfigProduction.cs");

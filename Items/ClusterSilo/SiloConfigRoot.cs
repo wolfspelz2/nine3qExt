@@ -4,7 +4,7 @@
     {
         public void Load()
         {
-            ConfigSequence += "SiloConfigRoot";
+            ConfigSequence += nameof(SiloConfigRoot);
             if (RunMode == RunModes.Development) {
 
                 ClusterId = "dev";

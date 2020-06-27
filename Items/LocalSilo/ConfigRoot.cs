@@ -4,7 +4,7 @@
     {
         public void Load()
         {
-            ConfigSequence += "ConfigRoot ";
+            ConfigSequence += nameof(ConfigRoot);
             Mode = RunMode.ToString();
             if (RunMode == RunModes.Production) {
                 GrainStateAzureTableConnectionString = "";
