@@ -28,7 +28,7 @@
                 ComponentDomain = "itemsxmpp.weblin.com";
                 ComponentPort = 5280;
 
-                Include("WebExConfigProduction.cs");
+                Include("XmppConfigProduction.cs");
 
             }
         }
