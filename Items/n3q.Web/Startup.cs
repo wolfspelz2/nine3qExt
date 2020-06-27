@@ -43,7 +43,7 @@ namespace n3q.Web
                         builder.UseLocalhostClustering();
                     } else {
                         builder.UseAzureStorageClustering(options => options.ConnectionString = config.ClusteringAzureTableConnectionString);
-                    }
+                    }   
 
                     builder.Configure<ClusterOptions>(options => {
                         options.ClusterId = config.ClusterId;

@@ -21,7 +21,7 @@ namespace n3q.WebEx
             services.AddSingleton<WebExConfig>(config);
 
             services.AddControllers();
-            services.AddMemoryCache();
+            services.AddMemoryCache(options => { options.SizeLimit = config.MemoryCacheSizeBytes;  });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
