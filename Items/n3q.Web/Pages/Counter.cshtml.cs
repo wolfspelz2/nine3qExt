@@ -17,7 +17,7 @@ namespace n3q.Web.Pages
 
         public async System.Threading.Tasks.Task OnGet()
         {
-            Value = await _clusterClient.GetGrain<ITestCounter>("default").Get();
+            Value = await _clusterClient.GetGrain<ITestCounter>("TestCounter42").Get();
         }
     }
 }
