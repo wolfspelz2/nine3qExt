@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using n3q.Common;
 using n3q.GrainInterfaces;
 using n3q.Items;
 using n3q.Tools;
@@ -35,11 +36,15 @@ namespace n3q.Aspects
             return item;
         }
 
-        public async Task<ItemStub> NewItemFromTemplate(string templateId)
+        public async Task<ItemStub> NewItemFromTemplate(string tmpl)
         {
-            var itemId = $"{templateId}-{RandomString.GetAlphanumLowercase(20)}".ToLower();
+            var shortTmpl = tmpl.Substring(0, Cluster.LengthOfItemIdPrefixFromTemplate);
+            var itemId = $"{shortTmpl}{RandomString.GetAlphanumLowercase(20)}";
+            itemId = itemId.ToLower();
             var item = await Item(itemId);
-            await item.ModifyProperties(new PropertySet { [Pid.Template] = templateId }, PidSet.Empty);
+
+            await item.ModifyProperties(new PropertySet { [Pid.Template] = tmpl }, PidSet.Empty);
+            
             return item;
         }
 

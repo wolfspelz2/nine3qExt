@@ -26,6 +26,7 @@ namespace n3q.StorageProviders
     {
         public const string StorageProviderName = "ItemAzureTableStorage";
         public const string PidTemplate = "Template";
+        public const int PartitionKeyFromPrimaryKeyLength = 2;
     }
 
     public class ItemAzureTableStorageOptions
@@ -168,29 +169,22 @@ namespace n3q.StorageProviders
             partitionKey = "";
             rowKey = "";
 
-            if (string.IsNullOrEmpty(partitionKey) || string.IsNullOrEmpty(rowKey)) {
-                if (grainState is GrainState<KeyValueStorageData> kvGrainState) {
-                    var kv = kvGrainState.State;
-                    var template = kv.Get(ItemAzureTableStorage.PidTemplate, "");
-                    if (!string.IsNullOrEmpty(template)) {
-                        partitionKey = template;
-                        rowKey = grainReference.GetPrimaryKeyString();
-                    }
-                }
-            }
-
             //if (string.IsNullOrEmpty(partitionKey) || string.IsNullOrEmpty(rowKey)) {
-            //    var primaryKey = grainReference.GetPrimaryKeyString();
-            //    var dashIdx = primaryKey.IndexOf("-");
-            //    if (dashIdx > 0) {
-            //        var left = primaryKey.Substring(0, dashIdx);
-            //        var right = primaryKey.Substring(dashIdx + 1);
-            //        if (left.Length >= 2 && right.Length >= 2) {
-            //            partitionKey = left;
-            //            rowKey = right;
+            //    if (grainState is GrainState<KeyValueStorageData> kvGrainState) {
+            //        var kv = kvGrainState.State;
+            //        var template = kv.Get(ItemAzureTableStorage.PidTemplate, "");
+            //        if (!string.IsNullOrEmpty(template)) {
+            //            partitionKey = template;
+            //            rowKey = grainReference.GetPrimaryKeyString();
             //        }
             //    }
             //}
+
+            if (string.IsNullOrEmpty(partitionKey) || string.IsNullOrEmpty(rowKey)) {
+                var primaryKey = grainReference.GetPrimaryKeyString();
+                partitionKey = primaryKey.Substring(0, ItemAzureTableStorage.PartitionKeyFromPrimaryKeyLength); ;
+                rowKey = primaryKey;
+            }
 
             if (string.IsNullOrEmpty(partitionKey) || string.IsNullOrEmpty(rowKey)) {
                 var typeListParts = grainType.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);

@@ -20,7 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="RuntimeConfigRoot.cs">
+    <Compile Update="WebExConfigProduction.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+    <Compile Update="WebExConfigRoot.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
   </ItemGroup>

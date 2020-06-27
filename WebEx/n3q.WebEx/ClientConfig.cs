@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace n3q.Runtime
+namespace n3q.WebEx
 {
     public class ClientConfig
     {

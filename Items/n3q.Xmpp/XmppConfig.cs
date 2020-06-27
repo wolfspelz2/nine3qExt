@@ -18,7 +18,7 @@
 #endif
 
         public string ConfigSequence = "";
-        public string ConfigFile = "XmppConfigRoot.cs";
+        public string ConfigFile = nameof(XmppConfigRoot) + ".cs";
 
         public string ClusterId = "dev";
         public bool LocalhostClustering = true;

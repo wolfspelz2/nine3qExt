@@ -10,6 +10,7 @@ using n3q.Tools;
 using n3q.Items;
 using n3q.Content;
 using n3q.Aspects;
+using n3q.Common;
 
 namespace n3q.Web.Controllers
 {
@@ -18,13 +19,13 @@ namespace n3q.Web.Controllers
     {
         public ICallbackLogger Log { get; set; }
         public WebConfig Config { get; set; }
-        public IClusterClient Cluster { get; set; }
+        public IClusterClient ClusterClient { get; set; }
 
         public ItemController(ILogger<ItemController> logger, WebConfig config, IClusterClient clusterClient)
         {
             Log = new FrameworkCallbackLogger(logger);
             Config = config;
-            Cluster = clusterClient;
+            ClusterClient = clusterClient;
         }
 
         [Route("[controller]/Config")]
@@ -36,7 +37,7 @@ namespace n3q.Web.Controllers
             var token = GetLowercaseTokenBecauseWillBeSentAsXmppUser(id);
             Log.Info(token, "Config", nameof(ItemController));
 
-            var itemRef = Cluster.GetGrain<IItemRef>(token);
+            var itemRef = ClusterClient.GetGrain<IItemRef>(token);
             var itemId = await itemRef.GetItem();
             if (string.IsNullOrEmpty(itemId)) {
                 itemId = await CreateInventory();
@@ -62,15 +63,17 @@ namespace n3q.Web.Controllers
 
         private async Task<string> CreateInventory()
         {
-            var tmpl = DevSpec.Template.Inventory;
-            var itemId = $"{tmpl.ToString()}-{RandomString.GetAlphanumLowercase(20)}".ToLower();
+            var tmpl = DevSpec.Template.Inventory.ToString();
+            var shortTmpl = tmpl.Substring(0, Cluster.LengthOfItemIdPrefixFromTemplate);
+            var itemId = $"{shortTmpl}{RandomString.GetAlphanumLowercase(20)}";
+            itemId = itemId.ToLower();
+            var item = ClusterClient.GetItemStub(itemId);
 
-            var item = Cluster.GetItemStub(itemId);
             await item.WithTransaction(async self => {
-                await self.ModifyProperties(new PropertySet { [Pid.Template] = tmpl.ToString() }, PidSet.Empty);
+                await self.ModifyProperties(new PropertySet { [Pid.Template] = tmpl }, PidSet.Empty);
             });
 
-            await Cluster.GetGrain<IWorker>(Guid.Empty).AspectAction(itemId, Pid.InventoryAspect, nameof(Inventory.Action.Initialize), PropertySet.Empty);
+            await ClusterClient.GetGrain<IWorker>(Guid.Empty).AspectAction(itemId, Pid.InventoryAspect, nameof(Inventory.Action.Initialize), PropertySet.Empty);
 
             return itemId;
         }

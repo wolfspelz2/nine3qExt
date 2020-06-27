@@ -11,16 +11,16 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
 using n3q.Tools;
 
-namespace n3q.Runtime.Controllers
+namespace n3q.WebEx.Controllers
 {
     [ApiController]
     public class AvatarController : ControllerBase
     {
         public ICallbackLogger Log { get; set; }
-        public RuntimeConfig Config { get; set; }
+        public WebExConfig Config { get; set; }
         private readonly IMemoryCache _cache;
 
-        public AvatarController(ILogger<AvatarController> logger, RuntimeConfig config, IMemoryCache memoryCache)
+        public AvatarController(ILogger<AvatarController> logger, WebExConfig config, IMemoryCache memoryCache)
         {
             Log = new FrameworkCallbackLogger(logger);
             Config = config;

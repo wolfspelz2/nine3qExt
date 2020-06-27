@@ -18,7 +18,7 @@
 #endif
 
         public string ConfigSequence = "";
-        public string ConfigFile = "SiloConfigRoot.cs";
+        public string ConfigFile = nameof(SiloConfigRoot) + ".cs";
 
         public string ClusterId = "dev";
         public bool LocalhostClustering = true;

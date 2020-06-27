@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 
 using n3q.Tools;
 
-namespace n3q.Runtime.Controllers
+namespace n3q.WebEx.Controllers
 {
     [ApiController]
     public class IdentityController : ControllerBase
