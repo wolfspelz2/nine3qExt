@@ -54,7 +54,7 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: nine3q
-        IMAGE_TAG: ${{ github.sha }}
+        IMAGE_TAG: n3q-webex
       run: |
         # Build a docker container and
         # push it to ECR so that it can
@@ -75,6 +75,6 @@ jobs:
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: n3q-webex
-        cluster: default
+        service: n3q-webex-service
+        cluster: nine3q
         wait-for-service-stability: true
