@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using n3q.Tools;
 
-namespace n3q.Runtime
+namespace n3q.WebEx
 {
     public class FrameworkCallbackLogger : ICallbackLogger
     {

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using ConfigSharp;
 
-namespace n3q.Runtime
+namespace n3q.WebEx
 {
-    public class RuntimeConfig : ConfigBag
+    public class WebExConfig : ConfigBag
     {
         public enum RunModes
         {

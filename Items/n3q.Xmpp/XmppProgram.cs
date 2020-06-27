@@ -27,7 +27,7 @@ namespace n3q.Xmpp
             ConfigSharp.Log.LogHandler = (lvl, ctx, msg) => { Log.DoLog(Log.LevelFromString(lvl.ToString()), ctx, msg); };
             Config.ParseCommandline(args);
             Config.Include(Config.ConfigFile);
-            Console.WriteLine($"RunMode={Config.Mode} ConfigSequence={Config.ConfigSequence}");
+            Console.WriteLine($"RunMode={Config.RunMode} ConfigSequence={Config.ConfigSequence}");
 
             return RunMainAsync().Result;
         }
@@ -50,18 +50,25 @@ namespace n3q.Xmpp
         private static async Task<IClusterClient> StartClientWithRetries()
         {
             _attempt = 0;
-            IClusterClient client;
-            client = new ClientBuilder()
-                .UseLocalhostClustering()
-                .Configure<ClusterOptions>(options => {
-                    options.ClusterId = Cluster.DevClusterId;
-                    options.ServiceId = Cluster.ServiceId;
-                })
-                .AddClusterConnectionLostHandler(OnClusterConnectionDown)
-                .AddGatewayCountChangedHandler(OnClusterGatewayCountChanged)
-                .ConfigureLogging(logging => { logging.AddConsole(); logging.SetMinimumLevel(LogLevel.Error); })
-                .AddSimpleMessageStreamProvider(ItemService.StreamProvider)
-                .Build();
+
+            var builder = new ClientBuilder();
+
+            if (Config.LocalhostClustering) {
+                builder.UseLocalhostClustering();
+            } else {
+                builder.UseAzureStorageClustering(options => options.ConnectionString = Config.ClusteringAzureTableConnectionString);
+            }
+
+            builder.Configure<ClusterOptions>(options => {
+                options.ClusterId = Config.ClusterId;
+                options.ServiceId = Cluster.ServiceId;
+            });
+            builder.AddClusterConnectionLostHandler(OnClusterConnectionDown);
+            builder.AddGatewayCountChangedHandler(OnClusterGatewayCountChanged);
+            builder.ConfigureLogging(logging => { logging.AddConsole(); logging.SetMinimumLevel(LogLevel.Error); });
+            builder.AddSimpleMessageStreamProvider(ItemService.StreamProvider);
+
+            IClusterClient client = builder.Build();
 
             await client.Connect(RetryFilter);
             Log.Info("Client connected to silo host");
@@ -80,7 +87,7 @@ namespace n3q.Xmpp
         private static void OnClusterConnectionDown(object sender, EventArgs e)
         {
             Console.WriteLine($"OnClusterConnectionDown");
-                _controller?.OnClusterDisconnect();
+            _controller?.OnClusterDisconnect();
         }
 
         private static async Task<bool> RetryFilter(Exception exception)

@@ -31,7 +31,7 @@ namespace IntegrationTests
                 .UseLocalhostClustering()
 
                 .Configure<ClusterOptions>(options => {
-                    options.ClusterId = Cluster.TestClusterId;
+                    options.ClusterId = "test";
                     options.ServiceId = Cluster.ServiceId;
                 })
 
@@ -62,15 +62,15 @@ namespace IntegrationTests
                         options.RootDirectory = ItemService.KeyValueFileStorageRoot;
                     })
 
-                .AddAzureKeyValueTableStorage(
-                    name: AzureKeyValueTableStorage.StorageProviderName,
+                .AddItemAzureTableStorage(
+                    name: ItemAzureTableStorage.StorageProviderName,
                     configureOptions: options => {
                         options.TableName = "n3qTest";
                         options.ConnectionString = "UseDevelopmentStorage=true";
                     })
 
-                .AddAzureReflectingTableStorage(
-                    name: AzureReflectingTableStorage.StorageProviderName,
+                .AddReflectingAzureTableStorage(
+                    name: ReflectingAzureTableStorage.StorageProviderName,
                     configureOptions: options => {
                         options.TableName = "n3qTest";
                         options.ConnectionString = "UseDevelopmentStorage=true";
@@ -91,7 +91,7 @@ namespace IntegrationTests
             var client = new ClientBuilder()
                 .UseLocalhostClustering()
                 .Configure<ClusterOptions>(options => {
-                    options.ClusterId = Cluster.DevClusterId;
+                    options.ClusterId = "test";
                     options.ServiceId = Cluster.ServiceId;
                 })
                 //.ConfigureLogging(logging => { logging.AddConsole(); logging.SetMinimumLevel(LogLevel.Error); })

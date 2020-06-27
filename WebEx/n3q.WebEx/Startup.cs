@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace n3q.Runtime
+namespace n3q.WebEx
 {
     public class Startup
     {
@@ -17,8 +17,8 @@ namespace n3q.Runtime
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var config = new RuntimeConfig().Include("RuntimeConfigRoot.cs") as RuntimeConfig;
-            services.AddSingleton<RuntimeConfig>(config);
+            var config = new WebExConfig().Include(nameof(WebExConfigRoot) + ".cs") as WebExConfig;
+            services.AddSingleton<WebExConfig>(config);
 
             services.AddControllers();
             services.AddMemoryCache();

@@ -50,7 +50,7 @@ namespace TestClient
             client = new ClientBuilder()
                 .UseLocalhostClustering()
                 .Configure<ClusterOptions>(options => {
-                    options.ClusterId = Cluster.DevClusterId;
+                    options.ClusterId = "test";
                     options.ServiceId = Cluster.ServiceId;
                 })
                 .ConfigureLogging(logging => { logging.AddConsole(); logging.SetMinimumLevel(LogLevel.Error); })

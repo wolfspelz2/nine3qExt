@@ -18,9 +18,13 @@
 #endif
 
         public string ConfigSequence = "";
-        public string ConfigFile = "SiloConfigRoot.cs";
-        public bool DevelopmentRemoteConfig = true;
-        public string Mode = "_empty_";
+        public string ConfigFile = nameof(SiloConfigRoot) + ".cs";
+
+        public string ClusterId = "dev";
+        public bool LocalhostClustering = true;
+        public string ItemStateAzureTableConnectionString = "UseDevelopmentStorage=true";
         public string GrainStateAzureTableConnectionString = "UseDevelopmentStorage=true";
+        public string ClusteringAzureTableConnectionString = "UseDevelopmentStorage=true";
+        public string PubsubStoreAzureTableConnectionString = "UseDevelopmentStorage=true";
     }
 }

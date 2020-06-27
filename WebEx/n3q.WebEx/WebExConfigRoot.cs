@@ -1,10 +1,10 @@
-﻿namespace n3q.Runtime
+﻿namespace n3q.WebEx
 {
-    class RuntimeConfigRoot : RuntimeConfig
+    class WebExConfigRoot : WebExConfig
     {
         public void Load()
         {
-            ConfigSequence += "RuntimeConfigRoot";
+            ConfigSequence += nameof(WebExConfigRoot);
             if (RunMode == RunModes.Development) {
 
                 XmppServiceUrl = "wss://xmpp.weblin.sui.li/xmpp-websocket";
@@ -24,6 +24,7 @@
                 AnimationsProxyUrlTemplate = "https://runtime.weblin.com/Avatar/InlineData?url={url}";
                 AnimationsUrlTemplate = "https://avatar.zweitgeist.com/gif/{id}/config.xml";
 
+                Include("XmppConfigProduction.cs");
             }
         }
     }

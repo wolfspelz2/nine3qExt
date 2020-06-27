@@ -4,15 +4,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using n3q.Tools;
 
-namespace n3q.Runtime.Controllers
+namespace n3q.WebEx.Controllers
 {
     [ApiController]
     public class ClientController : ControllerBase
     {
         public ICallbackLogger Log { get; set; }
-        public RuntimeConfig Config { get; set; }
+        public WebExConfig Config { get; set; }
 
-        public ClientController(ILogger<ClientController> logger, RuntimeConfig config)
+        public ClientController(ILogger<ClientController> logger, WebExConfig config)
         {
             Log = new FrameworkCallbackLogger(logger);
             Config = config;

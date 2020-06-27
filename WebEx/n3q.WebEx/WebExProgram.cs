@@ -2,9 +2,9 @@ using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace n3q.Runtime
+namespace n3q.WebEx
 {
-    public static class RuntimeProgram
+    public static class WebExProgram
     {
         public static void Main(string[] args)
         {

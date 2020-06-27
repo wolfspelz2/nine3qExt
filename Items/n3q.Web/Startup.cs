@@ -24,7 +24,7 @@ namespace n3q.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var config = new WebConfig().Include("WebConfigRoot.cs") as WebConfig;
+            var config = new WebConfig().Include(nameof(WebConfigRoot) + ".cs") as WebConfig;
             services.AddSingleton<WebConfig>(config);
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -33,18 +33,25 @@ namespace n3q.Web
 
             services.AddRazorPages();
             services.AddControllers();
-            
+
             if (!config.UseIntegratedCluster) {
                 services.AddSingleton<IClusterClient>((s) => {
-                    var client = new ClientBuilder()
-                        .UseLocalhostClustering()
-                        .Configure<ClusterOptions>(options => {
-                            options.ClusterId = Cluster.DevClusterId;
-                            options.ServiceId = Cluster.ServiceId;
-                        })
-                        .AddSimpleMessageStreamProvider(ItemService.StreamProvider)
-                        .Build();
 
+                    var builder = new ClientBuilder();
+
+                    if (config.LocalhostClustering) {
+                        builder.UseLocalhostClustering();
+                    } else {
+                        builder.UseAzureStorageClustering(options => options.ConnectionString = config.ClusteringAzureTableConnectionString);
+                    }
+
+                    builder.Configure<ClusterOptions>(options => {
+                        options.ClusterId = config.ClusterId;
+                        options.ServiceId = Cluster.ServiceId;
+                    });
+                    builder.AddSimpleMessageStreamProvider(ItemService.StreamProvider);
+
+                    var client = builder.Build();
                     client.Connect().Wait();
                     return client;
                 });
