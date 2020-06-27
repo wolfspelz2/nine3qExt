@@ -118,14 +118,19 @@ namespace n3q.Xmpp
             await _controller.Start();
 
             if (Config.RunMode == XmppConfig.RunModes.Production) {
+
+                Console.WriteLine("Press CTRL-C to terminate...");
                 new AutoResetEvent(false).WaitOne();
+
             } else {
+
                 Console.WriteLine("Press Enter to terminate...");
                 var line = "";
                 do {
                     line = Console.ReadLine();
                     _controller.Send(line);
                 } while (Has.Value(line) && line != "q");
+
             }
 
             await _controller.Shutdown();
