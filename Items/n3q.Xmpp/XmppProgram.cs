@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.Runtime;
@@ -116,12 +117,21 @@ namespace n3q.Xmpp
 
             await _controller.Start();
 
-            Console.WriteLine("Press Enter to terminate...");
-            var line = "";
-            do {
-                line = Console.ReadLine();
-                _controller.Send(line);
-            } while (Has.Value(line) && line != "q");
+            if (Config.RunMode == XmppConfig.RunModes.Production) {
+
+                Console.WriteLine("Press CTRL-C to terminate...");
+                new AutoResetEvent(false).WaitOne();
+
+            } else {
+
+                Console.WriteLine("Press Enter to terminate...");
+                var line = "";
+                do {
+                    line = Console.ReadLine();
+                    _controller.Send(line);
+                } while (Has.Value(line) && line != "q");
+
+            }
 
             await _controller.Shutdown();
 

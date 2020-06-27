@@ -35,7 +35,8 @@ namespace ClusterSilo
         {
             try {
                 var host = await StartSilo();
-                Console.WriteLine("Press Enter to terminate...");
+
+                Console.WriteLine("Press CTRL-C to terminate...");
                 new AutoResetEvent(false).WaitOne();
 
                 await host.StopAsync();
