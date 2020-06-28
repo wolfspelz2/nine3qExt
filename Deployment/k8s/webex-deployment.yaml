@@ -10,7 +10,7 @@ spec:
   template:
     metadata:
       labels:
-        run: n3q-webex
+        app: n3q-webex
     spec:
       containers:
         - name: n3q-webex
