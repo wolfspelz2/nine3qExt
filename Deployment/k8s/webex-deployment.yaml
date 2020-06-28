@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: n3q-webex
+spec:
+  selector:
+    matchLabels:
+      run: n3q-webex
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: n3q-webex
+    spec:
+      containers:
+        - name: n3q-webex
+          image: docker.k8s.sui.li/n3qwebex:1
+          imagePullPolicy: Always          
+          ports:
+            - containerPort: 80
+              protocol: TCP
