@@ -68,7 +68,7 @@ jobs:
       id: task-def
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
-        task-definition: task-definition.json
+        task-definition: webex-task.json
         container-name: n3q-webex
         image: ${{ steps.build-image.outputs.image }}
 
