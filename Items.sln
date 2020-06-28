@@ -24,6 +24,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "n3q.Items", "Items\n3q.Item
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_", "_", "{F7E3FD6E-CF43-4914-8BF5-4E4885FE081A}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		Dockerfile.silo = Dockerfile.silo
 		Dockerfile.web = Dockerfile.web
 		Dockerfile.webex = Dockerfile.webex
