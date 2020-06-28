@@ -88,7 +88,7 @@ namespace n3q.Content
                         [Pid.Label] = "Dummy",
                         [Pid.Width] = 100,
                         [Pid.Height] = 100,
-                        [Pid.ImageUrl] = PropertyFilter.ItemBase + "Default/image.png",
+                        [Pid.ImageUrl] = ItemService.ItemBaseVar + "Default/image.png",
                     };
                     break;
 
@@ -98,7 +98,7 @@ namespace n3q.Content
                         [Pid.Label] = "Admin",
                         [Pid.Width] = 50,
                         [Pid.Height] = 50,
-                        [Pid.ImageUrl] = PropertyFilter.ItemBase + "System/Admin.png",
+                        [Pid.ImageUrl] = ItemService.ItemBaseVar + "System/Admin.png",
                         [Pid.DeletableAspect] = false,
                         [Pid.RezableAspect] = false,
                         [Pid.RoleAspect] = true,
@@ -116,7 +116,7 @@ namespace n3q.Content
                             [Pid.Label] = "CodeReviewer",
                             [Pid.Width] = 75,
                             [Pid.Height] = 75,
-                            [Pid.ImageUrl] = PropertyFilter.ItemBase + "System/Admin.png",
+                            [Pid.ImageUrl] = ItemService.ItemBaseVar + "System/Admin.png",
                             [Pid.DeletableAspect] = false,
                             [Pid.RezableAspect] = false,
                             [Pid.RoleAspect] = true,
@@ -146,7 +146,7 @@ namespace n3q.Content
                         [Pid.Label] = "Settings",
                         [Pid.Width] = 32,
                         [Pid.Height] = 32,
-                        [Pid.ImageUrl] = PropertyFilter.ItemBase + "User/Settings.png",
+                        [Pid.ImageUrl] = ItemService.ItemBaseVar + "User/Settings.png",
                         [Pid.SettingsAspect] = true,
                         [Pid.RezableAspect] = false,
                         //[Pid.InventoryLeft] = -1,
@@ -164,8 +164,8 @@ namespace n3q.Content
                         [Pid.Label] = "PirateFlag",
                         [Pid.Width] = 43,
                         [Pid.Height] = 65,
-                        [Pid.ImageUrl] = PropertyFilter.ItemBase + "PirateFlag/image.png",
-                        [Pid.AnimationsUrl] = PropertyFilter.ItemBase + "PirateFlag/animations.xml",
+                        [Pid.ImageUrl] = ItemService.ItemBaseVar + "PirateFlag/image.png",
+                        [Pid.AnimationsUrl] = ItemService.ItemBaseVar + "PirateFlag/animations.xml",
                         [Pid.PageClaimAspect] = true,
                         [Pid.RezableAspect] = true,
                         [Pid.RezzableProxyTemplate] = nameof(DevSpec.Template.PageProxy),
@@ -180,7 +180,7 @@ namespace n3q.Content
                         [Pid.Label] = "PageProxy",
                         [Pid.Width] = 40,
                         [Pid.Height] = 65,
-                        [Pid.ImageUrl] = PropertyFilter.ItemBase + "PageProxy/image.png",
+                        [Pid.ImageUrl] = ItemService.ItemBaseVar + "PageProxy/image.png",
                         [Pid.DeletableAspect] = false,
                         [Pid.RezableAspect] = false,
                         [Pid.RezableProxyAspect] = true,
@@ -195,7 +195,7 @@ namespace n3q.Content
                         [Pid.Label] = "WaterBottle",
                         [Pid.Width] = 18,
                         [Pid.Height] = 60,
-                        [Pid.ImageUrl] = PropertyFilter.ItemBase + "WaterBottle/image.png",
+                        [Pid.ImageUrl] = ItemService.ItemBaseVar + "WaterBottle/image.png",
                         [Pid.SourceAspect] = true,
                         [Pid.SourceResource] = Pid.WaterLevel.ToString(),
                         [Pid.SinkAspect] = true,
@@ -251,7 +251,7 @@ namespace n3q.Content
                 [Pid.Label] = labelKey,
                 [Pid.Width] = (long)imgWidth,
                 [Pid.Height] = (long)imgHeight,
-                [Pid.ImageUrl] = PropertyFilter.ItemBase + relativeImagePath,
+                [Pid.ImageUrl] = ItemService.ItemBaseVar + relativeImagePath,
             };
         }
 

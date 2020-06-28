@@ -49,8 +49,7 @@ namespace n3q.Web.Controllers
                 unavailableUrl = Config.UnavailableUrl,
                 userToken = token,
                 itemPropertyUrlFilter = new Dictionary<string, string> {
-                    //{ "{image.item.nine3q}", "https://nine3q.dev.sui.li/images/Items/" },
-                    { "{image.item.nine3q}", Config.ItemBaseUrl },
+                    { ItemService.ItemBaseVar, Config.ItemBaseValue },
                 },
             };
             return result;

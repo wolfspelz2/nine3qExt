@@ -16,7 +16,7 @@ namespace n3q.Web
                 AdminTokens = new List<string> { "Token" };
                 ItemServiceXmppUrl = "xmpp:itemsxmpp.dev.sui.li";
                 UnavailableUrl = "http://localhost:5000/Embedded/Account?id={id}";
-                ItemBaseUrl = "http://localhost:5000/images/Items/";
+                ItemBaseValue = "http://localhost:5000/images/Items/";
 
             } else {
 
@@ -26,7 +26,7 @@ namespace n3q.Web
                 AdminTokens = new List<string>();
                 ItemServiceXmppUrl = "xmpp:itemsxmpp.weblin.com";
                 UnavailableUrl = "https://itemsweb.weblin.com/Embedded/Account?id={id}";
-                ItemBaseUrl = "https://itemsweb.weblin.com/images/Items/";
+                ItemBaseValue = "https://itemsweb.weblin.com/images/Items/";
 
                 Include("WebConfigProduction.cs");
 
