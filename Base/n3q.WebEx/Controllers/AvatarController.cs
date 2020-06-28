@@ -31,11 +31,28 @@ namespace n3q.WebEx.Controllers
         [HttpGet]
         public async Task<string> InlineData(string url)
         {
+            Log.Info(url);
+
+            var originalUrl = "";
+            if (Config.UpgradeAvatarUrlToHttps) {
+                const string httpPrefix = "http://";
+                if (url.StartsWith(httpPrefix)) {
+                    originalUrl = url;
+                    url = "https://" + url.Substring(httpPrefix.Length);
+                    Log.Info($"Upgrade to https: {url}");
+                }
+            }
+
             if (_cache.Get(url) is string xml) {
                 return xml;
             }
 
             xml = await CreateXml(url);
+            if (!Has.Value(xml) && Has.Value(originalUrl)) {
+                Log.Info($"Fallback to http: {originalUrl}");
+                url = originalUrl;
+                xml = await CreateXml(url);
+            }
 
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                         .SetSlidingExpiration(TimeSpan.FromSeconds(3600))
@@ -55,7 +72,12 @@ namespace n3q.WebEx.Controllers
             }
 
             var client = new HttpClient();
-            var inData = await client.GetStringAsync(avatarUrl);
+            string inData;
+            try {
+                inData = await client.GetStringAsync(avatarUrl);
+            } catch (Exception) {
+                return "";
+            }
 
             var outDoc = new XmlDocument();
             var outRoot = outDoc.CreateElement("config", "http://schema.bluehands.de/character-config");

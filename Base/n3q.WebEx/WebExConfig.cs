@@ -31,5 +31,6 @@ namespace n3q.WebEx
         public string AnimationsUrlTemplate = "https://avatar.zweitgeist.com/gif/{id}/config.xml";
         public List<string> AvatarProxyPreloadSequenceNames = new List<string> { "idle", "moveright", "moveleft" };
         public long MemoryCacheSizeBytes = 200 * 1024 * 1024;
+        public bool UpgradeAvatarUrlToHttps = true;
     }
 }

@@ -190,10 +190,14 @@ export class Avatar implements IObserver
         if (url.startsWith('data:')) {
             $(this.elem).css({ 'background-image': 'url("' + url + '")' });
         } else {
-            this.getBase64Image(url).then(base64Image =>
-            {
-                $(this.elem).css({ 'background-image': 'url("' + base64Image + '")' });
-            });
+            try {
+                this.getBase64Image(url).then(base64Image =>
+                {
+                    $(this.elem).css({ 'background-image': 'url("' + base64Image + '")' });
+                });
+            } catch (error) {
+                $(this.elem).css({ 'background-image': 'url("' + url + '")' });
+            }
         }
     }
 
