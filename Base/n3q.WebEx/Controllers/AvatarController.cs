@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
 using n3q.Tools;
+using System.Web;
 
 namespace n3q.WebEx.Controllers
 {
@@ -19,12 +20,45 @@ namespace n3q.WebEx.Controllers
         public ICallbackLogger Log { get; set; }
         public WebExConfigDefinition Config { get; set; }
         private readonly IMemoryCache _cache;
+        const string HttpPrefix = "http://";
 
         public AvatarController(ILogger<AvatarController> logger, WebExConfigDefinition config, IMemoryCache memoryCache)
         {
             Log = new FrameworkCallbackLogger(logger);
             Config = config;
             _cache = memoryCache;
+        }
+
+        class CachedResponse
+        {
+            public byte[] Data;
+            public string ContentType;
+        }
+
+        [Route("[controller]/HttpBridge")]
+        [HttpGet]
+        public async Task<FileContentResult> HttpBridge(string url)
+        {
+            Log.Info(url);
+
+            if (_cache.Get(url) is CachedResponse cachedResponse) {
+                return new FileContentResult(cachedResponse.Data, cachedResponse.ContentType);
+            }
+
+            var client = new HttpClient();
+            //data = await client.GetByteArrayAsync(url);
+            var response = await client.GetAsync(url);
+            if (!response.IsSuccessStatusCode) { throw new Exception($"{(int)response.StatusCode} {response.ReasonPhrase} {url}"); }
+            var data = await response.Content.ReadAsByteArrayAsync();
+            var contentType = response.Content.Headers.ContentType.MediaType;
+
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromSeconds(3600))
+                        .SetSize(data.Length)
+                        ;
+            _cache.Set(url, new CachedResponse { Data = data, ContentType = contentType }, cacheEntryOptions);
+
+            return new FileContentResult(data, contentType);
         }
 
         [Route("[controller]/InlineData")]
@@ -34,11 +68,10 @@ namespace n3q.WebEx.Controllers
             Log.Info(url);
 
             var originalUrl = "";
-            if (Config.UpgradeAvatarUrlToHttps) {
-                const string httpPrefix = "http://";
-                if (url.StartsWith(httpPrefix)) {
+            if (Config.UpgradeAvatarXmlUrlToHttps) {
+                if (url.StartsWith(HttpPrefix)) {
                     originalUrl = url;
-                    url = "https://" + url.Substring(httpPrefix.Length);
+                    url = "https://" + url.Substring(HttpPrefix.Length);
                     Log.Info($"Upgrade to https: {url}");
                 }
             }
@@ -127,6 +160,11 @@ namespace n3q.WebEx.Controllers
                 var inSrc = inAnimation.Attributes["src"] != null ? inAnimation.Attributes["src"].Value : "";
                 if (Has.Value(inSrc)) {
                     var imageUrl = inSrc.StartsWith("http") ? inSrc : baseUrl + inSrc;
+                    if (Config.UpgradeAvatarImageUrlToHttps) {
+                        if (imageUrl.StartsWith(HttpPrefix)) {
+                            imageUrl = Config.ImageProxyUrlTemplate.Replace("{url}", HttpUtility.UrlEncode(imageUrl));
+                        }
+                    }
                     SetXmlAttribute(outDoc, outAnimation, "src", imageUrl);
 
                     if (inAnimation.Attributes["duration"] != null) { SetXmlAttribute(outDoc, outAnimation, "duration", inAnimation.Attributes["duration"].Value); }
