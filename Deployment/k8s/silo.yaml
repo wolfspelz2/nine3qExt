@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: n3q-silo
+  namespace: n3q-prod
+spec:
+  selector:
+    matchLabels:
+      run: n3q-silo
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        run: n3q-silo
+    spec:
+      containers:
+        - name: n3qsilo
+          image: docker.k8s.sui.li/n3q-silo:2
+          ports:
+            - containerPort: 30000
+              protocol: TCP
+            - containerPort: 11111
+              protocol: TCP

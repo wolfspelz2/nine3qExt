@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: n3q-web
+  namespace: n3q-prod
+spec:
+  selector:
+    matchLabels:
+      run: n3q-web
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        run: n3q-web
+    spec:
+      containers:
+        - name: n3q-web
+          image: docker.k8s.sui.li/n3q-web:2
+          ports:
+            - containerPort: 80
+              protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: n3q-web
+  namespace: n3q-prod
+  labels:
+    run: n3q-web
+  annotations:
+    haproxy.org/check: "enabled"
+    haproxy.org/forwarded-for: "enabled"
+    haproxy.org/load-balance: "roundrobin"
+spec:
+  selector:
+    run: n3q-web
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: n3q-web-ingress
+  namespace: n3q-prod
+spec:
+  rules:
+  - host: n3qweb.k8s.sui.li
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: n3q-web
+          servicePort: 80
