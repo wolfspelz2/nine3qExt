@@ -1,0 +1,12 @@
+C:\Heiner\github-nine3q\nine3q\bin\Debug\netcoreapp2.2\nine3q.deps.json
+C:\Heiner\github-nine3q\nine3q\bin\Debug\netcoreapp2.2\nine3q.runtimeconfig.json
+C:\Heiner\github-nine3q\nine3q\bin\Debug\netcoreapp2.2\nine3q.runtimeconfig.dev.json
+C:\Heiner\github-nine3q\nine3q\bin\Debug\netcoreapp2.2\nine3q.dll
+C:\Heiner\github-nine3q\nine3q\bin\Debug\netcoreapp2.2\nine3q.pdb
+C:\Heiner\github-nine3q\nine3q\obj\Debug\netcoreapp2.2\nine3q.csprojAssemblyReference.cache
+C:\Heiner\github-nine3q\nine3q\obj\Debug\netcoreapp2.2\nine3q.csproj.CoreCompileInputs.cache
+C:\Heiner\github-nine3q\nine3q\obj\Debug\netcoreapp2.2\nine3q.AssemblyInfoInputs.cache
+C:\Heiner\github-nine3q\nine3q\obj\Debug\netcoreapp2.2\nine3q.AssemblyInfo.cs
+C:\Heiner\github-nine3q\nine3q\obj\Debug\netcoreapp2.2\nine3q.dll
+C:\Heiner\github-nine3q\nine3q\obj\Debug\netcoreapp2.2\nine3q.pdb
+C:\Heiner\github-nine3q\nine3q\obj\Debug\netcoreapp2.2\nine3q.genruntimeconfig.cache

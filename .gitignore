@@ -3,14 +3,4 @@
 ################################################################################
 
 /.vs
-/ChromeExt/.vs
-/ChromeExt/extension.zip
-/ChromeExt/dist.zip
-/nine3q/obj
-/nine3q/bin
-/Backend/.vs
-/Backend/Test
-/Items/.vs
-/Items/Test
-*.user
-/Runtime/.vs
+/tmp

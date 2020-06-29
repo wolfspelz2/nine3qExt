@@ -11,7 +11,10 @@ namespace n3q.Web
 
         public List<string> AdminTokens = new List<string> { };
         public string ItemServiceXmppUrl = "xmpp:itemsxmpp.weblin.com";
-        public string UnavailableUrl = "https://itemsweb.weblin.com/Embedded/Account?id={id}";
-        public string ItemBaseUrl = "https://itemsweb.weblin.com/images/Items/";
+
+        public const string DefaultBaseUrl = "https://itemsweb.weblin.com/";
+        public string BaseUrl = DefaultBaseUrl;
+        public string UnavailableUrl = DefaultBaseUrl + "Embedded/Account?id={id}";
+        public string ItemBaseUrl = DefaultBaseUrl + "images/Items/";
     }
 }

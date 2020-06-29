@@ -17,8 +17,8 @@ namespace n3q.Web
 
                 AdminTokens = new List<string> { "Token" };
                 ItemServiceXmppUrl = "xmpp:itemsxmpp.dev.sui.li";
-                UnavailableUrl = "http://localhost:5000/Embedded/Account?id={id}";
-                ItemBaseUrl = "http://localhost:5000/images/Items/";
+
+                BaseUrl = "http://localhost:5000/";
 
             } else {
 
@@ -27,10 +27,13 @@ namespace n3q.Web
 
                 AdminTokens = new List<string>();
                 ItemServiceXmppUrl = "xmpp:itemsxmpp.weblin.com";
-                UnavailableUrl = "https://itemsweb.weblin.com/Embedded/Account?id={id}";
-                ItemBaseUrl = "https://itemsweb.weblin.com/images/Items/";
+
+                BaseUrl = "https://itemsweb.weblin.com/";
 
             }
+
+            UnavailableUrl = BaseUrl + "Embedded/Account?id={id}";
+            ItemBaseUrl = BaseUrl + "images/Items/";
 
             AdditionalBaseFolder = System.Environment.GetEnvironmentVariable("N3Q_CONFIG_ROOT") ?? AdditionalBaseFolder;
             if (!string.IsNullOrEmpty(AdditionalBaseFolder)) {

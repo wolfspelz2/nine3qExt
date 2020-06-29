@@ -8,7 +8,7 @@
 
         public string ComponentHost = "itemsxmpp.dev.sui.li";
         public string ComponentDomain = "itemsxmpp.dev.sui.li";
-        public int ComponentPort = 5280;//5555;
+        public int ComponentPort = 5347;//5555;
         public string ComponentSecret = "28756a7ff5dce";
     }
 }
