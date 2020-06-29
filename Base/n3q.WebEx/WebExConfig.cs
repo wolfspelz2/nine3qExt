@@ -1,36 +1,38 @@
-﻿using System.Collections.Generic;
-using ConfigSharp;
-
-namespace n3q.WebEx
+﻿namespace n3q.WebEx
 {
-    public class WebExConfig : ConfigBag
+    class WebExConfig : WebExConfigDefinition
     {
-        public enum RunModes
+        public void Load()
         {
-            Development,
-            Test,
-            Staging,
-            Production
+            ConfigFile = CurrentFile;
+            ConfigSequence += nameof(WebExConfig);
+
+            if (Build == BuildConfiguration.Debug) {
+
+                XmppServiceUrl = "wss://xmpp.weblin.sui.li/xmpp-websocket";
+                XmppDomain = "xmpp.weblin.sui.li";
+                XmppUserPasswordSHA1Secret = "3b6f88f2bed0f392";
+
+                BaseUrl = "http://localhost:5001/";
+
+            } else {
+
+                XmppServiceUrl = "wss://xmpp.weblin.sui.li/xmpp-websocket";
+                XmppDomain = "xmpp.weblin.sui.li";
+
+                BaseUrl = "https://webex.weblin.com/";
+
+            }
+
+            IdentificatorUrlTemplate = BaseUrl + "Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}";
+            AnimationsProxyUrlTemplate = BaseUrl + "Avatar/InlineData?url={url}";
+            ImageProxyUrlTemplate = BaseUrl + "Avatar/HttpBridge?url={url}";
+
+            AdditionalBaseFolder = System.Environment.GetEnvironmentVariable("N3Q_CONFIG_ROOT") ?? AdditionalBaseFolder;
+            if (!string.IsNullOrEmpty(AdditionalBaseFolder)) {
+                BaseFolder = AdditionalBaseFolder;
+                Include(ConfigFile);
+            }
         }
-
-        public RunModes RunMode =
-#if DEBUG
-            RunModes.Development;
-#else
-            RunModes.Production;
-#endif
-
-        public string ConfigSequence = "";
-
-        public string XmppServiceUrl = "wss://xmpp.weblin.com/xmpp-websocket";
-        public string XmppDomain = "xmpp.weblin.weblin.com";
-        public string XmppUserPasswordSHA1Secret = "3b6f88f2bed0f392";
-
-        public string IdentificatorUrlTemplate = "https://webex.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}";
-        public string AnimationsProxyUrlTemplate = "https://webex.weblin.com/Avatar/InlineData?url={url}";
-        public string AnimationsUrlTemplate = "https://avatar.zweitgeist.com/gif/{id}/config.xml";
-        public List<string> AvatarProxyPreloadSequenceNames = new List<string> { "idle", "moveright", "moveleft" };
-        public long MemoryCacheSizeBytes = 200 * 1024 * 1024;
-        public bool UpgradeAvatarUrlToHttps = true;
     }
 }

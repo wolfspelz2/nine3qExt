@@ -10,9 +10,9 @@ namespace n3q.WebEx.Controllers
     public class ClientController : ControllerBase
     {
         public ICallbackLogger Log { get; set; }
-        public WebExConfig Config { get; set; }
+        public WebExConfigDefinition Config { get; set; }
 
-        public ClientController(ILogger<ClientController> logger, WebExConfig config)
+        public ClientController(ILogger<ClientController> logger, WebExConfigDefinition config)
         {
             Log = new FrameworkCallbackLogger(logger);
             Config = config;

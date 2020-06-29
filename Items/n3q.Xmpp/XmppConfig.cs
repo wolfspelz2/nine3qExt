@@ -1,32 +1,40 @@
 ﻿namespace n3q.Xmpp
 {
-    public class XmppConfig : ConfigSharp.ConfigBag
+    class XmppConfig : XmppConfigDefinition
     {
-        public enum RunModes
+        public void Load()
         {
-            Development,
-            Test,
-            Staging,
-            Production
+            ConfigFile = CurrentFile;
+            ConfigSequence += nameof(XmppConfig);
+
+            if (Build == BuildConfiguration.Debug) {
+
+                ClusterId = "dev";
+                LocalhostClustering = false;
+                ClusteringAzureTableConnectionString = "DefaultEndpointsProtocol=https;AccountName=nine3qstoragetest;AccountKey=4Ov/kZAXYi4seMphX/t6jyTmvOuXVqf8P0M5QHd3b+mpHWJOzvo5gED9H23R4hMzxhMNueXoRyW4rk4BCctRuQ==;EndpointSuffix=core.windows.net";
+
+                ComponentHost = "itemsxmpp.dev.sui.li";
+                ComponentDomain = "itemsxmpp.dev.sui.li";
+                ComponentPort = 5555;//5280;//5555;
+                ComponentSecret = "28756a7ff5dce";
+
+            } else {
+
+                //hw TODO recreate and change all
+                ClusterId = "prod";
+                LocalhostClustering = false;
+
+                ComponentHost = "itemsxmpp.dev.sui.li";
+                ComponentDomain = "itemsxmpp.dev.sui.li";
+                ComponentPort = 5280;
+
+            }
+
+            AdditionalBaseFolder = System.Environment.GetEnvironmentVariable("N3Q_CONFIG_ROOT") ?? AdditionalBaseFolder;
+            if (!string.IsNullOrEmpty(AdditionalBaseFolder)) {
+                BaseFolder = AdditionalBaseFolder;
+                Include(ConfigFile);
+            }
         }
-
-        public RunModes RunMode =
-#if DEBUG
-            RunModes.Development;
-#else
-            RunModes.Production;
-#endif
-
-        public string ConfigSequence = "";
-        public string ConfigFile = nameof(XmppConfigRoot) + ".cs";
-
-        public string ClusterId = "dev";
-        public bool LocalhostClustering = true;
-        public string ClusteringAzureTableConnectionString = "UseDevelopmentStorage=true";
-
-        public string ComponentHost = "itemsxmpp.dev.sui.li";
-        public string ComponentDomain = "itemsxmpp.dev.sui.li";
-        public int ComponentPort = 5280;//5555;
-        public string ComponentSecret = "28756a7ff5dce";
     }
 }

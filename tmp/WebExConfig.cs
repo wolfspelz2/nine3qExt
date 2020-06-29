@@ -1,4 +1,4 @@
-﻿namespace n3q.WebEx
+namespace n3q.WebEx
 {
     class WebExConfigProduction : WebExConfigDefinition
     {

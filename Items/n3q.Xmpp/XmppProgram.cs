@@ -16,7 +16,7 @@ namespace n3q.Xmpp
         const int InitializeAttemptsBeforeFailing = 5;
         private static int _attempt = 0;
 
-        static readonly XmppConfig Config = new XmppConfig();
+        static readonly XmppConfigDefinition Config = new XmppConfigDefinition();
         static Controller _controller;
 
         static int Main(string[] args)
@@ -26,9 +26,10 @@ namespace n3q.Xmpp
 
             ConfigSharp.Log.LogLevel = ConfigSharp.Log.Level.Info;
             ConfigSharp.Log.LogHandler = (lvl, ctx, msg) => { Log.DoLog(Log.LevelFromString(lvl.ToString()), ctx, msg); };
+            Config.ConfigFile = nameof(XmppConfig) + ".cs";
             Config.ParseCommandline(args);
             Config.Include(Config.ConfigFile);
-            Console.WriteLine($"RunMode={Config.RunMode} ConfigSequence={Config.ConfigSequence}");
+            Console.WriteLine($"RunMode={Config.Build} ConfigSequence={Config.ConfigSequence}");
 
             return RunMainAsync().Result;
         }
@@ -117,7 +118,7 @@ namespace n3q.Xmpp
 
             await _controller.Start();
 
-            if (Config.RunMode == XmppConfig.RunModes.Production) {
+            if (Config.Build == XmppConfigDefinition.BuildConfiguration.Release) {
 
                 Console.WriteLine("Press CTRL-C to terminate...");
                 new AutoResetEvent(false).WaitOne();

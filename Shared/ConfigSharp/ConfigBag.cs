@@ -7,7 +7,6 @@ using System.Text;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using System.Globalization;
 
 namespace ConfigSharp
 {

@@ -15,15 +15,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Shared\ConfigSharp\ConfigSharp.csproj" />
+    <ProjectReference Include="..\..\Items\n3q.Common\n3q.Common.csproj" />
     <ProjectReference Include="..\..\Shared\n3q.Tools\n3q.Tools.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Update="WebExConfigProduction.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="WebExConfigRoot.cs">
+    <Compile Update="WebExConfig.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
   </ItemGroup>

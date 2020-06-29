@@ -22,7 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Shared\ConfigSharp\ConfigSharp.csproj" />
     <ProjectReference Include="..\..\Shared\JsonPath\JsonPath.csproj" />
     <ProjectReference Include="..\..\Shared\n3q.Tools\n3q.Tools.csproj" />
     <ProjectReference Include="..\n3q.Aspects\n3q.Aspects.csproj" />
@@ -35,9 +34,9 @@
 
   <ItemGroup>
     <Compile Update="WebConfigProduction.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="WebConfigRoot.cs">
+    <Compile Update="WebConfig.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
   </ItemGroup>
