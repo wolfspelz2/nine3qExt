@@ -19,7 +19,18 @@ spec:
           ports:
             - containerPort: 80
               protocol: TCP
-
+          env:
+            - name: N3Q_CONFIG_ROOT
+              value: /n3q-config
+          volumeMounts:
+            - name: configfileshare
+              mountPath: /n3q-config
+      volumes:
+        - name: configfileshare
+          azureFile:
+            secretName: azure-storage-secret
+            shareName: n3q-config
+            readOnly: false
 ---
 apiVersion: v1
 kind: Service
