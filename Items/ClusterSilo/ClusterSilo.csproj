@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Shared\ConfigSharp\ConfigSharp.csproj" />
     <ProjectReference Include="..\n3q.Common\n3q.Common.csproj" />
     <ProjectReference Include="..\n3q.GrainInterfaces\n3q.GrainInterfaces.csproj" />
     <ProjectReference Include="..\n3q.Grains\n3q.Grains.csproj" />
@@ -26,9 +25,9 @@
 
   <ItemGroup>
     <Compile Update="SiloConfigProduction.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Compile>
-    <Compile Update="SiloConfigRoot.cs">
+    <Compile Update="SiloConfig.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
   </ItemGroup>

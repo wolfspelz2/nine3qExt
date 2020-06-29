@@ -1,4 +1,4 @@
-﻿namespace n3q.Xmpp
+namespace n3q.Xmpp
 {
     class XmppConfigProduction : XmppConfigDefinition
     {

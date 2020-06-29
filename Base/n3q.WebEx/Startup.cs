@@ -17,8 +17,8 @@ namespace n3q.WebEx
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var config = new WebExConfig().Include(nameof(WebExConfigRoot) + ".cs") as WebExConfig;
-            services.AddSingleton<WebExConfig>(config);
+            var config = new WebExConfigDefinition().Include(nameof(WebExConfig) + ".cs") as WebExConfigDefinition;
+            services.AddSingleton<WebExConfigDefinition>(config);
 
             services.AddControllers();
             services.AddMemoryCache(options => { options.SizeLimit = config.MemoryCacheSizeBytes;  });

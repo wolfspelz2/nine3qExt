@@ -55,6 +55,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JsonPath.Test", "Shared\JsonPath.Test\JsonPath.Test.csproj", "{4A3187F8-932D-425E-A401-BFF4DE4909A3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "n3q.WebEx", "Base\n3q.WebEx\n3q.WebEx.csproj", "{CA848091-8AB6-416D-88EB-7AEB17EB1AC3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E85AC911-2BEF-4B64-A9AF-F47BCA37F9ED} = {E85AC911-2BEF-4B64-A9AF-F47BCA37F9ED}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigSharp", "Shared\ConfigSharp\ConfigSharp.csproj", "{5225BEDF-16EF-49B7-A830-8D63269996CE}"
 EndProject

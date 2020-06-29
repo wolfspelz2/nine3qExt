@@ -1,4 +1,4 @@
-﻿namespace ClusterSilo
+namespace ClusterSilo
 {
     public class SiloConfigProduction : SiloConfigDefinition
     {

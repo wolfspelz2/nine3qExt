@@ -17,10 +17,10 @@ namespace n3q.WebEx.Controllers
     public class AvatarController : ControllerBase
     {
         public ICallbackLogger Log { get; set; }
-        public WebExConfig Config { get; set; }
+        public WebExConfigDefinition Config { get; set; }
         private readonly IMemoryCache _cache;
 
-        public AvatarController(ILogger<AvatarController> logger, WebExConfig config, IMemoryCache memoryCache)
+        public AvatarController(ILogger<AvatarController> logger, WebExConfigDefinition config, IMemoryCache memoryCache)
         {
             Log = new FrameworkCallbackLogger(logger);
             Config = config;

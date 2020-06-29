@@ -18,15 +18,16 @@ namespace ClusterSilo
 {
     public static class SiloProgram
     {
-        static SiloConfig Config { get; set; } = new SiloConfig();
+        static SiloConfigDefinition Config { get; set; } = new SiloConfigDefinition();
 
         public static int Main(string[] args)
         {
             ConfigSharp.Log.LogLevel = ConfigSharp.Log.Level.Info;
             ConfigSharp.Log.LogHandler = (lvl, ctx, msg) => { Console.WriteLine($"{lvl} {ctx} {msg}"); };
+            Config.ConfigFile = nameof(SiloConfig) + ".cs";
             Config.ParseCommandline(args);
             Config.Include(Config.ConfigFile);
-            Console.WriteLine($"RunMode={Config.RunMode} ConfigSequence={Config.ConfigSequence}");
+            Console.WriteLine($"RunMode={Config.Build} ConfigSequence={Config.ConfigSequence}");
 
             return RunMainAsync().Result;
         }
@@ -74,7 +75,7 @@ namespace ClusterSilo
             builder.ConfigureLogging(logging => {
                 logging.AddConsole();
 
-                if (Config.RunMode == SiloConfig.RunModes.Production) {
+                if (Config.Build == SiloConfigDefinition.BuildConfiguration.Release) {
                     logging.SetMinimumLevel(LogLevel.Error);
                     //logging.SetMinimumLevel(LogLevel.Warning);
                 }
