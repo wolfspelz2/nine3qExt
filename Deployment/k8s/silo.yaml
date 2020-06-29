@@ -14,7 +14,7 @@ spec:
         run: n3q-silo
     spec:
       containers:
-        - name: n3qsilo
+        - name: n3q-silo
           image: docker.k8s.sui.li/n3q-silo:2
           ports:
             - containerPort: 30000

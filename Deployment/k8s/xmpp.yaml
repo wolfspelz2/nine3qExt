@@ -14,7 +14,7 @@ spec:
         run: n3q-xmpp
     spec:
       containers:
-        - name: n3qsilo
+        - name: n3q-xmpp
           image: docker.k8s.sui.li/n3q-xmpp:2
           ports:
             - containerPort: 30000
