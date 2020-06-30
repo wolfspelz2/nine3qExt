@@ -618,7 +618,13 @@
         bottom: 0;
         overflow: hidden;
     }
-    
+
+        #n3q iframe.n3q-inventory-pane .n3q-inventory-status {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+        
     #n3q iframe.n3q-inventory-iframe {
         width: 100%;
         height: 100%;

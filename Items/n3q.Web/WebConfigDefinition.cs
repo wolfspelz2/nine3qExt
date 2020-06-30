@@ -10,9 +10,9 @@ namespace n3q.Web
         public string ClusteringAzureTableConnectionString = n3q.Common.Cluster.DevelopmentAzureTableConnectionString;
 
         public List<string> AdminTokens = new List<string> { };
-        public string ItemServiceXmppUrl = "xmpp:itemsxmpp.weblin.com";
+        public string ItemServiceXmppUrl = "xmpp:xmpp-component.example.com";
 
-        public const string DefaultBaseUrl = "https://itemsweb.weblin.com/";
+        public const string DefaultBaseUrl = "https://item-web.example.com/";
         public string BaseUrl = DefaultBaseUrl;
         public string UnavailableUrl = DefaultBaseUrl + "Embedded/Account?id={id}";
         public string ItemBaseUrl = DefaultBaseUrl + "images/Items/";
