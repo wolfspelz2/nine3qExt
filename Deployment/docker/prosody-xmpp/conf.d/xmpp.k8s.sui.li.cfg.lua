@@ -6,8 +6,6 @@ s2s_require_encryption = false
 component_ports = { 5347  }
 component_interface = "*"
 
-
-
 Component "itemsxmpp.k8s.sui.li"
          component_secret = "28756a7ff5dce"
 

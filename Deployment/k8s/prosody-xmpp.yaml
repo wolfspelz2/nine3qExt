@@ -48,7 +48,9 @@ spec:
   - name: http
     port: 5280
     protocol: TCP
-
+  - name: xmpp-component
+    port: 5347
+    protocol: TCP
 
 ---
 apiVersion: v1
