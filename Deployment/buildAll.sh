@@ -33,4 +33,4 @@ git pull
 cd ./Deployment/docker/prosody-xmpp
 docker build -t docker.k8s.sui.li/prosody-xmpp:$n .
 docker push docker.k8s.sui.li/prosody-xmpp:$n
-kubectl set image deployment/prosody-xmpp prosody-xmpp=docker.k8s.sui.li/prosody-xmpp:$n --record --namespace=default
+kubectl set image deployment/prosody-xmpp prosody-xmpp=docker.k8s.sui.li/prosody-xmpp:$n --record --namespace=n3q-prod
