@@ -29,6 +29,6 @@ git pull
 #docker push docker.k8s.sui.li/n3q-xmpp:$n
 #kubectl set image deployment/n3q-xmpp n3q-xmpp=docker.k8s.sui.li/n3q-xmpp:$n --record --namespace=n3q-prod
 
-docker build -f Deployment/docker/prosody-xmpp/Dockerfile -t docker.k8s.sui.li/n3q-prosody-xmpp:$n .
-docker push docker.k8s.sui.li/n3q-prosody-xmpp:$n
-kubectl set image deployment/n3q-prosody-xmpp n3q-prosody-xmpp=docker.k8s.sui.li/n3q-prosody-xmpp:$n --record --namespace=n3q-prod
+docker build -f Deployment/docker/prosody-xmpp/Dockerfile -t docker.k8s.sui.li/prosody-xmpp:$n .
+docker push docker.k8s.sui.li/prosody-xmpp:$n
+kubectl set image deployment/prosody-xmpp prosody-xmpp=docker.k8s.sui.li/prosody-xmpp:$n --record --namespace=default
