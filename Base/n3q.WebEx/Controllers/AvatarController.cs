@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
 using n3q.Tools;
 using System.Web;
+using System.Linq;
 
 namespace n3q.WebEx.Controllers
 {
@@ -183,9 +184,11 @@ namespace n3q.WebEx.Controllers
                 var sequenceName = pair.Key;
                 var imageData = pair.Value.Result;
 
-                using var stream = new MemoryStream(imageData);
-                var info = new GifInfo.GifInfo(stream);
-                var duration = (int)Math.Round(info.AnimationDuration.TotalMilliseconds);
+                //using var stream = new MemoryStream(imageData);
+                //var info = new GifInfo.GifInfo(stream);
+                //var duration = (int)Math.Round(info.AnimationDuration.TotalMilliseconds);
+
+                var duration = GetGifDurationMSec(imageData);
 
                 var xpath = $"//sequence[@name='{sequenceName}']";
                 var sequenceNodes = outDoc.SelectNodes(xpath);
@@ -219,7 +222,7 @@ namespace n3q.WebEx.Controllers
             return xml;
         }
 
-        private void SetXmlAttribute(XmlDocument doc, XmlNode node, string name, string value)
+        void SetXmlAttribute(XmlDocument doc, XmlNode node, string name, string value)
         {
             var attr = doc.CreateAttribute(name);
             attr.Value = value;
@@ -230,5 +233,32 @@ namespace n3q.WebEx.Controllers
                 node.Attributes[name].Value = value;
             }
         }
+
+        int GetGifDurationMSec(byte[] data)
+        {
+            var duration = 0;
+            var frames = 0;
+            //var loop = false;
+
+            //data = System.IO.File.ReadAllBytes(@"C:\Users\wolf\Desktop\idle-1.gif");
+
+            var signatureBytes = data.Take(4).ToArray();
+            var signature = System.Text.Encoding.Default.GetString(signatureBytes);
+            if (signature == "GIF8") {
+                var graphicControlExtensionHeader = new byte[] { 0x21, 0xf9, 0x04 };
+                for (var i = 4; i < data.Length; i++) {
+                    var currentBytes = data.Skip(i).Take(3).ToArray();
+                    if (currentBytes.SequenceEqual(graphicControlExtensionHeader)) {
+                        var durationBytes = data.Skip(i + 4).Take(2).ToArray();
+                        var delayTime = BitConverter.ToInt16(durationBytes);
+                        duration += delayTime;
+                        frames++;
+                    }
+                }
+            }
+
+            return duration * 10;
+        }
+
     }
 }
