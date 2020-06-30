@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prosody-xmpp
+  namespace: n3q-prod
+spec:
+  selector:
+    matchLabels:
+      run: prosody-xmpp
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: prosody-xmpp
+    spec:
+      containers:
+        - name: prosody-xmpp
+          image: docker.k8s.sui.li/prosody-xmpp:2
+          ports:
+            - containerPort: 5280
+              protocol: TCP
+            - containerPort: 5347
+              protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prosody-xmpp
+  namespace: n3q-prod
+  labels:
+    run: prosody-xmpp
+  annotations:
+    haproxy.org/check: "enabled"
+    haproxy.org/forwarded-for: "enabled"
+    haproxy.org/load-balance: "roundrobin"
+    haproxy.org/timeout-client: "300000"
+    haproxy.org/timeout-server: "300000"
+#    haproxy.org/add-header: "http-request add-header X-Forwarded-Proto https
+spec:
+  selector:
+    run: prosody-xmpp
+  ports:
+  - name: http
+    port: 5280
+    protocol: TCP
+
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: prosody-xmpp-ingress
+  namespace: n3q-prod
+spec:
+  rules:
+  - host: xmpp.k8s.sui.li
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: prosody-xmpp
+          servicePort: 5280
