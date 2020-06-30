@@ -94,7 +94,7 @@ export class Inventory
         this.app.sendStanza(presence);
     }
 
-    onPresence(stanza: any): void
+    onPresence(stanza: xml): void
     {
         let from = jid(stanza.attrs.from);
         let resource = from.getResource();
@@ -109,6 +109,7 @@ export class Inventory
         switch (presenceType) {
             case 'available':
                 {
+                    this.window?.setStatus('ok');
                     if (isSelf) {
                         this.populateComplete();
                     } else {
@@ -139,11 +140,40 @@ export class Inventory
                 break;
 
             case 'unavailable':
+                this.window?.setStatus('ok');
                 if (this.items[resource]) {
                     this.items[resource].onPresenceUnavailable(stanza);
                     delete this.items[resource];
                 }
 
+                break;
+
+            case 'error':
+                let from = '';
+                let to = '';
+                let type = '';
+                let text = '';
+
+                if (stanza.attrs) { from = stanza.attrs?.from; }
+                if (stanza.attrs) { to = stanza.attrs?.to; }
+                if (stanza.children) {
+                    let child = stanza.children[0];
+                    if (child) {
+                        if (child.children) {
+                            child.children.forEach(node =>
+                            {
+                                if (node.name == 'text') {
+                                    text = node.text();
+                                } else {
+                                    type = node.name;
+                                }
+                            });
+                        }
+                    }
+                }
+
+                log.info('error', from, to, type, text);
+                this.window?.setStatus('error', text, { 'type': type, 'from': from, 'to': to });
                 break;
         }
     }

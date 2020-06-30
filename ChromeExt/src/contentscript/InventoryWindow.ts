@@ -9,6 +9,7 @@ import { ContentApp } from './ContentApp';
 import { Window } from './Window';
 import { Inventory } from './Inventory';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { Environment } from '../lib/Environment';
 
 export class InventoryWindow extends Window
 {
@@ -129,6 +130,24 @@ export class InventoryWindow extends Window
         await this.saveOption(InventoryWindow.name, 'bottom', bottom);
         await this.saveOption(InventoryWindow.name, 'width', width);
         await this.saveOption(InventoryWindow.name, 'height', height);
+    }
+
+    setStatus(status: string, text?: string, detail?: { type: string; from: string; to: string; }): void
+    {
+        if (Environment.isDevelopment()) {
+            $(this.paneElem).find('.n3q-inventory-status').remove();
+
+            if (status == 'error') {
+                let elem = <HTMLDivElement>$(
+                    `<div class="n3q-base n3q-inventory-status">
+                        <div class="n3q-base n3q-text">` + as.Html('error: ' + detail.type, '') + `</div>
+                        <div class="n3q-base n3q-text">` + as.Html(text, '') + `</div>
+                        <div class="n3q-base n3q-text">` + as.Html('from: ' + detail.from, '') + `</div>
+                    </div>`
+                ).get(0);
+                $(this.paneElem).append(elem);
+            }
+        }
     }
 
     isOpen(): boolean
