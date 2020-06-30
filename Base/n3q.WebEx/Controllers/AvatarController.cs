@@ -251,8 +251,10 @@ namespace n3q.WebEx.Controllers
                     if (currentBytes.SequenceEqual(graphicControlExtensionHeader)) {
                         var durationBytes = data.Skip(i + 4).Take(2).ToArray();
                         var delayTime = BitConverter.ToInt16(durationBytes);
-                        duration += delayTime;
-                        frames++;
+                        if (delayTime < 1000) {
+                            duration += delayTime;
+                            frames++;
+                        }
                     }
                 }
             }
