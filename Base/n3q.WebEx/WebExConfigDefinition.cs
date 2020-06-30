@@ -4,11 +4,11 @@ namespace n3q.WebEx
 {
     public class WebExConfigDefinition : n3q.Common.ConfigBag
     {
-        public string XmppServiceUrl = "wss://xmpp.weblin.com/xmpp-websocket";
-        public string XmppDomain = "xmpp.weblin.weblin.com";
+        public string XmppServiceUrl = "wss://xmpp-user-host.example.com/xmpp-websocket";
+        public string XmppDomain = "xmpp-user-host.example.com";
         public string XmppUserPasswordSHA1Secret = "3b6f88f2bed0f392";
 
-        public const string DefaultBaseUrl = "https://webex.weblin.com/";
+        public const string DefaultBaseUrl = "https://ex-web.example.com/";
         public string BaseUrl = DefaultBaseUrl;
         public string IdentificatorUrlTemplate = DefaultBaseUrl + "Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}";
         public string AnimationsProxyUrlTemplate = DefaultBaseUrl + "Avatar/InlineData?url={url}";

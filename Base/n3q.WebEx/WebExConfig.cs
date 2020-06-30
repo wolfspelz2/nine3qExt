@@ -7,6 +7,13 @@
             ConfigFile = CurrentFile;
             ConfigSequence += nameof(WebExConfig);
 
+        //public string XmppServiceUrl = "wss://xmpp-user-host.example.com/xmpp-websocket";
+        //public string XmppDomain = "xmpp-user-host.example.com";
+        //public string XmppUserPasswordSHA1Secret = "3b6f88f2bed0f392";
+
+        //public const string DefaultBaseUrl = "https://ex-web.example.com/";
+
+
             if (Build == BuildConfiguration.Debug) {
 
                 XmppServiceUrl = "wss://xmpp.weblin.sui.li/xmpp-websocket";
@@ -20,7 +27,7 @@
                 XmppServiceUrl = "wss://xmpp.weblin.sui.li/xmpp-websocket";
                 XmppDomain = "xmpp.weblin.sui.li";
 
-                BaseUrl = "https://webex.weblin.com/";
+                BaseUrl = "https://n3qwebex.k8s.sui.li/";
 
             }
 

@@ -6,9 +6,9 @@
         public bool LocalhostClustering = n3q.Common.Cluster.DevelopmentLocalhostClustering;
         public string ClusteringAzureTableConnectionString = "UseDevelopmentStorage=true";
 
-        public string ComponentHost = "itemsxmpp.dev.sui.li";
-        public string ComponentDomain = "itemsxmpp.dev.sui.li";
+        public string ComponentHost = "xmpp-component-host.example.com";
         public int ComponentPort = 5347;//5555;
+        public string ComponentDomain = "xmpp-component.example.com";
         public string ComponentSecret = "28756a7ff5dce";
     }
 }

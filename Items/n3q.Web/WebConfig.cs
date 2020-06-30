@@ -25,9 +25,9 @@ namespace n3q.Web
                 LocalhostClustering = false;
 
                 AdminTokens = new List<string>();
-                ItemServiceXmppUrl = "xmpp:itemsxmpp.weblin.com";
+                ItemServiceXmppUrl = "xmpp:itemsxmpp.k8s.sui.li";
 
-                BaseUrl = "https://itemsweb.weblin.com/";
+                BaseUrl = "https://n3qweb.k8s.sui.li/";
 
             }
 

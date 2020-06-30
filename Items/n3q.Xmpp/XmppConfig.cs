@@ -12,9 +12,9 @@
                 ClusterId = "dev";
                 ClusteringAzureTableConnectionString = "DefaultEndpointsProtocol=https;AccountName=nine3qstoragetest;AccountKey=4Ov/kZAXYi4seMphX/t6jyTmvOuXVqf8P0M5QHd3b+mpHWJOzvo5gED9H23R4hMzxhMNueXoRyW4rk4BCctRuQ==;EndpointSuffix=core.windows.net";
 
-                ComponentHost = "itemsxmpp.dev.sui.li";
-                ComponentDomain = "itemsxmpp.dev.sui.li";
+                ComponentHost = "xmpp.dev.sui.li";
                 ComponentPort = 5555;//5280;//5555;
+                ComponentDomain = "itemsxmpp.dev.sui.li";
                 ComponentSecret = "28756a7ff5dce";
 
             } else {
@@ -23,9 +23,9 @@
                 ClusterId = "prod";
                 LocalhostClustering = false;
 
-                ComponentHost = "itemsxmpp.dev.sui.li";
-                ComponentDomain = "itemsxmpp.dev.sui.li";
+                ComponentHost = "prosody-xmpp.n3q-prod.svc.cluster.local";
                 ComponentPort = 5280;
+                ComponentDomain = "itemsxmpp.k8s.sui.li";
 
             }
 
