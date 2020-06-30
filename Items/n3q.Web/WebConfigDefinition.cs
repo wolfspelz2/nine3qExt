@@ -5,9 +5,9 @@ namespace n3q.Web
     public class WebConfigDefinition : n3q.Common.ConfigBag
     {
         public bool UseIntegratedCluster = false;
-        public bool LocalhostClustering = true;
-        public string ClusteringAzureTableConnectionString = "UseDevelopmentStorage=true";
-        public string ClusterId = "dev";
+        public string ClusterId = n3q.Common.Cluster.DevelopmentClusterId;
+        public bool LocalhostClustering = n3q.Common.Cluster.DevelopmentLocalhostClustering;
+        public string ClusteringAzureTableConnectionString = n3q.Common.Cluster.DevelopmentAzureTableConnectionString;
 
         public List<string> AdminTokens = new List<string> { };
         public string ItemServiceXmppUrl = "xmpp:itemsxmpp.weblin.com";

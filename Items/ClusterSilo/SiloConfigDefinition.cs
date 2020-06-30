@@ -2,11 +2,11 @@
 {
     public class SiloConfigDefinition : n3q.Common.ConfigBag
     {
-        public string ClusterId = "dev";
-        public bool LocalhostClustering = true;
-        public string ItemStateAzureTableConnectionString = "UseDevelopmentStorage=true";
-        public string GrainStateAzureTableConnectionString = "UseDevelopmentStorage=true";
-        public string ClusteringAzureTableConnectionString = "UseDevelopmentStorage=true";
-        public string PubsubStoreAzureTableConnectionString = "UseDevelopmentStorage=true";
+        public string ClusterId = n3q.Common.Cluster.DevelopmentClusterId;
+        public bool LocalhostClustering = n3q.Common.Cluster.DevelopmentLocalhostClustering;
+        public string ItemStateAzureTableConnectionString = n3q.Common.Cluster.DevelopmentAzureTableConnectionString;
+        public string GrainStateAzureTableConnectionString = n3q.Common.Cluster.DevelopmentAzureTableConnectionString;
+        public string ClusteringAzureTableConnectionString = n3q.Common.Cluster.DevelopmentAzureTableConnectionString;
+        public string PubsubStoreAzureTableConnectionString = n3q.Common.Cluster.DevelopmentAzureTableConnectionString;
     }
 }

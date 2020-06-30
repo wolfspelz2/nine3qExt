@@ -42,6 +42,11 @@ namespace n3q.Web
             Item_Delete,
             Item_Deactivate,
 
+            ItemRef_Get,
+            ItemRef_Set,
+            ItemRef_Delete,
+            ItemRef_Deactivate,
+
             //Translation_Set,
             //Translation_Get,
             //Translation_Unset,
@@ -75,6 +80,12 @@ namespace n3q.Web
             Handlers.Add(nameof(Fn.Item_RemoveFromList), new Handler { Name = nameof(Fn.Item_RemoveFromList), Function = Item_RemoveFromList, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Remove list element from list", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Property"] = "Container-ID", ["ListElement"] = "List-Element", } });
             Handlers.Add(nameof(Fn.Item_Delete), new Handler { Name = nameof(Fn.Item_Delete), Function = Item_Delete, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Delete item and storage", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", } });
             Handlers.Add(nameof(Fn.Item_Deactivate), new Handler { Name = nameof(Fn.Item_Deactivate), Function = Item_Deactivate, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Remove item from memory", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", } });
+
+            Handlers.Add(nameof(Fn.ItemRef_Get), new Handler { Name = nameof(Fn.ItemRef_Get), Function = ItemRef_Get, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Show item ref", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["ItemRef"] = "ItemRef-ID" } });
+            Handlers.Add(nameof(Fn.ItemRef_Set), new Handler { Name = nameof(Fn.ItemRef_Set), Function = ItemRef_Set, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Set item ref", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["ItemRef"] = "ItemRef-ID", ["Item"] = "Item-ID" } });
+            Handlers.Add(nameof(Fn.ItemRef_Delete), new Handler { Name = nameof(Fn.ItemRef_Delete), Function = ItemRef_Delete, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Show item ref", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["ItemRef"] = "ItemRef-ID" } });
+            Handlers.Add(nameof(Fn.ItemRef_Deactivate), new Handler { Name = nameof(Fn.ItemRef_Deactivate), Function = ItemRef_Deactivate, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Show item ref", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["ItemRef"] = "ItemRef-ID" } });
+
 
             //Handlers.Add(nameof(Fn.Translation_Set), new Handler { Name = nameof(Fn.Translation_Set), Function = Translation_Set, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Add translation", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Text to translate, format: context.text", ["Language"] = "Language [de_DE|en_US|...]", ["Translated"] = "Translated text (omitting context)", } });
             //Handlers.Add(nameof(Fn.Translation_Get), new Handler { Name = nameof(Fn.Translation_Get), Function = Translation_Get, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Show translation", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Key"] = "Text to translate, format: context.text", ["Language"] = "Language [de_DE|en_US|...]", } });
@@ -575,6 +586,43 @@ namespace n3q.Web
             var item = ClusterClient.GetGrain<IItem>(itemId);
             var text = itemId.ToString();
             return CommandExecuteLink(Fn.Item_RemoveFromList.ToString(), new[] { itemId, pid.ToString(), listItem }, "&#10006;", new Dictionary<string, string> { { "class", "cSmallTextButton" } });
+        }
+
+        #endregion
+
+        #region ItemRef
+
+        object ItemRef_Get(Arglist args)
+        {
+            args.Next("cmd");
+            var itemRefId = args.Next("ItemRef");
+            var itemId = ClusterClient.GetGrain<IItemRef>(itemRefId).GetItem().Result;
+            return itemId;
+        }
+
+        object ItemRef_Set(Arglist args)
+        {
+            args.Next("cmd");
+            var itemRefId = args.Next("ItemRef");
+            var itemId = args.Next("Item");
+            ClusterClient.GetGrain<IItemRef>(itemRefId).SetItem(itemId).Wait();
+            return $"{itemRefId} => {itemId}";
+        }
+
+        object ItemRef_Delete(Arglist args)
+        {
+            args.Next("cmd");
+            var itemRefId = args.Next("ItemRef");
+            ClusterClient.GetGrain<IItemRef>(itemRefId).Delete().Wait();
+            return $"Deleted";
+        }
+
+        object ItemRef_Deactivate(Arglist args)
+        {
+            args.Next("cmd");
+            var itemRefId = args.Next("ItemRef");
+            ClusterClient.GetGrain<IItemRef>(itemRefId).Deactivate().Wait();
+            return $"Deactivated";
         }
 
         #endregion

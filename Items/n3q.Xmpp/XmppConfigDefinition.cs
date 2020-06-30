@@ -2,8 +2,8 @@
 {
     public class XmppConfigDefinition : n3q.Common.ConfigBag
     {
-        public string ClusterId = "dev";
-        public bool LocalhostClustering = true;
+        public string ClusterId = n3q.Common.Cluster.DevelopmentClusterId;
+        public bool LocalhostClustering = n3q.Common.Cluster.DevelopmentLocalhostClustering;
         public string ClusteringAzureTableConnectionString = "UseDevelopmentStorage=true";
 
         public string ComponentHost = "itemsxmpp.dev.sui.li";
