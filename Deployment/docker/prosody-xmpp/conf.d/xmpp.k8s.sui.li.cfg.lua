@@ -8,7 +8,7 @@ component_interface = "*"
 
 
 
-Component "items.xmpp.dev.sui.li"
+Component "itemsxmpp.k8s.sui.li"
          component_secret = "28756a7ff5dce"
 
 VirtualHost "xmpp.k8s.sui.li"
