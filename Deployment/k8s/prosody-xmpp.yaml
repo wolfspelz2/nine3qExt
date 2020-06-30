@@ -21,6 +21,10 @@ spec:
               protocol: TCP
             - containerPort: 5347
               protocol: TCP
+            - containerPort: 5269
+              protocol: TCP
+            - containerPort: 5222
+              protocol: TCP
 
 ---
 apiVersion: v1
@@ -45,6 +49,28 @@ spec:
     port: 5280
     protocol: TCP
 
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prosody-xmpp-s2s
+  namespace: n3q-prod
+  labels:
+    run: prosody-xmpp
+spec:
+  type: NodePort
+  selector:
+    run: prosody-xmpp
+  ports:
+  - name: xmpp-s2s
+    port: 5269
+    protocol: TCP
+    nodePort: 30269
+  - name: xmpp-c2s
+    port: 5222
+    nodePort: 30222
+    protocol: TCP
 ---
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
