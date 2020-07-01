@@ -10,5 +10,8 @@
         public int ComponentPort = 5347;//5555;
         public string ComponentDomain = "xmpp-component.example.com";
         public string ComponentSecret = "28756a7ff5dce";
+
+        public int ClusterConnectSecondsBetweenRetries = 4;
+        public int XmppConnectSecondsBetweenRetries = 4;
     }
 }

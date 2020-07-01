@@ -13,7 +13,6 @@ namespace n3q.Xmpp
 {
     public class XmppProgram
     {
-        const int InitializeAttemptsBeforeFailing = 5;
         private static int _attempt = 0;
 
         static readonly XmppConfigDefinition Config = new XmppConfigDefinition();
@@ -94,28 +93,16 @@ namespace n3q.Xmpp
 
         private static async Task<bool> RetryFilter(Exception exception)
         {
-            if (exception.GetType() != typeof(SiloUnavailableException)) {
-                Console.WriteLine($"Cluster client failed to connect to cluster with unexpected error.  Exception: {exception}");
-                return false;
-            }
             _attempt++;
-            Console.WriteLine($"Cluster client attempt {_attempt} of {InitializeAttemptsBeforeFailing} failed to connect to cluster.  Exception: {exception}");
-            if (_attempt > InitializeAttemptsBeforeFailing) {
-                return false;
-            }
-            await Task.Delay(TimeSpan.FromSeconds(4));
+            Console.WriteLine($"Cluster client attempt {_attempt} failed to connect: {exception.GetType().Name} {exception.Message}");
+
+            await Task.Delay(TimeSpan.FromSeconds(Config.ClusterConnectSecondsBetweenRetries));
             return true;
         }
 
         private static async Task DoClientWork(IClusterClient client)
         {
-            _controller = new Controller(client,
-                Config.ComponentHost,
-                Config.ComponentDomain,
-                Config.ComponentPort,
-                Config.ComponentSecret
-            );
-
+            _controller = new Controller(client, Config);
             await _controller.Start();
 
             if (Config.Build == XmppConfigDefinition.BuildConfiguration.Release) {

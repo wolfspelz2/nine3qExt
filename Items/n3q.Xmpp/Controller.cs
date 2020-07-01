@@ -18,6 +18,9 @@ namespace n3q.Xmpp
 {
     public partial class Controller : IAsyncObserver<ItemUpdate>
     {
+        IClusterClient ClusterClient { get; set; }
+        XmppConfigDefinition Config { get; set; }
+
         readonly string _componentHost;
         readonly string _componentDomain;
         readonly int _componentPort;
@@ -25,7 +28,6 @@ namespace n3q.Xmpp
         readonly string _roomStorageId;
         readonly string _configStorageId;
 
-        readonly IClusterClient _clusterClient;
         StreamSubscriptionHandle<ItemUpdate> _subscriptionHandle;
 
         readonly object _mutex = new object();
@@ -37,16 +39,18 @@ namespace n3q.Xmpp
         private Connection _xmppConnection;
         private bool _clusterConnected;
 
-        public Controller(IClusterClient clusterClient, string componentHost, string componentDomain, int componentPort, string componentSecret)
+        public Controller(IClusterClient clusterClient, XmppConfigDefinition config)
         {
-            _clusterClient = clusterClient;
-            _componentHost = componentHost;
-            _componentDomain = componentDomain;
-            _componentPort = componentPort;
-            _componentSecret = componentSecret;
+            ClusterClient = clusterClient;
+            Config = config;
 
-            _roomStorageId = "Xmpp-Rooms-" + componentDomain;
-            _configStorageId = "Xmpp-Config-" + componentDomain;
+            _componentHost = Config.ComponentHost;
+            _componentDomain = Config.ComponentDomain;
+            _componentPort = Config.ComponentPort;
+            _componentSecret = Config.ComponentSecret;
+
+            _roomStorageId = "Xmpp-Rooms-" + Config.ComponentDomain;
+            _configStorageId = "Xmpp-Config-" + Config.ComponentDomain;
         }
 
         public async Task Start()
@@ -149,7 +153,7 @@ namespace n3q.Xmpp
         private IAsyncStream<ItemUpdate> ItemUpdateStream
         {
             get {
-                var streamProvider = _clusterClient.GetStreamProvider(ItemService.StreamProvider);
+                var streamProvider = ClusterClient.GetStreamProvider(ItemService.StreamProvider);
                 var streamId = ItemService.StreamGuid;
                 var streamNamespace = ItemService.StreamNamespace;
                 var stream = streamProvider.GetStream<ItemUpdate>(streamId, streamNamespace);
@@ -159,12 +163,12 @@ namespace n3q.Xmpp
 
         ItemStub MakeItemStub(string itemId)
         {
-            var itemClient = new OrleansClusterClient(_clusterClient, itemId);
+            var itemClient = new OrleansClusterClient(ClusterClient, itemId);
             var itemStub = new ItemStub(itemClient);
             return itemStub;
         }
 
-        IWorker GetIWorker() => _clusterClient.GetGrain<IWorker>(Guid.Empty);
+        IWorker GetIWorker() => ClusterClient.GetGrain<IWorker>(Guid.Empty);
 
         #endregion
 
@@ -338,9 +342,10 @@ namespace n3q.Xmpp
 
         void Connection_OnClosed(Connection conn)
         {
+            Log.Info($"Component disconnected from XMPP server. Reconnect in {Config.XmppConnectSecondsBetweenRetries} sec");
             _xmppConnection = null;
 
-            Thread.Sleep(3000);
+            Thread.Sleep(Config.XmppConnectSecondsBetweenRetries * 1000);
 
             StartConnectionInNewThread();
         }
@@ -479,7 +484,7 @@ namespace n3q.Xmpp
                     await RemoveRoomItem(roomId, itemId);
                 }
             }
-            
+
             await Task.CompletedTask;
         }
 
@@ -532,7 +537,7 @@ namespace n3q.Xmpp
             //await Task.CompletedTask;
             //var inventoryItemId = userToken == "random-user-token-jhg2fu7kjjl4koi8tgi" ? "random-user-inventory-576gzfezgfr54u6l9" : "";
 
-            var inventoryItemId = await _clusterClient.GetGrain<IItemRef>(userToken).GetItem();
+            var inventoryItemId = await ClusterClient.GetGrain<IItemRef>(userToken).GetItem();
 
             return inventoryItemId;
         }
