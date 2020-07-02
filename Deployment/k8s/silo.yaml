@@ -8,6 +8,11 @@ spec:
     matchLabels:
       run: n3q-silo
   replicas: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  minReadySeconds: 20
   template:
     metadata:
       labels:
