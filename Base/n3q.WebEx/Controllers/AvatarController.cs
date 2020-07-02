@@ -132,7 +132,7 @@ namespace n3q.WebEx.Controllers
             }
 
             var imageClient = new HttpClient() { MaxResponseContentBufferSize = 100000 };
-            var imageDownloads = new Dictionary<string, Task<byte[]>>();
+            var downloadUrls = new Dictionary<string, string>();
 
             var inSequences = inDoc.GetElementsByTagName("sequence");
             foreach (XmlNode inSequence in inSequences) {
@@ -170,19 +170,48 @@ namespace n3q.WebEx.Controllers
 
                     if (inAnimation.Attributes["duration"] != null) { SetXmlAttribute(outDoc, outAnimation, "duration", inAnimation.Attributes["duration"].Value); }
 
-                    var imageDataTask = imageClient.GetByteArrayAsync(imageUrl);
-                    imageDownloads.Add(name, imageDataTask);
+                    downloadUrls.Add(name, imageUrl);
 
                     outSequence.AppendChild(outAnimation);
                     outRoot.AppendChild(outSequence);
                 }
             }
 
-            _ = await Task.WhenAll(imageDownloads.Values);
+            var imageResponses = new Dictionary<string, Task<HttpResponseMessage>>();
+            try {
+                foreach (var pair in downloadUrls) {
+                    var sequence = pair.Key;
+                    var url = pair.Value;
+                    Log.Info($"Download image: {url}");
+                    var response = imageClient.GetAsync(url);
+                    imageResponses.Add(sequence, response);
+                }
+                _ = await Task.WhenAll(imageResponses.Select(pair => pair.Value));
+            } catch (Exception ex) {
+                Log.Warning(ex);
+            }
 
-            foreach (var pair in imageDownloads) {
-                var sequenceName = pair.Key;
-                var imageData = pair.Value.Result;
+            var imageBytes = new Dictionary<string, Task<byte[]>>();
+            try {
+                foreach (var pair in imageResponses) {
+                    var sequence = pair.Key;
+                    var response = pair.Value;
+                    if (response.Result.IsSuccessStatusCode) {
+                        var bytes = response.Result.Content.ReadAsByteArrayAsync();
+                        imageBytes.Add(sequence, bytes);
+                    } else {
+                        Log.Warning($"Image download failed: {sequence}: {downloadUrls[sequence]}");
+                    }
+                }
+                _ = await Task.WhenAll(imageBytes.Select(pair => pair.Value));
+            } catch (Exception ex) {
+                Log.Warning(ex);
+            }
+
+            foreach (var pair in imageBytes) {
+                var sequence = pair.Key;
+                var bytes = pair.Value;
+                var imageData = bytes.Result;
 
                 //using var stream = new MemoryStream(imageData);
                 //var info = new GifInfo.GifInfo(stream);
@@ -190,13 +219,13 @@ namespace n3q.WebEx.Controllers
 
                 var duration = GetGifDurationMSec(imageData);
 
-                var xpath = $"//sequence[@name='{sequenceName}']";
+                var xpath = $"//sequence[@name='{sequence}']";
                 var sequenceNodes = outDoc.SelectNodes(xpath);
                 if (sequenceNodes.Count > 0) {
                     var sequenceNode = sequenceNodes[0];
                     var animationNode = sequenceNode.FirstChild;
 
-                    if (Config.AvatarProxyPreloadSequenceNames.Contains(sequenceName)) {
+                    if (Config.AvatarProxyPreloadSequenceNames.Contains(sequence)) {
                         var outDataBase64Encoded = Convert.ToBase64String(imageData);
                         var outDataUrl = "data:image/gif;base64," + outDataBase64Encoded;
                         SetXmlAttribute(outDoc, animationNode, "src", outDataUrl);
