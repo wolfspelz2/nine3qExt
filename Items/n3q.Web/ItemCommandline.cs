@@ -597,7 +597,7 @@ namespace n3q.Web
             args.Next("cmd");
             var itemRefId = args.Next("ItemRef");
             var itemId = ClusterClient.GetGrain<IItemRef>(itemRefId).GetItem().Result;
-            return itemId;
+            return new ItemReference(itemId);
         }
 
         object ItemRef_Set(Arglist args)

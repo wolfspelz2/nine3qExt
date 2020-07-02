@@ -18,6 +18,7 @@ namespace n3q.WebEx
         public void ConfigureServices(IServiceCollection services)
         {
             var config = new WebExConfigDefinition().Include(nameof(WebExConfig) + ".cs") as WebExConfigDefinition;
+            config.Info();
             services.AddSingleton<WebExConfigDefinition>(config);
 
             services.AddControllers();

@@ -7,8 +7,9 @@ export class _Changes
 {
     static data: IHistory = [
         ['1.0.5', '?', [
-            ['Fix', 'No avatar in sleep state without sleep animation'],
             ['Add', 'Stay in the room if vidconf or inventory are open'],
+            ['Change', 'Use new prod cluster'],
+            ['Fix', 'No avatar in sleep state without sleep animation'],
         ]],
         ['1.0.4', 'Vidconf', [
             ['Add', 'Videoconf demo'],

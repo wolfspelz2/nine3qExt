@@ -146,7 +146,7 @@ export class VpiResolver
                                         let name = this.replaceMatch(nameExpr, matchResult);
 
                                         if (hash && hash != '') {
-                                            let hasher = crypto.createHash(hash);
+                                            let hasher = crypto.createHash(hash.toLowerCase());
                                             hasher.update(name);
                                             name = hasher.digest('hex');
                                         }

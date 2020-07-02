@@ -16,16 +16,18 @@
 
             if (Build == BuildConfiguration.Debug) {
 
-                XmppServiceUrl = "wss://xmpp.weblin.sui.li/xmpp-websocket";
-                XmppDomain = "xmpp.weblin.sui.li";
+                //XmppDomain = "xmpp.weblin.sui.li";
+                XmppDomain = "xmpp.k8s.sui.li";
+                XmppServiceUrl = "wss://" + XmppDomain + "/xmpp-websocket";
                 XmppUserPasswordSHA1Secret = "3b6f88f2bed0f392";
 
                 BaseUrl = "http://localhost:5001/";
 
             } else {
 
-                XmppServiceUrl = "wss://xmpp.weblin.sui.li/xmpp-websocket";
-                XmppDomain = "xmpp.weblin.sui.li";
+                //XmppDomain = "xmpp.weblin.sui.li";
+                XmppDomain = "xmpp.k8s.sui.li";
+                XmppServiceUrl = "wss://" + XmppDomain + "/xmpp-websocket";
 
                 BaseUrl = "https://n3qwebex.k8s.sui.li/";
 

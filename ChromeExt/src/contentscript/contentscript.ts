@@ -7,11 +7,10 @@ import { Environment } from '../lib/Environment';
 import { ContentApp, ContentAppNotification } from './ContentApp';
 
 let dev = Environment.isDevelopment();
-console.log('Contentscript', 'dev', dev);
-
 log.setLevel(log.levels.INFO);
 
 if (dev) {
+    console.log('Contentscript', 'dev', dev);
     // Config.getAllStatic().vp.deferPageEnterSec = 0;
     log.setLevel(log.levels.DEBUG);
 }

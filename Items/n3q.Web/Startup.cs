@@ -25,6 +25,7 @@ namespace n3q.Web
         public void ConfigureServices(IServiceCollection services)
         {
             var config = new WebConfigDefinition().Include(nameof(WebConfig) + ".cs") as WebConfigDefinition;
+            config.Info();
             services.AddSingleton<WebConfigDefinition>(config);
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

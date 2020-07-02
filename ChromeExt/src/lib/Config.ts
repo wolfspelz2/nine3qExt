@@ -30,7 +30,8 @@ export class Config
             vpiMaxIterations: 15,
         },
         config: {
-            serviceUrl: 'https://config.weblin.sui.li/',
+            // serviceUrl: 'https://config.weblin.sui.li/',
+            serviceUrl: 'https://n3qwebex.k8s.sui.li/Client/Config',
             updateIntervalSec: Utils.randomInt(60000, 80000),
             checkUpdateIntervalSec: 600,
         },
@@ -55,7 +56,7 @@ export class Config
             defaultAnimationSize: 100,
             vCardAvatarFallback: false,
             vCardAvatarFallbackOnHover: true,
-            vidconfUrl: 'https://meet.jit.si/{room}#userInfo.displayName="{name}"',
+            vidconfUrl: 'https://susi.test.wolfspelz.de/{room}#userInfo.displayName="{name}"',
         },
         xmpp: {
             service: 'wss://xmpp.weblin.sui.li/xmpp-websocket',
@@ -75,7 +76,7 @@ export class Config
             identificatorUrlTemplate: 'https://avatar.weblin.sui.li/identity/?nickname={nickname}&avatarUrl={avatarUrl}&digest={digest}',
         },
         inventory: {
-            enabled: false,
+            enabled: true,
             itemSize: 64,
             borderPadding: 4,
             dropZoneHeight: 100,
@@ -85,7 +86,7 @@ export class Config
             {
                 name: 'weblin Items',
                 description: 'Things on web pages',
-                configUrl: 'https://items.weblin.com/Item/Config/{id}',
+                configUrl: 'https://n3qweb.k8s.sui.li/Item/Config?id={id}',
             }
         },
         i18n: {

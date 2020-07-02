@@ -1,4 +1,7 @@
-﻿namespace n3q.Xmpp
+﻿using System;
+using System.Collections.Generic;
+
+namespace n3q.Xmpp
 {
     public class XmppConfigDefinition : n3q.Common.ConfigBag
     {
@@ -10,5 +13,11 @@
         public int ComponentPort = 5347;//5555;
         public string ComponentDomain = "xmpp-component.example.com";
         public string ComponentSecret = "28756a7ff5dce";
+
+        public int ClusterConnectSecondsBetweenRetries = 4;
+        public int XmppConnectSecondsBetweenRetries = 4;
+
+        //public List<string> TestList { get; set; } = new List<string> { "a", "b" };
+        //public Dictionary<string, string> TestDict { get; set; } = new Dictionary<string, string> { ["a"] = "b", ["c"] = "d" };
     }
 }
