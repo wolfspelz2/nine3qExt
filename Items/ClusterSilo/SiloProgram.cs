@@ -27,7 +27,7 @@ namespace ClusterSilo
             Config.ConfigFile = nameof(SiloConfig) + ".cs";
             Config.ParseCommandline(args);
             Config.Include(Config.ConfigFile);
-            Console.WriteLine($"RunMode={Config.Build} ConfigSequence={Config.ConfigSequence}");
+            Config.Info();
 
             return RunMainAsync().Result;
         }

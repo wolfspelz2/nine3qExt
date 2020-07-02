@@ -1,4 +1,7 @@
-﻿namespace n3q.Xmpp
+﻿using System;
+using System.Collections.Generic;
+
+namespace n3q.Xmpp
 {
     public class XmppConfigDefinition : n3q.Common.ConfigBag
     {
@@ -13,5 +16,8 @@
 
         public int ClusterConnectSecondsBetweenRetries = 4;
         public int XmppConnectSecondsBetweenRetries = 4;
+
+        //public List<string> TestList { get; set; } = new List<string> { "a", "b" };
+        //public Dictionary<string, string> TestDict { get; set; } = new Dictionary<string, string> { ["a"] = "b", ["c"] = "d" };
     }
 }

@@ -7,6 +7,7 @@ using System.Text;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using System.Collections;
 
 namespace ConfigSharp
 {
@@ -30,6 +31,37 @@ namespace ConfigSharp
         public const string LoadMember = "Load";
         public const string Not = "!";
         public List<string> Functions = new List<string> { AnyPublicMember };
+
+        public void Info()
+        {
+            var fromType = this.GetType();
+            foreach (var info in fromType.GetProperties()) {
+                if (info.DeclaringType != typeof(ConfigBag)) {
+                    InfoLine(info.Name, info.GetValue(this));
+                }
+            }
+            foreach (var info in fromType.GetFields()) {
+                if (info.DeclaringType != typeof(ConfigBag)) {
+                    InfoLine(info.Name, info.GetValue(this));
+                }
+            }
+        }
+
+        public static void InfoLine(string name, object value)
+        {
+            value ??= "null";
+
+            if (value is string) {
+            } else if (value is IEnumerable e) {
+                var accu = "";
+                foreach (var x in e) {
+                    accu += (string.IsNullOrEmpty(accu) ? "" : " ") + x.ToString();
+                }
+                value = accu;
+            }
+
+            Log.Info($"{name}={value}", "Config", "");
+        }
 
         public ConfigBag Include(string fileName)
         {

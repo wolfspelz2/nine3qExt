@@ -28,7 +28,7 @@ namespace n3q.Xmpp
             Config.ConfigFile = nameof(XmppConfig) + ".cs";
             Config.ParseCommandline(args);
             Config.Include(Config.ConfigFile);
-            Console.WriteLine($"RunMode={Config.Build} ConfigSequence={Config.ConfigSequence}");
+            Config.Info();
 
             return RunMainAsync().Result;
         }

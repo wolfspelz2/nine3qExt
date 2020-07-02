@@ -23,16 +23,16 @@ namespace ConfigSharp
 
         public delegate void CallbackToApplication(Level level, string context, string message);
 
-        internal static void Error(Exception ex, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { _Log(Level.Error, GetContext(context, callerFilePath), "Exception: " + ExceptionDetail(ex)); } catch (Exception) { } }
+        internal static void Error(Exception ex, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { LogX(Level.Error, GetContext(context, callerFilePath), "Exception: " + ExceptionDetail(ex)); } catch (Exception) { } }
 
-        internal static void Warning(Exception ex, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { _Log(Level.Warning, GetContext(context, callerFilePath), "Exception: " + ExceptionDetail(ex)); } catch (Exception) { } }
-        internal static void Error(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { _Log(Level.Error, GetContext(context, callerFilePath), message); } catch (Exception) { } }
-        internal static void Warning(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { _Log(Level.Warning, GetContext(context, callerFilePath), message); } catch (Exception) { } }
-        internal static void Debug(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { _Log(Level.Debug, GetContext(context, callerFilePath), message); } catch (Exception) { } }
-        internal static void User(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { _Log(Level.User, GetContext(context, callerFilePath), message); } catch (Exception) { } }
-        internal static void Info(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { _Log(Level.Info, GetContext(context, callerFilePath), message); } catch (Exception) { } }
-        internal static void Verbose(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { _Log(Level.Verbose, GetContext(context, callerFilePath), message); } catch (Exception) { } }
-        internal static void Flooding(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { _Log(Level.Flooding, GetContext(context, callerFilePath), message); } catch (Exception) { } }
+        internal static void Warning(Exception ex, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { LogX(Level.Warning, GetContext(context, callerFilePath), "Exception: " + ExceptionDetail(ex)); } catch (Exception) { } }
+        internal static void Error(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { LogX(Level.Error, GetContext(context, callerFilePath), message); } catch (Exception) { } }
+        internal static void Warning(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { LogX(Level.Warning, GetContext(context, callerFilePath), message); } catch (Exception) { } }
+        internal static void Debug(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { LogX(Level.Debug, GetContext(context, callerFilePath), message); } catch (Exception) { } }
+        internal static void User(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { LogX(Level.User, GetContext(context, callerFilePath), message); } catch (Exception) { } }
+        internal static void Info(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { LogX(Level.Info, GetContext(context, callerFilePath), message); } catch (Exception) { } }
+        internal static void Verbose(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { LogX(Level.Verbose, GetContext(context, callerFilePath), message); } catch (Exception) { } }
+        internal static void Flooding(string message, [CallerMemberName] string context = null, [CallerFilePath]string callerFilePath = null) { try { LogX(Level.Flooding, GetContext(context, callerFilePath), message); } catch (Exception) { } }
 
         internal static bool IsVerbose => LogLevel >= Level.Verbose;
         internal static bool IsFlooding => LogLevel >= Level.Flooding;
@@ -88,7 +88,7 @@ namespace ConfigSharp
         private static int _pid = -1;
         private static int Pid { get { if (_pid == -1) { try { _pid = Process.GetCurrentProcess().Id; } catch (Exception) { } } return _pid; } set { _pid = value; } }
 
-        internal static void _Log(Level level, string context, string message)
+        internal static void LogX(Level level, string context, string message)
         {
             if (context == null) { context = ""; }
             if (message == null) { message = ""; }
@@ -186,7 +186,7 @@ namespace ConfigSharp
             }
             if (callerFilePath != null) {
                 var guessedCallerTypeName = Path.GetFileNameWithoutExtension(callerFilePath);
-                return guessedCallerTypeName + "." + context;
+                return guessedCallerTypeName + (string.IsNullOrEmpty(guessedCallerTypeName) ? "" : ".") + context;
             }
             return null;
         }
