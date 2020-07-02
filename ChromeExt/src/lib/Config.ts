@@ -30,8 +30,8 @@ export class Config
             vpiMaxIterations: 15,
         },
         config: {
-            serviceUrl: 'https://config.weblin.sui.li/',
-            // serviceUrl: 'https://n3qwebex.k8s.sui.li/Client/Config',
+            // serviceUrl: 'https://config.weblin.sui.li/',
+            serviceUrl: 'https://n3qwebex.k8s.sui.li/Client/Config',
             updateIntervalSec: Utils.randomInt(60000, 80000),
             checkUpdateIntervalSec: 600,
         },
