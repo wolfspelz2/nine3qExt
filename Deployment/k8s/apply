@@ -1,0 +1,39 @@
+#!/bin/php
+<?php
+
+    $vars = [
+        'n3q-prod' => [
+            'NAMESPACE'     => 'n3q-prod',
+            'WEB_DOMAIN'    => 'webit.k8s.sui.li',
+            'WEBEX_DOMAIN'  => 'webex.k8s.sui.li',
+            'CONFIG_ROOT'   => '/n3q-config/prod'
+        ],
+        'n3q-stage01' => [
+            'NAMESPACE'     => 'n3q-stage01',
+            'WEB_DOMAIN'    => 'stage01-webit.k8s.sui.li',
+            'WEBEX_DOMAIN'  => 'stage01-webex.k8s.sui.li',
+            'CONFIG_ROOT'   => '/n3q-config/stage01'
+        ],
+
+    ];
+
+    if (!isset($argv[2]) || !isset($vars[$argv[1]])) {
+        echo "\nUsage: ./apply [namespace] [configfile]\n";
+        echo "Available namespaces: " . implode(", ", array_keys($vars)) . "\n\n";
+        exit();
+    }
+
+    if (!file_exists($argv[2])) {
+        echo "\nFile not found: {$argv[2]}\n\n";
+        exit();
+    }
+
+    $config = $vars[$argv[1]];
+    $file = file_get_contents($argv[2]);
+
+    foreach ($config as $k => $v) {
+        $file = str_replace('{' . $k . '}', $v, $file);
+    }
+
+    passthru("cat <<EOF | kubectl apply -f -\n{$file}\nEOF");
+

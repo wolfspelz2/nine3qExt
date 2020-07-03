@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prosody-xmpp
-  namespace: n3q-prod
+  namespace: {NAMESPACE}
 spec:
   selector:
     matchLabels:
@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
         - name: prosody-xmpp
-          image: docker.k8s.sui.li/prosody-xmpp:2
+          image: docker.k8s.sui.li/prosody-xmpp:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 5280
               protocol: TCP
@@ -31,7 +32,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: prosody-xmpp
-  namespace: n3q-prod
+  namespace: {NAMESPACE}
   labels:
     run: prosody-xmpp
   annotations:
@@ -57,7 +58,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: prosody-xmpp-s2s
-  namespace: n3q-prod
+  namespace: {NAMESPACE}
   labels:
     run: prosody-xmpp
 spec:
@@ -78,7 +79,7 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: prosody-xmpp-ingress
-  namespace: n3q-prod
+  namespace: {NAMESPACE}
 spec:
   rules:
   - host: xmpp.k8s.sui.li
