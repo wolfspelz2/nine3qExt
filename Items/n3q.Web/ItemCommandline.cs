@@ -18,6 +18,7 @@ namespace n3q.Web
     public class ItemCommandline : Commandline, ICommandline
     {
         public IClusterClient ClusterClient { get; set; }
+        public WebConfig Config { get; }
 
         public enum ItemRole { Content, LeadContent, SecurityAdmin }
 
@@ -58,8 +59,10 @@ namespace n3q.Web
             Content_Create,
         }
 
-        public ItemCommandline()
+        public ItemCommandline(WebConfig config)
         {
+            Config = config;
+
             Handlers.Add("Dev_Item", new Handler { Name = "Dev_Item", Function = Dev_Item, Role = nameof(Role.Developer), Arguments = new ArgumentDescriptionList { ["ID"] = "Item-ID" } });
 
             //Handlers.Add(nameof(Fn.Admin_TokenLogon), new Handler { Name = nameof(Fn.Admin_TokenLogon), Function = Admin_TokenLogon, Role = nameof(Role.Public), ImmediateExecute = false, Description = "Log in as admin with token (for system bootstrap)", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Token"] = "Secret", } });
@@ -428,13 +431,20 @@ namespace n3q.Web
             }
             switch (Property.GetDefinition(pid).Use) {
                 case Property.Use.Url:
-                    s = $"<a href='{PropertyFilter.Url(s)}' target='_new'>{System.Net.WebUtility.HtmlEncode(s)}</a>";
+                    s = $"<a href='{PropetyFilterUrl(s)}' target='_new'>{System.Net.WebUtility.HtmlEncode(s)}</a>";
                     break;
                 case Property.Use.ImageUrl:
-                    s = $"{s} <img src='{PropertyFilter.Url(s)}' />";
+                    s = $"{s} <img src='{PropetyFilterUrl(s)}' />";
                     break;
             }
             return s;
+        }
+
+        public string PropetyFilterUrl(string url)
+        {
+            return url
+                .Replace(ItemService.ItemBaseVar, Config.ItemBaseValue)
+                ;
         }
 
         object Item_DeleteProperties(Arglist args)
