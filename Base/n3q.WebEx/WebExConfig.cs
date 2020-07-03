@@ -40,7 +40,7 @@
             ImageProxyUrlTemplate = BaseUrl + "Avatar/HttpBridge?url={url}";
             ItemConfigUrlTemplate = ItemBaseUrl + "Item/Config?id={id}";
 
-            AdditionalConfigRoot = System.Environment.GetEnvironmentVariable("N3Q_CONFIG_ROOT") ?? AdditionalConfigRoot;
+            AdditionalConfigRoot = System.Environment.GetEnvironmentVariable(ConfigRootEnvironmentVariableName) ?? AdditionalConfigRoot;
             if (!string.IsNullOrEmpty(AdditionalConfigRoot)) {
                 BaseFolder = AdditionalConfigRoot;
                 Include(ConfigFile);
