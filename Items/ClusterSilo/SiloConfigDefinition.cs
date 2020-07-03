@@ -4,6 +4,7 @@
     {
         public string ClusterId = n3q.Common.Cluster.DevelopmentClusterId;
         public bool LocalhostClustering = n3q.Common.Cluster.DevelopmentLocalhostClustering;
+        public bool DevelopmentSimulatorStorage = n3q.Common.Cluster.DevelopmentAzureSimulatorStorage;
         public string ItemStateAzureTableConnectionString = n3q.Common.Cluster.DevelopmentAzureTableConnectionString;
         public string GrainStateAzureTableConnectionString = n3q.Common.Cluster.DevelopmentAzureTableConnectionString;
         public string ClusteringAzureTableConnectionString = n3q.Common.Cluster.DevelopmentAzureTableConnectionString;

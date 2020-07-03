@@ -11,11 +11,15 @@
 
                 ClusterId = "dev";
 
-                var connectionString = "DefaultEndpointsProtocol=https;AccountName=nine3qstoragetest;AccountKey=4Ov/kZAXYi4seMphX/t6jyTmvOuXVqf8P0M5QHd3b+mpHWJOzvo5gED9H23R4hMzxhMNueXoRyW4rk4BCctRuQ==;EndpointSuffix=core.windows.net";
+                var connectionString = n3q.Common.Cluster.DevelopmentAzureTableConnectionString;
+                if (!DevelopmentSimulatorStorage) {
+                    connectionString = "DefaultEndpointsProtocol=https;AccountName=nine3qstoragetest;AccountKey=4Ov/kZAXYi4seMphX/t6jyTmvOuXVqf8P0M5QHd3b+mpHWJOzvo5gED9H23R4hMzxhMNueXoRyW4rk4BCctRuQ==;EndpointSuffix=core.windows.net";
+                }
                 ItemStateAzureTableConnectionString = connectionString;
                 GrainStateAzureTableConnectionString = connectionString;
                 ClusteringAzureTableConnectionString = connectionString;
                 PubsubStoreAzureTableConnectionString = connectionString;
+
 
             } else {
 
@@ -24,9 +28,9 @@
 
             }
 
-            AdditionalBaseFolder = System.Environment.GetEnvironmentVariable("N3Q_CONFIG_ROOT") ?? AdditionalBaseFolder;
-            if (!string.IsNullOrEmpty(AdditionalBaseFolder)) {
-                BaseFolder = AdditionalBaseFolder;
+            AdditionalConfigRoot = System.Environment.GetEnvironmentVariable(ConfigRootEnvironmentVariableName) ?? AdditionalConfigRoot;
+            if (!string.IsNullOrEmpty(AdditionalConfigRoot)) {
+                BaseFolder = AdditionalConfigRoot;
                 Include(ConfigFile);
             }
         }

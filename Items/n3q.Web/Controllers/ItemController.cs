@@ -49,7 +49,7 @@ namespace n3q.Web.Controllers
                 unavailableUrl = Config.UnavailableUrl,
                 userToken = token,
                 itemPropertyUrlFilter = new Dictionary<string, string> {
-                    { ItemService.ItemBaseVar, Config.ItemBaseValue },
+                    { "{image.item.nine3q}", Config.ItemBaseUrl },
                 },
             };
             return result;

@@ -10,6 +10,7 @@ namespace n3q.Common
         public const int LengthOfItemIdPrefixFromTemplate = 3;
 
         public static bool DevelopmentLocalhostClustering = true;
+        public static bool DevelopmentAzureSimulatorStorage = true;
         public const string DevelopmentClusterId = "dev";
         public const string DevelopmentAzureTableConnectionString = "UseDevelopmentStorage=true";
         public const string DevelopmentJsonFileStorageRoot = @"C:\Heiner\github-nine3q\Items\Test\JsonFileStorage";

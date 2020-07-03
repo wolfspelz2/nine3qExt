@@ -1,6 +1,6 @@
 ﻿namespace n3q.Common
 {
-    public class ConfigBag: ConfigSharp.ConfigBag
+    public class ConfigBag : ConfigSharp.ConfigBag
     {
         public enum BuildConfiguration
         {
@@ -17,6 +17,7 @@
 
         public string ConfigSequence = "";
         public string ConfigFile = "Config.cs";
-        public string AdditionalBaseFolder = null;
+        public string ConfigRootEnvironmentVariableName = "N3Q_CONFIG_ROOT";
+        public string AdditionalConfigRoot = null;
     }
 }

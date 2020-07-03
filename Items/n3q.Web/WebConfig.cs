@@ -34,9 +34,9 @@ namespace n3q.Web
             UnavailableUrl = BaseUrl + "Embedded/Account?id={id}";
             ItemBaseUrl = BaseUrl + "images/Items/";
 
-            AdditionalBaseFolder = System.Environment.GetEnvironmentVariable("N3Q_CONFIG_ROOT") ?? AdditionalBaseFolder;
-            if (!string.IsNullOrEmpty(AdditionalBaseFolder)) {
-                BaseFolder = AdditionalBaseFolder;
+            AdditionalConfigRoot = System.Environment.GetEnvironmentVariable("N3Q_CONFIG_ROOT") ?? AdditionalConfigRoot;
+            if (!string.IsNullOrEmpty(AdditionalConfigRoot)) {
+                BaseFolder = AdditionalConfigRoot;
                 Include(ConfigFile);
             }
         }

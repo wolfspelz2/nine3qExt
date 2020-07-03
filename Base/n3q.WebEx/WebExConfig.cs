@@ -37,9 +37,9 @@
             AnimationsProxyUrlTemplate = BaseUrl + "Avatar/InlineData?url={url}";
             ImageProxyUrlTemplate = BaseUrl + "Avatar/HttpBridge?url={url}";
 
-            AdditionalBaseFolder = System.Environment.GetEnvironmentVariable("N3Q_CONFIG_ROOT") ?? AdditionalBaseFolder;
-            if (!string.IsNullOrEmpty(AdditionalBaseFolder)) {
-                BaseFolder = AdditionalBaseFolder;
+            AdditionalConfigRoot = System.Environment.GetEnvironmentVariable("N3Q_CONFIG_ROOT") ?? AdditionalConfigRoot;
+            if (!string.IsNullOrEmpty(AdditionalConfigRoot)) {
+                BaseFolder = AdditionalConfigRoot;
                 Include(ConfigFile);
             }
         }
