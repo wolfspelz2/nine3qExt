@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: n3q-silo
-  namespace: n3q-prod
+  namespace: {NAMESPACE}
 spec:
   selector:
     matchLabels:
@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: n3q-silo
-          image: docker.k8s.sui.li/n3q-silo:2
+          image: docker.k8s.sui.li/n3q-silo:latest
           ports:
             - containerPort: 30000
               protocol: TCP
@@ -28,7 +28,7 @@ spec:
               protocol: TCP
           env:
             - name: N3Q_CONFIG_ROOT
-              value: /n3q-config
+              value: {CONFIG_ROOT}
           volumeMounts:
             - name: configfileshare
               mountPath: /n3q-config

@@ -2,12 +2,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: n3q-webex
-  namespace: n3q-prod
+  namespace: {NAMESPACE}
 spec:
   selector:
     matchLabels:
       run: n3q-webex
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -15,13 +15,13 @@ spec:
     spec:
       containers:
         - name: n3q-webex
-          image: docker.k8s.sui.li/n3q-webex:1
+          image: docker.k8s.sui.li/n3q-webex:latest
           ports:
             - containerPort: 80
               protocol: TCP
           env:
             - name: N3Q_CONFIG_ROOT
-              value: /n3q-config
+              value: {CONFIG_ROOT}
           volumeMounts:
             - name: configfileshare
               mountPath: /n3q-config
@@ -36,7 +36,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: n3q-webex
-  namespace: n3q-prod
+  namespace: {NAMESPACE}
   labels:
     run: n3q-webex
   annotations:
@@ -56,10 +56,10 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: n3q-webex-ingress
-  namespace: n3q-prod
+  namespace: {NAMESPACE}
 spec:
   rules:
-  - host: n3qwebex.k8s.sui.li
+  - host: {WEBEX_DOMAIN}
     http:
       paths:
       - path: /
