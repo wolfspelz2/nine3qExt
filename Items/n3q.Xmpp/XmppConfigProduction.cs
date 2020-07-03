@@ -11,6 +11,11 @@
 
             //hw TODO change
             ComponentSecret = "28756a7ff5dce";// "Jn3Gd9R5r6hgFGhu5drvU1bh"; 
+
+            // temporary
+            ComponentHost = "prosody-xmpp.n3q-prod.svc.cluster.local";
+            ComponentPort = 5347;
+            ComponentDomain = "itemsxmpp.k8s.sui.li";
         }
     }
 }

@@ -13,6 +13,11 @@ namespace n3q.Web
 
             //hw TODO change
             AdminTokens = new List<string> { "lgAkQAHJvxSm36ddWaMt" };
+
+            // temporary
+            BaseUrl = "https://n3qweb.k8s.sui.li/";
+            UnavailableUrl = BaseUrl + "Embedded/Account?id={id}";
+            ItemBaseUrl = BaseUrl + "images/Items/";
         }
     }
 }

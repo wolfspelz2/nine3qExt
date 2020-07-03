@@ -12,7 +12,6 @@
             GrainStateAzureTableConnectionString = connectionString;
             ClusteringAzureTableConnectionString = connectionString;
             PubsubStoreAzureTableConnectionString = connectionString;
-
         }
     }
 }
