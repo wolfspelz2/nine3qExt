@@ -58,7 +58,7 @@ namespace n3q.Web
                 });
             }
 
-            services.AddTransient<ICommandline>(sp => { return new ItemCommandline(); });
+            services.AddTransient<ICommandline>(sp => { return new ItemCommandline(config); });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
