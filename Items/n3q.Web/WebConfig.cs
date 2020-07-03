@@ -27,7 +27,7 @@ namespace n3q.Web
                 AdminTokens = new List<string>();
                 ItemServiceXmppUrl = "xmpp:itemsxmpp.k8s.sui.li";
 
-                BaseUrl = "https://n3qweb.k8s.sui.li/";
+                BaseUrl = "https://webit.k8s.sui.li/";
 
             }
 

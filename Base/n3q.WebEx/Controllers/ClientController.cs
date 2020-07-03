@@ -35,6 +35,14 @@ namespace n3q.WebEx.Controllers
             config.xmpp.user = user;// "5qo9ek5q459bdch9qjmj1q4kb8";// "adobm56lv3hkch3n8ijmdukbf8";// Tools.RandomString.GetAlphanumLowercase(26);
             config.xmpp.pass = computedPass;// "1c60915db9b2d2a1b5aff96d709b135501cc992d";// Tools.RandomString.GetAlphanumLowercase(40);
 
+            config.itemProviders = new ItemProviderConfigSet {
+                ["nine3q"] = new ItemProviderConfig {
+                    name = "weblin Items",
+                    description = "Things on web pages",
+                    configUrl = Config.ItemConfigUrlTemplate,
+                }
+            };
+
             config.identity.identificatorUrlTemplate = Config.IdentificatorUrlTemplate;
 
             config.avatars.animationsUrlTemplate = Config.AnimationsUrlTemplate;

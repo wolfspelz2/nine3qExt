@@ -22,6 +22,7 @@
                 XmppUserPasswordSHA1Secret = "3b6f88f2bed0f392";
 
                 BaseUrl = "http://localhost:5001/";
+                ItemBaseUrl = "http://localhost:5000/";
 
             } else {
 
@@ -29,13 +30,15 @@
                 XmppDomain = "xmpp.k8s.sui.li";
                 XmppServiceUrl = "wss://" + XmppDomain + "/xmpp-websocket";
 
-                BaseUrl = "https://n3qwebex.k8s.sui.li/";
+                BaseUrl = "https://webex.k8s.sui.li/";
+                ItemBaseUrl = "https://webit.k8s.sui.li/";
 
             }
 
             IdentificatorUrlTemplate = BaseUrl + "Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}";
             AnimationsProxyUrlTemplate = BaseUrl + "Avatar/InlineData?url={url}";
             ImageProxyUrlTemplate = BaseUrl + "Avatar/HttpBridge?url={url}";
+            ItemConfigUrlTemplate = ItemBaseUrl + "Item/Config?id={id}";
 
             AdditionalConfigRoot = System.Environment.GetEnvironmentVariable("N3Q_CONFIG_ROOT") ?? AdditionalConfigRoot;
             if (!string.IsNullOrEmpty(AdditionalConfigRoot)) {
