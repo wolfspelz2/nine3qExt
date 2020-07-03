@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: n3q-web
-  namespace: n3q-prod
+  name: n3q-webit
+  namespace: {NAMESPACE}
 spec:
   selector:
     matchLabels:
-      run: n3q-web
-  replicas: 2
+      run: n3q-webit
+  replicas: 1
   template:
     metadata:
       labels:
-        run: n3q-web
+        run: n3q-webit
     spec:
       containers:
-        - name: n3q-web
-          image: docker.k8s.sui.li/n3q-web:2
+        - name: n3q-webit
+          image: docker.k8s.sui.li/n3q-web:latest
           ports:
             - containerPort: 80
               protocol: TCP
           env:
             - name: N3Q_CONFIG_ROOT
-              value: /n3q-config
+              value: {CONFIG_ROOT}
           volumeMounts:
             - name: configfileshare
               mountPath: /n3q-config
@@ -36,17 +36,17 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: n3q-web
-  namespace: n3q-prod
+  name: n3q-webit
+  namespace: {NAMESPACE}
   labels:
-    run: n3q-web
+    run: n3q-webit
   annotations:
     haproxy.org/check: "true"
     haproxy.org/forwarded-for: "enabled"
     haproxy.org/load-balance: "roundrobin"
 spec:
   selector:
-    run: n3q-web
+    run: n3q-webit
   ports:
   - name: http
     port: 80
@@ -56,14 +56,14 @@ spec:
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: n3q-web-ingress
-  namespace: n3q-prod
+  name: n3q-webit-ingress
+  namespace: {NAMESPACE}
 spec:
   rules:
-  - host: n3qweb.k8s.sui.li
+  - host: {WEB_DOMAIN}
     http:
       paths:
       - path: /
         backend:
-          serviceName: n3q-web
+          serviceName: n3q-webit
           servicePort: 80
