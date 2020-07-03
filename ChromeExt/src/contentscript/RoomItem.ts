@@ -10,230 +10,208 @@ import { Avatar } from './Avatar';
 import { IframeWindow } from './IframeWindow';
 
 import imgDefaultItem from '../assets/DefaultItem.png';
+import { Item } from './Item';
 
 export class RoomItem extends Entity
 {
-  private isFirstPresence: boolean = true;
-  private providerId: string;
-  private item: Item;
-  private properties: { [pid: string]: string } = {};
-  private iframeWindow: IframeWindow;
+    private isFirstPresence: boolean = true;
+    private item: Item;
 
-  constructor(app: ContentApp, room: Room, private nick: string, isSelf: boolean)
-  {
-    super(app, room, isSelf);
-
-    $(this.getElem()).addClass('n3q-item');
-    $(this.getElem()).attr('data-nick', nick);
-  }
-
-  getDefaultAvatar(): string { return imgDefaultItem; }
-  getNick(): string { return this.nick; }
-
-  remove(): void
-  {
-    this.avatarDisplay?.stop();
-    super.remove();
-  }
-
-  // presence
-
-  async onPresenceAvailable(stanza: any): Promise<void>
-  {
-    let presenceHasPosition: boolean = false;
-    let newX: number = 123;
-
-    let presenceHasCondition: boolean = false;
-    let newCondition: string = '';
-
-    let vpAnimationsUrl = '';
-    let vpImageUrl = '';
-
-    let newProperties: { [pid: string]: string } = {};
-
-    // Collect info
-
+    constructor(app: ContentApp, room: Room, private nick: string, isSelf: boolean)
     {
-      let stateNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'firebat:avatar:state');
-      if (stateNode) {
-        let positionNode = stateNode.getChild('position');
-        if (positionNode) {
-          newX = as.Int(positionNode.attrs.x, -1);
-          if (newX != -1) {
-            presenceHasPosition = true;
-          }
-        }
-        presenceHasCondition = true;
-        let conditionNode = stateNode.getChild('condition');
-        if (conditionNode) {
-          newCondition = as.String(conditionNode.attrs.status, '');
-        }
-      }
+        super(app, room, isSelf);
+
+        $(this.getElem()).addClass('n3q-item');
+        $(this.getElem()).attr('data-nick', nick);
     }
 
-    {
-      let vpPropsNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
-      if (vpPropsNode) {
-        let attrs = vpPropsNode.attrs;
-        if (attrs) {
-          this.providerId = as.String(attrs.provider, null);
+    getDefaultAvatar(): string { return imgDefaultItem; }
+    getNick(): string { return this.nick; }
 
-          for (let attrName in attrs) {
-            let attrValue = attrs[attrName];
-            if (attrName.endsWith('Url')) {
-              attrValue = this.app.itemProviderUrlFilter(this.providerId, attrName, attrValue);
+    remove(): void
+    {
+        this.avatarDisplay?.stop();
+        super.remove();
+    }
+
+    // presence
+
+    async onPresenceAvailable(stanza: any): Promise<void>
+    {
+        let presenceHasPosition: boolean = false;
+        let newX: number = 123;
+
+        let presenceHasCondition: boolean = false;
+        let newCondition: string = '';
+
+        let vpAnimationsUrl = '';
+        let vpImageUrl = '';
+
+        let newProperties: { [pid: string]: string } = {};
+
+        // Collect info
+
+        {
+            let stateNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'firebat:avatar:state');
+            if (stateNode) {
+                let positionNode = stateNode.getChild('position');
+                if (positionNode) {
+                    newX = as.Int(positionNode.attrs.x, -1);
+                    if (newX != -1) {
+                        presenceHasPosition = true;
+                    }
+                }
+                presenceHasCondition = true;
+                let conditionNode = stateNode.getChild('condition');
+                if (conditionNode) {
+                    newCondition = as.String(conditionNode.attrs.status, '');
+                }
             }
-            newProperties[attrName] = attrValue;
-          }
-
-          // vpNickname = as.String(attrs.Nickname, '');
-          vpAnimationsUrl = as.String(newProperties.AnimationsUrl, '');
-          vpImageUrl = as.String(newProperties.ImageUrl, '');
         }
-      }
-    }
 
-    // Do someting with the data
+        {
+            let vpPropsNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
+            if (vpPropsNode) {
+                let attrs = vpPropsNode.attrs;
+                if (attrs) {
+                    this.item.setProviderId(as.String(attrs.provider, null));
 
-    // vpAnimationsUrl = 'https://weblin-avatar.dev.sui.li/items/baum/avatar.xml';
-    // vpAnimationsUrl = '';
-    // vpImageUrl = 'https://weblin-avatar.dev.sui.li/items/baum/idle.png';
-    // vpImageUrl = '';
+                    for (let attrName in attrs) {
+                        let attrValue = attrs[attrName];
+                        if (attrName.endsWith('Url')) {
+                            attrValue = this.app.itemProviderUrlFilter(this.item.getProviderId(), attrName, attrValue);
+                        }
+                        newProperties[attrName] = attrValue;
+                    }
 
-    if (this.isFirstPresence) {
-      this.avatarDisplay = new Avatar(this.app, this, this.isSelf);
-    }
-
-    if (this.avatarDisplay) {
-      if (vpAnimationsUrl != '') {
-        let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(vpAnimationsUrl));
-        this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
-      } else {
-        if (vpImageUrl != '') {
-          this.avatarDisplay?.updateObservableProperty('ImageUrl', vpImageUrl);
+                    // vpNickname = as.String(attrs.Nickname, '');
+                    vpAnimationsUrl = as.String(newProperties.AnimationsUrl, '');
+                    vpImageUrl = as.String(newProperties.ImageUrl, '');
+                }
+            }
         }
-      }
-    }
 
-    if (newProperties.Width && newProperties.Height) {
-      var w = as.Int(newProperties.Width, -1);
-      var h = as.Int(newProperties.Height, -1);
-      if (w > 0 && h > 0) {
-        this.avatarDisplay?.setSize(w, h);
-      }
-    }
+        // Do someting with the data
 
-    if (presenceHasCondition) {
-      this.avatarDisplay?.setCondition(newCondition);
-    }
+        // vpAnimationsUrl = 'https://weblin-avatar.dev.sui.li/items/baum/avatar.xml';
+        // vpAnimationsUrl = '';
+        // vpImageUrl = 'https://weblin-avatar.dev.sui.li/items/baum/idle.png';
+        // vpImageUrl = '';
 
-    if (this.isFirstPresence) {
-      if (!presenceHasPosition) {
-        newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition(this.nick);
-      }
-      if (newX < 0) { newX = 100; }
-      this.setPosition(newX);
-    } else {
-      if (presenceHasPosition) {
-        if (this.getPosition() != newX) {
-          this.move(newX);
+        if (this.isFirstPresence) {
+            this.avatarDisplay = new Avatar(this.app, this, this.isSelf);
         }
-      }
+
+        if (this.avatarDisplay) {
+            if (vpAnimationsUrl != '') {
+                let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(vpAnimationsUrl));
+                this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
+            } else {
+                if (vpImageUrl != '') {
+                    this.avatarDisplay?.updateObservableProperty('ImageUrl', vpImageUrl);
+                }
+            }
+        }
+
+        if (newProperties.Width && newProperties.Height) {
+            var w = as.Int(newProperties.Width, -1);
+            var h = as.Int(newProperties.Height, -1);
+            if (w > 0 && h > 0) {
+                this.avatarDisplay?.setSize(w, h);
+            }
+        }
+
+        if (presenceHasCondition) {
+            this.avatarDisplay?.setCondition(newCondition);
+        }
+
+        if (this.isFirstPresence) {
+            if (!presenceHasPosition) {
+                newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition(this.nick);
+            }
+            if (newX < 0) { newX = 100; }
+            this.setPosition(newX);
+        } else {
+            if (presenceHasPosition) {
+                if (this.getPosition() != newX) {
+                    this.move(newX);
+                }
+            }
+        }
+
+        if (this.isFirstPresence) {
+            this.show(true, Config.get('room.fadeInSec', 0.3));
+        }
+
+        if (this.isFirstPresence) {
+            if (this.room?.iAmAlreadyHere()) {
+                this.room?.showChatMessage(this.nick, 'appeared');
+            } else {
+                this.room?.showChatMessage(this.nick, 'is present');
+            }
+        }
+
+        this.item.setProperties(newProperties);
+        this.isFirstPresence = false;
     }
 
-    if (this.isFirstPresence) {
-      this.show(true, Config.get('room.fadeInSec', 0.3));
+    onPresenceUnavailable(stanza: any): void
+    {
+        this.remove();
+
+        this.room?.showChatMessage(this.nick, 'disappeared');
     }
 
-    if (this.isFirstPresence) {
-      if (this.room?.iAmAlreadyHere()) {
-        this.room?.showChatMessage(this.nick, 'appeared');
-      } else {
-        this.room?.showChatMessage(this.nick, 'is present');
-      }
+    onMouseClickAvatar(ev: JQuery.Event): void
+    {
+        super.onMouseClickAvatar(ev);
+        if (this.item.getProperties()?.IframeAspect) {
+            this.item.toggleIframe(this.getElem());
+        }
     }
 
-    this.properties = newProperties;
-    this.isFirstPresence = false;
-  }
+    onQuickSlideReached(newX: number): void
+    {
+        super.onQuickSlideReached(newX);
 
-  onPresenceUnavailable(stanza: any): void
-  {
-    this.remove();
-
-    this.room?.showChatMessage(this.nick, 'disappeared');
-  }
-
-  onMouseClickAvatar(ev: JQuery.Event): void
-  {
-    super.onMouseClickAvatar(ev);
-    if (this.properties) {
-      if (this.properties.IframeAspect) {
-        this.toggleIframe(this.getElem());
-      }
+        if (!this.isDerezzing) {
+            this.sendMoveMessage(newX);
+        }
     }
-  }
 
-  onQuickSlideReached(newX: number): void
-  {
-    super.onQuickSlideReached(newX);
-
-    if (!this.isDerezzing) {
-      this.sendMoveMessage(newX);
+    sendMoveMessage(newX: number): void
+    {
+        this.sendCommand(this.nick, 'MoveTo', { 'x': newX });
     }
-  }
 
-  sendMoveMessage(newX: number): void
-  {
-    this.sendCommand(this.nick, 'MoveTo', { 'x': newX });
-  }
+    sendCommand(itemId: string, action: string, params: any)
+    {
+        let userToken = this.app.getItemProviderConfigValue(this.item.getProviderId(), 'userToken', '');
+        if (userToken != '') {
 
-  sendCommand(itemId: string, action: string, params: any)
-  {
-    let userToken = this.app.getItemProviderConfigValue(this.providerId, 'userToken', '');
-    if (userToken != '') {
+            let cmd = {};
+            cmd['xmlns'] = 'vp:cmd';
+            cmd['user'] = userToken;
+            cmd['method'] = 'itemAction';
+            cmd['action'] = action;
+            for (let paramName in params) {
+                cmd[paramName] = params[paramName];
+            }
 
-      let cmd = {};
-      cmd['xmlns'] = 'vp:cmd';
-      cmd['user'] = userToken;
-      cmd['method'] = 'itemAction';
-      cmd['action'] = action;
-      for (let paramName in params) {
-        cmd[paramName] = params[paramName];
-      }
+            let to = this.room.getJid() + '/' + itemId;
 
-      let to = this.room.getJid() + '/' + itemId;
+            let message = xml('message', { 'type': 'chat', 'to': to })
+                .append(xml('x', cmd))
+                ;
+            this.app.sendStanza(message);
 
-      let message = xml('message', { 'type': 'chat', 'to': to })
-        .append(xml('x', cmd))
-        ;
-      this.app.sendStanza(message);
-
+        }
     }
-  }
 
-  private isDerezzing: boolean = false;
-  beginDerez(): void
-  {
-    this.isDerezzing = true;
-    $(this.getElem()).hide();
-  }
-
-  toggleIframe(aboveElem: HTMLElement)
-  {
-    if (this.iframeWindow) {
-      this.iframeWindow.close();
-    } else {
-      this.iframeWindow = new IframeWindow(this.app);
-      this.iframeWindow.show({
-        above: aboveElem,
-        resizable: as.Bool(this.properties.IframeResizable, true),
-        titleText: as.String(this.properties.Label, 'Item'),
-        url: as.String(this.properties.IframeUrl, 'https://example.com'),
-        width: as.Int(this.properties.IframeWidth, 400),
-        height: as.Int(this.properties.IframeHeight, 400),
-        onClose: () => { this.iframeWindow = null; },
-      });
+    private isDerezzing: boolean = false;
+    beginDerez(): void
+    {
+        this.isDerezzing = true;
+        $(this.getElem()).hide();
     }
-  }
 }
