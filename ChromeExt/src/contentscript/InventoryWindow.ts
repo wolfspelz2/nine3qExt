@@ -43,8 +43,7 @@ export class InventoryWindow extends Window
 
             let left = 50;
             if (aboveElem) {
-                left = aboveElem.offsetLeft - 120;
-                if (left < 0) { left = 0; }
+                left = Math.max(aboveElem.offsetLeft - 120, left);
             }
             let top = this.app.getDisplay().offsetHeight - height - bottom;
             {

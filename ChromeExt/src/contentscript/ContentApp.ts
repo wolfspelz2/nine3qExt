@@ -18,6 +18,7 @@ import { XmppWindow } from './XmppWindow';
 import { ChangesWindow } from './ChangesWindow';
 import { Inventory } from './Inventory';
 import { ItemProvider } from './ItemProvider';
+import { ItemRepository } from './ItemRepository';
 
 interface ILocationMapperResponse
 {
@@ -42,6 +43,7 @@ export class ContentApp
     private rooms: { [roomJid: string]: Room; } = {};
     private inventories: { [invJid: string]: Inventory; } = {};
     private itemProviders: { [providerId: string]: ItemProvider; } = {};
+    private itemRepository: ItemRepository;
     private propertyStorage: PropertyStorage = new PropertyStorage();
     private babelfish: Translator;
     private xmppWindow: XmppWindow;
@@ -55,6 +57,7 @@ export class ContentApp
 
     getPropertyStorage(): PropertyStorage { return this.propertyStorage; }
     getDisplay(): HTMLElement { return this.display; }
+    getItemRepository() { return this.itemRepository; }
     getRoom(): Room
     {
         let room = null;
@@ -76,6 +79,7 @@ export class ContentApp
 
     constructor(private appendToMe: HTMLElement, private messageHandler: ContentAppNotificationCallback)
     {
+        this.itemRepository = new ItemRepository(this);
     }
 
     async start()

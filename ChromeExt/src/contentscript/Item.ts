@@ -22,13 +22,18 @@ export class Item
     getProviderId(): string { return this.providerId; }
 
     setProperties(properties: { [pid: string]: string; }) { this.properties = properties; }
-    getProperties() { return this.properties; }
+    getProperties(): any { return this.properties; }
 
-    toggleIframe(aboveElem: HTMLElement = null)
+    onClick(clickedElem: HTMLElement = null)
     {
-        if (this.iframeWindow) {
-            this.iframeWindow.close();
-        } else {
+        if (as.Bool(this.properties['IframeAspect'], false)) {
+            this.openIframe(clickedElem);
+        }
+    }
+
+    openIframe(aboveElem: HTMLElement = null)
+    {
+        if (!this.iframeWindow) {
             this.iframeWindow = new IframeWindow(this.app);
             this.iframeWindow.show({
                 above: aboveElem,

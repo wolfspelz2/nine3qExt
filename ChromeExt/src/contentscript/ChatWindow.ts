@@ -55,8 +55,7 @@ export class ChatWindow extends Window
 
             let left = 50;
             if (aboveElem) {
-                left = aboveElem.offsetLeft - 180;
-                if (left < 0) { left = 0; }
+                left = Math.max(aboveElem.offsetLeft - 180, left);
             }
             let top = this.app.getDisplay().offsetHeight - height - bottom;
             {

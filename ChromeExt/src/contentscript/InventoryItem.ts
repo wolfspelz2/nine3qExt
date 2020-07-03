@@ -126,10 +126,12 @@ export class InventoryItem
     {
         this.app.toFront(this.elem);
 
-        if (this.item.getProperties()?.IframeAspect) {
-            this.item.toggleIframe();
+        let item = this.app.getItemRepository().getItem(this.itemId);
+        if (item) {
+            item.onClick(this.elem);
         }
     }
+
     private dragIsRezable: boolean = false;
     private onDragStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
     {
@@ -270,17 +272,18 @@ export class InventoryItem
 
     onPresenceAvailable(stanza: any): void
     {
+        let newProviderId: string = '';
         let newProperties: { [pid: string]: string } = {};
 
         let vpPropsNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
         if (vpPropsNode) {
             let attrs = vpPropsNode.attrs;
             if (attrs) {
-                let providerId = as.String(attrs.provider, '');
+                newProviderId = as.String(attrs.provider, null);
                 for (let attrName in attrs) {
                     let attrValue = attrs[attrName];
                     if (attrName.endsWith('Url')) {
-                        attrValue = this.app.itemProviderUrlFilter(providerId, attrName, attrValue);
+                        attrValue = this.app.itemProviderUrlFilter(newProviderId, attrName, attrValue);
                     }
                     newProperties[attrName] = attrValue;
                 }
@@ -307,17 +310,14 @@ export class InventoryItem
             }
         }
 
-        this.item.setProperties(newProperties);
-
-        // if (this.match('SettingsAspect', true)) {
-        //     var left = as.Int(this.properties.InventoryLeft, -1);
-        //     var bottom = as.Int(this.properties.InventoryBottom, -1);
-        //     var width = as.Int(this.properties.InventoryWidth, -1);
-        //     var height = as.Int(this.properties.InventoryHeight, -1);
-        //     if (width > 0 && height > 0) {
-        //         this.inv?.getWindow()?.setCoordinates(left, bottom, width, height);
-        //     }
-        // }
+        if (newProperties && newProviderId) {
+            let item = this.app.getItemRepository().getItem(this.itemId);
+            if (item) {
+                this.app.getItemRepository().getItem(this.itemId).setProperties(newProperties);
+            } else {
+                this.app.getItemRepository().addItem(this.itemId, newProviderId, newProperties);
+            }
+        }
 
         this.isFirstPresence = false;
     }

@@ -13,14 +13,11 @@ import imgDefaultItem from '../assets/DefaultItem.png';
 
 export class RoomItem extends Entity
 {
-    private item: Item;
     private isFirstPresence: boolean = true;
 
     constructor(app: ContentApp, room: Room, private nick: string, isSelf: boolean)
     {
         super(app, room, isSelf);
-
-        this.item = new Item(app);
 
         $(this.getElem()).addClass('n3q-item');
         $(this.getElem()).attr('data-nick', nick);
@@ -48,6 +45,7 @@ export class RoomItem extends Entity
         let vpAnimationsUrl = '';
         let vpImageUrl = '';
 
+        let newProviderId: string = '';
         let newProperties: { [pid: string]: string } = {};
 
         // Collect info
@@ -75,12 +73,12 @@ export class RoomItem extends Entity
             if (vpPropsNode) {
                 let attrs = vpPropsNode.attrs;
                 if (attrs) {
-                    this.item.setProviderId(as.String(attrs.provider, null));
+                    newProviderId = as.String(attrs.provider, null);
 
                     for (let attrName in attrs) {
                         let attrValue = attrs[attrName];
                         if (attrName.endsWith('Url')) {
-                            attrValue = this.app.itemProviderUrlFilter(this.item.getProviderId(), attrName, attrValue);
+                            attrValue = this.app.itemProviderUrlFilter(newProviderId, attrName, attrValue);
                         }
                         newProperties[attrName] = attrValue;
                     }
@@ -152,7 +150,15 @@ export class RoomItem extends Entity
             }
         }
 
-        this.item.setProperties(newProperties);
+        if (newProperties && newProviderId) {
+            let item = this.app.getItemRepository().getItem(this.nick);
+            if (item) {
+                this.app.getItemRepository().getItem(this.nick).setProperties(newProperties);
+            } else {
+                this.app.getItemRepository().addItem(this.nick, newProviderId, newProperties);
+            }
+        }
+
         this.isFirstPresence = false;
     }
 
@@ -166,8 +172,10 @@ export class RoomItem extends Entity
     onMouseClickAvatar(ev: JQuery.Event): void
     {
         super.onMouseClickAvatar(ev);
-        if (this.item.getProperties()?.IframeAspect) {
-            this.item.toggleIframe(this.getElem());
+
+        let item = this.app.getItemRepository().getItem(this.nick);
+        if (item) {
+            item.onClick(this.getElem());
         }
     }
 
@@ -187,25 +195,27 @@ export class RoomItem extends Entity
 
     sendCommand(itemId: string, action: string, params: any)
     {
-        let userToken = this.app.getItemProviderConfigValue(this.item.getProviderId(), 'userToken', '');
-        if (userToken != '') {
+        let item = this.app.getItemRepository().getItem(itemId);
+        if (item) {
+            let userToken = this.app.getItemProviderConfigValue(item.getProviderId(), 'userToken', '');
+            if (userToken != '') {
 
-            let cmd = {};
-            cmd['xmlns'] = 'vp:cmd';
-            cmd['user'] = userToken;
-            cmd['method'] = 'itemAction';
-            cmd['action'] = action;
-            for (let paramName in params) {
-                cmd[paramName] = params[paramName];
+                let cmd = {};
+                cmd['xmlns'] = 'vp:cmd';
+                cmd['user'] = userToken;
+                cmd['method'] = 'itemAction';
+                cmd['action'] = action;
+                for (let paramName in params) {
+                    cmd[paramName] = params[paramName];
+                }
+
+                let to = this.room.getJid() + '/' + itemId;
+
+                let message = xml('message', { 'type': 'chat', 'to': to })
+                    .append(xml('x', cmd))
+                    ;
+                this.app.sendStanza(message);
             }
-
-            let to = this.room.getJid() + '/' + itemId;
-
-            let message = xml('message', { 'type': 'chat', 'to': to })
-                .append(xml('x', cmd))
-                ;
-            this.app.sendStanza(message);
-
         }
     }
 

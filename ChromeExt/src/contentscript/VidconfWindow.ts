@@ -34,8 +34,7 @@ export class VidconfWindow extends Window
 
             let left = 50;
             if (aboveElem) {
-                left = aboveElem.offsetLeft - 280;
-                if (left < 0) { left = 0; }
+                left = Math.max(aboveElem.offsetLeft - 250, left);
             }
             let top = this.app.getDisplay().offsetHeight - height - bottom;
             {
@@ -46,7 +45,7 @@ export class VidconfWindow extends Window
                 }
             }
 
-            let url: string = options.url; 
+            let url: string = options.url;
             url = encodeURI(url);
             let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-iframewindow-content" src="' + url + ' " frameborder="0" allow="camera; microphone; display-capture"></iframe>').get(0);
 
