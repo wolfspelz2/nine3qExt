@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29519.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "n3q.WebEx", "Base\n3q.WebEx\n3q.WebEx.csproj", "{DDA094EE-D60E-4D68-B33D-19881C42DD47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "n3q.WebEx", "n3q.WebEx\n3q.WebEx.csproj", "{DDA094EE-D60E-4D68-B33D-19881C42DD47}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "n3q.Tools", "Shared\n3q.Tools\n3q.Tools.csproj", "{FACF1AB6-99AA-45B6-A70D-C7C34DFE4AAB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "n3q.Tools", "..\Shared\n3q.Tools\n3q.Tools.csproj", "{FACF1AB6-99AA-45B6-A70D-C7C34DFE4AAB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigSharp", "Shared\ConfigSharp\ConfigSharp.csproj", "{2A747D50-5CBC-473F-8BFD-97B020A3F2C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigSharp", "..\Shared\ConfigSharp\ConfigSharp.csproj", "{2A747D50-5CBC-473F-8BFD-97B020A3F2C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
