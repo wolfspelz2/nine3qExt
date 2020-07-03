@@ -24,7 +24,7 @@ export class Item
     setProperties(properties: { [pid: string]: string; }) { this.properties = properties; }
     getProperties() { return this.properties; }
 
-    toggleIframe(aboveElem: HTMLElement)
+    toggleIframe(aboveElem: HTMLElement = null)
     {
         if (this.iframeWindow) {
             this.iframeWindow.close();

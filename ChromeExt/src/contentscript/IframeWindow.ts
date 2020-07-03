@@ -44,7 +44,7 @@ export class IframeWindow extends Window
             }
 
             let url: string = options.url;
- 
+
             let room = this.app.getRoom();
             if (room) {
                 let jid = room.getJid();

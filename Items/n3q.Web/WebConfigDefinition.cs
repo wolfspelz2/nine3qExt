@@ -12,9 +12,9 @@ namespace n3q.Web
         public List<string> AdminTokens = new List<string> { };
         public string ItemServiceXmppUrl = "xmpp:xmpp-component.example.com";
 
-        public const string DefaultBaseUrl = "https://item-web.example.com/";
-        public string BaseUrl = DefaultBaseUrl;
-        public string UnavailableUrl = DefaultBaseUrl + "Embedded/Account?id={id}";
-        public string ItemBaseUrl = DefaultBaseUrl + "images/Items/";
+        public const string DefaultItemWebBaseUrl = "https://item-web.example.com/";
+        public string ItemWebBaseUrl = DefaultItemWebBaseUrl;
+        public string UnavailableUrl = DefaultItemWebBaseUrl + "Embedded/Account?id={id}";
+        public string ItemBaseUrl = DefaultItemWebBaseUrl + "images/Items/";
     }
 }

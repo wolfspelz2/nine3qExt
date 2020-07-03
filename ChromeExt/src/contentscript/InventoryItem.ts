@@ -5,13 +5,14 @@ import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { Inventory } from './Inventory';
+import { Item } from './Item';
 
 import imgDefaultItem from '../assets/DefaultItem.png';
 
 export class InventoryItem
 {
+    private item: Item;
     private isFirstPresence: boolean = true;
-    private properties: { [pid: string]: string } = {};
     private elem: HTMLDivElement;
     private iconElem: HTMLImageElement;
     private x: number = 100;
@@ -20,10 +21,12 @@ export class InventoryItem
     private h: number = 64;
     private inDrag: boolean = false;
 
-    getProperties(): { [pid: string]: string } { return this.properties; }
+    getProperties(): { [pid: string]: string } { return this.item.getProperties(); }
 
     constructor(private app: ContentApp, private inv: Inventory, private itemId: string)
     {
+        this.item = new Item(app);
+
         let paneElem = this.inv.getPane();
         let padding: number = Config.get('inventory.borderPadding', 4);
 
@@ -41,7 +44,7 @@ export class InventoryItem
 
         $(this.elem).click(ev =>
         {
-            this.app.toFront(this.elem);
+            this.onMouseClick(ev);
         });
 
         $(this.elem).draggable({
@@ -92,9 +95,9 @@ export class InventoryItem
 
     match(pid: string, value: any)
     {
-        if (this.properties[pid]) {
+        if (this.item.getProperties()[pid]) {
             if (value) {
-                return as.String(this.properties[pid], null) == as.String(value, null);
+                return as.String(this.item.getProperties()[pid], null) == as.String(value, null);
             }
         }
         return false;
@@ -119,10 +122,18 @@ export class InventoryItem
         $(this.elem).css({ 'left': (x - this.w / 2) + 'px', 'top': (y - this.h / 2) + 'px' });
     }
 
+    onMouseClick(ev: JQuery.Event): void
+    {
+        this.app.toFront(this.elem);
+
+        if (this.item.getProperties()?.IframeAspect) {
+            this.item.toggleIframe();
+        }
+    }
     private dragIsRezable: boolean = false;
     private onDragStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
     {
-        this.dragIsRezable = as.Bool(this.properties.RezableAspect, true);
+        this.dragIsRezable = as.Bool(this.item.getProperties().RezableAspect, true);
         return true;
     }
 
@@ -296,7 +307,7 @@ export class InventoryItem
             }
         }
 
-        this.properties = newProperties;
+        this.item.setProperties(newProperties);
 
         // if (this.match('SettingsAspect', true)) {
         //     var left = as.Int(this.properties.InventoryLeft, -1);

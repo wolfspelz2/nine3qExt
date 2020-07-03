@@ -7,19 +7,20 @@ import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
-import { IframeWindow } from './IframeWindow';
+import { Item } from './Item';
 
 import imgDefaultItem from '../assets/DefaultItem.png';
-import { Item } from './Item';
 
 export class RoomItem extends Entity
 {
-    private isFirstPresence: boolean = true;
     private item: Item;
+    private isFirstPresence: boolean = true;
 
     constructor(app: ContentApp, room: Room, private nick: string, isSelf: boolean)
     {
         super(app, room, isSelf);
+
+        this.item = new Item(app);
 
         $(this.getElem()).addClass('n3q-item');
         $(this.getElem()).attr('data-nick', nick);

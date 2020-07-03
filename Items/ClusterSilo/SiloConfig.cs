@@ -20,12 +20,9 @@
                 ClusteringAzureTableConnectionString = connectionString;
                 PubsubStoreAzureTableConnectionString = connectionString;
 
-
             } else {
-
                 ClusterId = "prod";
                 LocalhostClustering = false;
-
             }
 
             AdditionalConfigRoot = System.Environment.GetEnvironmentVariable(ConfigRootEnvironmentVariableName) ?? AdditionalConfigRoot;

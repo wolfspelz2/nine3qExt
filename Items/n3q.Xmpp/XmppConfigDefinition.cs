@@ -17,6 +17,10 @@ namespace n3q.Xmpp
         public int ClusterConnectSecondsBetweenRetries = 4;
         public int XmppConnectSecondsBetweenRetries = 4;
 
+        public const string DefaultExtensionWebBaseUrl = "https://ex-web.example.com/";
+        public string ExtensionWebBaseUrl = DefaultExtensionWebBaseUrl;
+        public string IdentificatorUrlTemplate = DefaultExtensionWebBaseUrl + "Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}";
+
         //public List<string> TestList { get; set; } = new List<string> { "a", "b" };
         //public Dictionary<string, string> TestDict { get; set; } = new Dictionary<string, string> { ["a"] = "b", ["c"] = "d" };
     }

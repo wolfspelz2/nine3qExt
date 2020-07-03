@@ -871,7 +871,13 @@ namespace n3q.Xmpp
             var animationsUrl_UrlEncoded = string.IsNullOrEmpty(animationsUrl) ? "" : WebUtility.UrlEncode(animationsUrl);
             var imageUrl_UrlEncoded = string.IsNullOrEmpty(imageUrl) ? "" : WebUtility.UrlEncode(imageUrl);
             var digest_UrlEncoded = WebUtility.UrlEncode(identityDigest);
-            var identitySrc = $"https://avatar.weblin.sui.li/identity/?imageUrl={imageUrl_UrlEncoded}?avatarUrl={animationsUrl_UrlEncoded}&nickname={name_UrlEncoded}&digest={digest_UrlEncoded}";
+
+            var identitySrc = Config.IdentificatorUrlTemplate
+                .Replace("{avatarUrl}", animationsUrl_UrlEncoded)
+                .Replace("{nickname}", name_UrlEncoded)
+                .Replace("{digest}", digest_UrlEncoded)
+                .Replace("{imageUrl}", imageUrl_UrlEncoded)
+                ;
 
             var props_XmlEncoded = props.Select(pair => {
                 var value = pair.Value.ToString();
