@@ -15,6 +15,7 @@ export class RoomItem extends Entity
 {
   private isFirstPresence: boolean = true;
   private providerId: string;
+  private item: Item;
   private properties: { [pid: string]: string } = {};
   private iframeWindow: IframeWindow;
 
