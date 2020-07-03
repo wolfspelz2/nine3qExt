@@ -53,13 +53,13 @@ namespace IntegrationTests
                 .AddJsonFileStorage(
                     name: JsonFileStorage.StorageProviderName,
                     configureOptions: options => {
-                        options.RootDirectory = Cluster.JsonFileStorageRoot;
+                        options.RootDirectory = Cluster.DevelopmentJsonFileStorageRoot;
                     })
 
                 .AddKeyValueFileStorage(
                     name: KeyValueFileStorage.StorageProviderName,
                     configureOptions: options => {
-                        options.RootDirectory = Cluster.KeyValueFileStorageRoot;
+                        options.RootDirectory = Cluster.DevelopmentKeyValueFileStorageRoot;
                     })
 
                 .AddItemAzureTableStorage(
