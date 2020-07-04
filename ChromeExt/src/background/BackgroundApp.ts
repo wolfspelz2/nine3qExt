@@ -201,7 +201,7 @@ export class BackgroundApp
         }
 
         let key = version + url;
-        let isCached = (this.httpCacheData[key] != undefined);
+        let isCached = version != '_nocache' && this.httpCacheData[key] != undefined;
 
         if (isCached) {
             log.debug('BackgroundApp.handle_fetchUrl', 'cache-age', (now - this.httpCacheTime[key]) / 1000, url, 'version=', version);
@@ -225,8 +225,12 @@ export class BackgroundApp
                     })
                     .then(text =>
                     {
-                        this.httpCacheData[key] = text;
-                        this.httpCacheTime[key] = now;
+                        if (version == '_nocache') {
+                            //dont cache
+                        } else {
+                            this.httpCacheData[key] = text;
+                            this.httpCacheTime[key] = now;
+                        }
                         let response = { 'ok': true, 'data': text };
                         log.debug('BackgroundApp.handle_fetchUrl', 'response', url, text.length, response);
                         sendResponse(response);

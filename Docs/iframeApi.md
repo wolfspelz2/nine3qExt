@@ -1,8 +1,8 @@
 ### payload format
     {
-        api: https://n3q-api.com/v1
         payload: {
-            user: '9ca05afb1a49f26fb59642305c481661f8b370bd',
+            api: https://n3q-api.com/v1
+            user: '765fgvhuz7t6ft6ftijt6fthbiit6ftbh',
             item: 'pirml6rhf5tp2go3mulhh3o',
             room: '9ca05afb1a49f26fb59642305c481661f8b370bd@muc4.virtual-presence.org',
             entropy: random
@@ -31,7 +31,7 @@ https://theatre.weblin.sui.li/iframe.html?token=<base64(token)>
 ### ItemAction später:
 
         payload: {
-            user: '9ca05afb1a49f26fb59642305c481661f8b370bd',
+            user: '765fgvhuz7t6ft6ftijt6fthbiit6ftbh',
             item: 'pirml6rhf5tp2go3mulhh3o',
             // aspect: 'Extractor',
             action: 'Extract',

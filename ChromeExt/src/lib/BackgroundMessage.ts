@@ -13,6 +13,7 @@ export class FetchUrlResponse
 
 export class BackgroundMessage
 {
+    static fetchUrl_nocache = '_nocache';
     static type_fetchUrl = 'fetchUrl';
     static fetchUrl(url: string, version: string): Promise<FetchUrlResponse>
     {
