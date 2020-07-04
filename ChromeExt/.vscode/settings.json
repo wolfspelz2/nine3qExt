@@ -1,9 +1,9 @@
 {
-  "workbench.colorCustomizations": {
-    "titleBar.activeBackground": "#23b5cf",
-    "titleBar.inactiveBackground": "#1790a6"
-  },
-  "editor.formatOnSave": true,
-"files.insertFinalNewline": true,
-"editor.detectIndentation": false
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#202020",
+        "titleBar.inactiveBackground": "#202020"
+    },
+    "editor.formatOnSave": true,
+    "files.insertFinalNewline": true,
+    "editor.detectIndentation": true
 }
