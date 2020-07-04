@@ -13,6 +13,7 @@ namespace n3q.Web
 
             //hw TODO change
             AdminTokens = new List<string> { "lgAkQAHJvxSm36ddWaMt" };
+            PayloadHashSecret = "Sp6EgVckSuG5QuCoYVgs";
         }
     }
 }

@@ -10,6 +10,7 @@ namespace n3q.Web
         public string ClusteringAzureTableConnectionString = n3q.Common.Cluster.DevelopmentAzureTableConnectionString;
 
         public List<string> AdminTokens = new List<string> { };
+        public string PayloadHashSecret = "mkTz67tZ4dAhjxgd";
         public string ItemServiceXmppUrl = "xmpp:xmpp-component.example.com";
 
         public const string DefaultItemWebBaseUrl = "https://item-web.example.com/";

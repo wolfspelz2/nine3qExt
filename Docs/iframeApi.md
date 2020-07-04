@@ -8,11 +8,11 @@
             entropy: random
             expires: unxitime
         },
-        hash: sha(systemSecret + payload)
+        hash: sha256(systemSecret + payload)
     }
 
 ### get payload hash
-https://n3qweb.k8s.sui.li/Item/HashPayload?id=ext-3jo6rap97qnklec9wdjkcbbtrakqstqi2kel3at3&payload=<base64(payload)>
+https://n3qweb.k8s.sui.li/PayloadHash?id=ext-3jo6rap97qnklec9wdjkcbbtrakqstqi2kel3at3&payload=<base64(payload)>
 
 ### open iframe
 https://theatre.weblin.sui.li/iframe.html?token=<base64(token)>
@@ -39,5 +39,5 @@ https://theatre.weblin.sui.li/iframe.html?token=<base64(token)>
             entropy: random
             expires: unxitime
         },
-        hash: sha(systemSecret + payload)
+        hash: sha256(systemSecret + payload)
     }
