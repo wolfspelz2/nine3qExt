@@ -1,25 +1,23 @@
 import log = require('loglevel');
-import { BackgroundMessage } from './BackgroundMessage';
 import { Utils } from './Utils';
+import { SimpleRpc } from './SimpleRpc';
 
 export class Payload
 {
     static async getHash(providerId: string, user: string, payload: any): Promise<string>
     {
-        var payloadJson = JSON.stringify(payload);
-        var payloadJsonBase64 = atob(payloadJson);
-        var url = 'http://localhost:5000/PayloadHash?user={user}&payload={payload}';
-        url = url
-            .replace('{user}', encodeURIComponent(user))
-            .replace('{payload}', encodeURIComponent(payloadJsonBase64))
-            ;
+        let payloadJson = JSON.stringify(payload);
+        let payloadJsonBase64 = atob(payloadJson);
         try {
-            var response = await BackgroundMessage.fetchUrl(url, BackgroundMessage.fetchUrl_nocache);
+            let response = await new SimpleRpc('computePayloadHash')
+                .param('user', user)
+                .param('payload', payloadJsonBase64)
+                .send('http://localhost:5000/Client/Rpc');
             if (response.ok) {
                 return response.data;
             }
         } catch (error) {
-
+            //
         }
         return '';
     }

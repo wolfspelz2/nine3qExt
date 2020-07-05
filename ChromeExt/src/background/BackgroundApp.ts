@@ -116,6 +116,10 @@ export class BackgroundApp
                 return this.handle_fetchUrl(message.url, message.version, sendResponse);
             } break;
 
+            case BackgroundMessage.type_jsonRpc: {
+                return this.handle_jsonRpc(message.url, message.json, sendResponse);
+            } break;
+
             case BackgroundMessage.type_waitReady: {
                 return this.handle_waitReady(sendResponse);
             } break;
@@ -245,6 +249,44 @@ export class BackgroundApp
                 log.debug('BackgroundApp.handle_fetchUrl', 'exception', url, error);
                 sendResponse({ 'ok': false, 'status': error.status, 'statusText': error.statusText });
             }
+        }
+        return false;
+    }
+
+    handle_jsonRpc(url: string, postBody: any, sendResponse: (response?: any) => void): boolean
+    {
+        try {
+            fetch(url, {
+                method: 'POST',
+                cache: 'reload',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(postBody),
+                redirect: 'error'
+            })
+                .then(httpResponse =>
+                {
+                    // log.debug('BackgroundApp.handle_jsonRpc', 'httpResponse', url, httpResponse);
+                    if (httpResponse.ok) {
+                        return httpResponse.text();
+                    } else {
+                        throw { 'ok': false, 'status': httpResponse.status, 'statusText': httpResponse.statusText };
+                    }
+                })
+                .then(text =>
+                {
+                    let response = { 'ok': true, 'data': text };
+                    log.debug('BackgroundApp.handle_jsonRpc', 'response', url, text.length, response);
+                    sendResponse(response);
+                })
+                .catch(ex =>
+                {
+                    log.debug('BackgroundApp.handle_jsonRpc', 'catch', url, ex);
+                    sendResponse({ 'ok': false, 'status': ex.status, 'statusText': ex.statusText });
+                });
+            return true;
+        } catch (error) {
+            log.debug('BackgroundApp.handle_jsonRpc', 'exception', url, error);
+            sendResponse({ 'ok': false, 'status': error.status, 'statusText': error.statusText });
         }
         return false;
     }

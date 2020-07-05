@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace JsonPath.Test
 {
     [TestClass]
-    public class SerializerTest
+    public class JsonPathSerializerTest
     {
         [TestMethod]
         public void Deserializes_Serializer_output()

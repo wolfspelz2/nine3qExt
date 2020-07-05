@@ -15,15 +15,24 @@ namespace JsonPath
             return new Node(Node.Type.Empty);
         }
 
-        public void Add(string key, string value) { base.Add(key, new Node(Node.Type.String, value)); }
-        public void Add(string key, int value) { base.Add(key, new Node(Node.Type.Int, value)); }
-        public void Add(string key, long value) { base.Add(key, new Node(Node.Type.Int, value)); }
-        public void Add(string key, float value) { base.Add(key, new Node(Node.Type.Float, value)); }
-        public void Add(string key, double value) { base.Add(key, new Node(Node.Type.Float, value)); }
-        public void Add(string key, bool value) { base.Add(key, new Node(Node.Type.Bool, value)); }
-        public void Add(string key, DateTime value) { base.Add(key, new Node(Node.Type.Date, value)); }
-        //public void Add(string key, object value) { base.Add(key, new Node(Node.Type.Auto, value)); }
+        public Dictionary Add(string key, string value) { base.Add(key, new Node(Node.Type.String, value)); return this; }
+        public Dictionary Add(string key, int value) { base.Add(key, new Node(Node.Type.Int, value)); return this; }
+        public Dictionary Add(string key, long value) { base.Add(key, new Node(Node.Type.Int, value)); return this; }
+        public Dictionary Add(string key, float value) { base.Add(key, new Node(Node.Type.Float, value)); return this; }
+        public Dictionary Add(string key, double value) { base.Add(key, new Node(Node.Type.Float, value)); return this; }
+        public Dictionary Add(string key, bool value) { base.Add(key, new Node(Node.Type.Bool, value)); return this; }
+        public Dictionary Add(string key, DateTime value) { base.Add(key, new Node(Node.Type.Date, value)); return this; }
         public new void Add(string key, Node node) { base.Add(key, node); }
+
+        public JsonPath.Node ToNode()
+        {
+            var node = new Node(Node.Type.Dictionary);
+            var dict = node.AsDictionary;
+            foreach (var pair in this) {
+                dict.Add(pair.Key, pair.Value);
+            }
+            return node;
+        }
     }
 
     public class List : List<Node>
@@ -70,7 +79,6 @@ namespace JsonPath
         public List AsList => IsList ? (List)Value : new List();
         public Dictionary AsDictionary => IsDictionary ? (Dictionary)Value : new Dictionary();
 
-        // Aliases
         public List List => AsList;
         public Dictionary Dictionary => AsDictionary;
         public List AsArray => AsList;
@@ -82,6 +90,7 @@ namespace JsonPath
         public string String => AsString;
         public double Float => AsFloat;
         public DateTime Date => AsDate;
+
         public static implicit operator int(Node node) { return (int)node.AsInt; }
         public static implicit operator long(Node node) { return node.AsInt; }
         public static implicit operator bool(Node node) { return node.AsBool; }
@@ -90,6 +99,15 @@ namespace JsonPath
         public static implicit operator DateTime(Node node) { return node.AsDate; }
         public static implicit operator List(Node node) { return node.AsList; }
         public static implicit operator Dictionary(Node node) { return node.AsDictionary; }
+
+        public static implicit operator Node(string value) { return new Node(Type.String, value); }
+        public static implicit operator Node(int value) { return new Node(Type.Int, value); }
+        public static implicit operator Node(long value) { return new Node(Type.Int, value); }
+        public static implicit operator Node(bool value) { return new Node(Type.Bool, value); }
+        public static implicit operator Node(float value) { return new Node(Type.Float, value); }
+        public static implicit operator Node(double value) { return new Node(Type.Float, value); }
+        public static implicit operator Node(DateTime value) { return new Node(Type.Date, value); }
+
         public Node this[int index] { get { return AsList.Get(index); } set { AsList[index] = value; } }
         public Node this[string key] { get { return AsDictionary.Get(key); } set { AsDictionary[key] = value; } }
         public Node Get(int index) { return AsList.Get(index); }
@@ -233,6 +251,8 @@ namespace JsonPath
 
         public Node(Type type, object value = null)
         {
+            if (value is Node n) { type = n._type; value = n.Value; }
+
             if (type == Type.Auto) {
                 if (value is string) {
                     type = Type.String;

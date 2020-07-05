@@ -6,7 +6,7 @@ using System.Linq;
 namespace JsonPath.Test
 {
     [TestClass]
-    public class NodeTest
+    public class JsonPathNodeTest
     {
         [TestMethod]
         public void Deserializes_basic_types()
@@ -61,7 +61,7 @@ namespace JsonPath.Test
             Assert.AreEqual("41000000000", new Node("41000000000").AsString);
             Assert.AreEqual("3.14159265358979", new Node("3.14159265358979").AsString);
             Assert.AreEqual(3.14159265358979, new Node("3.14159265358979").AsFloat);
-            Assert.AreEqual(new System.DateTime(2017, 1, 2, 3, 4, 5, 678), new Node("\"" + new System.DateTime(2017, 1, 2, 3, 4, 5, 678).ToString("o") + "\""));
+            Assert.AreEqual(new System.DateTime(2017, 1, 2, 3, 4, 5, 678), new Node("\"" + new System.DateTime(2017, 1, 2, 3, 4, 5, 678).ToString("o") + "\"").AsDate);
             Assert.AreEqual(1483326245, new Node("\"" + new System.DateTime(2017, 1, 2, 3, 4, 5).ToString("o") + "\"").AsInt);
         }
 
@@ -178,8 +178,8 @@ namespace JsonPath.Test
             var json = new Node(data);
 
             // Assert
-            Assert.AreEqual("b", json.Where(x => x.Key == "a").Select(x => x.Value).First());
-            Assert.AreEqual("b", (from x in json where x.Key == "a" select x.Value).First());
+            Assert.AreEqual("b", (string)json.Where(x => x.Key == "a").Select(x => x.Value).First());
+            Assert.AreEqual("b", (string)(from x in json where x.Key == "a" select x.Value).First());
         }
 
         [TestMethod]
@@ -420,63 +420,63 @@ namespace JsonPath.Test
             json.Patch(patch);
 
             // Assert
-            Assert.AreEqual(41, json["Int1"]);
-            Assert.AreEqual(true, json["Bool1"]);
+            Assert.AreEqual(41, (int)json["Int1"]);
+            Assert.AreEqual(true, (bool)json["Bool1"]);
 
-            Assert.AreEqual("StringStayValue", json["StringStay"]);
-            Assert.AreEqual("StringSetValueChanged", json["StringSet"]);
-            Assert.AreEqual("StringImplicitSetValueChanged", json["StringImplicitSet"]);
-            Assert.AreEqual("StringAddValue", json["StringAdd"]);
-            Assert.AreEqual("", json["StringDelete"]);
+            Assert.AreEqual("StringStayValue", (string)json["StringStay"]);
+            Assert.AreEqual("StringSetValueChanged", (string)json["StringSet"]);
+            Assert.AreEqual("StringImplicitSetValueChanged", (string)json["StringImplicitSet"]);
+            Assert.AreEqual("StringAddValue", (string)json["StringAdd"]);
+            Assert.AreEqual("", (string)json["StringDelete"]);
 
             Assert.AreEqual(3, json["DictStay"].AsDictionary.Count);
-            Assert.AreEqual("DictStayString1Value", json["DictStay"]["DictStayString1"]);
-            Assert.AreEqual(41, json["DictStay"]["DictStayInt1"]);
-            Assert.AreEqual(true, json["DictStay"]["DictStayBool1"]);
+            Assert.AreEqual("DictStayString1Value", (string)json["DictStay"]["DictStayString1"]);
+            Assert.AreEqual(41, (int)json["DictStay"]["DictStayInt1"]);
+            Assert.AreEqual(true, (bool)json["DictStay"]["DictStayBool1"]);
 
             Assert.AreEqual(1, json["DictSet"].AsDictionary.Count);
-            Assert.AreEqual("DictSetString1Value", json["DictSet"]["DictSetString1"]);
+            Assert.AreEqual("DictSetString1Value", (string)json["DictSet"]["DictSetString1"]);
 
             Assert.AreEqual(1, json["DictCreatedOnDemand"].AsDictionary.Count);
-            Assert.AreEqual("DictCreatedOnDemandString1Value", json["DictCreatedOnDemand"]["DictCreatedOnDemandString1"]);
+            Assert.AreEqual("DictCreatedOnDemandString1Value", (string)json["DictCreatedOnDemand"]["DictCreatedOnDemandString1"]);
 
             Assert.AreEqual(4, json["DictChange"].AsDictionary.Count);
-            Assert.AreEqual("DictChangeString1ValueChanged", json["DictChange"]["DictChangeString1"]);
-            Assert.AreEqual(42, json["DictChange"]["DictChangeInt1"]);
-            Assert.AreEqual(43, json["DictChange"]["DictChangeInt2"]);
-            Assert.AreEqual(false, json["DictChange"]["DictChangeBool1"]);
+            Assert.AreEqual("DictChangeString1ValueChanged", (string)json["DictChange"]["DictChangeString1"]);
+            Assert.AreEqual(42, (int)json["DictChange"]["DictChangeInt1"]);
+            Assert.AreEqual(43, (int)json["DictChange"]["DictChangeInt2"]);
+            Assert.AreEqual(false, (bool)json["DictChange"]["DictChangeBool1"]);
 
-            Assert.AreEqual(3, json["DictExplicitDescend"].AsDictionary.Count);
-            Assert.AreEqual("DictExplicitDescendString1ValueChanged", json["DictExplicitDescend"]["DictExplicitDescendString1"]);
-            Assert.AreEqual(42, json["DictExplicitDescend"]["DictExplicitDescendInt1"]);
-            Assert.AreEqual(43, json["DictExplicitDescend"]["DictExplicitDescendInt2"]);
+            Assert.AreEqual(3, (int)json["DictExplicitDescend"].AsDictionary.Count);
+            Assert.AreEqual("DictExplicitDescendString1ValueChanged", (string)json["DictExplicitDescend"]["DictExplicitDescendString1"]);
+            Assert.AreEqual(42, (int)json["DictExplicitDescend"]["DictExplicitDescendInt1"]);
+            Assert.AreEqual(43, (int)json["DictExplicitDescend"]["DictExplicitDescendInt2"]);
 
             Assert.AreEqual(0, json["DictDelete"].AsDictionary.Count);
 
             Assert.AreEqual(2, json["DictRemove"].AsDictionary.Count);
-            Assert.AreEqual("DictRemoveString1Value", json["DictRemove"]["DictRemoveString1"]);
-            Assert.AreEqual("DictRemoveString3Value", json["DictRemove"]["DictRemoveString3"]);
+            Assert.AreEqual("DictRemoveString1Value", (string)json["DictRemove"]["DictRemoveString1"]);
+            Assert.AreEqual("DictRemoveString3Value", (string)json["DictRemove"]["DictRemoveString3"]);
 
             Assert.AreEqual(3, json["ListStay"].AsList.Count);
 
             Assert.AreEqual(2, json["ListSet"].AsList.Count);
-            Assert.AreEqual(42, json["ListSet"][0]);
-            Assert.AreEqual(43, json["ListSet"][1]);
+            Assert.AreEqual(42, (int)json["ListSet"][0]);
+            Assert.AreEqual(43, (int)json["ListSet"][1]);
 
             Assert.AreEqual(0, json["ListDelete"].AsList.Count);
 
             Assert.AreEqual(4, json["ListAdd"].AsList.Count);
 
             Assert.AreEqual(1, json["ListRemove"].AsList.Count);
-            Assert.AreEqual("ListRemoveValue2", json["ListRemove"][0]);
+            Assert.AreEqual("ListRemoveValue2", (string)json["ListRemove"][0]);
 
             Assert.AreEqual(3, json["Nested"]["NestedDictChange"].AsDictionary.Count);
-            Assert.AreEqual("NestedDictChangeString1ValueChanged", json["Nested"]["NestedDictChange"]["NestedDictChangeString1"]);
-            Assert.AreEqual(42, json["Nested"]["NestedDictChange"]["NestedDictChangeInt1"]);
-            Assert.AreEqual(false, json["Nested"]["NestedDictChange"]["NestedDictChangeBool1"]);
+            Assert.AreEqual("NestedDictChangeString1ValueChanged", (string)json["Nested"]["NestedDictChange"]["NestedDictChangeString1"]);
+            Assert.AreEqual(42, (int)json["Nested"]["NestedDictChange"]["NestedDictChangeInt1"]);
+            Assert.AreEqual(false, (bool)json["Nested"]["NestedDictChange"]["NestedDictChangeBool1"]);
 
             Assert.AreEqual(1, json["DeelplyNested"]["DeelplyNested1"]["DeelplyNested2"]["DeelplyNestedDictChange"].AsDictionary.Count);
-            Assert.AreEqual("DeelplyNestedDictChangeString1ValueChanged", json["DeelplyNested"]["DeelplyNested1"]["DeelplyNested2"]["DeelplyNestedDictChange"]["DeelplyNestedDictChangeString1"]);
+            Assert.AreEqual("DeelplyNestedDictChangeString1ValueChanged", (string)json["DeelplyNested"]["DeelplyNested1"]["DeelplyNested2"]["DeelplyNestedDictChange"]["DeelplyNestedDictChangeString1"]);
 
         }
 
@@ -489,12 +489,12 @@ namespace JsonPath.Test
             var json = new Node(new Dictionary<string, object> { ["string"] = "a", ["int"] = 42, ["long"] = 42000000000, ["double"] = 3.14, ["bool"] = true, ["date"] = new DateTime(2019, 2, 12, 1, 2, 3), });
 
             // Assert
-            Assert.AreEqual("a", json["string"]);
-            Assert.AreEqual(42, json["int"]);
-            Assert.AreEqual(42000000000, json["long"]);
-            Assert.AreEqual(3.14, json["double"]);
-            Assert.AreEqual(true, json["bool"]);
-            Assert.AreEqual(new DateTime(2019, 2, 12, 1, 2, 3), json["date"]);
+            Assert.AreEqual("a", json["string"].String);
+            Assert.AreEqual(42, json["int"].Int);
+            Assert.AreEqual(42000000000, json["long"].Int);
+            Assert.AreEqual(3.14, json["double"].Float);
+            Assert.AreEqual(true, json["bool"].Bool);
+            Assert.AreEqual(new DateTime(2019, 2, 12, 1, 2, 3), json["date"].Date);
         }
 
     }

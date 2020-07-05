@@ -13,6 +13,22 @@ export class FetchUrlResponse
 
 export class BackgroundMessage
 {
+    static type_jsonRpc = 'jsonRpc';
+    static jsonRpc(url: string, jsonBodyData: any): Promise<FetchUrlResponse>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            try {
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_jsonRpc, 'url': url, 'json': jsonBodyData }, response =>
+                {
+                    resolve(response);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
     static fetchUrl_nocache = '_nocache';
     static type_fetchUrl = 'fetchUrl';
     static fetchUrl(url: string, version: string): Promise<FetchUrlResponse>

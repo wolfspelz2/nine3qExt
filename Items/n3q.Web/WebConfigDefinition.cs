@@ -17,5 +17,7 @@ namespace n3q.Web
         public string ItemWebBaseUrl = DefaultItemWebBaseUrl;
         public string UnavailableUrl = DefaultItemWebBaseUrl + "Embedded/Account?id={id}";
         public string ItemBaseUrl = DefaultItemWebBaseUrl + "images/Items/";
+
+        public long MaxRpcRequestSize = 100000;
     }
 }

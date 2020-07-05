@@ -19,6 +19,7 @@ import { ChangesWindow } from './ChangesWindow';
 import { Inventory } from './Inventory';
 import { ItemProvider } from './ItemProvider';
 import { ItemRepository } from './ItemRepository';
+import { SimpleRpc } from '../lib/SimpleRpc';
 
 interface ILocationMapperResponse
 {
@@ -180,8 +181,24 @@ export class ContentApp
         this.display = null;
     }
 
-    test(): void
+    async test(): Promise<void>
     {
+        try {
+            let response = await new SimpleRpc('echo')
+                .param('aString', 'Hello World')
+                .param('aNumber', 3.14159265358979323)
+                .param('aBool', true)
+                .param('aLong', 42000000000)
+                .param('aDate', new Date(Date.now()).toISOString())
+                .send('http://localhost:5000/Rpc');
+            if (response.ok) {
+                log.debug('TEST', response.data);
+            } else {
+                log.debug('TEST', response.message);
+            }
+        } catch (error) {
+            log.debug('TEST', error);
+        }
     }
 
     async showInventoryWindow(aboveElem: HTMLElement): Promise<void>
