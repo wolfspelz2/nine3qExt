@@ -2,12 +2,12 @@
 
 namespace n3q.Web
 {
-    public class WebConfig : WebConfigDefinition
+    public class WebItConfig : WebItConfigDefinition
     {
         public void Load()
         {
             ConfigFile = CurrentFile;
-            ConfigSequence += nameof(WebConfig);
+            ConfigSequence += nameof(WebItConfig);
 
             if (Build == BuildConfiguration.Debug) {
                 ClusterId = "dev";

@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\n3q.Web\n3q.Web.csproj" />
+    <ProjectReference Include="..\n3q.WebIt\n3q.WebIt.csproj" />
   </ItemGroup>
 
 </Project>

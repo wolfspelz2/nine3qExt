@@ -18,7 +18,7 @@ namespace n3q.Web
     public class ItemCommandline : Commandline, ICommandline
     {
         public IClusterClient ClusterClient { get; set; }
-        public WebConfigDefinition Config { get; }
+        public WebItConfigDefinition Config { get; }
 
         public enum ItemRole { Content, LeadContent, SecurityAdmin }
 
@@ -59,7 +59,7 @@ namespace n3q.Web
             Content_Create,
         }
 
-        public ItemCommandline(WebConfigDefinition config)
+        public ItemCommandline(WebItConfigDefinition config)
         {
             Config = config;
 

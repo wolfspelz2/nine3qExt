@@ -2,7 +2,7 @@
 
 namespace n3q.Web
 {
-    public class WebConfigDefinition : n3q.Common.ConfigBag
+    public class WebItConfigDefinition : n3q.Common.ConfigBag
     {
         public bool UseIntegratedCluster = false;
         public string ClusterId = n3q.Common.Cluster.DevelopmentClusterId;

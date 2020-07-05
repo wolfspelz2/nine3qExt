@@ -18,10 +18,10 @@ namespace n3q.Web.Controllers
     public class ItemController : ControllerBase
     {
         public ICallbackLogger Log { get; set; }
-        public WebConfigDefinition Config { get; set; }
+        public WebItConfigDefinition Config { get; set; }
         public IClusterClient ClusterClient { get; set; }
 
-        public ItemController(ILogger<ItemController> logger, WebConfigDefinition config, IClusterClient clusterClient)
+        public ItemController(ILogger<ItemController> logger, WebItConfigDefinition config, IClusterClient clusterClient)
         {
             Log = new FrameworkCallbackLogger(logger);
             Config = config;

@@ -12,9 +12,9 @@ namespace n3q.Web.Controllers
     [ApiController]
     public class RpcController : ControllerBase
     {
-        public WebConfigDefinition Config { get; set; }
+        public WebItConfigDefinition Config { get; set; }
 
-        public RpcController(WebConfigDefinition config)
+        public RpcController(WebItConfigDefinition config)
         {
             Config = config;
         }

@@ -29,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "n3q.StorageProviders", "Ite
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests", "Items\IntegrationTests\IntegrationTests.csproj", "{B6F8D551-EC53-46A2-940D-5648019B2AE8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "n3q.Web", "Items\n3q.Web\n3q.Web.csproj", "{7BA1C837-6656-49BB-8C76-A1F6B52B51A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "n3q.WebIt", "Items\n3q.WebIt\n3q.WebIt.csproj", "{7BA1C837-6656-49BB-8C76-A1F6B52B51A5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "n3q.Content", "Items\n3q.Content\n3q.Content.csproj", "{D0726261-8C2E-48FF-A5B4-E915D7EF5C95}"
 EndProject

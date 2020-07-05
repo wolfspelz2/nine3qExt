@@ -15,7 +15,7 @@ namespace n3q.WebIt.Test
             var payload = new JsonPath.Node(new Dictionary<string, string> { ["user"] = "user", ["entropy"] = "entropy", }).ToJson(bFormatted: false, bWrapped: false);
             var payloadBase64Encoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payload));
             var expect = Tools.Crypto.SHA256Hex("secret" + payload);
-            var controller = new RpcController(new Web.WebConfigDefinition { PayloadHashSecret = "secret" });
+            var controller = new RpcController(new Web.WebItConfigDefinition { PayloadHashSecret = "secret" });
 
             // Act
             var hash = controller.ComputePayloadHash(new JsonPath.Dictionary { ["user"] = "user", ["payload"] = payloadBase64Encoded, })["result"].String;
@@ -31,7 +31,7 @@ namespace n3q.WebIt.Test
             var payload = new JsonPath.Node(new Dictionary<string, string> { ["user"] = "user", ["entropy"] = "entropy", }).ToJson(bFormatted: false, bWrapped: false);
             var payloadBase64Encoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payload));
             var expect = Tools.Crypto.SHA256Hex("secret" + payload);
-            var controller = new RpcController(new Web.WebConfigDefinition { PayloadHashSecret = "secret" });
+            var controller = new RpcController(new Web.WebItConfigDefinition { PayloadHashSecret = "secret" });
 
             // Act
             Assert.ThrowsException<Exception>(() => { _ = controller.ComputePayloadHash(new JsonPath.Dictionary { ["user"] = "wrong user", ["payload"] = payloadBase64Encoded, })["result"].String; });
@@ -44,7 +44,7 @@ namespace n3q.WebIt.Test
             var payload = new JsonPath.Node(new Dictionary<string, string> { ["user"] = "user", ["entropy"] = "entropy", }).ToJson(bFormatted: false, bWrapped: false);
             var payloadBase64Encoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payload));
             var expect = Tools.Crypto.SHA256Hex("secret" + payload);
-            var controller = new RpcController(new Web.WebConfigDefinition { PayloadHashSecret = "secret" });
+            var controller = new RpcController(new Web.WebItConfigDefinition { PayloadHashSecret = "secret" });
 
             // Act
             Assert.ThrowsException<Exception>(() => { _ = controller.ComputePayloadHash(new JsonPath.Dictionary { ["payload"] = payloadBase64Encoded, })["result"].String; });
@@ -62,7 +62,7 @@ namespace n3q.WebIt.Test
             var payloadBase64Encoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payload));
             var payload2 = new JsonPath.Node(new Dictionary<string, string> { ["user"] = "user2", ["entropy"] = "entropy", }).ToJson(bFormatted: false, bWrapped: false);
             var payloadBase64Encoded2 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payload2));
-            var controller = new RpcController(new Web.WebConfigDefinition { PayloadHashSecret = "secret" });
+            var controller = new RpcController(new Web.WebItConfigDefinition { PayloadHashSecret = "secret" });
 
             // Act
             var hash = controller.ComputePayloadHash(new JsonPath.Dictionary { ["user"] = "user", ["payload"] = payloadBase64Encoded, })["result"].String;
