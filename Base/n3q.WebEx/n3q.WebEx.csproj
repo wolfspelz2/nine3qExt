@@ -20,9 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="WebExConfigProduction.cs">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Compile>
     <Compile Update="WebExConfig.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>

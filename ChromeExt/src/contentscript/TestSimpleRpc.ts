@@ -6,7 +6,7 @@ import { parseJSON } from 'jquery';
 
 export class TestSimpleRpc
 {
-    async Payload_getToken()
+    async SimpleRpc_echo()
     {
         let response = await new SimpleRpc('Echo')
             .param('aString', 'Hello World')

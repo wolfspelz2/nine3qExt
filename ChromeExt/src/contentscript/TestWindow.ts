@@ -25,7 +25,7 @@ export class TestWindow extends Window
         super.show(options);
 
         let bottom = as.Int(options.bottom, 400);
-        let width = as.Int(options.width, 600);
+        let width = as.Int(options.width, 800);
         let height = as.Int(options.height, 600);
         let onClose = options.onClose;
 
