@@ -21,6 +21,7 @@ import { ChangesWindow } from './ChangesWindow';
 import { Inventory } from './Inventory';
 import { ItemProvider } from './ItemProvider';
 import { ItemRepository } from './ItemRepository';
+import { TestWindow } from './TestWindow';
 
 interface ILocationMapperResponse
 {
@@ -182,39 +183,9 @@ export class ContentApp
         this.display = null;
     }
 
-    async test(): Promise<void>
+    test(): void
     {
-        try {
-            let response = await new SimpleRpc('Echo')
-                .param('aString', 'Hello World')
-                .param('aNumber', 3.14159265358979323)
-                .param('aBool', true)
-                .param('aLong', 42000000000)
-                .param('aDate', new Date(Date.now()).toISOString())
-                .send('http://localhost:5000/rpc');
-            if (response.ok) {
-                log.debug('TEST', response.data);
-            } else {
-                log.debug('TEST', response.message);
-            }
-        } catch (error) {
-            log.debug('TEST', error);
-        }
-
-        try {
-            let token = await Payload.getToken(
-                'http://localhost:5000/rpc',
-                'user',
-                'item',
-                3600,
-                {
-                    room: '9ca05afb1a49f26fb59642305c481661f8b370bd@muc4.virtual-presence.org',
-                }
-            );
-            log.info('TEST', token);
-        } catch (error) {
-            log.debug('TEST', error);
-        }
+        new TestWindow(this).show({});
     }
 
     async showInventoryWindow(aboveElem: HTMLElement): Promise<void>

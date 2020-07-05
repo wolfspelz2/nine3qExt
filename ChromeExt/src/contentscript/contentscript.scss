@@ -499,6 +499,36 @@
             cursor: se-resize;
         }
     
+    // #n3q div.n3q-testwindow {}
+
+    #n3q div.n3q-testwindow-out {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        right: 8px;
+        bottom: 8px;
+        overflow-y: scroll;
+
+        .sut { display: block; }
+        .sut-totals { display: table; }
+        .sut-success .sut-totals { color: white; background-color: rgb(0, 200, 0); }
+        .sut-failure .sut-totals { color: white; background-color: red; }
+        .sut-total { padding:0.2em; }
+        .sut-label { display: inline; }
+        .sut-label::after { content: ":"; }
+        .sut-value { display: inline; }
+        .sut-total .sut-value { margin-left: 0.3em; }
+        .sut-testlist { display: table; margin-top: 0.5em; } 
+        .sut-testlist { display: block; }
+        .sut-test { display: block; padding-left: 0.2em; }
+        .sut-test-success { color: white; background-color: rgb(0, 200, 0); }
+        .sut-test-failure { color: white; background-color: red; }
+        .sut-class { display: inline; font-weight: bold; }
+        .sut-class:after { content: "_"; } .sut-name { display: inline; font-weight: bold; } 
+        .sut-name::after { content: ":"; }
+        .sut-result { display: inline; margin-left: 0.3em; }
+    }
+    
     // #n3q div.n3q-iframewindow {}
 
     #n3q div.n3q-iframewindow iframe.n3q-iframewindow-content {
@@ -731,4 +761,3 @@
 #n3q div.n3q-chatin input[type=text].n3q-text {
     margin: 6px;
 }
-
