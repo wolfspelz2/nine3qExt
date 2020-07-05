@@ -9,7 +9,6 @@ using Orleans;
 using n3q.Common;
 using n3q.StorageProviders;
 using n3q.Grains;
-using ConfigSharp;
 
 namespace n3q.Web
 {
@@ -28,7 +27,9 @@ namespace n3q.Web
             var host = Host.CreateDefaultBuilder(args);
 
             host.ConfigureLogging(logging => {
-                logging.AddConsole();
+                logging.AddConsole(c => {
+                    c.TimestampFormat = "[yy:MM:dd-HH:mm:ss] ";
+                });
                 logging.SetMinimumLevel(LogLevel.Warning);
                 logging.AddFilter((provider, category, logLevel) => {
                     if (category.Contains("Orleans")) {

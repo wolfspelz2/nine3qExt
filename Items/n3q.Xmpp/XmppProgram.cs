@@ -66,7 +66,12 @@ namespace n3q.Xmpp
             });
             builder.AddClusterConnectionLostHandler(OnClusterConnectionDown);
             builder.AddGatewayCountChangedHandler(OnClusterGatewayCountChanged);
-            builder.ConfigureLogging(logging => { logging.AddConsole(); logging.SetMinimumLevel(LogLevel.Error); });
+            builder.ConfigureLogging(logging => {
+                logging.AddConsole(c => {
+                    c.TimestampFormat = "[yy:MM:dd-HH:mm:ss] ";
+                });
+                logging.SetMinimumLevel(LogLevel.Error);
+            });
             builder.AddSimpleMessageStreamProvider(ItemService.StreamProvider);
 
             IClusterClient client = builder.Build();
