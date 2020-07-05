@@ -24,9 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="SiloConfigProduction.cs">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Compile>
     <Compile Update="SiloConfig.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
