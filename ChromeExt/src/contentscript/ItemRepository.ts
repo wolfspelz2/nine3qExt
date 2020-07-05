@@ -20,7 +20,7 @@ export class ItemRepository
 
     addItem(id: string, providerId: string, properties: any): void
     {
-        this.items[id] = new Item(this.app);
+        this.items[id] = new Item(this.app, id);
         this.items[id].setProviderId(providerId);
         this.items[id].setProperties(properties);
     }

@@ -16,6 +16,7 @@ https://n3qweb.k8s.sui.li/PayloadHash?id=ext-3jo6rap97qnklec9wdjkcbbtrakqstqi2ke
 
 ### open iframe
 https://theatre.weblin.sui.li/iframe.html?token=<base64(token)>
+https://theatre.weblin.sui.li/iframe.html?token={token}
 
 
 ### make backend api call

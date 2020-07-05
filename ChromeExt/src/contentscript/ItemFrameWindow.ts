@@ -1,0 +1,100 @@
+import * as $ from 'jquery';
+import 'webpack-jquery-ui';
+// import markdown = require('markdown');
+import log = require('loglevel');
+import { as } from '../lib/as';
+import { Config } from '../lib/Config';
+import { Environment } from '../lib/Environment';
+import { ContentApp } from './ContentApp';
+import { Room } from './Room';
+import { Window } from './Window';
+import { Payload } from '../lib/Payload';
+import { Item } from './Item';
+
+type WindowOptions = any;
+
+interface ItemFrameWindowOptions extends WindowOptions
+{
+    item: Item;
+    above: HTMLElement;
+    resizable: boolean;
+    titleText: string;
+    url: string;
+    width: number;
+    height: number;
+    onClose: { (): void };
+}
+
+export class ItemFrameWindow extends Window
+{
+    constructor(app: ContentApp)
+    {
+        super(app);
+    }
+
+    async show(options: ItemFrameWindowOptions)
+    {
+        super.show(options);
+
+        let aboveElem: HTMLElement = options.above;
+        let bottom = as.Int(options.bottom, 150);
+        let width = as.Int(options.width, 400);
+        let height = as.Int(options.height, 400);
+
+        if (this.windowElem) {
+            let windowElem = this.windowElem;
+            let contentElem = this.contentElem;
+            $(windowElem).addClass('n3q-itemframewindow');
+
+            let left = 50;
+            if (aboveElem) {
+                left = Math.max(aboveElem.offsetLeft - 180, left);
+            }
+            let top = this.app.getDisplay().offsetHeight - height - bottom;
+            {
+                let minTop = 10;
+                if (top < minTop) {
+                    top = minTop;
+                }
+            }
+
+            let url: string = options.url;
+
+            let room = this.app.getRoom();
+            if (room) {
+                let roomJid = room.getJid();
+
+                let item = options.item;
+                let providerId = item.getProviderId();
+                let apiUrl = this.app.getItemProviderConfigValue(providerId, 'apiUrl', '');
+                let userId = this.app.getItemProviderConfigValue(providerId, 'userToken', '');
+                let itemId = item.getId();
+
+                if (apiUrl != '' && userId != '' && itemId != '') {
+                    try {
+
+                        let token = await Payload.getToken(apiUrl, userId, itemId, 3600, { 'room': roomJid });
+                        url = url.replace('{token}', encodeURIComponent(token));
+
+                        let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-itemframewindow-content" src="' + url + ' " frameborder="0"></iframe>').get(0);
+
+                        $(contentElem).append(iframeElem);
+
+                        this.app.translateElem(windowElem);
+
+                        $(windowElem).css({ 'width': width + 'px', 'height': height + 'px', 'left': left + 'px', 'top': top + 'px' });
+
+                    } catch (error) {
+                        log.info('ItemFrameWindow', error);
+
+                    }
+                }
+            }
+        }
+    }
+
+    isOpen(): boolean
+    {
+        return this.windowElem != null;
+    }
+}

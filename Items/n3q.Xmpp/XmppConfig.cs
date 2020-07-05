@@ -14,13 +14,17 @@
                 ComponentPort = 5555;//5347;//5555;
                 ComponentDomain = "itemsxmpp.dev.sui.li";
                 ComponentSecret = "28756a7ff5dce";
+                ExtensionWebBaseUrl = "http://localhost:5001/";
             } else {
                 ClusterId = "prod";
                 LocalhostClustering = false;
                 ComponentHost = "prosody-xmpp.n3q-prod.svc.cluster.local";
                 ComponentPort = 5347;
                 ComponentDomain = "itemsxmpp.k8s.sui.li";
+                ExtensionWebBaseUrl = "https://webex.k8s.sui.li/";
             }
+
+            IdentificatorUrlTemplate = ExtensionWebBaseUrl + "Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}";
 
             AdditionalConfigRoot = System.Environment.GetEnvironmentVariable(ConfigRootEnvironmentVariableName) ?? AdditionalConfigRoot;
             if (!string.IsNullOrEmpty(AdditionalConfigRoot)) {

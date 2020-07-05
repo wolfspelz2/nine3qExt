@@ -30,7 +30,7 @@ export class VidconfWindow extends Window
         if (this.windowElem) {
             let windowElem = this.windowElem;
             let contentElem = this.contentElem;
-            $(windowElem).addClass('n3q-iframewindow');
+            $(windowElem).addClass('n3q-vidconfwindow');
 
             let left = 50;
             if (aboveElem) {
@@ -47,7 +47,7 @@ export class VidconfWindow extends Window
 
             let url: string = options.url;
             url = encodeURI(url);
-            let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-testwindow-content" src="' + url + ' " frameborder="0" allow="camera; microphone; display-capture"></iframe>').get(0);
+            let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-vidconfwindow-content" src="' + url + ' " frameborder="0" allow="camera; microphone; display-capture"></iframe>').get(0);
 
             $(contentElem).append(iframeElem);
 

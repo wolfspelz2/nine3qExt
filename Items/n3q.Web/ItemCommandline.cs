@@ -443,7 +443,7 @@ namespace n3q.Web
         public string PropetyFilterUrl(string url)
         {
             return url
-                .Replace(ItemService.ItemBaseVar, Config.ItemBaseUrl)
+                .Replace(ItemService.ItemBaseVar, Config.ItemAppearanceBaseUrl)
                 ;
         }
 

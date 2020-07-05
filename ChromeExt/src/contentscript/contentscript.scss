@@ -543,9 +543,16 @@
 
     #n3q div.n3q-testwindow div.n3q-testwindow-run { right: 30px; top: 8px; }
     
-    // #n3q div.n3q-iframewindow {}
+    // #n3q div.n3q-vidconfwindow {}
 
-    #n3q div.n3q-iframewindow iframe.n3q-iframewindow-content {
+    #n3q div.n3q-vidconfwindow iframe.n3q-vidconfwindow-content {
+        width: 100%;
+        height: 100%;
+    }
+
+    // #n3q div.n3q-itemframewindow {}
+
+    #n3q div.n3q-itemframewindow iframe.n3q-itemframewindow-content {
         width: 100%;
         height: 100%;
     }
@@ -663,10 +670,16 @@
         overflow: hidden;
     }
 
+        #n3q div.n3q-inventory-pane div.n3q-inventory-noitems {
+            position: absolute;
+            left: 4px;
+            top: 4px;
+        }
+        
         #n3q iframe.n3q-inventory-pane .n3q-inventory-status {
             position: absolute;
-            left: 0;
-            top: 0;
+            left: 4px;
+            top: 4px;
         }
         
     #n3q iframe.n3q-inventory-iframe {

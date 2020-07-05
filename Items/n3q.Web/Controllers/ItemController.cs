@@ -46,10 +46,11 @@ namespace n3q.Web.Controllers
 
             var result = new ItemServiceConfig {
                 serviceUrl = Config.ItemServiceXmppUrl,
-                unavailableUrl = Config.UnavailableUrl,
+                apiUrl = Config.ItemServiceWebApiUrl,
+                //unavailableUrl = Config.UnavailableUrl,
                 userToken = token,
                 itemPropertyUrlFilter = new Dictionary<string, string> {
-                    { "{image.item.nine3q}", Config.ItemBaseUrl },
+                    { "{image.item.nine3q}", Config.ItemAppearanceBaseUrl },
                 },
             };
             return result;

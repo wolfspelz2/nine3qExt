@@ -24,7 +24,8 @@ namespace n3q.Web
             }
 
             UnavailableUrl = ItemWebBaseUrl + "Embedded/Account?id={id}";
-            ItemBaseUrl = ItemWebBaseUrl + "images/Items/";
+            ItemAppearanceBaseUrl = ItemWebBaseUrl + "images/Items/";
+            ItemServiceWebApiUrl = ItemWebBaseUrl + "rpc";
 
             AdditionalConfigRoot = System.Environment.GetEnvironmentVariable(ConfigRootEnvironmentVariableName) ?? AdditionalConfigRoot;
             if (!string.IsNullOrEmpty(AdditionalConfigRoot)) {

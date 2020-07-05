@@ -143,6 +143,8 @@ export class Config
                     'Vidconfwindow.Video Conference': 'Video Conference',
                     'Settingswindow.Settings': 'Settings',
                     'InventoryWindow.Inventory': 'Your Stuff',
+
+                    'Inventory.No items': 'No items here',
                 },
                 'de-DE': {
                     'Common.Close': 'Schließen',
@@ -189,6 +191,8 @@ export class Config
                     'Vidconfwindow.Video Conference': 'Videokonferenz',
                     'Settingswindow.Settings': 'Einstellungen',
                     'InventoryWindow.Inventory': 'Deine Gegenstände',
+
+                    'Inventory.No items': 'Keine Gegenstände hier',
                 },
             },
             'serviceUrl': '',

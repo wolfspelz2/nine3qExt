@@ -55,17 +55,19 @@ export class InventoryWindow extends Window
             }
 
             let paneElem = <HTMLElement>$('<div class="n3q-base n3q-inventory-pane" data-translate="children" />').get(0);
+            let textElem = <HTMLElement>$('<div class="n3q-base n3q-text n3q-inventory-noitems" data-translate="text:Inventory">No items</div>').get(0);
+            $(paneElem).append(textElem);
             $(contentElem).append(paneElem);
 
-            if (!this.inv.getAvailable()) {
-                let url = this.app.getItemProviderConfigValue(this.inv.getProviderId(), 'unavailableUrl', '');
-                if (url != '') {
-                    let uniqueId = await Config.getSync('me.id', '');
-                    url = url.replace('{id}', encodeURIComponent(uniqueId));
-                    let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-inventory-iframe" src="' + url + ' " frameborder="0"></iframe>').get(0);
-                    $(contentElem).append(iframeElem);
-                }
-            }
+            // if (!this.inv.getAvailable()) {
+            //     let url = this.app.getItemProviderConfigValue(this.inv.getProviderId(), 'unavailableUrl', '');
+            //     if (url != '') {
+            //         let uniqueId = await Config.getSync('me.id', '');
+            //         url = url.replace('{id}', encodeURIComponent(uniqueId));
+            //         let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-inventory-iframe" src="' + url + ' " frameborder="0"></iframe>').get(0);
+            //         $(contentElem).append(iframeElem);
+            //     }
+            // }
 
             this.app.translateElem(windowElem);
 
@@ -133,6 +135,8 @@ export class InventoryWindow extends Window
 
     setStatus(status: string, text?: string, detail?: { type: string; from: string; to: string; }): void
     {
+        $('.n3q-inventory-pane .n3q-inventory-noitems').remove();
+
         if (Environment.isDevelopment()) {
             $(this.paneElem).find('.n3q-inventory-status').remove();
 

@@ -25,7 +25,7 @@ export class InventoryItem
 
     constructor(private app: ContentApp, private inv: Inventory, private itemId: string)
     {
-        this.item = new Item(app);
+        this.item = new Item(app, itemId);
 
         let paneElem = this.inv.getPane();
         let padding: number = Config.get('inventory.borderPadding', 4);

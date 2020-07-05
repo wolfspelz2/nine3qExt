@@ -6,6 +6,8 @@ import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
 import { ContentApp } from './ContentApp';
 
+type WindowOptions = any;
+
 export class Window
 {
     onResizeStart: { (ev: JQueryEventObject, ui: JQueryUI.ResizableUIParams): void };
@@ -21,7 +23,7 @@ export class Window
 
     constructor(protected app: ContentApp) { }
 
-    show(options: any)
+    show(options: WindowOptions)
     {
         this.onClose = options.onClose;
 

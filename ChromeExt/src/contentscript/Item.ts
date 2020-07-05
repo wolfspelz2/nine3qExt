@@ -4,19 +4,22 @@ import log = require('loglevel');
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 import { ContentApp } from './ContentApp';
-import { IframeWindow } from './IframeWindow';
+import { ItemFrameWindow } from './ItemFrameWindow';
 
 import imgDefaultItem from '../assets/DefaultItem.png';
+import { timeStamp } from 'console';
 
 export class Item
 {
     private providerId: string;
     private properties: { [pid: string]: string } = {};
-    private iframeWindow: IframeWindow;
+    private frameWindow: ItemFrameWindow;
 
-    constructor(private app: ContentApp)
+    constructor(private app: ContentApp, private id: string)
     {
     }
+
+    getId() { return this.id; }
 
     setProviderId(providerId: string) { this.providerId = providerId; }
     getProviderId(): string { return this.providerId; }
@@ -33,16 +36,17 @@ export class Item
 
     openIframe(aboveElem: HTMLElement = null)
     {
-        if (!this.iframeWindow) {
-            this.iframeWindow = new IframeWindow(this.app);
-            this.iframeWindow.show({
+        if (!this.frameWindow) {
+            this.frameWindow = new ItemFrameWindow(this.app);
+            this.frameWindow.show({
+                item: this,
                 above: aboveElem,
                 resizable: as.Bool(this.properties.IframeResizable, true),
                 titleText: as.String(this.properties.Label, 'Item'),
                 url: as.String(this.properties.IframeUrl, 'https://example.com'),
                 width: as.Int(this.properties.IframeWidth, 400),
                 height: as.Int(this.properties.IframeHeight, 400),
-                onClose: () => { this.iframeWindow = null; },
+                onClose: () => { this.frameWindow = null; },
             });
         }
     }

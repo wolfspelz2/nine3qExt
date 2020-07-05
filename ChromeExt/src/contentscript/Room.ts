@@ -328,7 +328,10 @@ export class Room
     {
         if (!this.vidconfWindow) {
             let urlTemplate = Config.get('room.vidconfUrl', 'https://meet.jit.si/{room}#userInfo.displayName="{name}"');
-            let url = urlTemplate.replace('{room}', this.jid).replace('{name}', displayName);
+            let url = urlTemplate
+                .replace('{room}', this.jid)
+                .replace('{name}', displayName)
+                ;
 
             this.app.setVidconfIsOpen(true);
 
@@ -338,7 +341,7 @@ export class Room
                 'url': url,
                 onClose: () =>
                 {
-                    this.vidconfWindow = null; 
+                    this.vidconfWindow = null;
                     this.app.setVidconfIsOpen(false);
                 },
             });

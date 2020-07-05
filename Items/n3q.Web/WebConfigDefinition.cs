@@ -16,7 +16,8 @@ namespace n3q.Web
         public const string DefaultItemWebBaseUrl = "https://item-web.example.com/";
         public string ItemWebBaseUrl = DefaultItemWebBaseUrl;
         public string UnavailableUrl = DefaultItemWebBaseUrl + "Embedded/Account?id={id}";
-        public string ItemBaseUrl = DefaultItemWebBaseUrl + "images/Items/";
+        public string ItemAppearanceBaseUrl = DefaultItemWebBaseUrl + "images/Items/";
+        public string ItemServiceWebApiUrl = DefaultItemWebBaseUrl + "rpc";
 
         public long MaxRpcRequestSize = 100000;
     }
