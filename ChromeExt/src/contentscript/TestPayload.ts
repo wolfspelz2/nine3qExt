@@ -4,13 +4,14 @@ import { Payload } from '../lib/Payload';
 import { SimpleRpc } from '../lib/SimpleRpc';
 import { parseJSON } from 'jquery';
 import { Utils } from '../lib/Utils';
+import { Config } from '../lib/Config';
 
 export class TestPayload
 {
     async Payload_getToken()
     {
         let token = await Payload.getToken(
-            'http://localhost:5000/rpc',
+            Config.get('test.itemServiceRpcUrl', 'http://localhost:5000/rpc'),
             'user1',
             'item1',
             3600,

@@ -52,7 +52,6 @@ export class XmppWindow extends Window
             let inSaveElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-xmppwindow-in-save" title="Save">Save</div>').get(0);
             let outClearElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-xmppwindow-out-clear" title="Clear">Clear</div>').get(0);
 
-
             $(inElem).append(inInputElem);
 
             $(contentElem).append(outElem);

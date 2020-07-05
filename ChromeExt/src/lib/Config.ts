@@ -39,6 +39,9 @@ export class Config
             maxAgeSec: 3600,
             maintenanceIntervalSec: 60,
         },
+        test: {
+            itemServiceRpcUrl: 'http://localhost:5000/rpc',
+        },
         room: {
             fadeInSec: 0.3,
             defaultAvatarSpeedPixelPerSec: 100,

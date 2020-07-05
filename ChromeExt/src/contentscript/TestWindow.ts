@@ -45,14 +45,22 @@ export class TestWindow extends Window
             }
 
             let outElem = <HTMLElement>$('<div class="n3q-base n3q-testwindow-out" data-translate="children" />').get(0);
+            let runElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-testwindow-run" title="Run">Run</div>').get(0);
 
             $(contentElem).append(outElem);
+            $(contentElem).append(runElem);
 
             this.app.translateElem(windowElem);
 
             this.outElem = outElem;
 
             $(windowElem).css({ 'width': width + 'px', 'height': height + 'px', 'left': left + 'px', 'top': top + 'px' });
+
+            $(runElem).click(ev =>
+            {
+                $('#n3q .n3q-testwindow-out .sut').remove();
+                this.runTests();
+            });
 
             this.onClose = async () =>
             {
@@ -68,8 +76,8 @@ export class TestWindow extends Window
     {
         var s = new sut();
 
-        s.addTestClass(TestPayload);
         s.addTestClass(TestSimpleRpc);
+        s.addTestClass(TestPayload);
 
         s.run().then(() =>
         {
