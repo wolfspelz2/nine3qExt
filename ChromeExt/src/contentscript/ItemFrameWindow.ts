@@ -73,7 +73,7 @@ export class ItemFrameWindow extends Window
                 if (apiUrl != '' && userId != '' && itemId != '') {
                     try {
 
-                        let token = await Payload.getToken(apiUrl, userId, itemId, 3600, { 'room': roomJid });
+                        let token = await Payload.getToken(apiUrl, providerId, userId, itemId, 3600, { 'room': roomJid });
                         url = url.replace('{token}', encodeURIComponent(token));
 
                         let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-itemframewindow-content" src="' + url + ' " frameborder="0"></iframe>').get(0);

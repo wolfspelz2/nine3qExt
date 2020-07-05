@@ -4,11 +4,12 @@ import { SimpleRpc } from './SimpleRpc';
 
 export class Payload
 {
-    static async getToken(api: string, user: string, item: string, ttlSec: number, params: any): Promise<string>
+    static async getToken(api: string, provider: string, user: string, item: string, ttlSec: number, params: any): Promise<string>
     {
         let expires = 10000000000 + ttlSec;
         var payload = {
             'api': api,
+            'provider': provider,
             'user': user,
             'item': item,
             'entropy': Utils.randomString(20),
