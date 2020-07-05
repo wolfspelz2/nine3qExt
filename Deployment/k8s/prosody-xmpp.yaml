@@ -37,11 +37,11 @@ metadata:
     run: prosody-xmpp
   annotations:
     haproxy.org/check: "true"
-    haproxy.org/forwarded-for: "enabled"
+    haproxy.org/forwarded-for: "true"
+    haproxy.org/use-forwarded-proto: "true"
     haproxy.org/load-balance: "roundrobin"
     haproxy.org/timeout-client: "300000"
     haproxy.org/timeout-server: "300000"
-#    haproxy.org/add-header: "http-request add-header X-Forwarded-Proto https
 spec:
   selector:
     run: prosody-xmpp

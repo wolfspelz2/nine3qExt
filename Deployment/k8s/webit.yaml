@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: n3q-webit
-          image: docker.k8s.sui.li/n3q-web:latest
+          image: docker.k8s.sui.li/n3q-webit:latest
           ports:
             - containerPort: 80
               protocol: TCP
