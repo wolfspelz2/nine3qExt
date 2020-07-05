@@ -1,6 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace n3q.WebEx
 {
@@ -16,10 +17,19 @@ namespace n3q.WebEx
 
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            return Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder => {
-                    webBuilder.UseStartup<Startup>();
+            var host = Host.CreateDefaultBuilder(args);
+
+            host.ConfigureLogging(logging => {
+                logging.AddConsole(c => {
+                    c.TimestampFormat = "[yy:MM:dd-HH:mm:ss] ";
                 });
+            });
+
+            host.ConfigureWebHostDefaults(webBuilder => {
+                webBuilder.UseStartup<Startup>();
+            });
+
+            return host;
         }
     }
 }

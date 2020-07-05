@@ -73,7 +73,9 @@ namespace ClusterSilo
             }
 
             builder.ConfigureLogging(logging => {
-                logging.AddConsole();
+                logging.AddConsole(c => {
+                    c.TimestampFormat = "[yy:MM:dd-HH:mm:ss] ";
+                });
 
                 if (Config.Build == SiloConfigDefinition.BuildConfiguration.Release) {
                     logging.SetMinimumLevel(LogLevel.Error);
