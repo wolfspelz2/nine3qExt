@@ -60,10 +60,8 @@ namespace n3q.WebIt.Test
             // Arrange
             var payload = new JsonPath.Node(new Dictionary<string, string> { ["user"] = "user", ["entropy"] = "entropy", }).ToJson(bFormatted: false, bWrapped: false);
             var payloadBase64Encoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payload));
-            var expect = Tools.Crypto.SHA256Hex("secret" + payload);
             var payload2 = new JsonPath.Node(new Dictionary<string, string> { ["user"] = "user2", ["entropy"] = "entropy", }).ToJson(bFormatted: false, bWrapped: false);
             var payloadBase64Encoded2 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payload2));
-            var expect2 = Tools.Crypto.SHA256Hex("secret" + payload2);
             var controller = new RpcController(new Web.WebConfigDefinition { PayloadHashSecret = "secret" });
 
             // Act

@@ -89,4 +89,13 @@ export class Utils
         return Math.abs(hash);
     }
 
+    static base64Encode(s: string): string
+    {
+        return window.btoa(s);
+    }
+
+    static base64Decode(s: string): string
+    {
+        return window.atob(s);
+    }
 }

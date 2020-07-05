@@ -36,7 +36,7 @@ export class TestMisc
     //             .param('aBool', true)
     //             .param('aLong', 42000000000)
     //             .param('aDate', new Date(Date.now()).toISOString())
-    //             .send('http://localhost:5000/Rpc');
+    //             .send('http://localhost:5000/rpc');
     //         if (response.ok) {
     //             result = response.data;
     //         }

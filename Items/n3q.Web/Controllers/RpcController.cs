@@ -2,17 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Management;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-
-using JsonPath;
-
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-using Orleans;
+using JsonPath;
 
 namespace n3q.Web.Controllers
 {
@@ -28,19 +21,25 @@ namespace n3q.Web.Controllers
 
         [Route("[controller]")]
         [HttpPost]
-        public async Task<string> PostAsync()
+        public async Task<string> Post()
+        {
+            var body = await new StreamReader(Request.Body).ReadToEndAsync();
+            return Get(body);
+        }
+
+        [Route("[controller]/{action}")]
+        [HttpGet]
+        public string Get(string body)
         {
             var response = new JsonPath.Dictionary();
 
             try {
-                var body = await new StreamReader(Request.Body).ReadToEndAsync();
-
                 var request = new JsonPath.Node(body).AsDictionary;
 
                 var method = request["method"].AsString;
                 switch (method) {
-                    case "echo": response = Echo(request); break;
-                    case "computePayloadHash": response = ComputePayloadHash(request); break;
+                    case nameof(Echo): response = Echo(request); break;
+                    case nameof(ComputePayloadHash): response = ComputePayloadHash(request); break;
                     default: throw new Exception($"Unknown method={method}");
                 }
 
@@ -54,6 +53,7 @@ namespace n3q.Web.Controllers
             return response.ToNode().ToJson();
         }
 
+        [Route("[controller]/{action}")]
         public JsonPath.Dictionary Echo(JsonPath.Dictionary request)
         {
             return request
@@ -62,6 +62,7 @@ namespace n3q.Web.Controllers
                 ;
         }
 
+        [Route("[controller]/{action}")]
         public JsonPath.Dictionary ComputePayloadHash(JsonPath.Dictionary request)
         {
             var user = request["user"].String;

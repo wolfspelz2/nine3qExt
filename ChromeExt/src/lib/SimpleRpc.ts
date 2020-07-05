@@ -34,7 +34,11 @@ export class SimpleRpc
             var response = await BackgroundMessage.jsonRpc(url, this.params);
             if (response.ok) {
                 let data = parseJSON(response.data);
-                return new SimpleRpcResponse(true, data)
+                if (data.status == 'ok') {
+                    return new SimpleRpcResponse(true, data)
+                } else {
+                    return new SimpleRpcResponse(false, {}, data.message);
+                }
             } else {
                 return new SimpleRpcResponse(false, {}, response.status + ' ' + response.statusText);
             }
