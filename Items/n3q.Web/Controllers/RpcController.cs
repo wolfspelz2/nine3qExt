@@ -35,9 +35,9 @@ namespace n3q.Web.Controllers
             try {
                 var body = await new StreamReader(Request.Body).ReadToEndAsync();
 
-                var request = new JsonPath.Node(body);
+                var request = new JsonPath.Node(body).AsDictionary;
 
-                var method = request.AsDictionary["method"].AsString;
+                var method = request["method"].AsString;
                 switch (method) {
                     case "echo": response = Echo(request); break;
                     case "computePayloadHash": response = ComputePayloadHash(request); break;
@@ -54,17 +54,31 @@ namespace n3q.Web.Controllers
             return response.ToNode().ToJson();
         }
 
-        private JsonPath.Dictionary Echo(JsonPath.Node request)
+        public JsonPath.Dictionary Echo(JsonPath.Dictionary request)
         {
-            return request.AsDictionary
+            return request
                 .Select(pair => new KeyValuePair<string, Node>(pair.Key, new JsonPath.Node(Node.Type.Auto, pair.Value)))
                 .ToDictionary()
                 ;
         }
 
-        private JsonPath.Dictionary ComputePayloadHash(JsonPath.Node request)
+        public JsonPath.Dictionary ComputePayloadHash(JsonPath.Dictionary request)
         {
-            return new JsonPath.Dictionary().Add("result", "xx");
+            var user = request["user"].String;
+            var payloadBase64Encoded = request["payload"].String;
+
+            if (string.IsNullOrEmpty(user)) { throw new Exception("No user"); }
+            if (string.IsNullOrEmpty(payloadBase64Encoded)) { throw new Exception("No payload"); }
+
+            var payloadBase64DecodedBytes = Convert.FromBase64String(payloadBase64Encoded);
+            var payload = Encoding.UTF8.GetString(payloadBase64DecodedBytes);
+            var json = new JsonPath.Node(payload);
+            if (json["user"].String != user) { throw new Exception("User mismatch"); }
+
+            var data = Config.PayloadHashSecret + payload;
+            var hash = Tools.Crypto.SHA256Hex(data);
+
+            return new JsonPath.Dictionary().Add("result", hash);
         }
     }
 }

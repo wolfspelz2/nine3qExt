@@ -24,6 +24,8 @@ namespace JsonPath
         public Dictionary Add(string key, DateTime value) { base.Add(key, new Node(Node.Type.Date, value)); return this; }
         public new void Add(string key, Node node) { base.Add(key, node); }
 
+        public new Node this[string key] { get { return Get(key); } set { base[key] = value; } }
+
         public JsonPath.Node ToNode()
         {
             var node = new Node(Node.Type.Dictionary);
