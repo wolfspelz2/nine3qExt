@@ -7,18 +7,18 @@ using n3q.Tools;
 namespace n3q.WebEx.Controllers
 {
     [ApiController]
-    public class ClientController : ControllerBase
+    public class ConfigController : ControllerBase
     {
         public ICallbackLogger Log { get; set; }
         public WebExConfigDefinition Config { get; set; }
 
-        public ClientController(ILogger<ClientController> logger, WebExConfigDefinition config)
+        public ConfigController(ILogger<ConfigController> logger, WebExConfigDefinition config)
         {
             Log = new FrameworkCallbackLogger(logger);
             Config = config;
         }
 
-        [Route("[controller]/Config")]
+        [Route("[controller]")]
         [HttpGet]
         public Task<ClientConfig> Get()
         {

@@ -31,7 +31,7 @@ export class Config
         },
         config: {
             // serviceUrl: 'https://config.weblin.sui.li/',
-            serviceUrl: 'https://webex.k8s.sui.li/Client/Config',
+            serviceUrl: 'https://webex.k8s.sui.li/Config',
             updateIntervalSec: Utils.randomInt(60000, 80000),
             checkUpdateIntervalSec: 600,
         },
@@ -89,7 +89,7 @@ export class Config
             {
                 name: 'weblin Items',
                 description: 'Things on web pages',
-                configUrl: 'https://webit.k8s.sui.li/Item/Config?id={id}',
+                configUrl: 'https://webit.k8s.sui.li/Config?id={id}',
             }
         },
         i18n: {

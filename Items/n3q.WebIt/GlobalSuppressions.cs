@@ -9,7 +9,6 @@
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>", Scope = "member", Target = "~P:n3q.WebIt.Models.ItemServiceConfig.itemPropertyUrlFilter")]
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>", Scope = "member", Target = "~P:n3q.WebIt.Models.ClientServiceConfig.AvatarsConfig.animationsProxyUrlTemplate")]
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>", Scope = "member", Target = "~P:n3q.WebIt.Models.ClientServiceConfig.AvatarsConfig.animationsUrlTemplate")]
-[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>", Scope = "member", Target = "~P:n3q.WebIt.Models.ItemServiceConfig.apiUrl")]
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>", Scope = "member", Target = "~P:n3q.WebIt.Models.ClientServiceConfig.avatars")]
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>", Scope = "member", Target = "~P:n3q.WebIt.Models.ClientServiceConfig.XmppConfig.domain")]
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>", Scope = "member", Target = "~P:n3q.WebIt.Models.ClientServiceConfig.IdentityConfig.identificatorUrlTemplate")]
@@ -19,3 +18,4 @@
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>", Scope = "member", Target = "~P:n3q.WebIt.Models.ClientServiceConfig.XmppConfig.service")]
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>", Scope = "member", Target = "~P:n3q.WebIt.Models.ClientServiceConfig.XmppConfig.user")]
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>", Scope = "member", Target = "~P:n3q.WebIt.Models.ClientServiceConfig.xmpp")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>", Scope = "member", Target = "~P:n3q.WebIt.Models.ItemServiceConfig.apiUrl")]
