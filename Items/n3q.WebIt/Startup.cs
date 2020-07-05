@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 
-namespace n3q.Web
+namespace n3q.WebIt
 {
     public class Startup
     {

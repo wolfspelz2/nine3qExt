@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace n3q.Web
+namespace n3q.WebIt
 {
     public class WebItConfig : WebItConfigDefinition
     {

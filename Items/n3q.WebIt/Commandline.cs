@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using n3q.Tools;
 using Orleans;
 
-namespace n3q.Web
+namespace n3q.WebIt
 {
     public class Commandline : ICommandline
     {

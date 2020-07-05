@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Orleans;
 
-namespace n3q.Web
+namespace n3q.WebIt
 {
     public interface ICommandline
     {

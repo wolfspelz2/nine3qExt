@@ -2,7 +2,7 @@
 using n3q.Aspects;
 using n3q.Tools;
 
-namespace n3q.Web
+namespace n3q.WebIt
 {
     public static class ClusterClientExtensions
     {

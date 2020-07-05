@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 
-namespace n3q.Web.Pages
+namespace n3q.WebIt.Pages
 {
     public class PrivacyModel : PageModel
     {
@@ -14,7 +14,7 @@ namespace n3q.Web.Pages
 
         public PrivacyModel(ILogger<PrivacyModel> logger)
         {
-            _logger = logger;
+            _logger = logger; _ = _logger;
         }
 
         public void OnGet()

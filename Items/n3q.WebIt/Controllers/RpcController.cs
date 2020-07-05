@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using JsonPath;
 
-namespace n3q.Web.Controllers
+namespace n3q.WebIt.Controllers
 {
     [ApiController]
     public class RpcController : ControllerBase

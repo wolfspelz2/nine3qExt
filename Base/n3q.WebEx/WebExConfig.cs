@@ -23,7 +23,7 @@
             IdentificatorUrlTemplate = ExtensionWebBaseUrl + "Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}";
             AnimationsProxyUrlTemplate = ExtensionWebBaseUrl + "Avatar/InlineData?url={url}";
             ImageProxyUrlTemplate = ExtensionWebBaseUrl + "Avatar/HttpBridge?url={url}";
-            ItemConfigUrlTemplate = ItemWebBaseUrl + "Item/Config?id={id}";
+            ItemConfigUrlTemplate = ItemWebBaseUrl + "Config?id={id}";
 
             AdditionalConfigRoot = System.Environment.GetEnvironmentVariable(ConfigRootEnvironmentVariableName) ?? AdditionalConfigRoot;
             if (!string.IsNullOrEmpty(AdditionalConfigRoot)) {

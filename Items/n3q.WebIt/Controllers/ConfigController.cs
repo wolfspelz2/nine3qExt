@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Orleans;
-using n3q.Web.Models;
+using n3q.WebIt.Models;
 using n3q.GrainInterfaces;
 using n3q.Tools;
 using n3q.Items;
@@ -12,30 +12,30 @@ using n3q.Content;
 using n3q.Aspects;
 using n3q.Common;
 
-namespace n3q.Web.Controllers
+namespace n3q.WebIt.Controllers
 {
     [ApiController]
-    public class ItemController : ControllerBase
+    public class ConfigController : ControllerBase
     {
         public ICallbackLogger Log { get; set; }
         public WebItConfigDefinition Config { get; set; }
         public IClusterClient ClusterClient { get; set; }
 
-        public ItemController(ILogger<ItemController> logger, WebItConfigDefinition config, IClusterClient clusterClient)
+        public ConfigController(ILogger<ConfigController> logger, WebItConfigDefinition config, IClusterClient clusterClient)
         {
             Log = new FrameworkCallbackLogger(logger);
             Config = config;
             ClusterClient = clusterClient;
         }
 
-        [Route("[controller]/Config")]
+        [Route("[controller]")]
         [HttpGet]
         public async Task<ItemServiceConfig> Get(string id)
         {
             if (string.IsNullOrEmpty(id)) { throw new Exception("No id"); }
 
             var token = GetLowercaseTokenBecauseWillBeSentAsXmppUser(id);
-            Log.Info(token, "Config", nameof(ItemController));
+            Log.Info(token, "Config", nameof(ConfigController));
 
             var itemRef = ClusterClient.GetGrain<IItemRef>(token);
             var itemId = await itemRef.GetItem();

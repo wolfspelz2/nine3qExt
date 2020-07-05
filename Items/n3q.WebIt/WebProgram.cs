@@ -10,7 +10,7 @@ using n3q.Common;
 using n3q.StorageProviders;
 using n3q.Grains;
 
-namespace n3q.Web
+namespace n3q.WebIt
 {
     public static class WebProgram
     {

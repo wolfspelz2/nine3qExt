@@ -2,7 +2,7 @@
 using Orleans;
 using n3q.GrainInterfaces;
 
-namespace n3q.Web.Pages
+namespace n3q.WebIt.Pages
 {
     public class CounterModel : PageModel
     {

@@ -15,7 +15,7 @@ namespace n3q.WebEx
         public string IdentificatorUrlTemplate = DefaultExtensionWebBaseUrl + "Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}";
         public string AnimationsProxyUrlTemplate = DefaultExtensionWebBaseUrl + "Avatar/InlineData?url={url}";
         public string ImageProxyUrlTemplate = DefaultExtensionWebBaseUrl + "Avatar/HttpBridge?url={url}";
-        public string ItemConfigUrlTemplate = DefaultItemWebBaseUrl + "Item/Config?id={id}";
+        public string ItemConfigUrlTemplate = DefaultItemWebBaseUrl + "Config?id={id}";
 
         public string AnimationsUrlTemplate = "https://avatar.zweitgeist.com/gif/{id}/config.xml";
         public List<string> AvatarProxyPreloadSequenceNames = new List<string> { "idle", "moveright", "moveleft" };

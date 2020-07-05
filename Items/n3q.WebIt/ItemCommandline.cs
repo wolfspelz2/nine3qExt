@@ -13,7 +13,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 
-namespace n3q.Web
+namespace n3q.WebIt
 {
     public class ItemCommandline : Commandline, ICommandline
     {

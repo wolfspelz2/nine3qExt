@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace n3q.Web.Models
+namespace n3q.WebIt.Models
 {
     public class Sample
     {

@@ -11,7 +11,7 @@ using Orleans;
 using n3q.GrainInterfaces;
 using n3q.Tools;
 
-namespace n3q.Web
+namespace n3q.WebIt
 {
     public class CommandSymbols
     {

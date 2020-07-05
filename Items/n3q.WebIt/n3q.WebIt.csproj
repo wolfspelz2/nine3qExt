@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>n3q.Web</RootNamespace>
-    <AssemblyName>n3q.Web</AssemblyName>
+    <RootNamespace>n3q.WebIt</RootNamespace>
+    <AssemblyName>n3q.WebIt</AssemblyName>
     <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
   </PropertyGroup>
