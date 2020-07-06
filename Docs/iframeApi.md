@@ -1,32 +1,54 @@
-### payload format
+### contextToken format
+base64(
     {
+        api: https://n3q-api.com/v1
         payload: {
-            api: https://n3q-api.com/v1
-            provider: 'suat-theatre',
-            user: '765fgvhuz7t6ft6ftijt6fthbiit6ftbh',
-            item: 'pirml6rhf5tp2go3mulhh3o',
-            room: '9ca05afb1a49f26fb59642305c481661f8b370bd@muc4.virtual-presence.org',
+            user: '765fgvhuz7t6ft6ftijt6fthbiit6ftbh'
+            item: 'pirml6rhf5tp2go3mulhh3o'
+            room: '9ca05afb1a49f26fb59642305c481661f8b370bd@muc4.virtual-presence.org'
             entropy: random
-            expires: unxitime
+            expires: unixtime
         },
-        hash: sha256(systemSecret + payload)
+        hash: sha256(systemSecret + base64(payload))
     }
+)
+
+### partnerToken format
+base64(
+    {
+        api: https://n3q-api.com/v1
+        payload: {
+            partner: "suat-theatre-tf5768gihu89z7t6ftugzuhji97t6fituljnjz6t"
+            entropy: random
+            expires: unixtime
+        },
+        hash: sha256(systemSecret + base64(payload))
+    }
+)
 
 ### get payload hash
-https://n3qweb.k8s.sui.li/PayloadHash?id=ext-3jo6rap97qnklec9wdjkcbbtrakqstqi2kel3at3&payload=<base64(payload)>
+->  POST https://n3q-api.com/v1
+    urlencode(
+        {
+            payload: base64(payload)
+        }
+    )
+<-  response
+    {
+        status: "ok"
+        result: sha256(systemSecret + base64(payload))
+    }
 
 ### open iframe
-https://theatre.weblin.sui.li/iframe.html?token=<base64(token)>
+https://theatre.weblin.sui.li/iframe.html?context=<contextToken>
 
 ### make backend api call
-->  POST n3q-api.com/
+->  POST https://n3q-api.com/v1
     {
-        payload: {
-            method: getProperties
-            token: token,
-            pids: [ "DocumentText", "DocumentMaxLength" ]
-        },
-        hash: sha256(developerSecret + payload),
+        partner: partnerToken
+        context: contextToken
+        method: "getProperties"
+        pids: [ "DocumentText", "DocumentMaxLength", "Container" ]
     }
 <-  response
     {
@@ -37,32 +59,30 @@ https://theatre.weblin.sui.li/iframe.html?token=<base64(token)>
         }
     }
 
-->  POST n3q-api.com/
+->  POST https://n3q-api.com/v1
     {
-        payload: {
-            method: changeProperties
-            token: token,
-            set: {
-                DocumentText: "This is a text", 
-            }
-            delete: [ "TestInt" ]
-        },
-        hash: sha256(developerSecret + properties),
+        partner: partnerToken
+        context: contextToken
+        method: "changeProperties"
+        set: {
+            DocumentText: "This is a text"
+        }
+        delete: [ "TestInt" ]
     }
 <-  response
     {
         status: "ok"
     }
 
-### ItemAction später:
-        payload: {
-            user: '765fgvhuz7t6ft6ftijt6fthbiit6ftbh',
-            item: 'pirml6rhf5tp2go3mulhh3o',
-            // aspect: 'Extractor',
-            action: 'Extract',
-            from: 'pirml6rhf5tp2go3mulhh3o'
-            entropy: random
-            expires: unxitime
-        },
-        hash: sha256(systemSecret + payload)
+### ItemAction:
+->  POST https://n3q-api.com/v1
+    {
+        partner: partnerToken
+        context: contextToken
+        method: "itemAction"
+        aspect: "Document"
+        action: "SetText"
+        args: {
+            text: "This is a text"
+        }
     }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -21,6 +20,13 @@ namespace n3q.WebIt.Controllers
         public ICallbackLogger Log { get; set; }
         public WebItConfigDefinition Config { get; set; }
         public IClusterClient ClusterClient { get; set; }
+
+        public RpcController(WebItConfigDefinition config)
+        {
+            Log  = new NullCallbackLogger();
+            Config = config;
+            ClusterClient = null;
+        }
 
         public RpcController(ILogger<RpcController> logger, WebItConfigDefinition config, IClusterClient clusterClient)
         {
@@ -54,6 +60,7 @@ namespace n3q.WebIt.Controllers
                 var request = new JsonPath.Node(body).AsDictionary;
 
                 var method = request["method"].AsString;
+                method = ("" + method[0]).ToUpper() + method.Substring(1);
                 switch (method) {
                     case nameof(Echo): response = Echo(request); break;
                     case nameof(ComputePayloadHash): response = ComputePayloadHash(request); break;
@@ -83,16 +90,12 @@ namespace n3q.WebIt.Controllers
         [Route("[controller]/{action}")]
         public JsonPath.Dictionary ComputePayloadHash(JsonPath.Dictionary request)
         {
-            var user = request["user"].String;
             var payloadBase64Encoded = request["payload"].String;
 
-            if (!Has.Value(user)) { throw new Exception("No user"); }
             if (!Has.Value(payloadBase64Encoded)) { throw new Exception("No payload"); }
 
-            var payloadBase64DecodedBytes = Convert.FromBase64String(payloadBase64Encoded);
-            var payload = Encoding.UTF8.GetString(payloadBase64DecodedBytes);
+            var payload = Tools.Base64.Decode(payloadBase64Encoded);
             var json = new JsonPath.Node(payload);
-            if (json["user"].String != user) { throw new Exception("User mismatch"); }
 
             var data = Config.PayloadHashSecret + payload;
             var hash = Tools.Crypto.SHA256Hex(data);
@@ -106,7 +109,13 @@ namespace n3q.WebIt.Controllers
             var itemId = request["item"].String;
             if (!Has.Value(itemId)) { throw new Exception("No item"); }
 
-            ValidateProviderHash();
+            var partnerToken = request["partner"].String;
+            if (!Has.Value(partnerToken)) { throw new Exception("No partner token"); }
+            await ValidatePartnerToken(partnerToken);
+
+            var contextToken = request["context"].String;
+            if (!Has.Value(contextToken)) { throw new Exception("No context token"); }
+            var context = GetContext(contextToken);
 
             var pids = new PidSet();
             var pidsNode = request["pids"];
@@ -133,8 +142,44 @@ namespace n3q.WebIt.Controllers
             return response;
         }
 
-        private void ValidateProviderHash()
+        private async Task ValidatePartnerToken(string tokenBase64Encoded)
         {
+            var tokenString = Tools.Base64.Decode(tokenBase64Encoded);
+            var tokenNode = new JsonPath.Node(tokenString);
+            var payloadNode = tokenNode["payload"];
+
+            var partnerId = payloadNode["partner"];
+            if (!Has.Value(partnerId)) { throw new Exception("No partnerId in partner token"); }
+
+            var props = await ClusterClient.GetGrain<IItem>(partnerId).GetPropertiesX(new PidSet { Pid.PartnerAspect, Pid.PartnerToken });
+            if (!props[Pid.PartnerAspect]) { throw new Exception("Invalid partner token"); }
+            if (props[Pid.PartnerToken] != tokenBase64Encoded) { throw new Exception("Invalid partner token"); }
         }
+
+        private class RequestContext
+        {
+            public string user;
+            public string item;
+            public string expires;
+        }
+
+        private RequestContext GetContext(string tokenBase64Encoded)
+        {
+            var rc = new RequestContext();
+
+            var tokenString = Tools.Base64.Decode(tokenBase64Encoded);
+            var tokenNode = new JsonPath.Node(tokenString);
+            var payloadNode = tokenNode["payload"];
+
+            rc.user = payloadNode["user"];
+            rc.item = payloadNode["item"];
+            rc.expires = payloadNode["expires"];
+
+            if (!Has.Value(rc.user)) { throw new Exception("No in context"); }
+            if (!Has.Value(rc.item)) { throw new Exception("No item in context"); }
+
+            return rc;
+        }
+
     }
 }

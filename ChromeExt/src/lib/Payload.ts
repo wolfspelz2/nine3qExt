@@ -4,12 +4,10 @@ import { SimpleRpc } from './SimpleRpc';
 
 export class Payload
 {
-    static async getToken(api: string, provider: string, user: string, item: string, ttlSec: number, params: any): Promise<string>
+    static async getToken(api: string, user: string, item: string, ttlSec: number, params: any): Promise<string>
     {
         let expires = 10000000000 + ttlSec;
         var payload = {
-            'api': api,
-            'provider': provider,
             'user': user,
             'item': item,
             'entropy': Utils.randomString(20),
@@ -19,8 +17,9 @@ export class Payload
             payload[key] = params[key];
         }
         let payloadString = JSON.stringify(payload);
-        let hash = await this.getHash(api, user, payloadString);
+        let hash = await this.getHash(api, payloadString);
         let token = {
+            'api': api,
             'payload': payload,
             'hash': hash
         }
@@ -29,11 +28,10 @@ export class Payload
         return tokenBase64Encoded;
     }
 
-    static async getHash(api: string, user: string, payload: string): Promise<string>
+    static async getHash(api: string, payload: string): Promise<string>
     {
         let payloadBase64 = Utils.base64Encode(payload);
-        let response = await new SimpleRpc('ComputePayloadHash')
-            .param('user', user)
+        let response = await new SimpleRpc('computePayloadHash')
             .param('payload', payloadBase64)
             .send(api);
         if (response.ok) {

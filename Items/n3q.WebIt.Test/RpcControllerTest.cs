@@ -24,18 +24,18 @@ namespace n3q.WebIt.Test
             Assert.AreEqual(expect, hash);
         }
 
-        [TestMethod]
-        public void ComputePayloadHash_detects_user_mismatch()
-        {
-            // Arrange
-            var payload = new JsonPath.Node(new Dictionary<string, string> { ["user"] = "user", ["entropy"] = "entropy", }).ToJson(bFormatted: false, bWrapped: false);
-            var payloadBase64Encoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payload));
-            var expect = Tools.Crypto.SHA256Hex("secret" + payload);
-            var controller = new RpcController(new WebItConfigDefinition { PayloadHashSecret = "secret" });
+        //[TestMethod]
+        //public void ComputePayloadHash_detects_user_mismatch()
+        //{
+        //    // Arrange
+        //    var payload = new JsonPath.Node(new Dictionary<string, string> { ["user"] = "user", ["entropy"] = "entropy", }).ToJson(bFormatted: false, bWrapped: false);
+        //    var payloadBase64Encoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payload));
+        //    var expect = Tools.Crypto.SHA256Hex("secret" + payload);
+        //    var controller = new RpcController(new WebItConfigDefinition { PayloadHashSecret = "secret" });
 
-            // Act
-            Assert.ThrowsException<Exception>(() => { _ = controller.ComputePayloadHash(new JsonPath.Dictionary { ["user"] = "wrong user", ["payload"] = payloadBase64Encoded, })["result"].String; });
-        }
+        //    // Act
+        //    Assert.ThrowsException<Exception>(() => { _ = controller.ComputePayloadHash(new JsonPath.Dictionary { ["user"] = "wrong user", ["payload"] = payloadBase64Encoded, })["result"].String; });
+        //}
 
         [TestMethod]
         public void ComputePayloadHash_detects_missing_arguments()

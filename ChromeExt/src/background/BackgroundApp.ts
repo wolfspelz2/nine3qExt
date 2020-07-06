@@ -242,7 +242,7 @@ export class BackgroundApp
                     .catch(ex =>
                     {
                         log.debug('BackgroundApp.handle_fetchUrl', 'catch', url, ex);
-                        sendResponse({ 'ok': false, 'status': ex.status, 'statusText': ex.statusText });
+                        sendResponse({ 'ok': false, 'status': ex.name, 'statusText': ex.message });
                     });
                 return true;
             } catch (error) {
@@ -265,7 +265,7 @@ export class BackgroundApp
             })
                 .then(httpResponse =>
                 {
-                    // log.debug('BackgroundApp.handle_jsonRpc', 'httpResponse', url, httpResponse);
+                    log.debug('BackgroundApp.handle_jsonRpc', 'httpResponse', url, postBody, httpResponse);
                     if (httpResponse.ok) {
                         return httpResponse.text();
                     } else {
@@ -281,7 +281,7 @@ export class BackgroundApp
                 .catch(ex =>
                 {
                     log.debug('BackgroundApp.handle_jsonRpc', 'catch', url, ex);
-                    sendResponse({ 'ok': false, 'status': ex.status, 'statusText': ex.statusText });
+                    sendResponse({ 'ok': false, 'status': ex.name, 'statusText': ex.message });
                 });
             return true;
         } catch (error) {
