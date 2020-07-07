@@ -121,7 +121,7 @@ namespace IntegrationTests
 
         public static ItemStub GetItemStub(string id)
         {
-            return new ItemStub(new OrleansClusterClient(GrainFactory, id));
+            return new ItemStub(new OrleansClusterItemClient(GrainFactory, id));
         }
 
         [AssemblyInitialize]

@@ -26,7 +26,7 @@ namespace n3q.Grains
         public async Task AspectAction(string itemId, Pid aspectPid, string actionName, PropertySet args = null)
         {
             var transaction = new ItemTransaction();
-            var itemClient = new OrleansGrainFactoryClient(GrainFactory, itemId);
+            var itemClient = new OrleansGrainFactoryItemClient(GrainFactory, itemId);
             var item = new ItemStub(itemClient, transaction);
 
             try {
@@ -51,7 +51,7 @@ namespace n3q.Grains
         {
             var executedActions = new Dictionary<Pid, string>();
 
-            var itemClient = new OrleansGrainFactoryClient(GrainFactory, itemId);
+            var itemClient = new OrleansGrainFactoryItemClient(GrainFactory, itemId);
             var item = new ItemStub(itemClient);
 
             await item.WithTransaction(async self => {

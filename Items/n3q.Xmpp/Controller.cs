@@ -163,7 +163,7 @@ namespace n3q.Xmpp
 
         ItemStub MakeItemStub(string itemId)
         {
-            var itemClient = new OrleansClusterClient(ClusterClient, itemId);
+            var itemClient = new OrleansClusterItemClient(ClusterClient, itemId);
             var itemStub = new ItemStub(itemClient);
             return itemStub;
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -24,34 +25,64 @@ namespace n3q.Items.Test
         [TestMethod]
         public void AsAspect()
         {
-            var siloSimulator = new ItemSiloSimulator();
+            // Arrange
+            var siloSimulator = new SiloSimulator();
 
             ItemStub GetItem(string id)
             {
-                var simulatorClient = new SiloSimulatorClient(siloSimulator, id);
+                var simulatorClient = new SiloSimulatorItemClient(siloSimulator, id);
                 return new ItemStub(simulatorClient, new ItemTransaction());
             }
 
-            var itemId = $"{nameof(AspectTest)}-{nameof(AsAspect)}-{RandomString.Get(10)}";
+            var itemId = RandomString.Get(10);
             var item = GetItem(itemId);
+
+            // Act
             var aspect = item.AsAspect(Pid.TestGreeterAspect);
-            var aspectName = aspect.GetType().Name;
-            Assert.AreEqual(nameof(TestGreeter), aspectName);
+
+            // Assert
+            Assert.AreEqual(nameof(TestGreeter), aspect.GetType().Name);
         }
 
-        //[TestMethod]
-        //public async Task Execute()
-        //{
-        //    var siloSimulator = new ItemSiloSimulator();
-        //    Item GetItem(string id) { return new Item(siloSimulator, id); }
+        [TestMethod]
+        public async Task Execute()
+        {
+            // Arrange
+            var greetedId = "GREETED";
+            var greeterId = "GREETER";
 
-        //    var greetUserId = $"{nameof(AspectTest)}-{nameof(Execute) + "_GREETUSER"}-{RandomString.Get(10)}";
-        //    var greeterId = $"{nameof(AspectTest)}-{nameof(Execute) + "_GREETER"}-{RandomString.Get(10)}";
-        //    var greetUser = GetItem(greetUserId);
-        //    var aspect = greetUser.AsAspect(Pid.TestGreetUserAspect);
-        //    var greeting = await aspect.Run(nameof(TestGreetUser.UseGreeter), new PropertySet { [Pid.Item] = greeterId, [Pid.Name] = "World" });
-        //    Assert.AreEqual("Hello World", (string)greeting);
-        //}
+            var siloSimulator = new SiloSimulator() {
+                Items = new Dictionary<string, SiloSimulatorItem> {
+                    [greetedId] = new SiloSimulatorItem {
+                        Properties = new PropertySet {
+                            [Pid.TestGreetedAspect] = true,
+                        }
+                    },
+                    [greeterId] = new SiloSimulatorItem {
+                        Properties = new PropertySet {
+                            [Pid.TestGreeterAspect] = true,
+                            [Pid.TestGreeterPrefix] = "a",
+                        }
+                    },
+                }
+            };
+            var siloSimulatorClient = new SiloSimulatorClusterClient(siloSimulator);
+
+            ItemStub GetItemStub(string id)
+            {
+                var siloSimulatorItemClient = siloSimulatorClient.GetItemClient(id);
+                return new ItemStub(siloSimulatorItemClient, new VoidTransaction());
+            }
+
+            var greeted = GetItemStub(greetedId);
+            var aspect = greeted.AsAspect(Pid.TestGreetedAspect);
+
+            // Act
+            await aspect.Execute(nameof(TestGreeted.GetGreeting), new PropertySet { [Pid.TestGreetedGetGreetingGreeter] = greeterId, [Pid.TestGreetedGetGreetingName] = "b" });
+
+            // Assert
+            Assert.AreEqual("ab", (string)siloSimulator.Items[greetedId].Properties[Pid.TestGreetedResult]);
+        }
 
     }
 }

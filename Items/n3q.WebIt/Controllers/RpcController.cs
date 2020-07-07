@@ -19,19 +19,25 @@ namespace n3q.WebIt.Controllers
     {
         public ICallbackLogger Log { get; set; }
         public WebItConfigDefinition Config { get; set; }
-        public IClusterClient ClusterClient { get; set; }
+        public IItemClusterClient ItemClient { get; set; }
 
         public RpcController(ILogger<RpcController> logger, WebItConfigDefinition config, IClusterClient clusterClient)
         {
             Log = new FrameworkCallbackLogger(logger);
             Config = config;
-            ClusterClient = clusterClient;
+            ItemClient = new OrleansItemClusterClient(clusterClient);
+        }
+
+        public RpcController(ILogger<RpcController> logger, WebItConfigDefinition config, SiloSimulator siloSimulator)
+        {
+            Log = new FrameworkCallbackLogger(logger);
+            Config = config;
+            ItemClient = new SiloSimulatorClusterClient(siloSimulator);
         }
 
         ItemStub MakeItemStub(string itemId)
         {
-            var itemClient = new OrleansClusterClient(ClusterClient, itemId);
-            var itemStub = new ItemStub(itemClient);
+            var itemStub = new ItemStub(ItemClient.GetItemClient(itemId));
             return itemStub;
         }
 
@@ -95,7 +101,8 @@ namespace n3q.WebIt.Controllers
             return new JsonPath.Dictionary().Add("result", hash);
         }
 
-        private string ComputePayloadHash(string payload)
+        [Route("[controller]/{action}")]
+        public string ComputePayloadHash(string payload)
         {
             var data = Config.PayloadHashSecret + payload;
             var hash = Tools.Crypto.SHA256Base64(data);
@@ -128,7 +135,7 @@ namespace n3q.WebIt.Controllers
                 }
             }
 
-            var props = await ClusterClient.GetGrain<IItem>(itemId).GetPropertiesX(pids);
+            var props = await MakeItemStub(itemId).GetProperties(pids);
 
             var propsNode = new Node(Node.Type.Dictionary);
             foreach (var pair in props) {
@@ -142,17 +149,16 @@ namespace n3q.WebIt.Controllers
         }
 
         [Route("[controller]/{action}")]
-        public async Task TestValidatePartnerToken(string tokenBase64Encoded) { await ValidatePartnerToken(tokenBase64Encoded); }
-        private async Task ValidatePartnerToken(string tokenBase64Encoded)
+        public async Task ValidatePartnerToken(string tokenBase64Encoded)
         {
             var tokenString = Tools.Base64.Decode(tokenBase64Encoded);
             var tokenNode = new JsonPath.Node(tokenString);
             var payloadNode = tokenNode["payload"];
 
-            var partnerId = payloadNode["partner"];
+            var partnerId = payloadNode["partner"].String;
             if (!Has.Value(partnerId)) { throw new Exception("No partnerId in partner token"); }
 
-            var props = await ClusterClient.GetGrain<IItem>(partnerId).GetPropertiesX(new PidSet { Pid.PartnerAspect, Pid.PartnerToken });
+            var props = await MakeItemStub(partnerId).GetProperties(new PidSet { Pid.PartnerAspect, Pid.PartnerToken });
             if (!props[Pid.PartnerAspect]) { throw new Exception("Invalid partner token"); }
             if (props[Pid.PartnerToken] != tokenBase64Encoded) { throw new Exception("Invalid partner token"); }
         }

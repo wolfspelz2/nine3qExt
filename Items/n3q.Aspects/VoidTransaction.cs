@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace n3q.Aspects
 {
-    internal class VoidTransaction : ITransaction
+    public class VoidTransaction : ITransaction
     {
         public Guid Id => ItemTransaction.WithoutTransaction;
 
