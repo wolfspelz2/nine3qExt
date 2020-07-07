@@ -66,7 +66,7 @@ namespace n3q.Grains
                     if (actions != null) {
                         if (actions.ContainsKey(mappedActionName)) {
 
-                            PropertySet mappedArguments = MapArgumentsToAspectAction(args, aspect, mappedActionName);
+                            PropertySet mappedArguments = Aspect.MapArgumentsToAspectAction(args, aspect, mappedActionName);
                             await actions[mappedActionName].Handler(mappedArguments);
                             executedActions.Add(aspect.GetAspectPid(), mappedActionName);
 
@@ -77,30 +77,6 @@ namespace n3q.Grains
             });
 
             return executedActions;
-        }
-
-        #endregion
-
-        #region Internal
-
-        private static PropertySet MapArgumentsToAspectAction(Dictionary<string, string> args, Aspect aspect, string actionName)
-        {
-            var pidPrefix = aspect.GetType().Name + actionName;
-            var mappedArguments = new PropertySet();
-            foreach (var pair in args) {
-                var pidName = pidPrefix + Capitalize(pair.Key);
-                var pid = pidName.ToEnum(Pid.Unknown);
-                if (pid != Pid.Unknown) {
-                    mappedArguments[pid] = pair.Value;
-                }
-            }
-
-            return mappedArguments;
-        }
-
-        private static string Capitalize(string s)
-        {
-            return s.Substring(0, 1).ToUpperInvariant() + s.Substring(1);
         }
 
         #endregion

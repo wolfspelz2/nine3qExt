@@ -29,7 +29,7 @@ export class Payload
 
     static async getHash(api: string, payload: any): Promise<string>
     {
-        let response = await new SimpleRpc('computePayloadHash')
+        let response = await new SimpleRpc('getPayloadHash')
             .param('payload', payload)
             .send(api);
         if (response.ok) {

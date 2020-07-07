@@ -59,10 +59,9 @@ namespace n3q.WebIt.Controllers
                 var request = new JsonPath.Node(body).AsDictionary;
 
                 var method = request["method"].AsString;
-                method = ("" + method[0]).ToUpper() + method.Substring(1);
-                switch (method) {
+                switch (method.Capitalize()) {
                     case nameof(Echo): response = Echo(request); break;
-                    case nameof(ComputePayloadHash): response = GetPayloadHash(request); break;
+                    case nameof(GetPayloadHash): response = GetPayloadHash(request); break;
                     case nameof(GetItemProperties): response = await GetItemProperties(request); break;
                     default: throw new Exception($"Unknown method={method}");
                 }
@@ -96,17 +95,9 @@ namespace n3q.WebIt.Controllers
             var payload = payloadNode.ToJson();
             if (payload == "{}") { throw new Exception("No payload"); }
 
-            var hash = ComputePayloadHash(payload);
+            var hash = Aspects.Partner.ComputePayloadHash(Config.PayloadHashSecret, payload);
 
             return new JsonPath.Dictionary().Add("result", hash);
-        }
-
-        [Route("[controller]/{action}")]
-        public string ComputePayloadHash(string payload)
-        {
-            var data = Config.PayloadHashSecret + payload;
-            var hash = Tools.Crypto.SHA256Base64(data);
-            return hash;
         }
 
         [Route("[controller]/{action}")]

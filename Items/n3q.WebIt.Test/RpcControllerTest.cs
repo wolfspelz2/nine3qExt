@@ -73,13 +73,13 @@ namespace n3q.WebIt.Test
         public async System.Threading.Tasks.Task ValidatePartnerToken_validates()
         {
             // Arrange
-            var computePayloadHashCntroller = new RpcController(new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory().CreateLogger<RpcController>(), new WebItConfigDefinition { PayloadHashSecret = "secret" }, new SiloSimulator());
+            var payloadHashSecret= "secret";
             var tokenNode = new JsonPath.Node(JsonPath.Node.Type.Dictionary);
             tokenNode.AsDictionary.Add("api", "https://n3q-api.com/v1");
             var payloadNode = new JsonPath.Node(new Dictionary<string, string> { ["partner"] = "suat-theatre-tf5768gihu89z7t6ftugzuhji97t6fituljnjz6t", ["entropy"] = "entropy1" });
             tokenNode.AsDictionary.Add("payload", payloadNode);
             var payloadJson = payloadNode.ToJson(bFormatted: false, bWrapped: false);
-            var hash = computePayloadHashCntroller.ComputePayloadHash(payloadJson);
+            var hash = Aspects.Partner.ComputePayloadHash(payloadHashSecret, payloadJson);
             tokenNode.AsDictionary.Add("hash", hash);
             var tokenJson = tokenNode.ToJson(bFormatted: false, bWrapped: false);
             var tokenBase64Encoded = Tools.Base64.Encode(tokenJson);

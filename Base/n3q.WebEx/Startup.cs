@@ -18,7 +18,7 @@ namespace n3q.WebEx
         public void ConfigureServices(IServiceCollection services)
         {
             var config = new WebExConfigDefinition().Include(nameof(WebExConfig) + ".cs") as WebExConfigDefinition;
-            config.Info();
+            config.Info((name, value) => ConfigSharp.Log.LogHandler(ConfigSharp.Log.Level.Info, "Config", $"{name}={value}"));
             services.AddSingleton<WebExConfigDefinition>(config);
 
             services.AddControllers();

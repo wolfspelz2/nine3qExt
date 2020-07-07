@@ -98,6 +98,7 @@
         FirstParameter = 4000000,
         TestGreetedGetGreetingGreeter,
         TestGreetedGetGreetingName,
+        PartnerGenerateTokenSecret,
         RezableRezTo,
         RezableRezX,
         RezableRezDestination,

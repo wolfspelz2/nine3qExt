@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using n3q.Aspects;
 using n3q.Tools;
+using n3q.WebIt;
 
 namespace n3q.Items.Test
 {
@@ -42,6 +43,13 @@ namespace n3q.Items.Test
 
             // Assert
             Assert.AreEqual(nameof(TestGreeter), aspect.GetType().Name);
+        }
+
+        [TestMethod]
+        public void PartnerAspect_config_names_identical_to_definition()
+        {
+            Assert.AreEqual(nameof(WebItConfigDefinition.PayloadHashSecret), Aspects.Partner.PayloadHashSecretConfigName);
+            Assert.AreEqual(nameof(WebItConfigDefinition.ItemServiceWebApiUrl), Aspects.Partner.ItemServiceWebApiUrlConfigName);
         }
 
         [TestMethod]

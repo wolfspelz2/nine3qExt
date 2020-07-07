@@ -50,12 +50,14 @@ namespace n3q.Aspects
 
         #region Aspects
 
-        public async Task ForeachAspect(Action<Aspect> action)
+        public delegate Task ActionAsync<in T>(T obj);
+
+        public async Task ForeachAspect(ActionAsync<Aspect> action)
         {
             foreach (var key in await GetAspects()) {
                 var aspect = AsAspect(key);
                 if (aspect != null) {
-                    action(aspect);
+                    await action(aspect);
                 }
             }
         }
@@ -150,6 +152,31 @@ namespace n3q.Aspects
         public async Task WithoutTransaction(TransactionWrappedCode transactedCode)
         {
             await WithTransactionCore(transactedCode, new VoidTransaction());
+        }
+
+        public async Task<Dictionary<Pid, string>> Execute(string actionName, Dictionary<string, string> args)
+        {
+            var executedActions = new Dictionary<Pid, string>();
+
+            var actionMap = await GetMap(Pid.Actions);
+            if (!actionMap.TryGetValue(actionName, out var mappedActionName)) {
+                mappedActionName = actionName;
+            }
+
+            await ForeachAspect(async aspect => {
+                var actions = aspect.GetActionList();
+                if (actions != null) {
+                    if (actions.ContainsKey(mappedActionName)) {
+
+                        PropertySet mappedArguments = Aspect.MapArgumentsToAspectAction(args, aspect, mappedActionName);
+                        await actions[mappedActionName].Handler(mappedArguments);
+                        executedActions.Add(aspect.GetAspectPid(), mappedActionName);
+
+                    }
+                }
+            });
+
+            return executedActions;
         }
 
         private void AssertTransaction()

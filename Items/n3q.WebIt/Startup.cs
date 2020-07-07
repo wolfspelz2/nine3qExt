@@ -25,7 +25,7 @@ namespace n3q.WebIt
         public void ConfigureServices(IServiceCollection services)
         {
             var config = new WebItConfigDefinition().Include(nameof(WebItConfig) + ".cs") as WebItConfigDefinition;
-            config.Info();
+            config.Info((name, value) => ConfigSharp.Log.LogHandler(ConfigSharp.Log.Level.Info, "Config", $"{name}={value}"));
             services.AddSingleton<WebItConfigDefinition>(config);
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
