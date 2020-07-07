@@ -32,7 +32,7 @@ namespace n3q.Aspects
             await this.AsRezable().AssertAspect(() => throw new SurfaceException(this.Id, toRoom.Id, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemIsNotRezable));
             var parentId = await this.GetItemId(Pid.Container);
             await toRoom.AsContainer().AddChild(this);
-            await this.ModifyProperties(new PropertySet { [Pid.RezzedX] = x, [Pid.RezableIsRezzing] = true, [Pid.RezableOrigin] = parentId }, PidSet.Empty);
+            await this.Modify(new PropertySet { [Pid.RezzedX] = x, [Pid.RezableIsRezzing] = true, [Pid.RezableOrigin] = parentId }, PidSet.Empty);
             return true;
         }
 
@@ -46,7 +46,7 @@ namespace n3q.Aspects
         public async Task<PropertyValue> OnRezFailed()
         {
             var originId = await this.GetItemId(Pid.RezableOrigin);
-            await this.ModifyProperties(PropertySet.Empty, new PidSet { Pid.RezableIsRezzing, Pid.RezableOrigin, Pid.RezzedX });
+            await this.Modify(PropertySet.Empty, new PidSet { Pid.RezableIsRezzing, Pid.RezableOrigin, Pid.RezzedX });
             if (Has.Value(originId)) {
                 var origin = await Item(originId);
                 await origin.AsContainer().AddChild(this);
@@ -71,7 +71,7 @@ namespace n3q.Aspects
 
         public async Task<PropertyValue> OnDerezzed()
         {
-            await this.ModifyProperties(PropertySet.Empty, new PidSet { Pid.RezableRezX, Pid.RezableIsRezzed, Pid.RezableIsRezzing });
+            await this.Modify(PropertySet.Empty, new PidSet { Pid.RezableRezX, Pid.RezableIsRezzed, Pid.RezableIsRezzing });
             return true;
         }
     }

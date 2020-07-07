@@ -43,26 +43,28 @@ namespace n3q.Aspects
             itemId = itemId.ToLower();
             var item = await Item(itemId);
 
-            await item.ModifyProperties(new PropertySet { [Pid.Template] = tmpl }, PidSet.Empty);
+            await item.Modify(new PropertySet { [Pid.Template] = tmpl }, PidSet.Empty);
             
             return item;
         }
 
         #region Aspects
 
-        public async Task ForeachAspect(Action<Aspect> action)
+        public delegate Task ActionAsync<in T>(T obj);
+
+        public async Task ForeachAspect(ActionAsync<Aspect> action)
         {
             foreach (var key in await GetAspects()) {
                 var aspect = AsAspect(key);
                 if (aspect != null) {
-                    action(aspect);
+                    await action(aspect);
                 }
             }
         }
 
         public async Task<IEnumerable<Pid>> GetAspects()
         {
-            var aspectProps = await GetProperties(PidSet.Aspects);
+            var aspectProps = await Get(PidSet.Aspects);
             var itemAspectPids = aspectProps.Keys;
             var knownAspectPids = AspectRegistry.Aspects.Keys;
             return itemAspectPids.Intersect(knownAspectPids);
@@ -81,14 +83,14 @@ namespace n3q.Aspects
 
         #region IItem stubs
 
-        public async Task ModifyProperties(PropertySet modified, PidSet deleted) { AssertTransaction(); await Grain.ModifyProperties(modified, deleted, Transaction.Id); }
+        public async Task Modify(PropertySet modified, PidSet deleted) { AssertTransaction(); await Grain.ModifyProperties(modified, deleted, Transaction.Id); }
         public async Task AddToList(Pid pid, PropertyValue value) { AssertTransaction(); await Grain.AddToListProperty(pid, value, Transaction.Id); }
         public async Task RemoveFromList(Pid pid, PropertyValue value) { AssertTransaction(); await Grain.RemoveFromListProperty(pid, value, Transaction.Id); }
 
-        public async Task<PropertySet> GetProperties(PidSet pids, bool native = false)
+        public async Task<PropertySet> Get(PidSet pids, bool native = false)
         {
             var t = Transaction;
-            var result = await Grain.GetPropertiesX(pids, native);
+            var result = await Grain.GetProperties(pids, native);
             if (Transaction == null) {
                 Transaction = t;
             }
@@ -105,7 +107,7 @@ namespace n3q.Aspects
 
         public async Task<PropertyValue> Get(Pid pid)
         {
-            var props = await GetProperties(new PidSet { pid });
+            var props = await Get(new PidSet { pid });
             if (props.TryGetValue(pid, out var value)) {
                 return value;
             }
@@ -152,6 +154,31 @@ namespace n3q.Aspects
             await WithTransactionCore(transactedCode, new VoidTransaction());
         }
 
+        public async Task<Dictionary<Pid, string>> Execute(string actionName, Dictionary<string, string> args)
+        {
+            var executedActions = new Dictionary<Pid, string>();
+
+            var actionMap = await GetMap(Pid.Actions);
+            if (!actionMap.TryGetValue(actionName, out var mappedActionName)) {
+                mappedActionName = actionName;
+            }
+
+            await ForeachAspect(async aspect => {
+                var actions = aspect.GetActionList();
+                if (actions != null) {
+                    if (actions.ContainsKey(mappedActionName)) {
+
+                        PropertySet mappedArguments = Aspect.MapArgumentsToAspectAction(args, aspect, mappedActionName);
+                        await actions[mappedActionName].Handler(mappedArguments);
+                        executedActions.Add(aspect.GetAspectPid(), mappedActionName);
+
+                    }
+                }
+            });
+
+            return executedActions;
+        }
+
         private void AssertTransaction()
         {
             if (Transaction == null) {
@@ -161,7 +188,7 @@ namespace n3q.Aspects
 
         private void AssertStubMethodIsUsed()
         {
-            throw new Exception($"Do not use the interface directly. Please use the stub method {nameof(GetProperties)}");
+            throw new Exception($"Do not use the interface directly. Please use the stub method {nameof(Get)}");
         }
 
         #endregion

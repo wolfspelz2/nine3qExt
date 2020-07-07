@@ -32,22 +32,22 @@ namespace ConfigSharp
         public const string Not = "!";
         public List<string> Functions = new List<string> { AnyPublicMember };
 
-        public void Info()
+        public void Info(Action<string, string> handler)
         {
             var fromType = this.GetType();
             foreach (var info in fromType.GetProperties()) {
                 if (info.DeclaringType != typeof(ConfigBag)) {
-                    InfoLine(info.Name, info.GetValue(this));
+                    InfoLine(handler, info.Name, info.GetValue(this));
                 }
             }
             foreach (var info in fromType.GetFields()) {
                 if (info.DeclaringType != typeof(ConfigBag)) {
-                    InfoLine(info.Name, info.GetValue(this));
+                    InfoLine(handler, info.Name, info.GetValue(this));
                 }
             }
         }
 
-        public static void InfoLine(string name, object value)
+        public static void InfoLine(Action<string, string> handler, string name, object value)
         {
             value ??= "null";
 
@@ -60,7 +60,8 @@ namespace ConfigSharp
                 value = accu;
             }
 
-            Log.Info($"{name}={value}", "Config", "");
+            handler(name, value.ToString());
+            //Log.Info($"{name}={value}", "Config", "");
         }
 
         public ConfigBag Include(string fileName)

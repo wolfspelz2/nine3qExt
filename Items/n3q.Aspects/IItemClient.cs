@@ -8,4 +8,9 @@ namespace n3q.Aspects
         IItem GetItem();
         IItemClient CloneFor(string otherId);
     }
+
+    public interface IItemClusterClient
+    {
+        IItemClient GetItemClient(string itemId);
+    }
 }

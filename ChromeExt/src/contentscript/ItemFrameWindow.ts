@@ -34,17 +34,36 @@ export class ItemFrameWindow extends Window
 
     async show(options: ItemFrameWindowOptions)
     {
-        super.show(options);
+        try {
+            let url: string = options.url;
+            if (!url) { throw 'No url' }
 
-        let aboveElem: HTMLElement = options.above;
-        let bottom = as.Int(options.bottom, 150);
-        let width = as.Int(options.width, 400);
-        let height = as.Int(options.height, 400);
+            let room = this.app.getRoom();
+            if (!room) { throw 'No room' }
 
-        if (this.windowElem) {
-            let windowElem = this.windowElem;
-            let contentElem = this.contentElem;
-            $(windowElem).addClass('n3q-itemframewindow');
+            let roomJid = room.getJid();
+
+            let item = options.item;
+            let providerId = item.getProviderId();
+            let apiUrl = this.app.getItemProviderConfigValue(providerId, 'apiUrl', '');
+            let userId = this.app.getItemProviderConfigValue(providerId, 'userToken', '');
+            let itemId = item.getId();
+
+            if (apiUrl == '') { throw 'No apiUrl' }
+            if (userId == '') { throw 'No userId' }
+            if (itemId == '') { throw 'No itemId' }
+
+            let token = await Payload.getToken(apiUrl, userId, itemId, 3600, { 'room': roomJid });
+            url = url.replace('{token}', encodeURIComponent(token));
+
+            super.show(options);
+
+            let aboveElem: HTMLElement = options.above;
+            let bottom = as.Int(options.bottom, 150);
+            let width = as.Int(options.width, 400);
+            let height = as.Int(options.height, 400);
+
+            $(this.windowElem).addClass('n3q-itemframewindow');
 
             let left = 50;
             if (aboveElem) {
@@ -58,38 +77,17 @@ export class ItemFrameWindow extends Window
                 }
             }
 
-            let url: string = options.url;
+            let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-itemframewindow-content" src="' + url + ' " frameborder="0"></iframe>').get(0);
 
-            let room = this.app.getRoom();
-            if (room) {
-                let roomJid = room.getJid();
+            $(this.contentElem).append(iframeElem);
 
-                let item = options.item;
-                let providerId = item.getProviderId();
-                let apiUrl = this.app.getItemProviderConfigValue(providerId, 'apiUrl', '');
-                let userId = this.app.getItemProviderConfigValue(providerId, 'userToken', '');
-                let itemId = item.getId();
+            this.app.translateElem(this.windowElem);
 
-                if (apiUrl != '' && userId != '' && itemId != '') {
-                    try {
+            $(this.windowElem).css({ 'width': width + 'px', 'height': height + 'px', 'left': left + 'px', 'top': top + 'px' });
 
-                        let token = await Payload.getToken(apiUrl, userId, itemId, 3600, { 'room': roomJid });
-                        url = url.replace('{token}', encodeURIComponent(token));
-
-                        let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-itemframewindow-content" src="' + url + ' " frameborder="0"></iframe>').get(0);
-
-                        $(contentElem).append(iframeElem);
-
-                        this.app.translateElem(windowElem);
-
-                        $(windowElem).css({ 'width': width + 'px', 'height': height + 'px', 'left': left + 'px', 'top': top + 'px' });
-
-                    } catch (error) {
-                        log.info('ItemFrameWindow', error);
-
-                    }
-                }
-            }
+        } catch (error) {
+            log.info('ItemFrameWindow', error);
+            if (options.onClose) { options.onClose(); }
         }
     }
 
