@@ -21,13 +21,6 @@ namespace n3q.WebIt.Controllers
         public WebItConfigDefinition Config { get; set; }
         public IClusterClient ClusterClient { get; set; }
 
-        public RpcController(WebItConfigDefinition config)
-        {
-            Log  = new NullCallbackLogger();
-            Config = config;
-            ClusterClient = null;
-        }
-
         public RpcController(ILogger<RpcController> logger, WebItConfigDefinition config, IClusterClient clusterClient)
         {
             Log = new FrameworkCallbackLogger(logger);
@@ -63,7 +56,7 @@ namespace n3q.WebIt.Controllers
                 method = ("" + method[0]).ToUpper() + method.Substring(1);
                 switch (method) {
                     case nameof(Echo): response = Echo(request); break;
-                    case nameof(ComputePayloadHash): response = ComputePayloadHash(request); break;
+                    case nameof(ComputePayloadHash): response = GetPayloadHash(request); break;
                     case nameof(GetItemProperties): response = await GetItemProperties(request); break;
                     default: throw new Exception($"Unknown method={method}");
                 }
@@ -88,19 +81,25 @@ namespace n3q.WebIt.Controllers
         }
 
         [Route("[controller]/{action}")]
-        public JsonPath.Dictionary ComputePayloadHash(JsonPath.Dictionary request)
+        public JsonPath.Dictionary GetPayloadHash(JsonPath.Dictionary request)
         {
-            var payloadBase64Encoded = request["payload"].String;
+            if (!request.ContainsKey("payload")) { throw new Exception("No payload"); }
 
-            if (!Has.Value(payloadBase64Encoded)) { throw new Exception("No payload"); }
+            var payloadNode = request["payload"];
+            if (!Has.Value(payloadNode.AsString)) { throw new Exception("No payload"); }
+            var payload = payloadNode.ToJson();
+            if (payload == "{}") { throw new Exception("No payload"); }
 
-            var payload = Tools.Base64.Decode(payloadBase64Encoded);
-            var json = new JsonPath.Node(payload);
-
-            var data = Config.PayloadHashSecret + payload;
-            var hash = Tools.Crypto.SHA256Hex(data);
+            var hash = ComputePayloadHash(payload);
 
             return new JsonPath.Dictionary().Add("result", hash);
+        }
+
+        private string ComputePayloadHash(string payload)
+        {
+            var data = Config.PayloadHashSecret + payload;
+            var hash = Tools.Crypto.SHA256Base64(data);
+            return hash;
         }
 
         [Route("[controller]/{action}")]
@@ -142,6 +141,8 @@ namespace n3q.WebIt.Controllers
             return response;
         }
 
+        [Route("[controller]/{action}")]
+        public async Task TestValidatePartnerToken(string tokenBase64Encoded) { await ValidatePartnerToken(tokenBase64Encoded); }
         private async Task ValidatePartnerToken(string tokenBase64Encoded)
         {
             var tokenString = Tools.Base64.Decode(tokenBase64Encoded);

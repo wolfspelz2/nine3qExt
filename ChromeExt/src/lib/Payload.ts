@@ -16,8 +16,7 @@ export class Payload
         for (let key in params) {
             payload[key] = params[key];
         }
-        let payloadString = JSON.stringify(payload);
-        let hash = await this.getHash(api, payloadString);
+        let hash = await this.getHash(api, payload);
         let token = {
             'api': api,
             'payload': payload,
@@ -28,11 +27,10 @@ export class Payload
         return tokenBase64Encoded;
     }
 
-    static async getHash(api: string, payload: string): Promise<string>
+    static async getHash(api: string, payload: any): Promise<string>
     {
-        let payloadBase64 = Utils.base64Encode(payload);
         let response = await new SimpleRpc('computePayloadHash')
-            .param('payload', payloadBase64)
+            .param('payload', payload)
             .send(api);
         if (response.ok) {
             return response.get('result', null);

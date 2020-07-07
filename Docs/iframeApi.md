@@ -28,11 +28,16 @@ base64(
 
 ### get payload hash
 ->  POST https://n3q-api.com/v1
-    urlencode(
-        {
-            payload: base64(payload)
+    {
+        method: "getPayloadHash"
+        payload: {
+            user: '765fgvhuz7t6ft6ftijt6fthbiit6ftbh'
+            item: 'pirml6rhf5tp2go3mulhh3o'
+            room: '9ca05afb1a49f26fb59642305c481661f8b370bd@muc4.virtual-presence.org'
+            entropy: random
+            expires: unixtime
         }
-    )
+    }
 <-  response
     {
         status: "ok"
