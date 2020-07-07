@@ -58,21 +58,24 @@ export class Avatar implements IObserver
                 return;
             }
 
-            this.entity.onMouseClickAvatar(ev);
-
-            if (!this.clickDblClickSeparationTimer) {
-                this.clickDblClickSeparationTimer = <number><unknown>setTimeout(() =>
-                {
-                    this.clickDblClickSeparationTimer = null;
-                    // this.entity.onMouseClickAvatar(ev);
-                }, as.Float(Config.get('avatarDoubleClickDelaySec', 0.25)) * 1000);
-            } else {
-                if (this.clickDblClickSeparationTimer) {
-                    clearTimeout(this.clickDblClickSeparationTimer);
-                    this.clickDblClickSeparationTimer = null;
-                    this.entity.onMouseDoubleClickAvatar(ev);
+            if (ev.ctrlKey) {
+                if (!this.clickDblClickSeparationTimer) {
+                    this.clickDblClickSeparationTimer = <number><unknown>setTimeout(() =>
+                    {
+                        this.clickDblClickSeparationTimer = null;
+                        this.entity.onMouseClickAvatar(ev);
+                    }, as.Float(Config.get('avatarDoubleClickDelaySec', 0.25)) * 1000);
+                } else {
+                    if (this.clickDblClickSeparationTimer) {
+                        clearTimeout(this.clickDblClickSeparationTimer);
+                        this.clickDblClickSeparationTimer = null;
+                        this.entity.onMouseDoubleClickAvatar(ev);
+                    }
                 }
+            } else {
+                this.entity.onMouseClickAvatar(ev);
             }
+
         });
 
         $(this.elem).mouseenter(ev => this.entity.onMouseEnterAvatar(ev));
