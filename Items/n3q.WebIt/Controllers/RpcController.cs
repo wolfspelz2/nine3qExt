@@ -103,12 +103,11 @@ namespace n3q.WebIt.Controllers
         [Route("[controller]/{action}")]
         public async Task<Dictionary> GetItemProperties(JsonPath.Dictionary request)
         {
-            var itemId = request["item"].String;
-            if (!Has.Value(itemId)) { throw new Exception("No item"); }
-
             var partnerToken = request["partner"].String;
             if (!Has.Value(partnerToken)) { throw new Exception("No partner token"); }
-            await ValidatePartnerToken(partnerToken);
+
+            var partnerId = await GetPartnerIdAndValidatePartnerToken(partnerToken);
+            if (!Has.Value(partnerId)) { throw new Exception("No id in partner token"); }
 
             var contextToken = request["context"].String;
             if (!Has.Value(contextToken)) { throw new Exception("No context token"); }
@@ -125,8 +124,11 @@ namespace n3q.WebIt.Controllers
                     }
                 }
             }
+            pids.Add(Pid.Partner);
 
-            var props = await MakeItemStub(itemId).GetProperties(pids);
+            var props = await MakeItemStub(context.item).GetProperties(pids);
+
+            if (props.GetString(Pid.Partner) != partnerId) { throw new Exception("Partner invalid"); }
 
             var propsNode = new Node(Node.Type.Dictionary);
             foreach (var pair in props) {
@@ -140,7 +142,7 @@ namespace n3q.WebIt.Controllers
         }
 
         [Route("[controller]/{action}")]
-        public async Task ValidatePartnerToken(string tokenBase64Encoded)
+        public async Task<string> GetPartnerIdAndValidatePartnerToken(string tokenBase64Encoded)
         {
             var tokenString = Tools.Base64.Decode(tokenBase64Encoded);
             var tokenNode = new JsonPath.Node(tokenString);
@@ -152,6 +154,8 @@ namespace n3q.WebIt.Controllers
             var props = await MakeItemStub(partnerId).GetProperties(new PidSet { Pid.PartnerAspect, Pid.PartnerToken });
             if (!props[Pid.PartnerAspect]) { throw new Exception("Invalid partner token"); }
             if (props[Pid.PartnerToken] != tokenBase64Encoded) { throw new Exception("Invalid partner token"); }
+
+            return partnerId;
         }
 
         private class RequestContext

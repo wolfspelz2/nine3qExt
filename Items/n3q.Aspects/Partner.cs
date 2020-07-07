@@ -31,7 +31,7 @@ namespace n3q.Aspects
         {
             await AssertAspect(Pid.PartnerAspect);
 
-            var config = await Item(Common.ItemService.SiloConfigItemId);
+            var config = await Item(Common.ItemService.WebItConfigItemId);
             var configJson = (string)await config.Get(Pid.DocumentText);
             var configNode = new JsonPath.Node(configJson);
 

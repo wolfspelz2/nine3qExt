@@ -9,7 +9,7 @@ namespace n3q.Aspects
 {
     public class SiloSimulatorItem : IItem
     {
-        public PropertySet Properties { get; set; }
+        public PropertySet Properties { get; set; } = new PropertySet();
 
         public SiloSimulatorItem()
         {
@@ -24,8 +24,10 @@ namespace n3q.Aspects
 
         public Task AddToListProperty(Pid pid, PropertyValue value, Guid tid)
         {
-            throw new NotImplementedException();
-            //return Task.CompletedTask;
+            var vl = Properties.GetItemIdSet(pid);
+            vl.Add(value);
+            Properties[pid] = vl;
+            return Task.CompletedTask;
         }
 
         public Task RemoveFromListProperty(Pid pid, PropertyValue value, Guid tid)
@@ -37,11 +39,13 @@ namespace n3q.Aspects
         public Task<PropertySet> GetPropertiesX(PidSet pids, bool native = false)
         {
             var result = new PropertySet();
-            foreach (var pair in Properties) {
-                if (pids.Contains(pair.Key)) {
-                    result.Add(pair.Key, pair.Value);
+                foreach (var pair in Properties) {
+                    if (pids.Contains(pair.Key)
+                        || pids.Contains(Pid.MetaAspectGroup) && Property.GetDefinition(pair.Key).Group == Property.Group.Aspect
+                        ) {
+                        result.Add(pair.Key, pair.Value);
+                    }
                 }
-            }
             return Task.FromResult(result);
         }
 

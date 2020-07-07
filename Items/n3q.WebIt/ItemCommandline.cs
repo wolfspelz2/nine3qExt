@@ -727,7 +727,7 @@ namespace n3q.WebIt
 
         object Content_CreateConfigItem(Arglist args)
         {
-            var itemId = Common.ItemService.SiloConfigItemId;
+            var itemId = Common.ItemService.WebItConfigItemId;
 
             var dict = new Dictionary<string, string>();
             Config.Info((name, value) => dict.Add(name, value));

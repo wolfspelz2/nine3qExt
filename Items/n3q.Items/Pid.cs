@@ -70,6 +70,7 @@
         AnimationsUrl,
         Actions,
         Stats,
+        Partner,
 
         // Aspect
         FirstAspect = 3000000,
