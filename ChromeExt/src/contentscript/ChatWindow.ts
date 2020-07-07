@@ -47,6 +47,7 @@ export class ChatWindow extends Window
         let bottom = as.Int(options.bottom, 200);
         let width = as.Int(options.width, 400);
         let height = as.Int(options.height, 300);
+        let onClose = options.onClose;
 
         if (this.windowElem) {
             let windowElem = this.windowElem;
@@ -107,6 +108,7 @@ export class ChatWindow extends Window
             {
                 this.chatoutElem = null;
                 this.chatinInputElem = null;
+                if (onClose) { onClose(); }
             };
 
             this.onDragStop = (ev: JQueryEventObject) =>

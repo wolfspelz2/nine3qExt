@@ -54,7 +54,7 @@ export class ChangesWindow extends Window
 
             $(windowElem).css({ 'width': width + 'px', 'height': height + 'px', 'left': left + 'px', 'top': top + 'px' });
 
-            this.onClose = async () =>
+            this.onClose = () =>
             {
                 this.outElem = null;
                 if (onClose) { onClose(); }
@@ -67,14 +67,14 @@ export class ChangesWindow extends Window
     showHistory()
     {
         _Changes.data.forEach(release =>
+        {
+            this.showLine(release[0] + ' ' + release[1]);
+            release[2].forEach(change =>
             {
-                this.showLine(release[0] + ' ' + release[1]);
-                release[2].forEach(change =>
-                {
-                    { this.showLine(change[0] + ' ' + change[1]); }
-                });
-                this.showLine('.');
+                { this.showLine(change[0] + ' ' + change[1]); }
             });
+            this.showLine('.');
+        });
     }
 
     public showLine(text: string)

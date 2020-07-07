@@ -52,9 +52,11 @@ export class ContentApp
     private xmppWindow: XmppWindow;
     private settingsWindow: SettingsWindow;
     private stanzasResponses: { [stanzaId: string]: StanzaResponseHandler } = {}
+
     private stayHereIsChecked: boolean = false;
     private inventoryIsOpen: boolean = false;
     private vidconfIsOpen: boolean = false;
+    private chatIsOpen: boolean = false;
 
     // Getter
 
@@ -260,6 +262,11 @@ export class ContentApp
         this.vidconfIsOpen = value; this.evaluateStayOnTabChange();
     }
 
+    setChatIsOpen(value: boolean): void
+    {
+        this.chatIsOpen = value; this.evaluateStayOnTabChange();
+    }
+
     getStayHereIsChecked(): boolean { return this.stayHereIsChecked; }
     toggleStayHereIsChecked(): void
     {
@@ -269,7 +276,7 @@ export class ContentApp
 
     evaluateStayOnTabChange(): void
     {
-        let stay = this.inventoryIsOpen || this.vidconfIsOpen || this.stayHereIsChecked;
+        let stay = this.inventoryIsOpen || this.vidconfIsOpen || this.chatIsOpen || this.stayHereIsChecked;
         if (stay) {
             this.messageHandler({ 'type': ContentAppNotification.type_onTabChangeStay });
         } else {
