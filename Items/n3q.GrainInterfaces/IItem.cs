@@ -13,7 +13,7 @@ namespace n3q.GrainInterfaces
         Task AddToListProperty(Pid pid, PropertyValue value, Guid tid);
         Task RemoveFromListProperty(Pid pid, PropertyValue value, Guid tid);
 
-        Task<PropertySet> GetPropertiesX(PidSet pids, bool native = false);
+        Task<PropertySet> GetProperties(PidSet pids, bool native = false);
 
         Task Delete(Guid tid);
 

@@ -73,10 +73,10 @@ namespace n3q.Grains
                 var templateProps = template.Value;
                 var item = new ItemStub(new OrleansGrainFactoryItemClient(GrainFactory, templateId));
                 await item.WithTransaction(async self => {
-                    var oldProps = await self.GetProperties(PidSet.All, native: true);
+                    var oldProps = await self.Get(PidSet.All, native: true);
                     var deletePids = new PidSet(oldProps.Keys.Select(pid => pid));
-                    await self.ModifyProperties(PropertySet.Empty, deletePids);
-                    await self.ModifyProperties(templateProps, PidSet.Empty);
+                    await self.Modify(PropertySet.Empty, deletePids);
+                    await self.Modify(templateProps, PidSet.Empty);
                 });
                 templateIds.Add(templateId);
             }

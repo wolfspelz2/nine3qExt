@@ -126,7 +126,7 @@ namespace n3q.WebIt.Controllers
             }
             pids.Add(Pid.Partner);
 
-            var props = await MakeItemStub(context.item).GetProperties(pids);
+            var props = await MakeItemStub(context.item).Get(pids);
 
             if (props.GetString(Pid.Partner) != partnerId) { throw new Exception("Partner invalid"); }
 
@@ -151,7 +151,7 @@ namespace n3q.WebIt.Controllers
             var partnerId = payloadNode["partner"].String;
             if (!Has.Value(partnerId)) { throw new Exception("No partnerId in partner token"); }
 
-            var props = await MakeItemStub(partnerId).GetProperties(new PidSet { Pid.PartnerAspect, Pid.PartnerToken });
+            var props = await MakeItemStub(partnerId).Get(new PidSet { Pid.PartnerAspect, Pid.PartnerToken });
             if (!props[Pid.PartnerAspect]) { throw new Exception("Invalid partner token"); }
             if (props[Pid.PartnerToken] != tokenBase64Encoded) { throw new Exception("Invalid partner token"); }
 

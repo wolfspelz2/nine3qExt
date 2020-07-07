@@ -63,7 +63,7 @@ namespace IntegrationTests
 
             try {
                 await item.WithTransaction(async self => {
-                    await item.ModifyProperties(new PropertySet { [Pid.TestInt] = 41 }, PidSet.Empty);
+                    await item.Modify(new PropertySet { [Pid.TestInt] = 41 }, PidSet.Empty);
                 });
 
                 handle = await GetItemStream().SubscribeAsync(updateReceiver);
@@ -71,12 +71,12 @@ namespace IntegrationTests
 
                 // Act
                 await item.WithTransaction(async self => {
-                    await item.ModifyProperties(new PropertySet { [Pid.TestInt] = 42 }, PidSet.Empty);
+                    await item.Modify(new PropertySet { [Pid.TestInt] = 42 }, PidSet.Empty);
                 });
                 are.WaitOne(3000);
 
                 // Assert
-                var props = await item.GetProperties(new PidSet { Pid.TestInt });
+                var props = await item.Get(new PidSet { Pid.TestInt });
                 Assert.AreEqual(42, (long)props[Pid.TestInt]);
                 Assert.AreEqual(1, updates.Count);
                 Assert.AreEqual(itemId, updates[0].ItemId);
@@ -113,10 +113,10 @@ namespace IntegrationTests
 
             try {
                 await container.WithTransaction(async self => {
-                    await self.ModifyProperties(new PropertySet { [Pid.ContainerAspect] = true, [Pid.TestInt] = 41 }, PidSet.Empty);
+                    await self.Modify(new PropertySet { [Pid.ContainerAspect] = true, [Pid.TestInt] = 41 }, PidSet.Empty);
                 });
                 await child.WithTransaction(async self => {
-                    await self.ModifyProperties(new PropertySet { [Pid.TestInt] = 42 }, PidSet.Empty);
+                    await self.Modify(new PropertySet { [Pid.TestInt] = 42 }, PidSet.Empty);
                 });
 
                 handle = await GetItemStream().SubscribeAsync(updateReceiver);
@@ -140,12 +140,12 @@ namespace IntegrationTests
                 Assert.AreEqual(0, exceptions.Count);
 
                 {
-                    var props = await container.GetProperties(PidSet.All);
+                    var props = await container.Get(PidSet.All);
                     Assert.IsTrue(props[Pid.Contains].IsInList(childId));
                     Assert.AreEqual(43, (long)props[Pid.TestInt]);
                 }
                 {
-                    var props = await child.GetProperties(PidSet.All);
+                    var props = await child.Get(PidSet.All);
                     Assert.AreEqual(containerId, (string)props[Pid.Container]);
                     Assert.AreEqual(44, (long)props[Pid.TestInt]);
                 }
@@ -187,7 +187,7 @@ namespace IntegrationTests
 
                 // Act
                 await item.WithTransaction(async self => {
-                    await item.ModifyProperties(new PropertySet { [Pid.TestInt] = 42 }, PidSet.Empty);
+                    await item.Modify(new PropertySet { [Pid.TestInt] = 42 }, PidSet.Empty);
                     await item.Delete();
                 });
 

@@ -28,7 +28,7 @@ namespace IntegrationTests
                     await self.Set(Pid.TestGreetedAspect, true);
                 });
                 await greeter.WithTransaction(async self => {
-                    await self.ModifyProperties(new PropertySet { [Pid.TestGreeterAspect] = true, [Pid.TestGreeterPrefix] = "Hello " }, PidSet.Empty);
+                    await self.Modify(new PropertySet { [Pid.TestGreeterAspect] = true, [Pid.TestGreeterPrefix] = "Hello " }, PidSet.Empty);
                 });
 
                 // Act

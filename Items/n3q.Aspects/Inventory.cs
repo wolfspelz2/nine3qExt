@@ -32,7 +32,7 @@ namespace n3q.Aspects
         {
             //await AssertAspect();
             if (x >= 0 && y >= 0) {
-                await item.ModifyProperties(new PropertySet { [Pid.InventoryX] = x, [Pid.InventoryY] = y }, PidSet.Empty);
+                await item.Modify(new PropertySet { [Pid.InventoryX] = x, [Pid.InventoryY] = y }, PidSet.Empty);
             }
         }
     }

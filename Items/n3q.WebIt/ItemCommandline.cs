@@ -328,7 +328,7 @@ namespace n3q.WebIt
 
             var item = ClusterClient.GetItemStub(itemId);
             item.WithTransaction(async self => {
-                await self.ModifyProperties(props, PidSet.Empty);
+                await self.Modify(props, PidSet.Empty);
             }).Wait();
 
             return new ItemReference(itemId);
@@ -341,15 +341,15 @@ namespace n3q.WebIt
             var format = args.Next("Format", Item_Result_format.table.ToString());
 
             var item = ClusterClient.GetItemStub(itemId);
-            var props = item.GetProperties(PidSet.All).Result;
-            var nativeProps = item.GetProperties(PidSet.All, native: true).Result;
+            var props = item.Get(PidSet.All).Result;
+            var nativeProps = item.Get(PidSet.All, native: true).Result;
             var templateProps = new PropertySet();
             var templateId = nativeProps.GetString(Pid.Template);
             var templateUnavailable = false;
 
             if (Has.Value(templateId)) {
                 var template = ClusterClient.GetItemStub(templateId);
-                templateProps = template.GetProperties(PidSet.All).Result;
+                templateProps = template.Get(PidSet.All).Result;
             }
 
             object result = null;
@@ -484,7 +484,7 @@ namespace n3q.WebIt
 
             var item = ClusterClient.GetItemStub(itemId);
             item.WithTransaction(async self => {
-                await self.ModifyProperties(PropertySet.Empty, pids);
+                await self.Modify(PropertySet.Empty, pids);
             }).Wait();
 
             return "Deleted from " + GetItemLink(itemId);
@@ -740,7 +740,7 @@ namespace n3q.WebIt
 
             var item = ClusterClient.GetItemStub(itemId);
             item.WithTransaction(async self => {
-                await self.ModifyProperties(props, PidSet.Empty);
+                await self.Modify(props, PidSet.Empty);
             }).Wait();
 
             return new ItemReference(itemId);

@@ -36,7 +36,7 @@ namespace n3q.Aspects
             //return Task.CompletedTask;
         }
 
-        public Task<PropertySet> GetPropertiesX(PidSet pids, bool native = false)
+        public Task<PropertySet> GetProperties(PidSet pids, bool native = false)
         {
             var result = new PropertySet();
                 foreach (var pair in Properties) {
