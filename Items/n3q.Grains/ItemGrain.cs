@@ -131,7 +131,7 @@ namespace n3q.Grains
             }
         }
 
-        public async Task<PropertySet> GetPropertiesX(PidSet pids, bool native = false)
+        public async Task<PropertySet> GetProperties(PidSet pids, bool native = false)
         {
             var props = (PropertySet)null;
 
@@ -252,7 +252,7 @@ namespace n3q.Grains
             } else {
                 var templateId = (string)Properties.Get(Pid.Template);
                 if (Has.Value(templateId)) {
-                    result = await Item(templateId).GetPropertiesX(PidSet.All);
+                    result = await Item(templateId).GetProperties(PidSet.All);
                     result = FilterTemplateProperties(result);
                 }
 
@@ -274,7 +274,7 @@ namespace n3q.Grains
             } else {
                 var templateId = (string)Properties.Get(Pid.Template);
                 if (Has.Value(templateId)) {
-                    result = await Item(templateId).GetPropertiesX(pids);
+                    result = await Item(templateId).GetProperties(pids);
                     result = FilterTemplateProperties(result);
                 }
 
@@ -310,7 +310,7 @@ namespace n3q.Grains
             } else {
                 var templateId = (string)Properties.Get(Pid.Template);
                 if (Has.Value(templateId)) {
-                    result = await Item(templateId).GetPropertiesX(new PidSet { groupPid });
+                    result = await Item(templateId).GetProperties(new PidSet { groupPid });
                     result = FilterTemplateProperties(result);
                 }
 
@@ -347,7 +347,7 @@ namespace n3q.Grains
             } else {
                 var templateId = (string)Properties.Get(Pid.Template);
                 if (Has.Value(templateId)) {
-                    result = await Item(templateId).GetPropertiesX(new PidSet { accessPid });
+                    result = await Item(templateId).GetProperties(new PidSet { accessPid });
                     result = FilterTemplateProperties(result);
                 }
 

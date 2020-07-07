@@ -70,7 +70,7 @@ namespace n3q.WebIt.Controllers
             var item = ClusterClient.GetItemStub(itemId);
 
             await item.WithTransaction(async self => {
-                await self.ModifyProperties(new PropertySet { [Pid.Template] = tmpl }, PidSet.Empty);
+                await self.Modify(new PropertySet { [Pid.Template] = tmpl }, PidSet.Empty);
             });
 
             await ClusterClient.GetGrain<IWorker>(Guid.Empty).AspectAction(itemId, Pid.InventoryAspect, nameof(Inventory.Action.Initialize), PropertySet.Empty);

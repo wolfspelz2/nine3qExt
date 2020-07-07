@@ -19,7 +19,7 @@ namespace n3q.Aspects
         {
             //var props = await child.Grain.GetProperties(new PidSet { Pid.Container }, false);
             //child.Simulator = new ItemSiloSimulator();
-            var props = await child.GetProperties(new PidSet { Pid.TestInt }, true);
+            var props = await child.Get(new PidSet { Pid.TestInt }, true);
 
             await AssertAspect();
             await this.AsItemCapacityLimit().AssertLimit(child);

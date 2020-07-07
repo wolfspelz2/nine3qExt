@@ -23,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\n3q.Aspects\n3q.Aspects.csproj" />
     <ProjectReference Include="..\n3q.Items\n3q.Items.csproj" />
+    <ProjectReference Include="..\n3q.WebIt\n3q.WebIt.csproj" />
   </ItemGroup>
 
 </Project>

@@ -35,6 +35,7 @@ namespace n3q.WebIt
 
             Item_SetCreate,
             Item_Show,
+            Item_Action,
             Item_DeleteProperties,
             Item_AddToContainer,
             Item_RemoveFromContainer,
@@ -57,6 +58,7 @@ namespace n3q.WebIt
             Content_Groups,
             Content_Templates,
             Content_Create,
+            Content_CreateConfigItem,
         }
 
         public ItemCommandline(WebItConfigDefinition config)
@@ -75,7 +77,8 @@ namespace n3q.WebIt
             Handlers.Add(nameof(Fn.Admin_Request), new Handler { Name = nameof(Fn.Admin_Request), Function = Admin_Request, Role = nameof(Role.Admin), ImmediateExecute = true, Description = "Show HTTP-request info", });
 
             Handlers.Add(nameof(Fn.Item_SetCreate), new Handler { Name = nameof(Fn.Item_SetCreate), Function = Item_SetProperties, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Set (some or all) item properties", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Properties"] = "Item properties as JSON dictionary or as PropertyName=Value pairs", } });
-            Handlers.Add(nameof(Fn.Item_Show), new Handler { Name = nameof(Fn.Item_Show), Function = Item_GetProperties, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Show item", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Format"] = "Output format [table|json] (optional, default:table)", } });
+            Handlers.Add(nameof(Fn.Item_Show), new Handler { Name = nameof(Fn.Item_Show), Function = Item_GetProperties, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Show item", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", } });
+            Handlers.Add(nameof(Fn.Item_Action), new Handler { Name = nameof(Fn.Item_Action), Function = Item_ItemAction, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Show item", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Action"] = "Action-Name", ["Parameters"] = "Action parameters as JSON dictionary or as PropertyName=Value pairs", } });
             Handlers.Add(nameof(Fn.Item_DeleteProperties), new Handler { Name = nameof(Fn.Item_DeleteProperties), Function = Item_DeleteProperties, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Delete one or more properties", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", } });
             Handlers.Add(nameof(Fn.Item_AddToContainer), new Handler { Name = nameof(Fn.Item_AddToContainer), Function = Item_AddChildToContainer, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Make item a child of the container", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Container"] = "Container-ID", } });
             Handlers.Add(nameof(Fn.Item_RemoveFromContainer), new Handler { Name = nameof(Fn.Item_RemoveFromContainer), Function = Item_RemoveChildFromContainer, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Remove item from container", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Container"] = "Container-ID", } });
@@ -99,6 +102,7 @@ namespace n3q.WebIt
             Handlers.Add(nameof(Fn.Content_Groups), new Handler { Name = nameof(Fn.Content_Groups), Function = Content_ShowTemplateGroups, Role = nameof(ItemRole.Content), ImmediateExecute = true, Description = "List available template groups" });
             Handlers.Add(nameof(Fn.Content_Templates), new Handler { Name = nameof(Fn.Content_Templates), Function = Content_ShowTemplates, Role = nameof(ItemRole.Content), ImmediateExecute = false, Description = "List available templates in group", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Name"] = "Group name", } });
             Handlers.Add(nameof(Fn.Content_Create), new Handler { Name = nameof(Fn.Content_Create), Function = Content_CreateTemplates, Role = nameof(ItemRole.LeadContent), ImmediateExecute = false, Description = "Create or update template(s)", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Name"] = "[template or group name]", } });
+            Handlers.Add(nameof(Fn.Content_CreateConfigItem), new Handler { Name = nameof(Fn.Content_CreateConfigItem), Function = Content_CreateConfigItem, Role = nameof(ItemRole.SecurityAdmin), ImmediateExecute = true, Description = "Create global item with app config" });
 
             Formatters.Add(FormatItem);
             Formatters.Add(FormatItemList);
@@ -324,7 +328,7 @@ namespace n3q.WebIt
 
             var item = ClusterClient.GetItemStub(itemId);
             item.WithTransaction(async self => {
-                await self.ModifyProperties(props, PidSet.Empty);
+                await self.Modify(props, PidSet.Empty);
             }).Wait();
 
             return new ItemReference(itemId);
@@ -337,15 +341,15 @@ namespace n3q.WebIt
             var format = args.Next("Format", Item_Result_format.table.ToString());
 
             var item = ClusterClient.GetItemStub(itemId);
-            var props = item.GetProperties(PidSet.All).Result;
-            var nativeProps = item.GetProperties(PidSet.All, native: true).Result;
+            var props = item.Get(PidSet.All).Result;
+            var nativeProps = item.Get(PidSet.All, native: true).Result;
             var templateProps = new PropertySet();
             var templateId = nativeProps.GetString(Pid.Template);
             var templateUnavailable = false;
 
             if (Has.Value(templateId)) {
                 var template = ClusterClient.GetItemStub(templateId);
-                templateProps = template.GetProperties(PidSet.All).Result;
+                templateProps = template.Get(PidSet.All).Result;
             }
 
             object result = null;
@@ -447,6 +451,22 @@ namespace n3q.WebIt
                 ;
         }
 
+        object Item_ItemAction(Arglist args)
+        {
+            args.Next("cmd");
+            var itemId = args.Next("Item");
+            var actionName = args.Next("Action");
+            var props = GetActionArgsFromNextArgs(args);
+
+            var executedActions = new Dictionary<Pid, string>();
+            var item = ClusterClient.GetItemStub(itemId);
+            item.WithTransaction(async self => {
+                executedActions = await self.Execute(actionName, props);
+            }).Wait();
+
+            return GetItemLink(itemId) + " executed: " + string.Join(" " , executedActions.Select(pair => $"{pair.Key}.{pair.Value}"));
+        }
+
         object Item_DeleteProperties(Arglist args)
         {
             args.Next("cmd");
@@ -464,7 +484,7 @@ namespace n3q.WebIt
 
             var item = ClusterClient.GetItemStub(itemId);
             item.WithTransaction(async self => {
-                await self.ModifyProperties(PropertySet.Empty, pids);
+                await self.Modify(PropertySet.Empty, pids);
             }).Wait();
 
             return "Deleted from " + GetItemLink(itemId);
@@ -584,6 +604,24 @@ namespace n3q.WebIt
             return props;
         }
 
+        Dictionary<string, string> GetActionArgsFromNextArgs(Arglist args)
+        {
+            var dict = new Dictionary<string, string>();
+
+            var arg = "";
+            do {
+                arg = args.Next("Action args [key=value]*", "");
+                if (!string.IsNullOrEmpty(arg)) {
+                        var parts = arg.Split(new[] { '=', ':' }, 2, System.StringSplitOptions.RemoveEmptyEntries);
+                        if (parts.Length != 2) {
+                            throw new Exception("Parameter needs 2 parts: Property=Value, got arg=" + arg);
+                        }
+                        dict.Add(parts[0], parts[1]);
+                }
+            } while (!string.IsNullOrEmpty(arg));
+
+            return dict;
+        }
         string GetItemLink(string itemId)
         {
             var item = ClusterClient.GetGrain<IItem>(itemId);
@@ -686,6 +724,27 @@ namespace n3q.WebIt
         #endregion
 
         #region Content
+
+        object Content_CreateConfigItem(Arglist args)
+        {
+            var itemId = Common.ItemService.WebItConfigItemId;
+
+            var dict = new Dictionary<string, string>();
+            Config.Info((name, value) => dict.Add(name, value));
+            var node = new JsonPath.Node(dict);
+            var json = node.ToJson(true, true);
+            var props = new PropertySet() {
+                [Pid.DocumentAspect] = true,
+                [Pid.DocumentText] = json,
+            };
+
+            var item = ClusterClient.GetItemStub(itemId);
+            item.WithTransaction(async self => {
+                await self.Modify(props, PidSet.Empty);
+            }).Wait();
+
+            return new ItemReference(itemId);
+        }
 
         object Content_ShowTemplateGroups(Arglist args)
         {

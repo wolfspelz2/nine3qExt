@@ -303,7 +303,14 @@ export class Room
     {
         if (this.chatWindow) {
             if (!this.chatWindow.isOpen()) {
-                this.chatWindow.show({ 'above': aboveElem });
+                this.app.setChatIsOpen(true);
+                this.chatWindow.show({
+                    'above': aboveElem,
+                    onClose: () =>
+                    {
+                        this.app.setChatIsOpen(false);
+                    },
+                });
             }
         }
     }

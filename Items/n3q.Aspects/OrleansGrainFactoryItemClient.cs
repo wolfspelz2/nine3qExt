@@ -3,14 +3,14 @@ using n3q.GrainInterfaces;
 
 namespace n3q.Aspects
 {
-    public class OrleansGrainFactoryClient : IItemClient
+    public class OrleansGrainFactoryItemClient : IItemClient
     {
         readonly string _grainId;
         readonly IGrainFactory _grainFactory;
 
         public string GetId() => _grainId;
 
-        public OrleansGrainFactoryClient(IGrainFactory grainFactory, string grainId)
+        public OrleansGrainFactoryItemClient(IGrainFactory grainFactory, string grainId)
         {
             _grainId = grainId;
             _grainFactory = grainFactory;
@@ -23,7 +23,7 @@ namespace n3q.Aspects
 
         public IItemClient CloneFor(string otherId)
         {
-            return new OrleansGrainFactoryClient(_grainFactory, otherId);
+            return new Aspects.OrleansGrainFactoryItemClient(_grainFactory, otherId);
         }
     }
 }

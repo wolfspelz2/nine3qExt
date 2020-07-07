@@ -23,13 +23,15 @@ export class Inventory
         this.userToken = this.app.getItemProviderConfigValue(providerId, 'userToken', '');
         let serviceUrl = this.app.getItemProviderConfigValue(providerId, 'serviceUrl', '');
 
-        let url = new URL(serviceUrl);
-        let protocol = url.protocol;
+        if (serviceUrl != '') {
+            let url = new URL(serviceUrl);
+            let protocol = url.protocol;
 
-        if (protocol == 'xmpp:' && this.userToken != '') {
-            this.itemServer = url.pathname;
-            this.inventoryJid = this.userToken + '@' + this.itemServer;
-            this.isAvailable = true;
+            if (protocol == 'xmpp:' && this.userToken != '') {
+                this.itemServer = url.pathname;
+                this.inventoryJid = this.userToken + '@' + this.itemServer;
+                this.isAvailable = true;
+            }
         }
     }
 

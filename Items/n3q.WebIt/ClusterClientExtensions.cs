@@ -8,7 +8,7 @@ namespace n3q.WebIt
     {
         public static ItemStub GetItemStub(this IClusterClient self, string itemId)
         {
-            var itemClient = new OrleansClusterClient(self, itemId);
+            var itemClient = new OrleansClusterItemClient(self, itemId);
             var itemStub = new ItemStub(itemClient);
             return itemStub;
         }

@@ -8,7 +8,7 @@ export class TestSimpleRpc
 {
     async SimpleRpc_echo()
     {
-        let response = await new SimpleRpc('Echo')
+        let response = await new SimpleRpc('echo')
             .param('aString', 'Hello World')
             .param('aNumber', 3.14159265358979323)
             .param('aBool', true)

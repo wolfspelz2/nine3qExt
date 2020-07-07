@@ -2,21 +2,43 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Orleans;
 using JsonPath;
+using n3q.Tools;
+using n3q.Aspects;
+using n3q.GrainInterfaces;
+using n3q.Items;
 
 namespace n3q.WebIt.Controllers
 {
     [ApiController]
     public class RpcController : ControllerBase
     {
+        public ICallbackLogger Log { get; set; }
         public WebItConfigDefinition Config { get; set; }
+        public IItemClusterClient ItemClient { get; set; }
 
-        public RpcController(WebItConfigDefinition config)
+        public RpcController(ILogger<RpcController> logger, WebItConfigDefinition config, IClusterClient clusterClient)
         {
+            Log = new FrameworkCallbackLogger(logger);
             Config = config;
+            ItemClient = new OrleansItemClusterClient(clusterClient);
+        }
+
+        public RpcController(ILogger<RpcController> logger, WebItConfigDefinition config, SiloSimulator siloSimulator)
+        {
+            Log = new FrameworkCallbackLogger(logger);
+            Config = config;
+            ItemClient = new SiloSimulatorClusterClient(siloSimulator);
+        }
+
+        ItemStub MakeItemStub(string itemId)
+        {
+            var itemStub = new ItemStub(ItemClient.GetItemClient(itemId));
+            return itemStub;
         }
 
         [Route("[controller]")]
@@ -24,12 +46,12 @@ namespace n3q.WebIt.Controllers
         public async Task<string> Post()
         {
             var body = await new StreamReader(Request.Body).ReadToEndAsync();
-            return Get(body);
+            return await Get(body);
         }
 
         [Route("[controller]/{action}")]
         [HttpGet]
-        public string Get(string body)
+        public async Task<string> Get(string body)
         {
             var response = new JsonPath.Dictionary();
 
@@ -37,9 +59,10 @@ namespace n3q.WebIt.Controllers
                 var request = new JsonPath.Node(body).AsDictionary;
 
                 var method = request["method"].AsString;
-                switch (method) {
+                switch (method.Capitalize()) {
                     case nameof(Echo): response = Echo(request); break;
-                    case nameof(ComputePayloadHash): response = ComputePayloadHash(request); break;
+                    case nameof(GetPayloadHash): response = GetPayloadHash(request); break;
+                    case nameof(GetItemProperties): response = await GetItemProperties(request); break;
                     default: throw new Exception($"Unknown method={method}");
                 }
 
@@ -63,23 +86,102 @@ namespace n3q.WebIt.Controllers
         }
 
         [Route("[controller]/{action}")]
-        public JsonPath.Dictionary ComputePayloadHash(JsonPath.Dictionary request)
+        public JsonPath.Dictionary GetPayloadHash(JsonPath.Dictionary request)
         {
-            var user = request["user"].String;
-            var payloadBase64Encoded = request["payload"].String;
+            if (!request.ContainsKey("payload")) { throw new Exception("No payload"); }
 
-            if (string.IsNullOrEmpty(user)) { throw new Exception("No user"); }
-            if (string.IsNullOrEmpty(payloadBase64Encoded)) { throw new Exception("No payload"); }
+            var payloadNode = request["payload"];
+            if (!Has.Value(payloadNode.AsString)) { throw new Exception("No payload"); }
+            var payload = payloadNode.ToJson();
+            if (payload == "{}") { throw new Exception("No payload"); }
 
-            var payloadBase64DecodedBytes = Convert.FromBase64String(payloadBase64Encoded);
-            var payload = Encoding.UTF8.GetString(payloadBase64DecodedBytes);
-            var json = new JsonPath.Node(payload);
-            if (json["user"].String != user) { throw new Exception("User mismatch"); }
-
-            var data = Config.PayloadHashSecret + payload;
-            var hash = Tools.Crypto.SHA256Hex(data);
+            var hash = Aspects.Partner.ComputePayloadHash(Config.PayloadHashSecret, payload);
 
             return new JsonPath.Dictionary().Add("result", hash);
         }
+
+        [Route("[controller]/{action}")]
+        public async Task<Dictionary> GetItemProperties(JsonPath.Dictionary request)
+        {
+            var partnerToken = request["partner"].String;
+            if (!Has.Value(partnerToken)) { throw new Exception("No partner token"); }
+
+            var partnerId = await GetPartnerIdAndValidatePartnerToken(partnerToken);
+            if (!Has.Value(partnerId)) { throw new Exception("No id in partner token"); }
+
+            var contextToken = request["context"].String;
+            if (!Has.Value(contextToken)) { throw new Exception("No context token"); }
+            var context = GetContext(contextToken);
+
+            var pids = new PidSet();
+            var pidsNode = request["pids"];
+            foreach (var pidNode in pidsNode.AsList) {
+                var pidName = (string)pidNode;
+                var pid = pidName.ToEnum(Pid.Unknown);
+                if (pid != Pid.Unknown) {
+                    if (Property.GetDefinition(pid).Access == Property.Access.Public) {
+                        pids.Add(pid);
+                    }
+                }
+            }
+            pids.Add(Pid.Partner);
+
+            var props = await MakeItemStub(context.item).Get(pids);
+
+            if (props.GetString(Pid.Partner) != partnerId) { throw new Exception("Partner invalid"); }
+
+            var propsNode = new Node(Node.Type.Dictionary);
+            foreach (var pair in props) {
+                propsNode.AsDictionary.Add(pair.Key.ToString(), pair.Value.ToString());
+            }
+
+            var response = new JsonPath.Dictionary {
+                { "result", propsNode }
+            };
+            return response;
+        }
+
+        [Route("[controller]/{action}")]
+        public async Task<string> GetPartnerIdAndValidatePartnerToken(string tokenBase64Encoded)
+        {
+            var tokenString = Tools.Base64.Decode(tokenBase64Encoded);
+            var tokenNode = new JsonPath.Node(tokenString);
+            var payloadNode = tokenNode["payload"];
+
+            var partnerId = payloadNode["partner"].String;
+            if (!Has.Value(partnerId)) { throw new Exception("No partnerId in partner token"); }
+
+            var props = await MakeItemStub(partnerId).Get(new PidSet { Pid.PartnerAspect, Pid.PartnerToken });
+            if (!props[Pid.PartnerAspect]) { throw new Exception("Invalid partner token"); }
+            if (props[Pid.PartnerToken] != tokenBase64Encoded) { throw new Exception("Invalid partner token"); }
+
+            return partnerId;
+        }
+
+        private class RequestContext
+        {
+            public string user;
+            public string item;
+            public string expires;
+        }
+
+        private RequestContext GetContext(string tokenBase64Encoded)
+        {
+            var rc = new RequestContext();
+
+            var tokenString = Tools.Base64.Decode(tokenBase64Encoded);
+            var tokenNode = new JsonPath.Node(tokenString);
+            var payloadNode = tokenNode["payload"];
+
+            rc.user = payloadNode["user"];
+            rc.item = payloadNode["item"];
+            rc.expires = payloadNode["expires"];
+
+            if (!Has.Value(rc.user)) { throw new Exception("No in context"); }
+            if (!Has.Value(rc.item)) { throw new Exception("No item in context"); }
+
+            return rc;
+        }
+
     }
 }

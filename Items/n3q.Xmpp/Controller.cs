@@ -163,7 +163,7 @@ namespace n3q.Xmpp
 
         ItemStub MakeItemStub(string itemId)
         {
-            var itemClient = new OrleansClusterClient(ClusterClient, itemId);
+            var itemClient = new OrleansClusterItemClient(ClusterClient, itemId);
             var itemStub = new ItemStub(itemClient);
             return itemStub;
         }
@@ -848,7 +848,7 @@ namespace n3q.Xmpp
         {
             if (_xmppConnection == null) { return; }
 
-            var props = await MakeItemStub(itemId).GetProperties(PidSet.Public);
+            var props = await MakeItemStub(itemId).Get(PidSet.Public);
 
             var name = props.GetString(Pid.Name);
             if (string.IsNullOrEmpty(name)) { name = props.Get(Pid.Label); }

@@ -22,13 +22,13 @@ namespace IntegrationTests
             try {
                 // Act
                 await item.WithTransaction(async self => {
-                    await self.ModifyProperties(new PropertySet {
+                    await self.Modify(new PropertySet {
                         [Pid.TestInt] = 42,
                         [Pid.TestString] = "42",
                     }, PidSet.Empty);
                 });
 
-                var props = await item.GetProperties(PidSet.All);
+                var props = await item.Get(PidSet.All);
 
                 // Assert
                 Assert.AreEqual(42, props.GetInt(Pid.TestInt));
@@ -49,14 +49,14 @@ namespace IntegrationTests
 
             try {
                 await item.WithTransaction(async self => {
-                    await self.ModifyProperties(new PropertySet {
+                    await self.Modify(new PropertySet {
                         [Pid.TestInternal] = 41,
                         [Pid.TestPublic] = 42,
                     }, PidSet.Empty);
                 });
 
                 // Act
-                var props = await item.GetProperties(PidSet.Public);
+                var props = await item.Get(PidSet.Public);
 
                 // Assert
                 Assert.AreEqual(1, props.Count);
@@ -79,13 +79,13 @@ namespace IntegrationTests
 
             try {
                 await tmpl.WithTransaction(async self => {
-                    await self.ModifyProperties(new PropertySet {
+                    await self.Modify(new PropertySet {
                         [Pid.TestInt1] = 41,
                         [Pid.TestGreeterAspect] = true,
                     }, PidSet.Empty);
                 });
                 await item.WithTransaction(async self => {
-                    await self.ModifyProperties(new PropertySet {
+                    await self.Modify(new PropertySet {
                         [Pid.TestInt2] = 42,
                         [Pid.TestGreetedAspect] = true,
                         [Pid.Template] = tmpl.Id,
@@ -93,7 +93,7 @@ namespace IntegrationTests
                 });
 
                 // Act
-                var props = await item.GetProperties(PidSet.Aspects);
+                var props = await item.Get(PidSet.Aspects);
 
                 // Assert
                 Assert.AreEqual(2, props.Count);
@@ -118,7 +118,7 @@ namespace IntegrationTests
 
             try {
                 await item.WithTransaction(async self => {
-                    await self.ModifyProperties(new PropertySet {
+                    await self.Modify(new PropertySet {
                         [Pid.TestInt1] = 41,
                         [Pid.TestInt2] = 42,
                         [Pid.TestInt3] = 43,
@@ -126,7 +126,7 @@ namespace IntegrationTests
                 });
 
                 // Act
-                var props = await item.GetProperties(new PidSet { Pid.TestInt2, Pid.TestInt3, });
+                var props = await item.Get(new PidSet { Pid.TestInt2, Pid.TestInt3, });
 
                 // Assert
                 Assert.AreEqual(2, props.Count);
@@ -148,7 +148,7 @@ namespace IntegrationTests
 
             try {
                 await item.WithTransaction(async self => {
-                    await self.ModifyProperties(new PropertySet {
+                    await self.Modify(new PropertySet {
                         // stay
                         [Pid.TestString] = "40",
                         [Pid.TestInt] = 40000000000,
@@ -172,7 +172,7 @@ namespace IntegrationTests
 
                 await item.WithTransaction(async self => {
                     // Act
-                    await self.ModifyProperties(new PropertySet {
+                    await self.Modify(new PropertySet {
                         [Pid.TestString1] = "412",
                         [Pid.TestInt1] = 41200000000,
                         [Pid.TestFloat1] = 412.14159265358979323,
@@ -195,7 +195,7 @@ namespace IntegrationTests
                 });
 
                 // Assert
-                var props = await item.GetProperties(PidSet.All);
+                var props = await item.Get(PidSet.All);
 
                 // stay
                 Assert.AreEqual("40", props.GetString(Pid.TestString));
@@ -243,18 +243,18 @@ namespace IntegrationTests
 
             try {
                 await item.WithTransaction(async self => {
-                    await self.ModifyProperties(new PropertySet {
+                    await self.Modify(new PropertySet {
                         [Pid.Template] = tmplId,
                     }, PidSet.Empty);
                 });
                 await tmpl.WithTransaction(async self => {
-                    await self.ModifyProperties(new PropertySet {
+                    await self.Modify(new PropertySet {
                         [Pid.TestInt] = 42,
                     }, PidSet.Empty);
                 });
 
                 // Act
-                var props = await item.GetProperties(PidSet.All);
+                var props = await item.Get(PidSet.All);
 
                 // Assert
                 Assert.AreEqual(2, props.Count);
@@ -280,7 +280,7 @@ namespace IntegrationTests
 
             try {
                 await item.WithTransaction(async self => {
-                    await self.ModifyProperties(new PropertySet {
+                    await self.Modify(new PropertySet {
                         [Pid.Template] = tmplId,
                         [Pid.TestInt] = 40,
                         [Pid.TestString] = "item.TestString",   // item
@@ -290,7 +290,7 @@ namespace IntegrationTests
                     }, PidSet.Empty);
                 });
                 await tmpl.WithTransaction(async self => {
-                    await self.ModifyProperties(new PropertySet {
+                    await self.Modify(new PropertySet {
                         [Pid.TestString2] = "tmpl.TestString2", // both
                         [Pid.TestString3] = "tmpl.TestString3", // both get
                         [Pid.TestString4] = "tmpl.TestString4", // tmpl
@@ -299,7 +299,7 @@ namespace IntegrationTests
                 });
 
                 // Act
-                var props = await item.GetProperties(new PidSet { Pid.TestString1, Pid.TestString3, Pid.TestString5 });
+                var props = await item.Get(new PidSet { Pid.TestString1, Pid.TestString3, Pid.TestString5 });
 
                 // Assert
                 Assert.AreEqual(3, props.Count);
@@ -326,7 +326,7 @@ namespace IntegrationTests
 
             try {
                 await item.WithTransaction(async self => {
-                    await self.ModifyProperties(new PropertySet {
+                    await self.Modify(new PropertySet {
                         [Pid.Template] = tmplId,
                         [Pid.TestInt] = 40,
                         [Pid.TestString] = "item.TestString",   // item
@@ -336,7 +336,7 @@ namespace IntegrationTests
                     }, PidSet.Empty);
                 });
                 await tmpl.WithTransaction(async self => {
-                    await self.ModifyProperties(new PropertySet {
+                    await self.Modify(new PropertySet {
                         [Pid.TestString2] = "tmpl.TestString2", // both
                         [Pid.TestString3] = "tmpl.TestString3", // both get
                         [Pid.TestString4] = "tmpl.TestString4", // tmpl
@@ -345,7 +345,7 @@ namespace IntegrationTests
                 });
 
                 // Act
-                var props = await item.GetProperties(new PidSet { Pid.TestString1, Pid.TestString3, Pid.TestString5 }, native: true);
+                var props = await item.Get(new PidSet { Pid.TestString1, Pid.TestString3, Pid.TestString5 }, native: true);
 
                 // Assert
                 Assert.AreEqual(2, props.Count);
@@ -368,7 +368,7 @@ namespace IntegrationTests
 
             try {
                 await item.WithTransaction(async self => {
-                    await self.ModifyProperties(new PropertySet {
+                    await self.Modify(new PropertySet {
                         [Pid.TestItemList] = ValueList.FromString("a b"),
                     }, PidSet.Empty);
                 });
@@ -378,14 +378,14 @@ namespace IntegrationTests
                     await self.AddToList(Pid.TestItemList, "c");
                 });
                 // Assert
-                Assert.AreEqual("a b c", (string)(await item.GetProperties(PidSet.All))[Pid.TestItemList]);
+                Assert.AreEqual("a b c", (string)(await item.Get(PidSet.All))[Pid.TestItemList]);
 
                 // Act
                 await item.WithTransaction(async self => {
                     await self.RemoveFromList(Pid.TestItemList, "b");
                 });
                 // Assert
-                Assert.AreEqual("a c", (string)(await item.GetProperties(PidSet.All))[Pid.TestItemList]);
+                Assert.AreEqual("a c", (string)(await item.Get(PidSet.All))[Pid.TestItemList]);
 
             } finally {
                 // Cleanup
@@ -406,14 +406,14 @@ namespace IntegrationTests
                     await self.AddToList(Pid.TestItemList, "a");
                 });
                 // Assert
-                Assert.AreEqual("a", ((ValueList)(await item.GetProperties(PidSet.All))[Pid.TestItemList])[0]);
+                Assert.AreEqual("a", ((ValueList)(await item.Get(PidSet.All))[Pid.TestItemList])[0]);
 
                 // Act
                 await item.WithTransaction(async self => {
                     await self.RemoveFromList(Pid.TestItemList, "a");
                 });
                 // Assert
-                Assert.AreEqual(0, ((ValueList)(await item.GetProperties(PidSet.All))[Pid.TestItemList]).Count);
+                Assert.AreEqual(0, ((ValueList)(await item.Get(PidSet.All))[Pid.TestItemList]).Count);
 
             } finally {
                 // Cleanup
@@ -430,7 +430,7 @@ namespace IntegrationTests
 
             try {
                 // Act
-                var props = await item.GetProperties(new PidSet {
+                var props = await item.Get(new PidSet {
                     Pid.TestInt,
                     Pid.TestIntDefault,
                     Pid.TestStringDefault,

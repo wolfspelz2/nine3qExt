@@ -61,5 +61,21 @@ namespace n3q.Aspects
                 }
             }
         }
+
+        public static PropertySet MapArgumentsToAspectAction(Dictionary<string, string> args, Aspect aspect, string actionName)
+        {
+            var pidPrefix = aspect.GetType().Name + actionName;
+            var mappedArguments = new PropertySet();
+            foreach (var pair in args) {
+                var pidName = pidPrefix + pair.Key.Capitalize();
+                var pid = pidName.ToEnum(Pid.Unknown);
+                if (pid != Pid.Unknown) {
+                    mappedArguments[pid] = pair.Value;
+                }
+            }
+
+            return mappedArguments;
+        }
+
     }
 }
