@@ -19,3 +19,4 @@
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>", Scope = "member", Target = "~P:n3q.WebIt.Models.ClientServiceConfig.XmppConfig.user")]
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>", Scope = "member", Target = "~P:n3q.WebIt.Models.ClientServiceConfig.xmpp")]
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>", Scope = "member", Target = "~P:n3q.WebIt.Models.ItemServiceConfig.apiUrl")]
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0028:Simplify collection initialization", Justification = "<Pending>", Scope = "member", Target = "~M:n3q.WebIt.Controllers.RpcController.GetItemProperties(JsonPath.Dictionary)~System.Threading.Tasks.Task{JsonPath.Dictionary}")]

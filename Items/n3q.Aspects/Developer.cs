@@ -6,15 +6,15 @@ using n3q.Tools;
 
 namespace n3q.Aspects
 {
-    public static class PartnerExtensions
+    public static class DeveloperExtensions
     {
-        public static Partner AsPartner(this ItemStub self) { return new Partner(self); }
+        public static Developer AsDeveloper(this ItemStub self) { return new Developer(self); }
     }
 
-    public class Partner : Aspect
+    public class Developer : Aspect
     {
-        public Partner(ItemStub item) : base(item) { }
-        public override Pid GetAspectPid() => Pid.PartnerAspect;
+        public Developer(ItemStub item) : base(item) { }
+        public override Pid GetAspectPid() => Pid.DeveloperAspect;
 
         public enum Action { GenerateToken }
         public override ActionList GetActionList()
@@ -29,7 +29,7 @@ namespace n3q.Aspects
 
         public async Task GenerateToken()
         {
-            await AssertAspect(Pid.PartnerAspect);
+            await AssertAspect(Pid.DeveloperAspect);
 
             var config = await Item(Common.ItemService.WebItConfigItemId);
             var configJson = (string)await config.Get(Pid.DocumentText);
@@ -60,9 +60,10 @@ namespace n3q.Aspects
             await this.Set(Pid.PartnerToken, token);
         }
 
-        public static string ComputePayloadHash(string secret, string payload)
+        public static string ComputePayloadHash(string secret, JsonPath.Node payloadNode)
         {
-            var data = secret + payload;
+            var payloadJson = payloadNode.ToJson(false, false);
+            var data = secret + payloadJson;
             var hash = Tools.Crypto.SHA256Base64(data);
             return hash;
         }

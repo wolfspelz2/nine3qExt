@@ -171,8 +171,8 @@ namespace n3q.Xmpp
             var sf = st.GetFrame(1 + skip);
             if (sf != null) {
                 var mb = sf.GetMethod();
-                if (mb != null && mb.DeclaringType != null) {
-                    return mb.DeclaringType.FullName + "." + mb.Name;
+                if (mb != null) {
+                    return mb.Name;
                 }
             }
             return "<unknown>";
@@ -180,14 +180,9 @@ namespace n3q.Xmpp
 
         private static string GetContext(string context, string callerFilePath)
         {
-            if (context == null) {
-                context = MethodName(3);
-            }
-            if (callerFilePath != null) {
-                var guessedCallerTypeName = Path.GetFileNameWithoutExtension(callerFilePath);
-                return guessedCallerTypeName + "." + context;
-            }
-            return null;
+            var result = string.IsNullOrEmpty(callerFilePath) ? "" : Path.GetFileNameWithoutExtension(callerFilePath);
+            result += (string.IsNullOrEmpty(result) ? "" : ".") + (context ?? MethodName(3));
+            return result;
         }
 
         private static List<string> AllExceptionMessages(Exception self)

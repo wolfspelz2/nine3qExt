@@ -19,7 +19,7 @@ namespace n3q.WebIt.Test
             // Arrange
             var payloadNode = new JsonPath.Node(new Dictionary<string, string> { ["user"] = "user1", ["entropy"] = "entropy1", });
             var expect = Tools.Crypto.SHA256Base64("secret" + payloadNode.ToJson());
-            var controller = new RpcController(new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory().CreateLogger<RpcController>(), new WebItConfigDefinition { PayloadHashSecret = "secret" }, new SiloSimulator());
+            var controller = new RpcController(new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory().CreateLogger<RpcController>(), new WebItConfigDefinition { PayloadHashSecret = "secret" }, null) { ItemClient = new SiloSimulatorClusterClient(new SiloSimulator()) };
 
             // Act
             var hash = controller.GetPayloadHash(new JsonPath.Dictionary { ["user"] = "user1", ["payload"] = payloadNode, })["result"].String;
@@ -45,12 +45,12 @@ namespace n3q.WebIt.Test
         public void GetPayloadHash_detects_missing_arguments()
         {
             // Arrange
-            var controller = new RpcController(new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory().CreateLogger<RpcController>(), new WebItConfigDefinition { PayloadHashSecret = "secret" }, new SiloSimulator());
+            var controller = new RpcController(new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory().CreateLogger<RpcController>(), new WebItConfigDefinition { PayloadHashSecret = "secret" }, null) { ItemClient = new SiloSimulatorClusterClient(new SiloSimulator()) };
 
             // Act
-            Assert.ThrowsException<Exception>(() => { _ = controller.GetPayloadHash(new JsonPath.Dictionary { ["payload"] = new JsonPath.Node(JsonPath.Node.Type.Dictionary), })["result"].String; });
-            Assert.ThrowsException<Exception>(() => { _ = controller.GetPayloadHash(new JsonPath.Dictionary { ["payload"] = "", })["result"].String; });
-            Assert.ThrowsException<Exception>(() => { _ = controller.GetPayloadHash(new JsonPath.Dictionary { })["result"].String; });
+            Assert.ThrowsException<Exception>(() => { _ = controller.GetPayloadHash(new JsonPath.Dictionary { ["payload"] = new JsonPath.Node(JsonPath.Node.Type.Dictionary), }); });
+            Assert.ThrowsException<Exception>(() => { _ = controller.GetPayloadHash(new JsonPath.Dictionary { ["payload"] = "", }); });
+            Assert.ThrowsException<Exception>(() => { _ = controller.GetPayloadHash(new JsonPath.Dictionary { }); });
         }
 
         [TestMethod]
@@ -61,7 +61,7 @@ namespace n3q.WebIt.Test
             var payloadBase64Encoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payload));
             var payload2 = new JsonPath.Node(new Dictionary<string, string> { ["user"] = "user2", ["entropy"] = "entropy1", }).ToJson(bFormatted: false, bWrapped: false);
             var payloadBase64Encoded2 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(payload2));
-            var controller = new RpcController(new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory().CreateLogger<RpcController>(), new WebItConfigDefinition { PayloadHashSecret = "secret" }, new SiloSimulator());
+            var controller = new RpcController(new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory().CreateLogger<RpcController>(), new WebItConfigDefinition { PayloadHashSecret = "secret" }, null) { ItemClient = new SiloSimulatorClusterClient(new SiloSimulator()) };
 
             // Act
             var hash = controller.GetPayloadHash(new JsonPath.Dictionary { ["user"] = "user1", ["payload"] = payloadBase64Encoded, })["result"].String;
@@ -81,7 +81,7 @@ namespace n3q.WebIt.Test
             var payloadNode = new JsonPath.Node(new Dictionary<string, string> { ["partner"] = "suat-theatre-tf5768gihu89z7t6ftugzuhji97t6fituljnjz6t", ["entropy"] = "entropy1" });
             tokenNode.AsDictionary.Add("payload", payloadNode);
             var payloadJson = payloadNode.ToJson(bFormatted: false, bWrapped: false);
-            var hash = Aspects.Partner.ComputePayloadHash(payloadHashSecret, payloadJson);
+            var hash = Aspects.Developer.ComputePayloadHash(payloadHashSecret, payloadJson);
             tokenNode.AsDictionary.Add("hash", hash);
             var tokenJson = tokenNode.ToJson(bFormatted: false, bWrapped: false);
             var tokenBase64Encoded = Tools.Base64.Encode(tokenJson);
@@ -89,29 +89,31 @@ namespace n3q.WebIt.Test
             var controller = new RpcController(
                 new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory().CreateLogger<RpcController>(),
                 new WebItConfigDefinition { PayloadHashSecret = "secret" },
-                new SiloSimulator() {
+                null
+            ) {
+                ItemClient = new SiloSimulatorClusterClient(new SiloSimulator() {
                     Items = new Dictionary<string, SiloSimulatorItem> {
                         ["suat-theatre-tf5768gihu89z7t6ftugzuhji97t6fituljnjz6t"] = new SiloSimulatorItem {
                             Properties = new PropertySet {
-                                [Pid.PartnerAspect] = true,
+                                [Pid.DeveloperAspect] = true,
                                 [Pid.PartnerToken] = tokenBase64Encoded,
                             }
                         }
                     }
-                }
-            );
+                })
+            };
 
             // Act
             // Assert
-            await controller.GetPartnerIdAndWhileWeAreAtItValidateThePartnerToken(tokenBase64Encoded);
+            await controller.GetPartnerIdAndValidateThePartnerToken(tokenBase64Encoded);
             //Assert.ThrowsException<Exception>(async () => { await controller.ValidatePartnerToken("wrong token"); });
 
             tokenNode.AsDictionary.Add("dummy", true);
             var almostCorrectTokenJson = tokenNode.ToJson(bFormatted: false, bWrapped: false);
             var almostCorrectTokenJsonBase64Encoded = Tools.Base64.Encode(almostCorrectTokenJson);
-            await Assert.ThrowsExceptionAsync<Exception>(async () => { await controller.GetPartnerIdAndWhileWeAreAtItValidateThePartnerToken(almostCorrectTokenJsonBase64Encoded); });
+            await Assert.ThrowsExceptionAsync<Exception>(async () => { await controller.GetPartnerIdAndValidateThePartnerToken(almostCorrectTokenJsonBase64Encoded); });
 
-            await Assert.ThrowsExceptionAsync<FormatException>(async () => { await controller.GetPartnerIdAndWhileWeAreAtItValidateThePartnerToken("plainly wrong token"); });
+            await Assert.ThrowsExceptionAsync<FormatException>(async () => { await controller.GetPartnerIdAndValidateThePartnerToken("plainly wrong token"); });
         }
 
         [TestMethod]
@@ -121,6 +123,7 @@ namespace n3q.WebIt.Test
             var userId = "user1";
             var partnerId = "suat1";
             var documentId = "document1";
+            var payloadHashSecret = "secret";
 
             var siloSimulator = new SiloSimulator() {
                 Items = new Dictionary<string, SiloSimulatorItem> {
@@ -128,14 +131,14 @@ namespace n3q.WebIt.Test
                         Properties = new PropertySet {
                             [Pid.DocumentAspect] = true,
                             [Pid.DocumentText] = new JsonPath.Node(new Dictionary<string, string> {
-                                [Aspects.Partner.PayloadHashSecretConfigName] = new WebItConfigDefinition().PayloadHashSecret,
-                                [Aspects.Partner.ItemServiceWebApiUrlConfigName] = new WebItConfigDefinition().ItemServiceWebApiUrl,
+                                [Aspects.Developer.PayloadHashSecretConfigName] = new WebItConfigDefinition().PayloadHashSecret,
+                                [Aspects.Developer.ItemServiceWebApiUrlConfigName] = new WebItConfigDefinition().ItemServiceWebApiUrl,
                             }).ToJson(),
                         }
                     },
                     [partnerId] = new SiloSimulatorItem {
                         Properties = new PropertySet {
-                            [Pid.PartnerAspect] = true,
+                            [Pid.DeveloperAspect] = true,
                         }
                     },
                     [userId] = new SiloSimulatorItem {
@@ -145,7 +148,7 @@ namespace n3q.WebIt.Test
                     },
                     [documentId] = new SiloSimulatorItem {
                         Properties = new PropertySet {
-                            [Pid.Partner] = partnerId,
+                            [Pid.Developer] = partnerId,
                             [Pid.DocumentAspect] = true,
                             [Pid.DocumentText] = "This is a text",
                             [Pid.DocumentMaxLength] = 100,
@@ -158,9 +161,9 @@ namespace n3q.WebIt.Test
 
             var controller = new RpcController(
                 new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory().CreateLogger<RpcController>(),
-                new WebItConfigDefinition { PayloadHashSecret = "secret" },
-                siloSimulator
-            );
+                new WebItConfigDefinition { PayloadHashSecret = payloadHashSecret },
+                null
+            ) { ItemClient = new SiloSimulatorClusterClient(siloSimulator) };
 
             var simulatorClient = new SiloSimulatorClusterClient(siloSimulator);
 
@@ -171,7 +174,7 @@ namespace n3q.WebIt.Test
 
             var partnerStub = new ItemStub(simulatorClient.GetItemClient(partnerId), new VoidTransaction());
             await partnerStub.WithoutTransaction(async self => {
-                await self.Execute(nameof(Aspects.Partner.Action.GenerateToken), new Dictionary<string, string>());
+                await self.Execute(nameof(Aspects.Developer.Action.GenerateToken), new Dictionary<string, string>());
             });
             var partnerToken = (string)await partnerStub.Get(Pid.PartnerToken);
 
@@ -184,7 +187,7 @@ namespace n3q.WebIt.Test
                 ["entropy"] = Tools.RandomString.Get(40),
             });
             contextNode.AsDictionary.Add("payload", payloadNode);
-            contextNode.AsDictionary.Add("hash", Aspects.Partner.ComputePayloadHash(new WebItConfigDefinition().PayloadHashSecret, payloadNode.ToJson()));
+            contextNode.AsDictionary.Add("hash", Aspects.Developer.ComputePayloadHash(payloadHashSecret, payloadNode));
             var contextToken = Tools.Base64.Encode(contextNode.ToJson());
 
             // Act

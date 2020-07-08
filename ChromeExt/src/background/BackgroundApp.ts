@@ -281,7 +281,13 @@ export class BackgroundApp
                 .catch(ex =>
                 {
                     log.debug('BackgroundApp.handle_jsonRpc', 'catch', url, ex);
-                    sendResponse({ 'ok': false, 'status': ex.name, 'statusText': ex.message });
+                    let status = ex.status;
+                    if (!status) { status = ex.name; }
+                    if (!status) { status = 'Error'; }
+                    let statusText = ex.statusText;
+                    if (!statusText) { status = ex.message; }
+                    if (!statusText) { status = ex; }
+                    sendResponse({ 'ok': false, 'status': status, 'statusText': statusText });
                 });
             return true;
         } catch (error) {

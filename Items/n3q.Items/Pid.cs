@@ -70,7 +70,7 @@
         AnimationsUrl,
         Actions,
         Stats,
-        Partner,
+        Developer,
 
         // Aspect
         FirstAspect = 3000000,
@@ -78,7 +78,7 @@
         TestGreeterAspect,
         DeletableAspect,
         ContainerAspect,
-        PartnerAspect,
+        DeveloperAspect,
         ItemCapacityLimitAspect,
         InventoryAspect,
         SettingsAspect,

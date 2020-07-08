@@ -46,10 +46,10 @@ namespace n3q.Items.Test
         }
 
         [TestMethod]
-        public void PartnerAspect_config_names_identical_to_definition()
+        public void DeveloperAspect_config_names_identical_to_definition()
         {
-            Assert.AreEqual(nameof(WebItConfigDefinition.PayloadHashSecret), Aspects.Partner.PayloadHashSecretConfigName);
-            Assert.AreEqual(nameof(WebItConfigDefinition.ItemServiceWebApiUrl), Aspects.Partner.ItemServiceWebApiUrlConfigName);
+            Assert.AreEqual(nameof(WebItConfigDefinition.PayloadHashSecret), Aspects.Developer.PayloadHashSecretConfigName);
+            Assert.AreEqual(nameof(WebItConfigDefinition.ItemServiceWebApiUrl), Aspects.Developer.ItemServiceWebApiUrlConfigName);
         }
 
         [TestMethod]
