@@ -52,21 +52,13 @@ namespace n3q.Aspects
             tokenNode.AsDictionary.Add(nameof(Protocol.DeveloperToken.payload), payloadNode);
 
             var payloadJson = payloadNode.ToJson(bFormatted: false, bWrapped: false);
-            var hash = ComputePayloadHash(payloadHashSecret, payloadJson);
+            var hash = Common.Protocol.ComputePayloadHash(payloadHashSecret, payloadJson);
             tokenNode.AsDictionary.Add(nameof(Protocol.DeveloperToken.hash), hash);
 
             var tokenJson = tokenNode.ToJson(bFormatted: false, bWrapped: false);
             var token = tokenJson.ToBase64();
 
             await this.Set(Pid.DeveloperToken, token);
-        }
-
-        public static string ComputePayloadHash(string secret, JsonPath.Node payloadNode)
-        {
-            var payloadJson = payloadNode.ToJson(false, false);
-            var data = secret + payloadJson;
-            var hash = Tools.Crypto.SHA256Base64(data);
-            return hash;
         }
     }
 }

@@ -96,7 +96,7 @@ namespace n3q.WebIt.Controllers
             var payloadNode = request[nameof(Protocol.ContextToken.payload)];
             if (payloadNode.AsDictionary.Count == 0) { throw new Exception("No payload"); }
 
-            var hash = Aspects.Developer.ComputePayloadHash(Config.PayloadHashSecret, payloadNode);
+            var hash = Common.Protocol.ComputePayloadHash(Config.PayloadHashSecret, payloadNode);
 
             return new JsonPath.Dictionary().Add(nameof(Protocol.Rpc.Response.result), hash);
         }
@@ -199,10 +199,10 @@ namespace n3q.WebIt.Controllers
             var tokenString = tokenBase64Encoded.FromBase64();
             var tokenNode = new JsonPath.Node(tokenString);
 
-            var hash = tokenNode[nameof(Protocol.ContextToken.hash)];
+            var hash = tokenNode[nameof(Protocol.ContextToken.hash)].AsString;
             var payloadNode = tokenNode[nameof(Protocol.ContextToken.payload)];
             if (!Has.Value(payloadNode.AsString)) { throw new Exception("No payload"); }
-            var computedHash = Aspects.Developer.ComputePayloadHash(Config.PayloadHashSecret, payloadNode);
+            var computedHash = Common.Protocol.ComputePayloadHash(Config.PayloadHashSecret, payloadNode);
             if (hash != computedHash) { throw new Exception("Hash mismatch"); }
 
             rc.userId = payloadNode[nameof(Protocol.ContextToken.Payload.user)];

@@ -73,5 +73,14 @@ namespace n3q.Common
             }
 
         }
+
+        public static string ComputePayloadHash(string secret, JsonPath.Node payloadNode)
+        {
+            var normalizedNode = payloadNode.Normalized();
+            var payloadJson = normalizedNode.ToJson(false, false);
+            var data = secret + payloadJson;
+            var hash = Tools.Crypto.SHA256Base64(data);
+            return hash;
+        }
     }
 }

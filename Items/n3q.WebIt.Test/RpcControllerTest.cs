@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using JsonPath;
 using n3q.Aspects;
 using n3q.Common;
 using n3q.Items;
@@ -67,7 +68,7 @@ namespace n3q.WebIt.Test
             var payloadNode = new JsonPath.Node(new Dictionary<string, string> { [nameof(Protocol.DeveloperToken.Payload.developer)] = "suat-theatre-tf5768gihu89z7t6ftugzuhji97t6fituljnjz6t", [nameof(Protocol.DeveloperToken.Payload.entropy)] = "entropy1" });
             tokenNode.AsDictionary.Add(nameof(Protocol.DeveloperToken.payload), payloadNode);
             var payloadJson = payloadNode.ToJson(bFormatted: false, bWrapped: false);
-            var hash = Aspects.Developer.ComputePayloadHash(payloadHashSecret, payloadJson);
+            var hash = Common.Protocol.ComputePayloadHash(payloadHashSecret, payloadJson);
             tokenNode.AsDictionary.Add("hash", hash);
             var tokenJson = tokenNode.ToJson(bFormatted: false, bWrapped: false);
             var tokenBase64Encoded = tokenJson.ToBase64();
@@ -107,11 +108,12 @@ namespace n3q.WebIt.Test
         {
             // Arrange
             var userId = "user1";
-            var developerId = "suat1";
+            var developerId = "developer1";
             var documentId = "document1";
+            var documentText = "This is a text";
             var payloadHashSecret = "secret";
 
-            var siloSimulator = SetupSiloSimulator(userId, developerId, documentId);
+            var siloSimulator = SetupSiloSimulator(userId, developerId, documentId, documentText, 100);
             var controller = SetupController(payloadHashSecret, siloSimulator);
             var simulatorClient = new SiloSimulatorClusterClient(siloSimulator);
             string developerToken = await GenerateDeveloperToken(developerId, simulatorClient);
@@ -140,16 +142,17 @@ namespace n3q.WebIt.Test
         }
 
         [TestMethod]
-        public async Task ExecuteItemAction()
+        public async Task ExecuteItemAction_Document_SetText()
         {
             // Arrange
             var userId = "user1";
-            var developerId = "suat1";
+            var developerId = "developer1";
             var documentId = "document1";
+            var documentText = "This is a text";
             var payloadHashSecret = "secret";
             var anotherText = "This is another text.";
 
-            var siloSimulator = SetupSiloSimulator(userId, developerId, documentId);
+            var siloSimulator = SetupSiloSimulator(userId, developerId, documentId, documentText, 100);
             var controller = SetupController(payloadHashSecret, siloSimulator);
             var simulatorClient = new SiloSimulatorClusterClient(siloSimulator);
             var developerToken = await GenerateDeveloperToken(developerId, simulatorClient);
@@ -169,42 +172,78 @@ namespace n3q.WebIt.Test
             Assert.AreEqual(anotherText, await documentStub.GetString(Pid.DocumentText));
         }
 
-        private static RpcController SetupController(string payloadHashSecret, SiloSimulator siloSimulator)
+        [TestMethod]
+        public async Task ExecuteItemAction_Document_SetText_DocumentMaxSize_exceeded()
         {
-            return new RpcController(
-                new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory().CreateLogger<RpcController>(),
-                new WebItConfigDefinition { PayloadHashSecret = payloadHashSecret },
-                null
-            ) { ItemClient = new SiloSimulatorClusterClient(siloSimulator) };
-        }
+            // Arrange
+            var userId = "user1";
+            var developerId = "developer1";
+            var documentId = "document1";
+            var documentText = "This is a text";
+            var payloadHashSecret = "secret";
+            var aLongText = "1234567 1 1234567 2 1234567 3 1234567 4 1234567 5 1234567 6 1234567 7 1234567 8 1234567 9 123456 10 123456 11 ";
 
-        private static string CreateContextToken(string userId, string documentId, string payloadHashSecret)
-        {
-            var contextNode = new JsonPath.Node(JsonPath.Node.Type.Dictionary);
-            contextNode.AsDictionary.Add("api", new WebItConfigDefinition().ItemServiceWebApiUrl);
-            var payloadNode = new JsonPath.Node(new Dictionary<string, string> {
-                [nameof(Protocol.ContextToken.Payload.user)] = userId,
-                [nameof(Protocol.ContextToken.Payload.item)] = documentId,
-                ["room"] = "9ca05afb1a49f26fb59642305c481661f8b370bd@muc4.virtual-presence.org",
-                [nameof(Protocol.ContextToken.Payload.entropy)] = Tools.RandomString.Get(40),
+            var siloSimulator = SetupSiloSimulator(userId, developerId, documentId, documentText, 100);
+            var controller = SetupController(payloadHashSecret, siloSimulator);
+            var simulatorClient = new SiloSimulatorClusterClient(siloSimulator);
+            var developerToken = await GenerateDeveloperToken(developerId, simulatorClient);
+            var contextToken = CreateContextToken(userId, documentId, payloadHashSecret);
+
+            // Act
+            await Assert.ThrowsExceptionAsync<AggregateException>(async () => {
+                var response = await controller.ExecuteItemAction(new JsonPath.Dictionary {
+                    [nameof(Protocol.Rpc.ExecuteItemActionRequest.developer)] = developerToken,
+                    [nameof(Protocol.Rpc.ExecuteItemActionRequest.context)] = contextToken,
+                    [nameof(Protocol.Rpc.ExecuteItemActionRequest.method)] = nameof(RpcController.ExecuteItemAction),
+                    [nameof(Protocol.Rpc.ExecuteItemActionRequest.action)] = nameof(Aspects.Document.Action.SetText),
+                    [nameof(Protocol.Rpc.ExecuteItemActionRequest.args)] = new JsonPath.Node(new Dictionary<string, string> { ["text"] = aLongText }),
+                });
             });
-            contextNode.AsDictionary.Add(nameof(Protocol.ContextToken.payload), payloadNode);
-            contextNode.AsDictionary.Add(nameof(Protocol.ContextToken.hash), Aspects.Developer.ComputePayloadHash(payloadHashSecret, payloadNode));
-            var contextToken = contextNode.ToJson().ToBase64();
-            return contextToken;
+
+            // Assert
+            var documentStub = new ItemWriter(simulatorClient.GetItemClient(documentId), new VoidTransaction());
+            Assert.AreEqual(documentText, await documentStub.GetString(Pid.DocumentText));
         }
 
-        private static async Task<string> GenerateDeveloperToken(string developerId, SiloSimulatorClusterClient simulatorClient)
+        [TestMethod]
+        public async Task ExecuteItemAction_Document_SetText_manipulated_context_token_detects_hash_mismatch()
         {
-            var developerStub = new ItemWriter(simulatorClient.GetItemClient(developerId), new VoidTransaction());
-            await developerStub.WithoutTransaction(async self => {
-                await self.Execute(nameof(Aspects.Developer.Action.GenerateToken), new Dictionary<string, string>());
+            // Arrange
+            var userId = "user1";
+            var developerId = "developer1";
+            var documentId = "document1";
+            var documentId2 = "document2";
+            var documentText = "This is a text";
+            var payloadHashSecret = "secret";
+            var anotherText = "This is another text.";
+
+            var siloSimulator = SetupSiloSimulator(userId, developerId, documentId2, documentText, 100);
+            var controller = SetupController(payloadHashSecret, siloSimulator);
+            var simulatorClient = new SiloSimulatorClusterClient(siloSimulator);
+            var developerToken = await GenerateDeveloperToken(developerId, simulatorClient);
+            var contextToken = CreateContextToken(userId, documentId, payloadHashSecret);
+
+            // change context token itemId
+            var contextTokenNode = contextToken.FromBase64().ToJsonNode();
+            contextTokenNode[nameof(Protocol.ContextToken.payload)][nameof(Protocol.ContextToken.Payload.item)] = documentId2;
+            contextToken = contextTokenNode.ToJson().ToBase64();
+
+            // Act
+            // Assert
+            await Assert.ThrowsExceptionAsync<Exception>(async () => {
+                var response = await controller.ExecuteItemAction(new JsonPath.Dictionary {
+                    [nameof(Protocol.Rpc.ExecuteItemActionRequest.developer)] = developerToken,
+                    [nameof(Protocol.Rpc.ExecuteItemActionRequest.context)] = contextToken,
+                    [nameof(Protocol.Rpc.ExecuteItemActionRequest.method)] = nameof(RpcController.ExecuteItemAction),
+                    [nameof(Protocol.Rpc.ExecuteItemActionRequest.action)] = nameof(Aspects.Document.Action.SetText),
+                    [nameof(Protocol.Rpc.ExecuteItemActionRequest.args)] = new JsonPath.Node(new Dictionary<string, string> { ["text"] = anotherText }),
+                });
             });
-            var developerToken = (string)await developerStub.Get(Pid.DeveloperToken);
-            return developerToken;
         }
 
-        private static SiloSimulator SetupSiloSimulator(string userId, string developerId, string documentId)
+        #region Setup
+
+        private static SiloSimulator SetupSiloSimulator(string userId, string developerId, string documentId, string documentText, long maxDocumentLength)
         {
             return new SiloSimulator() {
                 Items = new Dictionary<string, SiloSimulatorItem> {
@@ -233,8 +272,8 @@ namespace n3q.WebIt.Test
                             [Pid.Container] = userId,
                             [Pid.Developer] = developerId,
                             [Pid.DocumentAspect] = true,
-                            [Pid.DocumentText] = "This is a text",
-                            [Pid.DocumentMaxLength] = 100,
+                            [Pid.DocumentText] = documentText,
+                            [Pid.DocumentMaxLength] = maxDocumentLength,
                             [Pid.TestPublic] = 42,
                             [Pid.TestInternal] = 43,
                         }
@@ -242,5 +281,42 @@ namespace n3q.WebIt.Test
                 }
             };
         }
+
+        private static RpcController SetupController(string payloadHashSecret, SiloSimulator siloSimulator)
+        {
+            return new RpcController(
+                new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory().CreateLogger<RpcController>(),
+                new WebItConfigDefinition { PayloadHashSecret = payloadHashSecret },
+                null
+            ) { ItemClient = new SiloSimulatorClusterClient(siloSimulator) };
+        }
+
+        private static string CreateContextToken(string userId, string documentId, string payloadHashSecret)
+        {
+            var contextNode = new JsonPath.Node(JsonPath.Node.Type.Dictionary);
+            contextNode.AsDictionary.Add("api", new WebItConfigDefinition().ItemServiceWebApiUrl);
+            var payloadNode = new JsonPath.Node(new Dictionary<string, string> {
+                [nameof(Protocol.ContextToken.Payload.user)] = userId,
+                [nameof(Protocol.ContextToken.Payload.item)] = documentId,
+                ["room"] = "9ca05afb1a49f26fb59642305c481661f8b370bd@muc4.virtual-presence.org",
+                [nameof(Protocol.ContextToken.Payload.entropy)] = Tools.RandomString.Get(40),
+            });
+            contextNode.AsDictionary.Add(nameof(Protocol.ContextToken.payload), payloadNode);
+            contextNode.AsDictionary.Add(nameof(Protocol.ContextToken.hash), Common.Protocol.ComputePayloadHash(payloadHashSecret, payloadNode));
+            var contextToken = contextNode.ToJson().ToBase64();
+            return contextToken;
+        }
+
+        private static async Task<string> GenerateDeveloperToken(string developerId, SiloSimulatorClusterClient simulatorClient)
+        {
+            var developerStub = new ItemWriter(simulatorClient.GetItemClient(developerId), new VoidTransaction());
+            await developerStub.WithTransaction(async self => {
+                await self.Execute(nameof(Aspects.Developer.Action.GenerateToken), new Dictionary<string, string>());
+            });
+            var developerToken = (string)await developerStub.Get(Pid.DeveloperToken);
+            return developerToken;
+        }
+
+        #endregion
     }
 }
