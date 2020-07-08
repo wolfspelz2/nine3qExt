@@ -11,7 +11,7 @@ namespace n3q.Common
                 public static string method;
             }
 
-            public static class Response
+            public class Response
             {
                 public static string status;
                 public static string status_ok = "ok";
@@ -25,31 +25,35 @@ namespace n3q.Common
                 public static string developer;
             }
 
-            public static class DeveloperToken
+            public class TokenPayload
+            {
+                public static string entropy;
+                public static string expires;
+            }
+
+            public class Token
             {
                 public static string api;
-                public class Payload
-                {
-                    public static string developer;
-                    public static string entropy;
-                    public static string expires;
-                }          
-                public static Payload payload;
                 public static string hash;
             }
 
-            public static class ContextToken
+            public class DeveloperToken : Token
             {
-                public static string api;
-                public class Payload
+                public class Payload : TokenPayload
+                {
+                    public static string developer;
+                }
+                public static Payload payload;
+            }
+
+            public class ContextToken : Token
+            {
+                public class Payload : TokenPayload
                 {
                     public static string user;
                     public static string item;
-                    public static string entropy;
-                    public static string expires;
                 }
                 public static Payload payload;
-                public static string hash;
             }
 
             public class ItemRequest : DeveloperRequest

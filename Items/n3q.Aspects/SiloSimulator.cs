@@ -75,14 +75,12 @@ namespace n3q.Aspects
 
         public Task BeginTransaction(Guid tid)
         {
-            throw new NotImplementedException();
-            //return Task.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public Task EndTransaction(Guid tid, bool success)
         {
-            throw new NotImplementedException();
-            //return Task.CompletedTask;
+            return Task.CompletedTask;
         }
 
         public Task Delete(Guid tid)
