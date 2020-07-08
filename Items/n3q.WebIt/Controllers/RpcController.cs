@@ -63,6 +63,7 @@ namespace n3q.WebIt.Controllers
                     case nameof(Echo): response = Echo(request); break;
                     case nameof(GetPayloadHash): response = GetPayloadHash(request); break;
                     case nameof(GetItemProperties): response = await GetItemProperties(request); break;
+                    case nameof(ChangeItemProperties): response = await ChangeItemProperties(request); break;
                     default: throw new Exception($"Unknown method={method}");
                 }
 
@@ -104,29 +105,18 @@ namespace n3q.WebIt.Controllers
         public async Task<Dictionary> GetItemProperties(JsonPath.Dictionary request)
         {
             var partnerToken = request["partner"].String;
-            if (!Has.Value(partnerToken)) { throw new Exception("No partner token"); }
-
-            var partnerId = await GetPartnerIdAndValidatePartnerToken(partnerToken);
-            if (!Has.Value(partnerId)) { throw new Exception("No id in partner token"); }
+            var partnerId = await GetPartnerIdAndWhileWeAreAtItValidateThePartnerToken(partnerToken);
 
             var contextToken = request["context"].String;
-            if (!Has.Value(contextToken)) { throw new Exception("No context token"); }
-            var context = GetContext(contextToken);
+            var context = GetContextAndValidateTheContextTokenABit(contextToken);
 
-            var pids = new PidSet();
-            var pidsNode = request["pids"];
-            foreach (var pidNode in pidsNode.AsList) {
-                var pidName = (string)pidNode;
-                var pid = pidName.ToEnum(Pid.Unknown);
-                if (pid != Pid.Unknown) {
-                    if (Property.GetDefinition(pid).Access == Property.Access.Public) {
-                        pids.Add(pid);
-                    }
-                }
-            }
+            var pids = new PidSet(request["pids"].AsList
+                .Select(pidNode => pidNode.String.ToEnum(Pid.Unknown))
+                .Where(pid => Property.GetDefinition(pid).Access == Property.Access.Public)
+            );
             pids.Add(Pid.Partner);
 
-            var props = await MakeItemStub(context.item).Get(pids);
+            var props = await MakeItemStub(context.itemId).Get(pids);
 
             if (props.GetString(Pid.Partner) != partnerId) { throw new Exception("Partner invalid"); }
 
@@ -142,14 +132,55 @@ namespace n3q.WebIt.Controllers
         }
 
         [Route("[controller]/{action}")]
-        public async Task<string> GetPartnerIdAndValidatePartnerToken(string tokenBase64Encoded)
+        public async Task<Dictionary> ChangeItemProperties(JsonPath.Dictionary request)
         {
+            var partnerToken = request["partner"].String;
+            var partnerId = await GetPartnerIdAndWhileWeAreAtItValidateThePartnerToken(partnerToken);
+
+            var contextToken = request["context"].String;
+            var context = GetContextAndValidateTheContextTokenABit(contextToken);
+
+            var propPartnerId = await MakeItemStub(context.itemId).GetItemId(Pid.Partner);
+            if (propPartnerId != partnerId) { throw new Exception("Partner invalid"); }
+
+            var setNode = request["set"];
+            var setPids = new PidSet(setNode.AsDictionary.Keys
+                .Select(pidName => pidName.ToEnum(Pid.Unknown))
+                .Where(pid => Property.GetDefinition(pid).Access == Property.Access.Public)
+            );
+            var modifyProps = new PropertySet();
+            foreach (var pid in setPids) {
+                var value = setNode[pid.ToString()].String;
+                modifyProps[pid] = value;
+            }
+
+            var deleteNode = request["delete"];
+            var deletePids = new PidSet(deleteNode.AsList
+                .Select(pidName => pidName.String.ToEnum(Pid.Unknown))
+                .Where(pid => Property.GetDefinition(pid).Access == Property.Access.Public)
+            );
+
+            var item = MakeItemStub(context.itemId);
+            item.WithTransaction(async self => {
+                await self.Modify(modifyProps, deletePids);
+            }).Wait();
+
+            var response = new JsonPath.Dictionary {
+            };
+            return response;
+        }
+
+        [Route("[controller]/{action}")]
+        public async Task<string> GetPartnerIdAndWhileWeAreAtItValidateThePartnerToken(string tokenBase64Encoded)
+        {
+            if (!Has.Value(tokenBase64Encoded)) { throw new Exception("No partner token"); }
+
             var tokenString = Tools.Base64.Decode(tokenBase64Encoded);
             var tokenNode = new JsonPath.Node(tokenString);
             var payloadNode = tokenNode["payload"];
 
             var partnerId = payloadNode["partner"].String;
-            if (!Has.Value(partnerId)) { throw new Exception("No partnerId in partner token"); }
+            if (!Has.Value(partnerId)) { throw new Exception("No id in partner token"); }
 
             var props = await MakeItemStub(partnerId).Get(new PidSet { Pid.PartnerAspect, Pid.PartnerToken });
             if (!props[Pid.PartnerAspect]) { throw new Exception("Invalid partner token"); }
@@ -160,25 +191,27 @@ namespace n3q.WebIt.Controllers
 
         private class RequestContext
         {
-            public string user;
-            public string item;
-            public string expires;
+            public string userId;
+            public string itemId;
+            public DateTime expires;
         }
 
-        private RequestContext GetContext(string tokenBase64Encoded)
+        private RequestContext GetContextAndValidateTheContextTokenABit(string tokenBase64Encoded)
         {
+            if (!Has.Value(tokenBase64Encoded)) { throw new Exception("No context token"); }
+
             var rc = new RequestContext();
 
             var tokenString = Tools.Base64.Decode(tokenBase64Encoded);
             var tokenNode = new JsonPath.Node(tokenString);
             var payloadNode = tokenNode["payload"];
 
-            rc.user = payloadNode["user"];
-            rc.item = payloadNode["item"];
+            rc.userId = payloadNode["user"];
+            rc.itemId = payloadNode["item"];
             rc.expires = payloadNode["expires"];
 
-            if (!Has.Value(rc.user)) { throw new Exception("No in context"); }
-            if (!Has.Value(rc.item)) { throw new Exception("No item in context"); }
+            if (!Has.Value(rc.userId)) { throw new Exception("No user in context"); }
+            if (!Has.Value(rc.itemId)) { throw new Exception("No item in context"); }
 
             return rc;
         }

@@ -103,15 +103,15 @@ namespace n3q.WebIt.Test
 
             // Act
             // Assert
-            await controller.GetPartnerIdAndValidatePartnerToken(tokenBase64Encoded);
+            await controller.GetPartnerIdAndWhileWeAreAtItValidateThePartnerToken(tokenBase64Encoded);
             //Assert.ThrowsException<Exception>(async () => { await controller.ValidatePartnerToken("wrong token"); });
 
             tokenNode.AsDictionary.Add("dummy", true);
             var almostCorrectTokenJson = tokenNode.ToJson(bFormatted: false, bWrapped: false);
             var almostCorrectTokenJsonBase64Encoded = Tools.Base64.Encode(almostCorrectTokenJson);
-            await Assert.ThrowsExceptionAsync<Exception>(async () => { await controller.GetPartnerIdAndValidatePartnerToken(almostCorrectTokenJsonBase64Encoded); });
+            await Assert.ThrowsExceptionAsync<Exception>(async () => { await controller.GetPartnerIdAndWhileWeAreAtItValidateThePartnerToken(almostCorrectTokenJsonBase64Encoded); });
 
-            await Assert.ThrowsExceptionAsync<FormatException>(async () => { await controller.GetPartnerIdAndValidatePartnerToken("plainly wrong token"); });
+            await Assert.ThrowsExceptionAsync<FormatException>(async () => { await controller.GetPartnerIdAndWhileWeAreAtItValidateThePartnerToken("plainly wrong token"); });
         }
 
         [TestMethod]
