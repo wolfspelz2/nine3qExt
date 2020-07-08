@@ -20,7 +20,7 @@ namespace n3q.WebIt.Test
         {
             // Arrange
             var payloadNode = new JsonPath.Node(new Dictionary<string, string> { [nameof(Protocol.ContextToken.Payload.user)] = "user1", [nameof(Protocol.ContextToken.Payload.entropy)] = "entropy1", });
-            var expect = Tools.Crypto.SHA256Base64("secret" + payloadNode.ToJson());
+            var expect = Tools.Crypto.SHA256Base64("secret" + payloadNode.Normalized().ToJson());
             var controller = new RpcController(new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory().CreateLogger<RpcController>(), new WebItConfigDefinition { PayloadHashSecret = "secret" }, null) { ItemClient = new SiloSimulatorClusterClient(new SiloSimulator()) };
 
             // Act
@@ -107,13 +107,14 @@ namespace n3q.WebIt.Test
         public async Task GetItemProperties()
         {
             // Arrange
+            var variant = "2";
             var userId = "user1";
             var developerId = "developer1";
             var documentId = "document1";
             var documentText = "This is a text";
             var payloadHashSecret = "secret";
 
-            var siloSimulator = SetupSiloSimulator(userId, developerId, documentId, documentText, 100);
+            var siloSimulator = SetupSiloSimulator(variant, userId, developerId, documentId, documentText, 100);
             var controller = SetupController(payloadHashSecret, siloSimulator);
             var simulatorClient = new SiloSimulatorClusterClient(siloSimulator);
             string developerToken = await GenerateDeveloperToken(developerId, simulatorClient);
@@ -145,6 +146,7 @@ namespace n3q.WebIt.Test
         public async Task ExecuteItemAction_Document_SetText()
         {
             // Arrange
+            var variant = "2";
             var userId = "user1";
             var developerId = "developer1";
             var documentId = "document1";
@@ -152,7 +154,7 @@ namespace n3q.WebIt.Test
             var payloadHashSecret = "secret";
             var anotherText = "This is another text.";
 
-            var siloSimulator = SetupSiloSimulator(userId, developerId, documentId, documentText, 100);
+            var siloSimulator = SetupSiloSimulator(variant, userId, developerId, documentId, documentText, 100);
             var controller = SetupController(payloadHashSecret, siloSimulator);
             var simulatorClient = new SiloSimulatorClusterClient(siloSimulator);
             var developerToken = await GenerateDeveloperToken(developerId, simulatorClient);
@@ -176,6 +178,7 @@ namespace n3q.WebIt.Test
         public async Task ExecuteItemAction_Document_SetText_DocumentMaxSize_exceeded()
         {
             // Arrange
+            var variant = "2";
             var userId = "user1";
             var developerId = "developer1";
             var documentId = "document1";
@@ -183,7 +186,7 @@ namespace n3q.WebIt.Test
             var payloadHashSecret = "secret";
             var aLongText = "1234567 1 1234567 2 1234567 3 1234567 4 1234567 5 1234567 6 1234567 7 1234567 8 1234567 9 123456 10 123456 11 ";
 
-            var siloSimulator = SetupSiloSimulator(userId, developerId, documentId, documentText, 100);
+            var siloSimulator = SetupSiloSimulator(variant, userId, developerId, documentId, documentText, 100);
             var controller = SetupController(payloadHashSecret, siloSimulator);
             var simulatorClient = new SiloSimulatorClusterClient(siloSimulator);
             var developerToken = await GenerateDeveloperToken(developerId, simulatorClient);
@@ -209,6 +212,7 @@ namespace n3q.WebIt.Test
         public async Task ExecuteItemAction_Document_SetText_manipulated_context_token_detects_hash_mismatch()
         {
             // Arrange
+            var variant = "2";
             var userId = "user1";
             var developerId = "developer1";
             var documentId = "document1";
@@ -217,7 +221,7 @@ namespace n3q.WebIt.Test
             var payloadHashSecret = "secret";
             var anotherText = "This is another text.";
 
-            var siloSimulator = SetupSiloSimulator(userId, developerId, documentId2, documentText, 100);
+            var siloSimulator = SetupSiloSimulator(variant, userId, developerId, documentId2, documentText, 100);
             var controller = SetupController(payloadHashSecret, siloSimulator);
             var simulatorClient = new SiloSimulatorClusterClient(siloSimulator);
             var developerToken = await GenerateDeveloperToken(developerId, simulatorClient);
@@ -241,9 +245,40 @@ namespace n3q.WebIt.Test
             });
         }
 
+        [TestMethod]
+        public async Task ExecuteItemAction_Document_SetText_manipulated_context_token_detects_developer_mismatch()
+        {
+            // Arrange
+            var variant = "2";
+            var userId = "user1";
+            var developerId = "developer1";
+            var documentId = "document1";
+            var documentText = "This is a text";
+            var payloadHashSecret = "secret";
+            var anotherText = "This is another text.";
+
+            var siloSimulator = SetupSiloSimulator(variant, userId, developerId, documentId, documentText, 100);
+            var controller = SetupController(payloadHashSecret, siloSimulator);
+            var simulatorClient = new SiloSimulatorClusterClient(siloSimulator);
+            var developerToken = await GenerateDeveloperToken(developerId + variant, simulatorClient);
+            var contextToken = CreateContextToken(userId, documentId, payloadHashSecret);
+
+            // Act
+            // Assert
+            await Assert.ThrowsExceptionAsync<Exception>(async () => {
+                var response = await controller.ExecuteItemAction(new JsonPath.Dictionary {
+                    [nameof(Protocol.Rpc.ExecuteItemActionRequest.developer)] = developerToken,
+                    [nameof(Protocol.Rpc.ExecuteItemActionRequest.context)] = contextToken,
+                    [nameof(Protocol.Rpc.ExecuteItemActionRequest.method)] = nameof(RpcController.ExecuteItemAction),
+                    [nameof(Protocol.Rpc.ExecuteItemActionRequest.action)] = nameof(Aspects.Document.Action.SetText),
+                    [nameof(Protocol.Rpc.ExecuteItemActionRequest.args)] = new JsonPath.Node(new Dictionary<string, string> { ["text"] = anotherText }),
+                });
+            });
+        }
+
         #region Setup
 
-        private static SiloSimulator SetupSiloSimulator(string userId, string developerId, string documentId, string documentText, long maxDocumentLength)
+        private static SiloSimulator SetupSiloSimulator(string variant, string userId, string developerId, string documentId, string documentText, long maxDocumentLength)
         {
             return new SiloSimulator() {
                 Items = new Dictionary<string, SiloSimulatorItem> {
@@ -257,6 +292,11 @@ namespace n3q.WebIt.Test
                         }
                     },
                     [developerId] = new SiloSimulatorItem {
+                        Properties = new PropertySet {
+                            [Pid.DeveloperAspect] = true,
+                        }
+                    },
+                    [developerId + variant] = new SiloSimulatorItem {
                         Properties = new PropertySet {
                             [Pid.DeveloperAspect] = true,
                         }
