@@ -16,11 +16,11 @@ namespace n3q.Aspects
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { nameof(Action.Inject), new ActionDescription() { Handler = async (args) => Inject(await Item(args.Get(Pid.InjectorInjectTo))) } },
+                { nameof(Action.Inject), new ActionDescription() { Handler = async (args) => Inject(await WritableItem(args.Get(Pid.InjectorInjectTo))) } },
             };
         }
 
-        public void Inject(ItemStub passive)
+        public void Inject(ItemWriter passive)
         {
             //sink.AssertAspect(Pid.IsSink);
 

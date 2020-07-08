@@ -27,7 +27,7 @@ namespace n3q.Grains
         {
             var transaction = new ItemTransaction();
             var itemClient = new OrleansGrainFactoryItemClient(GrainFactory, itemId);
-            var item = new ItemStub(itemClient, transaction);
+            var item = new ItemWriter(itemClient, transaction);
 
             try {
                 await transaction.Begin(item);
@@ -52,7 +52,7 @@ namespace n3q.Grains
             var executedActions = new Dictionary<Pid, string>();
 
             var itemClient = new OrleansGrainFactoryItemClient(GrainFactory, itemId);
-            var item = new ItemStub(itemClient);
+            var item = new ItemWriter(itemClient);
 
             await item.WithTransaction(async self => {
 

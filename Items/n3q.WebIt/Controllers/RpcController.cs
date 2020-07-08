@@ -36,9 +36,9 @@ namespace n3q.WebIt.Controllers
         //    ItemClient = new SiloSimulatorClusterClient(siloSimulator);
         //}
 
-        ItemStub MakeItemStub(string itemId)
+        ItemWriter MakeItemStub(string itemId)
         {
-            var itemStub = new ItemStub(ItemClient.GetItemClient(itemId));
+            var itemStub = new ItemWriter(ItemClient.GetItemClient(itemId));
             return itemStub;
         }
 

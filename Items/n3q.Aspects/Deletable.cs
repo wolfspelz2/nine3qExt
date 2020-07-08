@@ -19,13 +19,13 @@ namespace n3q.Aspects
         {
             var containerId = await this.GetItemId(Pid.Container);
             if (Has.Value(containerId)) {
-                var container = await Item(containerId);
+                var container = await WritableItem(containerId);
                 await container.RemoveFromList(Pid.Contains, this.Id);
             }
 
             var children = await this.GetItemIdList(Pid.Contains);
             foreach (var childId in children) {
-                var child = await Item(childId);
+                var child = await WritableItem(childId);
                 await child.AsDeletable().DeleteMe();
             }
 

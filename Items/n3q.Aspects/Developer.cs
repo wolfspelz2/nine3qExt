@@ -31,7 +31,7 @@ namespace n3q.Aspects
         {
             await AssertAspect(Pid.DeveloperAspect);
 
-            var config = await Item(Common.ItemService.WebItConfigItemId);
+            var config = await ReadonlyItem(Common.ItemService.WebItConfigItemId);
             var configJson = (string)await config.Get(Pid.DocumentText);
             var configNode = new JsonPath.Node(configJson);
 

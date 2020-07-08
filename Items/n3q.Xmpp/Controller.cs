@@ -161,10 +161,10 @@ namespace n3q.Xmpp
             }
         }
 
-        ItemStub MakeItemStub(string itemId)
+        ItemWriter MakeItemStub(string itemId)
         {
             var itemClient = new OrleansClusterItemClient(ClusterClient, itemId);
-            var itemStub = new ItemStub(itemClient);
+            var itemStub = new ItemWriter(itemClient);
             return itemStub;
         }
 

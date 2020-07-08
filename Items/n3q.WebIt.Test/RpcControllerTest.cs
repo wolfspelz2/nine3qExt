@@ -165,7 +165,7 @@ namespace n3q.WebIt.Test
             });
 
             // Assert
-            var documentStub = new ItemStub(simulatorClient.GetItemClient(documentId), new VoidTransaction());
+            var documentStub = new ItemWriter(simulatorClient.GetItemClient(documentId), new VoidTransaction());
             Assert.AreEqual(anotherText, await documentStub.GetString(Pid.DocumentText));
         }
 
@@ -196,7 +196,7 @@ namespace n3q.WebIt.Test
 
         private static async Task<string> GenerateDeveloperToken(string developerId, SiloSimulatorClusterClient simulatorClient)
         {
-            var developerStub = new ItemStub(simulatorClient.GetItemClient(developerId), new VoidTransaction());
+            var developerStub = new ItemWriter(simulatorClient.GetItemClient(developerId), new VoidTransaction());
             await developerStub.WithoutTransaction(async self => {
                 await self.Execute(nameof(Aspects.Developer.Action.GenerateToken), new Dictionary<string, string>());
             });

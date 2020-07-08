@@ -16,11 +16,11 @@ namespace n3q.Aspects
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { nameof(Action.Extract), new ActionDescription() { Handler = async (args) => Extract(await Item(args.Get(Pid.ExtractorExtractFrom))) } },
+                { nameof(Action.Extract), new ActionDescription() { Handler = async (args) => Extract(await WritableItem(args.Get(Pid.ExtractorExtractFrom))) } },
             };
         }
 
-        public void Extract(ItemStub source)
+        public void Extract(ItemWriter source)
         {
             //source.AssertAspect(Pid.IsSource);
 

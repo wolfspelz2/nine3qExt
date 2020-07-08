@@ -16,11 +16,11 @@ namespace n3q.Aspects
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { nameof(Action.Apply), new ActionDescription() { Handler = async (args) => Apply(await Item(args.Get(Pid.ApplierApplyTo))) } },
+                { nameof(Action.Apply), new ActionDescription() { Handler = async (args) => Apply(await WritableItem(args.Get(Pid.ApplierApplyTo))) } },
             };
         }
 
-        public void Apply(ItemStub passive)
+        public void Apply(ItemWriter passive)
         {
             //if (this.IsExtractor() && passive.IsSource()) {
             //    if (!this.AsSink().IsFull() && !passive.AsSource().IsEmpty() && this.GetString(Pid.Resource) == passive.GetString(Pid.Resource)) {

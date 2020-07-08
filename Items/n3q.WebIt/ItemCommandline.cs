@@ -498,7 +498,7 @@ namespace n3q.WebIt
 
             var container = ClusterClient.GetItemStub(containerId);
             container.WithTransaction(async self => {
-                await self.AsContainer().AddChild(await self.Item(itemId));
+                await self.AsContainer().AddChild(await self.WritableItem(itemId));
             }).Wait();
 
             return new ItemReference(itemId);
@@ -512,7 +512,7 @@ namespace n3q.WebIt
 
             var container = ClusterClient.GetItemStub(containerId);
             container.WithTransaction(async self => {
-                await self.AsContainer().RemoveChild(await self.Item(itemId));
+                await self.AsContainer().RemoveChild(await self.WritableItem(itemId));
             }).Wait();
 
             return new ItemReference(itemId);

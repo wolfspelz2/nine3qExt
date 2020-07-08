@@ -14,7 +14,7 @@ namespace n3q.Aspects
         public CapacityLimit(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.ItemCapacityLimitAspect;
 
-        public async Task AssertLimit(ItemStub newItem)
+        public async Task AssertLimit(ItemWriter newItem)
         {
             //await AssertAspect();
 
@@ -23,7 +23,7 @@ namespace n3q.Aspects
                 var stacksize = await newItem.GetInt(Pid.Stacksize);
                 var currentTotal = 0L;
                 foreach (var itemId in (ValueList)await this.Get(Pid.Contains)) {
-                    var child = await Item(itemId);
+                    var child = await ReadonlyItem(itemId);
                     currentTotal += await child.GetInt(Pid.Stacksize);
                 }
                 if (currentTotal + stacksize > itemLimit) { throw new SurfaceException(Id, newItem.Id, SurfaceNotification.Fact.NotExecuted, SurfaceNotification.Reason.ItemCapacityLimit); };

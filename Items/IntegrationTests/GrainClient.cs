@@ -119,9 +119,9 @@ namespace IntegrationTests
             return id;
         }
 
-        public static ItemStub GetItemStub(string id)
+        public static ItemWriter GetItemStub(string id)
         {
-            return new ItemStub(new OrleansClusterItemClient(GrainFactory, id));
+            return new ItemWriter(new OrleansClusterItemClient(GrainFactory, id));
         }
 
         [AssemblyInitialize]
