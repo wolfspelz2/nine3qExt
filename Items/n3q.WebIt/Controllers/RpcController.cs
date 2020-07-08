@@ -154,8 +154,7 @@ namespace n3q.WebIt.Controllers
                 modifyProps[pid] = value;
             }
 
-            var deleteNode = request["delete"];
-            var deletePids = new PidSet(deleteNode.AsList
+            var deletePids = new PidSet(request["delete"].AsList
                 .Select(pidName => pidName.AsString.ToEnum(Pid.Unknown))
                 .Where(pid => Property.GetDefinition(pid).Access == Property.Access.Public)
             );

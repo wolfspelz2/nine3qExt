@@ -13,12 +13,12 @@ base64(
     }
 )
 
-### partnerToken format
+### developerToken format
 base64(
     {
         api: https://n3q-api.com/v1
         payload: {
-            partner: "suat-theatre-tf5768gihu89z7t6ftugzuhji97t6fituljnjz6t"
+            developer: "suat-theatre-tf5768gihu89z7t6ftugzuhji97t6fituljnjz6t"
             entropy: random
             expires: ISODate
         },
@@ -50,7 +50,7 @@ https://theatre.weblin.sui.li/iframe.html?context=<contextToken>
 ### make backend api call
 ->  POST https://n3q-api.com/v1
     {
-        partner: partnerToken
+        developer: developerToken
         context: contextToken
         method: "getProperties"
         pids: [ "DocumentText", "DocumentMaxLength", "Container" ]
@@ -59,14 +59,14 @@ https://theatre.weblin.sui.li/iframe.html?context=<contextToken>
     {
         status: "ok",
         result: {
-            DocumentText: "This is a text", 
+            DocumentText: "This is a text"
             DocumentMaxLength: 2000
         }
     }
 
 ->  POST https://n3q-api.com/v1
     {
-        partner: partnerToken
+        developer: developerToken
         context: contextToken
         method: "changeProperties"
         set: {
@@ -82,10 +82,10 @@ https://theatre.weblin.sui.li/iframe.html?context=<contextToken>
 ### ItemAction:
 ->  POST https://n3q-api.com/v1
     {
-        partner: partnerToken
+        developer: developerToken
         context: contextToken
-        method: "itemAction"
-        aspect: "Document"
+        method: "executeItemAction"
+        //aspect: "Document"
         action: "SetText"
         args: {
             text: "This is a text"
