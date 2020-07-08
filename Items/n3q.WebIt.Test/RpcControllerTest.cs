@@ -18,12 +18,12 @@ namespace n3q.WebIt.Test
         public void GetPayloadHash_returns_correct_hash()
         {
             // Arrange
-            var payloadNode = new JsonPath.Node(new Dictionary<string, string> { [nameof(Protocol.Rpc.ContextToken.Payload.user)] = "user1", [nameof(Protocol.Rpc.ContextToken.Payload.entropy)] = "entropy1", });
+            var payloadNode = new JsonPath.Node(new Dictionary<string, string> { [nameof(Protocol.ContextToken.Payload.user)] = "user1", [nameof(Protocol.ContextToken.Payload.entropy)] = "entropy1", });
             var expect = Tools.Crypto.SHA256Base64("secret" + payloadNode.ToJson());
             var controller = new RpcController(new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory().CreateLogger<RpcController>(), new WebItConfigDefinition { PayloadHashSecret = "secret" }, null) { ItemClient = new SiloSimulatorClusterClient(new SiloSimulator()) };
 
             // Act
-            var hash = controller.GetPayloadHash(new JsonPath.Dictionary { [nameof(Protocol.Rpc.ContextToken.payload)] = payloadNode, })[nameof(Protocol.Rpc.Response.result)].String;
+            var hash = controller.GetPayloadHash(new JsonPath.Dictionary { [nameof(Protocol.ContextToken.payload)] = payloadNode, })[nameof(Protocol.Rpc.Response.result)].String;
 
             // Assert
             Assert.AreEqual(expect, hash);
@@ -36,8 +36,8 @@ namespace n3q.WebIt.Test
             var controller = new RpcController(new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory().CreateLogger<RpcController>(), new WebItConfigDefinition { PayloadHashSecret = "secret" }, null) { ItemClient = new SiloSimulatorClusterClient(new SiloSimulator()) };
 
             // Act
-            Assert.ThrowsException<Exception>(() => { _ = controller.GetPayloadHash(new JsonPath.Dictionary { [nameof(Protocol.Rpc.ContextToken.payload)] = new JsonPath.Node(JsonPath.Node.Type.Dictionary), }); });
-            Assert.ThrowsException<Exception>(() => { _ = controller.GetPayloadHash(new JsonPath.Dictionary { [nameof(Protocol.Rpc.ContextToken.payload)] = "", }); });
+            Assert.ThrowsException<Exception>(() => { _ = controller.GetPayloadHash(new JsonPath.Dictionary { [nameof(Protocol.ContextToken.payload)] = new JsonPath.Node(JsonPath.Node.Type.Dictionary), }); });
+            Assert.ThrowsException<Exception>(() => { _ = controller.GetPayloadHash(new JsonPath.Dictionary { [nameof(Protocol.ContextToken.payload)] = "", }); });
             Assert.ThrowsException<Exception>(() => { _ = controller.GetPayloadHash(new JsonPath.Dictionary { }); });
         }
 
@@ -45,13 +45,13 @@ namespace n3q.WebIt.Test
         public void GetPayloadHash_different_user_different_hash()
         {
             // Arrange
-            var payload = new JsonPath.Node(new Dictionary<string, string> { [nameof(Protocol.Rpc.ContextToken.Payload.user)] = "user1", [nameof(Protocol.Rpc.ContextToken.Payload.entropy)] = "entropy1", });
-            var payload2 = new JsonPath.Node(new Dictionary<string, string> { [nameof(Protocol.Rpc.ContextToken.Payload.user)] = "user2", [nameof(Protocol.Rpc.ContextToken.Payload.entropy)] = "entropy1", });
+            var payload = new JsonPath.Node(new Dictionary<string, string> { [nameof(Protocol.ContextToken.Payload.user)] = "user1", [nameof(Protocol.ContextToken.Payload.entropy)] = "entropy1", });
+            var payload2 = new JsonPath.Node(new Dictionary<string, string> { [nameof(Protocol.ContextToken.Payload.user)] = "user2", [nameof(Protocol.ContextToken.Payload.entropy)] = "entropy1", });
             var controller = new RpcController(new Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory().CreateLogger<RpcController>(), new WebItConfigDefinition { PayloadHashSecret = "secret" }, null) { ItemClient = new SiloSimulatorClusterClient(new SiloSimulator()) };
 
             // Act
-            var hash = controller.GetPayloadHash(new JsonPath.Dictionary { [nameof(Protocol.Rpc.ContextToken.Payload.user)] = "user1", [nameof(Protocol.Rpc.ContextToken.payload)] = payload, })[nameof(Protocol.Rpc.Response.result)].String;
-            var hash2 = controller.GetPayloadHash(new JsonPath.Dictionary { [nameof(Protocol.Rpc.ContextToken.Payload.user)] = "user2", [nameof(Protocol.Rpc.ContextToken.payload)] = payload2, })[nameof(Protocol.Rpc.Response.result)].String;
+            var hash = controller.GetPayloadHash(new JsonPath.Dictionary { [nameof(Protocol.ContextToken.Payload.user)] = "user1", [nameof(Protocol.ContextToken.payload)] = payload, })[nameof(Protocol.Rpc.Response.result)].String;
+            var hash2 = controller.GetPayloadHash(new JsonPath.Dictionary { [nameof(Protocol.ContextToken.Payload.user)] = "user2", [nameof(Protocol.ContextToken.payload)] = payload2, })[nameof(Protocol.Rpc.Response.result)].String;
 
             // Assert
             Assert.AreNotEqual(hash, hash2);
@@ -64,8 +64,8 @@ namespace n3q.WebIt.Test
             var payloadHashSecret = "secret";
             var tokenNode = new JsonPath.Node(JsonPath.Node.Type.Dictionary);
             tokenNode.AsDictionary.Add("api", "https://n3q-api.com/v1");
-            var payloadNode = new JsonPath.Node(new Dictionary<string, string> { [nameof(Protocol.Rpc.DeveloperToken.Payload.developer)] = "suat-theatre-tf5768gihu89z7t6ftugzuhji97t6fituljnjz6t", [nameof(Protocol.Rpc.DeveloperToken.Payload.entropy)] = "entropy1" });
-            tokenNode.AsDictionary.Add(nameof(Protocol.Rpc.DeveloperToken.payload), payloadNode);
+            var payloadNode = new JsonPath.Node(new Dictionary<string, string> { [nameof(Protocol.DeveloperToken.Payload.developer)] = "suat-theatre-tf5768gihu89z7t6ftugzuhji97t6fituljnjz6t", [nameof(Protocol.DeveloperToken.Payload.entropy)] = "entropy1" });
+            tokenNode.AsDictionary.Add(nameof(Protocol.DeveloperToken.payload), payloadNode);
             var payloadJson = payloadNode.ToJson(bFormatted: false, bWrapped: false);
             var hash = Aspects.Developer.ComputePayloadHash(payloadHashSecret, payloadJson);
             tokenNode.AsDictionary.Add("hash", hash);
@@ -183,13 +183,13 @@ namespace n3q.WebIt.Test
             var contextNode = new JsonPath.Node(JsonPath.Node.Type.Dictionary);
             contextNode.AsDictionary.Add("api", new WebItConfigDefinition().ItemServiceWebApiUrl);
             var payloadNode = new JsonPath.Node(new Dictionary<string, string> {
-                [nameof(Protocol.Rpc.ContextToken.Payload.user)] = userId,
-                [nameof(Protocol.Rpc.ContextToken.Payload.item)] = documentId,
+                [nameof(Protocol.ContextToken.Payload.user)] = userId,
+                [nameof(Protocol.ContextToken.Payload.item)] = documentId,
                 ["room"] = "9ca05afb1a49f26fb59642305c481661f8b370bd@muc4.virtual-presence.org",
-                [nameof(Protocol.Rpc.ContextToken.Payload.entropy)] = Tools.RandomString.Get(40),
+                [nameof(Protocol.ContextToken.Payload.entropy)] = Tools.RandomString.Get(40),
             });
-            contextNode.AsDictionary.Add(nameof(Protocol.Rpc.ContextToken.payload), payloadNode);
-            contextNode.AsDictionary.Add(nameof(Protocol.Rpc.ContextToken.hash), Aspects.Developer.ComputePayloadHash(payloadHashSecret, payloadNode));
+            contextNode.AsDictionary.Add(nameof(Protocol.ContextToken.payload), payloadNode);
+            contextNode.AsDictionary.Add(nameof(Protocol.ContextToken.hash), Aspects.Developer.ComputePayloadHash(payloadHashSecret, payloadNode));
             var contextToken = contextNode.ToJson().ToBase64();
             return contextToken;
         }

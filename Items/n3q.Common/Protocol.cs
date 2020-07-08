@@ -4,6 +4,37 @@ namespace n3q.Common
 {
     public static class Protocol
     {
+        public class PayloadCommon
+        {
+            public static string entropy;
+            public static string expires;
+        }
+
+        public class TokenBase
+        {
+            public static string api;
+            public static string hash;
+        }
+
+        public class DeveloperToken : TokenBase
+        {
+            public class Payload : PayloadCommon
+            {
+                public static string developer;
+            }
+            public static Payload payload;
+        }
+
+        public class ContextToken : TokenBase
+        {
+            public class Payload : PayloadCommon
+            {
+                public static string user;
+                public static string item;
+            }
+            public static Payload payload;
+        }
+
         public static class Rpc
         {
             public class Request
@@ -23,37 +54,6 @@ namespace n3q.Common
             public class DeveloperRequest : Request
             {
                 public static string developer;
-            }
-
-            public class TokenPayload
-            {
-                public static string entropy;
-                public static string expires;
-            }
-
-            public class Token
-            {
-                public static string api;
-                public static string hash;
-            }
-
-            public class DeveloperToken : Token
-            {
-                public class Payload : TokenPayload
-                {
-                    public static string developer;
-                }
-                public static Payload payload;
-            }
-
-            public class ContextToken : Token
-            {
-                public class Payload : TokenPayload
-                {
-                    public static string user;
-                    public static string item;
-                }
-                public static Payload payload;
             }
 
             public class ItemRequest : DeveloperRequest

@@ -93,7 +93,7 @@ namespace n3q.WebIt.Controllers
         [Route("[controller]/{action}")]
         public JsonPath.Dictionary GetPayloadHash(JsonPath.Dictionary request)
         {
-            var payloadNode = request[nameof(Protocol.Rpc.ContextToken.payload)];
+            var payloadNode = request[nameof(Protocol.ContextToken.payload)];
             if (payloadNode.AsDictionary.Count == 0) { throw new Exception("No payload"); }
 
             var hash = Aspects.Developer.ComputePayloadHash(Config.PayloadHashSecret, payloadNode);
@@ -170,9 +170,9 @@ namespace n3q.WebIt.Controllers
 
             var tokenString = tokenBase64Encoded.FromBase64();
             var tokenNode = new JsonPath.Node(tokenString);
-            var payloadNode = tokenNode[nameof(Protocol.Rpc.DeveloperToken.payload)];
+            var payloadNode = tokenNode[nameof(Protocol.DeveloperToken.payload)];
 
-            var developerId = payloadNode[nameof(Protocol.Rpc.DeveloperToken.Payload.developer)].AsString;
+            var developerId = payloadNode[nameof(Protocol.DeveloperToken.Payload.developer)].AsString;
             if (!Has.Value(developerId)) { throw new Exception("No developer id in developer token"); }
 
             var props = await MakeItemStub(developerId).Get(new PidSet { Pid.DeveloperAspect, Pid.DeveloperToken });
@@ -199,15 +199,15 @@ namespace n3q.WebIt.Controllers
             var tokenString = tokenBase64Encoded.FromBase64();
             var tokenNode = new JsonPath.Node(tokenString);
 
-            var hash = tokenNode[nameof(Protocol.Rpc.ContextToken.hash)];
-            var payloadNode = tokenNode[nameof(Protocol.Rpc.ContextToken.payload)];
+            var hash = tokenNode[nameof(Protocol.ContextToken.hash)];
+            var payloadNode = tokenNode[nameof(Protocol.ContextToken.payload)];
             if (!Has.Value(payloadNode.AsString)) { throw new Exception("No payload"); }
             var computedHash = Aspects.Developer.ComputePayloadHash(Config.PayloadHashSecret, payloadNode);
             if (hash != computedHash) { throw new Exception("Hash mismatch"); }
 
-            rc.userId = payloadNode[nameof(Protocol.Rpc.ContextToken.Payload.user)];
-            rc.itemId = payloadNode[nameof(Protocol.Rpc.ContextToken.Payload.item)];
-            rc.expires = payloadNode[nameof(Protocol.Rpc.ContextToken.Payload.expires)];
+            rc.userId = payloadNode[nameof(Protocol.ContextToken.Payload.user)];
+            rc.itemId = payloadNode[nameof(Protocol.ContextToken.Payload.item)];
+            rc.expires = payloadNode[nameof(Protocol.ContextToken.Payload.expires)];
 
             if (!Has.Value(rc.userId)) { throw new Exception("No user in context"); }
             if (!Has.Value(rc.itemId)) { throw new Exception("No item in context"); }

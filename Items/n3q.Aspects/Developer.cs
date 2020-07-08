@@ -43,17 +43,17 @@ namespace n3q.Aspects
 
             var tokenNode = new JsonPath.Node(JsonPath.Node.Type.Dictionary);
 
-            tokenNode.AsDictionary.Add(nameof(Protocol.Rpc.DeveloperToken.api), itemServiceWebApiUrl);
+            tokenNode.AsDictionary.Add(nameof(Protocol.DeveloperToken.api), itemServiceWebApiUrl);
 
             var payloadNode = new JsonPath.Node(new Dictionary<string, string> {
-                [nameof(Protocol.Rpc.DeveloperToken.Payload.developer)] = this.Id,
-                [nameof(Protocol.Rpc.DeveloperToken.Payload.entropy)] = Tools.RandomString.Get(40)
+                [nameof(Protocol.DeveloperToken.Payload.developer)] = this.Id,
+                [nameof(Protocol.DeveloperToken.Payload.entropy)] = Tools.RandomString.Get(40)
             });
-            tokenNode.AsDictionary.Add(nameof(Protocol.Rpc.DeveloperToken.payload), payloadNode);
+            tokenNode.AsDictionary.Add(nameof(Protocol.DeveloperToken.payload), payloadNode);
 
             var payloadJson = payloadNode.ToJson(bFormatted: false, bWrapped: false);
             var hash = ComputePayloadHash(payloadHashSecret, payloadJson);
-            tokenNode.AsDictionary.Add(nameof(Protocol.Rpc.DeveloperToken.hash), hash);
+            tokenNode.AsDictionary.Add(nameof(Protocol.DeveloperToken.hash), hash);
 
             var tokenJson = tokenNode.ToJson(bFormatted: false, bWrapped: false);
             var token = tokenJson.ToBase64();
