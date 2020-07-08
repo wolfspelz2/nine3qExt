@@ -104,14 +104,14 @@ namespace n3q.WebIt.Controllers
         [Route("[controller]/{action}")]
         public async Task<Dictionary> GetItemProperties(JsonPath.Dictionary request)
         {
-            var partnerToken = request["partner"].String;
+            var partnerToken = request["partner"].AsString;
             var partnerId = await GetPartnerIdAndWhileWeAreAtItValidateThePartnerToken(partnerToken);
 
-            var contextToken = request["context"].String;
+            var contextToken = request["context"].AsString;
             var context = GetContextAndValidateTheContextTokenABit(contextToken);
 
             var pids = new PidSet(request["pids"].AsList
-                .Select(pidNode => pidNode.String.ToEnum(Pid.Unknown))
+                .Select(pidNode => pidNode.AsString.ToEnum(Pid.Unknown))
                 .Where(pid => Property.GetDefinition(pid).Access == Property.Access.Public)
             );
             pids.Add(Pid.Partner);
@@ -134,10 +134,10 @@ namespace n3q.WebIt.Controllers
         [Route("[controller]/{action}")]
         public async Task<Dictionary> ChangeItemProperties(JsonPath.Dictionary request)
         {
-            var partnerToken = request["partner"].String;
+            var partnerToken = request["partner"].AsString;
             var partnerId = await GetPartnerIdAndWhileWeAreAtItValidateThePartnerToken(partnerToken);
 
-            var contextToken = request["context"].String;
+            var contextToken = request["context"].AsString;
             var context = GetContextAndValidateTheContextTokenABit(contextToken);
 
             var propPartnerId = await MakeItemStub(context.itemId).GetItemId(Pid.Partner);
@@ -150,13 +150,13 @@ namespace n3q.WebIt.Controllers
             );
             var modifyProps = new PropertySet();
             foreach (var pid in setPids) {
-                var value = setNode[pid.ToString()].String;
+                var value = setNode[pid.ToString()].AsString;
                 modifyProps[pid] = value;
             }
 
             var deleteNode = request["delete"];
             var deletePids = new PidSet(deleteNode.AsList
-                .Select(pidName => pidName.String.ToEnum(Pid.Unknown))
+                .Select(pidName => pidName.AsString.ToEnum(Pid.Unknown))
                 .Where(pid => Property.GetDefinition(pid).Access == Property.Access.Public)
             );
 
@@ -179,7 +179,7 @@ namespace n3q.WebIt.Controllers
             var tokenNode = new JsonPath.Node(tokenString);
             var payloadNode = tokenNode["payload"];
 
-            var partnerId = payloadNode["partner"].String;
+            var partnerId = payloadNode["partner"].AsString;
             if (!Has.Value(partnerId)) { throw new Exception("No id in partner token"); }
 
             var props = await MakeItemStub(partnerId).Get(new PidSet { Pid.PartnerAspect, Pid.PartnerToken });

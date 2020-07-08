@@ -7,7 +7,7 @@ base64(
             item: 'pirml6rhf5tp2go3mulhh3o'
             room: '9ca05afb1a49f26fb59642305c481661f8b370bd@muc4.virtual-presence.org'
             entropy: random
-            expires: unixtime
+            expires: ISODate like 2020-07-08T07:30:33Z JS: Date.toISOString()
         },
         hash: sha256(systemSecret + base64(payload))
     }
@@ -20,7 +20,7 @@ base64(
         payload: {
             partner: "suat-theatre-tf5768gihu89z7t6ftugzuhji97t6fituljnjz6t"
             entropy: random
-            expires: unixtime
+            expires: ISODate
         },
         hash: sha256(systemSecret + base64(payload))
     }
@@ -35,7 +35,7 @@ base64(
             item: 'pirml6rhf5tp2go3mulhh3o'
             room: '9ca05afb1a49f26fb59642305c481661f8b370bd@muc4.virtual-presence.org'
             entropy: random
-            expires: unixtime
+            expires: ISODate
         }
     }
 <-  response
