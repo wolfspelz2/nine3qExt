@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using n3q.Common;
 using n3q.Items;
 using n3q.Tools;
 
@@ -42,17 +43,17 @@ namespace n3q.Aspects
 
             var tokenNode = new JsonPath.Node(JsonPath.Node.Type.Dictionary);
 
-            tokenNode.AsDictionary.Add("api", itemServiceWebApiUrl);
+            tokenNode.AsDictionary.Add(nameof(Protocol.Rpc.DeveloperToken.api), itemServiceWebApiUrl);
 
             var payloadNode = new JsonPath.Node(new Dictionary<string, string> {
-                ["developer"] = this.Id,
-                ["entropy"] = Tools.RandomString.Get(40)
+                [nameof(Protocol.Rpc.DeveloperToken.Payload.developer)] = this.Id,
+                [nameof(Protocol.Rpc.DeveloperToken.Payload.entropy)] = Tools.RandomString.Get(40)
             });
-            tokenNode.AsDictionary.Add("payload", payloadNode);
+            tokenNode.AsDictionary.Add(nameof(Protocol.Rpc.DeveloperToken.payload), payloadNode);
 
             var payloadJson = payloadNode.ToJson(bFormatted: false, bWrapped: false);
             var hash = ComputePayloadHash(payloadHashSecret, payloadJson);
-            tokenNode.AsDictionary.Add("hash", hash);
+            tokenNode.AsDictionary.Add(nameof(Protocol.Rpc.DeveloperToken.hash), hash);
 
             var tokenJson = tokenNode.ToJson(bFormatted: false, bWrapped: false);
             var token = tokenJson.ToBase64();
