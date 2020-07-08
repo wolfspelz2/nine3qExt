@@ -40,6 +40,7 @@ namespace n3q.Content
 
             // Theatre
             TheatreScreenplay,
+            TheatreScreenplayDispenser,
 
             // WaterResourceTest
             WaterCan,

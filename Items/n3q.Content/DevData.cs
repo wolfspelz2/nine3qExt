@@ -39,6 +39,7 @@ namespace n3q.Content
 
                 case nameof(DevSpec.Group.AvatarTheatre):
                     GetTemplate(nameof(DevSpec.Template.TheatreScreenplay), templates, text);
+                    GetTemplate(nameof(DevSpec.Template.TheatreScreenplayDispenser), templates, text);
                     break;
 
                 case nameof(DevSpec.Group.WaterResourceTest):
@@ -220,7 +221,21 @@ namespace n3q.Content
                 case nameof(DevSpec.Template.PlatanusOccidentalis): props = GetImageTemplate(name, text, name, "Platane", "Planetree", 136, 300, "Trees/PlatanusOccidentalis.png"); break;
                 case nameof(DevSpec.Template.SmallMapleTree): props = GetImageTemplate(name, text, name, "Small maple tree", "kleiner Ahornbaum", 58, 80, "Trees/SmallMapleTree.png"); break;
 
-                case nameof(DevSpec.Template.TheatreScreenplay): props = GetIframeTemplate(name, text, name, "Theater Drehbuch", "Theatre Screenplay", 44, 64, "TheatreScreenplay/image.png", "https://theatre.weblin.sui.li/iframe.html?token={token}", 400, 500); break;
+                case nameof(DevSpec.Template.TheatreScreenplay): {
+                    props = GetIframeTemplate(name, text, name, "Theater Drehbuch", "Theatre Screenplay", 44, 64, "TheatreScreenplay/image.png", "https://theatre.weblin.sui.li/iframe.html?context={context}", 400, 500);
+                    props[Pid.DocumentAspect] = true;
+                    props[Pid.DocumentMaxLength] = 10000;
+                }
+                break;
+                case nameof(DevSpec.Template.TheatreScreenplayDispenser): {
+                    props = GetIframeTemplate(name, text, name, "Theater Drehbuch Generator", "Theatre Screenplay Generator", 78, 84, "TheatreScreenplay/TheatreScreenplayDispenser.png", ItemService.ItemIframeVar + nameof(DevSpec.Template.TheatreScreenplayDispenser) + "?context={context}", 100, 100);
+                    props[Pid.GeneratorAspect] = true;
+                    props[Pid.GeneratorTemplate] = nameof(DevSpec.Template.TheatreScreenplay);
+                    props[Pid.GeneratorLimit] = 1000;
+                    props[Pid.GeneratorStock] = 1000;
+                    props[Pid.GeneratorCooldown] = 1000;
+                }
+                break;
                 case nameof(DevSpec.Template.RallySpeaker): props = GetIframeTemplate(name, text, name, "Lautsprecher", "Speaker", 75, 80, "FridaysForFuture/RallySpeaker.png", "https://meet.jit.si/{room}", 600, 400); break;
 
                 default:
