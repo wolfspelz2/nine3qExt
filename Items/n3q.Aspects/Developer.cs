@@ -45,7 +45,7 @@ namespace n3q.Aspects
             tokenNode.AsDictionary.Add("api", itemServiceWebApiUrl);
 
             var payloadNode = new JsonPath.Node(new Dictionary<string, string> {
-                ["partner"] = this.Id,
+                ["developer"] = this.Id,
                 ["entropy"] = Tools.RandomString.Get(40)
             });
             tokenNode.AsDictionary.Add("payload", payloadNode);
@@ -55,9 +55,9 @@ namespace n3q.Aspects
             tokenNode.AsDictionary.Add("hash", hash);
 
             var tokenJson = tokenNode.ToJson(bFormatted: false, bWrapped: false);
-            var token = Tools.Base64.Encode(tokenJson);
+            var token = tokenJson.ToBase64();
 
-            await this.Set(Pid.PartnerToken, token);
+            await this.Set(Pid.DeveloperToken, token);
         }
 
         public static string ComputePayloadHash(string secret, JsonPath.Node payloadNode)

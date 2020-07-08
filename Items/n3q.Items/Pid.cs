@@ -95,11 +95,10 @@
         InjectorAspect,
         ApplierAspect,
 
-        // Public aspect method parameters
+        // Aspect method parameters
         FirstParameter = 4000000,
         TestGreetedGetGreetingGreeter,
         TestGreetedGetGreetingName,
-        PartnerGenerateTokenSecret,
         RezableRezTo,
         RezableRezX,
         RezableRezDestination,
@@ -107,6 +106,7 @@
         RezableDerezX,
         RezableDerezY,
         MovableMoveToX,
+        DocumentSetTextText,
         InventorySetItemCoordinatesItem,
         InventorySetItemCoordinatesX,
         InventorySetItemCoordinatesY,
@@ -123,7 +123,7 @@
         TestGreeterPrefix,
         TestGreeterResult,
         TestGreetedResult,
-        PartnerToken,
+        DeveloperToken,
         ContainerItemLimit,
         InventoryX,
         InventoryY,
