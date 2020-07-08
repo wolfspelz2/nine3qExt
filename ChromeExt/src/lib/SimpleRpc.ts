@@ -40,7 +40,7 @@ export class SimpleRpc
                     return new SimpleRpcResponse(false, {}, data.message);
                 }
             } else {
-                return new SimpleRpcResponse(false, {}, response.status + ' ' + response.statusText);
+                return new SimpleRpcResponse(false, {}, response.status + ': ' + response.statusText);
             }
         } catch (error) {
             return new SimpleRpcResponse(false, {}, JSON.stringify(error));

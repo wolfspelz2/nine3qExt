@@ -24,24 +24,36 @@ namespace n3q.Aspects
 
         public IItem Grain => Client.GetItem();
 
-        public async Task<ItemStub> Item(string itemId)
+        public async Task<ItemReader> ReadonlyItem(string itemId)
         {
             if (!Has.Value(itemId)) {
-                throw new Exception($"{nameof(Aspect)}.{nameof(Item)}: Empty or null itemId");
+                throw new Exception($"{nameof(Aspect)}.{nameof(ReadonlyItem)}: Empty or null itemId");
             }
 
             var client = Client.CloneFor(itemId);
-            var item = new ItemStub(client, Transaction);
+            var item = new ItemReader(client, Transaction);
+            await Task.CompletedTask; //await Transaction?.AddItem(item);
+            return item;
+        }
+
+        public async Task<ItemWriter> WritableItem(string itemId)
+        {
+            if (!Has.Value(itemId)) {
+                throw new Exception($"{nameof(Aspect)}.{nameof(WritableItem)}: Empty or null itemId");
+            }
+
+            var client = Client.CloneFor(itemId);
+            var item = new ItemWriter(client, Transaction);
             await Transaction?.AddItem(item);
             return item;
         }
 
-        public async Task<ItemStub> NewItemFromTemplate(string tmpl)
+        public async Task<ItemWriter> NewItemFromTemplate(string tmpl)
         {
             var shortTmpl = tmpl.Substring(0, Cluster.LengthOfItemIdPrefixFromTemplate);
             var itemId = $"{shortTmpl}{RandomString.GetAlphanumLowercase(20)}";
             itemId = itemId.ToLower();
-            var item = await Item(itemId);
+            var item = await WritableItem(itemId);
 
             await item.Modify(new PropertySet { [Pid.Template] = tmpl }, PidSet.Empty);
             
@@ -83,10 +95,6 @@ namespace n3q.Aspects
 
         #region IItem stubs
 
-        public async Task Modify(PropertySet modified, PidSet deleted) { AssertTransaction(); await Grain.ModifyProperties(modified, deleted, Transaction.Id); }
-        public async Task AddToList(Pid pid, PropertyValue value) { AssertTransaction(); await Grain.AddToListProperty(pid, value, Transaction.Id); }
-        public async Task RemoveFromList(Pid pid, PropertyValue value) { AssertTransaction(); await Grain.RemoveFromListProperty(pid, value, Transaction.Id); }
-
         public async Task<PropertySet> Get(PidSet pids, bool native = false)
         {
             var t = Transaction;
@@ -99,11 +107,6 @@ namespace n3q.Aspects
 
         public async Task BeginTransaction() { AssertTransaction(); await Grain.BeginTransaction(Transaction.Id); }
         public async Task EndTransaction(bool success) { AssertTransaction(); await Grain.EndTransaction(Transaction.Id, success); }
-
-        public async Task Delete() { AssertTransaction(); await Grain.Delete(Transaction.Id); }
-
-        public async Task Set(Pid pid, PropertyValue value) { AssertTransaction(); await Grain.ModifyProperties(new PropertySet(pid, value), PidSet.Empty, Transaction.Id); }
-        public async Task Unset(Pid pid) { AssertTransaction(); await Grain.ModifyProperties(PropertySet.Empty, new PidSet { pid }, Transaction.Id); }
 
         public async Task<PropertyValue> Get(Pid pid)
         {
@@ -126,14 +129,14 @@ namespace n3q.Aspects
         public async Task Deactivate() { await Grain.Deactivate(); }
         public async Task DeletePersistentStorage() { await Grain.DeletePersistentStorage(); }
 
-        public delegate Task TransactionWrappedCode(ItemStub item);
+        public delegate Task TransactionWrappedCode(ItemWriter item);
 
         public async Task WithTransactionCore(TransactionWrappedCode transactedCode, ITransaction transaction)
         {
             Transaction = transaction;
-            await Transaction.Begin(this);
+            await Transaction.Begin(this as ItemWriter);
             try {
-                await transactedCode(this);
+                await transactedCode(this as ItemWriter);
                 await Transaction.Commit();
             } catch (Exception ex) {
                 _ = ex;
@@ -179,14 +182,14 @@ namespace n3q.Aspects
             return executedActions;
         }
 
-        private void AssertTransaction()
+        protected  void AssertTransaction()
         {
             if (Transaction == null) {
                 throw new Exception("No transaction");
             }
         }
 
-        private void AssertStubMethodIsUsed()
+        protected  void AssertStubMethodIsUsed()
         {
             throw new Exception($"Do not use the interface directly. Please use the stub method {nameof(Get)}");
         }

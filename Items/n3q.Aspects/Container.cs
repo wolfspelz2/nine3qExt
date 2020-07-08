@@ -15,7 +15,7 @@ namespace n3q.Aspects
         public Container(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.ContainerAspect;
 
-        public async Task AddChild(ItemStub child)
+        public async Task AddChild(ItemWriter child)
         {
             //var props = await child.Grain.GetProperties(new PidSet { Pid.Container }, false);
             //child.Simulator = new ItemSiloSimulator();
@@ -26,14 +26,14 @@ namespace n3q.Aspects
 
             var parentId = await child.GetItemId(Pid.Container);
             if (Has.Value(parentId)) {
-                var currentParent = await Item(parentId);
+                var currentParent = await WritableItem(parentId);
                 await currentParent.RemoveFromList(Pid.Contains, child.Id);
             }
             await this.AddToList(Pid.Contains, child.Id);
             await child.Set(Pid.Container, Id);
         }
 
-        public async Task RemoveChild(ItemStub child)
+        public async Task RemoveChild(ItemWriter child)
         {
             await AssertAspect();
 

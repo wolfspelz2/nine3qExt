@@ -29,10 +29,10 @@ namespace n3q.Items.Test
             // Arrange
             var siloSimulator = new SiloSimulator();
 
-            ItemStub GetItem(string id)
+            ItemWriter GetItem(string id)
             {
                 var simulatorClient = new SiloSimulatorItemClient(siloSimulator, id);
-                return new ItemStub(simulatorClient, new ItemTransaction());
+                return new ItemWriter(simulatorClient, new ItemTransaction());
             }
 
             var itemId = RandomString.Get(10);
@@ -46,10 +46,10 @@ namespace n3q.Items.Test
         }
 
         [TestMethod]
-        public void PartnerAspect_config_names_identical_to_definition()
+        public void DeveloperAspect_config_names_identical_to_definition()
         {
-            Assert.AreEqual(nameof(WebItConfigDefinition.PayloadHashSecret), Aspects.Partner.PayloadHashSecretConfigName);
-            Assert.AreEqual(nameof(WebItConfigDefinition.ItemServiceWebApiUrl), Aspects.Partner.ItemServiceWebApiUrlConfigName);
+            Assert.AreEqual(nameof(WebItConfigDefinition.PayloadHashSecret), Aspects.Developer.PayloadHashSecretConfigName);
+            Assert.AreEqual(nameof(WebItConfigDefinition.ItemServiceWebApiUrl), Aspects.Developer.ItemServiceWebApiUrlConfigName);
         }
 
         [TestMethod]
@@ -76,10 +76,10 @@ namespace n3q.Items.Test
             };
             var siloSimulatorClient = new SiloSimulatorClusterClient(siloSimulator);
 
-            ItemStub GetItemStub(string id)
+            ItemWriter GetItemStub(string id)
             {
                 var siloSimulatorItemClient = siloSimulatorClient.GetItemClient(id);
-                return new ItemStub(siloSimulatorItemClient, new VoidTransaction());
+                return new ItemWriter(siloSimulatorItemClient, new VoidTransaction());
             }
 
             var greeted = GetItemStub(greetedId);

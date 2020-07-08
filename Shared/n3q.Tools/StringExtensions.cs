@@ -125,5 +125,14 @@ namespace n3q.Tools
             return sb.ToString();
         }
 
+        public static string ToBase64(this string self)
+        {
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(self));
+        }
+
+        public static string FromBase64(this string self)
+        {
+            return Encoding.UTF8.GetString(Convert.FromBase64String(self));
+        }
     }
 }

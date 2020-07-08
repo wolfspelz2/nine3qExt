@@ -15,5 +15,20 @@ namespace JsonPath
             }
             return dict;
         }
+
+        public static JsonPath.Node ToJsonNode(this string self)
+        {
+            return new JsonPath.Node(self);
+        }
+
+        public static JsonPath.Node ToJsonNode(this Dictionary<string, string> self)
+        {
+            return new JsonPath.Node(self);
+        }
+
+        public static JsonPath.Node ToJsonNode(this Dictionary<string, object> self)
+        {
+            return new JsonPath.Node(self);
+        }
     }
 }

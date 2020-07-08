@@ -128,7 +128,7 @@ namespace IntegrationTests
                 //await child.ModifyProperties(new PropertySet { [Pid.TestInt] = 43 }, PidSet.Empty);
 
                 await container.WithTransaction(async self => {
-                    var localChild = await self.Item(childId);
+                    var localChild = await self.WritableItem(childId);
                     await self.AsContainer().AddChild(localChild);
                     await self.Set(Pid.TestInt, 43);
                     await localChild.Set(Pid.TestInt, 44);

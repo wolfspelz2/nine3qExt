@@ -55,6 +55,7 @@ export class ItemFrameWindow extends Window
 
             let token = await Payload.getToken(apiUrl, userId, itemId, 3600, { 'room': roomJid });
             url = url.replace('{token}', encodeURIComponent(token));
+            log.debug('ItemFrameWindow', url);
 
             super.show(options);
 

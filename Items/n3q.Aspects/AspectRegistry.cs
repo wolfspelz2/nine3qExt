@@ -8,7 +8,7 @@ namespace n3q.Aspects
         public static Dictionary<Pid, Aspect.AspectSpecializer> Aspects = new Dictionary<Pid, Aspect.AspectSpecializer> {
             { Pid.TestGreetedAspect, item => item.AsTestGreeted()},
             { Pid.TestGreeterAspect, item => item.AsTestGreeter()},
-            { Pid.PartnerAspect, item => item.AsPartner()},
+            { Pid.DeveloperAspect, item => item.AsDeveloper()},
             { Pid.ContainerAspect, item => item.AsContainer()},
             { Pid.RezableAspect, item => item.AsRezable()},
             { Pid.MovableAspect, item => item.AsMovable()},

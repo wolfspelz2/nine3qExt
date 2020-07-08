@@ -17,11 +17,11 @@ namespace n3q.Aspects
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { nameof(Action.GetGreeting), new ActionDescription() { Handler = async (args) => await GetGreeting(await Item(args.Get(Pid.TestGreetedGetGreetingGreeter)), args.Get(Pid.TestGreetedGetGreetingName)) } },
+                { nameof(Action.GetGreeting), new ActionDescription() { Handler = async (args) => await GetGreeting(await WritableItem(args.Get(Pid.TestGreetedGetGreetingGreeter)), args.Get(Pid.TestGreetedGetGreetingName)) } },
             };
         }
 
-        public async Task GetGreeting(ItemStub greeter, string name)
+        public async Task GetGreeting(ItemWriter greeter, string name)
         {
             //await AssertAspect();
             var greeting = await greeter.AsTestGreeter().Greet(name);

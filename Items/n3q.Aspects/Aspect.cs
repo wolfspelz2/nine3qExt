@@ -6,7 +6,7 @@ using n3q.Tools;
 
 namespace n3q.Aspects
 {
-    public class Aspect : ItemStub
+    public class Aspect : ItemWriter
     {
         public Aspect(ItemStub item) : base(item.Client, item.Transaction) { }
 

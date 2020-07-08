@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace JsonPath
 {
@@ -451,6 +452,25 @@ namespace JsonPath
             }
 
             return node;
+        }
+
+        public Node Normalized()
+        {
+            if (IsDictionary) {
+                var node = new Node(_type);
+                foreach (var kv in AsDictionary.OrderBy(kv => kv.Key)) {
+                    node.AsDictionary.Add(kv.Key, kv.Value.Normalized());
+                }
+                return node;
+            } else if (IsList) {
+                var node = new Node(_type);
+                foreach (var child in AsList.OrderBy(kv => kv.Key)) {
+                    node.AsList.Add(child.Normalized());
+                }
+                return node;
+            } else {
+                return new Node(Type.String, AsString);
+            }
         }
     }
 }

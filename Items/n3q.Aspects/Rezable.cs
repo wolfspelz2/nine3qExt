@@ -19,15 +19,15 @@ namespace n3q.Aspects
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { nameof(Action.Rez), new ActionDescription() { Handler = async (args) => await Rez(await Item(args.Get(Pid.RezableRezTo)), args.Get(Pid.RezableRezX), args.Get(Pid.RezableRezDestination)) } },
+                { nameof(Action.Rez), new ActionDescription() { Handler = async (args) => await Rez(await WritableItem(args.Get(Pid.RezableRezTo)), args.Get(Pid.RezableRezX), args.Get(Pid.RezableRezDestination)) } },
                 { nameof(Action.OnRezzed), new ActionDescription() { Handler = async (args) => await OnRezzed() } },
                 { nameof(Action.OnRezFailed), new ActionDescription() { Handler = async (args) => await OnRezFailed() } },
-                { nameof(Action.Derez), new ActionDescription() { Handler = async (args) => await Derez(await Item(args.Get(Pid.RezableDerezTo)), args.Get(Pid.RezableDerezX), args.Get(Pid.RezableDerezY)) } },
+                { nameof(Action.Derez), new ActionDescription() { Handler = async (args) => await Derez(await WritableItem(args.Get(Pid.RezableDerezTo)), args.Get(Pid.RezableDerezX), args.Get(Pid.RezableDerezY)) } },
                 { nameof(Action.OnDerezzed), new ActionDescription() { Handler = async (args) => await OnDerezzed() } },
             };
         }
 
-        public async Task<PropertyValue> Rez(ItemStub toRoom, long x, string destination)
+        public async Task<PropertyValue> Rez(ItemWriter toRoom, long x, string destination)
         {
             await this.AsRezable().AssertAspect(() => throw new SurfaceException(this.Id, toRoom.Id, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemIsNotRezable));
             var parentId = await this.GetItemId(Pid.Container);
@@ -48,13 +48,13 @@ namespace n3q.Aspects
             var originId = await this.GetItemId(Pid.RezableOrigin);
             await this.Modify(PropertySet.Empty, new PidSet { Pid.RezableIsRezzing, Pid.RezableOrigin, Pid.RezzedX });
             if (Has.Value(originId)) {
-                var origin = await Item(originId);
+                var origin = await WritableItem(originId);
                 await origin.AsContainer().AddChild(this);
             }
             return true;
         }
 
-        public async Task<PropertyValue> Derez(ItemStub toUser, long x, long y)
+        public async Task<PropertyValue> Derez(ItemWriter toUser, long x, long y)
         {
             await this.AsRezable().AssertAspect(() => throw new SurfaceException(this.Id, toUser.Id, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezable));
             if (!await this.Get(Pid.RezableIsRezzed)) { throw new SurfaceException(this.Id, toUser.Id, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezzed); }

@@ -59,7 +59,7 @@ namespace IntegrationTests
                     await self.Set(Pid.ContainerAspect, true);
                 });
                 await container.WithTransaction(async self => {
-                    await self.AsContainer().AddChild(await self.Item(childId));
+                    await self.AsContainer().AddChild(await self.WritableItem(childId));
                 });
                 Assert.AreEqual(containerId, (string)await child.Get(Pid.Container));
                 Assert.AreEqual(childId, (string)((ValueList)(await container.Get(Pid.Contains)))[0]);

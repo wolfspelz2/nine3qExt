@@ -11,6 +11,7 @@ using n3q.Tools;
 using n3q.Aspects;
 using n3q.GrainInterfaces;
 using n3q.Items;
+using n3q.Common;
 
 namespace n3q.WebIt.Controllers
 {
@@ -28,16 +29,16 @@ namespace n3q.WebIt.Controllers
             ItemClient = new OrleansItemClusterClient(clusterClient);
         }
 
-        public RpcController(ILogger<RpcController> logger, WebItConfigDefinition config, SiloSimulator siloSimulator)
-        {
-            Log = new FrameworkCallbackLogger(logger);
-            Config = config;
-            ItemClient = new SiloSimulatorClusterClient(siloSimulator);
-        }
+        //public RpcController(WebItConfigDefinition config, SiloSimulator siloSimulator)
+        //{
+        //    Log = new NullCallbackLogger();
+        //    Config = config;
+        //    ItemClient = new SiloSimulatorClusterClient(siloSimulator);
+        //}
 
-        ItemStub MakeItemStub(string itemId)
+        ItemWriter MakeItemStub(string itemId)
         {
-            var itemStub = new ItemStub(ItemClient.GetItemClient(itemId));
+            var itemStub = new ItemWriter(ItemClient.GetItemClient(itemId));
             return itemStub;
         }
 
@@ -58,19 +59,23 @@ namespace n3q.WebIt.Controllers
             try {
                 var request = new JsonPath.Node(body).AsDictionary;
 
-                var method = request["method"].AsString;
-                switch (method.Capitalize()) {
+                var method = request[nameof(Protocol.Rpc.Request.method)].AsString.Capitalize();
+
+                Log.Info(method);
+
+                switch (method) {
                     case nameof(Echo): response = Echo(request); break;
                     case nameof(GetPayloadHash): response = GetPayloadHash(request); break;
                     case nameof(GetItemProperties): response = await GetItemProperties(request); break;
+                    case nameof(ExecuteItemAction): response = await ExecuteItemAction(request); break;
                     default: throw new Exception($"Unknown method={method}");
                 }
 
-                response["status"] = "ok";
+                response[nameof(Protocol.Rpc.Response.status)] = Protocol.Rpc.Response.status_ok;
 
             } catch (Exception ex) {
-                response["status"] = "error";
-                response["message"] = ex.Message;
+                response[nameof(Protocol.Rpc.Response.status)] = Protocol.Rpc.Response.status_error;
+                response[nameof(Protocol.Rpc.Response.message)] = ex.Message;
             }
 
             return response.ToNode().ToJson();
@@ -88,47 +93,32 @@ namespace n3q.WebIt.Controllers
         [Route("[controller]/{action}")]
         public JsonPath.Dictionary GetPayloadHash(JsonPath.Dictionary request)
         {
-            if (!request.ContainsKey("payload")) { throw new Exception("No payload"); }
+            var payloadNode = request[nameof(Protocol.ContextToken.payload)];
+            if (payloadNode.AsDictionary.Count == 0) { throw new Exception("No payload"); }
 
-            var payloadNode = request["payload"];
-            if (!Has.Value(payloadNode.AsString)) { throw new Exception("No payload"); }
-            var payload = payloadNode.ToJson();
-            if (payload == "{}") { throw new Exception("No payload"); }
+            var hash = Common.Protocol.ComputePayloadHash(Config.PayloadHashSecret, payloadNode);
 
-            var hash = Aspects.Partner.ComputePayloadHash(Config.PayloadHashSecret, payload);
-
-            return new JsonPath.Dictionary().Add("result", hash);
+            return new JsonPath.Dictionary().Add(nameof(Protocol.Rpc.Response.result), hash);
         }
 
         [Route("[controller]/{action}")]
         public async Task<Dictionary> GetItemProperties(JsonPath.Dictionary request)
         {
-            var partnerToken = request["partner"].String;
-            if (!Has.Value(partnerToken)) { throw new Exception("No partner token"); }
+            var developerToken = request[nameof(Protocol.Rpc.GetItemPropertiesRequest.developer)].AsString;
+            var developerId = await GetDeveloperIdAndValidateTheDeveloperToken(developerToken);
 
-            var partnerId = await GetPartnerIdAndValidatePartnerToken(partnerToken);
-            if (!Has.Value(partnerId)) { throw new Exception("No id in partner token"); }
+            var contextToken = request[nameof(Protocol.Rpc.GetItemPropertiesRequest.context)].AsString;
+            var context = GetContextAndValidateTheContextToken(contextToken);
 
-            var contextToken = request["context"].String;
-            if (!Has.Value(contextToken)) { throw new Exception("No context token"); }
-            var context = GetContext(contextToken);
+            var pids = new PidSet(request[nameof(Protocol.Rpc.GetItemPropertiesRequest.pids)].AsList
+                .Select(pidNode => pidNode.AsString.ToEnum(Pid.Unknown))
+                .Where(pid => Property.GetDefinition(pid).Access == Property.Access.Public)
+            );
+            pids.Add(Pid.Developer);
 
-            var pids = new PidSet();
-            var pidsNode = request["pids"];
-            foreach (var pidNode in pidsNode.AsList) {
-                var pidName = (string)pidNode;
-                var pid = pidName.ToEnum(Pid.Unknown);
-                if (pid != Pid.Unknown) {
-                    if (Property.GetDefinition(pid).Access == Property.Access.Public) {
-                        pids.Add(pid);
-                    }
-                }
-            }
-            pids.Add(Pid.Partner);
+            var props = await MakeItemStub(context.itemId).Get(pids);
 
-            var props = await MakeItemStub(context.item).Get(pids);
-
-            if (props.GetString(Pid.Partner) != partnerId) { throw new Exception("Partner invalid"); }
+            if (props.GetString(Pid.Developer) != developerId) { throw new Exception("Developer invalid"); }
 
             var propsNode = new Node(Node.Type.Dictionary);
             foreach (var pair in props) {
@@ -136,49 +126,91 @@ namespace n3q.WebIt.Controllers
             }
 
             var response = new JsonPath.Dictionary {
-                { "result", propsNode }
+                { nameof(Protocol.Rpc.Response.result), propsNode }
             };
             return response;
         }
 
         [Route("[controller]/{action}")]
-        public async Task<string> GetPartnerIdAndValidatePartnerToken(string tokenBase64Encoded)
+        public async Task<Dictionary> ExecuteItemAction(JsonPath.Dictionary request)
         {
-            var tokenString = Tools.Base64.Decode(tokenBase64Encoded);
+            var developerToken = request[nameof(Protocol.Rpc.ExecuteItemActionRequest.developer)].AsString;
+            var developerId = await GetDeveloperIdAndValidateTheDeveloperToken(developerToken);
+
+            var contextToken = request[nameof(Protocol.Rpc.ExecuteItemActionRequest.context)].AsString;
+            var context = GetContextAndValidateTheContextToken(contextToken);
+
+            var action = request[nameof(Protocol.Rpc.ExecuteItemActionRequest.action)].AsString;
+            if (!Has.Value(action)) { throw new Exception("No action"); }
+
+            var args = request[nameof(Protocol.Rpc.ExecuteItemActionRequest.args)]
+                .AsDictionary
+                .Select(kv => new KeyValuePair<string, string>(kv.Key, kv.Value.AsString))
+                .ToStringDictionary()
+                ;
+
+            var itemStub = MakeItemStub(context.itemId);
+
+            var propDeveloperId = await itemStub.GetItemId(Pid.Developer);
+            if (propDeveloperId != developerId) { throw new Exception("Developer mismatch"); }
+
+            itemStub.WithTransaction(async self => {
+                await self.Execute(action, args);
+            }).Wait();
+
+            var response = new JsonPath.Dictionary {
+            };
+            return response;
+        }
+
+        [Route("[controller]/{action}")]
+        public async Task<string> GetDeveloperIdAndValidateTheDeveloperToken(string tokenBase64Encoded)
+        {
+            if (!Has.Value(tokenBase64Encoded)) { throw new Exception("No developer token"); }
+
+            var tokenString = tokenBase64Encoded.FromBase64();
             var tokenNode = new JsonPath.Node(tokenString);
-            var payloadNode = tokenNode["payload"];
+            var payloadNode = tokenNode[nameof(Protocol.DeveloperToken.payload)];
 
-            var partnerId = payloadNode["partner"].String;
-            if (!Has.Value(partnerId)) { throw new Exception("No partnerId in partner token"); }
+            var developerId = payloadNode[nameof(Protocol.DeveloperToken.Payload.developer)].AsString;
+            if (!Has.Value(developerId)) { throw new Exception("No developer id in developer token"); }
 
-            var props = await MakeItemStub(partnerId).Get(new PidSet { Pid.PartnerAspect, Pid.PartnerToken });
-            if (!props[Pid.PartnerAspect]) { throw new Exception("Invalid partner token"); }
-            if (props[Pid.PartnerToken] != tokenBase64Encoded) { throw new Exception("Invalid partner token"); }
+            var props = await MakeItemStub(developerId).Get(new PidSet { Pid.DeveloperAspect, Pid.DeveloperToken });
+            if (!props[Pid.DeveloperAspect]) { throw new Exception("Invalid developer token"); }
+            if (props[Pid.DeveloperToken] != tokenBase64Encoded) { throw new Exception("Invalid developer token"); }
 
-            return partnerId;
+            return developerId;
         }
 
-        private class RequestContext
+        public class RequestContext
         {
-            public string user;
-            public string item;
-            public string expires;
+            public string userId;
+            public string itemId;
+            public DateTime expires;
         }
 
-        private RequestContext GetContext(string tokenBase64Encoded)
+        [Route("[controller]/{action}")]
+        public RequestContext GetContextAndValidateTheContextToken(string tokenBase64Encoded)
         {
+            if (!Has.Value(tokenBase64Encoded)) { throw new Exception("No context token"); }
+
             var rc = new RequestContext();
 
-            var tokenString = Tools.Base64.Decode(tokenBase64Encoded);
+            var tokenString = tokenBase64Encoded.FromBase64();
             var tokenNode = new JsonPath.Node(tokenString);
-            var payloadNode = tokenNode["payload"];
 
-            rc.user = payloadNode["user"];
-            rc.item = payloadNode["item"];
-            rc.expires = payloadNode["expires"];
+            var hash = tokenNode[nameof(Protocol.ContextToken.hash)].AsString;
+            var payloadNode = tokenNode[nameof(Protocol.ContextToken.payload)];
+            if (!Has.Value(payloadNode.AsString)) { throw new Exception("No payload"); }
+            var computedHash = Common.Protocol.ComputePayloadHash(Config.PayloadHashSecret, payloadNode);
+            if (hash != computedHash) { throw new Exception("Hash mismatch"); }
 
-            if (!Has.Value(rc.user)) { throw new Exception("No in context"); }
-            if (!Has.Value(rc.item)) { throw new Exception("No item in context"); }
+            rc.userId = payloadNode[nameof(Protocol.ContextToken.Payload.user)];
+            rc.itemId = payloadNode[nameof(Protocol.ContextToken.Payload.item)];
+            rc.expires = payloadNode[nameof(Protocol.ContextToken.Payload.expires)];
+
+            if (!Has.Value(rc.userId)) { throw new Exception("No user in context"); }
+            if (!Has.Value(rc.itemId)) { throw new Exception("No item in context"); }
 
             return rc;
         }

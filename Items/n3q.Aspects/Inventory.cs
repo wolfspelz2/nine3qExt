@@ -18,7 +18,7 @@ namespace n3q.Aspects
         {
             return new ActionList() {
                 { nameof(Action.Initialize), new ActionDescription() { Handler = async (args) => await Initialize() } },
-                { nameof(Action.SetItemCoordinates), new ActionDescription() { Handler = async (args) => await SetItemCoordinates(await Item(args.Get(Pid.InventorySetItemCoordinatesItem)), args.Get(Pid.InventorySetItemCoordinatesX), args.Get(Pid.InventorySetItemCoordinatesY)) } },
+                { nameof(Action.SetItemCoordinates), new ActionDescription() { Handler = async (args) => await SetItemCoordinates(await WritableItem(args.Get(Pid.InventorySetItemCoordinatesItem)), args.Get(Pid.InventorySetItemCoordinatesX), args.Get(Pid.InventorySetItemCoordinatesY)) } },
             };
         }
 
@@ -28,7 +28,7 @@ namespace n3q.Aspects
             await this.AsContainer().AddChild(flag);
         }
 
-        public async Task SetItemCoordinates(ItemStub item, long x, long y)
+        public async Task SetItemCoordinates(ItemWriter item, long x, long y)
         {
             //await AssertAspect();
             if (x >= 0 && y >= 0) {
