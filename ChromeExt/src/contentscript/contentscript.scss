@@ -119,6 +119,15 @@
     pointer-events: none;
 }
 
+#n3q div.n3q-headupdisplay {
+    position: absolute;
+    bottom: 0;
+    left: 0px;
+    right: 0;
+    top: 0;
+    pointer-events: none;
+}
+
 #n3q div.n3q-ctrl {
     position: absolute;
     left: 100px;
@@ -553,6 +562,13 @@
     // #n3q div.n3q-itemframewindow {}
 
     #n3q div.n3q-itemframewindow iframe.n3q-itemframewindow-content {
+        width: 100%;
+        height: 100%;
+    }
+
+    // #n3q div.n3q-itemframepopup {}
+
+    #n3q div.n3q-itemframepopup iframe.n3q-itemframepopup-content {
         width: 100%;
         height: 100%;
     }

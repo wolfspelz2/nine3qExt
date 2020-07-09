@@ -435,19 +435,20 @@ namespace n3q.WebIt
             }
             switch (Property.GetDefinition(pid).Use) {
                 case Property.Use.Url:
-                    s = $"<a href='{PropetyFilterUrl(s)}' target='_new'>{System.Net.WebUtility.HtmlEncode(s)}</a>";
+                    s = $"<a href='{PropertyFilterUrl(s)}' target='_new'>{System.Net.WebUtility.HtmlEncode(s)}</a>";
                     break;
                 case Property.Use.ImageUrl:
-                    s = $"{s} <img src='{PropetyFilterUrl(s)}' />";
+                    s = $"{s} <img src='{PropertyFilterUrl(s)}' />";
                     break;
             }
             return s;
         }
 
-        public string PropetyFilterUrl(string url)
+        public string PropertyFilterUrl(string url)
         {
             return url
                 .Replace(ItemService.ItemBaseVar, Config.ItemAppearanceBaseUrl)
+                .Replace(ItemService.ItemIframeVar, Config.ItemIframeBaseUrl)
                 ;
         }
 

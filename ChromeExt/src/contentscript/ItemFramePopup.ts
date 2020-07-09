@@ -4,14 +4,12 @@ import log = require('loglevel');
 import { as } from '../lib/as';
 import { Point2D } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
-import { Window } from './Window';
+import { Popup } from './Popup';
 import { Item } from './Item';
-import { RoomItem } from './RoomItem';
-import { InventoryItem } from './InventoryItem';
 
-type WindowOptions = any;
+type PopupOptions = any;
 
-interface ItemFrameWindowOptions extends WindowOptions
+interface ItemFramePopupOptions extends PopupOptions
 {
     item: Item;
     clickPos: Point2D;
@@ -19,14 +17,14 @@ interface ItemFrameWindowOptions extends WindowOptions
     onClose: { (): void };
 }
 
-export class ItemFrameWindow extends Window
+export class ItemFramePopup extends Popup
 {
     constructor(app: ContentApp)
     {
         super(app);
     }
 
-    async show(options: ItemFrameWindowOptions)
+    async show(options: ItemFramePopupOptions)
     {
         try {
             let url: string = options.url;
@@ -34,30 +32,28 @@ export class ItemFrameWindow extends Window
 
             options.minLeft = as.Int(options.minLeft, 10);
             options.minTop = as.Int(options.minTop, 10);
-            options.offsetLeft = as.Int(options.bottom, 20);
-            options.offsetTop = as.Int(options.bottom, -350);
+            options.offsetLeft = as.Int(options.bottom, 0);
+            options.offsetTop = as.Int(options.bottom, -60);
             options.width = as.Int(options.item.getProperties().IframeWidth, 400);
             options.height = as.Int(options.item.getProperties().IframeHeight, 400);
-            options.resizable = as.Bool(options.item.getProperties().IframeResizable, true);
-            options.titleText = as.String(options.item.getProperties().Label, 'Item');
 
-            log.debug('ItemFrameWindow', url);
+            log.debug('ItemFramePopup', url);
             super.show(options);
 
-            $(this.windowElem).addClass('n3q-itemframewindow');
+            $(this.windowElem).addClass('n3q-itemframepopup');
 
             let left = Math.max(options.clickPos.x - options.width / 2 + options.offsetLeft, options.minLeft);
             let top = Math.max(options.clickPos.y - options.height / 2 + options.offsetTop, options.minTop);
 
-            let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-itemframewindow-content" src="' + url + ' " frameborder="0"></iframe>').get(0);
+            let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-itemframepopup-content" src="' + url + ' " frameborder="0"></iframe>').get(0);
 
-            $(this.contentElem).append(iframeElem);
+            $(this.windowElem).append(iframeElem);
             this.app.translateElem(this.windowElem);
             $(this.windowElem).css({ 'width': options.width + 'px', 'height': options.height + 'px', 'left': left + 'px', 'top': top + 'px' });
-            this.app.toFront(this.windowElem)
+            this.app.toFront(this.windowElem, ContentApp.DisplayLayer_Popup)
 
         } catch (error) {
-            log.info('ItemFrameWindow', error);
+            log.info('ItemFramePopup', error);
             if (options.onClose) { options.onClose(); }
         }
     }

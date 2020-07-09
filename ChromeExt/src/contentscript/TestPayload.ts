@@ -10,7 +10,7 @@ export class TestPayload
 {
     async Payload_getToken()
     {
-        let token = await Payload.getToken(
+        let token = await Payload.getContextToken(
             Config.get('test.itemServiceRpcUrl', 'http://localhost:5000/rpc'),
             'user1',
             'item1',

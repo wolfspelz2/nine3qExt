@@ -16,7 +16,7 @@ using n3q.Common;
 namespace n3q.WebIt.Controllers
 {
     [ApiController]
-    public class RpcController : ControllerBase
+    public partial class RpcController : ControllerBase
     {
         public ICallbackLogger Log { get; set; }
         public WebItConfigDefinition Config { get; set; }
@@ -35,12 +35,6 @@ namespace n3q.WebIt.Controllers
         //    Config = config;
         //    ItemClient = new SiloSimulatorClusterClient(siloSimulator);
         //}
-
-        ItemWriter MakeItemStub(string itemId)
-        {
-            var itemStub = new ItemWriter(ItemClient.GetItemClient(itemId));
-            return itemStub;
-        }
 
         [Route("[controller]")]
         [HttpPost]
@@ -108,7 +102,7 @@ namespace n3q.WebIt.Controllers
             var developerId = await GetDeveloperIdAndValidateTheDeveloperToken(developerToken);
 
             var contextToken = request[nameof(Protocol.Rpc.GetItemPropertiesRequest.context)].AsString;
-            var context = GetContextAndValidateTheContextToken(contextToken);
+            var context = ContextToken.FromBase64TokenAndValiated(Config.PayloadHashSecret, contextToken);
 
             var pids = new PidSet(request[nameof(Protocol.Rpc.GetItemPropertiesRequest.pids)].AsList
                 .Select(pidNode => pidNode.AsString.ToEnum(Pid.Unknown))
@@ -116,7 +110,8 @@ namespace n3q.WebIt.Controllers
             );
             pids.Add(Pid.Developer);
 
-            var props = await MakeItemStub(context.itemId).Get(pids);
+            var itemReader = new ItemReader(ItemClient.GetItemClient(context.ItemId));
+            var props = await itemReader.Get(pids);
 
             if (props.GetString(Pid.Developer) != developerId) { throw new Exception("Developer invalid"); }
 
@@ -138,7 +133,7 @@ namespace n3q.WebIt.Controllers
             var developerId = await GetDeveloperIdAndValidateTheDeveloperToken(developerToken);
 
             var contextToken = request[nameof(Protocol.Rpc.ExecuteItemActionRequest.context)].AsString;
-            var context = GetContextAndValidateTheContextToken(contextToken);
+            var context = ContextToken.FromBase64TokenAndValiated(Config.PayloadHashSecret, contextToken);
 
             var action = request[nameof(Protocol.Rpc.ExecuteItemActionRequest.action)].AsString;
             if (!Has.Value(action)) { throw new Exception("No action"); }
@@ -149,12 +144,12 @@ namespace n3q.WebIt.Controllers
                 .ToStringDictionary()
                 ;
 
-            var itemStub = MakeItemStub(context.itemId);
+            var itemWriter = new ItemWriter(ItemClient.GetItemClient(context.ItemId));
 
-            var propDeveloperId = await itemStub.GetItemId(Pid.Developer);
+            var propDeveloperId = await itemWriter.GetItemId(Pid.Developer);
             if (propDeveloperId != developerId) { throw new Exception("Developer mismatch"); }
 
-            itemStub.WithTransaction(async self => {
+            itemWriter.WithTransaction(async self => {
                 await self.Execute(action, args);
             }).Wait();
 
@@ -175,44 +170,12 @@ namespace n3q.WebIt.Controllers
             var developerId = payloadNode[nameof(Protocol.DeveloperToken.Payload.developer)].AsString;
             if (!Has.Value(developerId)) { throw new Exception("No developer id in developer token"); }
 
-            var props = await MakeItemStub(developerId).Get(new PidSet { Pid.DeveloperAspect, Pid.DeveloperToken });
+            var itemReader = new ItemReader(ItemClient.GetItemClient(developerId));
+            var props = await itemReader.Get(new PidSet { Pid.DeveloperAspect, Pid.DeveloperToken });
             if (!props[Pid.DeveloperAspect]) { throw new Exception("Invalid developer token"); }
             if (props[Pid.DeveloperToken] != tokenBase64Encoded) { throw new Exception("Invalid developer token"); }
 
             return developerId;
-        }
-
-        public class RequestContext
-        {
-            public string userId;
-            public string itemId;
-            public DateTime expires;
-        }
-
-        [Route("[controller]/{action}")]
-        public RequestContext GetContextAndValidateTheContextToken(string tokenBase64Encoded)
-        {
-            if (!Has.Value(tokenBase64Encoded)) { throw new Exception("No context token"); }
-
-            var rc = new RequestContext();
-
-            var tokenString = tokenBase64Encoded.FromBase64();
-            var tokenNode = new JsonPath.Node(tokenString);
-
-            var hash = tokenNode[nameof(Protocol.ContextToken.hash)].AsString;
-            var payloadNode = tokenNode[nameof(Protocol.ContextToken.payload)];
-            if (!Has.Value(payloadNode.AsString)) { throw new Exception("No payload"); }
-            var computedHash = Common.Protocol.ComputePayloadHash(Config.PayloadHashSecret, payloadNode);
-            if (hash != computedHash) { throw new Exception("Hash mismatch"); }
-
-            rc.userId = payloadNode[nameof(Protocol.ContextToken.Payload.user)];
-            rc.itemId = payloadNode[nameof(Protocol.ContextToken.Payload.item)];
-            rc.expires = payloadNode[nameof(Protocol.ContextToken.Payload.expires)];
-
-            if (!Has.Value(rc.userId)) { throw new Exception("No user in context"); }
-            if (!Has.Value(rc.itemId)) { throw new Exception("No item in context"); }
-
-            return rc;
         }
 
     }

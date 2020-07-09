@@ -1,6 +1,11 @@
 import { xml } from '@xmpp/client';
 import { uniqueNamesGenerator, Config, adjectives, colors, animals } from 'unique-names-generator';
 
+export class Point2D
+{
+    constructor(public x: number, public y: number) { }
+}
+
 export class Utils
 {
     static syncStorageKey_Nickname(): string { return 'me.nickname'; }

@@ -82,7 +82,7 @@ export class ContentApp
         return inv;
     }
 
-    constructor(private appendToMe: HTMLElement, private messageHandler: ContentAppNotificationCallback)
+    constructor(protected appendToMe: HTMLElement, private messageHandler: ContentAppNotificationCallback)
     {
         this.itemRepository = new ItemRepository(this);
     }
@@ -491,11 +491,14 @@ export class ContentApp
 
     // Window management
 
-    private toFrontMaxZIndex: number = 1;
-    toFront(elem: HTMLElement)
+    public static DisplayLayer_Default = 0;
+    public static DisplayLayer_Popup = 1;
+
+    private toFrontCurrentIndex: number = 1;
+    toFront(elem: HTMLElement, layer = ContentApp.DisplayLayer_Default)
     {
-        this.toFrontMaxZIndex++;
-        elem.style.zIndex = '' + this.toFrontMaxZIndex;
+        this.toFrontCurrentIndex++;
+        elem.style.zIndex = '' + (this.toFrontCurrentIndex + layer * 1000000000);
     }
 
     enableScreen(on: boolean): void

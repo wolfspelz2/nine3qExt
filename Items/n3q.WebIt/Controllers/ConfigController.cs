@@ -50,7 +50,8 @@ namespace n3q.WebIt.Controllers
                 //unavailableUrl = Config.UnavailableUrl,
                 userToken = token,
                 itemPropertyUrlFilter = new Dictionary<string, string> {
-                    { "{image.item.nine3q}", Config.ItemAppearanceBaseUrl },
+                    { ItemService.ItemBaseVar, Config.ItemAppearanceBaseUrl },
+                    { ItemService.ItemIframeVar, Config.ItemIframeBaseUrl },
                 },
             };
             return result;

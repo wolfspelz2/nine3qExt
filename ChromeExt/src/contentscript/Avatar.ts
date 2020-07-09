@@ -39,7 +39,7 @@ export class Avatar implements IObserver
 
     isDefaultAvatar(): boolean { return this.isDefault; }
 
-    constructor(private app: ContentApp, private entity: Entity, private isSelf: boolean)
+    constructor(protected app: ContentApp, private entity: Entity, private isSelf: boolean)
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-avatar" />').get(0);
 

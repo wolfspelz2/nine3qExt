@@ -12,7 +12,7 @@ export class Chatin
     private sendElem: HTMLElement;
     private closeElem: HTMLElement;
 
-    constructor(private app: ContentApp, private participant: Participant, private display: HTMLElement)
+    constructor(protected app: ContentApp, private participant: Participant, private display: HTMLElement)
     {
         this.elem = <HTMLElement>$('<div class="n3q-base n3q-chatin n3q-shadow-small" data-translate="children" />').get(0);
         this.setVisibility(false);

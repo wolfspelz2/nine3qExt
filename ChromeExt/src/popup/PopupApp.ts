@@ -20,7 +20,7 @@ export class PopupApp
     }
 }`;
 
-    constructor(private appendToMe: HTMLElement)
+    constructor(protected appendToMe: HTMLElement)
     {
         let language: string = Translator.mapLanguage(navigator.language, lang => { return Config.get('i18n.languageMapping', {})[lang]; }, Config.get('i18n.defaultLanguage', 'en-US'));
         this.babelfish = new Translator(Config.get('i18n.translations', {})[language], language, Config.get('i18n.serviceUrl', ''));
@@ -218,19 +218,19 @@ export class PopupApp
                     let avatar2Verify = await Config.getSync(Utils.syncStorageKey_Avatar(), '');
                     let active2Verify = await Config.getSync(Utils.syncStorageKey_Active(), '');
                     $(saving).fadeTo(100, 0.0);
-                    
+
                     if (true
                         && nickname2Verify == nickname2Save
                         && avatar2Verify == avatar2Save
                         && active2Verify == active2Save
+                    ) {
+                        if (false
+                            || nickname != nickname2Save
+                            || avatar != avatar2Save
+                            || active != active2Save
                         ) {
-                            if (false
-                                || nickname != nickname2Save
-                                || avatar != avatar2Save
-                                || active != active2Save
-                                ) {
-                                    await BackgroundMessage.userSettingsChanged();
-                                }
+                            await BackgroundMessage.userSettingsChanged();
+                        }
 
 
                         $(saved).fadeTo(100, 1.0).fadeTo(1000, 0.0, () =>

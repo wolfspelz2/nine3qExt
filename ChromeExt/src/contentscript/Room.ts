@@ -27,7 +27,7 @@ export class Room
     private vidconfWindow: VidconfWindow;
     private myNick: string;
 
-    constructor(private app: ContentApp, private jid: string, private destination: string, private posX: number) 
+    constructor(protected app: ContentApp, private jid: string, private destination: string, private posX: number) 
     {
         let user = Config.get('xmpp.user', Utils.randomString(0));
         let domain = Config.get('xmpp.domain', '');

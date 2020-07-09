@@ -2,7 +2,7 @@ import * as $ from 'jquery';
 import log = require('loglevel');
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';
-import { Utils } from '../lib/Utils';
+import { Utils, Point2D } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { Inventory } from './Inventory';
 import { Item } from './Item';
@@ -23,7 +23,7 @@ export class InventoryItem
 
     getProperties(): { [pid: string]: string } { return this.item.getProperties(); }
 
-    constructor(private app: ContentApp, private inv: Inventory, private itemId: string)
+    constructor(protected app: ContentApp, private inv: Inventory, private itemId: string)
     {
         this.item = new Item(app, itemId);
 
@@ -128,7 +128,7 @@ export class InventoryItem
 
         let item = this.app.getItemRepository().getItem(this.itemId);
         if (item) {
-            item.onClick(this.elem);
+            item.onClick(this.elem, new Point2D(ev.clientX, ev.clientY));
         }
     }
 

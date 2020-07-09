@@ -10,7 +10,7 @@ export class Chatout
     private closeElem: HTMLElement;
     private hasText: boolean;
 
-    constructor(private app: ContentApp, private participant: Participant, private display: HTMLElement)
+    constructor(protected app: ContentApp, private participant: Participant, private display: HTMLElement)
     {
         this.elem = <HTMLElement>$('<div class="n3q-base n3q-chatout" />').get(0);
         this.setVisibility(false);
