@@ -2,6 +2,7 @@ import * as $ from 'jquery';
 import 'webpack-jquery-ui';
 import log = require('loglevel');
 import { as } from '../lib/as';
+import { Point2D } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { Popup } from './Popup';
 import { Item } from './Item';
@@ -11,7 +12,7 @@ type PopupOptions = any;
 interface ItemFramePopupOptions extends PopupOptions
 {
     item: Item;
-    above: HTMLElement;
+    clickPos: Point2D;
     url: string;
     onClose: { (): void };
 }
@@ -29,6 +30,10 @@ export class ItemFramePopup extends Popup
             let url: string = options.url;
             if (!url) { throw 'No url' }
 
+            options.minLeft = as.Int(options.minLeft, 10);
+            options.minTop = as.Int(options.minTop, 10);
+            options.offsetLeft = as.Int(options.bottom, 0);
+            options.offsetTop = as.Int(options.bottom, -60);
             options.width = as.Int(options.item.getProperties().IframeWidth, 400);
             options.height = as.Int(options.item.getProperties().IframeHeight, 400);
 
@@ -37,27 +42,8 @@ export class ItemFramePopup extends Popup
 
             $(this.windowElem).addClass('n3q-itemframepopup');
 
-            let left = 50;
-            let top = 50;
-            let minLeft = 10;
-            let minTop = 10;
-            let vertOffset = 50;
-
-            let itemPos = $(options.above).offset();
-            let scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            let itemAbsLeft = itemPos.left - scrollLeft;
-            let itemAbsTop = itemPos.top - scrollTop;
-            let itemWidth = as.Int(options.item.getProperties().Width, 64);
-            let itemHeight = as.Int(options.item.getProperties().Height, 64);
-            let itemCenterLeft = itemAbsLeft + itemWidth / 2;
-            let itemCenterTop = itemAbsTop + itemHeight / 2;
-
-            left = itemCenterLeft - options.width / 2;
-            top = itemCenterTop - options.height / 2 - vertOffset;
-
-            if (left < minLeft) { left = minLeft; }
-            if (top < minTop) { top = minTop; }
+            let left = Math.max(options.clickPos.x - options.width / 2 + options.offsetLeft, options.minLeft);
+            let top = Math.max(options.clickPos.y - options.height / 2 + options.offsetTop, options.minTop);
 
             let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-itemframepopup-content" src="' + url + ' " frameborder="0"></iframe>').get(0);
 

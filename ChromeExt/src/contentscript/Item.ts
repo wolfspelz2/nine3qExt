@@ -2,6 +2,7 @@ import * as $ from 'jquery';
 import { xml, jid } from '@xmpp/client';
 import log = require('loglevel');
 import { as } from '../lib/as';
+import { Point2D } from '../lib/Utils';
 import { Config } from '../lib/Config';
 import { Payload } from '../lib/Payload';
 import { ContentApp } from './ContentApp';
@@ -29,14 +30,14 @@ export class Item
     setProperties(properties: { [pid: string]: string; }) { this.properties = properties; }
     getProperties(): any { return this.properties; }
 
-    onClick(clickedElem: HTMLElement = null)
+    onClick(clickedElem: HTMLElement, clickPoint: Point2D)
     {
         if (as.Bool(this.properties['IframeAspect'], false)) {
-            this.openIframe(clickedElem);
+            this.openIframe(clickedElem, clickPoint);
         }
     }
 
-    async openIframe(clickedElem: HTMLElement)
+    async openIframe(clickedElem: HTMLElement, clickPoint: Point2D)
     {
         let iframeUrl = as.String(this.properties.IframeUrl, null);
         let room = this.app.getRoom();
@@ -50,33 +51,35 @@ export class Item
 
             let frame = as.String(this.properties.IframeFrame, 'Window');
             if (frame == 'Popup') {
-                this.openIframePopup(iframeUrl, clickedElem);
+                this.openIframePopup(iframeUrl, clickPoint);
             } else {
-                this.openIframeWindow(iframeUrl, clickedElem);
+                this.openIframeWindow(iframeUrl, clickPoint);
             }
         }
     }
 
-    openIframePopup(iframeUrl: string, aboveElem: HTMLElement = null)
+    openIframePopup(iframeUrl: string, clickPoint: Point2D)
     {
-        if (!this.framePopup) {
+        if (this.framePopup) {
+            this.framePopup.close();
+        } else {
             this.framePopup = new ItemFramePopup(this.app);
             this.framePopup.show({
                 item: this,
-                above: aboveElem,
+                clickPos: clickPoint,
                 url: iframeUrl,
                 onClose: () => { this.framePopup = null; },
             });
         }
     }
 
-    openIframeWindow(iframeUrl: string, aboveElem: HTMLElement = null)
+    openIframeWindow(iframeUrl: string, clickPoint: Point2D)
     {
         if (!this.frameWindow) {
             this.frameWindow = new ItemFrameWindow(this.app);
             this.frameWindow.show({
                 item: this,
-                above: aboveElem,
+                clickPos: clickPoint,
                 url: iframeUrl,
                 onClose: () => { this.frameWindow = null; },
             });

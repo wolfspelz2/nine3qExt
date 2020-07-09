@@ -2,6 +2,7 @@ import * as $ from 'jquery';
 import { xml, jid } from '@xmpp/client';
 import log = require('loglevel');
 import { as } from '../lib/as';
+import { Point2D } from '../lib/Utils';
 import { Config } from '../lib/Config';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
@@ -175,7 +176,7 @@ export class RoomItem extends Entity
 
         let item = this.app.getItemRepository().getItem(this.nick);
         if (item) {
-            item.onClick(this.getElem());
+            item.onClick(this.getElem(), new Point2D(ev.clientX, ev.clientY));
         }
     }
 

@@ -2,6 +2,7 @@ import * as $ from 'jquery';
 import 'webpack-jquery-ui';
 import log = require('loglevel');
 import { as } from '../lib/as';
+import { Point2D } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { Window } from './Window';
 import { Item } from './Item';
@@ -13,7 +14,7 @@ type WindowOptions = any;
 interface ItemFrameWindowOptions extends WindowOptions
 {
     item: Item;
-    above: HTMLElement;
+    clickPos: Point2D;
     url: string;
     onClose: { (): void };
 }
@@ -31,7 +32,10 @@ export class ItemFrameWindow extends Window
             let url: string = options.url;
             if (!url) { throw 'No url' }
 
-            options.bottom = 150;
+            options.minLeft = as.Int(options.minLeft, 10);
+            options.minTop = as.Int(options.minTop, 10);
+            options.offsetLeft = as.Int(options.bottom, 20);
+            options.offsetTop = as.Int(options.bottom, -350);
             options.width = as.Int(options.item.getProperties().IframeWidth, 400);
             options.height = as.Int(options.item.getProperties().IframeHeight, 400);
             options.resizable = as.Bool(options.item.getProperties().IframeResizable, true);
@@ -42,17 +46,8 @@ export class ItemFrameWindow extends Window
 
             $(this.windowElem).addClass('n3q-itemframewindow');
 
-            let left = 50;
-            let top = 50;
-            let minLeft = 10;
-            let minTop = 10;
-            let vertOffset = 50;
-
-            left = Math.max(options.above.offsetLeft - 180, left);
-            top = this.app.getDisplay().offsetHeight - options.height - options.bottom;
-
-            if (left < minLeft) { left = minLeft; }
-            if (top < minTop) { top = minTop; }
+            let left = Math.max(options.clickPos.x - options.width / 2 + options.offsetLeft, options.minLeft);
+            let top = Math.max(options.clickPos.y - options.height / 2 + options.offsetTop, options.minTop);
 
             let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-itemframewindow-content" src="' + url + ' " frameborder="0"></iframe>').get(0);
 
