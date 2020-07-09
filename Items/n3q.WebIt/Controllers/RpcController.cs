@@ -102,7 +102,7 @@ namespace n3q.WebIt.Controllers
             var developerId = await GetDeveloperIdAndValidateTheDeveloperToken(developerToken);
 
             var contextToken = request[nameof(Protocol.Rpc.GetItemPropertiesRequest.context)].AsString;
-            var context = ContextToken.FromBase64TokenAndValiate(Config.PayloadHashSecret, contextToken);
+            var context = ContextToken.FromBase64TokenAndValiated(Config.PayloadHashSecret, contextToken);
 
             var pids = new PidSet(request[nameof(Protocol.Rpc.GetItemPropertiesRequest.pids)].AsList
                 .Select(pidNode => pidNode.AsString.ToEnum(Pid.Unknown))
@@ -133,7 +133,7 @@ namespace n3q.WebIt.Controllers
             var developerId = await GetDeveloperIdAndValidateTheDeveloperToken(developerToken);
 
             var contextToken = request[nameof(Protocol.Rpc.ExecuteItemActionRequest.context)].AsString;
-            var context = ContextToken.FromBase64TokenAndValiate(Config.PayloadHashSecret, contextToken);
+            var context = ContextToken.FromBase64TokenAndValiated(Config.PayloadHashSecret, contextToken);
 
             var action = request[nameof(Protocol.Rpc.ExecuteItemActionRequest.action)].AsString;
             if (!Has.Value(action)) { throw new Exception("No action"); }

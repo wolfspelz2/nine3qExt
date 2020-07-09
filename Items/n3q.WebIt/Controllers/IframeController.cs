@@ -31,13 +31,51 @@ namespace n3q.WebIt.Controllers
 
         [Route("[controller]")]
         [HttpGet]
-        public async Task<string> Get(string context)
+        public async Task<ContentResult> Get(string context)
         {
             await Task.CompletedTask;
+            var ctx = ContextToken.FromBase64TokenAndValiated(Config.PayloadHashSecret, context);
 
-            var ctx = ContextToken.FromBase64TokenAndValiate(Config.PayloadHashSecret, context);
+            var html = @"
+<html lang='en'>
+<head>
+    <meta charset='utf-8'>
+    <title>title</title>
+    <style>
+    </style>
+</head>
+<body>
 
-            return ctx.ItemId;
+<form id='form' method='POST' target='hidden-form'>
+    <input type='hidden' name='action' id='action' value='GetItem' />
+    <input type='hidden' name='arg1' id='arg1' value='value1' />
+    <button id='submit' onclick='document.getElementById(\'form\').post();' >GetItem</button>
+</form>
+<iframe style='display:none; witdth:10px; height:10px' name='hidden-form'></iframe>
+
+</body>
+</html>
+";
+
+            return new ContentResult() { Content = html, ContentType = "text/html" };
+        }
+
+        [Route("[controller]")]
+        [HttpPost]
+        public async Task<string> Post(string context)
+        {
+            await Task.CompletedTask;
+            var ctx = ContextToken.FromBase64TokenAndValiated(Config.PayloadHashSecret, context);
+
+            var action = HttpContext.Request.Form["action"].First();
+            var args = HttpContext.Request.Form
+                .Where(kv => kv.Key != "action")
+                .Select(kv => new KeyValuePair<string, string>(kv.Key, kv.Value.First()))
+                .ToStringDictionary()
+                ;
+
+
+            return "";
         }
     }
 }
