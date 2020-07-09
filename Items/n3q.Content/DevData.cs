@@ -222,21 +222,22 @@ namespace n3q.Content
                 case nameof(DevSpec.Template.SmallMapleTree): props = GetImageTemplate(name, text, name, "Small maple tree", "kleiner Ahornbaum", 58, 80, "Trees/SmallMapleTree.png"); break;
 
                 case nameof(DevSpec.Template.TheatreScreenplay): {
-                    props = GetIframeTemplate(name, text, name, "Theater Drehbuch", "Theatre Screenplay", 44, 64, "TheatreScreenplay/image.png", "https://theatre.weblin.sui.li/iframe.html?context={context}", 400, 500);
+                    props = GetIframeTemplate(name, text, name, "Theater Drehbuch", "Theatre Screenplay", 44, 64, "TheatreScreenplay/image.png", "https://theatre.weblin.sui.li/iframe.html?context={context}", 400, 500, nameof(Property.Value.IframeFrame.Window));
                     props[Pid.DocumentAspect] = true;
                     props[Pid.DocumentMaxLength] = 10000;
                 }
                 break;
                 case nameof(DevSpec.Template.TheatreScreenplayDispenser): {
-                    props = GetIframeTemplate(name, text, name, "Theater Drehbuch Generator", "Theatre Screenplay Generator", 78, 84, "TheatreScreenplay/TheatreScreenplayDispenser.png", ItemService.ItemIframeVar + nameof(DevSpec.Template.TheatreScreenplayDispenser) + "?context={context}", 100, 100);
-                    props[Pid.GeneratorAspect] = true;
-                    props[Pid.GeneratorTemplate] = nameof(DevSpec.Template.TheatreScreenplay);
-                    props[Pid.GeneratorLimit] = 1000;
-                    props[Pid.GeneratorStock] = 1000;
-                    props[Pid.GeneratorCooldown] = 1000;
+                    props = GetIframeTemplate(name, text, name, "Theater Drehbuch Generator", "Theatre Screenplay Generator", 78, 84, "TheatreScreenplay/TheatreScreenplayDispenser.png", ItemService.ItemIframeVar + "?context={context}", 100, 100, nameof(Property.Value.IframeFrame.Popup));
+                    props[Pid.DispenserAspect] = true;
+                    props[Pid.DispenserTemplate] = nameof(DevSpec.Template.TheatreScreenplay);
+                    props[Pid.DispenserMaxAvailable] = 1000L;
+                    props[Pid.DispenserAvailable] = 1000L;
+                    props[Pid.DispenserCooldownSec] = 10.0D;
+                    props[Pid.DispenserLastTime] = 0L;
                 }
                 break;
-                case nameof(DevSpec.Template.RallySpeaker): props = GetIframeTemplate(name, text, name, "Lautsprecher", "Speaker", 75, 80, "FridaysForFuture/RallySpeaker.png", "https://meet.jit.si/{room}", 600, 400); break;
+                case nameof(DevSpec.Template.RallySpeaker): props = GetIframeTemplate(name, text, name, "Lautsprecher", "Speaker", 75, 80, "FridaysForFuture/RallySpeaker.png", "https://meet.jit.si/{room}", 600, 400, nameof(Property.Value.IframeFrame.Window)); break;
 
                 default:
                     throw new Exception($"No template for name={name}");
@@ -245,7 +246,7 @@ namespace n3q.Content
             templates.Add(name, props);
         }
 
-        public static PropertySet GetIframeTemplate(string id, DevSpec.TextCollection text, string labelKey, string deLabelText, string enLabelText, int imgWidth, int imgHeight, string relativeImagePath, string iframeUrl, int iframeWidth, int iframeHeight)
+        public static PropertySet GetIframeTemplate(string id, DevSpec.TextCollection text, string labelKey, string deLabelText, string enLabelText, int imgWidth, int imgHeight, string relativeImagePath, string iframeUrl, int iframeWidth, int iframeHeight, string frameStyle)
         {
             var props = GetImageTemplate(id, text, labelKey, deLabelText, enLabelText, imgWidth, imgHeight, relativeImagePath);
             props[Pid.IframeAspect] = true;
@@ -253,6 +254,7 @@ namespace n3q.Content
             props[Pid.IframeWidth] = (long)iframeWidth;
             props[Pid.IframeHeight] = (long)iframeHeight;
             props[Pid.IframeResizeable] = true;
+            props[Pid.IframeFrame] = frameStyle;
             return props;
         }
 

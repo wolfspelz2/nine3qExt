@@ -4,7 +4,7 @@ import { SimpleRpc } from './SimpleRpc';
 
 export class Payload
 {
-    static async getToken(api: string, user: string, item: string, ttlSec: number, params: any): Promise<string>
+    static async getContextToken(api: string, user: string, item: string, ttlSec: number, params: any): Promise<string>
     {
         let expires = 10000000000 + ttlSec;
         var payload = {
@@ -16,7 +16,7 @@ export class Payload
         for (let key in params) {
             payload[key] = params[key];
         }
-        let hash = await this.getHash(api, payload);
+        let hash = await this.getPayloadHash(api, payload);
         let token = {
             'api': api,
             'payload': payload,
@@ -27,7 +27,7 @@ export class Payload
         return tokenBase64Encoded;
     }
 
-    static async getHash(api: string, payload: any): Promise<string>
+    static async getPayloadHash(api: string, payload: any): Promise<string>
     {
         let response = await new SimpleRpc('getPayloadHash')
             .param('payload', payload)

@@ -35,8 +35,8 @@ namespace n3q.Items
             Percent,
             Aspect,
             //Skill,
-            //Time, // as Long YYYYMMDDhhmmssiii
-            //Delay, // in float sec
+            Time, // as Long YYYYMMDDhhmmssiii
+            Delay, // in float sec
             String,
             StringList,
             //Json,
@@ -159,6 +159,12 @@ namespace n3q.Items
                 CodeReview,
                 SecurityAdmin
             }
+
+            public enum IframeFrame
+            {
+            Window,
+            Popup,
+            }
         }
 
 #pragma warning disable format
@@ -246,6 +252,7 @@ namespace n3q.Items
         [Pid.PageClaimAspect                       ] = new Definition(Storage.Bool    , Type.Bool            , Use.Aspect       , Group.Aspect    , Access.Public  , Persistence.Persistent , PropertyValue.Empty , "true", "Item claims room ownership."),
         [Pid.RezableProxyAspect                    ] = new Definition(Storage.Bool    , Type.Bool            , Use.Aspect       , Group.Aspect    , Access.Public  , Persistence.Persistent , PropertyValue.Empty , "true", "Item is a proxy for a rezzed item."),
         [Pid.RoleAspect                            ] = new Definition(Storage.Bool    , Type.Bool            , Use.Aspect       , Group.Aspect    , Access.System  , Persistence.Persistent , PropertyValue.Empty , "true", "Item contains account roles."),
+        [Pid.DispenserAspect                       ] = new Definition(Storage.Bool    , Type.Bool            , Use.Aspect       , Group.Aspect    , Access.System  , Persistence.Persistent , PropertyValue.Empty , "true", "Item can generate and eject an item."),
         [Pid.SourceAspect                          ] = new Definition(Storage.Bool    , Type.Bool            , Use.Aspect       , Group.Aspect    , Access.Public  , Persistence.Persistent , PropertyValue.Empty , "true", "IsSource provides a resource (a property which can be extracted by an Extractor)."),
         [Pid.SinkAspect                            ] = new Definition(Storage.Bool    , Type.Bool            , Use.Aspect       , Group.Aspect    , Access.Public  , Persistence.Persistent , PropertyValue.Empty , "true", "IsSink takes a resource (a property which can be filled by a Supplier)."),
         [Pid.ExtractorAspect                       ] = new Definition(Storage.Bool    , Type.Bool            , Use.Aspect       , Group.Aspect    , Access.Public  , Persistence.Persistent , PropertyValue.Empty , "true", "Item extracts a resource from IsSource items."),
@@ -288,10 +295,16 @@ namespace n3q.Items
         [Pid.IframeWidth                           ] = new Definition(Storage.Int     , Type.Int             , Use.String       , Group.App       , Access.Public  , Persistence.Persistent , PropertyValue.Empty , "400", "Initial width of iframe gui window."),
         [Pid.IframeHeight                          ] = new Definition(Storage.Int     , Type.Int             , Use.Int          , Group.App       , Access.Public  , Persistence.Persistent , PropertyValue.Empty , "400", "Initial height of iframe gui window."),
         [Pid.IframeResizeable                      ] = new Definition(Storage.Bool    , Type.Bool            , Use.Bool         , Group.App       , Access.Public  , Persistence.Persistent , PropertyValue.Empty , "true", "IFrame gui window is resizable"),
+        [Pid.IframeFrame                           ] = new Definition(Storage.String  , Type.String          , Use.String       , Group.App       , Access.Public  , Persistence.Persistent , nameof(Property.Value.IframeFrame.Window), "Window", "Iframe frame style (Window|Popup)"),
         [Pid.DocumentText                          ] = new Definition(Storage.String  , Type.String          , Use.String       , Group.App       , Access.Public  , Persistence.Persistent , PropertyValue.Empty , "This is a text", "Document text."),
         [Pid.DocumentMaxLength                     ] = new Definition(Storage.Int     , Type.Int             , Use.Int          , Group.App       , Access.Public  , Persistence.Persistent , 1000L , "1000", "Max length of DocumentText property to be stored"),
         [Pid.RezzableProxyTemplate                 ] = new Definition(Storage.String  , Type.String          , Use.Item         , Group.App       , Access.System  , Persistence.Persistent , PropertyValue.Empty , "RezzableProxyTemplate", "Id of proxy item template."),
         [Pid.RoleUserRoles                         ] = new Definition(Storage.String  , Type.StringList      , Use.EnumList     , Group.App       , Access.System  , Persistence.Persistent , PropertyValue.Empty , $"{Value.UserRoles.Public} {Value.UserRoles.User} {Value.UserRoles.PowerUser}", "List of user roles."),
+        [Pid.DispenserTemplate                     ] = new Definition(Storage.String  , Type.String          , Use.Item         , Group.App       , Access.System  , Persistence.Persistent , PropertyValue.Empty , "RezzableProxyTemplate", "Id of proxy item template."),
+        [Pid.DispenserMaxAvailable                 ] = new Definition(Storage.Int     , Type.Int             , Use.Int          , Group.App       , Access.Public  , Persistence.Persistent , 1000000000L , "3", "Max number of items left to generate and eject."),
+        [Pid.DispenserAvailable                    ] = new Definition(Storage.Int     , Type.Int             , Use.Int          , Group.App       , Access.Public  , Persistence.Persistent , PropertyValue.Empty  , "3", "Number of items left to generate and eject."),
+        [Pid.DispenserCooldownSec                  ] = new Definition(Storage.Float   , Type.Float           , Use.Delay        , Group.App       , Access.Public  , Persistence.Persistent , PropertyValue.Empty , "10.0", "Delay between actions."),
+        [Pid.DispenserLastTime                     ] = new Definition(Storage.Int     , Type.Int             , Use.Time         , Group.App       , Access.Public  , Persistence.Persistent , PropertyValue.Empty , "3", "Time of last action (for cooldown)."),
         [Pid.SourceResource                        ] = new Definition(Storage.String  , Type.String          , Use.String       , Group.App       , Access.Public  , Persistence.Persistent , PropertyValue.Empty , "WaterLevel", "The name of the resource provided by the source."),
         [Pid.SinkResource                          ] = new Definition(Storage.String  , Type.String          , Use.String       , Group.App       , Access.Public  , Persistence.Persistent , PropertyValue.Empty , "WaterLevel", "The name of the resource provided by the source."),
         [Pid.WaterLevel                            ] = new Definition(Storage.Float   , Type.Float           , Use.Ccm          , Group.App       , Access.Public  , Persistence.Persistent , PropertyValue.Empty , "100", "Water level."),

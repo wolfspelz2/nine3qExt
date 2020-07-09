@@ -1,15 +1,12 @@
 import * as $ from 'jquery';
 import 'webpack-jquery-ui';
-// import markdown = require('markdown');
 import log = require('loglevel');
 import { as } from '../lib/as';
-import { Config } from '../lib/Config';
-import { Environment } from '../lib/Environment';
 import { ContentApp } from './ContentApp';
-import { Room } from './Room';
 import { Window } from './Window';
-import { Payload } from '../lib/Payload';
 import { Item } from './Item';
+import { RoomItem } from './RoomItem';
+import { InventoryItem } from './InventoryItem';
 
 type WindowOptions = any;
 
@@ -17,11 +14,7 @@ interface ItemFrameWindowOptions extends WindowOptions
 {
     item: Item;
     above: HTMLElement;
-    resizable: boolean;
-    titleText: string;
     url: string;
-    width: number;
-    height: number;
     onClose: { (): void };
 }
 
@@ -38,53 +31,48 @@ export class ItemFrameWindow extends Window
             let url: string = options.url;
             if (!url) { throw 'No url' }
 
-            let room = this.app.getRoom();
-            if (!room) { throw 'No room' }
+            options.bottom = 150;
+            options.width = as.Int(options.item.getProperties().IframeWidth, 400);
+            options.height = as.Int(options.item.getProperties().IframeHeight, 400);
+            options.resizable = as.Bool(options.item.getProperties().IframeResizable, true);
+            options.titleText = as.String(options.item.getProperties().Label, 'Item');
 
-            let roomJid = room.getJid();
-
-            let item = options.item;
-            let providerId = item.getProviderId();
-            let apiUrl = this.app.getItemProviderConfigValue(providerId, 'apiUrl', '');
-            let userId = this.app.getItemProviderConfigValue(providerId, 'userToken', '');
-            let itemId = item.getId();
-
-            if (apiUrl == '') { throw 'No apiUrl' }
-            if (userId == '') { throw 'No userId' }
-            if (itemId == '') { throw 'No itemId' }
-
-            let token = await Payload.getToken(apiUrl, userId, itemId, 3600, { 'room': roomJid });
-            url = url.replace('{token}', encodeURIComponent(token));
             log.debug('ItemFrameWindow', url);
-
             super.show(options);
-
-            let aboveElem: HTMLElement = options.above;
-            let bottom = as.Int(options.bottom, 150);
-            let width = as.Int(options.width, 400);
-            let height = as.Int(options.height, 400);
 
             $(this.windowElem).addClass('n3q-itemframewindow');
 
             let left = 50;
-            if (aboveElem) {
-                left = Math.max(aboveElem.offsetLeft - 180, left);
+            let top = 50;
+            let minLeft = 10;
+            let minTop = 10;
+
+            if (options.item instanceof RoomItem) {
+                left = Math.max(options.above.offsetLeft - 180, left);
+                top = this.app.getDisplay().offsetHeight - options.height - options.bottom;
+            } else if (options.item instanceof InventoryItem) {
+                let itemPos = $(options.above).offset();
+                let scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+                let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                let itemAbsLeft = itemPos.left - scrollLeft;
+                let itemAbsTop = itemPos.top - scrollTop;
+                let itemWidth = as.Int(options.item.getProperties().Width, 64);
+                let itemHeight = as.Int(options.item.getProperties().Height, 64);
+                let itemCenterLeft = itemAbsLeft + itemWidth / 2;
+                let itemCenterTop = itemAbsTop + itemHeight / 2;
+                let left = itemCenterLeft - options.width / 2;
+                let top = itemCenterTop - options.height / 2;
             }
-            let top = this.app.getDisplay().offsetHeight - height - bottom;
-            {
-                let minTop = 10;
-                if (top < minTop) {
-                    top = minTop;
-                }
-            }
+
+            if (left < minLeft) { left = minLeft; }
+            if (top < minTop) { top = minTop; }
 
             let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-itemframewindow-content" src="' + url + ' " frameborder="0"></iframe>').get(0);
 
             $(this.contentElem).append(iframeElem);
-
             this.app.translateElem(this.windowElem);
-
-            $(this.windowElem).css({ 'width': width + 'px', 'height': height + 'px', 'left': left + 'px', 'top': top + 'px' });
+            $(this.windowElem).css({ 'width': options.width + 'px', 'height': options.height + 'px', 'left': left + 'px', 'top': top + 'px' });
+            this.app.toFront(this.windowElem)
 
         } catch (error) {
             log.info('ItemFrameWindow', error);
