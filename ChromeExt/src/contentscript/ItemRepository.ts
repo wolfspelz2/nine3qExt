@@ -9,7 +9,7 @@ export class ItemRepository
 {
     private items: { [id: string]: Item; } = {};
 
-    constructor(private app: ContentApp) 
+    constructor(protected app: ContentApp) 
     {
     }
 

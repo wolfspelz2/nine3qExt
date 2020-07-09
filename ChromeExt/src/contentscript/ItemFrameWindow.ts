@@ -46,23 +46,10 @@ export class ItemFrameWindow extends Window
             let top = 50;
             let minLeft = 10;
             let minTop = 10;
+            let vertOffset = 50;
 
-            if (options.item instanceof RoomItem) {
-                left = Math.max(options.above.offsetLeft - 180, left);
-                top = this.app.getDisplay().offsetHeight - options.height - options.bottom;
-            } else if (options.item instanceof InventoryItem) {
-                let itemPos = $(options.above).offset();
-                let scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-                let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                let itemAbsLeft = itemPos.left - scrollLeft;
-                let itemAbsTop = itemPos.top - scrollTop;
-                let itemWidth = as.Int(options.item.getProperties().Width, 64);
-                let itemHeight = as.Int(options.item.getProperties().Height, 64);
-                let itemCenterLeft = itemAbsLeft + itemWidth / 2;
-                let itemCenterTop = itemAbsTop + itemHeight / 2;
-                let left = itemCenterLeft - options.width / 2;
-                let top = itemCenterTop - options.height / 2;
-            }
+            left = Math.max(options.above.offsetLeft - 180, left);
+            top = this.app.getDisplay().offsetHeight - options.height - options.bottom;
 
             if (left < minLeft) { left = minLeft; }
             if (top < minTop) { top = minTop; }

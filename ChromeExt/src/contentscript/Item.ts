@@ -17,7 +17,7 @@ export class Item
     private frameWindow: ItemFrameWindow;
     private framePopup: ItemFramePopup;
 
-    constructor(private app: ContentApp, private id: string)
+    constructor(protected app: ContentApp, private id: string)
     {
     }
 

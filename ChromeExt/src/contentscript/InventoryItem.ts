@@ -23,7 +23,7 @@ export class InventoryItem
 
     getProperties(): { [pid: string]: string } { return this.item.getProperties(); }
 
-    constructor(private app: ContentApp, private inv: Inventory, private itemId: string)
+    constructor(protected app: ContentApp, private inv: Inventory, private itemId: string)
     {
         this.item = new Item(app, itemId);
 

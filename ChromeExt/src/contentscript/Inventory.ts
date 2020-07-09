@@ -18,7 +18,7 @@ export class Inventory
     private isSubscribed: boolean;
     private isAvailable: boolean;
 
-    constructor(private app: ContentApp, private providerId: string) 
+    constructor(protected app: ContentApp, private providerId: string) 
     {
         this.userToken = this.app.getItemProviderConfigValue(providerId, 'userToken', '');
         let serviceUrl = this.app.getItemProviderConfigValue(providerId, 'serviceUrl', '');
