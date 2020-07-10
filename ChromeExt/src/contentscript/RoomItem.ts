@@ -22,6 +22,17 @@ export class RoomItem extends Entity
 
         $(this.getElem()).addClass('n3q-item');
         $(this.getElem()).attr('data-nick', nick);
+
+        // $(this.getElem()).droppable({
+        //     over: (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
+        //     {
+        //         log.info('over');
+        //     },
+        //     drop: (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
+        //     {
+        //         log.info('drop');
+        //     }
+        // });
     }
 
     getDefaultAvatar(): string { return imgDefaultItem; }
