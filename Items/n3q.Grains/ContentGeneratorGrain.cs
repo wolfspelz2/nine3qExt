@@ -71,13 +71,14 @@ namespace n3q.Grains
             foreach (var template in templates) {
                 var templateId = template.Key;
                 var templateProps = template.Value;
-                var item = new ItemWriter(new OrleansGrainFactoryItemClient(GrainFactory, templateId));
-                await item.WithTransaction(async self => {
+
+                await new OrleansGrainFactoryClusterClient(GrainFactory).Transaction(templateId, async self => {
                     var oldProps = await self.Get(PidSet.All, native: true);
                     var deletePids = new PidSet(oldProps.Keys.Select(pid => pid));
                     await self.Modify(PropertySet.Empty, deletePids);
                     await self.Modify(templateProps, PidSet.Empty);
                 });
+
                 templateIds.Add(templateId);
             }
 
@@ -97,11 +98,11 @@ namespace n3q.Grains
 
         private async Task RegisterTemplates(List<string> templateIds, string containerId)
         {
-            var container = new ItemWriter(new OrleansGrainFactoryItemClient(GrainFactory, containerId));
-            await container.WithTransaction(async self => {
+            var clusterClient = new OrleansGrainFactoryClusterClient(GrainFactory);
+            await clusterClient.Transaction(containerId, async self => {
                 await self.Set(Pid.ContainerAspect, true);
             });
-            await container.WithTransaction(async self => {
+            await clusterClient.Transaction(containerId, async self => {
                 foreach (var id in templateIds) {
                     var child = await self.WritableItem(id);
                     await self.AsContainer().AddChild(child);

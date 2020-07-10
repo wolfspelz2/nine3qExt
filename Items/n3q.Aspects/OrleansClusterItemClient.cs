@@ -1,5 +1,6 @@
 ﻿using Orleans;
 using n3q.GrainInterfaces;
+using System.Threading.Tasks;
 
 namespace n3q.Aspects
 {
@@ -27,18 +28,18 @@ namespace n3q.Aspects
         }
     }
     
-    public class OrleansItemClusterClient: IItemClusterClient
+    public class OrleansItemClusterClient: ItemClusterClientBase, IItemClusterClient
     {
-        readonly IClusterClient _clusterClient;
+        public readonly IClusterClient OrleansClusterClient;
 
         public OrleansItemClusterClient(IClusterClient clusterClient)
         {
-            _clusterClient = clusterClient;
+            OrleansClusterClient = clusterClient;
         }
 
-        public IItemClient ItemClient(string itemId)
+        public override IItemClient GetItemClient(string itemId)
         {
-            return new OrleansClusterItemClient(_clusterClient, itemId);
+            return new OrleansClusterItemClient(OrleansClusterClient, itemId);
         }
     }
 }

@@ -26,4 +26,19 @@ namespace n3q.Aspects
             return new Aspects.OrleansGrainFactoryItemClient(_grainFactory, otherId);
         }
     }
+
+    public class OrleansGrainFactoryClusterClient : ItemClusterClientBase, IItemClusterClient
+    {
+        public readonly IGrainFactory OrleansGrainFactory;
+
+        public OrleansGrainFactoryClusterClient(IGrainFactory grainFactory)
+        {
+            OrleansGrainFactory = grainFactory;
+        }
+
+        public override IItemClient GetItemClient(string itemId)
+        {
+            return new OrleansGrainFactoryItemClient(OrleansGrainFactory, itemId);
+        }
+    }
 }

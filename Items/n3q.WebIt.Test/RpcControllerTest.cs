@@ -170,7 +170,7 @@ namespace n3q.WebIt.Test
             });
 
             // Assert
-            var documentStub = new ItemReader(simulatorClient.ItemClient(documentId));
+            var documentStub = new ItemReader(simulatorClient.GetItemClient(documentId));
             Assert.AreEqual(anotherText, await documentStub.GetString(Pid.DocumentText));
         }
 
@@ -204,7 +204,7 @@ namespace n3q.WebIt.Test
             });
 
             // Assert
-            var documentStub = new ItemReader(simulatorClient.ItemClient(documentId));
+            var documentStub = new ItemReader(simulatorClient.GetItemClient(documentId));
             Assert.AreEqual(documentText, await documentStub.GetString(Pid.DocumentText));
         }
 
@@ -349,11 +349,10 @@ namespace n3q.WebIt.Test
 
         private static async Task<string> GenerateDeveloperToken(string developerId, SiloSimulatorClusterClient simulatorClient)
         {
-            var developerStub = new ItemWriter(simulatorClient.ItemClient(developerId));
-            await developerStub.WithTransaction(async self => {
+            await simulatorClient.Transaction(developerId, async self => {
                 await self.Execute(nameof(Aspects.Developer.GenerateToken), new Dictionary<string, string>());
             });
-            var developerToken = (string)await developerStub.Get(Pid.DeveloperToken);
+            var developerToken = (string)await simulatorClient.GetItemReader(developerId).Get(Pid.DeveloperToken);
             return developerToken;
         }
 

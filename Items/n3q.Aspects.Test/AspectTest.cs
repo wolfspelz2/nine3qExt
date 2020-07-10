@@ -36,7 +36,7 @@ namespace n3q.Items.Test
             ItemWriter GetItemWriter(string id)
             {
                 var simulatorClient = new SiloSimulatorItemClient(siloSimulator, id);
-                return new ItemWriter(simulatorClient);
+                return new ItemWriter(simulatorClient, new VoidTransaction());
             }
 
             var itemId = RandomString.Get(10);
@@ -80,16 +80,8 @@ namespace n3q.Items.Test
             };
             var siloSimulatorClient = new SiloSimulatorClusterClient(siloSimulator);
 
-            ItemWriter GetItemWriter(string id)
-            {
-                var siloSimulatorItemClient = siloSimulatorClient.ItemClient(id);
-                return new ItemWriter(siloSimulatorItemClient);
-            }
-
-            var greeted = GetItemWriter(greetedId);
-
             // Act
-            await greeted.WithTransaction(async self => {
+            await siloSimulatorClient.Transaction(greetedId, async self => {
                 await self.AsGreeted().Execute(nameof(Greeted.GetGreeting), new PropertySet { [Pid.GreetedGetGreetingGreeter] = greeterId, [Pid.GreetedGetGreetingName] = "b" });
             });
 

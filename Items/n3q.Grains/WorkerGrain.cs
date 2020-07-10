@@ -25,9 +25,9 @@ namespace n3q.Grains
 
         public async Task AspectAction(string itemId, Pid aspectPid, string actionName, PropertySet args = null)
         {
-            var itemClient = new OrleansGrainFactoryItemClient(GrainFactory, itemId);
-            var item = new ItemWriter(itemClient);
-            var transaction = new ItemTransaction();
+            var itemClient = new OrleansGrainFactoryClusterClient(GrainFactory);
+            var item = itemClient.GetItemWriter(itemId);
+            var transaction = item.Transaction;
 
             try {
                 await transaction.Begin(item);
@@ -51,10 +51,8 @@ namespace n3q.Grains
         {
             var executedActions = new Dictionary<Pid, string>();
 
-            var itemClient = new OrleansGrainFactoryItemClient(GrainFactory, itemId);
-            var item = new ItemWriter(itemClient);
-
-            await item.WithTransaction(async self => {
+            var itemClient = new OrleansGrainFactoryClusterClient(GrainFactory);
+            await itemClient.Transaction(itemId, async self => {
 
                 var actionMap = await self.GetMap(Pid.Actions);
                 if (!actionMap.TryGetValue(actionName, out var mappedActionName)) {

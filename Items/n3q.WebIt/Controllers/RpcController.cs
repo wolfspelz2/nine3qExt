@@ -110,7 +110,7 @@ namespace n3q.WebIt.Controllers
             );
             pids.Add(Pid.Developer);
 
-            var itemReader = new ItemReader(ClusterClient.ItemClient(context.ItemId));
+            var itemReader = new ItemReader(ClusterClient.GetItemClient(context.ItemId));
             var props = await itemReader.Get(pids);
 
             if (props.GetString(Pid.Developer) != developerId) { throw new Exception("Developer invalid"); }
@@ -143,7 +143,7 @@ namespace n3q.WebIt.Controllers
                 .ToStringDictionary(n => n.AsString)
                 ;
 
-            var itemWriter = new ItemWriter(ClusterClient.ItemClient(context.ItemId));
+            var itemWriter = ClusterClient.GetItemWriter(context.ItemId);
 
             var propDeveloperId = await itemWriter.GetItemId(Pid.Developer);
             if (propDeveloperId != developerId) { throw new Exception("Developer mismatch"); }
@@ -169,7 +169,7 @@ namespace n3q.WebIt.Controllers
             var developerId = payloadNode[nameof(Protocol.DeveloperToken.Payload.developer)].AsString;
             if (!Has.Value(developerId)) { throw new Exception("No developer id in developer token"); }
 
-            var itemReader = new ItemReader(ClusterClient.ItemClient(developerId));
+            var itemReader = new ItemReader(ClusterClient.GetItemClient(developerId));
             var props = await itemReader.Get(new PidSet { Pid.DeveloperAspect, Pid.DeveloperToken });
             if (!props[Pid.DeveloperAspect]) { throw new Exception("Invalid developer token"); }
             if (props[Pid.DeveloperToken] != tokenBase64Encoded) { throw new Exception("Invalid developer token"); }

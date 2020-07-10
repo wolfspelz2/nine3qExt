@@ -18,7 +18,7 @@ namespace n3q.Xmpp
 {
     public partial class Controller : IAsyncObserver<ItemUpdate>
     {
-        IClusterClient ClusterClient { get; set; }
+        OrleansItemClusterClient ItemClusterClient { get; set; }
         XmppConfigDefinition Config { get; set; }
 
         readonly string _componentHost;
@@ -41,7 +41,7 @@ namespace n3q.Xmpp
 
         public Controller(IClusterClient clusterClient, XmppConfigDefinition config)
         {
-            ClusterClient = clusterClient;
+            ItemClusterClient = new OrleansItemClusterClient(clusterClient);
             Config = config;
 
             _componentHost = Config.ComponentHost;
@@ -153,7 +153,7 @@ namespace n3q.Xmpp
         private IAsyncStream<ItemUpdate> ItemUpdateStream
         {
             get {
-                var streamProvider = ClusterClient.GetStreamProvider(ItemService.StreamProvider);
+                var streamProvider = ItemClusterClient.OrleansClusterClient.GetStreamProvider(ItemService.StreamProvider);
                 var streamId = ItemService.StreamGuid;
                 var streamNamespace = ItemService.StreamNamespace;
                 var stream = streamProvider.GetStream<ItemUpdate>(streamId, streamNamespace);
@@ -163,17 +163,15 @@ namespace n3q.Xmpp
 
         ItemWriter GetItemWriter(string itemId)
         {
-            var itemClient = new OrleansClusterItemClient(ClusterClient, itemId);
-            return new ItemWriter(itemClient);
+            return ItemClusterClient.GetItemWriter(itemId);
         }
 
         ItemReader GetItemReader(string itemId)
         {
-            var itemClient = new OrleansClusterItemClient(ClusterClient, itemId);
-            return new ItemReader(itemClient);
+            return ItemClusterClient.GetItemReader(itemId);
         }
 
-        IWorker GetIWorker() => ClusterClient.GetGrain<IWorker>(Guid.Empty);
+        IWorker GetIWorker() => ItemClusterClient.OrleansClusterClient.GetGrain<IWorker>(Guid.Empty);
 
         #endregion
 
@@ -542,7 +540,7 @@ namespace n3q.Xmpp
             //await Task.CompletedTask;
             //var inventoryItemId = userToken == "random-user-token-jhg2fu7kjjl4koi8tgi" ? "random-user-inventory-576gzfezgfr54u6l9" : "";
 
-            var inventoryItemId = await ClusterClient.GetGrain<IItemRef>(userToken).GetItem();
+            var inventoryItemId = await ItemClusterClient.OrleansClusterClient.GetGrain<IItemRef>(userToken).GetItem();
 
             return inventoryItemId;
         }

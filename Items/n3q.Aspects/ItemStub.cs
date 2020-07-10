@@ -150,7 +150,7 @@ namespace n3q.Aspects
 
         public async Task WithTransaction(TransactionWrappedCode transactedCode)
         {
-            await WithTransactionCore(transactedCode, new ItemTransaction());
+            await WithTransactionCore(transactedCode, Transaction ?? new ItemTransaction());
         }
 
         public async Task WithoutTransaction(TransactionWrappedCode transactedCode)

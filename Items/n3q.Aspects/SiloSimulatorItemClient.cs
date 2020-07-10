@@ -1,4 +1,5 @@
-﻿using n3q.GrainInterfaces;
+﻿using System.Threading.Tasks;
+using n3q.GrainInterfaces;
 
 namespace n3q.Aspects
 {
@@ -26,18 +27,18 @@ namespace n3q.Aspects
         }
     }
 
-    public class SiloSimulatorClusterClient : IItemClusterClient
+    public class SiloSimulatorClusterClient : ItemClusterClientBase, IItemClusterClient
     {
-        readonly SiloSimulator _simulator;
+        public readonly SiloSimulator Simulator;
 
         public SiloSimulatorClusterClient(SiloSimulator simulator)
         {
-            _simulator = simulator;
+            Simulator = simulator;
         }
 
-        public IItemClient ItemClient(string itemId)
+        public override IItemClient GetItemClient(string itemId)
         {
-            return new SiloSimulatorItemClient(_simulator, itemId);
+            return new SiloSimulatorItemClient(Simulator, itemId);
         }
     }
 }

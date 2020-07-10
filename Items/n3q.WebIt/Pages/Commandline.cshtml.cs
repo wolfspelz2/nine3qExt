@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Orleans;
 using n3q.GrainInterfaces;
 using n3q.Tools;
+using n3q.Aspects;
 
 namespace n3q.WebIt
 {
@@ -70,7 +71,7 @@ namespace n3q.WebIt
             _clusterClient = clusterClient;
             if (_commandline is ItemCommandline itemCommandline) {
                 if (itemCommandline.ClusterClient == null) {
-                    itemCommandline.ClusterClient = clusterClient;
+                    itemCommandline.ClusterClient = new OrleansItemClusterClient(clusterClient);
                 }
             }
         }

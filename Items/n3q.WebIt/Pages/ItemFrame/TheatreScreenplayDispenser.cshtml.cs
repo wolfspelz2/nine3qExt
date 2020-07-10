@@ -35,9 +35,7 @@ namespace n3q.WebIt.ItemFrame
                 .ToStringDictionary(x => x.First())
                 ;
 
-            var itemWriter = new ItemWriter(ClusterClient.ItemClient(ctx.ItemId));
-
-            await itemWriter.WithTransaction(async self => {
+            await ClusterClient.Transaction(ctx.ItemId, async self => {
                 await self.Execute(action, args);
             });
         }

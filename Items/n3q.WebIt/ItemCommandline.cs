@@ -17,7 +17,7 @@ namespace n3q.WebIt
 {
     public class ItemCommandline : Commandline, ICommandline
     {
-        public IClusterClient ClusterClient { get; set; }
+        public OrleansItemClusterClient ClusterClient { get; set; }
         public WebItConfigDefinition Config { get; }
 
         public enum ItemRole { Content, LeadContent, SecurityAdmin }
@@ -626,14 +626,14 @@ namespace n3q.WebIt
         }
         string GetItemLink(string itemId)
         {
-            var item = ClusterClient.GetGrain<IItem>(itemId);
+            var item = ClusterClient.OrleansClusterClient.GetGrain<IItem>(itemId);
             var text = itemId.ToString();
             return CommandExecuteLink(Fn.Item_Get.ToString(), new[] { itemId }, text);
         }
 
         string GetDeleteItemFromListLink(string itemId, Pid pid, string listItem)
         {
-            var item = ClusterClient.GetGrain<IItem>(itemId);
+            var item = ClusterClient.OrleansClusterClient.GetGrain<IItem>(itemId);
             var text = itemId.ToString();
             return CommandExecuteLink(Fn.Item_RemoveFromList.ToString(), new[] { itemId, pid.ToString(), listItem }, "&#10006;", new Dictionary<string, string> { { "class", "cSmallTextButton" } });
         }
@@ -646,7 +646,7 @@ namespace n3q.WebIt
         {
             args.Next("cmd");
             var itemRefId = args.Next("ItemRef");
-            var itemId = ClusterClient.GetGrain<IItemRef>(itemRefId).GetItem().Result;
+            var itemId = ClusterClient.OrleansClusterClient.GetGrain<IItemRef>(itemRefId).GetItem().Result;
             return new ItemReference(itemId);
         }
 
@@ -655,7 +655,7 @@ namespace n3q.WebIt
             args.Next("cmd");
             var itemRefId = args.Next("ItemRef");
             var itemId = args.Next("Item");
-            ClusterClient.GetGrain<IItemRef>(itemRefId).SetItem(itemId).Wait();
+            ClusterClient.OrleansClusterClient.GetGrain<IItemRef>(itemRefId).SetItem(itemId).Wait();
             return $"{itemRefId} => {itemId}";
         }
 
@@ -663,7 +663,7 @@ namespace n3q.WebIt
         {
             args.Next("cmd");
             var itemRefId = args.Next("ItemRef");
-            ClusterClient.GetGrain<IItemRef>(itemRefId).Delete().Wait();
+            ClusterClient.OrleansClusterClient.GetGrain<IItemRef>(itemRefId).Delete().Wait();
             return $"Deleted";
         }
 
@@ -671,7 +671,7 @@ namespace n3q.WebIt
         {
             args.Next("cmd");
             var itemRefId = args.Next("ItemRef");
-            ClusterClient.GetGrain<IItemRef>(itemRefId).Deactivate().Wait();
+            ClusterClient.OrleansClusterClient.GetGrain<IItemRef>(itemRefId).Deactivate().Wait();
             return $"Deactivated";
         }
 
@@ -751,7 +751,7 @@ namespace n3q.WebIt
         {
             args.Next("cmd");
 
-            var cg = ClusterClient.GetGrain<IContentGenerator>(Guid.Empty);
+            var cg = ClusterClient.OrleansClusterClient.GetGrain<IContentGenerator>(Guid.Empty);
             var groups = cg.GetGroupNames().Result;
             var s = "";
             foreach (var group in groups) {
@@ -765,7 +765,7 @@ namespace n3q.WebIt
             args.Next("cmd");
             var name = args.Next("GroupName");
 
-            var cg = ClusterClient.GetGrain<IContentGenerator>(Guid.Empty);
+            var cg = ClusterClient.OrleansClusterClient.GetGrain<IContentGenerator>(Guid.Empty);
             var templates = cg.GetTemplateNames(name).Result;
             var s = CommandExecuteLink(Fn.Content_Create.ToString(), new[] { name }, "[Create all]") + " Create: ";
             foreach (var template in templates) {
@@ -779,7 +779,7 @@ namespace n3q.WebIt
             args.Next("cmd");
             var name = args.Next("template or group name");
 
-            var cg = ClusterClient.GetGrain<IContentGenerator>(Guid.Empty);
+            var cg = ClusterClient.OrleansClusterClient.GetGrain<IContentGenerator>(Guid.Empty);
             var ids = cg.CreateTemplates(name).Result;
 
             return string.Join(" ", ids.ConvertAll(id => GetItemLink(id)));

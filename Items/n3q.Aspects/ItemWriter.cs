@@ -5,7 +5,6 @@ namespace n3q.Aspects
 {
     public class ItemWriter : ItemReader
     {
-        public ItemWriter(IItemClient itemClient) : base(itemClient) { }
         public ItemWriter(IItemClient itemClient, ITransaction transaction) : base(itemClient, transaction) { }
 
         public async Task Modify(PropertySet modified, PidSet deleted) { AssertTransaction(); await Grain.ModifyProperties(modified, deleted, Transaction.Id); }
