@@ -17,11 +17,10 @@ namespace n3q.Aspects
         public Developer(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.DeveloperAspect;
 
-        public enum Action { GenerateToken }
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { nameof(Action.GenerateToken), new ActionDescription() { Handler = async (args) => await GenerateToken() } },
+                { nameof(GenerateToken), new ActionDescription() { Handler = async (args) => await GenerateToken() } },
             };
         }
 
@@ -32,7 +31,7 @@ namespace n3q.Aspects
         {
             await AssertAspect(Pid.DeveloperAspect);
 
-            var config = await ReadonlyItem(Common.ItemService.WebItConfigItemId);
+            var config = ReadonlyItem(Common.ItemService.WebItConfigItemId);
             var configJson = (string)await config.Get(Pid.DocumentText);
             var configNode = new JsonPath.Node(configJson);
 

@@ -20,13 +20,13 @@ namespace n3q.WebIt.Controllers
     {
         public ICallbackLogger Log { get; set; }
         public WebItConfigDefinition Config { get; set; }
-        public IItemClusterClient ItemClient { get; set; }
+        public IItemClusterClient ClusterClient { get; set; }
 
         public RpcController(ILogger<RpcController> logger, WebItConfigDefinition config, IClusterClient clusterClient)
         {
             Log = new FrameworkCallbackLogger(logger);
             Config = config;
-            ItemClient = new OrleansItemClusterClient(clusterClient);
+            ClusterClient = new OrleansItemClusterClient(clusterClient);
         }
 
         //public RpcController(WebItConfigDefinition config, SiloSimulator siloSimulator)
@@ -110,7 +110,7 @@ namespace n3q.WebIt.Controllers
             );
             pids.Add(Pid.Developer);
 
-            var itemReader = new ItemReader(ItemClient.GetItemClient(context.ItemId));
+            var itemReader = new ItemReader(ClusterClient.ItemClient(context.ItemId));
             var props = await itemReader.Get(pids);
 
             if (props.GetString(Pid.Developer) != developerId) { throw new Exception("Developer invalid"); }
@@ -143,14 +143,14 @@ namespace n3q.WebIt.Controllers
                 .ToStringDictionary(n => n.AsString)
                 ;
 
-            var itemWriter = new ItemWriter(ItemClient.GetItemClient(context.ItemId));
+            var itemWriter = new ItemWriter(ClusterClient.ItemClient(context.ItemId));
 
             var propDeveloperId = await itemWriter.GetItemId(Pid.Developer);
             if (propDeveloperId != developerId) { throw new Exception("Developer mismatch"); }
 
-            itemWriter.WithTransaction(async self => {
+            await itemWriter.WithTransaction(async self => {
                 await self.Execute(action, args);
-            }).Wait();
+            });
 
             var response = new JsonPath.Dictionary {
             };
@@ -169,7 +169,7 @@ namespace n3q.WebIt.Controllers
             var developerId = payloadNode[nameof(Protocol.DeveloperToken.Payload.developer)].AsString;
             if (!Has.Value(developerId)) { throw new Exception("No developer id in developer token"); }
 
-            var itemReader = new ItemReader(ItemClient.GetItemClient(developerId));
+            var itemReader = new ItemReader(ClusterClient.ItemClient(developerId));
             var props = await itemReader.Get(new PidSet { Pid.DeveloperAspect, Pid.DeveloperToken });
             if (!props[Pid.DeveloperAspect]) { throw new Exception("Invalid developer token"); }
             if (props[Pid.DeveloperToken] != tokenBase64Encoded) { throw new Exception("Invalid developer token"); }

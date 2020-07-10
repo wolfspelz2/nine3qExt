@@ -21,11 +21,12 @@ namespace n3q.Content
                     //Don.t = () => {
                     //    GetTemplate(nameof(DevSpec.Template.Attributes), templates, text);
                     //    GetTemplate(nameof(DevSpec.Template.Backpack), templates, text);
-                    //    GetTemplate(nameof(DevSpec.Template.TrashCan), templates, text);
                     //    GetTemplate(nameof(DevSpec.Template.Nickname), templates, text);
                     //    GetTemplate(nameof(DevSpec.Template.Avatar), templates, text);
+                    //GetTemplate(nameof(DevSpec.Template.Trashcan), templates, text);
                     //};
                     GetTemplate(nameof(DevSpec.Template.Inventory), templates, text);
+                    GetTemplate(nameof(DevSpec.Template.Recycler), templates, text);
                     GetTemplate(nameof(DevSpec.Template.Settings), templates, text);
                     break;
 
@@ -141,6 +142,19 @@ namespace n3q.Content
                     text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Inventory";
                     break;
 
+                case nameof(DevSpec.Template.Recycler):
+                    props = new PropertySet {
+                        [Pid.Name] = name,
+                        [Pid.Label] = "Recycler",
+                        [Pid.Width] = 32,
+                        [Pid.Height] = 32,
+                        [Pid.ImageUrl] = ItemService.ItemBaseVar + "User/Recycler.png",
+                        [Pid.DeleterAspect] = true,
+                    };
+                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Einstellungen";
+                    text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Settings";
+                    break;
+
                 case nameof(DevSpec.Template.Settings):
                     props = new PropertySet {
                         [Pid.Name] = name,
@@ -206,7 +220,7 @@ namespace n3q.Content
                         [Pid.ExtractorAspect] = true,
                         [Pid.InjectorAspect] = true,
                         [Pid.ApplierAspect] = true,
-                        [Pid.Actions] = ValueMap.From(new Dictionary<string, string> { ["ApplyTo"] = nameof(Applier.Action.Apply), ["GetWater"] = nameof(Extractor.Action.Extract), ["PutWater"] = nameof(Injector.Action.Inject) }),
+                        [Pid.Actions] = ValueMap.From(new Dictionary<string, string> { ["ApplyTo"] = nameof(Applier.Apply), ["GetWater"] = nameof(Extractor.Extract), ["PutWater"] = nameof(Injector.Inject) }),
                         [Pid.Stats] = ValueList.From(new[] { Pid.WaterLevel.ToString() }),
                     };
                     text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Wasserflasche";

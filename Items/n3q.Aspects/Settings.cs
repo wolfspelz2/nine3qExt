@@ -14,14 +14,10 @@ namespace n3q.Aspects
         public Settings(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.SettingsAspect;
 
-        public enum Action
-        {
-            //SetInventoryCoordinates
-        }
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                //{ nameof(Action.SetInventoryCoordinates), new ActionDescription() { Handler = async (args) => await SetInventoryCoordinates(args.Get(Pid.SettingsSetInventoryCoordinatesLeft), args.Get(Pid.SettingsSetInventoryCoordinatesBottom), args.Get(Pid.SettingsSetInventoryCoordinatesWidth), args.Get(Pid.SettingsSetInventoryCoordinatesHeight)) } },
+                //{ nameof(SetInventoryCoordinates), new ActionDescription() { Handler = async (args) => await SetInventoryCoordinates(args.Get(Pid.SettingsSetInventoryCoordinatesLeft), args.Get(Pid.SettingsSetInventoryCoordinatesBottom), args.Get(Pid.SettingsSetInventoryCoordinatesWidth), args.Get(Pid.SettingsSetInventoryCoordinatesHeight)) } },
             };
         }
 

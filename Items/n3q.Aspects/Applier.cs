@@ -1,4 +1,5 @@
-﻿using n3q.Items;
+﻿using System.Threading.Tasks;
+using n3q.Items;
 
 namespace n3q.Aspects
 {
@@ -12,16 +13,16 @@ namespace n3q.Aspects
         public Applier(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.ApplierAspect;
 
-        public enum Action { Apply }
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { nameof(Action.Apply), new ActionDescription() { Handler = async (args) => Apply(await WritableItem(args.Get(Pid.ApplierApplyTo))) } },
+                { nameof(Apply), new ActionDescription() { Handler = async (args) => await Apply(await WritableItem(args.Get(Pid.ApplierApplyTo))) } },
             };
         }
 
-        public void Apply(ItemWriter passive)
+        public async Task Apply(ItemWriter passive)
         {
+            await Task.CompletedTask;
             //if (this.IsExtractor() && passive.IsSource()) {
             //    if (!this.AsSink().IsFull() && !passive.AsSource().IsEmpty() && this.GetString(Pid.Resource) == passive.GetString(Pid.Resource)) {
             //        this.AsExtractor().Extract(passive);

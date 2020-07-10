@@ -35,7 +35,7 @@ namespace n3q.Aspects
             _simulator = simulator;
         }
 
-        public IItemClient GetItemClient(string itemId)
+        public IItemClient ItemClient(string itemId)
         {
             return new SiloSimulatorItemClient(_simulator, itemId);
         }

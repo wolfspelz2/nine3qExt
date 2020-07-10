@@ -21,7 +21,7 @@ namespace n3q.Xmpp
         static int Main(string[] args)
         {
             Log.LogLevel = Log.Level.Info;
-            Log.LogHandler = (lvl, ctx, msg) => { Console.WriteLine($"{lvl} {ctx} {msg}"); };
+            Log.LogHandler = (lvl, ctx, msg) => { var now = DateTime.UtcNow; Console.WriteLine($"[{now.ToString("yy:MM:dd-HH:mm:ss")}.{now.Millisecond:D3}] {lvl} {ctx} {msg}"); };
 
             ConfigSharp.Log.LogLevel = ConfigSharp.Log.Level.Info;
             ConfigSharp.Log.LogHandler = (lvl, ctx, msg) => { Log.DoLog(Log.LevelFromString(lvl.ToString()), ctx, msg); };
@@ -42,7 +42,7 @@ namespace n3q.Xmpp
 
                 return 0;
             } catch (Exception e) {
-                Console.WriteLine(e);
+                Log.Error(e);
                 Console.ReadKey();
                 return 1;
             }
@@ -84,7 +84,7 @@ namespace n3q.Xmpp
 
         private static void OnClusterGatewayCountChanged(object sender, GatewayCountChangedEventArgs e)
         {
-            Console.WriteLine($"OnClusterGatewayCountChanged: {e.PreviousNumberOfConnectedGateways} -> {e.NumberOfConnectedGateways}");
+            Log.Info($"{e.PreviousNumberOfConnectedGateways} -> {e.NumberOfConnectedGateways}");
             if (e.PreviousNumberOfConnectedGateways == 0 && e.NumberOfConnectedGateways > 0) {
                 _controller?.OnClusterReconnect();
             }
@@ -92,14 +92,14 @@ namespace n3q.Xmpp
 
         private static void OnClusterConnectionDown(object sender, EventArgs e)
         {
-            Console.WriteLine($"OnClusterConnectionDown");
+            Log.Info("");
             _controller?.OnClusterDisconnect();
         }
 
         private static async Task<bool> RetryFilter(Exception exception)
         {
             _attempt++;
-            Console.WriteLine($"Cluster client attempt {_attempt} failed to connect: {exception.GetType().Name} {exception.Message}");
+            Log.Info($"Cluster client attempt {_attempt} failed to connect: {exception.GetType().Name} {exception.Message}");
 
             await Task.Delay(TimeSpan.FromSeconds(Config.ClusterConnectSecondsBetweenRetries));
             return true;

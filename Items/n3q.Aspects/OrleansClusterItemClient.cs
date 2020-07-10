@@ -36,7 +36,7 @@ namespace n3q.Aspects
             _clusterClient = clusterClient;
         }
 
-        public IItemClient GetItemClient(string itemId)
+        public IItemClient ItemClient(string itemId)
         {
             return new OrleansClusterItemClient(_clusterClient, itemId);
         }

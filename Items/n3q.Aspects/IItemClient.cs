@@ -11,6 +11,6 @@ namespace n3q.Aspects
 
     public interface IItemClusterClient
     {
-        IItemClient GetItemClient(string itemId);
+        IItemClient ItemClient(string itemId);
     }
 }

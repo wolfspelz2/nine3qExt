@@ -74,9 +74,10 @@
 
         // Aspect
         FirstAspect = 3000000,
-        TestGreetedAspect,
-        TestGreeterAspect,
+        GreetedAspect,
+        GreeterAspect,
         DeletableAspect,
+        DeleterAspect,
         ContainerAspect,
         DeveloperAspect,
         ItemCapacityLimitAspect,
@@ -98,8 +99,9 @@
 
         // Aspect method parameters
         FirstParameter = 4000000,
-        TestGreetedGetGreetingGreeter,
-        TestGreetedGetGreetingName,
+        GreetedGetGreetingGreeter,
+        GreetedGetGreetingName,
+        DeleterDeleteVictim,
         RezableRezTo,
         RezableRezX,
         RezableRezDestination,
@@ -121,9 +123,9 @@
 
         // App
         FirstApp = 5000000,
-        TestGreeterPrefix,
-        TestGreeterResult,
-        TestGreetedResult,
+        GreeterPrefix,
+        GreeterResult,
+        GreetedResult,
         DeveloperToken,
         ContainerItemLimit,
         InventoryX,
@@ -157,7 +159,7 @@
         WaterLevelMax,
 
         // User Attribute
-        FirstUserAttribute = 6000000,
+        //FirstUserAttribute = 6000000,
 
         LastProperty,
     }

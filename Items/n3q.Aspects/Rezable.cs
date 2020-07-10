@@ -15,21 +15,20 @@ namespace n3q.Aspects
         public Rezable(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.RezableAspect;
 
-        public enum Action { Rez, OnRezzed, OnRezFailed, Derez, OnDerezzed }
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { nameof(Action.Rez), new ActionDescription() { Handler = async (args) => await Rez(await WritableItem(args.Get(Pid.RezableRezTo)), args.Get(Pid.RezableRezX), args.Get(Pid.RezableRezDestination)) } },
-                { nameof(Action.OnRezzed), new ActionDescription() { Handler = async (args) => await OnRezzed() } },
-                { nameof(Action.OnRezFailed), new ActionDescription() { Handler = async (args) => await OnRezFailed() } },
-                { nameof(Action.Derez), new ActionDescription() { Handler = async (args) => await Derez(await WritableItem(args.Get(Pid.RezableDerezTo)), args.Get(Pid.RezableDerezX), args.Get(Pid.RezableDerezY)) } },
-                { nameof(Action.OnDerezzed), new ActionDescription() { Handler = async (args) => await OnDerezzed() } },
+                { nameof(Rez), new ActionDescription() { Handler = async (args) => await Rez(await WritableItem(args.Get(Pid.RezableRezTo)), args.Get(Pid.RezableRezX), args.Get(Pid.RezableRezDestination)) } },
+                { nameof(OnRezzed), new ActionDescription() { Handler = async (args) => await OnRezzed() } },
+                { nameof(OnRezFailed), new ActionDescription() { Handler = async (args) => await OnRezFailed() } },
+                { nameof(Derez), new ActionDescription() { Handler = async (args) => await Derez(await WritableItem(args.Get(Pid.RezableDerezTo)), args.Get(Pid.RezableDerezX), args.Get(Pid.RezableDerezY)) } },
+                { nameof(OnDerezzed), new ActionDescription() { Handler = async (args) => await OnDerezzed() } },
             };
         }
 
         public async Task<PropertyValue> Rez(ItemWriter toRoom, long x, string destination)
         {
-            await this.AsRezable().AssertAspect(() => throw new SurfaceException(this.Id, toRoom.Id, SurfaceNotification.Fact.NotRezzed, SurfaceNotification.Reason.ItemIsNotRezable));
+            await this.AsRezable().AssertAspect(() => throw new ItemException(this.Id, toRoom.Id, ItemNotification.Fact.NotRezzed, ItemNotification.Reason.ItemIsNotRezable));
             var parentId = await this.GetItemId(Pid.Container);
             await toRoom.AsContainer().AddChild(this);
             await this.Modify(new PropertySet { [Pid.RezzedX] = x, [Pid.RezableIsRezzing] = true, [Pid.RezableOrigin] = parentId }, PidSet.Empty);
@@ -56,8 +55,8 @@ namespace n3q.Aspects
 
         public async Task<PropertyValue> Derez(ItemWriter toUser, long x, long y)
         {
-            await this.AsRezable().AssertAspect(() => throw new SurfaceException(this.Id, toUser.Id, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezable));
-            if (!await this.Get(Pid.RezableIsRezzed)) { throw new SurfaceException(this.Id, toUser.Id, SurfaceNotification.Fact.NotDerezzed, SurfaceNotification.Reason.ItemIsNotRezzed); }
+            await this.AsRezable().AssertAspect(() => throw new ItemException(this.Id, toUser.Id, ItemNotification.Fact.NotDerezzed, ItemNotification.Reason.ItemIsNotRezable));
+            if (!await this.Get(Pid.RezableIsRezzed)) { throw new ItemException(this.Id, toUser.Id, ItemNotification.Fact.NotDerezzed, ItemNotification.Reason.ItemIsNotRezzed); }
 
             await toUser.AsContainer().AddChild(this);
 

@@ -10,7 +10,7 @@ namespace n3q.WebEx
         public static void Main(string[] args)
         {
             ConfigSharp.Log.LogLevel = ConfigSharp.Log.Level.Info;
-            ConfigSharp.Log.LogHandler = (lvl, ctx, msg) => { Console.WriteLine($"{lvl} {ctx} {msg}"); };
+            ConfigSharp.Log.LogHandler = (lvl, ctx, msg) => { var now = DateTime.UtcNow; Console.WriteLine($"[{now.ToString("yy:MM:dd-HH:mm:ss")}.{now.Millisecond:D3}] {lvl} {ctx} {msg}"); };
 
             CreateHostBuilder(args).Build().Run();
         }

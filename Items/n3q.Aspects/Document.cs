@@ -14,11 +14,10 @@ namespace n3q.Aspects
         public Document(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.DocumentAspect;
 
-        public enum Action { SetText }
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { nameof(Action.SetText), new ActionDescription() { Handler = async (args) => await SetText(args.Get(Pid.DocumentSetTextText)) } },
+                { nameof(SetText), new ActionDescription() { Handler = async (args) => await SetText(args.Get(Pid.DocumentSetTextText)) } },
             };
         }
 

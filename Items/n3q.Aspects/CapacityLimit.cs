@@ -23,10 +23,10 @@ namespace n3q.Aspects
                 var stacksize = await newItem.GetInt(Pid.Stacksize);
                 var currentTotal = 0L;
                 foreach (var itemId in (ValueList)await this.Get(Pid.Contains)) {
-                    var child = await ReadonlyItem(itemId);
+                    var child = ReadonlyItem(itemId);
                     currentTotal += await child.GetInt(Pid.Stacksize);
                 }
-                if (currentTotal + stacksize > itemLimit) { throw new SurfaceException(Id, newItem.Id, SurfaceNotification.Fact.NotExecuted, SurfaceNotification.Reason.ItemCapacityLimit); };
+                if (currentTotal + stacksize > itemLimit) { throw new ItemException(Id, newItem.Id, ItemNotification.Fact.NotExecuted, ItemNotification.Reason.ItemCapacityLimit); };
             }
         }
     }

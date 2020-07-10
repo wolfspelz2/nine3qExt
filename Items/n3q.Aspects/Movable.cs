@@ -14,17 +14,16 @@ namespace n3q.Aspects
         public Movable(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.MovableAspect;
 
-        public enum Action { MoveTo }
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { nameof(Action.MoveTo), new ActionDescription() { Handler = async (args) => await MoveTo(args.Get(Pid.MovableMoveToX)) } },
+                { nameof(MoveTo), new ActionDescription() { Handler = async (args) => await MoveTo(args.Get(Pid.MovableMoveToX)) } },
             };
         }
 
         public async Task<PropertyValue> MoveTo(long x)
         {
-            await this.AsMovable().AssertAspect(() => throw new SurfaceException(this.Id, this.Id, SurfaceNotification.Fact.NotMoved, SurfaceNotification.Reason.ItemIsNotMovable));
+            await this.AsMovable().AssertAspect(() => throw new ItemException(this.Id, this.Id, ItemNotification.Fact.NotMoved, ItemNotification.Reason.ItemIsNotMovable));
             await this.Set(Pid.RezzedX, x);
             return true;
         }

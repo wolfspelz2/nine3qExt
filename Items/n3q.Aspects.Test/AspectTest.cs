@@ -15,12 +15,16 @@ namespace n3q.Items.Test
         [TestMethod]
         public void All_aspects_are_registered_at_AspectRegistry()
         {
+            var missing = new List<Pid>();
             foreach (var pid in Enum.GetValues(typeof(Pid)).Cast<Pid>()) {
                 var prop = Property.GetDefinition(pid);
                 if (prop.Group == Property.Group.Aspect) {
-                    Assert.IsTrue(AspectRegistry.Aspects.ContainsKey(pid), "" + pid);
+                    if (!AspectRegistry.Aspects.ContainsKey(pid)) {
+                        missing.Add(pid);
+                    }
                 }
             }
+            Assert.AreEqual(0, missing.Count, "Missing: " + string.Join(" ", missing));
         }
 
         [TestMethod]
@@ -29,20 +33,20 @@ namespace n3q.Items.Test
             // Arrange
             var siloSimulator = new SiloSimulator();
 
-            ItemWriter GetItem(string id)
+            ItemWriter GetItemWriter(string id)
             {
                 var simulatorClient = new SiloSimulatorItemClient(siloSimulator, id);
-                return new ItemWriter(simulatorClient, new ItemTransaction());
+                return new ItemWriter(simulatorClient);
             }
 
             var itemId = RandomString.Get(10);
-            var item = GetItem(itemId);
+            var item = GetItemWriter(itemId);
 
             // Act
-            var aspect = item.AsAspect(Pid.TestGreeterAspect);
+            var aspect = item.AsAspect(Pid.GreeterAspect);
 
             // Assert
-            Assert.AreEqual(nameof(TestGreeter), aspect.GetType().Name);
+            Assert.AreEqual(nameof(Greeter), aspect.GetType().Name);
         }
 
         [TestMethod]
@@ -63,33 +67,34 @@ namespace n3q.Items.Test
                 Items = new Dictionary<string, SiloSimulatorItem> {
                     [greetedId] = new SiloSimulatorItem {
                         Properties = new PropertySet {
-                            [Pid.TestGreetedAspect] = true,
+                            [Pid.GreetedAspect] = true,
                         }
                     },
                     [greeterId] = new SiloSimulatorItem {
                         Properties = new PropertySet {
-                            [Pid.TestGreeterAspect] = true,
-                            [Pid.TestGreeterPrefix] = "a",
+                            [Pid.GreeterAspect] = true,
+                            [Pid.GreeterPrefix] = "a",
                         }
                     },
                 }
             };
             var siloSimulatorClient = new SiloSimulatorClusterClient(siloSimulator);
 
-            ItemWriter GetItemStub(string id)
+            ItemWriter GetItemWriter(string id)
             {
-                var siloSimulatorItemClient = siloSimulatorClient.GetItemClient(id);
-                return new ItemWriter(siloSimulatorItemClient, new VoidTransaction());
+                var siloSimulatorItemClient = siloSimulatorClient.ItemClient(id);
+                return new ItemWriter(siloSimulatorItemClient);
             }
 
-            var greeted = GetItemStub(greetedId);
-            var aspect = greeted.AsAspect(Pid.TestGreetedAspect);
+            var greeted = GetItemWriter(greetedId);
 
             // Act
-            await aspect.Execute(nameof(TestGreeted.GetGreeting), new PropertySet { [Pid.TestGreetedGetGreetingGreeter] = greeterId, [Pid.TestGreetedGetGreetingName] = "b" });
+            await greeted.WithTransaction(async self => {
+                await self.AsGreeted().Execute(nameof(Greeted.GetGreeting), new PropertySet { [Pid.GreetedGetGreetingGreeter] = greeterId, [Pid.GreetedGetGreetingName] = "b" });
+            });
 
             // Assert
-            Assert.AreEqual("ab", (string)siloSimulator.Items[greetedId].Properties[Pid.TestGreetedResult]);
+            Assert.AreEqual("ab", (string)siloSimulator.Items[greetedId].Properties[Pid.GreetedResult]);
         }
 
     }

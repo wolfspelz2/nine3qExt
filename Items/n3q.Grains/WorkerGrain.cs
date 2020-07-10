@@ -25,9 +25,9 @@ namespace n3q.Grains
 
         public async Task AspectAction(string itemId, Pid aspectPid, string actionName, PropertySet args = null)
         {
-            var transaction = new ItemTransaction();
             var itemClient = new OrleansGrainFactoryItemClient(GrainFactory, itemId);
-            var item = new ItemWriter(itemClient, transaction);
+            var item = new ItemWriter(itemClient);
+            var transaction = new ItemTransaction();
 
             try {
                 await transaction.Begin(item);

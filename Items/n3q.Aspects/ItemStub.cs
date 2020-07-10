@@ -16,7 +16,7 @@ namespace n3q.Aspects
 
         public string Id => Client.GetId();
 
-        public ItemStub(IItemClient itemClient, ITransaction transaction = null)
+        public ItemStub(IItemClient itemClient, ITransaction transaction)
         {
             Client = itemClient;
             Transaction = transaction;
@@ -24,7 +24,7 @@ namespace n3q.Aspects
 
         public IItem Grain => Client.GetItem();
 
-        public async Task<ItemReader> ReadonlyItem(string itemId)
+        public ItemReader ReadonlyItem(string itemId)
         {
             if (!Has.Value(itemId)) {
                 throw new Exception($"{nameof(Aspect)}.{nameof(ReadonlyItem)}: Empty or null itemId");
@@ -32,7 +32,6 @@ namespace n3q.Aspects
 
             var client = Client.CloneFor(itemId);
             var item = new ItemReader(client, Transaction);
-            await Task.CompletedTask; //await Transaction?.AddItem(item);
             return item;
         }
 
@@ -44,7 +43,9 @@ namespace n3q.Aspects
 
             var client = Client.CloneFor(itemId);
             var item = new ItemWriter(client, Transaction);
-            await Transaction?.AddItem(item);
+
+            await Transaction.AddItem(item);
+
             return item;
         }
 

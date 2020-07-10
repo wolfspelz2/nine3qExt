@@ -91,7 +91,7 @@ namespace n3q.Xmpp
 
         async Task PopulateRooms()
         {
-            var roomList = await MakeItemStub(_roomStorageId).GetItemIdList(Pid.XmppRoomList);
+            var roomList = await GetItemReader(_roomStorageId).GetItemIdList(Pid.XmppRoomList);
             foreach (var roomId in roomList) {
                 await PopulateRoom(roomId);
             }
@@ -99,7 +99,7 @@ namespace n3q.Xmpp
 
         async Task PopulateRoom(string roomId)
         {
-            var itemList = await MakeItemStub(roomId).GetItemIdList(Pid.Contains);
+            var itemList = await GetItemReader(roomId).GetItemIdList(Pid.Contains);
             foreach (var itemId in itemList) {
                 var roomItem = await AddRoomItem(roomId, itemId, updatePersistentState: false);
                 roomItem.State = RoomItem.RezState.Rezzing;
@@ -111,7 +111,7 @@ namespace n3q.Xmpp
         {
             var fromJid = new XmppJid(subscriberJid);
 
-            var itemList = await MakeItemStub(inventoryItemId).GetItemIdList(Pid.Contains);
+            var itemList = await GetItemReader(inventoryItemId).GetItemIdList(Pid.Contains);
             foreach (var itemId in itemList) {
                 var itemFrom = fromJid.Base + "/" + itemId;
                 await SendInventoryItemPresenceAvailable(itemId, itemFrom, clientJid);
@@ -161,11 +161,16 @@ namespace n3q.Xmpp
             }
         }
 
-        ItemWriter MakeItemStub(string itemId)
+        ItemWriter GetItemWriter(string itemId)
         {
             var itemClient = new OrleansClusterItemClient(ClusterClient, itemId);
-            var itemStub = new ItemWriter(itemClient);
-            return itemStub;
+            return new ItemWriter(itemClient);
+        }
+
+        ItemReader GetItemReader(string itemId)
+        {
+            var itemClient = new OrleansClusterItemClient(ClusterClient, itemId);
+            return new ItemReader(itemClient);
         }
 
         IWorker GetIWorker() => ClusterClient.GetGrain<IWorker>(Guid.Empty);
@@ -270,7 +275,7 @@ namespace n3q.Xmpp
             }
 
             if (roomCreated && updatePersistentState) {
-                await MakeItemStub(_roomStorageId).WithoutTransaction(async self => await self.AddToList(Pid.XmppRoomList, roomId));
+                await GetItemWriter(_roomStorageId).WithoutTransaction(async self => await self.AddToList(Pid.XmppRoomList, roomId));
             }
 
             return roomItem;
@@ -326,7 +331,7 @@ namespace n3q.Xmpp
             }
 
             if (roomDeleted) {
-                await MakeItemStub(_roomStorageId).WithoutTransaction(async self => await self.RemoveFromList(Pid.XmppRoomList, roomId));
+                await GetItemWriter(_roomStorageId).WithoutTransaction(async self => await self.RemoveFromList(Pid.XmppRoomList, roomId));
             }
         }
 
@@ -353,14 +358,14 @@ namespace n3q.Xmpp
         async Task Connection_OnMessage(XmppMessage stanza)
         {
             try {
-                if (!_clusterConnected) { throw new SurfaceException(SurfaceNotification.Fact.NotExecuted, SurfaceNotification.Reason.ServiceUnavailable); }
+                if (!_clusterConnected) { throw new ItemException(ItemNotification.Fact.NotExecuted, ItemNotification.Reason.ServiceUnavailable); }
 
                 switch (stanza.MessageType) {
                     case XmppMessageType.Normal: await Connection_OnNormalMessage(stanza); break;
                     case XmppMessageType.Groupchat: await Connection_OnGroupchatMessage(stanza); break;
                     case XmppMessageType.PrivateChat: await Connection_OnPrivateMessage(stanza); break;
                 }
-            } catch (SurfaceException ex) {
+            } catch (ItemException ex) {
                 SendExceptionResponseMessage(stanza, ex);
                 //Log.Error(ex);
             } catch (Exception ex) {
@@ -376,7 +381,7 @@ namespace n3q.Xmpp
             </error>
         </message>
         */
-        private void SendExceptionResponseMessage(XmppMessage stanza, SurfaceException ex)
+        private void SendExceptionResponseMessage(XmppMessage stanza, ItemException ex)
         {
             var to = stanza.From;
             var from = $"{_componentDomain}";
@@ -596,20 +601,20 @@ namespace n3q.Xmpp
 
             switch (action) {
 
-                case nameof(Rezable.Action.Rez): {
+                case nameof(Rezable.Rez): {
                     var inventoryItemId = await GetInventoryFromUserToken(user);
                     if (Has.Value(inventoryItemId) && Has.Value(itemId)) {
-                        if (await MakeItemStub(itemId).GetBool(Pid.RezableAspect)) {
+                        if (await GetItemWriter(itemId).GetBool(Pid.RezableAspect)) {
                             var roomId = message.Cmd.ContainsKey("to") ? message.Cmd["to"] : "";
                             if (Has.Value(roomId)) {
                                 _ = await AddRoomItem(roomId, itemId);
 
-                                var room = MakeItemStub(roomId);
+                                var room = GetItemWriter(roomId);
                                 if (!await room.Get(Pid.ContainerAspect)) {
                                     await room.WithTransaction(async self => { await self.Set(Pid.ContainerAspect, true); });
                                 }
 
-                                await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Action.Rez), new PropertySet {
+                                await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Rez), new PropertySet {
                                     [Pid.RezableRezTo] = roomId,
                                     [Pid.RezableRezX] = message.Get("x", 200)
                                 });
@@ -620,15 +625,15 @@ namespace n3q.Xmpp
                 }
                 break;
 
-                case nameof(Rezable.Action.Derez): {
+                case nameof(Rezable.Derez): {
                     var inventoryItemId = await GetInventoryFromUserToken(user);
                     if (Has.Value(inventoryItemId) && Has.Value(itemId)) {
 
-                        if (await MakeItemStub(itemId).GetBool(Pid.RezableAspect)) {
+                        if (await GetItemWriter(itemId).GetBool(Pid.RezableAspect)) {
                             var roomItem = GetRoomItem(itemId);
                             if (roomItem != null) {
 
-                                await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Action.Derez), new PropertySet {
+                                await GetIWorker().AspectAction(itemId, Pid.RezableAspect, nameof(Rezable.Derez), new PropertySet {
                                     [Pid.RezableDerezTo] = inventoryItemId,
                                     [Pid.RezableDerezX] = message.Get("x", -1),
                                     [Pid.RezableDerezY] = message.Get("y", -1)
@@ -640,13 +645,13 @@ namespace n3q.Xmpp
                 }
                 break;
 
-                case nameof(Movable.Action.MoveTo): {
+                case nameof(Movable.MoveTo): {
                     var inventoryItemId = await GetInventoryFromUserToken(user);
                     if (Has.Value(inventoryItemId) && Has.Value(itemId)) {
 
                         var roomItem = GetRoomItem(itemId);
                         if (roomItem != null) {
-                            await GetIWorker().AspectAction(itemId, Pid.MovableAspect, nameof(Movable.Action.MoveTo), new PropertySet {
+                            await GetIWorker().AspectAction(itemId, Pid.MovableAspect, nameof(Movable.MoveTo), new PropertySet {
                                 [Pid.MovableMoveToX] = message.Get("x", -1),
                             });
                         }
@@ -655,12 +660,12 @@ namespace n3q.Xmpp
                 }
                 break;
 
-                case nameof(n3q.Aspects.Inventory.Action.SetItemCoordinates): {
+                case nameof(n3q.Aspects.Inventory.SetItemCoordinates): {
                     var inventoryItemId = await GetInventoryFromUserToken(user);
                     if (Has.Value(inventoryItemId) && Has.Value(itemId)) {
 
-                        if (await MakeItemStub(inventoryItemId).GetBool(Pid.InventoryAspect)) {
-                            await GetIWorker().AspectAction(inventoryItemId, Pid.InventoryAspect, nameof(n3q.Aspects.Inventory.Action.SetItemCoordinates), new PropertySet {
+                        if (await GetItemWriter(inventoryItemId).GetBool(Pid.InventoryAspect)) {
+                            await GetIWorker().AspectAction(inventoryItemId, Pid.InventoryAspect, nameof(n3q.Aspects.Inventory.SetItemCoordinates), new PropertySet {
                                 [Pid.InventorySetItemCoordinatesItem] = itemId,
                                 [Pid.InventorySetItemCoordinatesX] = message.Get("x", -1),
                                 [Pid.InventorySetItemCoordinatesY] = message.Get("y", -1)
@@ -848,7 +853,7 @@ namespace n3q.Xmpp
         {
             if (_xmppConnection == null) { return; }
 
-            var props = await MakeItemStub(itemId).Get(PidSet.Public);
+            var props = await GetItemReader(itemId).Get(PidSet.Public);
 
             var name = props.GetString(Pid.Name);
             if (string.IsNullOrEmpty(name)) { name = props.Get(Pid.Label); }

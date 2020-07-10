@@ -30,7 +30,11 @@ namespace n3q.WebIt
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options => {
-                });
+            });
+
+            services.AddAntiforgery(options => {
+                options.SuppressXFrameOptionsHeader = true;
+            });
 
             services.AddRazorPages();
             services.AddControllers();
@@ -44,7 +48,7 @@ namespace n3q.WebIt
                         builder.UseLocalhostClustering();
                     } else {
                         builder.UseAzureStorageClustering(options => options.ConnectionString = config.ClusteringAzureTableConnectionString);
-                    }   
+                    }
 
                     builder.Configure<ClusterOptions>(options => {
                         options.ClusterId = config.ClusterId;

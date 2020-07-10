@@ -68,13 +68,13 @@ namespace n3q.WebIt.Controllers
             var shortTmpl = tmpl.Substring(0, Cluster.LengthOfItemIdPrefixFromTemplate);
             var itemId = $"{shortTmpl}{RandomString.GetAlphanumLowercase(20)}";
             itemId = itemId.ToLower();
-            var item = ClusterClient.GetItemStub(itemId);
+            var item = ClusterClient.GetItemWriter(itemId);
 
             await item.WithTransaction(async self => {
                 await self.Modify(new PropertySet { [Pid.Template] = tmpl }, PidSet.Empty);
             });
 
-            await ClusterClient.GetGrain<IWorker>(Guid.Empty).AspectAction(itemId, Pid.InventoryAspect, nameof(Inventory.Action.Initialize), PropertySet.Empty);
+            await ClusterClient.GetGrain<IWorker>(Guid.Empty).AspectAction(itemId, Pid.InventoryAspect, nameof(Inventory.Initialize), PropertySet.Empty);
 
             return itemId;
         }

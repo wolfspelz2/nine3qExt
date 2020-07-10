@@ -1,4 +1,5 @@
-﻿using n3q.Items;
+﻿using System.Threading.Tasks;
+using n3q.Items;
 
 namespace n3q.Aspects
 {
@@ -12,16 +13,16 @@ namespace n3q.Aspects
         public Injector(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.InjectorAspect;
 
-        public enum Action { Inject }
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { nameof(Action.Inject), new ActionDescription() { Handler = async (args) => Inject(await WritableItem(args.Get(Pid.InjectorInjectTo))) } },
+                { nameof(Inject), new ActionDescription() { Handler = async (args) => await Inject(await WritableItem(args.Get(Pid.InjectorInjectTo))) } },
             };
         }
 
-        public void Inject(ItemWriter passive)
+        public async Task Inject(ItemWriter passive)
         {
+            await Task.CompletedTask;
             //sink.AssertAspect(Pid.IsSink);
 
             //var sinkResource = sink.GetString(Pid.Resource);
