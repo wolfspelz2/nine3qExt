@@ -170,7 +170,7 @@ namespace n3q.WebIt.Test
             });
 
             // Assert
-            var documentStub = new ItemReader(simulatorClient.GetItemClient(documentId));
+            var documentStub = simulatorClient.GetItemReader(documentId);
             Assert.AreEqual(anotherText, await documentStub.GetString(Pid.DocumentText));
         }
 
@@ -204,7 +204,7 @@ namespace n3q.WebIt.Test
             });
 
             // Assert
-            var documentStub = new ItemReader(simulatorClient.GetItemClient(documentId));
+            var documentStub = simulatorClient.GetItemReader(documentId);
             Assert.AreEqual(documentText, await documentStub.GetString(Pid.DocumentText));
         }
 
