@@ -10,7 +10,7 @@ namespace n3q.WebIt
         public string ItemId { get; private set; }
         public DateTime Expires { get; private set; }
 
-        public static ContextToken FromBase64TokenAndValiated(string payloadHashSecret, string tokenBase64Encoded)
+        public static ContextToken FromBase64Token(string payloadHashSecret, string tokenBase64Encoded)
         {
             var ct = new ContextToken();
 

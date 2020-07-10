@@ -147,7 +147,11 @@ namespace ConfigSharp
         public void Execute(string code, IEnumerable<string> customReferences = null)
         {
             customReferences ??= new List<string>();
-            var references = customReferences.Select(r => new KeyValuePair<string, bool>(r, true)).ToDictionary(kv => kv.Key, kv => kv.Value);
+            
+            var references = customReferences
+                .Select(r => new KeyValuePair<string, bool>(r, true))
+                .ToDictionary(kv => kv.Key, kv => kv.Value)
+                ;
 
             // Netstandard & runtime
             var aTypicalCoreAssembly = typeof(Enumerable).GetTypeInfo().Assembly.Location;

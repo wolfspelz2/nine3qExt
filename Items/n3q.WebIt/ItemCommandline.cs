@@ -32,6 +32,7 @@ namespace n3q.WebIt
             Admin_Environment,
             Admin_Process,
             Admin_Request,
+            Admin_Config,
 
             Item_SetCreate,
             Item_Show,
@@ -75,6 +76,7 @@ namespace n3q.WebIt
             Handlers.Add(nameof(Fn.Admin_Environment), new Handler { Name = nameof(Fn.Admin_Environment), Function = Admin_Environment, Role = nameof(Role.Admin), ImmediateExecute = true, Description = "Show environment variables", });
             Handlers.Add(nameof(Fn.Admin_Process), new Handler { Name = nameof(Fn.Admin_Process), Function = Admin_Process, Role = nameof(Role.Admin), ImmediateExecute = true, Description = "Show process info", });
             Handlers.Add(nameof(Fn.Admin_Request), new Handler { Name = nameof(Fn.Admin_Request), Function = Admin_Request, Role = nameof(Role.Admin), ImmediateExecute = true, Description = "Show HTTP-request info", });
+            Handlers.Add(nameof(Fn.Admin_Config), new Handler { Name = nameof(Fn.Admin_Config), Function = Admin_Config, Role = nameof(Role.Admin), ImmediateExecute = true, Description = "Show HTTP-request info", });
 
             Handlers.Add(nameof(Fn.Item_SetCreate), new Handler { Name = nameof(Fn.Item_SetCreate), Function = Item_SetProperties, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Set (some or all) item properties", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", ["Properties"] = "Item properties as JSON dictionary or as PropertyName=Value pairs", } });
             Handlers.Add(nameof(Fn.Item_Show), new Handler { Name = nameof(Fn.Item_Show), Function = Item_GetProperties, Role = nameof(Role.Admin), ImmediateExecute = false, Description = "Show item", ArgumentList = ArgumentListType.Tokens, Arguments = new ArgumentDescriptionList { ["Item"] = "Item-ID", } });
@@ -244,6 +246,13 @@ namespace n3q.WebIt
             table.Grid.Add(new Table.Row { "Protocol", HttpContext.Request.QueryString.ToString() });
             table.Grid.Add(new Table.Row { "Scheme", HttpContext.Request.Scheme?.ToString() });
 
+            return table;
+        }
+
+        private object Admin_Config(Commandline.Arglist args)
+        {
+            var table = new Commandline.Table();
+            Config.Info((name, value) => table.Grid.Add(new Table.Row { name, value }));
             return table;
         }
 

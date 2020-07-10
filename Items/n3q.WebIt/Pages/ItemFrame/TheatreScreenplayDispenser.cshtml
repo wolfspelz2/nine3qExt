@@ -1,0 +1,29 @@
+﻿@page
+@model n3q.WebIt.TheatreScreenplayDispenserModel
+@{
+    ViewData["Title"] = "Item GUI";
+    ViewData["Skin"] = "default";
+}
+
+<div id="main">
+    <h1>Theatre Screenplay Dispenser</h1>
+    
+    <form id="iForm" method="POST">
+        <input type="hidden" id="action" name="action" value="GetItem" />
+        <input type="hidden" id="arg1" name="arg1" value="value1" />
+        <button id='iSubmit'>GetItem</button>
+    </form>
+</div>
+
+@section Scripts {
+    <script type="text/JavaScript">
+
+        $(function () {
+            $('#iSubmit').on('click', function (ev) {
+                $('#iForm').post();
+                return false;
+            });
+        });
+
+    </script>
+}

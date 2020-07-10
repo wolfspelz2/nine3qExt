@@ -17,7 +17,7 @@ namespace n3q.WebIt
         public string ItemWebBaseUrl = DefaultItemWebBaseUrl;
         public string UnavailableUrl = DefaultItemWebBaseUrl + "Embedded/Account?id={id}";
         public string ItemAppearanceBaseUrl = DefaultItemWebBaseUrl + "images/Items/";
-        public string ItemIframeBaseUrl = DefaultItemWebBaseUrl + "iframe";
+        public string ItemIframeBaseUrl = DefaultItemWebBaseUrl + "ItemFrame/";
         public string ItemServiceWebApiUrl = DefaultItemWebBaseUrl + "rpc";
 
         public long MaxRpcRequestSize = 100000;

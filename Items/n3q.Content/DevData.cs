@@ -228,7 +228,7 @@ namespace n3q.Content
                 }
                 break;
                 case nameof(DevSpec.Template.TheatreScreenplayDispenser): {
-                    props = GetIframeTemplate(name, text, name, "Theater Drehbuch Generator", "Theatre Screenplay Generator", 78, 84, "TheatreScreenplay/TheatreScreenplayDispenser.png", ItemService.ItemIframeVar + "?context={context}", 100, 100, nameof(Property.Value.IframeFrame.Popup));
+                    props = GetIframeTemplate(name, text, name, "Theater Drehbuch Generator", "Theatre Screenplay Generator", 78, 84, "TheatreScreenplay/TheatreScreenplayDispenser.png", ItemService.ItemIframeVar + name + "?context={context}", 100, 100, nameof(Property.Value.IframeFrame.Popup));
                     props[Pid.DispenserAspect] = true;
                     props[Pid.DispenserTemplate] = nameof(DevSpec.Template.TheatreScreenplay);
                     props[Pid.DispenserMaxAvailable] = 1000L;
