@@ -143,6 +143,45 @@ namespace n3q.WebIt.Test
         }
 
         [TestMethod]
+        public async Task GetItemProperties_capitalizes_property_names()
+        {
+            // Arrange
+            var variant = "2";
+            var userId = "user1";
+            var developerId = "developer1";
+            var documentId = "document1";
+            var documentText = "This is a text";
+            var payloadHashSecret = "secret";
+
+            var siloSimulator = SetupSiloSimulator(variant, userId, developerId, documentId, documentText, 100);
+            var controller = SetupController(payloadHashSecret, siloSimulator);
+            var simulatorClient = new SiloSimulatorClusterClient(siloSimulator);
+            string developerToken = await GenerateDeveloperToken(developerId, simulatorClient);
+            string contextToken = CreateContextToken(userId, documentId, payloadHashSecret);
+
+            // Act
+            var pidsNode = new JsonPath.Node(JsonPath.Node.Type.List);
+            foreach (var pid in new[] { Pid.Container, Pid.DocumentAspect, Pid.DocumentText, Pid.DocumentMaxLength, Pid.TestPublic, Pid.TestInternal }) {
+                pidsNode.AsList.Add(new JsonPath.Node(JsonPath.Node.Type.String, pid.ToString().Substring(0, 1).ToLower() + pid.ToString().Substring(1)));
+            }
+            var response = await controller.GetItemProperties(new JsonPath.Dictionary {
+                [nameof(Protocol.Rpc.GetItemPropertiesRequest.developer)] = developerToken,
+                [nameof(Protocol.Rpc.GetItemPropertiesRequest.context)] = contextToken,
+                [nameof(Protocol.Rpc.GetItemPropertiesRequest.method)] = nameof(RpcController.GetItemProperties),
+                [nameof(Protocol.Rpc.GetItemPropertiesRequest.pids)] = pidsNode,
+            });
+
+            // Assert
+            var resultNode = response[nameof(Protocol.Rpc.Response.result)];
+            Assert.AreEqual(userId, (string)resultNode[Pid.Container.ToString()]);
+            Assert.AreEqual(true, (bool)resultNode[Pid.DocumentAspect.ToString()]);
+            Assert.AreEqual("This is a text", (string)resultNode[Pid.DocumentText.ToString()]);
+            Assert.AreEqual(100, (long)resultNode[Pid.DocumentMaxLength.ToString()]);
+            Assert.AreEqual(42, (long)resultNode[Pid.TestPublic.ToString()]);
+            Assert.AreEqual(0, (long)resultNode[Pid.TestInternal.ToString()]);
+        }
+
+        [TestMethod]
         public async Task ExecuteItemAction_Document_SetText()
         {
             // Arrange
@@ -166,6 +205,38 @@ namespace n3q.WebIt.Test
                 [nameof(Protocol.Rpc.ExecuteItemActionRequest.context)] = contextToken,
                 [nameof(Protocol.Rpc.ExecuteItemActionRequest.method)] = nameof(RpcController.ExecuteItemAction),
                 [nameof(Protocol.Rpc.ExecuteItemActionRequest.action)] = nameof(Aspects.Document.SetText),
+                [nameof(Protocol.Rpc.ExecuteItemActionRequest.args)] = new JsonPath.Node(new Dictionary<string, string> { ["text"] = anotherText }),
+            });
+
+            // Assert
+            var documentStub = simulatorClient.GetItemReader(documentId);
+            Assert.AreEqual(anotherText, await documentStub.GetString(Pid.DocumentText));
+        }
+
+        [TestMethod]
+        public async Task ExecuteItemAction_Document_SetText_capitalizes_action()
+        {
+            // Arrange
+            var variant = "2";
+            var userId = "user1";
+            var developerId = "developer1";
+            var documentId = "document1";
+            var documentText = "This is a text";
+            var payloadHashSecret = "secret";
+            var anotherText = "This is another text.";
+
+            var siloSimulator = SetupSiloSimulator(variant, userId, developerId, documentId, documentText, 100);
+            var controller = SetupController(payloadHashSecret, siloSimulator);
+            var simulatorClient = new SiloSimulatorClusterClient(siloSimulator);
+            var developerToken = await GenerateDeveloperToken(developerId, simulatorClient);
+            var contextToken = CreateContextToken(userId, documentId, payloadHashSecret);
+
+            // Act
+            var response = await controller.ExecuteItemAction(new JsonPath.Dictionary {
+                [nameof(Protocol.Rpc.ExecuteItemActionRequest.developer)] = developerToken,
+                [nameof(Protocol.Rpc.ExecuteItemActionRequest.context)] = contextToken,
+                [nameof(Protocol.Rpc.ExecuteItemActionRequest.method)] = nameof(RpcController.ExecuteItemAction).CamelCase(),
+                [nameof(Protocol.Rpc.ExecuteItemActionRequest.action)] = nameof(Aspects.Document.SetText).CamelCase(),
                 [nameof(Protocol.Rpc.ExecuteItemActionRequest.args)] = new JsonPath.Node(new Dictionary<string, string> { ["text"] = anotherText }),
             });
 

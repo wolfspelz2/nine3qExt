@@ -105,7 +105,7 @@ namespace n3q.WebIt.Controllers
             var context = ContextToken.FromBase64Token(Config.PayloadHashSecret, contextToken);
 
             var pids = new PidSet(request[nameof(Protocol.Rpc.GetItemPropertiesRequest.pids)].AsList
-                .Select(pidNode => pidNode.AsString.ToEnum(Pid.Unknown))
+                .Select(pidNode => pidNode.AsString.Capitalize().ToEnum(Pid.Unknown))
                 .Where(pid => Property.GetDefinition(pid).Access == Property.Access.Public)
             );
             pids.Add(Pid.Developer);
@@ -135,7 +135,7 @@ namespace n3q.WebIt.Controllers
             var contextToken = request[nameof(Protocol.Rpc.ExecuteItemActionRequest.context)].AsString;
             var context = ContextToken.FromBase64Token(Config.PayloadHashSecret, contextToken);
 
-            var action = request[nameof(Protocol.Rpc.ExecuteItemActionRequest.action)].AsString;
+            var action = request[nameof(Protocol.Rpc.ExecuteItemActionRequest.action)].AsString.Capitalize();
             if (!Has.Value(action)) { throw new Exception("No action"); }
 
             var args = request[nameof(Protocol.Rpc.ExecuteItemActionRequest.args)]

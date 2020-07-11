@@ -53,15 +53,15 @@ https://theatre.weblin.sui.li/iframe.html?context=<contextToken>
             developer: developerToken
             context: contextToken
             method: "getProperties"
-            pids: [ "DocumentText", "DocumentMaxLength", "Container" ]
+            pids: [ "documentText", "documentMaxLength", "container" ]
         }
     <-  response
         {
             status: "ok",
             result: {
-                DocumentText: "This is a text"
-                DocumentMaxLength: 2000
-                Container: user-inventory-id or room-jid
+                documentText: "This is a text"
+                documentMaxLength: 2000
+                container: user-inventory-id or room-jid
             }
         }
 
@@ -71,8 +71,7 @@ https://theatre.weblin.sui.li/iframe.html?context=<contextToken>
             developer: developerToken
             context: contextToken
             method: "executeItemAction"
-            //aspect: "Document"
-            action: "SetText"
+            action: "setText"
             args: {
                 text: "This is a text"
             }

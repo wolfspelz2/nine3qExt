@@ -84,6 +84,12 @@ namespace n3q.Tools
             return s;
         }
 
+        public static string CamelCase(this string self)
+        {
+            var s = self.Substring(0, 1).ToLowerInvariant() + self.Substring(1);
+            return s;
+        }
+
         public static List<string> RegexTokens(this string self, string regEx)
         {
             var tokens = new List<string>();
