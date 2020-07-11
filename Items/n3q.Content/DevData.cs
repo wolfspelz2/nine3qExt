@@ -15,6 +15,7 @@ namespace n3q.Content
             switch (name) {
                 case nameof(DevSpec.Group.System):
                     GetTemplate(nameof(DevSpec.Template.Admin), templates, text);
+                    GetTemplate(nameof(DevSpec.Template.Developer), templates, text);
                     break;
 
                 case nameof(DevSpec.Group.User):
@@ -108,6 +109,18 @@ namespace n3q.Content
                     };
                     text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Admin";
                     text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Admin";
+                    break;
+                }
+
+                case nameof(DevSpec.Template.Developer): {
+                    props = new PropertySet {
+                        [Pid.Name] = name,
+                        [Pid.Label] = "Developer",
+                        [Pid.DeletableAspect] = false,
+                        [Pid.DeveloperAspect] = true,
+                    };
+                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Developer";
+                    text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Developer";
                     break;
                 }
 
@@ -236,7 +249,8 @@ namespace n3q.Content
                 case nameof(DevSpec.Template.SmallMapleTree): props = GetImageTemplate(name, text, name, "Small maple tree", "kleiner Ahornbaum", 58, 80, "Trees/SmallMapleTree.png"); break;
 
                 case nameof(DevSpec.Template.TheatreScreenplay): {
-                    props = GetIframeTemplate(name, text, name, "Theater Drehbuch", "Theatre Screenplay", 44, 64, "TheatreScreenplay/image.png", "https://theatre.weblin.sui.li/iframe.html?context={context}", 400, 500, nameof(Property.Value.IframeFrame.Window));
+                    props = GetIframeTemplate(name, text, name, "Theater Drehbuch", "Theatre Screenplay", 44, 64, "TheatreScreenplay/image.png", "https://weblin-theatre.dev.sui.li/iframe.html?context={context}", 400, 500, nameof(Property.Value.IframeFrame.Window));
+                    props[Pid.Developer] = "partner-suat-theatre";
                     props[Pid.DocumentAspect] = true;
                     props[Pid.DocumentMaxLength] = 10000;
                 }

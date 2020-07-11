@@ -23,6 +23,7 @@ namespace n3q.Content
 
             Admin,
             CodeReviewer,
+            Developer,
 
             // User
             Inventory,
