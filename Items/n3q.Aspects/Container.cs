@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using n3q.Common;
 using n3q.Items;
 using n3q.Tools;
 
@@ -17,8 +18,8 @@ namespace n3q.Aspects
 
         public async Task AddChild(ItemWriter child)
         {
-            //var props = await child.Grain.GetProperties(new PidSet { Pid.Container }, false);
-            //child.Simulator = new ItemSiloSimulator();
+            if (child.Id == this.Id) { throw new ItemException(Id, child.Id, ItemNotification.Fact.NotExecuted, ItemNotification.Reason.IdenticalItems);  }
+
             var props = await child.Get(new PidSet { Pid.TestInt }, true);
 
             await AssertAspect();
@@ -26,6 +27,7 @@ namespace n3q.Aspects
 
             var parentId = await child.GetItemId(Pid.Container);
             if (Has.Value(parentId)) {
+
                 var currentParent = await WritableItem(parentId);
                 await currentParent.RemoveFromList(Pid.Contains, child.Id);
             }

@@ -12,11 +12,10 @@ namespace n3q.Aspects
         public Extractor(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.ExtractorAspect;
 
-        public enum Action { Extract }
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { nameof(Action.Extract), new ActionDescription() { Handler = async (args) => Extract(await WritableItem(args.Get(Pid.ExtractorExtractFrom))) } },
+                { nameof(Extract), new ActionDescription() { Handler = async (args) => Extract(await WritableItem(args.Get(Pid.ExtractorExtractFrom))) } },
             };
         }
 

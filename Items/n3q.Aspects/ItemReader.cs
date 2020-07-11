@@ -2,6 +2,6 @@
 {
     public class ItemReader : ItemStub
     {
-        public ItemReader(IItemClient itemClient, ITransaction transaction = null) : base(itemClient, transaction) { }
+        public ItemReader(IItemClient itemClient, ITransaction transaction) : base(itemClient, transaction) { }
     }
 }

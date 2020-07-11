@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Orleans;
-using JsonPath;
 using n3q.Tools;
 using n3q.Aspects;
-using n3q.GrainInterfaces;
-using n3q.Items;
-using n3q.Common;
 
 namespace n3q.WebIt.Controllers
 {
@@ -34,7 +28,7 @@ namespace n3q.WebIt.Controllers
         public async Task<ContentResult> Get(string context)
         {
             await Task.CompletedTask;
-            var ctx = ContextToken.FromBase64TokenAndValiated(Config.PayloadHashSecret, context);
+            var ctx = ContextToken.FromBase64Token(Config.PayloadHashSecret, context);
 
             var html = @"
 <html lang='en'>
@@ -65,15 +59,13 @@ namespace n3q.WebIt.Controllers
         public async Task<string> Post(string context)
         {
             await Task.CompletedTask;
-            var ctx = ContextToken.FromBase64TokenAndValiated(Config.PayloadHashSecret, context);
+            var ctx = ContextToken.FromBase64Token(Config.PayloadHashSecret, context);
 
             var action = HttpContext.Request.Form["action"].First();
             var args = HttpContext.Request.Form
                 .Where(kv => kv.Key != "action")
-                .Select(kv => new KeyValuePair<string, string>(kv.Key, kv.Value.First()))
-                .ToStringDictionary()
+                .ToStringDictionary(x => x.First())
                 ;
-
 
             return "";
         }

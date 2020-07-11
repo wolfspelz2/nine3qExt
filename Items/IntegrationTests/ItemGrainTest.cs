@@ -81,13 +81,13 @@ namespace IntegrationTests
                 await tmpl.WithTransaction(async self => {
                     await self.Modify(new PropertySet {
                         [Pid.TestInt1] = 41,
-                        [Pid.TestGreeterAspect] = true,
+                        [Pid.GreeterAspect] = true,
                     }, PidSet.Empty);
                 });
                 await item.WithTransaction(async self => {
                     await self.Modify(new PropertySet {
                         [Pid.TestInt2] = 42,
-                        [Pid.TestGreetedAspect] = true,
+                        [Pid.GreetedAspect] = true,
                         [Pid.Template] = tmpl.Id,
                     }, PidSet.Empty);
                 });
@@ -99,8 +99,8 @@ namespace IntegrationTests
                 Assert.AreEqual(2, props.Count);
                 Assert.AreEqual(0, props.GetInt(Pid.TestInt1));
                 Assert.AreEqual(0, props.GetInt(Pid.TestInt2));
-                Assert.AreEqual(true, props.GetBool(Pid.TestGreeterAspect));
-                Assert.AreEqual(true, props.GetBool(Pid.TestGreetedAspect));
+                Assert.AreEqual(true, props.GetBool(Pid.GreeterAspect));
+                Assert.AreEqual(true, props.GetBool(Pid.GreetedAspect));
 
             } finally {
                 // Cleanup

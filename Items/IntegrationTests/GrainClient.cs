@@ -121,7 +121,7 @@ namespace IntegrationTests
 
         public static ItemWriter GetItemStub(string id)
         {
-            return new ItemWriter(new OrleansClusterItemClient(GrainFactory, id));
+            return new ItemWriter(new OrleansClusterItemClient(GrainFactory, id), new ItemTransaction());
         }
 
         [AssemblyInitialize]

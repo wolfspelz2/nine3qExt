@@ -13,12 +13,11 @@ namespace n3q.Aspects
         public Inventory(ItemStub item) : base(item) { }
         public override Pid GetAspectPid() => Pid.InventoryAspect;
 
-        public enum Action { Initialize, SetItemCoordinates }
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { nameof(Action.Initialize), new ActionDescription() { Handler = async (args) => await Initialize() } },
-                { nameof(Action.SetItemCoordinates), new ActionDescription() { Handler = async (args) => await SetItemCoordinates(await WritableItem(args.Get(Pid.InventorySetItemCoordinatesItem)), args.Get(Pid.InventorySetItemCoordinatesX), args.Get(Pid.InventorySetItemCoordinatesY)) } },
+                { nameof(Initialize), new ActionDescription() { Handler = async (args) => await Initialize() } },
+                { nameof(SetItemCoordinates), new ActionDescription() { Handler = async (args) => await SetItemCoordinates(await WritableItem(args.Get(Pid.InventorySetItemCoordinatesItem)), args.Get(Pid.InventorySetItemCoordinatesX), args.Get(Pid.InventorySetItemCoordinatesY)) } },
             };
         }
 

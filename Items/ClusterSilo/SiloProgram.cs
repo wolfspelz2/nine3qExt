@@ -23,7 +23,7 @@ namespace ClusterSilo
         public static int Main(string[] args)
         {
             ConfigSharp.Log.LogLevel = ConfigSharp.Log.Level.Info;
-            ConfigSharp.Log.LogHandler = (lvl, ctx, msg) => { Console.WriteLine($"{lvl} {ctx} {msg}"); };
+            ConfigSharp.Log.LogHandler = (lvl, ctx, msg) => { var now = DateTime.UtcNow; Console.WriteLine($"[{now.ToString("yy:MM:dd-HH:mm:ss")}.{now.Millisecond:D3}] {lvl} {ctx} {msg}"); };
             Config.ConfigFile = nameof(SiloConfig) + ".cs";
             Config.ParseCommandline(args);
             Config.Include(Config.ConfigFile);

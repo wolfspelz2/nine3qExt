@@ -25,7 +25,7 @@ namespace n3q.WebIt
 
             UnavailableUrl = ItemWebBaseUrl + "Embedded/Account?id={id}";
             ItemAppearanceBaseUrl = ItemWebBaseUrl + "images/Items/";
-            ItemIframeBaseUrl = ItemWebBaseUrl + "iframe";
+            ItemIframeBaseUrl = ItemWebBaseUrl + "ItemFrame/";
             ItemServiceWebApiUrl = ItemWebBaseUrl + "rpc";
 
             AdditionalConfigRoot = System.Environment.GetEnvironmentVariable(ConfigRootEnvironmentVariableName) ?? AdditionalConfigRoot;

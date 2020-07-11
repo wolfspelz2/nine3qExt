@@ -19,13 +19,13 @@ namespace n3q.WebIt.Controllers
     {
         public ICallbackLogger Log { get; set; }
         public WebItConfigDefinition Config { get; set; }
-        public IClusterClient ClusterClient { get; set; }
+        public OrleansItemClusterClient ClusterClient { get; set; }
 
         public ConfigController(ILogger<ConfigController> logger, WebItConfigDefinition config, IClusterClient clusterClient)
         {
             Log = new FrameworkCallbackLogger(logger);
             Config = config;
-            ClusterClient = clusterClient;
+            ClusterClient = new OrleansItemClusterClient(clusterClient);
         }
 
         [Route("[controller]")]
@@ -37,7 +37,7 @@ namespace n3q.WebIt.Controllers
             var token = GetLowercaseTokenBecauseWillBeSentAsXmppUser(id);
             Log.Info(token, "Config", nameof(ConfigController));
 
-            var itemRef = ClusterClient.GetGrain<IItemRef>(token);
+            var itemRef = ClusterClient.OrleansClusterClient.GetGrain<IItemRef>(token);
             var itemId = await itemRef.GetItem();
             if (string.IsNullOrEmpty(itemId)) {
                 itemId = await CreateInventory();
@@ -68,13 +68,13 @@ namespace n3q.WebIt.Controllers
             var shortTmpl = tmpl.Substring(0, Cluster.LengthOfItemIdPrefixFromTemplate);
             var itemId = $"{shortTmpl}{RandomString.GetAlphanumLowercase(20)}";
             itemId = itemId.ToLower();
-            var item = ClusterClient.GetItemStub(itemId);
+            var item = ClusterClient.GetItemWriter(itemId);
 
             await item.WithTransaction(async self => {
                 await self.Modify(new PropertySet { [Pid.Template] = tmpl }, PidSet.Empty);
             });
 
-            await ClusterClient.GetGrain<IWorker>(Guid.Empty).AspectAction(itemId, Pid.InventoryAspect, nameof(Inventory.Action.Initialize), PropertySet.Empty);
+            await ClusterClient.OrleansClusterClient.GetGrain<IWorker>(Guid.Empty).AspectAction(itemId, Pid.InventoryAspect, nameof(Inventory.Initialize), PropertySet.Empty);
 
             return itemId;
         }
