@@ -17,6 +17,9 @@ namespace n3q.Tools.Test
 
             Assert.AreEqual(new DateTime(1900, 1, 1, 0, 0, 0, 1).ToLong(), LongDateTime.Epoch + 19000101000000001);
             Assert.AreEqual(new DateTime(9999, 1, 1, 1, 1, 1, 1).ToLong(), LongDateTime.Epoch + 99990101010101001);
+
+            // 0 = 1.1.1900 00:00:00 0ms
+            Assert.AreEqual(DateTime.MinValue.ToLong(), 0L);
         }
 
         [TestMethod]
@@ -33,6 +36,7 @@ namespace n3q.Tools.Test
 
             // 0 = 1.1.1900 00:00:00 0ms
             Assert.AreEqual(DateTime.MinValue, new DateTime().FromLong(LongDateTime.Epoch + 0));
+            Assert.AreEqual(DateTime.MinValue, new DateTime().FromLong(0L));
         }
 
         [TestMethod]

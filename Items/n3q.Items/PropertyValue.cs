@@ -29,6 +29,7 @@ namespace n3q.Items
         public PropertyValue(long value) { _value = value != 0L ? value.ToString(CultureInfo.InvariantCulture) : "0"; }
         public PropertyValue(double value) { _value = value != 0D ? value.ToString(CultureInfo.InvariantCulture) : "0"; }
         public PropertyValue(bool value) { _value = value ? "true" : "false"; }
+        public PropertyValue(DateTime value) { _value = value.ToLong().ToString(CultureInfo.InvariantCulture); }
         public PropertyValue(ValueList list) { _value = list.ToString(); }
         public PropertyValue(ValueMap map) { _value = map.ToString(); }
 
@@ -53,6 +54,11 @@ namespace n3q.Items
             } else {
                 return 0.0D;
             }
+        }
+
+        public static implicit operator DateTime(PropertyValue pv)
+        {
+            return new DateTime().FromLong((long)pv);
         }
 
         public static implicit operator bool(PropertyValue pv) { return pv._value.IsTrue(); }
@@ -88,6 +94,7 @@ namespace n3q.Items
         public static implicit operator PropertyValue(long value) { return new PropertyValue(value); }
         public static implicit operator PropertyValue(double value) { return new PropertyValue(value); }
         public static implicit operator PropertyValue(bool value) { return new PropertyValue(value); }
+        public static implicit operator PropertyValue(DateTime value) { return new PropertyValue(value); }
         public static implicit operator PropertyValue(ValueList value) { return new PropertyValue(value); }
         public static implicit operator PropertyValue(ValueMap value) { return new PropertyValue(value); }
 

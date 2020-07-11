@@ -57,7 +57,7 @@ namespace n3q.Aspects
             var item = await WritableItem(itemId);
 
             await item.Modify(new PropertySet { [Pid.Template] = tmpl }, PidSet.Empty);
-            
+
             return item;
         }
 
@@ -122,6 +122,7 @@ namespace n3q.Aspects
         public async Task<long> GetInt(Pid pid) { return await Get(pid); }
         public async Task<double> GetFloat(Pid pid) { return await Get(pid); }
         public async Task<bool> GetBool(Pid pid) { return await Get(pid); }
+        public async Task<DateTime> GetTime(Pid pid) { return await Get(pid); }
         public async Task<string> GetItemId(Pid pid) { return await Get(pid); }
         public async Task<ValueList> GetItemIdList(Pid pid) { return await Get(pid); }
         public async Task<ValueList> GetList(Pid pid) { return await Get(pid); }
@@ -183,14 +184,14 @@ namespace n3q.Aspects
             return executedActions;
         }
 
-        protected  void AssertTransaction()
+        protected void AssertTransaction()
         {
             if (Transaction == null) {
                 throw new Exception("No transaction");
             }
         }
 
-        protected  void AssertStubMethodIsUsed()
+        protected void AssertStubMethodIsUsed()
         {
             throw new Exception($"Do not use the interface directly. Please use the stub method {nameof(Get)}");
         }

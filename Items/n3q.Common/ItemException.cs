@@ -70,6 +70,7 @@ namespace n3q.Common
             ItemIsNotMovable,
             ItemDepleted,
             IdenticalItems,
+            StillInCooldown,
         }
     }
 }

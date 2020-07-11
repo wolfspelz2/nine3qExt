@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using n3q.Common;
 using n3q.Items;
+using n3q.Tools;
 
 namespace n3q.Aspects
 {
@@ -25,13 +27,33 @@ namespace n3q.Aspects
         {
             await AssertAspect();
 
-            var props = await Get(new PidSet { Pid.DispenserAvailable, Pid.DispenserTemplate, Pid.Container });
+            var props = await Get(new PidSet { Pid.DispenserAvailable, Pid.DispenserTemplate, Pid.DispenserLastTime, Pid.DispenserCooldownSec, Pid.Container });
+
             var available = props.GetInt(Pid.DispenserAvailable);
-            if (available <= 0) { throw new ItemException(Id, ItemNotification.Fact.NotCreated, ItemNotification.Reason.ItemDepleted);  }
+            if (available <= 0) { throw new ItemException(Id, ItemNotification.Fact.NotCreated, ItemNotification.Reason.ItemDepleted); }
+
+            var now = DateTime.MinValue;
+            var cooldownSec = props.GetFloat(Pid.DispenserCooldownSec);
+            if (cooldownSec > 0) {
+                now = await this.AsTimed().CurrentTime();
+                var lastTime = props.GetTime(Pid.DispenserLastTime);
+                if (now < lastTime.AddSeconds(cooldownSec)) { throw new ItemException(Id, ItemNotification.Fact.NotCreated, ItemNotification.Reason.StillInCooldown); }
+            }
+
             var tmpl = props.GetItemId(Pid.DispenserTemplate);
             var newItem = await this.NewItemFromTemplate(tmpl);
-            var container = await WritableItem(props.GetItemId(Pid.Container));
-            await container.AsContainer().AddChild(newItem);
+            var containerId = props.GetItemId(Pid.Container);
+            if (Has.Value(containerId)) {
+                var container = await WritableItem(containerId);
+                await container.AsContainer().AddChild(newItem);
+            }
+
+            available--;
+            await this.Set(Pid.DispenserAvailable, available);
+
+            if (cooldownSec > 0) {
+                await this.Set(Pid.DispenserLastTime, now);
+            }
         }
     }
 }

@@ -15,6 +15,10 @@ namespace n3q.Tools
 
         public static long ToLong(this DateTime date)
         {
+            if (date == DateTime.MinValue) {
+                return 0;
+            }
+
             const long nEpoch = Epoch * 1;
             long nYear = Year * date.Year;
             long nMonth = Month * date.Month;
@@ -31,6 +35,11 @@ namespace n3q.Tools
 
         public static DateTime FromLong(this DateTime self, long nDate)
         {
+            _ = self;
+            if (nDate == 0L) {
+                return DateTime.MinValue;
+            }
+
             if (nDate >= Epoch && nDate < 2 * Epoch) {
                 nDate -= Epoch;
 
@@ -61,11 +70,6 @@ namespace n3q.Tools
             } else {
                 throw new NotImplementedException("Epoch != 1");
             }
-        }
-
-        public static string ToBigintString(this DateTime date)
-        {
-            return date.ToLong().ToString();
         }
     }
 }

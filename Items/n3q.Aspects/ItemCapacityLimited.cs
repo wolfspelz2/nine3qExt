@@ -4,15 +4,15 @@ using n3q.Items;
 
 namespace n3q.Aspects
 {
-    public static class CapacityLimitExtensions
+    public static class ItemCapacityLimitedExtensions
     {
-        public static CapacityLimit AsItemCapacityLimit(this ItemStub self) { return new CapacityLimit(self); }
+        public static ItemCapacityLimited AsItemCapacityLimit(this ItemStub self) { return new ItemCapacityLimited(self); }
     }
 
-    public class CapacityLimit : Aspect
+    public class ItemCapacityLimited : Aspect
     {
-        public CapacityLimit(ItemStub item) : base(item) { }
-        public override Pid GetAspectPid() => Pid.ItemCapacityLimitAspect;
+        public ItemCapacityLimited(ItemStub item) : base(item) { }
+        public override Pid GetAspectPid() => Pid.ItemCapacityLimitedAspect;
 
         public async Task AssertLimit(ItemWriter newItem)
         {
