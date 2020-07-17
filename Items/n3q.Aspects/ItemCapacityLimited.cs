@@ -6,7 +6,7 @@ namespace n3q.Aspects
 {
     public static class ItemCapacityLimitedExtensions
     {
-        public static ItemCapacityLimited AsItemCapacityLimit(this ItemStub self) { return new ItemCapacityLimited(self); }
+        public static ItemCapacityLimited AsItemCapacityLimited(this ItemStub self) { return new ItemCapacityLimited(self); }
     }
 
     public class ItemCapacityLimited : Aspect

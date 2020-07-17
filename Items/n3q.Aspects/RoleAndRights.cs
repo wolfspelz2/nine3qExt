@@ -7,7 +7,7 @@ namespace n3q.Aspects
 {
     public static class RoleAndRightsExtensions
     {
-        public static RoleAndRights AsRoleAndRights(this ItemStub self) { return new RoleAndRights(self); }
+        public static RoleAndRights AsRole(this ItemStub self) { return new RoleAndRights(self); }
     }
 
     public class RoleAndRights : Aspect
