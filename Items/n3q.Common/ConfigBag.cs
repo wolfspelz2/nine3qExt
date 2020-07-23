@@ -13,7 +13,7 @@
 #if DEBUG
             SetupMode.Development;
 #else
-            SetupMode.Release;
+            SetupMode.Production;
 #endif
 
         public string ConfigSequence = "";
