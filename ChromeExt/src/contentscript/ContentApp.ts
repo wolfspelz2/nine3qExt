@@ -379,40 +379,16 @@ export class ContentApp
 
     async enterRoomByPageUrl(pageUrl: string): Promise<void>
     {
-        if (Config.get('vp.useLocationMappingService', false)) {
+        try {
+            let vpi = new VpiResolver(BackgroundMessage, Config);
+            vpi.language = Translator.getShortLanguageCode(this.babelfish.getLanguage());
 
-            let url = new URL(Config.get('vp.locationMappingServiceUrl', 'https://lms.virtual-presence.org/api/'));
-            url.searchParams.set('Method', 'VPI.Info');
-            url.searchParams.set('sDocumentURL', pageUrl);
-            url.searchParams.set('Format', 'json');
-
-            let response = await BackgroundMessage.fetchUrl(url.toString(), '');
-            if (response.ok) {
-                try {
-                    let mappingResponse: ILocationMapperResponse = JSON.parse(response.data);
-                    let locationUrl = mappingResponse.sLocationURL;
-                    log.debug('Mapped', pageUrl, ' => ', locationUrl);
-                    let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);
-                    this.enterRoomByJid(roomJid, pageUrl);
-                } catch (error) {
-                    log.info(error);
-                }
-            }
-
-        } else {
-
-            try {
-                let vpi = new VpiResolver(BackgroundMessage, Config);
-                vpi.language = Translator.getShortLanguageCode(this.babelfish.getLanguage());
-
-                let locationUrl = await vpi.map(pageUrl);
-                log.debug('Mapped', pageUrl, ' => ', locationUrl);
-                let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);
-                this.enterRoomByJid(roomJid, pageUrl);
-            } catch (error) {
-                log.info(error);
-            }
-
+            let locationUrl = await vpi.map(pageUrl);
+            log.debug('Mapped', pageUrl, ' => ', locationUrl);
+            let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);
+            this.enterRoomByJid(roomJid, pageUrl);
+        } catch (error) {
+            log.info(error);
         }
     }
 
