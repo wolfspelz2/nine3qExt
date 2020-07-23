@@ -77,7 +77,7 @@ namespace ClusterSilo
                     c.TimestampFormat = "[yy:MM:dd-HH:mm:ss] ";
                 });
 
-                if (Config.Build == SiloConfigDefinition.BuildConfiguration.Release) {
+                if (Config.Setup == SiloConfigDefinition.SetupMode.Production) {
                     logging.SetMinimumLevel(LogLevel.Error);
                     //logging.SetMinimumLevel(LogLevel.Warning);
                 }

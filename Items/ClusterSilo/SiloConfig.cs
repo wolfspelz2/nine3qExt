@@ -7,7 +7,13 @@
             ConfigFile = CurrentFile;
             ConfigSequence += nameof(SiloConfig);
 
-            if (Build == BuildConfiguration.Debug) {
+            AdditionalConfigRoot = System.Environment.GetEnvironmentVariable(ConfigRootEnvironmentVariableName) ?? AdditionalConfigRoot;
+            if (!string.IsNullOrEmpty(AdditionalConfigRoot)) {
+                BaseFolder = AdditionalConfigRoot;
+                Include(SetupFile);
+            }
+
+            if (Setup == SetupMode.Development) {
 
                 ClusterId = "dev";
 
@@ -20,6 +26,9 @@
                 ClusteringAzureTableConnectionString = connectionString;
                 PubsubStoreAzureTableConnectionString = connectionString;
 
+            } else if (Setup == SetupMode.Stage) {
+                ClusterId = "stage01";
+                LocalhostClustering = false;
             } else {
                 ClusterId = "prod";
                 LocalhostClustering = false;

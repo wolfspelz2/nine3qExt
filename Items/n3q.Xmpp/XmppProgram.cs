@@ -110,7 +110,7 @@ namespace n3q.Xmpp
             _controller = new Controller(client, Config);
             await _controller.Start();
 
-            if (Config.Build == XmppConfigDefinition.BuildConfiguration.Release) {
+            if (Config.Setup == XmppConfigDefinition.SetupMode.Production) {
 
                 Console.WriteLine("Press CTRL-C to terminate...");
                 new AutoResetEvent(false).WaitOne();

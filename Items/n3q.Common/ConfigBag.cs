@@ -2,20 +2,22 @@
 {
     public class ConfigBag : ConfigSharp.ConfigBag
     {
-        public enum BuildConfiguration
+        public enum SetupMode
         {
-            Debug,
-            Release
+            Development,
+            Production,
+            Stage,
         }
 
-        public BuildConfiguration Build =
+        public SetupMode Setup =
 #if DEBUG
-            BuildConfiguration.Debug;
+            SetupMode.Development;
 #else
-            BuildConfiguration.Release;
+            SetupMode.Release;
 #endif
 
         public string ConfigSequence = "";
+        public string SetupFile = "Setup.cs";
         public string ConfigFile = "Config.cs";
         public string ConfigRootEnvironmentVariableName = "N3Q_CONFIG_ROOT";
         public string AdditionalConfigRoot = null;
