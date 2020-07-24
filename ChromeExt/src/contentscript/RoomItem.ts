@@ -202,11 +202,12 @@ export class RoomItem extends Entity
 
     sendMoveMessage(newX: number): void
     {
-        this.sendCommand(this.nick, 'MoveTo', { 'x': newX });
+        this.sendCommand('MoveTo', { 'x': newX });
     }
 
-    sendCommand(itemId: string, action: string, params: any)
+    sendCommand(action: string, params: any)
     {
+        let itemId = this.nick;
         let item = this.app.getItemRepository().getItem(itemId);
         if (item) {
             let userToken = this.app.getItemProviderConfigValue(item.getProviderId(), 'userToken', '');

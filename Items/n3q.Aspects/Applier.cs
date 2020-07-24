@@ -16,13 +16,18 @@ namespace n3q.Aspects
         public override ActionList GetActionList()
         {
             return new ActionList() {
-                { nameof(Apply), new ActionDescription() { Handler = async (args) => await Apply(await WritableItem(args.Get(Pid.ApplierApplyTo))) } },
+                { nameof(Apply), new ActionDescription() { Handler = async (args) => await Apply(await WritableItem(args.Get(Pid.ApplierApplyPassive))) } },
             };
         }
 
         public async Task Apply(ItemWriter passive)
         {
             await Task.CompletedTask;
+
+            if (await passive.GetBool(Pid.DeletableAspect) && await this.GetBool(Pid.DeleterAspect)) {
+                await this.AsDeleter().Delete(passive);
+            }
+
             //if (this.IsExtractor() && passive.IsSource()) {
             //    if (!this.AsSink().IsFull() && !passive.AsSource().IsEmpty() && this.GetString(Pid.Resource) == passive.GetString(Pid.Resource)) {
             //        this.AsExtractor().Extract(passive);

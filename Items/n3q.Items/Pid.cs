@@ -121,7 +121,7 @@
         //SettingsSetInventoryCoordinatesHeight,
         InjectorInjectTo,
         ExtractorExtractFrom,
-        ApplierApplyTo,
+        ApplierApplyPassive,
 
         // App
         FirstApp = 5000000,

@@ -217,9 +217,14 @@
     user-select: none;
 }
 
-    #n3q div.n3q-entity div.n3q-avatar-hilite {
-        filter: drop-shadow(1px 1px 3px #505050);
-    }
+#n3q div.n3q-entity div.n3q-avatar-hilite {
+    filter: drop-shadow(1px 1px 3px #505050);
+}
+
+#n3q div.n3q-entity div.n3q-avatar-drophilite {
+    filter: drop-shadow(0 0 10px #abc115);
+    // box-shadow: inset 0 0 100px rgba(171, 193, 21, 0.4);
+}
 
 // Item
 

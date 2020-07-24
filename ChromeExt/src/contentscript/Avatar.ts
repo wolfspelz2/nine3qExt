@@ -8,6 +8,7 @@ import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { IObserver, IObservable } from '../lib/ObservableProperty';
 import * as AnimationsXml from './AnimationsXml';
+import { RoomItem } from './RoomItem';
 
 class AvatarGetAnimationResult
 {
@@ -36,6 +37,9 @@ export class Avatar implements IObserver
 
     private clickDblClickSeparationTimer: number;
     private hackSuppressNextClickOtherwiseDraggableClicks: boolean = false;
+
+    private ignoreDrag: boolean = false;
+    ignoreNextDrag(): void { this.ignoreDrag = true; }
 
     isDefaultAvatar(): boolean { return this.isDefault; }
 
@@ -99,11 +103,21 @@ export class Avatar implements IObserver
             },
             drag: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
+                if (this.ignoreDrag) {
+                    this.ignoreDrag = false;
+                    return false;
+                }
+
                 this.entity.onDragAvatar(ev, ui);
             },
             stop: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
-                this.entity.onDragAvatarStop(ev, ui);
+                if (this.ignoreDrag) {
+                    this.ignoreDrag = false;
+                } else {
+                    this.entity.onDragAvatarStop(ev, ui);
+                }
+
                 this.inDrag = false;
                 this.app.enableScreen(false);
                 $(this.elem).css('z-index', '');
@@ -112,6 +126,39 @@ export class Avatar implements IObserver
                 setTimeout(() => { this.hackSuppressNextClickOtherwiseDraggableClicks = false; }, 200);
             }
         });
+
+        $(this.elem).droppable({
+            hoverClass: 'n3q-avatar-drophilite',
+            drop: (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
+            {
+                let thisRoomItem = this.getRoomItemByAvatarElem(this.elem);
+
+                let droppedElem = ui.draggable.get(0);
+                let droppedRoomItem = this.getRoomItemByAvatarElem(droppedElem);
+
+                if (thisRoomItem && droppedRoomItem) {
+                    let droppedAvatar = droppedRoomItem.getAvatar();
+                    droppedAvatar?.ignoreNextDrag();
+                    this.app.getRoom().applyItemToItem(thisRoomItem, droppedRoomItem);
+                }
+            }
+        });
+
+    }
+
+    getRoomItemByAvatarElem(avatarElem: HTMLElement): RoomItem
+    {
+        let droppedElem = avatarElem;
+        if (droppedElem) {
+            let droppedEntityElem = droppedElem.parentElement;
+            if (droppedEntityElem) {
+                let droppedId: string = $(droppedEntityElem).data('nick');
+                if (droppedId) {
+                    let droppedItem = this.app.getRoom().getItem(droppedId);
+                    return droppedItem;
+                }
+            }
+        }
     }
 
     stop()

@@ -360,4 +360,13 @@ export class Room
         this.posX = newX;
         this.sendPresence();
     }
+
+    // Item interaction
+
+    applyItemToItem(activeItem: RoomItem, passiveItem: RoomItem)
+    {
+        let passiveItemId = passiveItem.getNick();
+        activeItem.sendCommand('Apply', { 'passive': passiveItemId });
+    }
+
 }

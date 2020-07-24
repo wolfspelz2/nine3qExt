@@ -27,7 +27,7 @@ namespace n3q.Content
                     //GetTemplate(nameof(DevSpec.Template.Trashcan), templates, text);
                     //};
                     GetTemplate(nameof(DevSpec.Template.Inventory), templates, text);
-                    GetTemplate(nameof(DevSpec.Template.Recycler), templates, text);
+                    GetTemplate(nameof(DevSpec.Template.Blackhole), templates, text);
                     GetTemplate(nameof(DevSpec.Template.Settings), templates, text);
                     break;
 
@@ -155,17 +155,18 @@ namespace n3q.Content
                     text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Inventory";
                     break;
 
-                case nameof(DevSpec.Template.Recycler):
+                case nameof(DevSpec.Template.Blackhole):
                     props = new PropertySet {
                         [Pid.Name] = name,
-                        [Pid.Label] = "Recycler",
-                        [Pid.Width] = 32,
-                        [Pid.Height] = 32,
-                        [Pid.ImageUrl] = ItemService.ItemBaseVar + "User/Recycler.png",
+                        [Pid.Label] = "Blackhole",
+                        [Pid.Width] = 100,
+                        [Pid.Height] = 70,
+                        [Pid.ImageUrl] = ItemService.ItemBaseVar + "User/Blackhole.png",
                         [Pid.DeleterAspect] = true,
+                        [Pid.ApplierAspect] = true,
                     };
-                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Einstellungen";
-                    text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Settings";
+                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Black Hole";
+                    text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Schwarzes Loch";
                     break;
 
                 case nameof(DevSpec.Template.Settings):
