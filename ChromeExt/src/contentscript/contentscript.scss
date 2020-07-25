@@ -297,9 +297,10 @@
         position: absolute;
         transition: transform ease-out 200ms;
         transition-duration: 200ms; 
-        opacity: 0.0;
-        transform: translate3d(-3px, -35px, 0);
+        opacity: 0.5;
+        transform: translate(-3px, -35px) scale(0.1, 0.1);
         user-select: none;
+        // display: none;
     }
 
     #n3q div.n3q-menu-item div.n3q-menu-icon {
@@ -320,6 +321,8 @@
 
         #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item {
             opacity: 1.0;
+            transform: scale(1.0, 1.0);
+            // display: block;
         } 
 
         // background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" focusable="false" width="1em" height="1em" style="-ms-transform: rotate(360deg); -webkit-transform: rotate(360deg); transform: rotate(360deg);" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" fill="#626262"/></svg>') no-repeat center center / contain;
@@ -343,30 +346,29 @@
             // background: url('https://api.iconify.design/ic-outline-check-box.svg') no-repeat center center / contain;
             #n3q div.n3q-menuitem-tabstay div.n3q-menu-icon-checked { background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMWVtIiBoZWlnaHQ9IjFlbSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0IiBzdHlsZT0iLW1zLXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7IC13ZWJraXQtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsiPjxwYXRoIGQ9Ik0xOSAzSDVjLTEuMSAwLTIgLjktMiAydjE0YzAgMS4xLjkgMiAyIDJoMTRjMS4xIDAgMi0uOSAyLTJWNWMwLTEuMS0uOS0yLTItMnptMCAxNkg1VjVoMTR2MTR6TTE3Ljk5IDlsLTEuNDEtMS40MmwtNi41OSA2LjU5bC0yLjU4LTIuNTdsLTEuNDIgMS40MWw0IDMuOTl6IiBmaWxsPSJjdXJyZW50Q29sb3IiLz48L3N2Zz4K') no-repeat center center / contain; }
 
-        #n3q div.n3q-menu-item.n3q-menu-column-main { transform: translate3d(60px, -35px, 0); }
-        #n3q div.n3q-menu-item.n3q-menu-column-action { transform: translate3d(-3px, -35px, 0); }
+        #n3q div.n3q-menu-item.n3q-menu-column-main   { transform: translate(-20px, -15px) scale(0, 0); }
+        #n3q div.n3q-menu-item.n3q-menu-column-action { transform: translate(-20px, -15px) scale(0, 0); }
 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-test       { transform: translate3d(80px, -16px, 0); } 
-
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-inventory  { transform: translate3d(60px, -154px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-tabstay    { transform: translate3d(60px, -132px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-settings   { transform: translate3d(60px, -110px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-vidconf    { transform: translate3d(60px,  -88px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-chatwin    { transform: translate3d(60px,  -66px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-chat       { transform: translate3d(60px,  -44px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-Actions    { transform: translate3d(-3px, -242px, 0); }
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-wave       { transform: translate3d(-3px, -220px, 0); }
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-dance      { transform: translate3d(-3px, -198px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-cheer      { transform: translate3d(-3px, -176px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-kiss       { transform: translate3d(-3px, -154px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-clap       { transform: translate3d(-3px, -132px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-laugh      { transform: translate3d(-3px, -110px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-angry      { transform: translate3d(-3px,  -88px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-deny       { transform: translate3d(-3px,  -66px, 0); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-yawn       { transform: translate3d(-3px,  -44px, 0); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-test       { transform: translate(80px,  -16px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-inventory  { transform: translate(60px, -154px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-tabstay    { transform: translate(60px, -132px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-settings   { transform: translate(60px, -110px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-vidconf    { transform: translate(60px,  -88px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-chatwin    { transform: translate(60px,  -66px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-chat       { transform: translate(60px,  -44px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-Actions    { transform: translate(-3px, -242px) scale(1, 1); }
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-wave       { transform: translate(-3px, -220px) scale(1, 1); }
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-dance      { transform: translate(-3px, -198px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-cheer      { transform: translate(-3px, -176px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-kiss       { transform: translate(-3px, -154px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-clap       { transform: translate(-3px, -132px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-laugh      { transform: translate(-3px, -110px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-angry      { transform: translate(-3px,  -88px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-deny       { transform: translate(-3px,  -66px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-yawn       { transform: translate(-3px,  -44px) scale(1, 1); } 
         
-        #n3q div.n3q-participant-other div.n3q-menu-item.n3q-menu-column-main { transform: translate3d(-3px, -35px, 0); }
-        #n3q div.n3q-participant-other input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-chat    { transform: translate3d(-3px, -44px, 0); } 
+        #n3q div.n3q-participant-other div.n3q-menu-item.n3q-menu-column-main { transform: translate(-20px, -35px) scale(0, 0); }
+        #n3q div.n3q-participant-other input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-chat { transform: translate(-20px, -44px) scale(1, 1); } 
 
         #n3q div.n3q-menu-item:hover { filter: brightness(0.9); }
         #n3q div.n3q-menu-item:active { filter: brightness(0.8); }   
