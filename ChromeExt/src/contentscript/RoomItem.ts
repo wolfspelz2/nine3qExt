@@ -8,7 +8,6 @@ import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
-import { Item } from './Item';
 
 import imgDefaultItem from '../assets/DefaultItem.png';
 
@@ -22,21 +21,11 @@ export class RoomItem extends Entity
 
         $(this.getElem()).addClass('n3q-item');
         $(this.getElem()).attr('data-nick', nick);
-
-        // $(this.getElem()).droppable({
-        //     over: (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
-        //     {
-        //         log.info('over');
-        //     },
-        //     drop: (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
-        //     {
-        //         log.info('drop');
-        //     }
-        // });
     }
 
     getDefaultAvatar(): string { return imgDefaultItem; }
     getNick(): string { return this.nick; }
+    getProviderId(): string { return this.app.getItemRepository().getItem(this.nick).getProviderId(); }
 
     remove(): void
     {
@@ -200,6 +189,12 @@ export class RoomItem extends Entity
         }
     }
 
+    applyItem(passiveItem: RoomItem)
+    {
+        let passiveItemId = passiveItem.getNick();
+        this.sendCommand('Apply', { 'passive': passiveItemId });
+    }
+
     sendMoveMessage(newX: number): void
     {
         this.sendCommand('MoveTo', { 'x': newX });
@@ -236,6 +231,6 @@ export class RoomItem extends Entity
     beginDerez(): void
     {
         this.isDerezzing = true;
-        $(this.getElem()).hide();
+        $(this.getElem()).hide().delay(1000).show(0);
     }
 }

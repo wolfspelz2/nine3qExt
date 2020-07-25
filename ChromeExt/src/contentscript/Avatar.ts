@@ -9,6 +9,7 @@ import { Utils } from '../lib/Utils';
 import { IObserver, IObservable } from '../lib/ObservableProperty';
 import * as AnimationsXml from './AnimationsXml';
 import { RoomItem } from './RoomItem';
+import { Participant } from './Participant';
 
 class AvatarGetAnimationResult
 {
@@ -38,8 +39,8 @@ export class Avatar implements IObserver
     private clickDblClickSeparationTimer: number;
     private hackSuppressNextClickOtherwiseDraggableClicks: boolean = false;
 
-    private ignoreDrag: boolean = false;
-    ignoreNextDrag(): void { this.ignoreDrag = true; }
+    private ignoreNextDragFlag: boolean = false;
+    ignoreDrag(): void { this.ignoreNextDragFlag = true; }
 
     isDefaultAvatar(): boolean { return this.isDefault; }
 
@@ -103,8 +104,8 @@ export class Avatar implements IObserver
             },
             drag: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
-                if (this.ignoreDrag) {
-                    this.ignoreDrag = false;
+                if (this.ignoreNextDragFlag) {
+                    this.ignoreNextDragFlag = false;
                     return false;
                 }
 
@@ -112,8 +113,8 @@ export class Avatar implements IObserver
             },
             stop: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
-                if (this.ignoreDrag) {
-                    this.ignoreDrag = false;
+                if (this.ignoreNextDragFlag) {
+                    this.ignoreNextDragFlag = false;
                 } else {
                     this.entity.onDragAvatarStop(ev, ui);
                 }
@@ -131,15 +132,21 @@ export class Avatar implements IObserver
             hoverClass: 'n3q-avatar-drophilite',
             drop: (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
             {
-                let thisRoomItem = this.getRoomItemByAvatarElem(this.elem);
-
                 let droppedElem = ui.draggable.get(0);
                 let droppedRoomItem = this.getRoomItemByAvatarElem(droppedElem);
 
-                if (thisRoomItem && droppedRoomItem) {
+                if (droppedRoomItem) {
                     let droppedAvatar = droppedRoomItem.getAvatar();
-                    droppedAvatar?.ignoreNextDrag();
-                    this.app.getRoom().applyItemToItem(thisRoomItem, droppedRoomItem);
+
+                    let thisRoomItem = this.getRoomItemByAvatarElem(this.elem);
+                    if (thisRoomItem) {
+                        droppedAvatar?.ignoreDrag();
+                        this.app.getRoom().applyItemToItem(thisRoomItem, droppedRoomItem);
+                    } else {
+                        droppedAvatar?.ignoreDrag();
+                        let thisParticipant = this.getPariticipantByAvatarElem(this.elem);
+                        this.app.getRoom().applyItemToParticipant(thisParticipant, droppedRoomItem);
+                    }
                 }
             }
         });
@@ -148,15 +155,26 @@ export class Avatar implements IObserver
 
     getRoomItemByAvatarElem(avatarElem: HTMLElement): RoomItem
     {
-        let droppedElem = avatarElem;
-        if (droppedElem) {
-            let droppedEntityElem = droppedElem.parentElement;
-            if (droppedEntityElem) {
-                let droppedId: string = $(droppedEntityElem).data('nick');
-                if (droppedId) {
-                    let droppedItem = this.app.getRoom().getItem(droppedId);
-                    return droppedItem;
-                }
+        let avatarEntityId = this.getEntityIdByAvatarElem(avatarElem);
+        if (avatarEntityId) {
+            return this.app.getRoom().getItem(avatarEntityId);
+        }
+    }
+
+    getPariticipantByAvatarElem(avatarElem: HTMLElement): Participant
+    {
+        let avatarEntityId = this.getEntityIdByAvatarElem(avatarElem);
+        if (avatarEntityId) {
+            return this.app.getRoom().getParticipant(avatarEntityId);
+        }
+    }
+
+    getEntityIdByAvatarElem(avatarElem: HTMLElement): string
+    {
+        if (avatarElem) {
+            let avatarEntityElem = avatarElem.parentElement;
+            if (avatarEntityElem) {
+                return $(avatarEntityElem).data('nick');
             }
         }
     }

@@ -9,8 +9,6 @@ import { Config } from '../lib/Config';
 import { AvatarGallery } from '../lib/AvatarGallery';
 import { Translator } from '../lib/Translator';
 import { Browser } from '../lib/Browser';
-import { SimpleRpc } from '../lib/SimpleRpc';
-import { Payload } from '../lib/Payload';
 import { HelloWorld } from './HelloWorld';
 import { PropertyStorage } from './PropertyStorage';
 import { Room } from './Room';
@@ -72,14 +70,14 @@ export class ContentApp
         }
         return room;
     }
-    getInventory(): Inventory
+    getInventoryByProviderId(providerId: string): Inventory
     {
-        let inv = null;
         for (let invJid in this.inventories) {
-            inv = this.inventories[invJid];
-            break;
+            let inv = this.inventories[invJid];
+            if (inv.getProviderId() == providerId) {
+                return inv;
+            }
         }
-        return inv;
     }
 
     constructor(protected appendToMe: HTMLElement, private messageHandler: ContentAppNotificationCallback)
@@ -190,9 +188,9 @@ export class ContentApp
         new TestWindow(this).show({});
     }
 
-    async showInventoryWindow(aboveElem: HTMLElement): Promise<void>
+    async showInventoryWindow(aboveElem: HTMLElement, providerId: string): Promise<void>
     {
-        let inv = new Inventory(this, 'nine3q');
+        let inv = new Inventory(this, providerId);
         let jid = inv.getJid();
 
         if (!this.inventories[jid]) {

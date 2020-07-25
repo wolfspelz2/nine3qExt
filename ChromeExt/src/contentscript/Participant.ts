@@ -12,6 +12,7 @@ import { Nickname } from './Nickname';
 import { Chatout } from './Chatout';
 import { Chatin } from './Chatin';
 import { url } from 'inspector';
+import { RoomItem } from './RoomItem';
 
 export class Participant extends Entity
 {
@@ -26,10 +27,11 @@ export class Participant extends Entity
         super(app, room, isSelf);
 
         $(this.getElem()).addClass('n3q-participant');
+        $(this.getElem()).attr('data-nick', nick);
+
         if (isSelf) {
             $(this.getElem()).addClass('n3q-participant-self');
-        }
-        else {
+        } else {
             $(this.getElem()).addClass('n3q-participant-other');
         }
     }
@@ -311,7 +313,7 @@ export class Participant extends Entity
                     let data = binvalNode.text();
                     let type = typeNode.text();
                     if (data && data != '' && type && type != '') {
-                        data = data.replace(/(\r\n|\n|\r)/gm, '').replace(/ /g,'');
+                        data = data.replace(/(\r\n|\n|\r)/gm, '').replace(/ /g, '');
                         url = 'data:' + type + ';base64,' + data;
                     }
                 }
@@ -475,7 +477,7 @@ export class Participant extends Entity
     onMouseEnterAvatar(ev: JQuery.Event): void
     {
         super.onMouseEnterAvatar(ev);
-        
+
         if (!this.onMouseEnterAvatarVcardImageFallbackAlreadyTriggered
             && this.avatarDisplay
             && this.avatarDisplay.isDefaultAvatar()
@@ -545,8 +547,24 @@ export class Participant extends Entity
         this.room?.showVideoConference(this.getElem(), this.nicknameDisplay ? this.nicknameDisplay.getNickname() : this.nick);
     }
 
-    showInventoryWindow(): void
+    showInventoryWindow(itemProvider: string): void
     {
-        this.app.showInventoryWindow(this.getElem());
+        this.app.showInventoryWindow(this.getElem(), itemProvider);
     }
+
+    async applyItem(roomItem: RoomItem)
+    {
+        if (this.isSelf) {
+            let itemId = roomItem.getNick();
+            let itemProviderId = roomItem.getProviderId();
+
+            await this.app.showInventoryWindow(this.elem, itemProviderId);
+            let inv = this.app.getInventoryByProviderId(itemProviderId);
+            if (inv) {
+                roomItem.beginDerez();
+                inv.sendDerezItem(itemId, -1, -1);
+            }
+        }
+    }
+
 }

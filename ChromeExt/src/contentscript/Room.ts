@@ -49,6 +49,7 @@ export class Room
     getJid(): string { return this.jid; }
     getDestination(): string { return this.destination; }
     getItem(nick: string) { return this.items[nick]; }
+    getParticipant(nick: string) { return this.participants[nick]; }
 
     iAmAlreadyHere()
     {
@@ -365,8 +366,12 @@ export class Room
 
     applyItemToItem(activeItem: RoomItem, passiveItem: RoomItem)
     {
-        let passiveItemId = passiveItem.getNick();
-        activeItem.sendCommand('Apply', { 'passive': passiveItemId });
+        activeItem.applyItem(passiveItem);
+    }
+
+    applyItemToParticipant(participant: Participant, passiveItem: RoomItem)
+    {
+        participant.applyItem(passiveItem);
     }
 
 }
