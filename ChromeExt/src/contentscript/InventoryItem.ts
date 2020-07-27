@@ -135,6 +135,11 @@ export class InventoryItem
     private dragIsRezable: boolean = false;
     private onDragStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
     {
+        let item = this.app.getItemRepository().getItem(this.itemId);
+        if (item) {
+            item.onDrag(this.elem, new Point2D(ev.clientX, ev.clientY));
+        }
+
         this.dragIsRezable = as.Bool(this.item.getProperties().RezableAspect, true);
         return true;
     }

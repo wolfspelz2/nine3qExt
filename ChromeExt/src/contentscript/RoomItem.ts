@@ -180,6 +180,16 @@ export class RoomItem extends Entity
         }
     }
 
+    onDragAvatarStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
+    {
+        super.onDragAvatarStart(ev, ui);
+
+        let item = this.app.getItemRepository().getItem(this.nick);
+        if (item) {
+            item.onDrag(this.getElem(), new Point2D(ev.clientX, ev.clientY));
+        }
+    }
+
     onQuickSlideReached(newX: number): void
     {
         super.onQuickSlideReached(newX);
