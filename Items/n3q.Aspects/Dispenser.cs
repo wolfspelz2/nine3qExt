@@ -41,6 +41,7 @@ namespace n3q.Aspects
             }
 
             var tmpl = props.GetItemId(Pid.DispenserTemplate);
+            if (!Has.Value(tmpl))  { throw new ItemException(Id, Pid.DispenserTemplate, ItemNotification.Fact.NotCreated, ItemNotification.Reason.MissingPropertyValue); }
             var newItem = await this.NewItemFromTemplate(tmpl);
             var containerId = props.GetItemId(Pid.Container);
             if (Has.Value(containerId)) {

@@ -31,6 +31,7 @@ namespace n3q.Content
             //Backpack,
             //Trashcan,
             Blackhole,
+            MagicHat,
             //Shredder,
             Settings,
             //Nickname,

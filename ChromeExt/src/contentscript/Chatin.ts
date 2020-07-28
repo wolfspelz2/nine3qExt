@@ -37,6 +37,14 @@ export class Chatin
         });
         $(this.elem).append(this.closeElem);
 
+        // $(this.elem).draggable({
+        //     scroll: false,
+        //     iframeFix: true,
+        //     // stack: '.n3q-entity',
+        //     distance: 4,
+        //     containment: 'document',
+        // });
+
         this.app.translateElem(this.elem);
         $(display).append(this.elem);
     }

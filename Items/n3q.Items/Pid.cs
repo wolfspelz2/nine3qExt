@@ -71,6 +71,8 @@
         Actions,
         Stats,
         Developer,
+        Creator,
+        Owner,
 
         // Aspect
         FirstAspect = 3000000,
