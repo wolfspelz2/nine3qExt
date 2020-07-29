@@ -16,6 +16,8 @@ namespace n3q.Content
                 case nameof(DevSpec.Group.System):
                     GetTemplate(nameof(DevSpec.Template.Admin), templates, text);
                     GetTemplate(nameof(DevSpec.Template.Developer), templates, text);
+                    GetTemplate(nameof(DevSpec.Template.Blackhole), templates, text);
+                    GetTemplate(nameof(DevSpec.Template.MagicHat), templates, text);
                     break;
 
                 case nameof(DevSpec.Group.User):
@@ -27,8 +29,6 @@ namespace n3q.Content
                     //GetTemplate(nameof(DevSpec.Template.Trashcan), templates, text);
                     //};
                     GetTemplate(nameof(DevSpec.Template.Inventory), templates, text);
-                    GetTemplate(nameof(DevSpec.Template.Blackhole), templates, text);
-                    GetTemplate(nameof(DevSpec.Template.MagicHat), templates, text);
                     GetTemplate(nameof(DevSpec.Template.Settings), templates, text);
                     break;
 

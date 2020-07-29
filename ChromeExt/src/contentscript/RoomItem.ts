@@ -99,7 +99,11 @@ export class RoomItem extends Entity
         // vpImageUrl = '';
 
         if (this.isFirstPresence) {
-            this.avatarDisplay = new Avatar(this.app, this, this.isSelf);
+            this.avatarDisplay = new Avatar(this.app, this, false);
+            var hasApplierAspect = as.Bool(newProperties.ApplierAspect, false);
+            if (hasApplierAspect) {
+                this.avatarDisplay.makeDroppable();
+            }
         }
 
         if (this.avatarDisplay) {

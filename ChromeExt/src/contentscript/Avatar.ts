@@ -127,7 +127,10 @@ export class Avatar implements IObserver
                 setTimeout(() => { this.hackSuppressNextClickOtherwiseDraggableClicks = false; }, 200);
             }
         });
+    }
 
+    makeDroppable(): void
+    {
         $(this.elem).droppable({
             hoverClass: 'n3q-avatar-drophilite',
             drop: (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
@@ -150,7 +153,6 @@ export class Avatar implements IObserver
                 }
             }
         });
-
     }
 
     getRoomItemByAvatarElem(avatarElem: HTMLElement): RoomItem

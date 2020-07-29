@@ -23,7 +23,7 @@ namespace n3q.Aspects
 
         public async Task Initialize()
         {
-            var flag = await NewItemFromTemplate("PirateFlag");
+            var flag = await NewItemFromTemplate("PirateFlag", this.Id);
             await this.AsContainer().AddChild(flag);
         }
 

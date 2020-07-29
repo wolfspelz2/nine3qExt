@@ -35,9 +35,7 @@ namespace n3q.WebIt.ItemFrame
 
             await ClusterClient.Transaction(ctx.ItemId, async self => {
 
-                var newItem = await self.NewItemFromTemplate(template);
-                await newItem.Set(Pid.Creator, ctx.UserId);
-                await newItem.Set(Pid.Owner, ctx.UserId);
+                var newItem = await self.NewItemFromTemplate(template, ctx.UserId);
 
                 var containerId = await self.GetItemId(Pid.Container);
                 if (Has.Value(containerId)) {

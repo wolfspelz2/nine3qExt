@@ -161,6 +161,9 @@ export class Participant extends Entity
 
         if (this.isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, this.isSelf);
+            if (this.isSelf) {
+                this.avatarDisplay.makeDroppable();
+            }
 
             this.nicknameDisplay = new Nickname(this.app, this, this.isSelf, this.getElem());
             if (!this.isSelf) {
