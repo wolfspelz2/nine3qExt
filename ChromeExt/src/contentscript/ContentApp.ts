@@ -55,6 +55,7 @@ export class ContentApp
     private inventoryIsOpen: boolean = false;
     private vidconfIsOpen: boolean = false;
     private chatIsOpen: boolean = false;
+    private pageUrl: string;
 
     // Getter
 
@@ -142,12 +143,14 @@ export class ContentApp
         chrome.runtime?.onMessage.addListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
 
         this.enterPage();
+        this.startCheckPageUrl();
         this.pingBackgroundToKeepConnectionAlive();
     }
 
     stop()
     {
         this.stop_pingBackgroundToKeepConnectionAlive();
+        this.stopCheckPageUrl();
         this.leavePage();
         this.onUnload();
     }
@@ -352,7 +355,25 @@ export class ContentApp
 
     enterPage()
     {
-        this.enterRoomByPageUrl(Browser.getCurrentPageUrl());
+        this.pageUrl = Browser.getCurrentPageUrl();
+        this.enterRoomByPageUrl(this.pageUrl);
+    }
+
+    checkPageUrlChanged()
+    {
+        let newUrl = Browser.getCurrentPageUrl();
+        let newSignificatParts = this.getSignificantUrlParts(newUrl);
+        let oldSignificatParts = this.getSignificantUrlParts(this.pageUrl);
+        if (newSignificatParts != oldSignificatParts) {
+            this.leavePage();
+            this.enterPage();
+        }
+    }
+
+    getSignificantUrlParts(url: string)
+    {
+        let parsedUrl = new URL(url)
+        return parsedUrl.host + parsedUrl.pathname + parsedUrl.search;
     }
 
     leavePage()
@@ -365,6 +386,27 @@ export class ContentApp
         for (let inventoryJid in this.inventories) {
             var inv = this.inventories[inventoryJid];
             inv.close();
+        }
+    }
+
+    private checkPageUrlSec: number = Config.get('room.checkPageUrlSec', 5);
+    private checkPageUrlTimer: number;
+    private startCheckPageUrl()
+    {
+        this.stopCheckPageUrl();
+        this.checkPageUrlTimer = <number><unknown>setTimeout(() =>
+        {
+            this.checkPageUrlChanged();
+            this.checkPageUrlTimer = undefined;
+            this.startCheckPageUrl();
+        }, this.checkPageUrlSec * 1000);
+    }
+
+    private stopCheckPageUrl()
+    {
+        if (this.checkPageUrlTimer) {
+            clearTimeout(this.checkPageUrlTimer);
+            this.checkPageUrlTimer = undefined;
         }
     }
 
