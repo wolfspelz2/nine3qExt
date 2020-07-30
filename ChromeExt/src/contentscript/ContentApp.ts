@@ -41,7 +41,9 @@ interface StanzaResponseHandler { (stanza: xml): void }
 export class ContentApp
 {
     private display: HTMLElement;
-    private rooms: { [roomJid: string]: Room; } = {};
+    private pageUrl: string;
+    private locationUrl: string;
+    private room: Room;
     private inventories: { [invJid: string]: Inventory; } = {};
     private itemProviders: { [providerId: string]: ItemProvider; } = {};
     private itemRepository: ItemRepository;
@@ -55,22 +57,13 @@ export class ContentApp
     private inventoryIsOpen: boolean = false;
     private vidconfIsOpen: boolean = false;
     private chatIsOpen: boolean = false;
-    private pageUrl: string;
 
     // Getter
 
     getPropertyStorage(): PropertyStorage { return this.propertyStorage; }
     getDisplay(): HTMLElement { return this.display; }
     getItemRepository() { return this.itemRepository; }
-    getRoom(): Room
-    {
-        let room = null;
-        for (let roomJid in this.rooms) {
-            room = this.rooms[roomJid];
-            break;
-        }
-        return room;
-    }
+    getRoom(): Room { return this.room; }
     getInventoryByProviderId(providerId: string): Inventory
     {
         for (let invJid in this.inventories) {
@@ -138,11 +131,11 @@ export class ContentApp
         $(page).append(this.display);
         this.appendToMe.append(page);
 
-        //this.createPageControl();
-
         chrome.runtime?.onMessage.addListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
 
-        this.enterPage();
+        // this.enterPage();
+        this.checkPageUrlChanged();
+
         this.startCheckPageUrl();
         this.pingBackgroundToKeepConnectionAlive();
     }
@@ -164,11 +157,9 @@ export class ContentApp
             }
         }
 
-        for (let roomJid in this.rooms) {
-            if (this.rooms[roomJid]) {
-                this.rooms[roomJid].onUnload();
-                delete this.rooms[roomJid];
-            }
+        if (this.room) {
+            this.room.onUnload();
+            this.room = null;
         }
 
         try {
@@ -224,23 +215,6 @@ export class ContentApp
     showChangesWindow()
     {
         new ChangesWindow(this).show({});
-    }
-
-    createPageControl()
-    {
-        let controlElem: HTMLElement = $('<div class="n3q-base n3q-ctrl" id="n3q-hello"></div>').get(0);
-        this.display.append(controlElem);
-
-        $('#n3q-hello').text(HelloWorld.getText());
-
-        let enterButton: HTMLElement = $('<button class="n3q-base">enter</button>').get(0);
-        controlElem.append(enterButton);
-        $(enterButton).click(() =>
-        {
-            // this.enterRoomByJid('d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org');
-            // this.enterRoomByPageUrl('https://www.galactic-developments.de/');
-            this.enterPage();
-        });
     }
 
     showSettings(aboveElem: HTMLElement)
@@ -353,20 +327,52 @@ export class ContentApp
         this.messageHandler({ 'type': ContentAppNotification.type_restart });
     }
 
-    enterPage()
+    // enterPage()
+    // {
+    //     this.pageUrl = Browser.getCurrentPageUrl();
+    //     this.enterRoomByPageUrl(this.pageUrl);
+    // }
+
+    leavePage()
     {
-        this.pageUrl = Browser.getCurrentPageUrl();
-        this.enterRoomByPageUrl(this.pageUrl);
+        this.leaveRoom();
+
+        for (let inventoryJid in this.inventories) {
+            var inv = this.inventories[inventoryJid];
+            inv.close();
+        }
     }
 
-    checkPageUrlChanged()
+    async checkPageUrlChanged()
     {
-        let newUrl = Browser.getCurrentPageUrl();
-        let newSignificatParts = this.getSignificantUrlParts(newUrl);
-        let oldSignificatParts = this.getSignificantUrlParts(this.pageUrl);
-        if (newSignificatParts != oldSignificatParts) {
+        try {
+            let pageUrl = Browser.getCurrentPageUrl();
+
+            let newSignificatParts = pageUrl ? this.getSignificantUrlParts(pageUrl) : '';
+            let oldSignificatParts = this.pageUrl ? this.getSignificantUrlParts(this.pageUrl) : '';
+            if (newSignificatParts == oldSignificatParts) { return }
+
+            log.debug('Page changed', this.pageUrl, ' => ', pageUrl);
+            this.pageUrl = pageUrl;
+
+            let vpi = new VpiResolver(BackgroundMessage, Config);
+            vpi.language = Translator.getShortLanguageCode(this.babelfish.getLanguage());
+            let newLocation = await vpi.map(pageUrl);
+            if (newLocation == this.locationUrl) {
+                log.debug('Same room', pageUrl, ' => ', this.locationUrl);
+                return;
+            }
+
             this.leavePage();
-            this.enterPage();
+
+            this.locationUrl = newLocation;
+            log.debug('Mapped', pageUrl, ' => ', this.locationUrl);
+
+            let roomJid = ContentApp.getRoomJidFromLocationUrl(this.locationUrl);
+            this.enterRoom(roomJid, pageUrl);
+
+        } catch (error) {
+            log.info(error);
         }
     }
 
@@ -376,27 +382,14 @@ export class ContentApp
         return parsedUrl.host + parsedUrl.pathname + parsedUrl.search;
     }
 
-    leavePage()
-    {
-        // Leave all, there should be only one
-        for (let roomJid in this.rooms) {
-            this.leaveRoomByJid(roomJid);
-        }
-
-        for (let inventoryJid in this.inventories) {
-            var inv = this.inventories[inventoryJid];
-            inv.close();
-        }
-    }
-
     private checkPageUrlSec: number = Config.get('room.checkPageUrlSec', 5);
     private checkPageUrlTimer: number;
     private startCheckPageUrl()
     {
         this.stopCheckPageUrl();
-        this.checkPageUrlTimer = <number><unknown>setTimeout(() =>
+        this.checkPageUrlTimer = <number><unknown>setTimeout(async () =>
         {
-            this.checkPageUrlChanged();
+            await this.checkPageUrlChanged();
             this.checkPageUrlTimer = undefined;
             this.startCheckPageUrl();
         }, this.checkPageUrlSec * 1000);
@@ -417,48 +410,62 @@ export class ContentApp
         return url.pathname;
     }
 
-    async enterRoomByPageUrl(pageUrl: string): Promise<void>
-    {
-        try {
-            let vpi = new VpiResolver(BackgroundMessage, Config);
-            vpi.language = Translator.getShortLanguageCode(this.babelfish.getLanguage());
+    // async enterRoomByPageUrl(pageUrl: string): Promise<void>
+    // {
+    //     try {
+    //         let vpi = new VpiResolver(BackgroundMessage, Config);
+    //         vpi.language = Translator.getShortLanguageCode(this.babelfish.getLanguage());
 
-            let locationUrl = await vpi.map(pageUrl);
-            log.debug('Mapped', pageUrl, ' => ', locationUrl);
-            let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);
-            this.enterRoomByJid(roomJid, pageUrl);
-        } catch (error) {
-            log.info(error);
-        }
+    //         this.locationUrl = await vpi.map(pageUrl);
+    //         log.debug('Mapped', pageUrl, ' => ', this.locationUrl);
+
+    //         let roomJid = ContentApp.getRoomJidFromLocationUrl(this.locationUrl);
+    //         this.enterRoom(roomJid, pageUrl);
+
+    //     } catch (error) {
+    //         log.info(error);
+    //     }
+    // }
+
+    async enterRoom(roomJid: string, roomDestination: string): Promise<void>
+    {
+        this.leaveRoom();
+
+        this.room = new Room(this, roomJid, roomDestination, await this.getSavedPosition());
+        log.debug('ContentApp.enterRoom', roomJid);
+        this.room.enter();
     }
 
-    async enterRoomByJid(roomJid: string, roomDestination: string): Promise<void>
+    leaveRoom(): void
     {
-        if (this.rooms[roomJid] === undefined) {
-            this.rooms[roomJid] = new Room(this, roomJid, roomDestination, await this.getSavedPosition());
-        }
-        log.debug('ContentApp.enterRoomByJid', roomJid);
-        this.rooms[roomJid].enter();
-    }
-
-    leaveRoomByJid(roomJid: string): void
-    {
-        log.debug('ContentApp.leaveRoomByJid', roomJid);
-        if (this.rooms[roomJid] != undefined) {
-            this.rooms[roomJid].leave();
-            delete this.rooms[roomJid];
+        if (this.room) {
+            log.debug('ContentApp.leaveRoom', this.room.getJid());
+            this.room.leave();
+            this.room = null;
         }
     }
 
     onPresence(stanza: xml): void
     {
+        let isHandled = false;
+
         let from = jid(stanza.attrs.from);
         let roomOrUser = from.bare();
 
-        if (this.rooms[roomOrUser]) {
-            this.rooms[roomOrUser].onPresence(stanza);
-        } else if (this.inventories[roomOrUser]) {
-            this.inventories[roomOrUser].onPresence(stanza);
+        if (!isHandled) {
+            if (this.room) {
+                if (roomOrUser == this.room.getJid()) {
+                    this.room.onPresence(stanza);
+                    isHandled = true;
+                }
+            }
+        }
+
+        if (!isHandled) {
+            if (this.inventories[roomOrUser]) {
+                this.inventories[roomOrUser].onPresence(stanza);
+                isHandled = true;
+            }
         }
     }
 
@@ -467,8 +474,10 @@ export class ContentApp
         let from = jid(stanza.attrs.from);
         let roomOrUser = from.bare();
 
-        if (this.rooms[roomOrUser]) {
-            this.rooms[roomOrUser].onMessage(stanza);
+        if (this.room) {
+            if (roomOrUser == this.room.getJid()) {
+                this.room.onMessage(stanza);
+            }
         }
     }
 
