@@ -34,8 +34,8 @@ namespace n3q.Xmpp.Test
             var tagAttributes = new Dictionary<string, string>();
             var tagText = "";
             var sax = new Sax();
-            sax.NodeStart += (s, e) => { nodeStart++; tagName = e.Name; };
-            sax.NodeEnd += (s, e) => { nodeEnd++; tagAttributes = e.Attributes; tagText = e.Text; };
+            sax.NodeStart += (s, e) => { nodeStart++; tagName = e.Name; tagAttributes = e.Attributes; };
+            sax.NodeEnd += (s, e) => { nodeEnd++; tagText = e.Text; };
             sax.ParseError += (s, e) => { throw new System.Exception($"line={e.Line} col={e.Column}"); };
 
             // Act
@@ -63,8 +63,8 @@ namespace n3q.Xmpp.Test
             var tagName = "";
             var attributes = new Dictionary<string, string>();
             var sax = new Sax();
-            sax.NodeStart += (s, e) => { nodeStart++; tagName = e.Name; };
-            sax.NodeEnd += (s, e) => { nodeEnd++; attributes = e.Attributes; };
+            sax.NodeStart += (s, e) => { nodeStart++; tagName = e.Name; attributes = e.Attributes; };
+            sax.NodeEnd += (s, e) => { nodeEnd++; };
             sax.ParseError += (s, e) => { throw new System.Exception($"line={e.Line} col={e.Column}"); };
 
             // Act
@@ -82,15 +82,22 @@ namespace n3q.Xmpp.Test
         public void Hierarchical()
         {
             // Arrange
-            var xml = "<n1 a1='v1'>t1<n2 a2='v2'>t2</n2></n1>";
+            var xml = "";
+            xml += "<n1 a11='v11' a12='v12'>\n";
+            xml += "t1a\n";
+            xml += "<n2 a21='v21'\n";
+            xml += "t2\n";
+            xml += "</n2>\n";
+            xml += "t1b\n";
+            xml += "</n1>\n";
 
             var nodeStart = 0;
             var nodeEnd = 0;
-            var tagName = "";
-            var attributes = new Dictionary<string, string>();
+            var tagList = new List<string>();
+            var attributesList = new List<Dictionary<string, string>>();
             var sax = new Sax();
-            sax.NodeStart += (s, e) => { nodeStart++; tagName = e.Name; };
-            sax.NodeEnd += (s, e) => { nodeEnd++; attributes = e.Attributes; };
+            sax.NodeStart += (s, e) => { nodeStart++; tagList.Add(e.Name); attributesList.Add(e.Attributes); };
+            sax.NodeEnd += (s, e) => { nodeEnd++; };
             sax.ParseError += (s, e) => { throw new System.Exception($"line={e.Line} col={e.Column}"); };
 
             // Act
@@ -98,10 +105,14 @@ namespace n3q.Xmpp.Test
 
             // Assert
             Assert.AreEqual(2, nodeStart);
-            Assert.AreEqual(3, nodeEnd);
-            Assert.AreEqual("tag", tagName);
-            Assert.AreEqual(3, attributes.Count);
-            Assert.AreEqual("", attributes["a3"]);
+            Assert.AreEqual(2, nodeEnd);
+            Assert.AreEqual("n1", tagList[0]);
+            Assert.AreEqual("n2", tagList[1]);
+            Assert.AreEqual(2, attributesList[0].Count);
+            Assert.AreEqual(1, attributesList[1].Count);
+            Assert.AreEqual("v11", attributesList[0]["a11"]);
+            Assert.AreEqual("v12", attributesList[0]["a12"]);
+            Assert.AreEqual("v21", attributesList[1]["a21"]);
         }
 
         [TestMethod]
@@ -119,8 +130,8 @@ namespace n3q.Xmpp.Test
             var tagText = "";
             var sax = new Sax();
             sax.Preamble += (s, e) => { preName = e.Name; preAttributes = e.Attributes; };
-            sax.NodeStart += (s, e) => { nodeStart++; tagName = e.Name; };
-            sax.NodeEnd += (s, e) => { nodeEnd++; tagAttributes = e.Attributes; tagText = e.Text; };
+            sax.NodeStart += (s, e) => { nodeStart++; tagName = e.Name; tagAttributes = e.Attributes; };
+            sax.NodeEnd += (s, e) => { nodeEnd++; tagText = e.Text; };
             sax.ParseError += (s, e) => { throw new System.Exception($"line={e.Line} col={e.Column}"); };
 
             // Act
@@ -169,8 +180,8 @@ namespace n3q.Xmpp.Test
             var tagAttributes = new Dictionary<string, string>();
             var tagText = "";
             var sax = new Sax();
-            sax.NodeStart += (s, e) => { nodeStart++; tagName = e.Name; };
-            sax.NodeEnd += (s, e) => { nodeEnd++; tagAttributes = e.Attributes; tagText = e.Text; };
+            sax.NodeStart += (s, e) => { nodeStart++; tagName = e.Name; tagAttributes = e.Attributes; };
+            sax.NodeEnd += (s, e) => { nodeEnd++; tagText = e.Text; };
             sax.ParseError += (s, e) => { throw new System.Exception($"line={e.Line} col={e.Column} {e.Message}"); };
 
             // Act

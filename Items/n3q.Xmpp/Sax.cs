@@ -15,11 +15,11 @@ namespace n3q.Xmpp
         public class NodeStartArgs : EventArgs
         {
             public string Name { get; set; }
+            public Dictionary<string, string> Attributes { get; set; }
         }
         public class NodeEndArgs : EventArgs
         {
             public string Name { get; set; }
-            public Dictionary<string, string> Attributes { get; set; }
             public string Text { get; set; }
         }
         public class ParseErrorArgs : EventArgs
@@ -44,10 +44,11 @@ namespace n3q.Xmpp
             return Encoding.UTF8.GetString(bytes);
         }
 
-        public enum State { None, TagName, Attributes, Text, ClosingTag, ClosingName, Error }
+        public enum State { None, TagName, Attributes, Text, Tag, ClosingName, Error }
 
-        public int level = 0;
-        public int slashFlag = 0;
+        public int slashFlag = -1;
+        public int openingFlag = -1;
+        public Stack<string> tagStack = new Stack<string>();
         public string tagName = "";
         public string tagText = "";
         public string attributes = "";
@@ -57,26 +58,19 @@ namespace n3q.Xmpp
         public string errorText = "";
         public State state = State.None;
 
+        private bool JustHadSlash => slashFlag == 0;
+        private bool JustHadOpeningBracket => openingFlag == 0;
+
         public void Parse(string s)
         {
             foreach (var c in s) {
 
-                slashFlag--;
-                columnNumber++;
-                if (c == '\n') {
-                    lineNumber++;
-                    columnNumber = 0;
-                }
+                Always(c);
 
                 switch (state) {
                     case State.None:
                         switch (c) {
-                            case '<':
-                                state = State.TagName;
-                                level++;
-                                tagName = "";
-                                attributes = "";
-                                break;
+                            case '<': BeginTag(); break;
                             case '>': Error("> before <"); break;
                             default: break;
                         }
@@ -86,11 +80,24 @@ namespace n3q.Xmpp
                         switch (c) {
                             case '<': Error("< in tag name"); break;
                             case '>':
-                                state = State.Text;
-                                tagText = "";
+                                if (JustHadSlash) {
+                                    EndTag();
+                                } else {
+                                    state = State.Text;
+                                    tagText = "";
+                                }
                                 break;
-                            case ' ': state = State.Attributes; break;
-                            case '/': slashFlag = 1; break;
+                            case ' ':
+                                state = State.Attributes;
+                                break;
+                            case '/':
+                                if (JustHadOpeningBracket) {
+                                    state = State.ClosingName;
+                                    tagName = tagStack.Pop();
+                                } else {
+                                    slashFlag = 1;
+                                }
+                                break;
                             default: tagName += c; break;
                         }
                         break;
@@ -98,16 +105,21 @@ namespace n3q.Xmpp
                     case State.Attributes:
                         switch (c) {
                             case '<': Error("< in attributes"); break;
-                            case '/': slashFlag = 1; break;
+                            case '/':
+                                slashFlag = 1;
+                                attributes += c;
+                                break;
                             case '>':
                                 if (tagName.StartsWith("?") && tagName.ToLower() == "?xml") {
                                     if (attributes.EndsWith("?")) { attributes = attributes.Substring(0, attributes.Length - 1); }
                                     Preamble?.Invoke(this, new PreambleArgs { Name = tagName, Attributes = GetAttributes(attributes) });
-                                    level = 0;
                                     state = State.None;
                                 } else {
-                                    NodeStart?.Invoke(this, new NodeStartArgs { Name = tagName });
-                                    if (slashFlag == 0) { NodeEnd?.Invoke(this, new NodeEndArgs { Name = tagName, Attributes = GetAttributes(attributes), }); }
+                                    if (attributes.EndsWith("/")) { attributes = attributes.Substring(0, attributes.Length - 1); }
+                                    NodeStart?.Invoke(this, new NodeStartArgs { Name = tagName, Attributes = GetAttributes(attributes), });
+                                    if (JustHadSlash) {
+                                        EndTag();
+                                    }
                                     state = State.Text;
                                     tagText = "";
                                 }
@@ -120,7 +132,10 @@ namespace n3q.Xmpp
 
                     case State.Text:
                         switch (c) {
-                            case '<': state = State.ClosingTag; break;
+                            case '<':
+                                BeginTag();
+                                openingFlag = 1;
+                                break;
                             case '>': Error("> in node text before <"); break;
                             default:
                                 tagText += c;
@@ -128,7 +143,7 @@ namespace n3q.Xmpp
                         }
                         break;
 
-                    case State.ClosingTag:
+                    case State.Tag:
                         switch (c) {
                             case '<': Error("< in closing tag"); break;
                             case '>': state = State.None; break;
@@ -150,8 +165,7 @@ namespace n3q.Xmpp
                                     Error("Tag name empty");
                                 } else {
                                     if (tagName == closingName) {
-                                        NodeEnd?.Invoke(this, new NodeEndArgs { Name = tagName, Attributes = GetAttributes(attributes), Text = GetText(tagText), });
-                                        state = State.None;
+                                        EndTag();
                                     } else {
                                         Error("Tag name mismatch");
                                     }
@@ -174,6 +188,35 @@ namespace n3q.Xmpp
             }
         }
 
+        private void Always(char c)
+        {
+            slashFlag--;
+            openingFlag--;
+            columnNumber++;
+            if (c == '\n') {
+                lineNumber++;
+                columnNumber = 0;
+            }
+        }
+
+        private void BeginTag()
+        {
+            state = State.TagName;
+            if (!string.IsNullOrEmpty(tagName)) {
+                tagStack.Push(tagName);
+                tagName = "";
+            }
+            attributes = "";
+        }
+
+        private void EndTag()
+        {
+            NodeEnd?.Invoke(this, new NodeEndArgs { Name = tagName, Text = GetText(tagText), });
+            state = State.Text;
+            tagName = "";
+            attributes = "";
+        }
+
         private string GetText(string text)
         {
             return HttpUtility.HtmlDecode(text);
@@ -185,7 +228,7 @@ namespace n3q.Xmpp
 
             var attribs = attributes.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             foreach (var attrib in attribs) {
-                var kv = attrib.Split('=', StringSplitOptions.RemoveEmptyEntries);
+                var kv = attrib.Split('=', 2, StringSplitOptions.RemoveEmptyEntries);
                 if (kv.Length == 1) {
                     dict[kv[0]] = "";
                 } else if (kv.Length == 2) {
