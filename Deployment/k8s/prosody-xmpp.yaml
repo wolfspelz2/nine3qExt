@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: prosody-xmpp
-          image: docker.k8s.sui.li/prosody-xmpp:latest
+          image: docker.k8s.sui.li/prosody-xmpp:2
           imagePullPolicy: Always
           ports:
             - containerPort: 5280
@@ -81,8 +81,22 @@ metadata:
   name: prosody-xmpp-ingress
   namespace: {NAMESPACE}
 spec:
+  tls:
+    - hosts:
+      - xmpp.vulcan.weblin.com
+      secretName: devops/tls-vulcan-weblin-com
+    - hosts:
+      - xmpp.k8s.sui.li
+      secretName: default/tls-secret
   rules:
   - host: xmpp.k8s.sui.li
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: prosody-xmpp
+          servicePort: 5280
+  - host: xmpp.vulcan.weblin.com
     http:
       paths:
       - path: /
