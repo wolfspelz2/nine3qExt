@@ -252,7 +252,7 @@ namespace n3q.Content
                 case nameof(DevSpec.Template.MagicHat): props = GetIframeTemplate(name, text, name, "Magic Hat", "Zauberhut", 80, 58, "System/MagicHat.png", ItemService.ItemIframeVar + name + "?context={context}", 200, 105, nameof(Property.Value.IframeFrame.Popup)); break;
 
                 case nameof(DevSpec.Template.TheatreScreenplay): {
-                    props = GetIframeTemplate(name, text, name, "Theatre Screenplay", "Theater Drehbuch", 44, 64, "TheatreScreenplay/image.png", "https://weblin-theatre.dev.sui.li/iframe.html?context={context}", 400, 500, nameof(Property.Value.IframeFrame.Window));
+                    props = GetIframeTemplate(name, text, name, "Theatre Screenplay", "Theater Drehbuch", 44, 64, "TheatreScreenplay/image.png", "https://weblintheatre.sui.li/iframe.html?context={context}", 400, 500, nameof(Property.Value.IframeFrame.Window));
                     props[Pid.Developer] = "partner-suat-theatre";
                     props[Pid.DocumentAspect] = true;
                     props[Pid.DocumentMaxLength] = 10000;
