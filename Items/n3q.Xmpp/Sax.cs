@@ -1,0 +1,207 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Web;
+
+namespace n3q.Xmpp
+{
+    public class Sax
+    {
+        public class PreambleArgs : EventArgs
+        {
+            public string Name { get; set; }
+            public Dictionary<string, string> Attributes { get; set; }
+        }
+        public class NodeStartArgs : EventArgs
+        {
+            public string Name { get; set; }
+        }
+        public class NodeEndArgs : EventArgs
+        {
+            public string Name { get; set; }
+            public Dictionary<string, string> Attributes { get; set; }
+            public string Text { get; set; }
+        }
+        public class ParseErrorArgs : EventArgs
+        {
+            public int Column { get; set; }
+            public int Line { get; set; }
+            public string Message { get; set; }
+        }
+
+        public event EventHandler<PreambleArgs> Preamble;
+        public event EventHandler<NodeStartArgs> NodeStart;
+        public event EventHandler<NodeEndArgs> NodeEnd;
+        public event EventHandler<ParseErrorArgs> ParseError;
+
+        public void Parse(byte[] bytes)
+        {
+            var s = NextString(bytes);
+        }
+
+        public string NextString(byte[] bytes)
+        {
+            return Encoding.UTF8.GetString(bytes);
+        }
+
+        public enum State { None, TagName, Attributes, Text, ClosingTag, ClosingName, Error }
+
+        public int level = 0;
+        public int slashFlag = 0;
+        public string tagName = "";
+        public string tagText = "";
+        public string attributes = "";
+        public string closingName = "";
+        public int columnNumber = 0;
+        public int lineNumber = 1;
+        public string errorText = "";
+        public State state = State.None;
+
+        public void Parse(string s)
+        {
+            foreach (var c in s) {
+
+                slashFlag--;
+                columnNumber++;
+                if (c == '\n') {
+                    lineNumber++;
+                    columnNumber = 0;
+                }
+
+                switch (state) {
+                    case State.None:
+                        switch (c) {
+                            case '<':
+                                state = State.TagName;
+                                level++;
+                                tagName = "";
+                                attributes = "";
+                                break;
+                            case '>': Error("> before <"); break;
+                            default: break;
+                        }
+                        break;
+
+                    case State.TagName:
+                        switch (c) {
+                            case '<': Error("< in tag name"); break;
+                            case '>':
+                                state = State.Text;
+                                tagText = "";
+                                break;
+                            case ' ': state = State.Attributes; break;
+                            case '/': slashFlag = 1; break;
+                            default: tagName += c; break;
+                        }
+                        break;
+
+                    case State.Attributes:
+                        switch (c) {
+                            case '<': Error("< in attributes"); break;
+                            case '/': slashFlag = 1; break;
+                            case '>':
+                                if (tagName.StartsWith("?") && tagName.ToLower() == "?xml") {
+                                    if (attributes.EndsWith("?")) { attributes = attributes.Substring(0, attributes.Length - 1); }
+                                    Preamble?.Invoke(this, new PreambleArgs { Name = tagName, Attributes = GetAttributes(attributes) });
+                                    level = 0;
+                                    state = State.None;
+                                } else {
+                                    NodeStart?.Invoke(this, new NodeStartArgs { Name = tagName });
+                                    if (slashFlag == 0) { NodeEnd?.Invoke(this, new NodeEndArgs { Name = tagName, Attributes = GetAttributes(attributes), }); }
+                                    state = State.Text;
+                                    tagText = "";
+                                }
+                                break;
+                            default:
+                                attributes += c;
+                                break;
+                        }
+                        break;
+
+                    case State.Text:
+                        switch (c) {
+                            case '<': state = State.ClosingTag; break;
+                            case '>': Error("> in node text before <"); break;
+                            default:
+                                tagText += c;
+                                break;
+                        }
+                        break;
+
+                    case State.ClosingTag:
+                        switch (c) {
+                            case '<': Error("< in closing tag"); break;
+                            case '>': state = State.None; break;
+                            case ' ': Error("Space in closing tag"); break;
+                            case '/':
+                                state = State.ClosingName;
+                                closingName = "";
+                                break;
+
+                            default: break;
+                        }
+                        break;
+
+                    case State.ClosingName:
+                        switch (c) {
+                            case '<': Error("< in closing tag"); break;
+                            case '>':
+                                if (string.IsNullOrEmpty(tagName)) {
+                                    Error("Tag name empty");
+                                } else {
+                                    if (tagName == closingName) {
+                                        NodeEnd?.Invoke(this, new NodeEndArgs { Name = tagName, Attributes = GetAttributes(attributes), Text = GetText(tagText), });
+                                        state = State.None;
+                                    } else {
+                                        Error("Tag name mismatch");
+                                    }
+                                }
+                                break;
+                            case ' ': Error("Space in closing tag name"); break;
+                            case '/': slashFlag = 1; break;
+
+                            default:
+                                closingName += c;
+                                break;
+                        }
+                        break;
+                }
+
+                if (state == State.Error) {
+                    ParseError?.Invoke(this, new ParseErrorArgs { Column = columnNumber, Line = lineNumber, Message = errorText, });
+                    return;
+                }
+            }
+        }
+
+        private string GetText(string text)
+        {
+            return HttpUtility.HtmlDecode(text);
+        }
+
+        private Dictionary<string, string> GetAttributes(string attributes)
+        {
+            var dict = new Dictionary<string, string>();
+
+            var attribs = attributes.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var attrib in attribs) {
+                var kv = attrib.Split('=', StringSplitOptions.RemoveEmptyEntries);
+                if (kv.Length == 1) {
+                    dict[kv[0]] = "";
+                } else if (kv.Length == 2) {
+                    dict[kv[0]] = HttpUtility.HtmlDecode(kv[1].Trim('"').Trim('\''));
+                } else {
+                    Error("Invalid attribute");
+                }
+            }
+
+            return dict;
+        }
+
+        private void Error(string text = null)
+        {
+            state = State.Error;
+            errorText = text ?? $"Unexpected character in {state}";
+        }
+    }
+}
