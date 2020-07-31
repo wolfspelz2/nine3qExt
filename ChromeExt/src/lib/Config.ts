@@ -29,7 +29,8 @@ export class Config
         },
         config: {
             // serviceUrl: 'https://config.weblin.sui.li/',
-            serviceUrl: 'https://webex.k8s.sui.li/Config',
+            // serviceUrl: 'https://webex.k8s.sui.li/Config',
+            serviceUrl: 'https://webex.vulcan.weblin.com/Config',
             updateIntervalSec: Utils.randomInt(60000, 80000),
             checkUpdateIntervalSec: 600,
         },
@@ -61,8 +62,8 @@ export class Config
             vidconfUrl: 'https://jitsi.vulcan.weblin.com/{room}#userInfo.displayName="{name}"',
         },
         xmpp: {
-            service: 'wss://xmpp.k8s.sui.li/xmpp-websocket',
-            domain: 'xmpp.k8s.sui.li',
+            service: 'wss://xmpp.vulcan.weblin.com/xmpp-websocket',
+            domain: 'xmpp.vulcan.weblin.com',
             maxMucEnterRetries: 4,
             pingBackgroundToKeepConnectionAliveSec: 12,
         },
@@ -88,7 +89,7 @@ export class Config
             {
                 name: 'weblin Items',
                 description: 'Things on web pages',
-                configUrl: 'https://webit.k8s.sui.li/Config?id={id}',
+                configUrl: 'https://webit.vulcan.weblin.com/Config?id={id}',
             }
         },
         i18n: {
