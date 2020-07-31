@@ -8,7 +8,6 @@ import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
-import { Item } from './Item';
 
 import imgDefaultItem from '../assets/DefaultItem.png';
 
@@ -22,21 +21,11 @@ export class RoomItem extends Entity
 
         $(this.getElem()).addClass('n3q-item');
         $(this.getElem()).attr('data-nick', nick);
-
-        // $(this.getElem()).droppable({
-        //     over: (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
-        //     {
-        //         log.info('over');
-        //     },
-        //     drop: (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
-        //     {
-        //         log.info('drop');
-        //     }
-        // });
     }
 
     getDefaultAvatar(): string { return imgDefaultItem; }
     getNick(): string { return this.nick; }
+    getProviderId(): string { return this.app.getItemRepository().getItem(this.nick).getProviderId(); }
 
     remove(): void
     {
@@ -110,7 +99,11 @@ export class RoomItem extends Entity
         // vpImageUrl = '';
 
         if (this.isFirstPresence) {
-            this.avatarDisplay = new Avatar(this.app, this, this.isSelf);
+            this.avatarDisplay = new Avatar(this.app, this, false);
+            var hasApplierAspect = as.Bool(newProperties.ApplierAspect, false);
+            if (hasApplierAspect) {
+                this.avatarDisplay.makeDroppable();
+            }
         }
 
         if (this.avatarDisplay) {
@@ -191,6 +184,16 @@ export class RoomItem extends Entity
         }
     }
 
+    onDragAvatarStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
+    {
+        super.onDragAvatarStart(ev, ui);
+
+        let item = this.app.getItemRepository().getItem(this.nick);
+        if (item) {
+            item.onDrag(this.getElem(), new Point2D(ev.clientX, ev.clientY));
+        }
+    }
+
     onQuickSlideReached(newX: number): void
     {
         super.onQuickSlideReached(newX);
@@ -200,13 +203,20 @@ export class RoomItem extends Entity
         }
     }
 
-    sendMoveMessage(newX: number): void
+    applyItem(passiveItem: RoomItem)
     {
-        this.sendCommand(this.nick, 'MoveTo', { 'x': newX });
+        let passiveItemId = passiveItem.getNick();
+        this.sendCommand('Apply', { 'passive': passiveItemId });
     }
 
-    sendCommand(itemId: string, action: string, params: any)
+    sendMoveMessage(newX: number): void
     {
+        this.sendCommand('MoveTo', { 'x': newX });
+    }
+
+    sendCommand(action: string, params: any)
+    {
+        let itemId = this.nick;
         let item = this.app.getItemRepository().getItem(itemId);
         if (item) {
             let userToken = this.app.getItemProviderConfigValue(item.getProviderId(), 'userToken', '');
@@ -235,6 +245,6 @@ export class RoomItem extends Entity
     beginDerez(): void
     {
         this.isDerezzing = true;
-        $(this.getElem()).hide();
+        $(this.getElem()).hide().delay(1000).show(0);
     }
 }

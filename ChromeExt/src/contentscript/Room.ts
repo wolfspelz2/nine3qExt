@@ -49,6 +49,7 @@ export class Room
     getJid(): string { return this.jid; }
     getDestination(): string { return this.destination; }
     getItem(nick: string) { return this.items[nick]; }
+    getParticipant(nick: string) { return this.participants[nick]; }
 
     iAmAlreadyHere()
     {
@@ -360,4 +361,17 @@ export class Room
         this.posX = newX;
         this.sendPresence();
     }
+
+    // Item interaction
+
+    applyItemToItem(activeItem: RoomItem, passiveItem: RoomItem)
+    {
+        activeItem.applyItem(passiveItem);
+    }
+
+    applyItemToParticipant(participant: Participant, passiveItem: RoomItem)
+    {
+        participant.applyItem(passiveItem);
+    }
+
 }

@@ -388,6 +388,8 @@ namespace n3q.Grains
 
         private async Task CommitChanges()
         {
+            _ = Properties.TryGetValue(Pid.Container, out var parentId);
+
             foreach (var change in _changes) {
                 var pid = change.Pid;
                 var value = change.Value;
@@ -434,7 +436,6 @@ namespace n3q.Grains
 
             if (_changes.Count > 0) {
                 // Notify subscribers
-                _ = Properties.TryGetValue(Pid.Container, out var parentId);
                 var update = new ItemUpdate(Id, parentId ?? PropertyValue.Empty, _changes);
                 await ItemUpdateStream?.OnNextAsync(update);
 

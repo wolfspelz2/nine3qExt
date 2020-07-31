@@ -8,6 +8,8 @@ import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { IObserver, IObservable } from '../lib/ObservableProperty';
 import * as AnimationsXml from './AnimationsXml';
+import { RoomItem } from './RoomItem';
+import { Participant } from './Participant';
 
 class AvatarGetAnimationResult
 {
@@ -36,6 +38,9 @@ export class Avatar implements IObserver
 
     private clickDblClickSeparationTimer: number;
     private hackSuppressNextClickOtherwiseDraggableClicks: boolean = false;
+
+    private ignoreNextDragFlag: boolean = false;
+    ignoreDrag(): void { this.ignoreNextDragFlag = true; }
 
     isDefaultAvatar(): boolean { return this.isDefault; }
 
@@ -99,11 +104,21 @@ export class Avatar implements IObserver
             },
             drag: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
+                if (this.ignoreNextDragFlag) {
+                    this.ignoreNextDragFlag = false;
+                    return false;
+                }
+
                 this.entity.onDragAvatar(ev, ui);
             },
             stop: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
-                this.entity.onDragAvatarStop(ev, ui);
+                if (this.ignoreNextDragFlag) {
+                    this.ignoreNextDragFlag = false;
+                } else {
+                    this.entity.onDragAvatarStop(ev, ui);
+                }
+
                 this.inDrag = false;
                 this.app.enableScreen(false);
                 $(this.elem).css('z-index', '');
@@ -112,6 +127,58 @@ export class Avatar implements IObserver
                 setTimeout(() => { this.hackSuppressNextClickOtherwiseDraggableClicks = false; }, 200);
             }
         });
+    }
+
+    makeDroppable(): void
+    {
+        $(this.elem).droppable({
+            hoverClass: 'n3q-avatar-drophilite',
+            drop: (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
+            {
+                let droppedElem = ui.draggable.get(0);
+                let droppedRoomItem = this.getRoomItemByAvatarElem(droppedElem);
+
+                if (droppedRoomItem) {
+                    let droppedAvatar = droppedRoomItem.getAvatar();
+
+                    let thisRoomItem = this.getRoomItemByAvatarElem(this.elem);
+                    if (thisRoomItem) {
+                        droppedAvatar?.ignoreDrag();
+                        this.app.getRoom().applyItemToItem(thisRoomItem, droppedRoomItem);
+                    } else {
+                        droppedAvatar?.ignoreDrag();
+                        let thisParticipant = this.getPariticipantByAvatarElem(this.elem);
+                        this.app.getRoom().applyItemToParticipant(thisParticipant, droppedRoomItem);
+                    }
+                }
+            }
+        });
+    }
+
+    getRoomItemByAvatarElem(avatarElem: HTMLElement): RoomItem
+    {
+        let avatarEntityId = this.getEntityIdByAvatarElem(avatarElem);
+        if (avatarEntityId) {
+            return this.app.getRoom().getItem(avatarEntityId);
+        }
+    }
+
+    getPariticipantByAvatarElem(avatarElem: HTMLElement): Participant
+    {
+        let avatarEntityId = this.getEntityIdByAvatarElem(avatarElem);
+        if (avatarEntityId) {
+            return this.app.getRoom().getParticipant(avatarEntityId);
+        }
+    }
+
+    getEntityIdByAvatarElem(avatarElem: HTMLElement): string
+    {
+        if (avatarElem) {
+            let avatarEntityElem = avatarElem.parentElement;
+            if (avatarEntityElem) {
+                return $(avatarEntityElem).data('nick');
+            }
+        }
     }
 
     stop()

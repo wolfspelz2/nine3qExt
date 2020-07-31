@@ -658,6 +658,20 @@ namespace n3q.Xmpp
                 }
                 break;
 
+                case nameof(Applier.Apply): {
+                    if (Has.Value(itemId)) {
+
+                        var roomItem = GetRoomItem(itemId);
+                        if (roomItem != null) {
+                            await GetIWorker().AspectAction(itemId, Pid.ApplierAspect, nameof(Applier.Apply), new PropertySet {
+                                [Pid.ApplierApplyPassive] = message.Get("passive", ""),
+                            });
+                        }
+
+                    }
+                }
+                break;
+
                 case nameof(n3q.Aspects.Inventory.SetItemCoordinates): {
                     var inventoryItemId = await GetInventoryFromUserToken(user);
                     if (Has.Value(inventoryItemId) && Has.Value(itemId)) {

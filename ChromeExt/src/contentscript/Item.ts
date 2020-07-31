@@ -33,7 +33,6 @@ export class Item
     onClick(clickedElem: HTMLElement, clickPoint: Point2D)
     {
         if (as.Bool(this.properties['IframeAspect'], false)) {
-
             let frame = as.String(this.properties.IframeFrame, 'Window');
             if (frame == 'Popup') {
                 if (this.framePopup) {
@@ -44,6 +43,18 @@ export class Item
             } else {
                 if (!this.frameWindow) {
                     this.openIframe(clickedElem, clickPoint);
+                }
+            }
+        }
+    }
+
+    onDrag(clickedElem: HTMLElement, clickPoint: Point2D)
+    {
+        if (as.Bool(this.properties['IframeAspect'], false)) {
+            let frame = as.String(this.properties.IframeFrame, 'Window');
+            if (frame == 'Popup') {
+                if (this.framePopup) {
+                    this.framePopup.close();
                 }
             }
         }

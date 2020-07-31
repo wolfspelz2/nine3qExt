@@ -27,7 +27,7 @@ namespace n3q.Aspects
         {
             await AssertAspect();
 
-            var props = await Get(new PidSet { Pid.DispenserAvailable, Pid.DispenserTemplate, Pid.DispenserLastTime, Pid.DispenserCooldownSec, Pid.Container });
+            var props = await Get(new PidSet { Pid.DispenserAvailable, Pid.DispenserTemplate, Pid.DispenserLastTime, Pid.DispenserCooldownSec, Pid.Container, Pid.Owner });
 
             var available = props.GetInt(Pid.DispenserAvailable);
             if (available <= 0) { throw new ItemException(Id, ItemNotification.Fact.NotCreated, ItemNotification.Reason.ItemDepleted); }
@@ -41,7 +41,12 @@ namespace n3q.Aspects
             }
 
             var tmpl = props.GetItemId(Pid.DispenserTemplate);
-            var newItem = await this.NewItemFromTemplate(tmpl);
+            if (!Has.Value(tmpl))  { throw new ItemException(Id, Pid.DispenserTemplate, ItemNotification.Fact.NotCreated, ItemNotification.Reason.MissingPropertyValue); }
+
+            var owner = props.GetString(Pid.Owner);
+
+            var newItem = await this.NewItemFromTemplate(tmpl, owner);
+
             var containerId = props.GetItemId(Pid.Container);
             if (Has.Value(containerId)) {
                 var container = await WritableItem(containerId);

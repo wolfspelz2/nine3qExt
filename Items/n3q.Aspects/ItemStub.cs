@@ -49,14 +49,18 @@ namespace n3q.Aspects
             return item;
         }
 
-        public async Task<ItemWriter> NewItemFromTemplate(string tmpl)
+        public async Task<ItemWriter> NewItemFromTemplate(string tmpl, string user)
         {
             var shortTmpl = tmpl.Substring(0, Cluster.LengthOfItemIdPrefixFromTemplate);
             var itemId = $"{shortTmpl}{RandomString.GetAlphanumLowercase(20)}";
             itemId = itemId.ToLower();
             var item = await WritableItem(itemId);
 
-            await item.Modify(new PropertySet { [Pid.Template] = tmpl }, PidSet.Empty);
+            await item.Modify(new PropertySet {
+                [Pid.Template] = tmpl,
+                [Pid.Creator] = user, 
+                [Pid.Owner] = user,
+            }, PidSet.Empty);
 
             return item;
         }

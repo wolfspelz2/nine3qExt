@@ -31,6 +31,7 @@ export class Entity
     getRoom(): Room { return this.room; }
     getElem(): HTMLElement { return this.elem; }
     getDefaultAvatar(): string { return imgDefaultAvatar; }
+    getAvatar() { return this.avatarDisplay; }
 
     show(visible: boolean, durationSec: number = 0.0): void
     {

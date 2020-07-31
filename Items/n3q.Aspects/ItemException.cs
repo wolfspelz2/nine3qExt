@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
+using n3q.Items;
 
-namespace n3q.Common
+namespace n3q.Aspects
 {
     [Serializable]
     public sealed class ItemException : Exception
     {
         public string ItemId { get; set; }
         public string OtherId;
+        public Pid Pid = Pid.Unknown;
 
         public ItemNotification.Fact Fact { get; set; }
         public ItemNotification.Reason Reason { get; set; }
@@ -26,6 +28,15 @@ namespace n3q.Common
             : base($"{itemId}: {fact.ToString()} {reason.ToString()}")
         {
             ItemId = itemId;
+            Fact = fact;
+            Reason = reason;
+        }
+
+        public ItemException(string itemId, Pid pid, ItemNotification.Fact fact, ItemNotification.Reason reason)
+            : base($"{itemId}: {fact.ToString()} {reason.ToString()}")
+        {
+            ItemId = itemId;
+            Pid = pid;
             Fact = fact;
             Reason = reason;
         }
@@ -71,6 +82,7 @@ namespace n3q.Common
             ItemDepleted,
             IdenticalItems,
             StillInCooldown,
+            MissingPropertyValue,
         }
     }
 }

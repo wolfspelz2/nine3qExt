@@ -74,32 +74,14 @@ export class PopupApp
             $(icon).on('click', async ev =>
             {
                 if (ev.ctrlKey) {
-                    let dev = $('#n3q-popup-dev').get(0);
-                    if (dev == null) {
-                        dev = $('<div id="n3q-popup-dev" class="n3q-base n3q-popup-hidden" style="" />').get(0);
-                        let text = $('<textarea class="n3q-base" style="width: 100%; height: 100px; margin-top: 1em;" />').get(0);
-                        let data = await Config.getSync('dev.config', this.defaultDevConfig);
-                        $(text).val(data);
-                        $(dev).append(text);
-                        let apply = $('<button class="n3q-base" style="margin-top: 0.5em;">Save</button>').get(0);
-                        $(apply).on('click', async ev =>
-                        {
-                            let data = $(text).val();
-                            await Config.setSync('dev.config', data);
-                        });
-                        $(dev).append(apply);
-                        $(group).append(dev);
-                    }
-                    if (dev != null) {
-                        if ($(dev).hasClass('n3q-popup-hidden')) {
-                            $(dev).removeClass('n3q-popup-hidden');
-                        } else {
-                            $(dev).addClass('n3q-popup-hidden');
-                        }
-                    }
+                    await this.devConfig(group);
                 }
             });
-            // $(dev).removeClass('n3q-popup-hidden');
+
+            $(icon).on('dblclick', async ev =>
+            {
+                await this.devConfig(group);
+            });
 
             this.display.append(group);
         }
@@ -262,6 +244,33 @@ export class PopupApp
     close()
     {
         window.close();
+    }
+
+    async devConfig(group: HTMLElement)
+    {
+        let dev = $('#n3q-popup-dev').get(0);
+        if (dev == null) {
+            dev = $('<div id="n3q-popup-dev" class="n3q-base n3q-popup-hidden" style="" />').get(0);
+            let text = $('<textarea class="n3q-base" style="width: 100%; height: 100px; margin-top: 1em;" />').get(0);
+            let data = await Config.getSync('dev.config', this.defaultDevConfig);
+            $(text).val(data);
+            $(dev).append(text);
+            let apply = $('<button class="n3q-base" style="margin-top: 0.5em;">Save</button>').get(0);
+            $(apply).on('click', async ev =>
+            {
+                let data = $(text).val();
+                await Config.setSync('dev.config', data);
+            });
+            $(dev).append(apply);
+            $(group).append(dev);
+        }
+        if (dev != null) {
+            if ($(dev).hasClass('n3q-popup-hidden')) {
+                $(dev).removeClass('n3q-popup-hidden');
+            } else {
+                $(dev).addClass('n3q-popup-hidden');
+            }
+        }
     }
 
     private setCurrentAvatar(id: string, displayElem: HTMLImageElement, hiddenElem: HTMLElement, nameElem: HTMLElement)

@@ -71,6 +71,8 @@
         Actions,
         Stats,
         Developer,
+        Creator,
+        Owner,
 
         // Aspect
         FirstAspect = 3000000,
@@ -121,7 +123,7 @@
         //SettingsSetInventoryCoordinatesHeight,
         InjectorInjectTo,
         ExtractorExtractFrom,
-        ApplierApplyTo,
+        ApplierApplyPassive,
 
         // App
         FirstApp = 5000000,

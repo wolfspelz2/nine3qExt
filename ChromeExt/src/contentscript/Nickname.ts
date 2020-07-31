@@ -40,7 +40,7 @@ export class Nickname implements IObserver
             if (this.isSelf) {
 
                 if (Config.get('inventory.enabled', false)) {
-                    column.addItem('inventory', 'Inventory', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showInventoryWindow(); });
+                    column.addItem('inventory', 'Inventory', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showInventoryWindow('nine3q'); });
                 }
 
                 column.addItem(

@@ -16,6 +16,8 @@ namespace n3q.Content
                 case nameof(DevSpec.Group.System):
                     GetTemplate(nameof(DevSpec.Template.Admin), templates, text);
                     GetTemplate(nameof(DevSpec.Template.Developer), templates, text);
+                    GetTemplate(nameof(DevSpec.Template.Blackhole), templates, text);
+                    GetTemplate(nameof(DevSpec.Template.MagicHat), templates, text);
                     break;
 
                 case nameof(DevSpec.Group.User):
@@ -27,7 +29,6 @@ namespace n3q.Content
                     //GetTemplate(nameof(DevSpec.Template.Trashcan), templates, text);
                     //};
                     GetTemplate(nameof(DevSpec.Template.Inventory), templates, text);
-                    GetTemplate(nameof(DevSpec.Template.Recycler), templates, text);
                     GetTemplate(nameof(DevSpec.Template.Settings), templates, text);
                     break;
 
@@ -73,11 +74,11 @@ namespace n3q.Content
 
         public static void GetTemplate(string name, DevSpec.TemplateCollection templates, DevSpec.TextCollection text)
         {
-            text[DevSpec.de][$"ItemProperty.{Pid.Label}"] = "Name";
             text[DevSpec.en][$"ItemProperty.{Pid.Label}"] = "Name";
+            text[DevSpec.de][$"ItemProperty.{Pid.Label}"] = "Name";
 
-            text[DevSpec.de][$"ItemProperty.{Pid.RezableAspect}"] = "Ablegbar";
             text[DevSpec.en][$"ItemProperty.{Pid.RezableAspect}"] = "Droppable";
+            text[DevSpec.de][$"ItemProperty.{Pid.RezableAspect}"] = "Ablegbar";
 
             PropertySet props = null;
 
@@ -107,8 +108,8 @@ namespace n3q.Content
                         [Pid.RoleAspect] = true,
                         [Pid.RoleUserRoles] = ValueList.From(EnumUtil.GetEnumValues<Property.Value.UserRoles>().Where(role => role <= Property.Value.UserRoles.Admin).Select(role => role.ToString())),
                     };
-                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Admin";
                     text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Admin";
+                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Admin";
                     break;
                 }
 
@@ -137,8 +138,8 @@ namespace n3q.Content
                             [Pid.RoleAspect] = true,
                             [Pid.RoleUserRoles] = ValueList.From(EnumUtil.GetEnumValues<Property.Value.UserRoles>().Where(role => role <= Property.Value.UserRoles.CodeReview).Select(role => role.ToString())),
                         };
-                        text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Admin mit Rechten zur Softwareprüfung";
                         text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Admin with code review privilege";
+                        text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Admin mit Rechten zur Softwareprüfung";
                     };
                     break;
                 }
@@ -151,21 +152,22 @@ namespace n3q.Content
                         [Pid.ContainerAspect] = true,
                         [Pid.RezableAspect] = false,
                     };
-                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Inventar";
                     text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Inventory";
+                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Inventar";
                     break;
 
-                case nameof(DevSpec.Template.Recycler):
+                case nameof(DevSpec.Template.Blackhole):
                     props = new PropertySet {
                         [Pid.Name] = name,
-                        [Pid.Label] = "Recycler",
-                        [Pid.Width] = 32,
-                        [Pid.Height] = 32,
-                        [Pid.ImageUrl] = ItemService.ItemBaseVar + "User/Recycler.png",
+                        [Pid.Label] = "Blackhole",
+                        [Pid.Width] = 100,
+                        [Pid.Height] = 70,
+                        [Pid.ImageUrl] = ItemService.ItemBaseVar + "System/Blackhole.png",
                         [Pid.DeleterAspect] = true,
+                        [Pid.ApplierAspect] = true,
                     };
-                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Einstellungen";
-                    text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Settings";
+                    text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Black Hole";
+                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Schwarzes Loch";
                     break;
 
                 case nameof(DevSpec.Template.Settings):
@@ -182,8 +184,8 @@ namespace n3q.Content
                         //[Pid.InventoryWidth] = 400,
                         //[Pid.InventoryHeight] = 300,
                     };
-                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Einstellungen";
                     text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Settings";
+                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Einstellungen";
                     break;
 
                 case nameof(DevSpec.Template.PirateFlag):
@@ -198,8 +200,8 @@ namespace n3q.Content
                         [Pid.RezableAspect] = true,
                         [Pid.RezzableProxyTemplate] = nameof(DevSpec.Template.PageProxy),
                     };
-                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Piratenflagge";
                     text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Pirate Flag";
+                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Piratenflagge";
                     break;
 
                 case nameof(DevSpec.Template.PageProxy):
@@ -213,8 +215,8 @@ namespace n3q.Content
                         [Pid.RezableAspect] = false,
                         [Pid.RezableProxyAspect] = true,
                     };
-                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Webseitenbesitz";
                     text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Page Claim";
+                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Webseitenbesitz";
                     break;
 
                 case nameof(DevSpec.Template.WaterBottle):
@@ -236,8 +238,8 @@ namespace n3q.Content
                         [Pid.Actions] = ValueMap.From(new Dictionary<string, string> { ["ApplyTo"] = nameof(Applier.Apply), ["GetWater"] = nameof(Extractor.Extract), ["PutWater"] = nameof(Injector.Inject) }),
                         [Pid.Stats] = ValueList.From(new[] { Pid.WaterLevel.ToString() }),
                     };
-                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Wasserflasche";
                     text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Water Bottle";
+                    text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Wasserflasche";
                     break;
 
                 case nameof(DevSpec.Template.PosterHowDareYou): props = GetImageTemplate(name, text, name, "How Dare You", "How Dare You", 123, 226, "FridaysForFuture/PosterHowDareYou.png"); break;
@@ -245,18 +247,20 @@ namespace n3q.Content
                 case nameof(DevSpec.Template.PosterWirStreikenBisIhrHandelt): props = GetImageTemplate(name, text, name, "Wir streiken bis ihr handelt", "Wir streiken bis ihr handelt", 255, 204, "FridaysForFuture/PosterWirStreikenBisIhrHandelt.png"); break;
                 case nameof(DevSpec.Template.FieldMapleTree): props = GetImageTemplate(name, text, name, "Maple tree", "Feldahorn", 156, 200, "Trees/FieldMapleTree.png"); break;
                 case nameof(DevSpec.Template.MapleTree): props = GetImageTemplate(name, text, name, "Maple tree", "Ahorn", 174, 250, "Trees/MapleTree.png"); break;
-                case nameof(DevSpec.Template.PlatanusOccidentalis): props = GetImageTemplate(name, text, name, "Platane", "Planetree", 136, 300, "Trees/PlatanusOccidentalis.png"); break;
+                case nameof(DevSpec.Template.PlatanusOccidentalis): props = GetImageTemplate(name, text, name, "Planetree", "Platane", 136, 300, "Trees/PlatanusOccidentalis.png"); break;
                 case nameof(DevSpec.Template.SmallMapleTree): props = GetImageTemplate(name, text, name, "Small maple tree", "kleiner Ahornbaum", 58, 80, "Trees/SmallMapleTree.png"); break;
+                case nameof(DevSpec.Template.MagicHat): props = GetIframeTemplate(name, text, name, "Magic Hat", "Zauberhut", 80, 58, "System/MagicHat.png", ItemService.ItemIframeVar + name + "?context={context}", 200, 105, nameof(Property.Value.IframeFrame.Popup)); break;
 
                 case nameof(DevSpec.Template.TheatreScreenplay): {
-                    props = GetIframeTemplate(name, text, name, "Theater Drehbuch", "Theatre Screenplay", 44, 64, "TheatreScreenplay/image.png", "https://weblin-theatre.dev.sui.li/iframe.html?context={context}", 400, 500, nameof(Property.Value.IframeFrame.Window));
+                    props = GetIframeTemplate(name, text, name, "Theatre Screenplay", "Theater Drehbuch", 44, 64, "TheatreScreenplay/image.png", "https://weblin-theatre.dev.sui.li/iframe.html?context={context}", 400, 500, nameof(Property.Value.IframeFrame.Window));
                     props[Pid.Developer] = "partner-suat-theatre";
                     props[Pid.DocumentAspect] = true;
                     props[Pid.DocumentMaxLength] = 10000;
                 }
                 break;
+
                 case nameof(DevSpec.Template.TheatreScreenplayDispenser): {
-                    props = GetIframeTemplate(name, text, name, "Theater Drehbuch Generator", "Theatre Screenplay Generator", 78, 84, "TheatreScreenplay/TheatreScreenplayDispenser.png", ItemService.ItemIframeVar + name + "?context={context}", 100, 100, nameof(Property.Value.IframeFrame.Popup));
+                    props = GetIframeTemplate(name, text, name, "Theatre Screenplay Generator", "Theater Drehbuch Generator", 78, 84, "TheatreScreenplay/TheatreScreenplayDispenser.png", ItemService.ItemIframeVar + name + "?context={context}", 100, 100, nameof(Property.Value.IframeFrame.Popup));
                     props[Pid.DispenserAspect] = true;
                     props[Pid.DispenserTemplate] = nameof(DevSpec.Template.TheatreScreenplay);
                     props[Pid.DispenserMaxAvailable] = 1000L;
@@ -265,7 +269,8 @@ namespace n3q.Content
                     props[Pid.DispenserLastTime] = 0L;
                 }
                 break;
-                case nameof(DevSpec.Template.RallySpeaker): props = GetIframeTemplate(name, text, name, "Lautsprecher", "Speaker", 75, 80, "FridaysForFuture/RallySpeaker.png", "https://meet.jit.si/{room}", 600, 400, nameof(Property.Value.IframeFrame.Window)); break;
+
+                case nameof(DevSpec.Template.RallySpeaker): props = GetIframeTemplate(name, text, name, "Speaker", "Lautsprecher", 75, 80, "FridaysForFuture/RallySpeaker.png", "https://meet.jit.si/{room}", 600, 400, nameof(Property.Value.IframeFrame.Window)); break;
 
                 default:
                     throw new Exception($"No template for name={name}");
@@ -274,9 +279,9 @@ namespace n3q.Content
             templates.Add(name, props);
         }
 
-        public static PropertySet GetIframeTemplate(string id, DevSpec.TextCollection text, string labelKey, string deLabelText, string enLabelText, int imgWidth, int imgHeight, string relativeImagePath, string iframeUrl, int iframeWidth, int iframeHeight, string frameStyle)
+        public static PropertySet GetIframeTemplate(string id, DevSpec.TextCollection text, string labelKey, string enLabelText, string deLabelText, int imgWidth, int imgHeight, string relativeImagePath, string iframeUrl, int iframeWidth, int iframeHeight, string frameStyle)
         {
-            var props = GetImageTemplate(id, text, labelKey, deLabelText, enLabelText, imgWidth, imgHeight, relativeImagePath);
+            var props = GetImageTemplate(id, text, labelKey, enLabelText, deLabelText, imgWidth, imgHeight, relativeImagePath);
             props[Pid.IframeAspect] = true;
             props[Pid.IframeUrl] = iframeUrl;
             props[Pid.IframeWidth] = (long)iframeWidth;
@@ -286,10 +291,10 @@ namespace n3q.Content
             return props;
         }
 
-        public static PropertySet GetImageTemplate(string id, DevSpec.TextCollection text, string labelKey, string deLabelText, string enLabelText, int imgWidth, int imgHeight, string relativeImagePath)
+        public static PropertySet GetImageTemplate(string id, DevSpec.TextCollection text, string labelKey, string enLabelText, string deLabelText, int imgWidth, int imgHeight, string relativeImagePath)
         {
-            text[DevSpec.de][$"ItemValue{Pid.Label}.{labelKey}"] = deLabelText;
             text[DevSpec.en][$"ItemValue{Pid.Label}.{labelKey}"] = enLabelText;
+            text[DevSpec.de][$"ItemValue{Pid.Label}.{labelKey}"] = deLabelText;
 
             return new PropertySet {
                 [Pid.Name] = id.ToString(),

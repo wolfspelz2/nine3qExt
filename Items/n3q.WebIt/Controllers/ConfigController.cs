@@ -64,19 +64,19 @@ namespace n3q.WebIt.Controllers
 
         private async Task<string> CreateInventory()
         {
-            var tmpl = DevSpec.Template.Inventory.ToString();
-            var shortTmpl = tmpl.Substring(0, Cluster.LengthOfItemIdPrefixFromTemplate);
-            var itemId = $"{shortTmpl}{RandomString.GetAlphanumLowercase(20)}";
-            itemId = itemId.ToLower();
-            var item = ClusterClient.GetItemWriter(itemId);
+            var invTmpl = DevSpec.Template.Inventory.ToString();
+            var shortTmpl = invTmpl.Substring(0, Cluster.LengthOfItemIdPrefixFromTemplate);
+            var userId = $"{shortTmpl}{RandomString.GetAlphanumLowercase(20)}";
+            userId = userId.ToLower();
+            var item = ClusterClient.GetItemWriter(userId);
 
             await item.WithTransaction(async self => {
-                await self.Modify(new PropertySet { [Pid.Template] = tmpl }, PidSet.Empty);
+                await self.Modify(new PropertySet { [Pid.Template] = invTmpl }, PidSet.Empty);
             });
 
-            await ClusterClient.OrleansClusterClient.GetGrain<IWorker>(Guid.Empty).AspectAction(itemId, Pid.InventoryAspect, nameof(Inventory.Initialize), PropertySet.Empty);
+            await ClusterClient.OrleansClusterClient.GetGrain<IWorker>(Guid.Empty).AspectAction(userId, Pid.InventoryAspect, nameof(Inventory.Initialize), PropertySet.Empty);
 
-            return itemId;
+            return userId;
         }
     }
 }
