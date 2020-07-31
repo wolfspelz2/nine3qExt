@@ -14,21 +14,21 @@
             }
 
             if (Setup == SetupMode.Development) {
-                XmppDomain = "xmpp.k8s.sui.li";
+                XmppDomain = "xmpp.vulcan.weblin.com";
                 XmppServiceUrl = "wss://" + XmppDomain + "/xmpp-websocket";
                 XmppUserPasswordSHA1Secret = "3b6f88f2bed0f392";
                 ExtensionWebBaseUrl = "http://localhost:5001/";
                 ItemWebBaseUrl = "http://localhost:5000/";
             } else if (Setup == SetupMode.Stage) {
-                XmppDomain = "xmpp.k8s.sui.li";
+                XmppDomain = "xmpp.vulcan.weblin.com";
                 XmppServiceUrl = "wss://" + XmppDomain + "/xmpp-websocket";
-                ExtensionWebBaseUrl = "https://stage01-webex.k8s.sui.li/";
-                ItemWebBaseUrl = "https://stage01-webit.k8s.sui.li/";
+                ExtensionWebBaseUrl = "https://stage01-webex.vulcan.weblin.com/";
+                ItemWebBaseUrl = "https://stage01-webit.vulcan.weblin.com/";
             } else {
-                XmppDomain = "xmpp.k8s.sui.li";
+                XmppDomain = "xmpp.vulcan.weblin.com";
                 XmppServiceUrl = "wss://" + XmppDomain + "/xmpp-websocket";
-                ExtensionWebBaseUrl = "https://webex.k8s.sui.li/";
-                ItemWebBaseUrl = "https://webit.k8s.sui.li/";
+                ExtensionWebBaseUrl = "https://webex.vulcan.weblin.com/";
+                ItemWebBaseUrl = "https://webit.vulcan.weblin.com/";
             }
 
             IdentificatorUrlTemplate = ExtensionWebBaseUrl + "Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}";

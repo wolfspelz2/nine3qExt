@@ -26,15 +26,15 @@
                 LocalhostClustering = false;
                 ComponentHost = "prosody-xmpp.n3q-prod.svc.cluster.local";
                 ComponentPort = 5347;
-                ComponentDomain = "stage01-itemsxmpp.k8s.sui.li";
-                ExtensionWebBaseUrl = "https://stage01-webex.k8s.sui.li/";
+                ComponentDomain = "stage01-itemsxmpp.vulcan.weblin.com";
+                ExtensionWebBaseUrl = "https://stage01-webex.vulcan.weblin.com/";
             } else {
                 ClusterId = "prod";
                 LocalhostClustering = false;
                 ComponentHost = "prosody-xmpp.n3q-prod.svc.cluster.local";
                 ComponentPort = 5347;
-                ComponentDomain = "itemsxmpp.k8s.sui.li";
-                ExtensionWebBaseUrl = "https://webex.k8s.sui.li/";
+                ComponentDomain = "itemsxmpp.vulcan.weblin.com";
+                ExtensionWebBaseUrl = "https://webex.vulcan.weblin.com/";
             }
 
             IdentificatorUrlTemplate = ExtensionWebBaseUrl + "Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}";
