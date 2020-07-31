@@ -4,14 +4,14 @@
     $vars = [
         'n3q-prod' => [
             'NAMESPACE'     => 'n3q-prod',
-            'WEB_DOMAIN'    => 'webit.k8s.sui.li',
-            'WEBEX_DOMAIN'  => 'webex.k8s.sui.li',
+            'WEB_DOMAIN'    => 'webit.vulcan.weblin.com',
+            'WEBEX_DOMAIN'  => 'webex.vulcan.weblin.com',
             'CONFIG_ROOT'   => '/n3q-config/prod'
         ],
         'n3q-stage01' => [
             'NAMESPACE'     => 'n3q-stage01',
-            'WEB_DOMAIN'    => 'stage01-webit.k8s.sui.li',
-            'WEBEX_DOMAIN'  => 'stage01-webex.k8s.sui.li',
+            'WEB_DOMAIN'    => 'stage01-webit.vulcan.weblin.com',
+            'WEBEX_DOMAIN'  => 'stage01-webex.vulcan.weblin.com',
             'CONFIG_ROOT'   => '/n3q-config/stage01'
         ],
 

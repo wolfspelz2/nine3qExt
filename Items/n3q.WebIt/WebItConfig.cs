@@ -25,14 +25,14 @@ namespace n3q.WebIt
                 ClusterId = "stage01";
                 LocalhostClustering = false;
                 AdminTokens = new List<string>();
-                ItemServiceXmppUrl = "xmpp:itemsxmpp.k8s.sui.li";
-                ItemWebBaseUrl = "https://stage01-webit.k8s.sui.li/";
+                ItemServiceXmppUrl = "xmpp:itemsxmpp.vulcan.weblin.com";
+                ItemWebBaseUrl = "https://stage01-webit.vulcan.weblin.com/";
             } else {
                 ClusterId = "prod";
                 LocalhostClustering = false;
                 AdminTokens = new List<string>();
-                ItemServiceXmppUrl = "xmpp:itemsxmpp.k8s.sui.li";
-                ItemWebBaseUrl = "https://webit.k8s.sui.li/";
+                ItemServiceXmppUrl = "xmpp:itemsxmpp.vulcan.weblin.com";
+                ItemWebBaseUrl = "https://webit.vulcan.weblin.com/";
             }
 
             UnavailableUrl = ItemWebBaseUrl + "Embedded/Account?id={id}";
