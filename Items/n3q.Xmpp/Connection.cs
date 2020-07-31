@@ -277,11 +277,9 @@ x=345
 
         public void Send(string text)
         {
-            if (Has.Value(text)) {
-                Log.Verbose($"-> {text}");
-                var bytes = Encoding.UTF8.GetBytes(text);
-                _networkStream.WriteAsync(bytes, 0, bytes.Length).PerformAsyncTaskWithoutAwait(t => Log.Error(t.Exception));
-            }
+            Log.Verbose($"-> {text}");
+            var bytes = Encoding.UTF8.GetBytes(text);
+            _networkStream.WriteAsync(bytes, 0, bytes.Length).PerformAsyncTaskWithoutAwait(t => Log.Error(t.Exception));
         }
 
         public void Dispose()
