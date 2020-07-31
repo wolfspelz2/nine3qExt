@@ -39,10 +39,6 @@ metadata:
   namespace: {NAMESPACE}
   labels:
     run: n3q-webex
-  annotations:
-    haproxy.org/check: "true"
-    haproxy.org/forwarded-for: "enabled"
-    haproxy.org/load-balance: "roundrobin"
 spec:
   selector:
     run: n3q-webex
@@ -57,7 +53,16 @@ kind: Ingress
 metadata:
   name: n3q-webex-ingress
   namespace: {NAMESPACE}
+  annotations:
+    haproxy.org/check: "true"
+    haproxy.org/forwarded-for: "true"
+    haproxy.org/load-balance: "roundrobin"
+    haproxy.org/ssl-redirect: "true"
 spec:
+  tls:
+    - hosts:
+      - {WEBEX_DOMAIN}
+      secretName: devops/tls-vulcan-weblin-com
   rules:
   - host: {WEBEX_DOMAIN}
     http:

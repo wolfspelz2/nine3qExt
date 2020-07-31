@@ -40,10 +40,6 @@ metadata:
   namespace: {NAMESPACE}
   labels:
     run: n3q-webit
-  annotations:
-    haproxy.org/check: "true"
-    haproxy.org/forwarded-for: "enabled"
-    haproxy.org/load-balance: "roundrobin"
 spec:
   selector:
     run: n3q-webit
@@ -58,7 +54,16 @@ kind: Ingress
 metadata:
   name: n3q-webit-ingress
   namespace: {NAMESPACE}
+  annotations:
+    haproxy.org/check: "true"
+    haproxy.org/forwarded-for: "true"
+    haproxy.org/load-balance: "roundrobin"
+    haproxy.org/ssl-redirect: "true"
 spec:
+  tls:
+    - hosts:
+      - {WEB_DOMAIN}
+      secretName: devops/tls-vulcan-weblin-com
   rules:
   - host: {WEB_DOMAIN}
     http:
