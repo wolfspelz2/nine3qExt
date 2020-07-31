@@ -12,14 +12,17 @@ namespace n3q.Xmpp
             public string Name { get; set; }
             public Dictionary<string, string> Attributes { get; set; }
         }
-        public class NodeStartArgs : EventArgs
+        public class StartElementArgs : EventArgs
         {
             public string Name { get; set; }
             public Dictionary<string, string> Attributes { get; set; }
         }
-        public class NodeEndArgs : EventArgs
+        public class EndElementArgs : EventArgs
         {
             public string Name { get; set; }
+        }
+        public class CharacterDataArgs : EventArgs
+        {
             public string Text { get; set; }
         }
         public class ParseErrorArgs : EventArgs
@@ -30,8 +33,9 @@ namespace n3q.Xmpp
         }
 
         public event EventHandler<PreambleArgs> Preamble;
-        public event EventHandler<NodeStartArgs> NodeStart;
-        public event EventHandler<NodeEndArgs> NodeEnd;
+        public event EventHandler<StartElementArgs> StartElement;
+        public event EventHandler<EndElementArgs> EndElement;
+        public event EventHandler<CharacterDataArgs> CharacterData;
         public event EventHandler<ParseErrorArgs> ParseError;
 
         public void Parse(byte[] bytes)
@@ -80,6 +84,7 @@ namespace n3q.Xmpp
                         switch (c) {
                             case '<': Error("< in tag name"); break;
                             case '>':
+                                StartElement?.Invoke(this, new StartElementArgs { Name = tagName, Attributes = GetAttributes(attributes), });
                                 if (JustHadSlash) {
                                     EndTag();
                                 } else {
@@ -98,8 +103,8 @@ namespace n3q.Xmpp
                                     slashFlag = 1;
                                 }
                                 break;
-                            default: 
-                                tagName += c; 
+                            default:
+                                tagName += c;
                                 break;
                         }
                         break;
@@ -118,7 +123,7 @@ namespace n3q.Xmpp
                                     state = State.None;
                                 } else {
                                     if (attributes.EndsWith("/")) { attributes = attributes.Substring(0, attributes.Length - 1); }
-                                    NodeStart?.Invoke(this, new NodeStartArgs { Name = tagName, Attributes = GetAttributes(attributes), });
+                                    StartElement?.Invoke(this, new StartElementArgs { Name = tagName, Attributes = GetAttributes(attributes), });
                                     if (JustHadSlash) {
                                         EndTag();
                                     }
@@ -203,17 +208,21 @@ namespace n3q.Xmpp
 
         private void BeginTag()
         {
-            state = State.TagName;
             if (!string.IsNullOrEmpty(tagName)) {
                 tagStack.Push(tagName);
                 tagName = "";
             }
+            if (!string.IsNullOrEmpty(tagText)) {
+                CharacterData?.Invoke(this, new CharacterDataArgs { Text = GetText(tagText), });
+                tagText = "";
+            }
             attributes = "";
+            state = State.TagName;
         }
 
         private void EndTag()
         {
-            NodeEnd?.Invoke(this, new NodeEndArgs { Name = tagName, Text = GetText(tagText), });
+            EndElement?.Invoke(this, new EndElementArgs { Name = tagName, });
             state = State.Text;
             tagName = "";
             closingName = "";
