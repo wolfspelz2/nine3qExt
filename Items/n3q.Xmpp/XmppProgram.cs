@@ -110,12 +110,7 @@ namespace n3q.Xmpp
             _controller = new Controller(client, Config);
             await _controller.Start();
 
-            if (Config.Setup == XmppConfigDefinition.SetupMode.Production) {
-
-                Console.WriteLine("Press CTRL-C to terminate...");
-                new AutoResetEvent(false).WaitOne();
-
-            } else {
+            if (Config.Setup == XmppConfigDefinition.SetupMode.Development) {
 
                 Console.WriteLine("Press Enter to terminate...");
                 var line = "";
@@ -123,6 +118,11 @@ namespace n3q.Xmpp
                     line = Console.ReadLine();
                     _controller.Send(line);
                 } while (Has.Value(line) && line != "q");
+
+            } else {
+
+                Console.WriteLine("Press CTRL-C to terminate...");
+                new AutoResetEvent(false).WaitOne();
 
             }
 
