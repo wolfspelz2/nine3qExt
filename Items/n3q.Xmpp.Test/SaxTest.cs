@@ -85,7 +85,7 @@ namespace n3q.Xmpp.Test
             var xml = "";
             xml += "<n1 a11='v11' a12='v12'>\n";
             xml += "t1a\n";
-            xml += "<n2 a21='v21'\n";
+            xml += "<n2 a21='v21'>\n";
             xml += "t2\n";
             xml += "</n2>\n";
             xml += "t1b\n";
@@ -98,7 +98,7 @@ namespace n3q.Xmpp.Test
             var sax = new Sax();
             sax.NodeStart += (s, e) => { nodeStart++; tagList.Add(e.Name); attributesList.Add(e.Attributes); };
             sax.NodeEnd += (s, e) => { nodeEnd++; };
-            sax.ParseError += (s, e) => { throw new System.Exception($"line={e.Line} col={e.Column}"); };
+            sax.ParseError += (s, e) => { throw new System.Exception($"line={e.Line} col={e.Column} {e.Message}"); };
 
             // Act
             sax.Parse(xml);

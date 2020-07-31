@@ -98,7 +98,9 @@ namespace n3q.Xmpp
                                     slashFlag = 1;
                                 }
                                 break;
-                            default: tagName += c; break;
+                            default: 
+                                tagName += c; 
+                                break;
                         }
                         break;
 
@@ -214,6 +216,7 @@ namespace n3q.Xmpp
             NodeEnd?.Invoke(this, new NodeEndArgs { Name = tagName, Text = GetText(tagText), });
             state = State.Text;
             tagName = "";
+            closingName = "";
             attributes = "";
         }
 
