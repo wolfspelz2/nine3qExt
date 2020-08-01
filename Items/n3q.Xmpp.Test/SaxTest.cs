@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace n3q.Xmpp.Test
@@ -22,7 +24,7 @@ namespace n3q.Xmpp.Test
             sax.StartElement += (s, e) => { nodeStart++; tagName = e.Name; tagAttributes = e.Attributes; };
             sax.EndElement += (s, e) => { nodeEnd++; };
             sax.CharacterData += (s, e) => { charData += e.Text; };
-            sax.ParseError += (s, e) => { throw new System.Exception($"line={e.Line} col={e.Column}"); };
+            sax.ParseError += (s, e) => { throw new System.Exception($"line={e.Line} col={e.Column} [{e.Message}] around: [{e.Vicinity}]"); };
 
             // Act
             sax.Parse(xml);
@@ -39,6 +41,45 @@ namespace n3q.Xmpp.Test
         }
 
         [TestMethod]
+        public void Errors()
+        {
+            // Arrange
+            static void Do(string xml, int expectedLine, int expectedCol)
+            {
+                var isError = false;
+                var line = 0;
+                var col = 0;
+                var sax = new Sax();
+                sax.Preamble += (s, e) => { };
+                sax.StartElement += (s, e) => { };
+                sax.EndElement += (s, e) => { };
+                sax.CharacterData += (s, e) => { };
+                sax.ParseError += (s, e) => { isError = true; line = e.Line; col = e.Column; };
+                sax.Parse(xml);
+                Assert.IsTrue(isError, "isError");
+                Assert.AreEqual(expectedLine, line, $"line {xml}");
+                Assert.AreEqual(expectedCol, col, $"col {xml}");
+            }
+
+            // Act
+            // Assert
+            Do("><taga1='v1' a2>text<sub/></tag>", 1, 1);
+            Do("<<taga1='v1' a2>text<sub/></tag>", 1, 2);
+            Do("<>taga1='v1' a2>text<sub/></tag>", 1, 2);
+            Do("<tag <a1='v1' a2>text<sub/></tag>", 1, 6);
+            Do("<tag ='v1' a2>text<sub/></tag>", 1, 14);
+            Do("<tag a1='v1' a2>>text<sub/></tag>", 1, 17);
+            Do("<tag a1='v1' a2>text</sub></tag>", 1, 26);
+            Do("<tag a1='v1' a2>text<sub></tag>", 1, 31);
+            Do("<tag a1='v1' a2>text<sub/>></tag>", 1, 27);
+            Do("<tag a1='v1' a2>text<sub/><</tag>", 1, 28);
+            Do("<tag a1='v1' a2>text<sub/></ta g>", 1, 31);
+            Do("<tag a1='v1' a2>text<sub/></tag/>", 1, 32);
+            Do("<tag a1='v1' a2>text<sub/></tag<>", 1, 32);
+            Do("<tag a1='v1' a2>text<sub/></tag>>", 1, 33);
+        }
+
+        [TestMethod]
         public void SelfClosing()
         {
             // Arrange
@@ -51,7 +92,7 @@ namespace n3q.Xmpp.Test
             var sax = new Sax();
             sax.StartElement += (s, e) => { nodeStart++; tagName = e.Name; attributes = e.Attributes; };
             sax.EndElement += (s, e) => { nodeEnd++; };
-            sax.ParseError += (s, e) => { throw new System.Exception($"line={e.Line} col={e.Column}"); };
+            sax.ParseError += (s, e) => { throw new System.Exception($"line={e.Line} col={e.Column} [{e.Message}] around: [{e.Vicinity}]"); };
 
             // Act
             sax.Parse(xml);
@@ -87,7 +128,7 @@ namespace n3q.Xmpp.Test
             sax.StartElement += (s, e) => { nodeStart++; tagList.Add(e.Name); attributesList.Add(e.Attributes); };
             sax.EndElement += (s, e) => { nodeEnd++; };
             sax.CharacterData += (s, e) => { charData += e.Text; };
-            sax.ParseError += (s, e) => { throw new System.Exception($"line={e.Line} col={e.Column} {e.Message}"); };
+            sax.ParseError += (s, e) => { throw new System.Exception($"line={e.Line} col={e.Column} [{e.Message}] around: [{e.Vicinity}]"); };
 
             // Act
             sax.Parse(xml);
@@ -123,7 +164,7 @@ namespace n3q.Xmpp.Test
             sax.StartElement += (s, e) => { nodeStart++; tagName = e.Name; tagAttributes = e.Attributes; };
             sax.EndElement += (s, e) => { nodeEnd++; };
             sax.CharacterData += (s, e) => { charData += e.Text; };
-            sax.ParseError += (s, e) => { throw new System.Exception($"line={e.Line} col={e.Column}"); };
+            sax.ParseError += (s, e) => { throw new System.Exception($"line={e.Line} col={e.Column} [{e.Message}] around: [{e.Vicinity}]"); };
 
             // Act
             sax.Parse(xml);
@@ -144,7 +185,7 @@ namespace n3q.Xmpp.Test
         }
 
         [TestMethod]
-        public void ComponentStream()
+        public void TypicalComponentStream()
         {
             // Arrange
             string xml = "";
@@ -174,7 +215,7 @@ namespace n3q.Xmpp.Test
             sax.StartElement += (s, e) => { nodeStart++; tagList.Add(e.Name); attributesList.Add(e.Attributes); };
             sax.EndElement += (s, e) => { nodeEnd++; };
             sax.CharacterData += (s, e) => { charData += e.Text; };
-            sax.ParseError += (s, e) => { throw new System.Exception($"line={e.Line} col={e.Column} {e.Message}"); };
+            sax.ParseError += (s, e) => { throw new System.Exception($"line={e.Line} col={e.Column} [{e.Message}] around: [{e.Vicinity}]"); };
 
             // Act
             sax.Parse(xml);
