@@ -41,12 +41,25 @@ namespace n3q.Xmpp
 
         public void Parse(byte[] bytes)
         {
-            var s = NextString(bytes);
+            var s = NextString(bytes, Encoding.UTF8);
+            Parse(s);
         }
 
-        public string NextString(byte[] bytes)
+        Decoder _decoder;
+        public string NextString(byte[] bytes, Encoding encoding)
         {
-            return Encoding.UTF8.GetString(bytes);
+            //return Encoding.UTF8.GetString(bytes);
+
+            _decoder ??= encoding.GetDecoder();
+            StringBuilder sb = new StringBuilder();
+
+            char[] chars = new char[encoding.GetMaxCharCount(bytes.Length)];
+            int readChars = _decoder.GetChars(bytes, 0, bytes.Length, chars, 0);
+            if (readChars > 0) {
+                sb.Append(chars, 0, readChars);
+            }
+
+            return sb.ToString();
         }
 
         public enum State { BeforeRoot, TagName, Attributes, Text, Tag, ClosingTag, }

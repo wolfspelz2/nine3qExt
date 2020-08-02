@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -63,9 +64,9 @@ namespace n3q.Xmpp.Test
 
             // Act
             // Assert
-            Do("><taga1='v1' a2>text<sub/></tag>", 1, 1);
-            Do("<<taga1='v1' a2>text<sub/></tag>", 1, 2);
-            Do("<>taga1='v1' a2>text<sub/></tag>", 1, 2);
+            Do("><tag a1='v1' a2>text<sub/></tag>", 1, 1);
+            Do("<<tag a1='v1' a2>text<sub/></tag>", 1, 2);
+            Do("<>tag a1='v1' a2>text<sub/></tag>", 1, 2);
             Do("<tag <a1='v1' a2>text<sub/></tag>", 1, 6);
             Do("<tag ='v1' a2>text<sub/></tag>", 1, 14);
             Do("<tag a1='v1' a2>>text<sub/></tag>", 1, 17);
@@ -353,6 +354,41 @@ namespace n3q.Xmpp.Test
 
             var expectedCharData = "nnnn....n....n....n........n....n....n........n....nnn";
             Assert.AreEqual(expectedCharData, charData.Replace("\r", "r").Replace("\n", "n").Replace(" ", ".").Replace("rn", "n"));
+        }
+
+        [TestMethod]
+        public void Parse_bytes_with_utf8_char_in_different_chunks()
+        {
+            // Arrange
+            var xml = "<tag a='☰' />";
+            var xmlBytes = Encoding.UTF8.GetBytes(xml);
+            byte[] chunk1 = new byte[6];
+            Buffer.BlockCopy(xmlBytes, 0, chunk1, 0, chunk1.Length);
+            byte[] chunk2 = new byte[3];
+            Buffer.BlockCopy(xmlBytes, chunk1.Length, chunk2, 0, chunk2.Length);
+            byte[] chunk3 = new byte[6];
+            Buffer.BlockCopy(xmlBytes, chunk1.Length + chunk2.Length, chunk3, 0, chunk3.Length);
+            
+            var nodeStart = 0;
+            var nodeEnd = 0;
+            var tagName = "";
+            var tagAttributes = new Dictionary<string, string>();
+            var sax = new Sax();
+            sax.StartElement += (s, e) => { nodeStart++; tagName = e.Name; tagAttributes = e.Attributes; };
+            sax.EndElement += (s, e) => { nodeEnd++; };
+            sax.ParseError += (s, e) => { throw new System.Exception($"line={e.Line} col={e.Column} [{e.Message}] around: [{e.Vicinity}]"); };
+
+            // Act
+            sax.Parse(chunk1);
+            sax.Parse(chunk2);
+            sax.Parse(chunk3);
+
+            // Assert
+            Assert.AreEqual(1, nodeStart);
+            Assert.AreEqual(1, nodeEnd);
+            Assert.AreEqual("tag", tagName);
+            Assert.AreEqual(1, tagAttributes.Count);
+            Assert.AreEqual("☰", tagAttributes["a"]);
         }
 
     }
