@@ -209,13 +209,14 @@ namespace n3q.Xmpp.Test
 
             var nodeStart = 0;
             var nodeEnd = 0;
-            var tagList = new List<string>();
-            var attributesList = new List<Dictionary<string, string>>();
-            var charData = "";
+            var recordedTagList = new List<string>();
+            var recordedAttributesList = new List<Dictionary<string, string>>();
+            var recordedCharData = "";
+            var recordedDepth = new List<int>();
             var sax = new Sax();
-            sax.StartElement += (s, e) => { nodeStart++; tagList.Add(e.Name); attributesList.Add(e.Attributes); };
+            sax.StartElement += (s, e) => { nodeStart++; recordedTagList.Add(e.Name); recordedDepth.Add(e.Depth); recordedAttributesList.Add(e.Attributes); };
             sax.EndElement += (s, e) => { nodeEnd++; };
-            sax.CharacterData += (s, e) => { charData += e.Text; };
+            sax.CharacterData += (s, e) => { recordedCharData += e.Text; };
             sax.ParseError += (s, e) => { throw new System.Exception($"line={e.Line} col={e.Column} [{e.Message}] around: [{e.Vicinity}]"); };
 
             // Act
@@ -226,7 +227,10 @@ namespace n3q.Xmpp.Test
             Assert.AreEqual(114, nodeEnd);
 
             var expectedTags = new List<string> { "stream:stream", "handshake", "presence", "x", "x", "x", "position", "x", "item", "status", "presence", "x", "x", "x", "position", "x", "item", "presence", "x", "x", "x", "position", "x", "item", "presence", "x", "x", "x", "position", "x", "item", "presence", "x", "x", "x", "position", "x", "item", "presence", "x", "x", "x", "position", "x", "item", "presence", "x", "x", "x", "position", "x", "item", "presence", "x", "x", "x", "position", "x", "item", "presence", "x", "x", "x", "position", "x", "item", "presence", "x", "x", "x", "position", "x", "item", "presence", "x", "x", "x", "position", "x", "item", "presence", "x", "x", "x", "position", "x", "item", "presence", "x", "x", "x", "position", "x", "item", "presence", "x", "x", "x", "position", "x", "item", "presence", "x", "x", "x", "position", "x", "item", "presence", "x", "x", "x", "position", "x", "item", };
-            CollectionAssert.AreEqual(expectedTags, tagList);
+            CollectionAssert.AreEqual(expectedTags, recordedTagList);
+
+            var expectedDepth = new List<int> { 0, 1, 1, 2, 2, 2, 3, 2, 3, 3, 1 };
+            CollectionAssert.AreEqual(expectedDepth, recordedDepth.Take(expectedDepth.Count).ToList());
 
             var expectedAttrs = new List<string> {
                 "xml:lang=\"en\" id=\"7bb836d7-a0e1-4e88-b7a9-90c648c74235\" xmlns=\"jabber:component:accept\" from=\"itemsxmpp.dev.sui.li\" xmlns:stream=\"http://etherx.jabber.org/streams\"",
@@ -349,11 +353,11 @@ namespace n3q.Xmpp.Test
             for (var i = 0; i < expectedAttrs.Count; i++) {
                 Assert.AreEqual(expectedAttrs[i]
                     .Replace("&amp;", "&")
-                    , string.Join(" ", attributesList[i].Select(kv => $"{kv.Key}=\"{kv.Value}\"")));
+                    , string.Join(" ", recordedAttributesList[i].Select(kv => $"{kv.Key}=\"{kv.Value}\"")));
             }
 
             var expectedCharData = "nnnn....n....n....n........n....n....n........n....nnn";
-            Assert.AreEqual(expectedCharData, charData.Replace("\r", "r").Replace("\n", "n").Replace(" ", ".").Replace("rn", "n"));
+            Assert.AreEqual(expectedCharData, recordedCharData.Replace("\r", "r").Replace("\n", "n").Replace(" ", ".").Replace("rn", "n"));
         }
 
         [TestMethod]

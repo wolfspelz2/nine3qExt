@@ -7,19 +7,30 @@ namespace n3q.Xmpp
 {
     public class Sax
     {
+        public class AttributeSet : Dictionary<string, string>
+        {
+            public string Get(string key)
+            {
+                if (ContainsKey(key)) { return this[key]; }
+                return "";
+            }
+        }
+
         public class PreambleArgs : EventArgs
         {
             public string Name { get; set; }
-            public Dictionary<string, string> Attributes { get; set; }
+            public AttributeSet Attributes { get; set; }
         }
         public class StartElementArgs : EventArgs
         {
             public string Name { get; set; }
-            public Dictionary<string, string> Attributes { get; set; }
+            public int Depth { get; set; }
+            public AttributeSet Attributes { get; set; }
         }
         public class EndElementArgs : EventArgs
         {
             public string Name { get; set; }
+            public int Depth { get; set; }
         }
         public class CharacterDataArgs : EventArgs
         {
@@ -106,7 +117,7 @@ namespace n3q.Xmpp
                                 if (string.IsNullOrEmpty(tagName)) {
                                     Error($"'{c}' in {state}");
                                 } else {
-                                    StartElement?.Invoke(this, new StartElementArgs { Name = tagName, Attributes = GetAttributes(attributes), });
+                                    StartElement?.Invoke(this, new StartElementArgs { Name = tagName, Depth = tagStack.Count, Attributes = GetAttributes(attributes), });
                                     if (JustHadSlash) {
                                         EndTag();
                                     } else {
@@ -144,9 +155,10 @@ namespace n3q.Xmpp
                                     if (attributes.EndsWith("?")) { attributes = attributes.Substring(0, attributes.Length - 1); }
                                     Preamble?.Invoke(this, new PreambleArgs { Name = tagName, Attributes = GetAttributes(attributes) });
                                     state = State.BeforeRoot;
+                                    tagName = "";
                                 } else {
                                     if (attributes.EndsWith("/")) { attributes = attributes.Substring(0, attributes.Length - 1); }
-                                    StartElement?.Invoke(this, new StartElementArgs { Name = tagName, Attributes = GetAttributes(attributes), });
+                                    StartElement?.Invoke(this, new StartElementArgs { Name = tagName, Depth = tagStack.Count, Attributes = GetAttributes(attributes), });
                                     if (JustHadSlash) {
                                         EndTag();
                                     }
@@ -253,7 +265,7 @@ namespace n3q.Xmpp
 
         private void EndTag()
         {
-            EndElement?.Invoke(this, new EndElementArgs { Name = tagName, });
+            EndElement?.Invoke(this, new EndElementArgs { Name = tagName, Depth = tagStack.Count });
             state = State.Text;
             tagName = "";
             closingName = "";
@@ -265,9 +277,9 @@ namespace n3q.Xmpp
             return HttpUtility.HtmlDecode(text);
         }
 
-        private Dictionary<string, string> GetAttributes(string attributes)
+        private AttributeSet GetAttributes(string attributes)
         {
-            var dict = new Dictionary<string, string>();
+            var dict = new Sax.AttributeSet();
 
             var attribs = attributes.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             foreach (var attrib in attribs) {

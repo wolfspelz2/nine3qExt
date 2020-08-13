@@ -37,6 +37,7 @@ namespace n3q.Xmpp
         readonly Dictionary<string, Inventory> _inventoryItems = new Dictionary<string, Inventory>();
 
         private Connection _xmppConnection;
+        private ComponentClient _xmppClient;
         private bool _clusterConnected;
 
         public Controller(IClusterClient clusterClient, XmppConfigDefinition config)
@@ -58,7 +59,8 @@ namespace n3q.Xmpp
             await SubscribeItemUpdateStream();
             _clusterConnected = true;
 
-            StartConnectionInNewThread();
+            //StartConnectionInNewThread();
+            await StartClient();
         }
 
         public void OnClusterDisconnect()
@@ -128,6 +130,9 @@ namespace n3q.Xmpp
             if (_xmppConnection != null) {
                 _xmppConnection.Send(line);
             }
+            if (_xmppClient != null) {
+                _xmppClient.Send(line);
+            }
         }
 
         void StartConnectionInNewThread()
@@ -139,13 +144,28 @@ namespace n3q.Xmpp
                     _componentPort,
                     _componentSecret,
                     async conn => { await Connection_OnStarted(conn); },
-                    async cmd => { await Connection_OnMessage(cmd); },
-                    async cmd => { await Connection_OnPresence(cmd); },
+                    async cmd => { await OnMessage(cmd); },
+                    async cmd => { await OnPresence(cmd); },
                     conn => { Connection_OnClosed(conn); }
-                    );
+                );
 
                 await _xmppConnection.Run();
             });
+        }
+
+        async Task StartClient()
+        {
+            _xmppClient = new ComponentClient(
+                _componentHost, 
+                _componentDomain, 
+                _componentPort, 
+                _componentSecret,
+                async () => { await Client_OnConnectedAndLoggedIn(); }, 
+                async () => { await Client_OnDisconnected(); },
+                async p => { await OnPresence(p); },
+                async m => { await OnMessage(m); }
+                );
+            await _xmppClient.Connect( );
         }
 
         #region Shortcuts
@@ -335,6 +355,26 @@ namespace n3q.Xmpp
 
         #endregion
 
+        #region OnClient
+
+        async Task Client_OnConnectedAndLoggedIn()
+        {
+            Log.Info("Component connected to XMPP server");
+            await PopulateRooms();
+        }
+
+        async Task Client_OnDisconnected()
+        {
+            Log.Info($"Component disconnected from XMPP server. Reconnect in {Config.XmppConnectSecondsBetweenRetries} sec");
+            _xmppClient = null;
+
+            Thread.Sleep(Config.XmppConnectSecondsBetweenRetries * 1000);
+
+            await StartClient();
+        }
+
+        #endregion
+
         #region OnConnection
 
         async Task Connection_OnStarted(Connection conn)
@@ -353,7 +393,7 @@ namespace n3q.Xmpp
             StartConnectionInNewThread();
         }
 
-        async Task Connection_OnMessage(XmppMessage stanza)
+        async Task OnMessage(XmppMessage stanza)
         {
             try {
                 if (!_clusterConnected) { throw new ItemException(ItemNotification.Fact.NotExecuted, ItemNotification.Reason.ServiceUnavailable); }
@@ -391,7 +431,7 @@ namespace n3q.Xmpp
             var id_XmlEncoded = WebUtility.HtmlEncode(id);
             var body_XmlEncoded = WebUtility.HtmlEncode(body);
 
-            _xmppConnection?.Send(
+            Send(
 #pragma warning disable format
                   $"<message to='{to_XmlEncoded}' from='{from_XmlEncoded}' id='{id_XmlEncoded}' xmlns='jabber:client' type='error'>"
                 +       $"<body>{body_XmlEncoded}</body>"
@@ -403,7 +443,7 @@ namespace n3q.Xmpp
                 );
         }
 
-        async Task Connection_OnPresence(XmppPresence stanza)
+        async Task OnPresence(XmppPresence stanza)
         {
             if (!_clusterConnected) { return; }
 
@@ -835,13 +875,11 @@ namespace n3q.Xmpp
 
         async Task SendSubscriberPresenceAvailableConfirmation(string from, string to)
         {
-            if (_xmppConnection == null) { return; }
-
             var to_XmlEncoded = WebUtility.HtmlEncode(to);
             var from_XmlEncoded = WebUtility.HtmlEncode(from);
 
             Log.Info($"{from}");
-            _xmppConnection.Send($"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}' />");
+            Send($"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}' />");
 
             await Task.CompletedTask;
         }
@@ -863,8 +901,6 @@ namespace n3q.Xmpp
 
         async Task SendItemPresenceAvailableCore(string itemId, string from, string to, bool forXmppMucWithFirebatSupport = true)
         {
-            if (_xmppConnection == null) { return; }
-
             var props = await GetItemReader(itemId).Get(PidSet.Public);
 
             var name = props.GetString(Pid.Name);
@@ -919,7 +955,7 @@ namespace n3q.Xmpp
 
             var position_Node = $"<position x='{x_XmlEncoded}' />";
 
-            _xmppConnection.Send(
+            Send(
 #pragma warning disable format
                 $"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}'>"
                     + $"<x xmlns='vp:props' type='item' provider='nine3q' {props_XmlEncoded_All} />"
@@ -963,7 +999,7 @@ namespace n3q.Xmpp
             var to_XmlEncoded = WebUtility.HtmlEncode(to);
             var from_XmlEncoded = WebUtility.HtmlEncode(from);
 
-            _xmppConnection?.Send($"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}' type='unavailable' />");
+            Send($"<presence to='{to_XmlEncoded}' from='{from_XmlEncoded}' type='unavailable' />");
 
             await Task.CompletedTask;
         }

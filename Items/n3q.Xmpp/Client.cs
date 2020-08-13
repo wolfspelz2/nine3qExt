@@ -22,7 +22,7 @@ namespace n3q.Xmpp
         internal delegate void DataCallback(byte[] data);
         internal delegate void DisconnectedCallback();
 
-        internal async Task ConnectAsync(string host, int port, ConnectedCallback onConnected, DataCallback onData, DisconnectedCallback onDisconnected)
+        internal async Task Connect(string host, int port, ConnectedCallback onConnected, DataCallback onData, DisconnectedCallback onDisconnected)
         {
             _onConnected = onConnected;
             _onData = onData;
@@ -106,7 +106,9 @@ namespace n3q.Xmpp
                         //string data = Encoding.UTF8.GetString(_bytes, 0, bytesRead);
                         //Log("IN " + data);
 
-                        _onData?.Invoke(_bytes);
+                        byte[] chunk = new byte[bytesRead];
+                        Buffer.BlockCopy(_bytes, 0, chunk, 0, chunk.Length);
+                        _onData?.Invoke(chunk);
 
                         Receive();
                     }
