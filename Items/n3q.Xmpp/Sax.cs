@@ -97,7 +97,7 @@ namespace n3q.Xmpp
 
         public void Parse(string data)
         {
-            if (Log.IsVerbose) { Log.Verbose(data.Replace("\r\n", "\n").Replace("\n", "\\n")); }
+            if (Log.IsVerbose) { Log.Verbose($"<- {data.Replace("\r\n", "\n").Replace("\n", "\\n")}"); }
 
             charIndex = -1;
 
