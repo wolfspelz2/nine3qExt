@@ -19,16 +19,16 @@ namespace n3q.Xmpp
 
         readonly ConnectedAndLoggedInCallback _onConnected;
         readonly DisconnectedCallback _onDisconnected;
-        readonly Action<XmppPresence> _onXmppPresence;
-        readonly Action<XmppMessage> _onXmppMessage;
+        readonly Action<ItemPropsPresence> _onXmppPresence;
+        readonly Action<ItemCmdMessage> _onXmppMessage;
 
         Client _client;
         Sax _sax;
 
         bool _loggedIn = false;
-        XmppMessage _currentMessage;
+        ItemCmdMessage _currentMessage;
 
-        public ComponentClient(string host, string componentDomain, int port, string secret, ConnectedAndLoggedInCallback onConnected, DisconnectedCallback onDisconnected, Action<XmppPresence> onXmppPresence, Action<XmppMessage> onXmppMessage)
+        public ComponentClient(string host, string componentDomain, int port, string secret, ConnectedAndLoggedInCallback onConnected, DisconnectedCallback onDisconnected, Action<ItemPropsPresence> onXmppPresence, Action<ItemCmdMessage> onXmppMessage)
         {
             _host = host;
             _componentDomain = componentDomain;
@@ -60,6 +60,7 @@ namespace n3q.Xmpp
 
         public void Send(string text)
         {
+            Log.Verbose($"-> {text}");
             _client?.Send(text);
         }
 
@@ -71,8 +72,7 @@ namespace n3q.Xmpp
 
         void Client_OnData(byte[] data)
         {
-            Log.Info($"{data.Length} bytes");
-
+            Log.Verbose($"{data.Length} bytes");
             _sax.Parse(data);
         }
 
@@ -86,7 +86,7 @@ namespace n3q.Xmpp
 
         private void Sax_StartElement(object sender, Sax.StartElementArgs e)
         {
-            Log.Info($"{e.Depth} {e.Name}");
+            Log.Flooding($"{e.Name} {e.Depth}");
 
             if (!_loggedIn && e.Name == "stream:stream") {
                 SendHandshake(e.Attributes);
@@ -99,7 +99,7 @@ namespace n3q.Xmpp
 
         void Sax_EndElement(object sender, Sax.EndElementArgs e)
         {
-            Log.Info($"{e.Name}");
+            Log.Flooding($"  {e.Name} {e.Depth}");
 
             if (!_loggedIn && e.Name == "handshake") {
                 _loggedIn = true;
@@ -156,7 +156,7 @@ namespace n3q.Xmpp
             if (_currentMessage == null) { return; }
             var message = _currentMessage;
 
-            if (name == "x" && attributes.Get("xmlns") == "vp:cmd") {
+            if (name == "x" && attributes.Get("xmlns", "") == "vp:cmd") {
                 foreach (var kv in attributes) {
                     message.Cmd[kv.Key] = kv.Value;
                 }
@@ -165,18 +165,17 @@ namespace n3q.Xmpp
 
         void OnBeginPresence(Sax.AttributeSet attributes)
         {
-            var presence = new XmppPresence {
-                PresenceType = attributes.Get("type") switch
+            var presence = new ItemPropsPresence {
+                PresenceType = attributes.Get("type", "") switch
                 {
                     "unavailable" => XmppPresenceType.Unavailable,
                     "error" => XmppPresenceType.Error,
                     _ => XmppPresenceType.Available,
                 },
-                From = attributes.Get("from") ?? "",
-                To = attributes.Get("to") ?? "",
+                From = attributes.Get("from", "") ?? "",
+                To = attributes.Get("to", "") ?? "",
             };
-            Log.Verbose($"<- from={presence.From} to={presence.To}");
-            presence.Props.Select(pair => $"{pair.Key}={pair.Value}").ToList().ForEach(line => Log.Verbose($"<-     {line}"));
+            Log.Verbose($"<- presence from={presence.From} to={presence.To} {string.Join(" ", presence.Props.Select(pair => $"{pair.Key}={pair.Value}").ToList())}");
             _onXmppPresence?.Invoke(presence);
         }
 
@@ -186,20 +185,18 @@ namespace n3q.Xmpp
 
         private void OnBeginMessage(Sax.AttributeSet attributes)
         {
-            var message = new XmppMessage {
-                //MessageType = (xmlReader.GetAttribute("type") ?? "normal") == "groupchat" ? XmppMessageType.Groupchat : XmppMessageType.Normal,
-                MessageType = attributes.Get("type") switch
+            var message = new ItemCmdMessage {
+                MessageType = attributes.Get("type", "") switch
                 {
                     "normal" => XmppMessageType.Normal,
                     "groupchat" => XmppMessageType.Groupchat,
                     "chat" => XmppMessageType.PrivateChat,
                     _ => XmppMessageType.Normal,
                 },
-                From = attributes.Get("from") ?? "",
-                To = attributes.Get("to") ?? "",
-                Id = attributes.Get("id") ?? "",
+                From = attributes.Get("from", "") ?? "",
+                To = attributes.Get("to", "") ?? "",
+                Id = attributes.Get("id", "") ?? "",
             };
-            Log.Verbose($"<-     from={message.From}");
 
             _currentMessage = message;
         }
@@ -210,8 +207,7 @@ namespace n3q.Xmpp
             var message = _currentMessage;
 
             if (message.Cmd.Count > 0) {
-                Log.Verbose($"<-     from={message.From}");
-                message.Cmd.Select(pair => $"{pair.Key}={pair.Value}").ToList().ForEach(line => Log.Verbose($"<-     {line}"));
+                Log.Verbose($"<- message from={message.From} {string.Join(" ", message.Cmd.Select(pair => $"{pair.Key}={pair.Value}").ToList())}");
                 _onXmppMessage?.Invoke(message);
             }
         }

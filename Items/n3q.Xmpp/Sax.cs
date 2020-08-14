@@ -9,10 +9,12 @@ namespace n3q.Xmpp
     {
         public class AttributeSet : Dictionary<string, string>
         {
-            public string Get(string key)
+            public string Get(string key, string defaultValue)
             {
-                if (ContainsKey(key)) { return this[key]; }
-                return "";
+                if (this.ContainsKey(key)) {
+                    return this[key];
+                }
+                return defaultValue;
             }
         }
 

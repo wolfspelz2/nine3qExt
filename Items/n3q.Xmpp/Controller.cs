@@ -393,7 +393,7 @@ namespace n3q.Xmpp
             StartConnectionInNewThread();
         }
 
-        async Task OnMessage(XmppMessage stanza)
+        async Task OnMessage(ItemCmdMessage stanza)
         {
             try {
                 if (!_clusterConnected) { throw new ItemException(ItemNotification.Fact.NotExecuted, ItemNotification.Reason.ServiceUnavailable); }
@@ -419,12 +419,14 @@ namespace n3q.Xmpp
             </error>
         </message>
         */
-        private void SendExceptionResponseMessage(XmppMessage stanza, ItemException ex)
+        private void SendExceptionResponseMessage(ItemCmdMessage stanza, ItemException ex)
         {
             var to = stanza.From;
             var from = $"{_componentDomain}";
             var id = stanza.Id;
             var body = ex.Message;
+
+            Log.Info($"{to} {body}");
 
             var to_XmlEncoded = WebUtility.HtmlEncode(to);
             var from_XmlEncoded = WebUtility.HtmlEncode(from);
@@ -443,7 +445,7 @@ namespace n3q.Xmpp
                 );
         }
 
-        async Task OnPresence(XmppPresence stanza)
+        async Task OnPresence(ItemPropsPresence stanza)
         {
             if (!_clusterConnected) { return; }
 
@@ -458,7 +460,7 @@ namespace n3q.Xmpp
             }
         }
 
-        async Task Connection_OnNormalMessage(XmppMessage stanza)
+        async Task Connection_OnNormalMessage(ItemCmdMessage stanza)
         {
             try {
                 var method = stanza.Cmd.ContainsKey("method") ? stanza.Cmd["method"] : "";
@@ -477,7 +479,7 @@ namespace n3q.Xmpp
             }
         }
 
-        async Task Connection_OnPrivateMessage(XmppMessage stanza)
+        async Task Connection_OnPrivateMessage(ItemCmdMessage stanza)
         {
             try {
                 var method = stanza.Cmd.ContainsKey("method") ? stanza.Cmd["method"] : "";
@@ -501,7 +503,7 @@ namespace n3q.Xmpp
             }
         }
 
-        async Task Connection_OnGroupchatMessage(XmppMessage stanza)
+        async Task Connection_OnGroupchatMessage(ItemCmdMessage stanza)
         {
             await Task.CompletedTask;
         }
@@ -512,7 +514,7 @@ namespace n3q.Xmpp
         // -> <presence to='hbtzfgjhg@xmpp.weblin.sui.li/jhgjzgjuz' from='user1@items.xmpp.dev.sui.li/Script1' />
         // -> <presence to='hbtzfgjhg@xmpp.weblin.sui.li/jhgjzgjuz' from='user1@items.xmpp.dev.sui.li/hbsu6rtfzgasd' />
 
-        async Task Connection_OnPresenceError(XmppPresence stanza)
+        async Task Connection_OnPresenceError(ItemPropsPresence stanza)
         {
             Log.Warning($"{nameof(Connection_OnPresenceError)}: from={stanza.From} to={stanza.To}");
 
@@ -531,7 +533,7 @@ namespace n3q.Xmpp
             await Task.CompletedTask;
         }
 
-        async Task Connection_OnPresenceAvailable(XmppPresence stanza)
+        async Task Connection_OnPresenceAvailable(ItemPropsPresence stanza)
         {
             var jid = new XmppJid(stanza.From);
             var roomId = jid.Base;
@@ -585,7 +587,7 @@ namespace n3q.Xmpp
             return inventoryItemId;
         }
 
-        async Task Connection_OnPresenceUnavailable(XmppPresence stanza)
+        async Task Connection_OnPresenceUnavailable(ItemPropsPresence stanza)
         {
             var jid = new XmppJid(stanza.From);
             var roomId = jid.Base;
@@ -621,7 +623,7 @@ namespace n3q.Xmpp
             await Task.CompletedTask;
         }
 
-        async Task Connection_OnItemAction(XmppMessage message, string user, string itemId)
+        async Task Connection_OnItemAction(ItemCmdMessage message, string user, string itemId)
         {
             var action = "";
             var args = new Dictionary<string, string>();

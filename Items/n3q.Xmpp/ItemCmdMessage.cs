@@ -10,14 +10,7 @@ namespace n3q.Xmpp
         PrivateChat,
     }
 
-    public enum XmppPresenceType
-    {
-        Available,
-        Unavailable,
-        Error
-    }
-
-    public class XmppMessage
+    public class ItemCmdMessage
     {
         public XmppMessageType MessageType { get; set; }
         public string From { get; set; }
@@ -43,13 +36,5 @@ namespace n3q.Xmpp
             }
             return defaultValue;
         }
-    }
-
-    public class XmppPresence
-    {
-        public XmppPresenceType PresenceType { get; set; }
-        public string From { get; set; }
-        public string To { get; set; }
-        public Dictionary<string, string> Props { get; set; } = new Dictionary<string, string>();
     }
 }

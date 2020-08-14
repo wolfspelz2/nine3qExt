@@ -21,11 +21,11 @@ namespace n3q.Xmpp
         private readonly int _port;
         private readonly string _secret;
         private readonly Action<Connection> _connectionStartHandler;
-        private readonly Action<XmppMessage> _xmppMessageHandler;
-        private readonly Action<XmppPresence> _xmppPresenceHandler;
+        private readonly Action<ItemCmdMessage> _xmppMessageHandler;
+        private readonly Action<ItemPropsPresence> _xmppPresenceHandler;
         private readonly Action<Connection> _connectionCloseHandler;
 
-        public Connection(string host, string componentDomain, int port, string secret, Action<Connection> connectionStartHandler, Action<XmppMessage> xmppMessageHandler, Action<XmppPresence> xmppPresenceHandler, Action<Connection> connectionCloseHandler)
+        public Connection(string host, string componentDomain, int port, string secret, Action<Connection> connectionStartHandler, Action<ItemCmdMessage> xmppMessageHandler, Action<ItemPropsPresence> xmppPresenceHandler, Action<Connection> connectionCloseHandler)
         {
             _host = host;
             _componentDomain = componentDomain;
@@ -188,7 +188,7 @@ x=345
         */
         private void OnMessage(XmlReader xmlReader)
         {
-            var message = new XmppMessage {
+            var message = new ItemCmdMessage {
                 //MessageType = (xmlReader.GetAttribute("type") ?? "normal") == "groupchat" ? XmppMessageType.Groupchat : XmppMessageType.Normal,
                 MessageType = xmlReader.GetAttribute("type") switch
                 {
@@ -239,7 +239,7 @@ x=345
         */
         private void OnPresence(XmlReader xmlReader)
         {
-            var presence = new XmppPresence {
+            var presence = new ItemPropsPresence {
                 PresenceType = xmlReader.GetAttribute("type") switch
                 {
                     "unavailable" => XmppPresenceType.Unavailable,
