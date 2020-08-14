@@ -77,7 +77,7 @@ namespace n3q.Xmpp
 
         public enum State { BeforeRoot, TagName, Attributes, Text, Tag, ClosingTag, }
 
-        public int errorVicinity = 10;
+        public int errorVicinity = 30;
         public int slashFlag = -1;
         public int openingFlag = -1;
         public Stack<string> tagStack = new Stack<string>();
@@ -97,6 +97,8 @@ namespace n3q.Xmpp
 
         public void Parse(string data)
         {
+            Log.Verbose($"-> {data}");
+
             charIndex = -1;
 
             foreach (var c in data) {
