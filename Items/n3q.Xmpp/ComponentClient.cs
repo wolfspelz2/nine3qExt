@@ -60,7 +60,7 @@ namespace n3q.Xmpp
 
         public void Send(string text)
         {
-            Log.Verbose($"-> {text}");
+            if (Log.IsVerbose) { Log.Verbose($"-> {text}"); }
             _client?.Send(text);
         }
 
@@ -72,7 +72,7 @@ namespace n3q.Xmpp
 
         void Client_OnData(byte[] data)
         {
-            Log.Verbose($"{data.Length} bytes");
+            if (Log.IsVerbose) { Log.Verbose($"{data.Length} bytes"); }
             _sax.Parse(data);
         }
 
@@ -175,7 +175,7 @@ namespace n3q.Xmpp
                 From = attributes.Get("from", "") ?? "",
                 To = attributes.Get("to", "") ?? "",
             };
-            Log.Verbose($"<- presence from={presence.From} to={presence.To} {string.Join(" ", presence.Props.Select(pair => $"{pair.Key}={pair.Value}").ToList())}");
+            if (Log.IsVerbose) { Log.Verbose($"<- presence from={presence.From} to={presence.To} {string.Join(" ", presence.Props.Select(pair => $"{pair.Key}={pair.Value}").ToList())}"); }
             _onXmppPresence?.Invoke(presence);
         }
 
@@ -207,7 +207,7 @@ namespace n3q.Xmpp
             var message = _currentMessage;
 
             if (message.Cmd.Count > 0) {
-                Log.Verbose($"<- message from={message.From} {string.Join(" ", message.Cmd.Select(pair => $"{pair.Key}={pair.Value}").ToList())}");
+                if (Log.IsVerbose) { Log.Verbose($"<- message from={message.From} {string.Join(" ", message.Cmd.Select(pair => $"{pair.Key}={pair.Value}").ToList())}"); }
                 _onXmppMessage?.Invoke(message);
             }
         }
