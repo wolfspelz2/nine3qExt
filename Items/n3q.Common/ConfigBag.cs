@@ -21,5 +21,6 @@
         public string ConfigFile = "Config.cs";
         public string ConfigRootEnvironmentVariableName = "N3Q_CONFIG_ROOT";
         public string AdditionalConfigRoot = null;
+        public string LogLevel = "";
     }
 }

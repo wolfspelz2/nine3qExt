@@ -29,6 +29,7 @@ namespace n3q.Xmpp
             Config.ParseCommandline(args);
             Config.Include(Config.ConfigFile);
             Config.Info((name, value) => ConfigSharp.Log.LogHandler(ConfigSharp.Log.Level.Info, "Config", $"{name}={value}"));
+            if (Has.Value(Config.LogLevel)) { Log.LogLevel = Log.LevelFromString(Config.LogLevel); }
 
             return RunMainAsync().Result;
         }
