@@ -239,7 +239,6 @@ export class InventoryItem
         let params = {
             'x': Math.round(x),
             'y': Math.round(y),
-            'destination': ''
         };
 
         this.inv.sendCommand(this.itemId, 'SetItemCoordinates', params);
