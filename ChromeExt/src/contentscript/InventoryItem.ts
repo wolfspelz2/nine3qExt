@@ -241,7 +241,7 @@ export class InventoryItem
             'y': Math.round(y),
         };
 
-        this.inv.sendCommand(this.itemId, 'SetItemCoordinates', params);
+        this.inv.sendItemCommand(this.itemId, 'SetItemCoordinates', params);
     }
 
     sendRezItem(x: number)
@@ -257,7 +257,7 @@ export class InventoryItem
             'destination': ''
         };
 
-        this.inv.sendCommand(this.itemId, 'Rez', params);
+        this.inv.sendItemCommand(this.itemId, 'Rez', params);
     }
 
     remove(): void

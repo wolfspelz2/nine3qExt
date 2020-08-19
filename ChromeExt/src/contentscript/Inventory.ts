@@ -197,7 +197,7 @@ export class Inventory
             'y': Math.round(y)
         };
 
-        this.sendCommand(itemId, 'Derez', params);
+        this.sendItemCommand(itemId, 'Derez', params);
     }
 
     findItem(pid: string, value: any)
@@ -210,7 +210,7 @@ export class Inventory
         return null;
     }
 
-    sendCommand(itemId: string, action: string, params: any)
+    sendItemCommand(itemId: string, action: string, params: any)
     {
         let cmd = {};
         cmd['xmlns'] = 'vp:cmd';
