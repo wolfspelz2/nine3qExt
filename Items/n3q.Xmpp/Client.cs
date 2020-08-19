@@ -30,11 +30,15 @@ namespace n3q.Xmpp
 
             Log.Info("Connecting...");
 
-            var newSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            var ihe = await Dns.GetHostEntryAsync(host);
-            var iep = new IPEndPoint(ihe.AddressList[0], port);
-            newSocket.BeginConnect(iep, new AsyncCallback(OnConnected), newSocket);
+            try {
+                var newSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                var ihe = await Dns.GetHostEntryAsync(host);
+                var iep = new IPEndPoint(ihe.AddressList[0], port);
+                newSocket.BeginConnect(iep, new AsyncCallback(OnConnected), newSocket);
+            } catch (Exception ex) {
+                Log.Error(ex);
+                OnDisconnected();
+            }
         }
 
         internal void Disconnect()

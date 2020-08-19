@@ -16,10 +16,10 @@
             if (Setup == SetupMode.Development) {
                 ClusterId = "dev";
                 ClusteringAzureTableConnectionString = "DefaultEndpointsProtocol=https;AccountName=nine3qstoragetest;AccountKey=4Ov/kZAXYi4seMphX/t6jyTmvOuXVqf8P0M5QHd3b+mpHWJOzvo5gED9H23R4hMzxhMNueXoRyW4rk4BCctRuQ==;EndpointSuffix=core.windows.net";
-                ComponentHost = "xmpp.dev.sui.li";
-                ComponentPort = 5555;//5347;//5555;
-                ComponentDomain = "itemsxmpp.dev.sui.li";
-                ComponentSecret = "28756a7ff5dce";
+                ComponentHost = "116.203.74.6";// "xmpp.dev.sui.li";
+                ComponentPort = 31338;// 5555;//5347;//5555;
+                ComponentDomain = "dev-itemsxmpp.vulcan.weblin.com";// "itemsxmpp.dev.sui.li";
+                ComponentSecret = "kfhmt84jdkfh4";// "28756a7ff5dce";
                 ExtensionWebBaseUrl = "http://localhost:5001/";
             } else if (Setup == SetupMode.Stage) {
                 ClusterId = "stage01";
