@@ -29,9 +29,25 @@ namespace n3q.Aspects
         public async Task<PropertyValue> Rez(ItemWriter toRoom, long x, string destination)
         {
             await this.AsRezable().AssertAspect(() => throw new ItemException(this.Id, toRoom.Id, ItemNotification.Fact.NotRezzed, ItemNotification.Reason.ItemIsNotRezable));
-            var parentId = await this.GetItemId(Pid.Container);
+
+            var props = await this.Get(new PidSet { Pid.InventoryX, Pid.InventoryY, Pid.Container, Pid.Owner });
+            var parentId = props.GetItemId(Pid.Container);
+            var inventoryX = props.GetInt(Pid.InventoryX);
+            var inventoryY = props.GetInt(Pid.InventoryY);
+            var owner = props.GetString(Pid.Owner);
+            var label = props.GetString(Pid.Label);
+
             await toRoom.AsContainer().AddChild(this);
-            await this.Modify(new PropertySet { [Pid.RezzedX] = x, [Pid.RezableIsRezzing] = true, [Pid.RezableOrigin] = parentId }, PidSet.Empty);
+            await this.Modify(new PropertySet { [Pid.RezzedX] = x, [Pid.RezableIsRezzing] = true, [Pid.RezableOrigin] = parentId, [Pid.RezzedDestination] = destination }, PidSet.Empty);
+
+            if (Has.Value(parentId)) {
+                var proxy = await NewItemFromTemplate("PageProxy", owner); // DevSpec.Template.PageProxy
+                await proxy.Modify(new PropertySet { [Pid.RezableProxyTargetItem] = this.Id, [Pid.RezableProxyDestination] = destination, [Pid.RezableProxyTargetLabel] = label, [Pid.InventoryX] = inventoryX, [Pid.InventoryY] = inventoryY }, PidSet.Empty);
+
+                var parent = await WritableItem(parentId);
+                await parent.AsContainer().AddChild(proxy);
+            }
+
             return true;
         }
 

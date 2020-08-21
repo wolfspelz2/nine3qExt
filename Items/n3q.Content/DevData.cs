@@ -198,7 +198,6 @@ namespace n3q.Content
                         [Pid.AnimationsUrl] = ItemService.ItemBaseVar + "PirateFlag/animations.xml",
                         [Pid.PageClaimAspect] = true,
                         [Pid.RezableAspect] = true,
-                        [Pid.RezzableProxyTemplate] = nameof(DevSpec.Template.PageProxy),
                     };
                     text[DevSpec.en][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Pirate Flag";
                     text[DevSpec.de][$"ItemValue{Pid.Label}.{props[Pid.Label]}"] = "Piratenflagge";
