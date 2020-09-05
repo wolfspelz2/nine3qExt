@@ -4,14 +4,18 @@ using Orleans;
 
 namespace n3q.GrainInterfaces
 {
-    public interface IItemRef : IGrainWithStringKey
+    public static class TestStringStream
     {
-        Task SetItem(string itemId);
-        Task<string> GetItem();
-        Task Delete();
+        public const string Provider = "SMSProvider";
+        public const string Namespace = "Value";
+    }
 
+    public interface ITestString : IGrainWithStringKey
+    {
+        Task Set(string value);
+        Task<string> Get();
+        Task<Guid> GetStreamId();
         Task DeletePersistentStorage();
-        Task ReloadPersistentStorage();
         Task Deactivate();
     }
 }
