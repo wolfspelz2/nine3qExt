@@ -88,6 +88,7 @@ export class VpiResolver
             let delegate = '';
             let location = '';
             let xml = $.parseXML(data);
+            let logData = {};
             for (let vpiChildIndex = 0; vpiChildIndex < xml.documentElement.children.length; vpiChildIndex++) {
                 let vpiChild = xml.documentElement.children[vpiChildIndex];
 
@@ -100,7 +101,7 @@ export class VpiResolver
                 let regex = new RegExp(matchExpr);
                 let unsafeMatchResult = regex.exec(documentUrl);
 
-                let matchResult : Array<string> = null;
+                let matchResult: Array<string> = null;
                 if (unsafeMatchResult) {
                     matchResult = new Array<string>();
                     for (let iMatch = 0; iMatch < unsafeMatchResult.length; iMatch++) {
@@ -120,6 +121,8 @@ export class VpiResolver
                         break;
 
                     } else if (vpiChild.tagName == 'location') {
+
+                        logData['regex'] = matchExpr;
 
                         let protocol = 'xmpp';
                         let server = '';
@@ -144,6 +147,9 @@ export class VpiResolver
 
                                         let nameExpr = locationChild.textContent;
                                         let name = this.replaceMatch(nameExpr, matchResult);
+
+                                        logData['replace'] = nameExpr;
+                                        logData['name'] = name;
 
                                         if (hash && hash != '') {
                                             let hasher = crypto.createHash(hash.toLowerCase());
@@ -187,6 +193,7 @@ export class VpiResolver
                             }
                         }
                         location = protocol + ':' + room + suffix + '@' + server;
+                        log.debug('VpiResolver', logData);
                         resultType = VpiResolverEvaluateResultType.Location;
                         break;
                     }

@@ -10,7 +10,7 @@ export class _Changes
             ['Add', 'Stay in the room if vidconf|inventory|chat are open'],
             ['Change', 'Use new prod cluster'],
             ['Fix', 'No avatar in sleep state without sleep animation'],
-            ['Fix', 'Navigate on single page applications'],
+            ['Fix', 'Navigate on single page applications (check URL continuously)'],
         ]],
         ['1.0.4', 'Vidconf', [
             ['Add', 'Videoconf demo'],
