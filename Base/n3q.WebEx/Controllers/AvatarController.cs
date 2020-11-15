@@ -30,6 +30,12 @@ namespace n3q.WebEx.Controllers
             _cache = memoryCache;
         }
 
+        class DownloadUrl
+        {
+            public string Group;
+            public string Url;
+        }
+
         class CachedResponse
         {
             public byte[] Data;
@@ -132,7 +138,7 @@ namespace n3q.WebEx.Controllers
             }
 
             var imageClient = new HttpClient() { MaxResponseContentBufferSize = 100000 };
-            var downloadUrls = new Dictionary<string, string>();
+            var downloadUrls = new Dictionary<string, DownloadUrl>();
 
             var inSequences = inDoc.GetElementsByTagName("sequence");
             foreach (XmlNode inSequence in inSequences) {
@@ -170,7 +176,7 @@ namespace n3q.WebEx.Controllers
 
                     if (inAnimation.Attributes["duration"] != null) { SetXmlAttribute(outDoc, outAnimation, "duration", inAnimation.Attributes["duration"].Value); }
 
-                    downloadUrls.Add(name, imageUrl);
+                    downloadUrls.Add(name, new DownloadUrl { Group = group, Url = imageUrl });
 
                     outSequence.AppendChild(outAnimation);
                     outRoot.AppendChild(outSequence);
@@ -181,9 +187,9 @@ namespace n3q.WebEx.Controllers
             try {
                 foreach (var pair in downloadUrls) {
                     var sequence = pair.Key;
-                    var url = pair.Value;
-                    Log.Info($"Download image: {url}");
-                    var response = imageClient.GetAsync(url);
+                    var downloadUrl = pair.Value;
+                    Log.Info($"Download image: {downloadUrl.Group} {downloadUrl.Url}");
+                    var response = imageClient.GetAsync(downloadUrl.Url);
                     imageResponses.Add(sequence, response);
                 }
                 _ = await Task.WhenAll(imageResponses.Select(pair => pair.Value));
@@ -225,7 +231,9 @@ namespace n3q.WebEx.Controllers
                     var sequenceNode = sequenceNodes[0];
                     var animationNode = sequenceNode.FirstChild;
 
-                    if (Config.AvatarProxyPreloadSequenceNames.Contains(sequence)) {
+                    var group = "";
+                    if (downloadUrls.ContainsKey(sequence)) { group = downloadUrls[sequence].Group; }
+                    if (Config.AvatarProxyPreloadSequenceNames.Contains(group)) {
                         var outDataBase64Encoded = Convert.ToBase64String(imageData);
                         var outDataUrl = "data:image/gif;base64," + outDataBase64Encoded;
                         SetXmlAttribute(outDoc, animationNode, "src", outDataUrl);
