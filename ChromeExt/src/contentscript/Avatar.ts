@@ -226,90 +226,21 @@ export class Avatar implements IObserver
         }
     }
 
-    getImageBlob(url: string): Promise<Blob>
+    async getDataUrlImage(imageUrl: string): Promise<string>
     {
-        return new Promise(async resolve =>
+        let proxiedUrl = as.String(Config.get('avatars.dataUrlProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(imageUrl));
+        return new Promise(async (resolve, reject) =>
         {
-            let response = await fetch(url);
-            let blob = response.blob();
-            resolve(blob);
-        });
-    }
-
-    getImageBlobBackground(url: string): Promise<Blob>
-    {
-        return new Promise(async resolve =>
-        {
-            let response = await BackgroundMessage.fetchUrl(url, '');
-            if (response.ok) {
-                var d = response.data;
-                var l = d.length;
-                var array = new Uint8Array(l);
-                for (var i = 0; i < l; i++) {
-                    array[i] = d.charCodeAt(i);
+            try {
+                let response = await BackgroundMessage.fetchUrl(proxiedUrl, '');
+                if (response.ok) {
+                    log.info(response.data);
+                    resolve(response.data);
                 }
-                var blob = new Blob([array], { type: 'image/gif' });
-        
-                resolve(blob);
+            } catch (error) {
+                reject(error);
             }
         });
-    }
-
-    blobToDataUrl(blob: Blob): Promise<string | ArrayBuffer>
-    {
-        return new Promise(resolve =>
-        {
-            let reader = new FileReader();
-            reader.onload = function ()
-            {
-                let dataUrl = reader.result;
-                resolve(dataUrl);
-            };
-            reader.readAsDataURL(blob);
-        });
-    }
-
-    dataToDataUrl(data: any): string
-    {
-        // let blob = new Blob([data], { type: 'image/gif' });
-        // log.info(blob);
-        // let url = this.blobToDataUrl(blob);
-        // log.info(url);
-        // return url;
-
-        let base64encodedData = Utils.base64Encode(data);
-        return 'data:base64,' + base64encodedData;
-
-        // let base64encodedData = Utils.base64Encode(unescape(encodeURIComponent(data)));
-        // return 'data:image/gif;base64,' + base64encodedData;
-
-        // var buffer = Buffer.from(data);
-        // var base64encodedData = buffer.toString('base64');
-        // return 'data:image/gif;base64,' + base64encodedData;
-
-        // let binaryStringSymbols = data.map(e => String.fromCharCode(e));
-        // log.info(binaryStringSymbols);
-        // let base64encodedData = binaryStringSymbols.join('');
-        // log.info(base64encodedData);
-        // return 'data:image/gif;base64,' + base64encodedData;
-
-        //: Promise<string | ArrayBuffer>
-        // var blob = new Blob(data, { type: 'image/gif' });
-        // return this.blobToDataUrl(data);
-    }
-
-    async getBase64Image(url: string): Promise<string | ArrayBuffer>
-    {
-        let blob = await this.getImageBlobBackground(url);
-        let dataUrl = await this.blobToDataUrl(blob);
-
-        // let blob = await this.getImageBlob(url);
-        // let dataUrl = await this.blobToDataUrl(blob);
-
-        // let data = await this.getImageData(url);
-        // let dataUrl = await this.dataToDataUrl(data);
-
-        return dataUrl;
     }
 
     setImage(url: string): void
@@ -318,9 +249,9 @@ export class Avatar implements IObserver
             $(this.elem).css({ 'background-image': 'url("' + url + '")' });
         } else {
             try {
-                this.getBase64Image(url).then(base64Image =>
+                this.getDataUrlImage(url).then(dataUrlImage =>
                 {
-                    $(this.elem).css({ 'background-image': 'url("' + base64Image + '")' });
+                    $(this.elem).css({ 'background-image': 'url("' + dataUrlImage + '")' });
                 });
             } catch (error) {
                 $(this.elem).css({ 'background-image': 'url("' + url + '")' });

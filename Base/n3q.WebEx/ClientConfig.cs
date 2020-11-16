@@ -30,6 +30,7 @@ namespace n3q.WebEx
     {
         public string animationsUrlTemplate { get; set; }
         public string animationsProxyUrlTemplate { get; set; }
+        public string dataUrlProxyUrlTemplate { get; set; }
         public List<string> list { get; set; }
     }
 

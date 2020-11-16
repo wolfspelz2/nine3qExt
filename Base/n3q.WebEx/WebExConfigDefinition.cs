@@ -14,6 +14,7 @@ namespace n3q.WebEx
         public string ItemWebBaseUrl = DefaultItemWebBaseUrl;
         public string IdentificatorUrlTemplate = DefaultExtensionWebBaseUrl + "Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}";
         public string AnimationsProxyUrlTemplate = DefaultExtensionWebBaseUrl + "Avatar/InlineData?url={url}";
+        public string DataUrlProxyUrlTemplate = DefaultExtensionWebBaseUrl + "Avatar/DataUrl?url={url}";
         public string ImageProxyUrlTemplate = DefaultExtensionWebBaseUrl + "Avatar/HttpBridge?url={url}";
         public string ItemConfigUrlTemplate = DefaultItemWebBaseUrl + "Config?id={id}";
 

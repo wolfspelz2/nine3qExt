@@ -47,6 +47,7 @@ namespace n3q.WebEx.Controllers
 
             config.avatars.animationsUrlTemplate = Config.AnimationsUrlTemplate;
             config.avatars.animationsProxyUrlTemplate = Config.AnimationsProxyUrlTemplate;
+            config.avatars.dataUrlProxyUrlTemplate = Config.DataUrlProxyUrlTemplate;
             config.avatars.list = new List<string> {
                 "0901/japan02_f",
                 "0901/japan06_f",

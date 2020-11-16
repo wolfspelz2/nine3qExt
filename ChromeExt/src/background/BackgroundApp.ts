@@ -116,10 +116,6 @@ export class BackgroundApp
                 return this.handle_fetchUrl(message.url, message.version, sendResponse);
             } break;
 
-            case BackgroundMessage.type_fetchBlob: {
-                return this.handle_fetchBlob(message.url, message.version, sendResponse);
-            } break;
-
             case BackgroundMessage.type_jsonRpc: {
                 return this.handle_jsonRpc(message.url, message.json, sendResponse);
             } break;
@@ -254,47 +250,6 @@ export class BackgroundApp
                 sendResponse({ 'ok': false, 'status': error.status, 'statusText': error.statusText });
             }
         }
-        return false;
-    }
-
-    uint8ArrayToArray(uint8Array)
-    {
-        var array = [];
-        var it = array.entries();
-        for (var i = 0; i < uint8Array.byteLength; i++) {
-            array[i] = it.next().value;
-        }
-
-        return array;
-    }
-
-    handle_fetchBlob(url: any, version: any, sendResponse: (response?: any) => void): boolean
-    {
-        try {
-            fetch(url, { cache: 'reload' })
-                .then(async httpResponse =>
-                {
-                    if (httpResponse.ok) {
-                        let blob = await httpResponse.blob();
-                        var buffer = await blob.arrayBuffer();
-                        let array = this.uint8ArrayToArray(buffer);
-                        let response = { 'ok': true, 'data': array };
-                        sendResponse(response);
-                    } else {
-                        throw { 'ok': false, 'status': httpResponse.status, 'statusText': httpResponse.statusText };
-                    }
-                })
-                .catch(ex =>
-                {
-                    log.debug('BackgroundApp.handle_fetchBlob', 'catch', url, ex);
-                    sendResponse({ 'ok': false, 'status': ex.name, 'statusText': ex.message });
-                });
-            return true;
-        } catch (error) {
-            log.debug('BackgroundApp.handle_fetchBlob', 'exception', url, error);
-            sendResponse({ 'ok': false, 'status': error.status, 'statusText': error.statusText });
-        }
-
         return false;
     }
 

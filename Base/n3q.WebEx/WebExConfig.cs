@@ -33,6 +33,7 @@
 
             IdentificatorUrlTemplate = ExtensionWebBaseUrl + "Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}";
             AnimationsProxyUrlTemplate = ExtensionWebBaseUrl + "Avatar/InlineData?url={url}";
+            DataUrlProxyUrlTemplate = ExtensionWebBaseUrl + "Avatar/DataUrl?url={url}";
             ImageProxyUrlTemplate = ExtensionWebBaseUrl + "Avatar/HttpBridge?url={url}";
             ItemConfigUrlTemplate = ItemWebBaseUrl + "Config?id={id}";
 
