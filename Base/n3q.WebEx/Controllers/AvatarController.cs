@@ -103,6 +103,42 @@ namespace n3q.WebEx.Controllers
             return xml;
         }
 
+        [Route("[controller]/DataUrl")]
+        [HttpGet]
+        public async Task<string> DataUrl(string url)
+        {
+            Log.Info(url);
+
+            if (_cache.Get(url) is string dataUrl) {
+                return dataUrl;
+            }
+
+            dataUrl = await CreateDataUrl(url);
+
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetSlidingExpiration(TimeSpan.FromSeconds(3600))
+                        .SetSize(dataUrl.Length)
+                        ;
+            _cache.Set(url, dataUrl, cacheEntryOptions);
+
+            return dataUrl;
+        }
+
+        private async Task<string> CreateDataUrl(string animationUrl)
+        {
+            var imageClient = new HttpClient() { MaxResponseContentBufferSize = 100000 };
+            var response = await imageClient.GetAsync(animationUrl);
+            if (response.IsSuccessStatusCode) {
+                var imageData = await response.Content.ReadAsByteArrayAsync();
+                var mimeType = response.Content.Headers.ContentType.MediaType;
+                var outDataBase64Encoded = Convert.ToBase64String(imageData);
+                var dataUrl = "data:" + mimeType + ";base64," + outDataBase64Encoded;
+                return dataUrl;
+            }
+
+            throw new Exception($"Response {response.StatusCode} {response.ReasonPhrase}");
+        }
+
         private async Task<string> CreateXml(string avatarUrl)
         {
             var baseUrl = "";
@@ -198,6 +234,7 @@ namespace n3q.WebEx.Controllers
             }
 
             var imageBytes = new Dictionary<string, Task<byte[]>>();
+            var imageMimeType = new Dictionary<string, string>();
             try {
                 foreach (var pair in imageResponses) {
                     var sequence = pair.Key;
@@ -205,6 +242,10 @@ namespace n3q.WebEx.Controllers
                     if (response.Result.IsSuccessStatusCode) {
                         var bytes = response.Result.Content.ReadAsByteArrayAsync();
                         imageBytes.Add(sequence, bytes);
+                        var mimeType = response.Result.Content.Headers.ContentType.MediaType;
+                        if (!string.IsNullOrEmpty(mimeType)) {
+                            imageMimeType.Add(sequence, mimeType);
+                        }
                     } else {
                         Log.Warning($"Image download failed: {sequence}: {downloadUrls[sequence]}");
                     }
@@ -235,7 +276,9 @@ namespace n3q.WebEx.Controllers
                     if (downloadUrls.ContainsKey(sequence)) { group = downloadUrls[sequence].Group; }
                     if (Config.AvatarProxyPreloadSequenceNames.Contains(group)) {
                         var outDataBase64Encoded = Convert.ToBase64String(imageData);
-                        var outDataUrl = "data:image/gif;base64," + outDataBase64Encoded;
+                        var mimeType = "image/gif";
+                        if (imageMimeType.ContainsKey(sequence)) { mimeType = imageMimeType[sequence]; }
+                        var outDataUrl = "data:" + mimeType + ";base64," + outDataBase64Encoded;
                         SetXmlAttribute(outDoc, animationNode, "src", outDataUrl);
                     }
 
