@@ -11,6 +11,16 @@ export class FetchUrlResponse
     ) { }
 }
 
+export class FetchBlobResponse
+{
+    constructor(
+        public ok: boolean,
+        public status: string,
+        public statusText: string,
+        public data: []
+    ) { }
+}
+
 export class BackgroundMessage
 {
     static type_jsonRpc = 'jsonRpc';
@@ -37,6 +47,22 @@ export class BackgroundMessage
         {
             try {
                 chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_fetchUrl, 'url': url, 'version': version }, response =>
+                {
+                    resolve(response);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    static type_fetchBlob = 'fetchBlob';
+    static fetchBlob(url: string, version: string): Promise<FetchBlobResponse>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            try {
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_fetchBlob, 'url': url, 'version': version }, response =>
                 {
                     resolve(response);
                 });

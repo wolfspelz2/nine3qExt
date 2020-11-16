@@ -236,7 +236,26 @@ export class Avatar implements IObserver
         });
     }
 
-    blobToBase64(blob: Blob): Promise<string | ArrayBuffer>
+    getImageBlobBackground(url: string): Promise<Blob>
+    {
+        return new Promise(async resolve =>
+        {
+            let response = await BackgroundMessage.fetchUrl(url, '');
+            if (response.ok) {
+                var d = response.data;
+                var l = d.length;
+                var array = new Uint8Array(l);
+                for (var i = 0; i < l; i++) {
+                    array[i] = d.charCodeAt(i);
+                }
+                var blob = new Blob([array], { type: 'image/gif' });
+        
+                resolve(blob);
+            }
+        });
+    }
+
+    blobToDataUrl(blob: Blob): Promise<string | ArrayBuffer>
     {
         return new Promise(resolve =>
         {
@@ -250,11 +269,47 @@ export class Avatar implements IObserver
         });
     }
 
+    dataToDataUrl(data: any): string
+    {
+        // let blob = new Blob([data], { type: 'image/gif' });
+        // log.info(blob);
+        // let url = this.blobToDataUrl(blob);
+        // log.info(url);
+        // return url;
+
+        let base64encodedData = Utils.base64Encode(data);
+        return 'data:base64,' + base64encodedData;
+
+        // let base64encodedData = Utils.base64Encode(unescape(encodeURIComponent(data)));
+        // return 'data:image/gif;base64,' + base64encodedData;
+
+        // var buffer = Buffer.from(data);
+        // var base64encodedData = buffer.toString('base64');
+        // return 'data:image/gif;base64,' + base64encodedData;
+
+        // let binaryStringSymbols = data.map(e => String.fromCharCode(e));
+        // log.info(binaryStringSymbols);
+        // let base64encodedData = binaryStringSymbols.join('');
+        // log.info(base64encodedData);
+        // return 'data:image/gif;base64,' + base64encodedData;
+
+        //: Promise<string | ArrayBuffer>
+        // var blob = new Blob(data, { type: 'image/gif' });
+        // return this.blobToDataUrl(data);
+    }
+
     async getBase64Image(url: string): Promise<string | ArrayBuffer>
     {
-        let blob = await this.getImageBlob(url);
-        let base64 = await this.blobToBase64(blob);
-        return base64;
+        let blob = await this.getImageBlobBackground(url);
+        let dataUrl = await this.blobToDataUrl(blob);
+
+        // let blob = await this.getImageBlob(url);
+        // let dataUrl = await this.blobToDataUrl(blob);
+
+        // let data = await this.getImageData(url);
+        // let dataUrl = await this.dataToDataUrl(data);
+
+        return dataUrl;
     }
 
     setImage(url: string): void
