@@ -6,9 +6,10 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
-        ['1.0.5', '?', [
+        ['1.0.5', 'SPA', [
             ['Add', 'Stay in the room if vidconf|inventory|chat are open'],
             ['Change', 'Use new prod cluster'],
+            ['Change', 'Preload only idle, move animations'],
             ['Fix', 'No avatar in sleep state without sleep animation'],
             ['Fix', 'Navigate on single page applications (check URL continuously)'],
         ]],
