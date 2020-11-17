@@ -234,7 +234,6 @@ export class Avatar implements IObserver
             try {
                 let response = await BackgroundMessage.fetchUrl(proxiedUrl, '');
                 if (response.ok) {
-                    log.info(response.data);
                     resolve(response.data);
                 }
             } catch (error) {
