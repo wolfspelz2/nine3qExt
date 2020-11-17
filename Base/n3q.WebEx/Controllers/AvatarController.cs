@@ -47,6 +47,7 @@ namespace n3q.WebEx.Controllers
         public async Task<FileContentResult> HttpBridge(string url)
         {
             Log.Info(url);
+            AssertProxiedDomain(url);
 
             if (_cache.Get(url) is CachedResponse cachedResponse) {
                 return new FileContentResult(cachedResponse.Data, cachedResponse.ContentType);
@@ -68,6 +69,7 @@ namespace n3q.WebEx.Controllers
             return new FileContentResult(data, contentType);
         }
 
+        // http://localhost:5001/Avatar/InlineData?url=https%3A%2F%2Fstorage.zweitgeist.com%2Findex.php%2F1022%2Favatar2
         [Route("[controller]/InlineData")]
         [HttpGet]
         public async Task<string> InlineData(string url)
@@ -103,11 +105,15 @@ namespace n3q.WebEx.Controllers
             return xml;
         }
 
+        // http://localhost:5001/Avatar/DataUrl?url=https://avatar.zweitgeist.com/gif/002/sportive03_m/idle-1.gif
+        // http://localhost:5001/Avatar/DataUrl?url=http://avatar.zweitgeist.com/gif/002/sportive03_m/idle-1.gif
+        // http://localhost:5001/Avatar/DataUrl?url=https://files.zweitgeist.com/13/ca/1f/a35a13223f9a97c674bc9354b01e7fa8e0.gif
         [Route("[controller]/DataUrl")]
         [HttpGet]
         public async Task<string> DataUrl(string url)
         {
             Log.Info(url);
+            AssertProxiedDomain(url);
 
             if (_cache.Get(url) is string dataUrl) {
                 return dataUrl;
@@ -128,15 +134,26 @@ namespace n3q.WebEx.Controllers
         {
             var imageClient = new HttpClient() { MaxResponseContentBufferSize = 100000 };
             var response = await imageClient.GetAsync(animationUrl);
-            if (response.IsSuccessStatusCode) {
-                var imageData = await response.Content.ReadAsByteArrayAsync();
-                var mimeType = response.Content.Headers.ContentType.MediaType;
-                var outDataBase64Encoded = Convert.ToBase64String(imageData);
-                var dataUrl = "data:" + mimeType + ";base64," + outDataBase64Encoded;
-                return dataUrl;
+            if (!response.IsSuccessStatusCode) {
+                throw new Exception($"Response {(int)response.StatusCode} {response.ReasonPhrase} {animationUrl}");
             }
 
-            throw new Exception($"Response {response.StatusCode} {response.ReasonPhrase}");
+            var imageData = await response.Content.ReadAsByteArrayAsync();
+            var mimeType = response.Content.Headers.ContentType.MediaType;
+            var outDataBase64Encoded = Convert.ToBase64String(imageData);
+            var dataUrl = "data:" + mimeType + ";base64," + outDataBase64Encoded;
+            return dataUrl;
+
+        }
+
+        private void AssertProxiedDomain(string url)
+        {
+            var uri = new Uri(url);
+            var hostname = uri.Host;
+            var isAllowedDomain = Config.AvatarProxyAllowedDomains.Any(domain => hostname.EndsWith(domain));
+            if (!isAllowedDomain) {
+                throw new Exception($"Domain {hostname} not proxied");
+            }
         }
 
         private async Task<string> CreateXml(string avatarUrl)

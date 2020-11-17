@@ -17,6 +17,7 @@ namespace n3q.WebEx
         public string DataUrlProxyUrlTemplate = DefaultExtensionWebBaseUrl + "Avatar/DataUrl?url={url}";
         public string ImageProxyUrlTemplate = DefaultExtensionWebBaseUrl + "Avatar/HttpBridge?url={url}";
         public string ItemConfigUrlTemplate = DefaultItemWebBaseUrl + "Config?id={id}";
+        public List<string> AvatarProxyAllowedDomains = new List<string> { "zweitgeist.com" };
 
         public string AnimationsUrlTemplate = "https://avatar.zweitgeist.com/gif/{id}/config.xml";
         public List<string> AvatarProxyPreloadSequenceNames = new List<string> { "idle", "moveright", "moveleft" };
