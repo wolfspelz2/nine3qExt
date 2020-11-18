@@ -60,6 +60,9 @@ export class Config
             vCardAvatarFallback: false,
             vCardAvatarFallbackOnHover: true,
             vidconfUrl: 'https://jitsi.vulcan.weblin.com/{room}#userInfo.displayName="{name}"',
+            vidconfBottom: 200,
+            vidconfWidth: 600,
+            vidconfHeight: 400,
         },
         xmpp: {
             service: 'wss://xmpp.vulcan.weblin.com/xmpp-websocket',

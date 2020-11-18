@@ -30,21 +30,31 @@ export class Window
         if (!this.windowElem) {
             let windowId = Utils.randomString(15);
             let resizable = as.Bool(options.resizable, false);
+            let popoutable = as.Bool(options.popoutable, false);
 
             let windowElem = <HTMLElement>$('<div id="' + windowId + '" class="n3q-base n3q-window n3q-shadow-medium" data-translate="children" />').get(0);
             let titleBarElem = <HTMLElement>$('<div class="n3q-base n3q-window-title-bar" data-translate="children" />').get(0);
             let titleElem = <HTMLElement>$('<div class="n3q-base n3q-window-title" data-translate="children" />').get(0);
             let titleTextElem = <HTMLElement>$('<div class="n3q-base n3q-window-title-text">' + (options.titleText ? options.titleText : '') + '</div>').get(0);
+
+            let popoutElem = popoutable ? <HTMLElement>$(
+                `<div class="n3q-base n3q-window-button n3q-window-button-2" title="Popout" data-translate="attr:title:Common">
+                    <div class="n3q-base n3q-button-symbol n3q-button-popout" />
+                </div>`
+            ).get(0) : null;
+
             let closeElem = <HTMLElement>$(
                 `<div class="n3q-base n3q-window-button" title="Close" data-translate="attr:title:Common">
                     <div class="n3q-base n3q-button-symbol n3q-button-close" />
                 </div>`
             ).get(0);
+
             let contentElem = <HTMLElement>$('<div class="n3q-base n3q-window-content" data-translate="children" />').get(0);
             let resizeElem = resizable ? <HTMLElement>$('<div class="n3q-base n3q-window-resize n3q-window-resize-se"/>').get(0) : null;
 
             $(titleElem).append(titleTextElem);
             $(titleBarElem).append(titleElem);
+            if (popoutable) { $(titleBarElem).append(popoutElem); }
             $(titleBarElem).append(closeElem);
             $(windowElem).append(titleBarElem);
 
@@ -81,6 +91,11 @@ export class Window
                     },
                 });
             }
+
+            $(popoutElem).click(ev =>
+            {
+                this.popout();
+            });
 
             this.isClosing = false;
             $(closeElem).click(ev =>
@@ -143,6 +158,18 @@ export class Window
     isOpen(): boolean
     {
         return this.windowElem != null;
+    }
+
+    popout(): void
+    {
+        let params = `scrollbars=no,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=600,height=300,left=100,top=100`;
+        let popout = window.open('about:blank', Utils.randomString(10), params);
+        popout.focus();
+        popout.onload = function ()
+        {
+            let html = `<div style="font-size:30px">Popout</div>`;
+            popout.document.body.insertAdjacentHTML('afterbegin', html);
+        };
     }
 
     private isClosing: boolean;
