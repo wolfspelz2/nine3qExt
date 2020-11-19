@@ -30,16 +30,16 @@ export class Window
         if (!this.windowElem) {
             let windowId = Utils.randomString(15);
             let resizable = as.Bool(options.resizable, false);
-            let popoutable = as.Bool(options.popoutable, false);
+            let undockable = as.Bool(options.undockable, false);
 
             let windowElem = <HTMLElement>$('<div id="' + windowId + '" class="n3q-base n3q-window n3q-shadow-medium" data-translate="children" />').get(0);
             let titleBarElem = <HTMLElement>$('<div class="n3q-base n3q-window-title-bar" data-translate="children" />').get(0);
             let titleElem = <HTMLElement>$('<div class="n3q-base n3q-window-title" data-translate="children" />').get(0);
             let titleTextElem = <HTMLElement>$('<div class="n3q-base n3q-window-title-text">' + (options.titleText ? options.titleText : '') + '</div>').get(0);
 
-            let popoutElem = popoutable ? <HTMLElement>$(
-                `<div class="n3q-base n3q-window-button n3q-window-button-2" title="Popout" data-translate="attr:title:Common">
-                    <div class="n3q-base n3q-button-symbol n3q-button-popout" />
+            let undockElem = undockable ? <HTMLElement>$(
+                `<div class="n3q-base n3q-window-button n3q-window-button-2" title="Undock" data-translate="attr:title:Common">
+                    <div class="n3q-base n3q-button-symbol n3q-button-undock" />
                 </div>`
             ).get(0) : null;
 
@@ -54,7 +54,7 @@ export class Window
 
             $(titleElem).append(titleTextElem);
             $(titleBarElem).append(titleElem);
-            if (popoutable) { $(titleBarElem).append(popoutElem); }
+            if (undockable) { $(titleBarElem).append(undockElem); }
             $(titleBarElem).append(closeElem);
             $(windowElem).append(titleBarElem);
 
@@ -92,9 +92,9 @@ export class Window
                 });
             }
 
-            $(popoutElem).click(ev =>
+            $(undockElem).click(ev =>
             {
-                this.popout();
+                this.undock();
             });
 
             this.isClosing = false;
@@ -160,15 +160,15 @@ export class Window
         return this.windowElem != null;
     }
 
-    popout(): void
+    undock(): void
     {
         let params = `scrollbars=no,resizable=yes,status=no,location=no,toolbar=no,menubar=no,width=600,height=300,left=100,top=100`;
-        let popout = window.open('about:blank', Utils.randomString(10), params);
-        popout.focus();
-        popout.onload = function ()
+        let undocked = window.open('about:blank', Utils.randomString(10), params);
+        undocked.focus();
+        undocked.onload = function ()
         {
-            let html = `<div style="font-size:30px">Popout</div>`;
-            popout.document.body.insertAdjacentHTML('afterbegin', html);
+            let html = `<div style="font-size:30px">Undocked</div>`;
+            undocked.document.body.insertAdjacentHTML('afterbegin', html);
         };
     }
 

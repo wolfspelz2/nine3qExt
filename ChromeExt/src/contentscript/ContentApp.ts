@@ -110,6 +110,18 @@ export class ContentApp
             log.debug(error.message);
         }
 
+
+        {
+            let pageUrl = Browser.getCurrentPageUrl();
+            let parsedUrl = new URL(pageUrl);
+            let ignoredDomains : Array<string> = Config.get('vp.ignoredDomainSuffixes', []);
+            for (let i = 0; i < ignoredDomains.length; i++) {
+                if (parsedUrl.host.endsWith(ignoredDomains[i])) {
+                    return;
+                }
+            }
+        }
+
         await this.initItemProviders();
 
         await Utils.sleep(as.Float(Config.get('vp.deferPageEnterSec', 1)) * 1000);

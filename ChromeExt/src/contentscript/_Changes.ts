@@ -6,6 +6,9 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
+        ['1.0.6', '?', [
+            ['Add', 'Undock vidconf window'],
+        ]],
         ['1.0.5', 'SPA', [
             ['Add', 'Stay in the room if vidconf|inventory|chat are open'],
             ['Change', 'Use new prod cluster'],

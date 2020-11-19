@@ -26,6 +26,7 @@ export class Config
             deferPageEnterSec: 0.3,
             vpiRoot: 'https://lms.virtual-presence.org/v7/root.xml',
             vpiMaxIterations: 15,
+            ignoredDomainSuffixes: ['vulcan.weblin.com'],
         },
         config: {
             // serviceUrl: 'https://config.weblin.sui.li/',
@@ -104,6 +105,7 @@ export class Config
             translations: {
                 'en-US': {
                     'Common.Close': 'Close',
+                    'Common.Undock': 'Open in separate window',
 
                     'Chatin.Enter chat here...': 'Enter chat here...',
                     'Chatin.SendChat': 'Send chat',
@@ -152,6 +154,7 @@ export class Config
                 },
                 'de-DE': {
                     'Common.Close': 'Schließen',
+                    'Common.Undock': 'Im eigenen Fenster öffnen',
 
                     'Chatin.Enter chat here...': 'Chat Text hier...',
                     'Chatin.SendChat': 'Chat abschicken',
