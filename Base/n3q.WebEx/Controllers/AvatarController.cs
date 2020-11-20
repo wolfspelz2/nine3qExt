@@ -42,6 +42,17 @@ namespace n3q.WebEx.Controllers
             public string ContentType;
         }
 
+        [Route("[controller]/InvalidateCache")]
+        [HttpGet]
+        public string InvalidateCache(string url)
+        {
+            Log.Info(url);
+
+            _cache.Remove(url);
+
+            return url;
+        }
+
         [Route("[controller]/HttpBridge")]
         [HttpGet]
         public async Task<FileContentResult> HttpBridge(string url)
