@@ -102,8 +102,6 @@ export class Room
 
         let presence = xml('presence', { to: this.jid + '/' + this.resource })
             .append(
-                xml('x', { xmlns: 'vp:props', 'Nickname': this.resource, 'AvatarId': this.avatar, 'nickname': this.resource, 'avatar': this.avatar }))
-            .append(
                 xml('x', { xmlns: 'firebat:avatar:state', })
                     .append(xml('position', { x: as.Int(this.posX) }))
             )
@@ -112,6 +110,10 @@ export class Room
         if (identityUrl != '') {
             presence.append(
                 xml('x', { xmlns: 'firebat:user:identity', 'jid': this.userJid, 'src': identityUrl, 'digest': identityDigest })
+            );
+        } else {
+            presence.append(
+                xml('x', { xmlns: 'vp:props', 'Nickname': this.resource, 'AvatarId': this.avatar, 'nickname': this.resource, 'avatar': this.avatar })
             );
         }
 
