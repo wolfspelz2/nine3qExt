@@ -258,9 +258,9 @@ export class Avatar implements IObserver
         }
     }
 
-    setSize(w: number, h: number)
+    setSize(width: number, height: number)
     {
-        $(this.elem).css({ 'width': w + 'px', 'height': h + 'px', 'left': -(w / 2) });
+        $(this.elem).css({ 'width': width + 'px', 'height': height + 'px', 'left': -(width / 2) });
     }
 
     setCondition(condition: string): void
@@ -287,6 +287,11 @@ export class Avatar implements IObserver
         if (response.ok) {
             try {
                 let parsed = AnimationsXml.AnimationsXml.parseXml(url, response.data);
+                let width = as.Int(parsed.params['width'], -1);
+                let height = as.Int(parsed.params['height'], -1);
+                if (width > 0 && height > 0) {
+                    this.setSize(width, height);
+                }
                 this.onAnimations(parsed);
             } catch (error) {
                 log.info(error);

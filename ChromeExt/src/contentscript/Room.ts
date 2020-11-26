@@ -42,6 +42,7 @@ export class Room
     getInfo(): IRoomInfo
     {
         return [
+            ['url', this.destination],
             ['jid', this.jid]
         ];
     }
