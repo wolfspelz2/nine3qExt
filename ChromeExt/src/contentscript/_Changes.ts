@@ -8,6 +8,7 @@ export class _Changes
     static data: IHistory = [
         ['1.0.6', '?', [
             ['Add', 'Undock vidconf window'],
+            ['Fix', 'Chat window focused input style'],
         ]],
         ['1.0.5', 'SPA', [
             ['Add', 'Stay in the room if vidconf|inventory|chat are open'],

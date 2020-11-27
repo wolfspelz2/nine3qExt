@@ -774,6 +774,7 @@
         position: absolute;
         left: 8px;
         right: 22px;
+        padding-right: 20px;
         top: 4px;
         bottom: 4px;
         box-sizing: border-box;
@@ -788,6 +789,20 @@
         #n3q textarea.n3q-chatwindow-chatin-input:focus,
         #n3q input[type=text].n3q-chatwindow-chatin-input:focus
         {
+            position: absolute;
+            left: 8px;
+            right: 22px;
+            padding-right: 20px;
+            top: 4px;
+            bottom: 4px;
+            box-sizing: border-box;
+    
+            height: 14px;
+            overflow: hidden;
+            white-space: nowrap;
+            resize: none;
+            border-width: 0;
+
             outline: 0;
         }
 
