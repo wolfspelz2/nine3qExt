@@ -50,6 +50,8 @@ export class Config
             randomEnterPosXMax: 600,
             showNicknameTooltip: true,
             avatarDoubleClickDelaySec: 0.1,
+            chatBuubleFadeStartSec: 60.0,
+            chatBuubleFadeDurationSec: 60.0,
             maxChatAgeSec: 60,
             chatWindowWidth: 400,
             chatWindowHeight: 250,

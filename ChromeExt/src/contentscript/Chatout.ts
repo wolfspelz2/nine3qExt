@@ -1,5 +1,6 @@
 import * as $ from 'jquery';
 import { as } from '../lib/as';
+import { Config } from '../lib/Config';
 import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
 
@@ -59,7 +60,10 @@ export class Chatout
         $(this.textElem).html(as.HtmlWithClickableLinks(text));
 
         this.elem.style.display = 'block';
-        $(this.elem).delay(10000).fadeOut(10000);
+        $(this.elem)
+            .delay(Config.get('room.chatBuubleFadeStartSec', 60.0) * 1000)
+            .fadeOut(Config.get('room.chatBuubleFadeDurationSec', 60.0) * 1000)
+            ;
     }
 
     setVisibility(visible: boolean): void
