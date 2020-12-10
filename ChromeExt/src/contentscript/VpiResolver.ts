@@ -8,7 +8,7 @@ import { Utils } from '../lib/Utils';
 
 export enum VpiResolverEvaluateResultType
 {
-    Error, Delegate, Location
+    Error, Delegate, Location, Ignore
 }
 
 export class VpiResolverEvaluateResult
@@ -74,6 +74,11 @@ export class VpiResolver
                         locationUrl = result.location;
                     } break;
 
+                    case VpiResolverEvaluateResultType.Ignore: {
+                        log.debug('VpiResolver', result.status);
+                        return '';
+                    } break;
+
                 }
             }
         } while (locationUrl == '' && iterationCounter > 0);
@@ -130,7 +135,12 @@ export class VpiResolver
                         let suffix = '';
                         for (let locationChildIndex = 0; locationChildIndex < vpiChild.children.length; locationChildIndex++) {
                             let locationChild = vpiChild.children[locationChildIndex];
-                            switch (locationChild.tagName) {
+                            switch (locationChild.tagName.toLowerCase()) {
+                                case 'ignore':
+                                    {
+                                        return new VpiResolverEvaluateResult(VpiResolverEvaluateResultType.Ignore, '', '', '');
+                                    } break;
+
                                 case 'service': // <service>jabber:muc4.virtual-presence.org</service>
                                     {
                                         let locationServiceText: string = locationChild.textContent;

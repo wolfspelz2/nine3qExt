@@ -114,7 +114,7 @@ export class ContentApp
         {
             let pageUrl = Browser.getCurrentPageUrl();
             let parsedUrl = new URL(pageUrl);
-            let ignoredDomains : Array<string> = Config.get('vp.ignoredDomainSuffixes', []);
+            let ignoredDomains: Array<string> = Config.get('vp.ignoredDomainSuffixes', []);
             for (let i = 0; i < ignoredDomains.length; i++) {
                 if (parsedUrl.host.endsWith(ignoredDomains[i])) {
                     return;
@@ -380,8 +380,10 @@ export class ContentApp
             this.locationUrl = newLocation;
             log.debug('Mapped', pageUrl, ' => ', this.locationUrl);
 
-            let roomJid = ContentApp.getRoomJidFromLocationUrl(this.locationUrl);
-            this.enterRoom(roomJid, pageUrl);
+            if (this.locationUrl != '') {
+                let roomJid = ContentApp.getRoomJidFromLocationUrl(this.locationUrl);
+                this.enterRoom(roomJid, pageUrl);
+            }
 
         } catch (error) {
             log.info(error);
