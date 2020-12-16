@@ -90,7 +90,7 @@ export class BackgroundApp
     {
         this.configUpdater.stopUpdateTimer();
 
-        // Does not work that way
+        // Does not work that way:
         // chrome.runtime?.onMessage.removeListener((message, sender, sendResponse) => { return this.onRuntimeMessage(message, sender, sendResponse); });
 
         // this.unsubscribeItemInventories();

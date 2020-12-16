@@ -193,8 +193,9 @@ export class Inventory
         log.info('Inventory', 'derez', itemId);
 
         let params = {
+            'user': this.userToken,
             'x': Math.round(x),
-            'y': Math.round(y)
+            'y': Math.round(y),
         };
 
         this.sendItemCommand(itemId, 'Derez', params);
@@ -214,7 +215,6 @@ export class Inventory
     {
         let cmd = {};
         cmd['xmlns'] = 'vp:cmd';
-        // cmd['user'] = this.userToken;
         cmd['method'] = 'itemAction';
         cmd['action'] = action;
         for (let paramName in params) {

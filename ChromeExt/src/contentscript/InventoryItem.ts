@@ -241,7 +241,7 @@ export class InventoryItem
             'y': Math.round(y),
         };
 
-        this.inv.sendItemCommand(this.itemId, 'SetItemCoordinates', params);
+        this.inv.sendItemCommand(this.itemId, 'SetPosition', params);
     }
 
     sendRezItem(x: number)
@@ -252,7 +252,7 @@ export class InventoryItem
         let destination = this.app.getRoom().getDestination();
 
         let params = {
-            'to': to,
+            'room': to,
             'x': Math.round(x),
             'destination': ''
         };
