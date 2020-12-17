@@ -45,6 +45,7 @@ export class RoomItem extends Entity
 
         let vpAnimationsUrl = '';
         let vpImageUrl = '';
+        let vpRezzedX = -1;
 
         let newProviderId: string = '';
         let newProperties: { [pid: string]: string } = {};
@@ -87,6 +88,7 @@ export class RoomItem extends Entity
                     // vpNickname = as.String(attrs.Nickname, '');
                     vpAnimationsUrl = as.String(newProperties.AnimationsUrl, '');
                     vpImageUrl = as.String(newProperties.ImageUrl, '');
+                    vpRezzedX = as.Int(newProperties.RezzedX, -1);
                 }
             }
         }
@@ -129,14 +131,18 @@ export class RoomItem extends Entity
             this.avatarDisplay?.setCondition(newCondition);
         }
 
+        if (vpRezzedX >= 0) {
+            newX = vpRezzedX;
+        }
+
         if (this.isFirstPresence) {
-            if (!presenceHasPosition) {
+            if (!presenceHasPosition && vpRezzedX < 0) {
                 newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition(this.nick);
             }
             if (newX < 0) { newX = 100; }
             this.setPosition(newX);
         } else {
-            if (presenceHasPosition) {
+            if (presenceHasPosition || vpRezzedX >= 0) {
                 if (this.getPosition() != newX) {
                     this.move(newX);
                 }

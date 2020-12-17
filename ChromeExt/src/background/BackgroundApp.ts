@@ -44,7 +44,7 @@ export class BackgroundApp
         {
             let uniqueId = await Config.getSync('me.id', '');
             if (uniqueId == '') {
-                await Config.setSync('me.id', 'ext' + Utils.randomString(20).toLowerCase());
+                await Config.setSync('me.id', 'mid' + Utils.randomString(20).toLowerCase());
             }
         }
 
@@ -101,7 +101,7 @@ export class BackgroundApp
     {
         let userId = await Config.getSync(Utils.syncStorageKey_ItemProviderUserId(providerId), '');
         if (userId == '') {
-            userId = 'ext-' + Utils.randomString(40).toLowerCase();
+            userId = 'ext' + Utils.randomString(40).toLowerCase();
             await Config.setSync(Utils.syncStorageKey_ItemProviderUserId(providerId), userId);
         }
         return userId;

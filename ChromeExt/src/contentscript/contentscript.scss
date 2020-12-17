@@ -251,7 +251,7 @@
     #n3q div.n3q-participant div.n3q-nickname div.n3q-text {
         display: inline-block;
         vertical-align: middle;
-        max-width: 90px;
+        max-width: 123px;
         overflow: hidden;
         text-overflow: ellipsis;
     }
@@ -647,10 +647,14 @@
             line-height: 13px;
         }
 
-            #n3q div.n3q-xmppwindow-line-error span.n3q-xmppwindow-label {
-                color: white;
-                background-color: red;
-            }
+        #n3q span.n3q-xmppwindow-text { 
+            font: normal 11px/12px monospace, sans-serif;
+        }
+
+        #n3q div.n3q-xmppwindow-line-error span.n3q-xmppwindow-label {
+            color: white;
+            background-color: red;
+        }
 
         #n3q textarea.n3q-xmppwindow-in-input, 
         #n3q input[type=text].n3q-xmppwindow-in-input
@@ -664,7 +668,7 @@
 
             resize: none;
             border-width: 0;
-            font: normal 11px/12px Arial, sans-serif;
+            font: normal 11px/12px monospace, sans-serif;
         }
     
             #n3q textarea.n3q-xmppwindow-in-input:focus,

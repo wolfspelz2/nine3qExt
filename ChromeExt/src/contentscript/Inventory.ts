@@ -9,7 +9,8 @@ import { InventoryItem } from './InventoryItem';
 
 export class Inventory
 {
-    private itemServer: string;
+    private itemServiceHost: string;
+    private inventoryMucHost: string;
     private userToken: string;
     private inventoryJid: string;
     private resource: string = Utils.randomString(15);
@@ -25,13 +26,18 @@ export class Inventory
 
         if (serviceUrl != '') {
             let url = new URL(serviceUrl);
-            let protocol = url.protocol;
+            this.itemServiceHost = url.pathname;
+        }
 
-            if (protocol == 'xmpp:' && this.userToken != '') {
-                this.itemServer = url.pathname;
-                this.inventoryJid = this.userToken + '@' + this.itemServer;
-                this.isAvailable = true;
-            }
+        let room = app.getRoom().getJid();
+        if (room != '') {
+            let roomJid = new jid(room);
+            this.inventoryMucHost = roomJid.getDomain();
+        }
+
+        if (this.userToken != '' && this.itemServiceHost != '' && this.inventoryMucHost != '') {
+            this.inventoryJid = 'vis' + Utils.randomString(30).toLowerCase() + '@' + this.inventoryMucHost;
+            this.isAvailable = true;
         }
     }
 
@@ -86,7 +92,7 @@ export class Inventory
         let to = this.inventoryJid + '/' + this.resource;
         let presence = xml('presence', { 'to': to });
         this.app.sendStanza(presence);
-        this.populateStarted();
+        this.joinStarted();
     }
 
     private sendPresenceUnavailable(): void
@@ -113,7 +119,7 @@ export class Inventory
                 {
                     this.window?.setStatus('ok');
                     if (isSelf) {
-                        this.populateComplete();
+                        this.joinComplete();
                     } else {
                         let isItem = false;
 
@@ -180,12 +186,13 @@ export class Inventory
         }
     }
 
-    populateStarted()
+    joinStarted()
     {
     }
 
-    populateComplete()
+    joinComplete()
     {
+        this.sendPopulateInventoryCommand();
     }
 
     sendDerezItem(itemId: string, x: number, y: number)
@@ -198,7 +205,7 @@ export class Inventory
             'y': Math.round(y),
         };
 
-        this.sendItemCommand(itemId, 'Derez', params);
+        this.sendItemActionCommand(itemId, 'Derez', params);
     }
 
     findItem(pid: string, value: any)
@@ -211,7 +218,7 @@ export class Inventory
         return null;
     }
 
-    sendItemCommand(itemId: string, action: string, params: any)
+    sendItemActionCommand(itemId: string, action: string, params: any)
     {
         let cmd = {};
         cmd['xmlns'] = 'vp:cmd';
@@ -221,7 +228,22 @@ export class Inventory
             cmd[paramName] = params[paramName];
         }
 
-        let to = this.inventoryJid + (itemId ? '/' + itemId : '');
+        let to = this.userToken + '@' + this.itemServiceHost + (itemId ? '/' + itemId : '');
+
+        let message = xml('message', { 'type': 'chat', 'to': to })
+            .append(xml('x', cmd))
+            ;
+        this.app.sendStanza(message);
+    }
+
+    sendPopulateInventoryCommand()
+    {
+        let cmd = {};
+        cmd['xmlns'] = 'vp:cmd';
+        cmd['method'] = 'populateInventory';
+        cmd['room'] = this.inventoryJid;
+
+        let to = this.userToken + '@' + this.itemServiceHost;
 
         let message = xml('message', { 'type': 'chat', 'to': to })
             .append(xml('x', cmd))

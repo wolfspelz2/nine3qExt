@@ -69,12 +69,12 @@ export class Translator
     {
         return this.language;
     }
-    
+
     static getShortLanguageCode(language: string): string
     {
         return language.substr(0, 2);
     }
-    
+
     translateText(key: any, defaultText: string): string
     {
         if (this.translations[key] != undefined) {

@@ -124,7 +124,7 @@ export class Config
                     'Popup.Uncheck to hide': 'Uncheck to hide avatar on pages',
 
                     'Menu.Settings': 'Settings',
-                    'Menu.Stay Here': 'Stay Here',
+                    'Menu.Stay Here': 'Stay on tab change',
                     'Menu.Inventory': 'Your Stuff',
                     'Menu.Chat Window': 'History',
                     'Menu.Video Conference': 'Video Conference',
@@ -173,7 +173,7 @@ export class Config
                     'Popup.Uncheck to hide': 'Abschalten, um das Avatar auf Webseiten nicht anzuzeigen',
 
                     'Menu.Settings': 'Einstellungen',
-                    'Menu.Stay Here': 'Hier bleiben',
+                    'Menu.Stay Here': 'Bleiben bei Tabwechsel',
                     'Menu.Inventory': 'Deine Sachen',
                     'Menu.Chat Window': 'Chatverlauf',
                     'Menu.Video Conference': 'Videokonferenz',
