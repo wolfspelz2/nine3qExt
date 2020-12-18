@@ -234,30 +234,18 @@ export class InventoryItem
 
     sendSetItemCoordinates(x: number, y: number)
     {
-        log.info('InventoryItem', 'move', x, y);
-
         let params = {
             'x': Math.round(x),
             'y': Math.round(y),
         };
 
-        this.inv.sendItemActionCommand(this.itemId, 'SetPosition', params);
+        this.inv.sendItemActionCommand(this.itemId, 'Inventory.SetPosition', params);
     }
 
     sendRezItem(x: number)
     {
-        log.info('InventoryItem', 'rez', this.itemId, x);
-
-        let to = this.app.getRoom().getJid();
-        let destination = this.app.getRoom().getDestination();
-
-        let params = {
-            'room': to,
-            'x': Math.round(x),
-            'destination': ''
-        };
-
-        this.inv.sendItemActionCommand(this.itemId, 'Rez', params);
+        log.info('InventoryItem', 'sendRezItem', this.itemId, x);
+        this.inv.sendRezItemCommand(this.itemId, this.app.getRoom().getJid(), Math.round(x), this.app.getRoom().getDestination());
     }
 
     remove(): void

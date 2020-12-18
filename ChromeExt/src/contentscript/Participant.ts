@@ -565,7 +565,7 @@ export class Participant extends Entity
             let inv = this.app.getInventoryByProviderId(itemProviderId);
             if (inv) {
                 roomItem.beginDerez();
-                inv.sendDerezItem(itemId, -1, -1);
+                inv.sendDerezItem(itemId, this.getRoom().getJid(), -1, -1);
             }
         }
     }

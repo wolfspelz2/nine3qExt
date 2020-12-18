@@ -212,15 +212,15 @@ export class RoomItem extends Entity
     applyItem(passiveItem: RoomItem)
     {
         let passiveItemId = passiveItem.getNick();
-        this.sendCommand('Apply', { 'passive': passiveItemId });
+        this.sendItemActionCommand('Apply', { 'passive': passiveItemId });
     }
 
     sendMoveMessage(newX: number): void
     {
-        this.sendCommand('MoveTo', { 'x': newX });
+        this.sendItemActionCommand('Rezzed.MoveTo', { 'x': newX });
     }
 
-    sendCommand(action: string, params: any)
+    sendItemActionCommand(action: string, params: any)
     {
         let itemId = this.nick;
         let item = this.app.getItemRepository().getItem(itemId);
@@ -230,18 +230,15 @@ export class RoomItem extends Entity
 
                 let cmd = {};
                 cmd['xmlns'] = 'vp:cmd';
-                cmd['user'] = userToken;
                 cmd['method'] = 'itemAction';
                 cmd['action'] = action;
+                cmd['user'] = userToken;
                 for (let paramName in params) {
                     cmd[paramName] = params[paramName];
                 }
 
                 let to = this.room.getJid() + '/' + itemId;
-
-                let message = xml('message', { 'type': 'chat', 'to': to })
-                    .append(xml('x', cmd))
-                    ;
+                let message = xml('message', { 'type': 'chat', 'to': to }).append(xml('x', cmd));
                 this.app.sendStanza(message);
             }
         }

@@ -36,9 +36,12 @@ export class Inventory
         }
 
         if (this.userToken != '' && this.itemServiceHost != '' && this.inventoryMucHost != '') {
-            this.inventoryJid = 'vis' + Utils.randomString(30).toLowerCase() + '@' + this.inventoryMucHost;
+            // this.inventoryJid = 'vis' + Utils.randomString(30).toLowerCase() + '@' + this.inventoryMucHost;
+            this.inventoryJid = 'visualinventory@' + this.inventoryMucHost;
             this.isAvailable = true;
         }
+
+        this.resource = this.app.getRoom().getMyNick();
     }
 
     getJid(): string { return this.inventoryJid; }
@@ -195,17 +198,10 @@ export class Inventory
         this.sendPopulateInventoryCommand();
     }
 
-    sendDerezItem(itemId: string, x: number, y: number)
+    sendDerezItem(itemId: string, roomJid: string, x: number, y: number)
     {
-        log.info('Inventory', 'derez', itemId);
-
-        let params = {
-            'user': this.userToken,
-            'x': Math.round(x),
-            'y': Math.round(y),
-        };
-
-        this.sendItemActionCommand(itemId, 'Derez', params);
+        log.info('Inventory', 'sendDerezItem', itemId);
+        this.sendDerezItemCommand(itemId, roomJid, Math.round(x), Math.round(y));
     }
 
     findItem(pid: string, value: any)
@@ -216,6 +212,36 @@ export class Inventory
             }
         }
         return null;
+    }
+
+    sendRezItemCommand(itemId: string, room: string, x: number, destination: string)
+    {
+        let cmd = {};
+        cmd['xmlns'] = 'vp:cmd';
+        cmd['method'] = 'itemAction';
+        cmd['action'] = 'Inventory.Rez';
+        cmd['room'] = room;
+        cmd['x'] = x;
+        cmd['destination'] = destination;
+
+        let to = this.userToken + '@' + this.itemServiceHost + (itemId ? '/' + itemId : '');
+        let message = xml('message', { 'to': to }).append(xml('x', cmd));
+        this.app.sendStanza(message);
+    }
+
+    sendDerezItemCommand(itemId: string, room: string, x: number, y: number)
+    {
+        let cmd = {};
+        cmd['xmlns'] = 'vp:cmd';
+        cmd['method'] = 'itemAction';
+        cmd['action'] = 'Rezzed.Derez';
+        cmd['user'] = this.userToken;
+        cmd['x'] = x;
+        cmd['y'] = y;
+
+        let to = room + (itemId ? '/' + itemId : '');
+        let message = xml('message', { 'type': 'chat', 'to': to }).append(xml('x', cmd));
+        this.app.sendStanza(message);
     }
 
     sendItemActionCommand(itemId: string, action: string, params: any)
@@ -229,10 +255,7 @@ export class Inventory
         }
 
         let to = this.userToken + '@' + this.itemServiceHost + (itemId ? '/' + itemId : '');
-
-        let message = xml('message', { 'type': 'chat', 'to': to })
-            .append(xml('x', cmd))
-            ;
+        let message = xml('message', { 'type': 'chat', 'to': to }).append(xml('x', cmd));
         this.app.sendStanza(message);
     }
 
@@ -242,12 +265,10 @@ export class Inventory
         cmd['xmlns'] = 'vp:cmd';
         cmd['method'] = 'populateInventory';
         cmd['room'] = this.inventoryJid;
+        cmd['user'] = this.userToken;
 
         let to = this.userToken + '@' + this.itemServiceHost;
-
-        let message = xml('message', { 'type': 'chat', 'to': to })
-            .append(xml('x', cmd))
-            ;
+        let message = xml('message', { 'to': to }).append(xml('x', cmd));
         this.app.sendStanza(message);
     }
 }
