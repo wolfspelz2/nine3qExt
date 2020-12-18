@@ -6,6 +6,7 @@ import { Utils } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { InventoryWindow } from './InventoryWindow';
 import { InventoryItem } from './InventoryItem';
+import { Environment } from '../lib/Environment';
 
 export class Inventory
 {
@@ -36,12 +37,14 @@ export class Inventory
         }
 
         if (this.userToken != '' && this.itemServiceHost != '' && this.inventoryMucHost != '') {
-            // this.inventoryJid = 'vis' + Utils.randomString(30).toLowerCase() + '@' + this.inventoryMucHost;
-            this.inventoryJid = 'visualinventory@' + this.inventoryMucHost;
+            this.inventoryJid = 'vis' + Utils.randomString(30).toLowerCase() + '@' + this.inventoryMucHost;
             this.isAvailable = true;
         }
 
-        this.resource = this.app.getRoom().getMyNick();
+        if (Environment.isDevelopment()) {
+            this.resource = this.app.getRoom().getMyNick();
+            this.inventoryJid = 'visualinventory@' + this.inventoryMucHost;
+        }
     }
 
     getJid(): string { return this.inventoryJid; }
@@ -120,7 +123,6 @@ export class Inventory
         switch (presenceType) {
             case 'available':
                 {
-                    this.window?.setStatus('ok');
                     if (isSelf) {
                         this.joinComplete();
                     } else {
@@ -137,6 +139,8 @@ export class Inventory
                         }
 
                         if (isItem) {
+                            this.window?.setStatus('');
+
                             let item = this.items[resource];
                             if (!item) {
                                 item = new InventoryItem(this.app, this, resource);
@@ -151,7 +155,7 @@ export class Inventory
                 break;
 
             case 'unavailable':
-                this.window?.setStatus('ok');
+                this.window?.setStatus('unavailable', 'Leaving');
                 if (this.items[resource]) {
                     this.items[resource].onPresenceUnavailable(stanza);
                     delete this.items[resource];
@@ -191,11 +195,14 @@ export class Inventory
 
     joinStarted()
     {
+        this.window?.setStatus('joining', 'Updates requested');
     }
 
     joinComplete()
     {
+        this.window?.setStatus('joined', 'Updates acknowledged');
         this.sendPopulateInventoryCommand();
+        this.window?.setStatus('populating', 'Items requested');
     }
 
     sendDerezItem(itemId: string, roomJid: string, x: number, y: number)
@@ -224,7 +231,7 @@ export class Inventory
         cmd['x'] = x;
         cmd['destination'] = destination;
 
-        let to = this.userToken + '@' + this.itemServiceHost + (itemId ? '/' + itemId : '');
+        let to = this.userToken + '@' + this.itemServiceHost + '/' + itemId;
         let message = xml('message', { 'to': to }).append(xml('x', cmd));
         this.app.sendStanza(message);
     }
@@ -239,7 +246,7 @@ export class Inventory
         cmd['x'] = x;
         cmd['y'] = y;
 
-        let to = room + (itemId ? '/' + itemId : '');
+        let to = room + '/' + itemId;
         let message = xml('message', { 'type': 'chat', 'to': to }).append(xml('x', cmd));
         this.app.sendStanza(message);
     }
@@ -250,11 +257,13 @@ export class Inventory
         cmd['xmlns'] = 'vp:cmd';
         cmd['method'] = 'itemAction';
         cmd['action'] = action;
+        cmd['user'] = this.userToken;
         for (let paramName in params) {
             cmd[paramName] = params[paramName];
         }
 
-        let to = this.userToken + '@' + this.itemServiceHost + (itemId ? '/' + itemId : '');
+        let to = this.inventoryJid + '/' + itemId;
+        // let to = this.userToken + '@' + this.itemServiceHost + (itemId ? '/' + itemId : '');
         let message = xml('message', { 'type': 'chat', 'to': to }).append(xml('x', cmd));
         this.app.sendStanza(message);
     }
@@ -264,8 +273,8 @@ export class Inventory
         let cmd = {};
         cmd['xmlns'] = 'vp:cmd';
         cmd['method'] = 'populateInventory';
-        cmd['room'] = this.inventoryJid;
         cmd['user'] = this.userToken;
+        cmd['room'] = this.inventoryJid;
 
         let to = this.userToken + '@' + this.itemServiceHost;
         let message = xml('message', { 'to': to }).append(xml('x', cmd));

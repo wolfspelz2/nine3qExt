@@ -239,7 +239,7 @@ export class InventoryItem
             'y': Math.round(y),
         };
 
-        this.inv.sendItemActionCommand(this.itemId, 'Inventory.SetPosition', params);
+        this.inv.sendItemActionCommand(this.itemId, 'Inventory.MoveTo', params);
     }
 
     sendRezItem(x: number)

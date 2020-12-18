@@ -152,7 +152,7 @@ export class Config
                     'Settingswindow.Settings': 'Settings',
                     'InventoryWindow.Inventory': 'Your Stuff',
 
-                    'Inventory.No items': 'No items here',
+                    'Inventory.Not yet loaded': 'Not yet loaded',
                 },
                 'de-DE': {
                     'Common.Close': 'Schließen',
@@ -201,7 +201,7 @@ export class Config
                     'Settingswindow.Settings': 'Einstellungen',
                     'InventoryWindow.Inventory': 'Deine Gegenstände',
 
-                    'Inventory.No items': 'Keine Gegenstände hier',
+                    'Inventory.Not yet loaded': 'Noch nicht geladen',
                 },
             },
             'serviceUrl': '',

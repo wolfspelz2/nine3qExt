@@ -55,7 +55,7 @@ export class InventoryWindow extends Window
             }
 
             let paneElem = <HTMLElement>$('<div class="n3q-base n3q-inventory-pane" data-translate="children" />').get(0);
-            let textElem = <HTMLElement>$('<div class="n3q-base n3q-text n3q-inventory-noitems" data-translate="text:Inventory">No items</div>').get(0);
+            let textElem = <HTMLElement>$('<div class="n3q-base n3q-text n3q-inventory-status" data-translate="text:Inventory">Not yet loaded</div>').get(0);
             $(paneElem).append(textElem);
             $(contentElem).append(paneElem);
 
@@ -135,22 +135,29 @@ export class InventoryWindow extends Window
 
     setStatus(status: string, text?: string, detail?: { type: string; from: string; to: string; }): void
     {
-        $('.n3q-inventory-pane .n3q-inventory-noitems').remove();
+        let statusText = '';
 
-        if (Environment.isDevelopment()) {
-            $(this.paneElem).find('.n3q-inventory-status').remove();
-
-            if (status == 'error') {
-                let elem = <HTMLDivElement>$(
-                    `<div class="n3q-base n3q-inventory-status">
-                        <div class="n3q-base n3q-text">` + as.Html('error: ' + detail.type, '') + `</div>
-                        <div class="n3q-base n3q-text">` + as.Html(text, '') + `</div>
-                        <div class="n3q-base n3q-text">` + as.Html('from: ' + detail.from, '') + `</div>
-                    </div>`
-                ).get(0);
-                $(this.paneElem).append(elem);
+        switch (status) {
+            case '': {
+                $(this.paneElem).find('.n3q-inventory-status').remove();
+                break;
+            }
+            case 'error': {
+                statusText = ''
+                    + as.Html('error: ' + detail.type, '') + '<br/>'
+                    + as.Html(text, '') + '<br/>'
+                    + as.Html('from: ' + detail.from, '') + '<br/>'
+                    ;
+                break;
+            }
+            default: {
+                statusText = as.Html(text);
+                break;
             }
         }
+
+        let statusElem = $(this.paneElem).find('.n3q-inventory-status');
+        if (statusElem) { statusElem.html(statusText); }
     }
 
     isOpen(): boolean

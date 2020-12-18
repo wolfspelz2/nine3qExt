@@ -706,16 +706,11 @@
         overflow: hidden;
     }
 
-        #n3q div.n3q-inventory-pane div.n3q-inventory-noitems {
+        #n3q div.n3q-inventory-pane div.n3q-inventory-status {
             position: absolute;
             left: 4px;
             top: 4px;
-        }
-        
-        #n3q iframe.n3q-inventory-pane .n3q-inventory-status {
-            position: absolute;
-            left: 4px;
-            top: 4px;
+            color: #808080;
         }
         
     #n3q iframe.n3q-inventory-iframe {
