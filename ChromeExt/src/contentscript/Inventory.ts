@@ -13,8 +13,8 @@ export class Inventory
     private itemServiceHost: string;
     private inventoryMucHost: string;
     private userToken: string;
-    private inventoryJid: string;
-    private resource: string = Utils.randomString(15);
+    private jid: string;
+    private resource: string = 'obs' + Utils.randomString(10);
     private items: { [id: string]: InventoryItem; } = {};
     private window: InventoryWindow;
     private isSubscribed: boolean;
@@ -22,36 +22,45 @@ export class Inventory
 
     constructor(protected app: ContentApp, private providerId: string) 
     {
-        this.userToken = this.app.getItemProviderConfigValue(providerId, 'userToken', '');
-        let serviceUrl = this.app.getItemProviderConfigValue(providerId, 'serviceUrl', '');
+    }
+
+    getJid(): string { return this.jid; }
+    getPane() { return this.window.getPane(); }
+    getWindow() { return this.window; }
+    getAvailable() { return this.isAvailable; }
+    getProviderId() { return this.providerId; }
+
+    async init()
+    {
+        this.userToken = this.app.getItemProviderConfigValue(this.providerId, 'userToken', '');
+        let serviceUrl = this.app.getItemProviderConfigValue(this.providerId, 'serviceUrl', '');
 
         if (serviceUrl != '') {
             let url = new URL(serviceUrl);
             this.itemServiceHost = url.pathname;
         }
 
-        let room = app.getRoom().getJid();
+        let room = this.app.getRoom().getJid();
         if (room != '') {
             let roomJid = new jid(room);
             this.inventoryMucHost = roomJid.getDomain();
         }
 
         if (this.userToken != '' && this.itemServiceHost != '' && this.inventoryMucHost != '') {
-            this.inventoryJid = 'vis' + Utils.randomString(30).toLowerCase() + '@' + this.inventoryMucHost;
             this.isAvailable = true;
         }
 
+        let backpackName = await Config.getSync('me.backpack.' + this.providerId, '');
+        if (backpackName == '') {
+            backpackName = 'bac' + Utils.randomString(30).toLowerCase();
+            await Config.setSync('me.backpack.' + this.providerId, backpackName);
+        }
+        this.jid = backpackName + '@' + this.inventoryMucHost;
+
         if (Environment.isDevelopment()) {
-            this.resource = this.app.getRoom().getMyNick();
-            this.inventoryJid = 'visualinventory@' + this.inventoryMucHost;
+            // this.inventoryJid = 'visualinventory@' + this.inventoryMucHost;
         }
     }
-
-    getJid(): string { return this.inventoryJid; }
-    getPane() { return this.window.getPane(); }
-    getWindow() { return this.window; }
-    getAvailable() { return this.isAvailable; }
-    getProviderId() { return this.providerId; }
 
     async open(options: any)
     {
@@ -95,7 +104,7 @@ export class Inventory
 
     private sendPresence(): void
     {
-        let to = this.inventoryJid + '/' + this.resource;
+        let to = this.jid + '/' + this.resource;
         let presence = xml('presence', { 'to': to });
         this.app.sendStanza(presence);
         this.joinStarted();
@@ -103,7 +112,7 @@ export class Inventory
 
     private sendPresenceUnavailable(): void
     {
-        let to = this.inventoryJid + '/' + this.resource;
+        let to = this.jid + '/' + this.resource;
         let presence = xml('presence', { 'type': 'unavailable', 'to': to });
         this.app.sendStanza(presence);
     }
@@ -262,7 +271,7 @@ export class Inventory
             cmd[paramName] = params[paramName];
         }
 
-        let to = this.inventoryJid + '/' + itemId;
+        let to = this.jid + '/' + itemId;
         // let to = this.userToken + '@' + this.itemServiceHost + (itemId ? '/' + itemId : '');
         let message = xml('message', { 'type': 'chat', 'to': to }).append(xml('x', cmd));
         this.app.sendStanza(message);
@@ -274,7 +283,7 @@ export class Inventory
         cmd['xmlns'] = 'vp:cmd';
         cmd['method'] = 'populateInventory';
         cmd['user'] = this.userToken;
-        cmd['room'] = this.inventoryJid;
+        cmd['room'] = this.jid;
 
         let to = this.userToken + '@' + this.itemServiceHost;
         let message = xml('message', { 'to': to }).append(xml('x', cmd));

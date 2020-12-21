@@ -197,6 +197,7 @@ export class ContentApp
     async showInventoryWindow(aboveElem: HTMLElement, providerId: string): Promise<void>
     {
         let inv = new Inventory(this, providerId);
+        await inv.init();
         let jid = inv.getJid();
 
         if (!this.inventories[jid]) {
