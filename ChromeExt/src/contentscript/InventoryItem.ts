@@ -126,10 +126,10 @@ export class InventoryItem
     {
         this.app.toFront(this.elem);
 
-        let item = this.app.getItemRepository().getItem(this.itemId);
-        if (item) {
-            item.onClick(this.elem, new Point2D(ev.clientX, ev.clientY));
-        }
+        // let item = this.app.getItemRepository().getItem(this.itemId);
+        // if (item) {
+        //     item.onClick(this.elem, new Point2D(ev.clientX, ev.clientY));
+        // }
     }
 
     private dragIsRezable: boolean = false;

@@ -212,7 +212,7 @@ export class RoomItem extends Entity
     applyItem(passiveItem: RoomItem)
     {
         let passiveItemId = passiveItem.getNick();
-        this.sendItemActionCommand('Apply', { 'passive': passiveItemId });
+        this.sendItemActionCommand('Applier.Apply', { 'passive': passiveItemId });
     }
 
     sendMoveMessage(newX: number): void
