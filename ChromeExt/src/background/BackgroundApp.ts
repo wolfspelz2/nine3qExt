@@ -68,7 +68,7 @@ export class BackgroundApp
                             let url = itemProvider.configUrl;
                             url = url
                                 .replace('{id}', encodeURIComponent(userId))
-                                .replace('{detail}', encodeURIComponent(Client.getDetails()))
+                                .replace('{client}', encodeURIComponent(Client.getDetails()))
                                 ;
 
                             var providerConfig = await this.fetchJSON(url);
