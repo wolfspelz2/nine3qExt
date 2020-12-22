@@ -54,7 +54,7 @@ export class BackgroundApp
         await this.configUpdater.getUpdate();
         await this.configUpdater.startUpdateTimer()
 
-        {
+        if (Config.get('inventory.enabled', false)) {
             let itemProviders = Config.get('itemProviders', {});
             if (itemProviders) {
                 for (let providerId in itemProviders) {

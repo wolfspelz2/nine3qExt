@@ -14,7 +14,7 @@ export class Inventory
     private inventoryMucHost: string;
     private userToken: string;
     private jid: string;
-    private resource: string = 'obs' + Utils.randomString(10);
+    private resource: string = '_obs' + Utils.randomString(10);
     private items: { [id: string]: InventoryItem; } = {};
     private window: InventoryWindow;
     private isSubscribed: boolean;
@@ -22,18 +22,10 @@ export class Inventory
 
     constructor(protected app: ContentApp, private providerId: string) 
     {
-    }
-
-    getJid(): string { return this.jid; }
-    getPane() { return this.window.getPane(); }
-    getWindow() { return this.window; }
-    getAvailable() { return this.isAvailable; }
-    getProviderId() { return this.providerId; }
-
-    async init()
-    {
         this.userToken = this.app.getItemProviderConfigValue(this.providerId, 'userToken', '');
         let serviceUrl = this.app.getItemProviderConfigValue(this.providerId, 'serviceUrl', '');
+        let backpackName = this.app.getItemProviderConfigValue(this.providerId, 'backpackRoom', '');
+        this.resource = this.app.getItemProviderConfigValue(this.providerId, 'backpackParticipant', '');
 
         if (serviceUrl != '') {
             let url = new URL(serviceUrl);
@@ -50,17 +42,17 @@ export class Inventory
             this.isAvailable = true;
         }
 
-        let backpackName = await Config.getSync('me.backpack.' + this.providerId, '');
-        if (backpackName == '') {
-            backpackName = 'bac' + Utils.randomString(30).toLowerCase();
-            await Config.setSync('me.backpack.' + this.providerId, backpackName);
-        }
         this.jid = backpackName + '@' + this.inventoryMucHost;
-
         if (Environment.isDevelopment()) {
-            // this.inventoryJid = 'visualinventory@' + this.inventoryMucHost;
+            // this.jid = 'visualinventory@' + this.inventoryMucHost;
         }
     }
+
+    getJid(): string { return this.jid; }
+    getPane() { return this.window.getPane(); }
+    getWindow() { return this.window; }
+    getAvailable() { return this.isAvailable; }
+    getProviderId() { return this.providerId; }
 
     async open(options: any)
     {
