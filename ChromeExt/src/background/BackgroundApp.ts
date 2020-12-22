@@ -5,6 +5,7 @@ import { Utils } from '../lib/Utils';
 import { ConfigUpdater } from './ConfigUpdater';
 import { Config } from '../lib/Config';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { Client } from '../lib/Client';
 
 interface ILocationMapperResponse
 {
@@ -19,6 +20,7 @@ export class BackgroundApp
     private configUpdater: ConfigUpdater;
     private resource: string;
     private isReady: boolean = false;
+    private clientDetails: string = '"weblin.io"';
 
     private readonly stanzaQ: Array<xml> = [];
     private readonly roomJid2tabId: Map<string, Array<number>> = new Map<string, Array<number>>();
@@ -64,13 +66,16 @@ export class BackgroundApp
 
                             let userId = await this.getOrCreateItemProviderUserId(providerId);
                             let url = itemProvider.configUrl;
-                            url = url.replace('{id}', encodeURIComponent(userId));
+                            url = url
+                                .replace('{id}', encodeURIComponent(userId))
+                                .replace('{detail}', encodeURIComponent(Client.getDetails()))
+                                ;
 
                             var providerConfig = await this.fetchJSON(url);
                             await Config.setSync(Utils.syncStorageKey_ItemProviderConfig(providerId), providerConfig);
 
                         } catch (error) {
-                            log.info('Fetch itemProvider config failed', providerId, itemProvider.configUrl, error);
+                            log.info('Fetch itemProvider config failed:', providerId, itemProvider.configUrl, error);
                         }
                     }
                 }

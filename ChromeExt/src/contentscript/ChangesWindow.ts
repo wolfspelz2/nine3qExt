@@ -7,7 +7,7 @@ import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { Window } from './Window';
-import { _Changes } from './_Changes';
+import { _Changes } from '../lib/_Changes';
 
 export class ChangesWindow extends Window
 {

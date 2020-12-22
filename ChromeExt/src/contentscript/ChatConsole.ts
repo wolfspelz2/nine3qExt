@@ -1,3 +1,4 @@
+import { Client } from '../lib/Client';
 import { ContentApp } from './ContentApp';
 import { Room } from './Room';
 
@@ -44,6 +45,12 @@ export class ChatConsole
                 break;
             case '/changes':
                 context.app?.showChangesWindow();
+                isHandled = true;
+                break;
+            case '/info':
+                ChatConsole.out(context, [
+                    ['info', Client.getDetails()]
+                ]);
                 isHandled = true;
                 break;
             case '/room':

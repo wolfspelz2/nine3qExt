@@ -22,6 +22,14 @@ export class Config
             avatar: '',
             active: '',
         },
+        client: {
+            name: 'weblin.io',
+            variant: '',
+        },
+        design: {
+            name: 'basic',
+            version: ''
+        },
         vp: {
             deferPageEnterSec: 0.3,
             vpiRoot: 'https://lms.virtual-presence.org/v7/root.xml',
