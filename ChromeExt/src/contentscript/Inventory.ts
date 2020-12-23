@@ -18,7 +18,6 @@ export class Inventory
     private items: { [id: string]: InventoryItem; } = {};
     private window: InventoryWindow;
     private isSubscribed: boolean;
-    private isAvailable: boolean;
 
     constructor(protected app: ContentApp, private providerId: string) 
     {
@@ -38,10 +37,6 @@ export class Inventory
             this.inventoryMucHost = roomJid.getDomain();
         }
 
-        if (this.userToken != '' && this.itemServiceHost != '' && this.inventoryMucHost != '') {
-            this.isAvailable = true;
-        }
-
         this.jid = backpackName + '@' + this.inventoryMucHost;
         if (Environment.isDevelopment()) {
             // this.jid = 'visualinventory@' + this.inventoryMucHost;
@@ -51,7 +46,6 @@ export class Inventory
     getJid(): string { return this.jid; }
     getPane() { return this.window.getPane(); }
     getWindow() { return this.window; }
-    getAvailable() { return this.isAvailable; }
     getProviderId() { return this.providerId; }
 
     async open(options: any)

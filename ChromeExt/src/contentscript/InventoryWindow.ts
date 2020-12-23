@@ -59,16 +59,6 @@ export class InventoryWindow extends Window
             $(paneElem).append(textElem);
             $(contentElem).append(paneElem);
 
-            // if (!this.inv.getAvailable()) {
-            //     let url = this.app.getItemProviderConfigValue(this.inv.getProviderId(), 'unavailableUrl', '');
-            //     if (url != '') {
-            //         let uniqueId = await Config.getSync('me.id', '');
-            //         url = url.replace('{id}', encodeURIComponent(uniqueId));
-            //         let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-inventory-iframe" src="' + url + ' " frameborder="0"></iframe>').get(0);
-            //         $(contentElem).append(iframeElem);
-            //     }
-            // }
-
             this.app.translateElem(windowElem);
 
             $(windowElem).css({ 'width': width + 'px', 'height': height + 'px', 'left': left + 'px', 'top': top + 'px' });

@@ -57,6 +57,8 @@ export class BackgroundApp
         await this.configUpdater.startUpdateTimer()
 
         if (Config.get('inventory.enabled', false)) {
+            let gotAnyProvider = false;
+
             let itemProviders = Config.get('itemProviders', {});
             if (itemProviders) {
                 for (let providerId in itemProviders) {
@@ -74,11 +76,17 @@ export class BackgroundApp
                             var providerConfig = await this.fetchJSON(url);
                             await Config.setSync(Utils.syncStorageKey_ItemProviderConfig(providerId), providerConfig);
 
+                            gotAnyProvider = gotAnyProvider || as.Bool(providerConfig['inventoryActive'], false);
+
                         } catch (error) {
                             log.info('Fetch itemProvider config failed:', providerId, itemProvider.configUrl, error);
                         }
                     }
                 }
+            }
+
+            if (!gotAnyProvider) {
+                Config.set('inventory.enabled', false)
             }
         }
 

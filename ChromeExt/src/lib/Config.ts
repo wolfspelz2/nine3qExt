@@ -344,12 +344,20 @@ export class Config
     }
 
     static getDevTree(): any { return this.devConfig; }
+    static getSessionTree(): any { return this.sessionConfig; }
     static getOnlineTree(): any { return this.onlineConfig; }
     static getStaticTree(): any { return this.staticConfig; }
 
     static setDevTree(values: any)
     {
+        log.debug('Config.setDevTree');
         this.devConfig = values;
+    }
+
+    static setSessionTree(values: any)
+    {
+        log.debug('Config.setSessionTree');
+        this.sessionConfig = values;
     }
 
     static setOnlineTree(values: any): void

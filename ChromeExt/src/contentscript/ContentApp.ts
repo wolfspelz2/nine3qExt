@@ -104,12 +104,18 @@ export class ContentApp
         if (Panic.isOn) { return; }
 
         try {
+            let config = await BackgroundMessage.getConfigTree(Config.sessionConfigName);
+            Config.setSessionTree(config);
+        } catch (error) {
+            log.debug(error.message);
+        }
+
+        try {
             let config = await BackgroundMessage.getConfigTree(Config.devConfigName);
             Config.setDevTree(config);
         } catch (error) {
             log.debug(error.message);
         }
-
 
         {
             let pageUrl = Browser.getCurrentPageUrl();
@@ -565,12 +571,17 @@ export class ContentApp
     async initItemProviders(): Promise<void>
     {
         let itemProviders = Config.get('itemProviders', {});
+        let gotAnyProvider = false;
+
         for (let providerId in itemProviders) {
             let providerConfig = await Config.getSync(Utils.syncStorageKey_ItemProviderConfig(providerId), null);
             if (providerConfig) {
                 this.itemProviders[providerId] = new ItemProvider(providerConfig);
+                gotAnyProvider = gotAnyProvider || as.Bool(providerConfig['inventoryActive'], false);
             }
         }
+
+        Config.set('inventory.enabled', gotAnyProvider)
     }
 
     getItemProviderConfigValue(providerId: string, configKey: string, defaultValue: any): any

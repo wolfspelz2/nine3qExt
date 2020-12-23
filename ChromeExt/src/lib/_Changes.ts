@@ -6,10 +6,11 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
-        ['1.0.6', '?', [
+        ['1.0.6', 'UndockVidconf ChatBubbleDuration Items', [
             ['Add', 'Undock vidconf window'],
             ['Add', 'vpi ignore (e.g. all google)'],
             ['Change', 'Much longer chat bubble duration, 2 min. total instead of 20 sec.'],
+            ['Change', 'Update to item inventory grain and chat room based inventory view (internal).'],
             ['Fix', 'Chat window focused input style'],
         ]],
         ['1.0.5', 'SPA', [
@@ -28,7 +29,6 @@ export class _Changes
             ['Change', 'Prefer presence-x-vp:props attributes over identity'],
             ['Change', 'Settings title to brand name (lowercase)'],
             ['Change', 'Variable avatar size'],
-            ['Change', 'Nicknames only on jovere'],
             ['Fix', 'Window position on small screens'],
             ['Fix', 'Url mapping (JS undefined)'],
         ]],
