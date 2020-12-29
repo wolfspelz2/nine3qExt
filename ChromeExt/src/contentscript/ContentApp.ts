@@ -52,6 +52,7 @@ export class ContentApp
     private xmppWindow: XmppWindow;
     private settingsWindow: SettingsWindow;
     private stanzasResponses: { [stanzaId: string]: StanzaResponseHandler } = {}
+    private runtimeOnMessageClosure: (message: any, sender: any, sendResponse: any) => any;
 
     private stayHereIsChecked: boolean = false;
     private inventoryIsOpen: boolean = false;
@@ -149,7 +150,9 @@ export class ContentApp
         $(page).append(this.display);
         this.appendToMe.append(page);
 
-        chrome.runtime?.onMessage.addListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
+        // chrome.runtime?.onMessage.addListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
+        this.runtimeOnMessageClosure = this.getRuntimeOnMessageClosure();
+        chrome.runtime?.onMessage.addListener(this.runtimeOnMessageClosure);
 
         // this.enterPage();
         this.checkPageUrlChanged();
@@ -157,6 +160,19 @@ export class ContentApp
         this.startCheckPageUrl();
         this.pingBackgroundToKeepConnectionAlive();
     }
+
+    getRuntimeOnMessageClosure()
+    {
+        var self = this;
+        function runtimeOnMessageClosure(message, sender, sendResponse)
+        {
+            return self.runtimeOnMessage(message, sender, sendResponse);
+        }
+        return runtimeOnMessageClosure;
+    }
+
+    //   var myFunc = makeFunc();
+    //   myFunc();
 
     stop()
     {
@@ -181,7 +197,7 @@ export class ContentApp
         }
 
         try {
-            chrome.runtime?.onMessage.removeListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
+            chrome.runtime?.onMessage.removeListener(this.runtimeOnMessageClosure);
         } catch (error) {
             //            
         }
@@ -197,6 +213,7 @@ export class ContentApp
 
     test(): void
     {
+        // BackgroundMessage.test();
         new TestWindow(this).show({});
     }
 
@@ -320,13 +337,13 @@ export class ContentApp
                 sendResponse();
             } break;
         }
-        return false;
+        return true;
     }
 
     handle_recvStanza(jsStanza: any): any
     {
         let stanza: xml = Utils.jsObject2xmlObject(jsStanza);
-        log.debug('ContentApp.recvStanza', stanza);
+        log.debug('ContentApp.recvStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to, 'from=', stanza.attrs.from);
 
         if (this.xmppWindow) {
             let stanzaText = stanza.toString();
@@ -338,6 +355,8 @@ export class ContentApp
             case 'message': this.onMessage(stanza); break;
             case 'iq': this.onIq(stanza); break;
         }
+
+        // return true;
     }
 
     handle_userSettingsChanged(): any
@@ -516,7 +535,7 @@ export class ContentApp
 
     async sendStanza(stanza: xml, stanzaId: string = null, responseHandler: StanzaResponseHandler = null): Promise<void>
     {
-        log.debug('ContentApp.sendStanza', stanza);
+        log.debug('ContentApp.sendStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to);
         try {
             if (this.xmppWindow) {
                 let stanzaText = stanza.toString();

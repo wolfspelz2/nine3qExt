@@ -49,7 +49,7 @@ export class ItemFrameWindow extends Window
             let left = Math.max(options.clickPos.x - options.width / 2 + options.offsetLeft, options.minLeft);
             let top = Math.max(options.clickPos.y - options.height / 2 + options.offsetTop, options.minTop);
 
-            let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-itemframewindow-content" src="' + url + ' " frameborder="0"></iframe>').get(0);
+            let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-itemframewindow-content" src="' + url + ' " frameborder="0" allow="camera; microphone; display-capture"></iframe>').get(0);
 
             $(this.contentElem).append(iframeElem);
             this.app.translateElem(this.windowElem);

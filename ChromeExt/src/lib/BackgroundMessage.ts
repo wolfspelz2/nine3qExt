@@ -188,4 +188,20 @@ export class BackgroundMessage
         });
     }
 
+    static type_test = 'test';
+    static test(): Promise<void>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            try {
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_test }, response =>
+                {
+                    resolve(response);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
 }

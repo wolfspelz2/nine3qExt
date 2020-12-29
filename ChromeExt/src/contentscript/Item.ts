@@ -68,9 +68,15 @@ export class Item
         let userId = this.app.getItemProviderConfigValue(this.providerId, 'userToken', '');
 
         if (iframeUrl != '' && room && apiUrl != '' && userId != '') {
+            // iframeUrl = 'https://jitsi.vulcan.weblin.com/{room}#userInfo.displayName="{name}"';
             let roomJid = room.getJid();
+            let roomNick = room.getMyNick();
             let contextToken = await Payload.getContextToken(apiUrl, userId, this.id, 3600, { 'room': roomJid });
-            iframeUrl = iframeUrl.replace('{context}', encodeURIComponent(contextToken));
+            iframeUrl = iframeUrl
+                .replace('{context}', encodeURIComponent(contextToken))
+                .replace('{room}', encodeURIComponent(roomJid))
+                .replace('{name}', encodeURIComponent(roomNick))
+                ;
 
             let frame = as.String(this.properties.IframeFrame, 'Window');
             if (frame == 'Popup') {

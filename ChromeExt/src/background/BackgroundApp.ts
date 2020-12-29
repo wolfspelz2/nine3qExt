@@ -167,6 +167,11 @@ export class BackgroundApp
                 return false;
             } break;
 
+            case BackgroundMessage.type_test: {
+                sendResponse(this.handle_test());
+                return false;
+            } break;
+
             default: {
                 log.debug('BackgroundApp.onRuntimeMessage unhandled', message);
                 sendResponse({});
@@ -451,7 +456,7 @@ export class BackgroundApp
         }
     }
 
-    private sendStanza(stanza: xml): void
+    public sendStanza(stanza: xml): void
     {
         if (!this.xmppConnected) {
             this.stanzaQ.push(stanza);
@@ -478,7 +483,8 @@ export class BackgroundApp
             isConnectionPresence = (!stanza.attrs || !stanza.attrs.to || jid(stanza.attrs.to).getResource() == this.resource);
         }
         if (!isConnectionPresence) {
-            log.info('BackgroundApp.sendStanza', stanza);
+            // log.info('BackgroundApp.sendStanza', stanza);
+            log.info('BackgroundApp.sendStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to);
         }
     }
 
@@ -495,7 +501,8 @@ export class BackgroundApp
                 isConnectionPresence = stanza.attrs.from && (jid(stanza.attrs.from).getResource() == this.resource);
             }
             if (!isConnectionPresence) {
-                log.info('BackgroundApp.recvStanza', stanza);
+                // log.info('BackgroundApp.recvStanza', stanza);
+                log.info('BackgroundApp.recvStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to, 'from=', stanza.attrs.from);
             }
         }
 
@@ -647,5 +654,9 @@ export class BackgroundApp
         } catch (error) {
             //
         }
+    }
+
+    handle_test(): void
+    {
     }
 }
