@@ -51,7 +51,7 @@ export class VidconfWindow extends Window
             this.title = options.titleText; // member for undock
             this.url = options.url; // member for undock
             this.url = encodeURI(this.url);
-            let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-vidconfwindow-content" src="' + this.url + ' " frameborder="0" allow="camera; microphone; display-capture"></iframe>').get(0);
+            let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-vidconfwindow-content" src="' + this.url + ' " frameborder="0" allow="camera; microphone; fullscreen; display-capture"></iframe>').get(0);
 
             $(contentElem).append(iframeElem);
 
@@ -81,7 +81,7 @@ export class VidconfWindow extends Window
         //     '<iframe'
         //     + ' src="' + url 
         //     + ' " frameborder="0"'
-        //     + ' allow="camera; microphone; display-capture"'
+        //     + ' allow="camera; microphone; fullscreen; display-capture"'
         //     + ' style="position: absolute; left: 0; right: 0; bottom: 0; top: 0; width: 100%; height: 100%;"'
         //     + '></iframe>'
         //     ;
@@ -90,7 +90,7 @@ export class VidconfWindow extends Window
         // };
 
         undocked.focus();
-        this.close();   
+        this.close();
     }
 
     isOpen(): boolean
