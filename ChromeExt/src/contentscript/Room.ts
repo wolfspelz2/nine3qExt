@@ -22,6 +22,7 @@ export class Room
     private maxEnterRetries: number = as.Int(Config.get('xmpp.maxMucEnterRetries', 4));
     private participants: { [nick: string]: Participant; } = {};
     private items: { [nick: string]: RoomItem; } = {};
+    private dependents: { [nick: string]: Array<string>; } = {};
     private isEntered = false; // iAmAlreadyHere() needs isEntered=true to be after onPresenceAvailable
     private chatWindow: ChatWindow;
     private vidconfWindow: VidconfWindow;
@@ -138,76 +139,115 @@ export class Room
 
     onPresence(stanza: any): void
     {
+        let presenceType = as.String(stanza.attrs.type, 'available');
+        switch (presenceType) {
+            case 'available': this.onPresenceAvailable(stanza); break;
+            case 'unavailable': this.onPresenceUnavailable(stanza); break;
+            case 'error': this.onPresenceError(stanza); break;
+        }
+    }
+
+    onPresenceAvailable(stanza: any): void
+    {
+        let from = jid(stanza.attrs.from);
+        let resource = from.getResource();
+        let isSelf = (resource == this.resource);
+        let entity = null;
+        let isItem = false;
+
+        // presence x.vp:props type='item' 
+        let vpPropsNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
+        if (vpPropsNode) {
+            let attrs = vpPropsNode.attrs;
+            if (attrs) {
+                let type = as.String(attrs.type, '');
+                isItem = (type == 'item');
+            }
+        }
+
+        if (isItem) {
+            entity = this.items[resource];
+            if (!entity) {
+                entity = new RoomItem(this.app, this, resource, false);
+                this.items[resource] = entity;
+            }
+        } else {
+            entity = this.participants[resource];
+            if (!entity) {
+                entity = new Participant(this.app, this, resource, isSelf);
+                this.participants[resource] = entity;
+            }
+        }
+
+        if (entity) {
+            entity.onPresenceAvailable(stanza);
+
+            if (isSelf && !this.isEntered) {
+                this.isEntered = true;
+                this.myNick = resource;
+                this.keepAlive();
+            }
+        }
+
+        let vpDependents = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:dependents');
+        if (vpDependents) {
+            let to = jid(stanza.attrs.to);
+
+            let previousDependents = this.dependents[resource];
+            let currentDependents = new Array<string>();
+
+            let dependentPresences = vpDependents.getChildren('presence');
+            if (dependentPresences.length > 0) {
+                for (let i = 0; i < dependentPresences.length; i++) {
+                    var dependentPresence = dependentPresences[i];
+                    dependentPresence.attrs['to'] = to;
+                    let dependentFrom = jid(dependentPresence.attrs.from);
+                    let dependentResource = dependentFrom.getResource();
+                    currentDependents.push(dependentResource);
+                    this.onPresence(dependentPresence);
+                }
+            }
+
+            previousDependents.forEach(function (value)
+            {
+                if (currentDependents[value] == null) {
+                    let dependentUnavailablePresence = xml('presence', { 'from': this.jid + '/' + value, 'type': 'unavailable', 'to': to });
+                    this.onPresence(dependentUnavailablePresence);
+                }
+            });
+
+            this.dependents[resource] = currentDependents;
+        }
+    }
+
+    onPresenceUnavailable(stanza: any): void
+    {
         let from = jid(stanza.attrs.from);
         let resource = from.getResource();
 
-        let presenceType = as.String(stanza.attrs.type, '');
-        if (presenceType == '') {
-            presenceType = 'available';
+        if (this.participants[resource]) {
+            this.participants[resource].onPresenceUnavailable(stanza);
+            delete this.participants[resource];
+        } else if (this.items[resource]) {
+            this.items[resource].onPresenceUnavailable(stanza);
+            delete this.items[resource];
         }
 
-        let isSelf = (resource == this.resource);
+        if (this.dependents[resource]) {
+            let to = jid(stanza.attrs.to);
+            this.dependents[resource].forEach(function (value)
+            {
+                let dependentUnavailablePresence = xml('presence', { 'from': this.jid + '/' + value, 'type': 'unavailable', 'to': to });
+                this.onPresence(dependentUnavailablePresence);
+            });
+        }
+    }
 
-        switch (presenceType) {
-            case 'available':
-                {
-                    let entity = null;
-                    let isItem = false;
-
-                    // presence x.vp:props type='item' 
-                    let vpPropsNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
-                    if (vpPropsNode) {
-                        let attrs = vpPropsNode.attrs;
-                        if (attrs) {
-                            let type = as.String(attrs.type, '');
-                            isItem = (type == 'item');
-                        }
-                    }
-
-                    if (isItem) {
-                        entity = this.items[resource];
-                        if (!entity) {
-                            entity = new RoomItem(this.app, this, resource, false);
-                            this.items[resource] = entity;
-                        }
-                    } else {
-                        entity = this.participants[resource];
-                        if (!entity) {
-                            entity = new Participant(this.app, this, resource, isSelf);
-                            this.participants[resource] = entity;
-                        }
-                    }
-
-                    if (entity) {
-                        entity.onPresenceAvailable(stanza);
-
-                        if (isSelf && !this.isEntered) {
-                            this.isEntered = true;
-                            this.myNick = resource;
-                            this.keepAlive();
-                        }
-                    }
-                }
-
-                break;
-
-            case 'unavailable':
-                if (this.participants[resource]) {
-                    this.participants[resource].onPresenceUnavailable(stanza);
-                    delete this.participants[resource];
-                } else if (this.items[resource]) {
-                    this.items[resource].onPresenceUnavailable(stanza);
-                    delete this.items[resource];
-                }
-
-                break;
-
-            case 'error':
-                let code = as.Int(stanza.getChildren('error')[0].attrs.code, -1);
-                if (code == 409) {
-                    this.reEnterDifferentNick();
-                }
-                break;
+    onPresenceError(stanza: any): void
+    {
+        let code = as.Int(stanza.getChildren('error')[0].attrs.code, -1);
+        if (code == 409) {
+            this.reEnterDifferentNick();
         }
     }
 
