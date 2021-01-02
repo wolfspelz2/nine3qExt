@@ -14,70 +14,86 @@
 
     static Bool(val: any, alt?: boolean): boolean
     {
-        var res = alt;
-        if (typeof val === this.typeBoolean) {
-            res = val;
-        } else {
-            if (typeof val === this.typeString) {
-                if (val == 'true' || val == 'True' || val == 'TRUE' || val == '1' || val == 'yes') {
-                    res = true;
-                } else { res = false; }
+        var res = alt ?? false;
+        try {
+            if (typeof val === this.typeBoolean) {
+                res = val;
             } else {
-                if (typeof val === this.typeNumber) {
-                    if (val >= 1) {
+                if (typeof val === this.typeString) {
+                    if (val == 'true' || val == 'True' || val == 'TRUE' || val == '1' || val == 'yes') {
                         res = true;
                     } else { res = false; }
+                } else {
+                    if (typeof val === this.typeNumber) {
+                        if (val >= 1) {
+                            res = true;
+                        } else { res = false; }
+                    }
                 }
             }
+        } catch (error) {
+            // alt
         }
         return res;
     }
 
     static String(val: any, alt?: string): string
     {
-        var res = alt;
-        if (typeof val === this.typeString) {
-            res = val;
-        } else {
-            if (typeof val === this.typeNumber) {
-                res = '' + val;
+        var res = alt ?? '';
+        try {
+            if (typeof val === this.typeString) {
+                res = val;
             } else {
-                if (typeof val === this.typeBoolean) {
-                    res = val ? 'true' : 'false';
+                if (typeof val === this.typeNumber) {
+                    res = '' + val;
+                } else {
+                    if (typeof val === this.typeBoolean) {
+                        res = val ? 'true' : 'false';
+                    }
                 }
             }
+        } catch (error) {
+            // alt
         }
         return res;
     }
 
     static Int(val: any, alt?: number): number
     {
-        var res = alt;
-        if (typeof val === this.typeNumber) {
-            res = Math.round(val);
-        } else {
-            if (typeof val === this.typeString) {
-                res = parseInt(val);
-                if (isNaN(res)) {
-                    res = alt;
+        var res = alt ?? 0;
+        try {
+            if (typeof val === this.typeNumber) {
+                res = Math.round(val);
+            } else {
+                if (typeof val === this.typeString) {
+                    res = parseInt(val);
+                    if (isNaN(res)) {
+                        res = alt ?? 0;
+                    }
                 }
             }
+        } catch (error) {
+            // alt
         }
         return res;
     }
 
     static Float(val: any, alt?: number): number
     {
-        var res = alt;
-        if (typeof val === this.typeNumber) {
-            res = val;
-        } else {
-            if (typeof val === this.typeString) {
-                res = parseFloat(val);
-                if (isNaN(res)) {
-                    res = alt;
+        var res = alt ?? 0.0;
+        try {
+            if (typeof val === this.typeNumber) {
+                res = val;
+            } else {
+                if (typeof val === this.typeString) {
+                    res = parseFloat(val);
+                    if (isNaN(res)) {
+                        res = alt ?? 0;
+                    }
                 }
             }
+        } catch (error) {
+            // alt
         }
         return res;
     }
@@ -127,15 +143,15 @@
         return res;
     }
 
-    static Object(val: any, alt?: string): any
-    {
-        var res = as.String(val, alt);
-        var obj = null;
-        try {
-            obj = JSON.parse(res);
-        } catch (exception) {
-            obj = JSON.parse(alt);
-        }
-        return obj;
-    }
+    // static Object(val: any, alt?: any): any
+    // {
+    //     var res = alt ?? {};
+    //     var obj = as.String(val, '{}');
+    //     try {
+    //         res = JSON.parse(obj);
+    //     } catch (exception) {
+    //         //
+    //     }
+    //     return obj;
+    // }
 }
