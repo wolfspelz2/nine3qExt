@@ -223,6 +223,7 @@ export class Inventory
         cmd['method'] = 'itemAction';
         cmd['action'] = 'Inventory.Rez';
         cmd['room'] = room;
+        cmd['item'] = itemId;
         cmd['x'] = x;
         cmd['destination'] = destination;
 
@@ -238,6 +239,7 @@ export class Inventory
         cmd['method'] = 'itemAction';
         cmd['action'] = 'Rezzed.Derez';
         cmd['user'] = this.userToken;
+        cmd['item'] = itemId;
         cmd['x'] = x;
         cmd['y'] = y;
 
@@ -253,6 +255,7 @@ export class Inventory
         cmd['method'] = 'itemAction';
         cmd['action'] = action;
         cmd['user'] = this.userToken;
+        cmd['item'] = itemId;
         for (let paramName in params) {
             cmd[paramName] = params[paramName];
         }

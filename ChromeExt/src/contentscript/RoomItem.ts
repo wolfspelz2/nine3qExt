@@ -233,6 +233,7 @@ export class RoomItem extends Entity
                 cmd['method'] = 'itemAction';
                 cmd['action'] = action;
                 cmd['user'] = userToken;
+                cmd['item'] = itemId;
                 for (let paramName in params) {
                     cmd[paramName] = params[paramName];
                 }

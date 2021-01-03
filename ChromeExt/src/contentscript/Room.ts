@@ -189,14 +189,14 @@ export class Room
             }
         }
 
-        let vpDependents = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:dependents');
-        if (vpDependents) {
+        let vpDependent = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:dependent');
+        if (vpDependent) {
             let to = jid(stanza.attrs.to);
 
             let previousDependents = this.dependents[resource];
             let currentDependents = new Array<string>();
 
-            let dependentPresences = vpDependents.getChildren('presence');
+            let dependentPresences = vpDependent.getChildren('presence');
             if (dependentPresences.length > 0) {
                 for (let i = 0; i < dependentPresences.length; i++) {
                     var dependentPresence = dependentPresences[i];
