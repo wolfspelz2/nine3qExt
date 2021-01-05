@@ -193,9 +193,7 @@ export class Room
         if (vpDependent) {
             let to = jid(stanza.attrs.to);
 
-            let previousDependents = this.dependents[resource];
             let currentDependents = new Array<string>();
-
             let dependentPresences = vpDependent.getChildren('presence');
             if (dependentPresences.length > 0) {
                 for (let i = 0; i < dependentPresences.length; i++) {
@@ -208,13 +206,16 @@ export class Room
                 }
             }
 
-            previousDependents.forEach(function (value)
-            {
-                if (currentDependents[value] == null) {
-                    let dependentUnavailablePresence = xml('presence', { 'from': this.jid + '/' + value, 'type': 'unavailable', 'to': to });
-                    this.onPresence(dependentUnavailablePresence);
-                }
-            });
+            let previousDependents = this.dependents[resource];
+            if (previousDependents) {
+                previousDependents.forEach(function (value)
+                {
+                    if (currentDependents[value] == null) {
+                        let dependentUnavailablePresence = xml('presence', { 'from': this.jid + '/' + value, 'type': 'unavailable', 'to': to });
+                        this.onPresence(dependentUnavailablePresence);
+                    }
+                });
+            }
 
             this.dependents[resource] = currentDependents;
         }
@@ -233,13 +234,14 @@ export class Room
             delete this.items[resource];
         }
 
-        if (this.dependents[resource]) {
+        let currentDependents = this.dependents[resource];
+        if (currentDependents) {
             let to = jid(stanza.attrs.to);
-            this.dependents[resource].forEach(function (value)
-            {
+            for (let i = 0; i < currentDependents.length; i++) {
+                let value = currentDependents[i];
                 let dependentUnavailablePresence = xml('presence', { 'from': this.jid + '/' + value, 'type': 'unavailable', 'to': to });
                 this.onPresence(dependentUnavailablePresence);
-            });
+            };
         }
     }
 
