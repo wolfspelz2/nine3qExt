@@ -5,6 +5,7 @@ import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { Panic } from '../lib/Panic';
 import { ContentApp } from './ContentApp';
+import { Entity } from './Entity';
 import { Participant } from './Participant';
 import { RoomItem } from './RoomItem';
 import { ChatWindow } from './ChatWindow'; // Wants to be after Participant and Item otherwise $().resizable does not work
@@ -152,7 +153,7 @@ export class Room
         let from = jid(stanza.attrs.from);
         let resource = from.getResource();
         let isSelf = (resource == this.resource);
-        let entity = null;
+        let entity: Entity = null;
         let isItem = false;
 
         // presence x.vp:props type='item' 
@@ -168,14 +169,16 @@ export class Room
         if (isItem) {
             entity = this.items[resource];
             if (!entity) {
-                entity = new RoomItem(this.app, this, resource, false);
-                this.items[resource] = entity;
+                let roomItem = new RoomItem(this.app, this, resource, false);
+                this.items[resource] = roomItem;
+                entity = roomItem;
             }
         } else {
             entity = this.participants[resource];
             if (!entity) {
-                entity = new Participant(this.app, this, resource, isSelf);
-                this.participants[resource] = entity;
+                let participant = new Participant(this.app, this, resource, isSelf);
+                this.participants[resource] = participant;
+                entity = participant;
             }
         }
 
@@ -208,13 +211,13 @@ export class Room
 
             let previousDependents = this.dependents[resource];
             if (previousDependents) {
-                previousDependents.forEach(function (value)
-                {
-                    if (currentDependents[value] == null) {
+                for (let i = 0; i < previousDependents.length; i++) {
+                    let value = previousDependents[i];
+                    if (!currentDependents.includes(value)) {
                         let dependentUnavailablePresence = xml('presence', { 'from': this.jid + '/' + value, 'type': 'unavailable', 'to': to });
                         this.onPresence(dependentUnavailablePresence);
                     }
-                });
+                }
             }
 
             this.dependents[resource] = currentDependents;
@@ -242,6 +245,7 @@ export class Room
                 let dependentUnavailablePresence = xml('presence', { 'from': this.jid + '/' + value, 'type': 'unavailable', 'to': to });
                 this.onPresence(dependentUnavailablePresence);
             };
+            delete this.dependents[resource];
         }
     }
 

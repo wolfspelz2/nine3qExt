@@ -128,6 +128,13 @@ export class Entity
         this.positionX = newX;
     }
 
+    // Xmpp
+
+    onPresenceAvailable(stanza: any)
+    {
+        log.error('Entity.onPresenceAvailable', 'not implemented', 'you should not be here');
+    }
+
     // Mouse
 
     onMouseEnterAvatar(ev: JQuery.Event): void
