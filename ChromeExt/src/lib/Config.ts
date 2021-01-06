@@ -99,6 +99,9 @@ export class Config
             borderPadding: 4,
             dropZoneHeight: 100,
         },
+        projector: {
+            enabled: false,
+        },
         itemProviders: {
             'nine3q':
             {

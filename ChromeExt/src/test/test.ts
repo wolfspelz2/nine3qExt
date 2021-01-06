@@ -13,6 +13,7 @@ import { TestMisc } from './TestMisc'; s.addTestClass(TestMisc);
 import { TestVpiResolver } from './TestVpiResolver'; s.addTestClass(TestVpiResolver);
 import { TestItemProvider } from './TestItemProvider'; s.addTestClass(TestItemProvider);
 import { TestAs } from './TestAs'; s.addTestClass(TestAs);
+import { TestProjector } from './TestProjector'; s.addTestClass(TestProjector);
 
 s.run().then(() =>
 {

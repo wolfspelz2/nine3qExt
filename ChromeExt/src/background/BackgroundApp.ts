@@ -6,6 +6,7 @@ import { ConfigUpdater } from './ConfigUpdater';
 import { Config } from '../lib/Config';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Client } from '../lib/Client';
+import { Projector } from './Projector';
 
 interface ILocationMapperResponse
 {
@@ -28,6 +29,8 @@ export class BackgroundApp
     private readonly iqStanzaTabId: Map<string, number> = new Map<string, number>();
     private readonly httpCacheData: Map<string, string> = new Map<string, string>();
     private readonly httpCacheTime: Map<string, number> = new Map<string, number>();
+
+    private projector: Projector = null;
 
     async start(): Promise<void>
     {
@@ -55,6 +58,19 @@ export class BackgroundApp
         this.configUpdater = new ConfigUpdater();
         await this.configUpdater.getUpdate();
         await this.configUpdater.startUpdateTimer()
+
+        if (Config.get('projector.enabled', false)) {
+            this.projector = new Projector(this);
+            this.projector.addItem('d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org', Utils.randomString(20), {
+                'Label': 'PirateFlag',
+                'Width': '43',
+                'Height': '65',
+                'ImageUrl': '{image.item.nine3q}PirateFlag/image.png ',
+                'AnimationsUrl': '{image.item.nine3q}PirateFlag/animations.xml',
+                'PageClaimAspect': 'true',
+                'Template': 'pir66ilsh8z9q5oy6esuzny'
+            });
+        }
 
         if (Config.get('inventory.enabled', false)) {
             let gotAnyProvider = false;
@@ -422,7 +438,12 @@ export class BackgroundApp
         // log.debug('BackgroundApp.handle_sendStanza', stanza, tabId);
 
         try {
-            let xmlStanza = Utils.jsObject2xmlObject(stanza);
+            let xmlStanza: xml = Utils.jsObject2xmlObject(stanza);
+
+            if (this.projector) {
+                xmlStanza = this.projector.stanzaOutFilter(xmlStanza);
+                if (xmlStanza == null) { return; }
+            }
 
             if (stanza.name == 'presence') {
                 let to = jid(stanza.attrs.to);
