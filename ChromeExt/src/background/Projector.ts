@@ -3,10 +3,11 @@ import { as } from '../lib/as';
 import { xml, jid } from '@xmpp/client';
 import { Config } from '../lib/Config';
 import { BackgroundApp } from './BackgroundApp';
+import { ItemProperties } from '../lib/ItemProperties';
 
 export class ProjectedItem
 {
-    constructor(private app: BackgroundApp, private room: RoomProjector, private itemId: string, private properties: { [pid: string]: string })
+    constructor(private app: BackgroundApp, private room: RoomProjector, private itemId: string, private properties: ItemProperties)
     {
     }
 
@@ -27,8 +28,8 @@ export class ProjectedItem
     getPresence(): xml
     {
         var presence = xml('presence', { 'from': this.room.getJid() + '/' + this.itemId });
-        let basicAttrs = { 'xmlns': 'vp:props', 'type': 'item', 'provider': 'nine3q' };
-        let attrs = Object.assign(basicAttrs, this.properties);
+        let protocolAttrs = { 'xmlns': 'vp:props', 'type': 'item', 'provider': 'nine3q' };
+        let attrs = Object.assign(protocolAttrs, this.properties);
         presence.append(xml('x', attrs));
         return presence;
     }
@@ -44,12 +45,12 @@ export class RoomProjector
 
     getJid(): string { return this.roomJid; }
 
-    addItem(itemId: string, props: { [pid: string]: string; })
+    projectItem(itemId: string, props: ItemProperties)
     {
-        var projectedItem = this.items[itemId];
-        if (projectedItem == null) {
-            projectedItem = new ProjectedItem(this.app, this, itemId, props);
-            this.items[itemId] = projectedItem;
+        var item = this.items[itemId];
+        if (item == null) {
+            item = new ProjectedItem(this.app, this, itemId, props);
+            this.items[itemId] = item;
         }
     }
 
@@ -82,14 +83,14 @@ export class Projector
     {
     }
 
-    addItem(roomJid: string, itemId: string, props: { [pid: string]: string })
+    projectItem(roomJid: string, itemId: string, props: ItemProperties)
     {
         var roomProjector = this.rooms[roomJid];
         if (roomProjector == null) {
             roomProjector = new RoomProjector(this.app, roomJid);
             this.rooms[roomJid] = roomProjector;
         }
-        roomProjector.addItem(itemId, props);
+        roomProjector.projectItem(itemId, props);
     }
 
     isItem(roomJid: any, itemId: any): boolean

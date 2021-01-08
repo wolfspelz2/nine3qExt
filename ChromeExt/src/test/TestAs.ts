@@ -1,8 +1,41 @@
 import { expect } from 'chai';
 import { as } from '../lib/as';
 
+// class TestAs_copes_with_undefined_A
+// {
+//     key: string;
+// }
+
+// class TestAs_copes_with_undefined_B
+// {
+//     public a: TestAs_copes_with_undefined_A;
+// }
+
+// class TestAs_copes_with_undefined_C
+// {
+//     public b: TestAs_copes_with_undefined_B;
+// }
+
 export class TestAs
 {
+    // as_copes_with_undefined()
+    // {
+    //     let a = new TestAs_copes_with_undefined_A();
+    //     a.key = '42';
+    //     let b = new TestAs_copes_with_undefined_B();
+    //     b.a = a;
+    //     let c = new TestAs_copes_with_undefined_C();
+    //     c.b = b;
+
+    //     expect(c.b.a.key).to.equal('42');
+    //     expect(as.String(c.b.a.key)).to.equal('42', 'default');
+    //     expect(as.Int(c.b.a.key, 0)).to.equal(42);
+
+    //     b.a = null;
+    //     // expect(as.String(c.b.a.key, 'default')).to.equal('42', 'default');
+    //     // expect(as.Int(c.b.a.key, 0)).to.equal(42);
+    // }
+
     as_Bool()
     {
         expect(as.Bool(true)).to.equal(true);

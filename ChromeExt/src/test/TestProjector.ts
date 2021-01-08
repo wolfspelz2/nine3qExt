@@ -10,8 +10,8 @@ export class TestProjector
     {
         let ba = new BackgroundApp();
         let p = new Projector(ba);
-        p.addItem('room1@server', 'item1', { 'a': 'b1', 'c': '41' });
-        p.addItem('room1@server', 'item2', { 'a': 'b2', 'c': '42' });
+        p.projectItem('room1@server', 'item1', { 'a': 'b1', 'c': '41' });
+        p.projectItem('room1@server', 'item2', { 'a': 'b2', 'c': '42' });
         let stanza = xml('presence', { 'to': 'room1@server/nick' });
         stanza = p.stanzaOutFilter(stanza);
         expect(stanza.name).to.equal('presence');

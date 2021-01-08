@@ -7,6 +7,7 @@ import { Config } from '../lib/Config';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Client } from '../lib/Client';
 import { Projector } from './Projector';
+import { ClientRepository } from './ClientRepository';
 
 interface ILocationMapperResponse
 {
@@ -30,7 +31,8 @@ export class BackgroundApp
     private readonly httpCacheData: Map<string, string> = new Map<string, string>();
     private readonly httpCacheTime: Map<string, number> = new Map<string, number>();
 
-    private projector: Projector = null;
+    private projector: Projector;
+    private repository: ClientRepository;
 
     async start(): Promise<void>
     {
@@ -61,15 +63,16 @@ export class BackgroundApp
 
         if (Config.get('projector.enabled', false)) {
             this.projector = new Projector(this);
-            this.projector.addItem('d954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org', Utils.randomString(20), {
+            this.repository = new ClientRepository(this, this.projector);
+            let itemId = Utils.randomString(20);
+            this.repository.addItem(itemId, {
                 'Label': 'PirateFlag',
                 'Width': '43',
                 'Height': '65',
                 'ImageUrl': '{image.item.nine3q}PirateFlag/image.png ',
                 'AnimationsUrl': '{image.item.nine3q}PirateFlag/animations.xml',
-                'PageClaimAspect': 'true',
-                'Template': 'pir66ilsh8z9q5oy6esuzny'
             });
+            this.repository.rezItem(itemId, 'd954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org');
         }
 
         if (Config.get('inventory.enabled', false)) {

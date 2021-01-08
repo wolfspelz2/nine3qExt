@@ -10,16 +10,16 @@ import { sut } from '../lib/sut';
 
 function external_function_because_all_methods_are_ubject_to_testing()
 {
-   return 42;
+    return 42;
 }
 
 export class TestHelloWorld
 {
     private aPrivateProperty: number = 42;
 
-    private privateMethodThrows = function()
+    private privateMethodThrows = function ()
     {
-       throw 'should not be called';
+        throw 'should not be called';
     }
 
     static staticMethod()
@@ -27,13 +27,13 @@ export class TestHelloWorld
         return 42;
     }
 
-    getText_fails()
+    getText_fails_INTENTIONALLY()
     {
         const result = HelloWorld.getText();
         expect(result).to.equal('Expected Hello');
     }
 
-    getText_fails_with_result()
+    getText_fails_with_result_INTENTIONALLY()
     {
         const result = HelloWorld.getText();
         return 'error';
