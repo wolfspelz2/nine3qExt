@@ -99,6 +99,12 @@ export class Config
             borderPadding: 4,
             dropZoneHeight: 100,
         },
+        backpack: {
+            enabled: false,
+            itemSize: 64,
+            borderPadding: 4,
+            dropZoneHeight: 100,
+        },
         projector: {
             enabled: false,
         },
@@ -137,6 +143,7 @@ export class Config
                     'Menu.Settings': 'Settings',
                     'Menu.Stay Here': 'Stay on tab change',
                     'Menu.Inventory': 'Your Stuff',
+                    'Menu.Backpack': 'Local Stuff',
                     'Menu.Chat Window': 'History',
                     'Menu.Video Conference': 'Video Conference',
                     'Menu.Chat': 'Chat',
@@ -162,6 +169,7 @@ export class Config
                     'Vidconfwindow.Video Conference': 'Video Conference',
                     'Settingswindow.Settings': 'Settings',
                     'InventoryWindow.Inventory': 'Your Stuff',
+                    'BackpackWindow.Inventory': 'Local Stuff',
 
                     'Inventory.Not yet loaded': 'Not yet loaded',
                 },
@@ -186,6 +194,7 @@ export class Config
                     'Menu.Settings': 'Einstellungen',
                     'Menu.Stay Here': 'Bleiben bei Tabwechsel',
                     'Menu.Inventory': 'Deine Sachen',
+                    'Menu.Backpack': 'Lokale Sachen',
                     'Menu.Chat Window': 'Chatverlauf',
                     'Menu.Video Conference': 'Videokonferenz',
                     'Menu.Chat': 'Sprechblase',
@@ -211,6 +220,7 @@ export class Config
                     'Vidconfwindow.Video Conference': 'Videokonferenz',
                     'Settingswindow.Settings': 'Einstellungen',
                     'InventoryWindow.Inventory': 'Deine Gegenstände',
+                    'BackpackWindow.Inventory': 'Lokale Gegenstände',
 
                     'Inventory.Not yet loaded': 'Noch nicht geladen',
                 },

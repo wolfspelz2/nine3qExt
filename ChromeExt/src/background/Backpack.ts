@@ -6,11 +6,11 @@ import { BackgroundApp } from './BackgroundApp';
 import { ItemProperties } from '../lib/ItemProperties';
 import { Projector } from './Projector';
 
-export class ClientItem
+export class BackpackItem
 {
     private roomJid: string;
 
-    constructor(private repository: ClientRepository, private itemId: string, private properties: ItemProperties)
+    constructor(private backpack: Backpack, private itemId: string, private properties: ItemProperties)
     {
     }
 
@@ -22,9 +22,9 @@ export class ClientItem
     }
 }
 
-export class ClientRepository
+export class Backpack
 {
-    private items: { [id: string]: ClientItem; } = {};
+    private items: { [id: string]: BackpackItem; } = {};
 
     constructor(private app: BackgroundApp, private projector: Projector)
     {
@@ -34,7 +34,7 @@ export class ClientRepository
     {
         var item = this.items[itemId];
         if (item == null) {
-            item = new ClientItem(this, itemId, props);
+            item = new BackpackItem(this, itemId, props);
             this.items[itemId] = item;
         }
     }
