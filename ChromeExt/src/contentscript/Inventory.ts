@@ -23,8 +23,8 @@ export class Inventory
     {
         this.userToken = this.app.getItemProviderConfigValue(this.providerId, 'userToken', '');
         let serviceUrl = this.app.getItemProviderConfigValue(this.providerId, 'serviceUrl', '');
-        let backpackName = this.app.getItemProviderConfigValue(this.providerId, 'backpackRoom', '');
-        this.resource = this.app.getItemProviderConfigValue(this.providerId, 'backpackParticipant', '');
+        let inventoryMucRoom = this.app.getItemProviderConfigValue(this.providerId, 'inventoryMucRoom', '');
+        this.resource = this.app.getItemProviderConfigValue(this.providerId, 'inventoryMucParticipant', '');
 
         if (serviceUrl != '') {
             let url = new URL(serviceUrl);
@@ -37,7 +37,7 @@ export class Inventory
             this.inventoryMucHost = roomJid.getDomain();
         }
 
-        this.jid = backpackName + '@' + this.inventoryMucHost;
+        this.jid = inventoryMucRoom + '@' + this.inventoryMucHost;
         if (Environment.isDevelopment()) {
             // this.jid = 'visualinventory@' + this.inventoryMucHost;
         }

@@ -2,9 +2,10 @@ import log = require('loglevel');
 import { as } from '../lib/as';
 import { xml, jid } from '@xmpp/client';
 import { Config } from '../lib/Config';
-import { BackgroundApp } from './BackgroundApp';
 import { ItemProperties } from '../lib/ItemProperties';
+import { BackpackAddItemData, ContentMessage } from '../lib/ContentMessage';
 import { Projector } from './Projector';
+import { BackgroundApp } from './BackgroundApp';
 
 export class BackpackItem
 {
@@ -36,7 +37,20 @@ export class Backpack
         if (item == null) {
             item = new BackpackItem(this, itemId, props);
             this.items[itemId] = item;
+
+            let message = new BackpackAddItemData(itemId, props);
+            this.app.sendToAllTabs(ContentMessage.type_onBackpackAddItem, message);
         }
+    }
+
+    getItems(): { [id: string]: ItemProperties; }
+    {
+        let itemProperties: { [id: string]: ItemProperties; } = {};
+        for (let id in this.items) {
+            let item = this.items[id];
+            itemProperties[id] = item.getProperties();
+        }
+        return itemProperties
     }
 
     rezItem(itemId: string, roomJid: string): void

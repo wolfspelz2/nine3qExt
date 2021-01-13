@@ -20,6 +20,8 @@ import { Inventory } from './Inventory';
 import { ItemProvider } from './ItemProvider';
 import { ItemRepository } from './ItemRepository';
 import { TestWindow } from './TestWindow';
+import { BackpackWindow } from './BackpackWindow';
+import { BackpackAddItemData, BackpackChangeItemData, BackpackRemoveItemData, ContentMessage } from '../lib/ContentMessage';
 
 interface ILocationMapperResponse
 {
@@ -50,11 +52,13 @@ export class ContentApp
     private propertyStorage: PropertyStorage = new PropertyStorage();
     private babelfish: Translator;
     private xmppWindow: XmppWindow;
+    private backpackWindow: BackpackWindow;
     private settingsWindow: SettingsWindow;
     private stanzasResponses: { [stanzaId: string]: StanzaResponseHandler } = {}
     private runtimeOnMessageClosure: (message: any, sender: any, sendResponse: any) => any;
 
     private stayHereIsChecked: boolean = false;
+    private backpackIsOpen: boolean = false;
     private inventoryIsOpen: boolean = false;
     private vidconfIsOpen: boolean = false;
     private chatIsOpen: boolean = false;
@@ -213,8 +217,15 @@ export class ContentApp
 
     test(): void
     {
-        // BackgroundMessage.test();
-        new TestWindow(this).show({});
+        this.showBackpackWindow(null);
+        //new TestWindow(this).show({});
+    }
+
+    showBackpackWindow(aboveElem: HTMLElement): void
+    {
+        this.setBackpackIsOpen(true);
+        this.backpackWindow = new BackpackWindow(this);
+        this.backpackWindow.show({ 'above': aboveElem, onClose: () => { this.backpackWindow = null; this.setBackpackIsOpen(false); } });
     }
 
     async showInventoryWindow(aboveElem: HTMLElement, providerId: string): Promise<void>
@@ -262,6 +273,11 @@ export class ContentApp
 
     // Stay on tab change
 
+    setBackpackIsOpen(value: boolean): void
+    {
+        this.backpackIsOpen = value; this.evaluateStayOnTabChange();
+    }
+
     setInventoryIsOpen(value: boolean): void
     {
         this.inventoryIsOpen = value; this.evaluateStayOnTabChange();
@@ -286,7 +302,7 @@ export class ContentApp
 
     evaluateStayOnTabChange(): void
     {
-        let stay = this.inventoryIsOpen || this.vidconfIsOpen || this.chatIsOpen || this.stayHereIsChecked;
+        let stay = this.backpackIsOpen || this.inventoryIsOpen || this.vidconfIsOpen || this.chatIsOpen || this.stayHereIsChecked;
         if (stay) {
             this.messageHandler({ 'type': ContentAppNotification.type_onTabChangeStay });
         } else {
@@ -335,6 +351,19 @@ export class ContentApp
             case 'userSettingsChanged': {
                 this.handle_userSettingsChanged();
                 sendResponse();
+            } break;
+
+            case ContentMessage.type_onBackpackAddItem: {
+                this.backpackWindow?.onBackpackAddItem(message.data.id, message.data.properties);
+                return false;
+            } break;
+            case ContentMessage.type_onBackpackChangeItem: {
+                this.backpackWindow?.onBackpackChangeItem(message.data.id, message.data.properties);
+                return false;
+            } break;
+            case ContentMessage.type_onBackpackRemoveItem: {
+                this.backpackWindow?.onBackpackRemoveItem(message.data.id);
+                return false;
             } break;
         }
         return true;

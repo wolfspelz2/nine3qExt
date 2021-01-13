@@ -5,13 +5,16 @@ import log = require('loglevel');
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
+import { ItemProperties } from '../lib/ItemProperties';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ContentApp } from './ContentApp';
 import { Window } from './Window';
-import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { BackpackImage } from './BackpackImage';
 
 export class BackpackWindow extends Window
 {
     private paneElem: HTMLElement;
+    private items: { [id: string]: BackpackImage; } = {};
 
     constructor(app: ContentApp)
     {
@@ -52,7 +55,7 @@ export class BackpackWindow extends Window
                 }
             }
 
-            let paneElem = <HTMLElement>$('<div class="n3q-base n3q-inventory-pane" data-translate="children" />').get(0);
+            let paneElem = <HTMLElement>$('<div class="n3q-base n3q-backpack-pane" data-translate="children" />').get(0);
             $(contentElem).append(paneElem);
 
             this.app.translateElem(windowElem);
@@ -74,29 +77,41 @@ export class BackpackWindow extends Window
                 this.saveCoordinates(left, bottom, size.width, size.height);
             };
 
-            $(paneElem).droppable({
-                drop: (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
-                {
-                    let droppedAvatar = ui.draggable.get(0);
-                    if (droppedAvatar) {
-                        let droppedEntity = droppedAvatar.parentElement;
-                        if (droppedEntity) {
-                            let droppedId: string = $(droppedEntity).data('nick');
-                            if (droppedId) {
-                                let roomItem = this.app.getRoom().getItem(droppedId);
-                                if (roomItem) {
-                                    let x = Math.round(ui.offset.left - $(paneElem).offset().left + ui.draggable.width() / 2);
-                                    let y = Math.round(ui.offset.top - $(paneElem).offset().top + ui.draggable.height() / 2)
-                                    roomItem.beginDerez();
-                                    // this.inv.sendDerezItem(roomItem.getNick(), roomItem.getRoom().getJid(), x, y);
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+            // $(paneElem).droppable({
+            //     drop: (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
+            //     {
+            //         let droppedAvatar = ui.draggable.get(0);
+            //         if (droppedAvatar) {
+            //             let droppedEntity = droppedAvatar.parentElement;
+            //             if (droppedEntity) {
+            //                 let droppedId: string = $(droppedEntity).data('nick');
+            //                 if (droppedId) {
+            //                     let roomItem = this.app.getRoom().getItem(droppedId);
+            //                     if (roomItem) {
+            //                         let x = Math.round(ui.offset.left - $(paneElem).offset().left + ui.draggable.width() / 2);
+            //                         let y = Math.round(ui.offset.top - $(paneElem).offset().top + ui.draggable.height() / 2)
+            //                         roomItem.beginDerez();
+            //                         // this.inv.sendDerezItem(roomItem.getNick(), roomItem.getRoom().getJid(), x, y);
+            //                     }
+            //                 }
+            //             }
+            //         }
+            //     }
+            // });
 
             this.paneElem = paneElem;
+
+            let response = await BackgroundMessage.getBackpackState();
+            if (response && response.ok) {
+                this.populate(response.items);
+            }
+        }
+    }
+
+    populate(items: { [id: string]: ItemProperties; })
+    {
+        for (let id in items) {
+            this.onBackpackAddItem(id, items[id]);
         }
     }
 
@@ -124,4 +139,28 @@ export class BackpackWindow extends Window
         return this.windowElem != null;
     }
 
+    onBackpackAddItem(id: string, properties: ItemProperties)
+    {
+        let item = this.items[id];
+        if (!item) {
+            item = new BackpackImage(this.app, this, id, properties);
+            this.items[id] = item;
+        }
+        item.create();
+    }
+
+    onBackpackChangeItem(id: string, properties: ItemProperties)
+    {
+        if (this.items[id]) {
+            this.items[id].applyProperties(properties);
+        }
+    }
+
+    onBackpackRemoveItem(id: string)
+    {
+        if (this.items[id]) {
+            this.items[id].destroy();
+            delete this.items[id];
+        }
+    }
 }

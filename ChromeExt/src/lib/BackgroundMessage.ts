@@ -1,4 +1,5 @@
 import log = require('loglevel');
+import { ItemProperties } from './ItemProperties';
 import { Panic } from './Panic';
 
 export class FetchUrlResponse
@@ -11,18 +12,34 @@ export class FetchUrlResponse
     ) { }
 }
 
-export class FetchBlobResponse
+export class GetBackpackStateResponse
 {
     constructor(
         public ok: boolean,
         public status: string,
         public statusText: string,
-        public data: []
+        public items: { [id: string]: ItemProperties; }
     ) { }
 }
 
 export class BackgroundMessage
 {
+    static type_test = 'test';
+    static test(): Promise<void>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            try {
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_test }, response =>
+                {
+                    resolve(response);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
     static type_jsonRpc = 'jsonRpc';
     static jsonRpc(url: string, jsonBodyData: any): Promise<FetchUrlResponse>
     {
@@ -47,22 +64,6 @@ export class BackgroundMessage
         {
             try {
                 chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_fetchUrl, 'url': url, 'version': version }, response =>
-                {
-                    resolve(response);
-                });
-            } catch (error) {
-                reject(error);
-            }
-        });
-    }
-
-    static type_fetchBlob = 'fetchBlob';
-    static fetchBlob(url: string, version: string): Promise<FetchBlobResponse>
-    {
-        return new Promise((resolve, reject) =>
-        {
-            try {
-                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_fetchBlob, 'url': url, 'version': version }, response =>
                 {
                     resolve(response);
                 });
@@ -188,13 +189,13 @@ export class BackgroundMessage
         });
     }
 
-    static type_test = 'test';
-    static test(): Promise<void>
+    static type_getBackpackState = 'getBackpackState';
+    static async getBackpackState(): Promise<GetBackpackStateResponse>
     {
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_test }, response =>
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_getBackpackState }, response =>
                 {
                     resolve(response);
                 });

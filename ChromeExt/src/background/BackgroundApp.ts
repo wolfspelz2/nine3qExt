@@ -4,10 +4,11 @@ import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { ConfigUpdater } from './ConfigUpdater';
 import { Config } from '../lib/Config';
-import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { BackgroundMessage, GetBackpackStateResponse } from '../lib/BackgroundMessage';
 import { Client } from '../lib/Client';
 import { Projector } from './Projector';
 import { Backpack } from './Backpack';
+import { ContentMessage } from '../lib/ContentMessage';
 
 interface ILocationMapperResponse
 {
@@ -61,15 +62,16 @@ export class BackgroundApp
         await this.configUpdater.getUpdate();
         await this.configUpdater.startUpdateTimer()
 
-        if (Config.get('projector.enabled', false)) {
+        if (Config.get('backpack.enabled', false)) {
             this.projector = new Projector(this);
             this.backpack = new Backpack(this, this.projector);
             let itemId = Utils.randomString(20);
             this.backpack.addItem(itemId, {
+                'Provider': 'nine3q',
                 'Label': 'PirateFlag',
                 'Width': '43',
                 'Height': '65',
-                'ImageUrl': '{image.item.nine3q}PirateFlag/image.png ',
+                'ImageUrl': '{image.item.nine3q}PirateFlag/image.png',
                 'AnimationsUrl': '{image.item.nine3q}PirateFlag/animations.xml',
             });
             this.backpack.rezItem(itemId, 'd954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org');
@@ -144,6 +146,11 @@ export class BackgroundApp
     private onRuntimeMessage(message, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void): boolean
     {
         switch (message.type) {
+            case BackgroundMessage.type_test: {
+                sendResponse(this.handle_test());
+                return false;
+            } break;
+
             case BackgroundMessage.type_fetchUrl: {
                 return this.handle_fetchUrl(message.url, message.version, sendResponse);
             } break;
@@ -186,9 +193,10 @@ export class BackgroundApp
                 return false;
             } break;
 
-            case BackgroundMessage.type_test: {
-                sendResponse(this.handle_test());
-                return false;
+            case BackgroundMessage.type_getBackpackState: {
+                let response = this.handle_getBackpackState();
+                sendResponse(response);
+                return false; // true if async
             } break;
 
             default: {
@@ -392,6 +400,16 @@ export class BackgroundApp
         }
     }
 
+    handle_getBackpackState(): GetBackpackStateResponse
+    {
+        if (this.backpack) {
+            let items = this.backpack.getItems();
+            return new GetBackpackStateResponse(true, null, null, items);
+        } else {
+            return new GetBackpackStateResponse(false, 'error', 'No backpack', null);
+        }
+    }
+
     // manage stanza from 2 tabId mappings
 
     addRoomJid2TabId(room: string, tabId: number): void
@@ -432,6 +450,21 @@ export class BackgroundApp
             return tabIds.includes(tabId);
         }
         return false;
+    }
+
+    getAllTabIds(): Array<number>
+    {
+        let tabIds = [];
+        for (let room in this.roomJid2tabId) {
+            let roomTabIds = this.roomJid2tabId[room];
+            for (let i = 0; i < roomTabIds.length; i++) {
+                let tabId = roomTabIds[i];
+                if (!tabIds.includes(tabId)) {
+                    tabIds.push(tabId);
+                }
+            }
+        }
+        return tabIds;
     }
 
     // send/recv stanza
@@ -640,6 +673,19 @@ export class BackgroundApp
     private stopXmpp()
     {
         //hw todo
+    }
+
+    // Message to all tabs
+
+    sendToAllTabs(type: string, data: any)
+    {
+        let tabIds = this.getAllTabIds();
+        if (tabIds) {
+            for (let i = 0; i < tabIds.length; i++) {
+                let tabId = tabIds[i];
+                chrome.tabs.sendMessage(tabId, { 'type': type, 'data': data });
+            }
+        }
     }
 
     // Keep connection alive

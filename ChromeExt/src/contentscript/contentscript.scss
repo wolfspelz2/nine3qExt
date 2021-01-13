@@ -730,7 +730,44 @@
         // border: 1px dashed #cccccc;
         filter: drop-shadow(1px 1px 2px #505050);
     }
+
+    // #n3q div.n3q-backpackwindow {}
+
+    // #n3q div.n3q-backpack-pane,
+    // #n3q iframe.n3q-backpack-iframe {
+    //     position: absolute;
+    //     left: 0;
+    //     top: 0;
+    //     right: 0;
+    //     bottom: 0;
+    //     overflow: hidden;
+    // }
+
+        // #n3q div.n3q-inventory-pane div.n3q-inventory-status {
+        //     position: absolute;
+        //     left: 4px;
+        //     top: 4px;
+        //     color: #808080;
+        // }
         
+    // #n3q iframe.n3q-inventory-iframe {
+    //     width: 100%;
+    //     height: 100%;
+    // }
+    
+    #n3q div.n3q-backpack-pane .n3q-backpack-item,
+    #n3q div.n3q-backpack-drag .n3q-backpack-item {
+        display: block;
+        position: absolute;
+        overflow: hidden;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-color: #ffffff;
+        // border: 1px dashed #cccccc;
+        filter: drop-shadow(1px 1px 2px #505050);
+    }
+
     // #n3q div.n3q-chatwindow {}
 
     #n3q div.n3q-chatwindow-chatout {
