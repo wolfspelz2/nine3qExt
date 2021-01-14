@@ -67,7 +67,7 @@ export class BackgroundApp
             this.backpack = new Backpack(this, this.projector);
             let itemId = Utils.randomString(20);
             this.backpack.addItem(itemId, {
-                'Provider': 'nine3q',
+                'provider': 'nine3q',
                 'Label': 'PirateFlag',
                 'Width': '43',
                 'Height': '65',

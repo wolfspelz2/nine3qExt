@@ -95,6 +95,7 @@ export class ContentApp
         if (Panic.isOn) { return; }
 
         if (!await this.getActive()) {
+            log.info('Avatar disabled');
             this.messageHandler({ 'type': ContentAppNotification.type_stopped });
             return;
         }
