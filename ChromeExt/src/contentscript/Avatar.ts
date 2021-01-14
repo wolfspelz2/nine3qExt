@@ -133,7 +133,7 @@ export class Avatar implements IObserver
     {
         $(this.elem).droppable({
             hoverClass: 'n3q-avatar-drophilite',
-            drop: (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
+            drop: async (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
             {
                 let droppedElem = ui.draggable.get(0);
                 let droppedRoomItem = this.getRoomItemByAvatarElem(droppedElem);
@@ -147,8 +147,13 @@ export class Avatar implements IObserver
                         this.app.getRoom().applyItemToItem(thisRoomItem, droppedRoomItem);
                     } else {
                         droppedAvatar?.ignoreDrag();
-                        let thisParticipant = this.getPariticipantByAvatarElem(this.elem);
-                        this.app.getRoom().applyItemToParticipant(thisParticipant, droppedRoomItem);
+
+                        let itemId = droppedRoomItem.getNick();
+                        let response = await BackgroundMessage.isBackpackItem(itemId);
+                        if (response.ok && response.isItem) {
+                            let thisParticipant = this.getParticipantByAvatarElem(this.elem);
+                            this.app.getRoom().applyItemToParticipant(thisParticipant, droppedRoomItem);
+                        }
                     }
                 }
             }
@@ -163,7 +168,7 @@ export class Avatar implements IObserver
         }
     }
 
-    getPariticipantByAvatarElem(avatarElem: HTMLElement): Participant
+    getParticipantByAvatarElem(avatarElem: HTMLElement): Participant
     {
         let avatarEntityId = this.getEntityIdByAvatarElem(avatarElem);
         if (avatarEntityId) {

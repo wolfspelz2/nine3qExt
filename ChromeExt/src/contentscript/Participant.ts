@@ -13,6 +13,8 @@ import { Chatout } from './Chatout';
 import { Chatin } from './Chatin';
 import { url } from 'inspector';
 import { RoomItem } from './RoomItem';
+import log = require('loglevel');
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 
 export class Participant extends Entity
 {
@@ -161,7 +163,7 @@ export class Participant extends Entity
 
         if (this.isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, this.isSelf);
-            if (Config.get('inventory.enabled', false)) {
+            if (Config.get('backpack.enabled', false)) {
                 if (this.isSelf) {
                     this.avatarDisplay.makeDroppable();
                 }
@@ -561,14 +563,24 @@ export class Participant extends Entity
     {
         if (this.isSelf) {
             let itemId = roomItem.getNick();
-            let itemProviderId = roomItem.getProviderId();
+            let roomJid = this.getRoom().getJid();
 
-            await this.app.showInventoryWindow(this.elem, itemProviderId);
-            let inv = this.app.getInventoryByProviderId(itemProviderId);
-            if (inv) {
-                roomItem.beginDerez();
-                inv.sendDerezItem(itemId, this.getRoom().getJid(), -1, -1);
-            }
+            log.info('Participant', 'derezItem', itemId, 'from', roomJid);
+            BackgroundMessage.derezBackpackItem(itemId, roomJid, -1, -1);
+            this.app.sendPresence();
+
+            // await this.app.showBackpackWindow(this.elem);
+            // let backpackWindow = this.app.getBackpackWindow();
+            // if (backpackWindow) {
+            //     backpackWindow.derezItem(itemId, roomJid, -1, -1);
+            // }
+
+            // let itemProviderId = roomItem.getProviderId();
+            // let inv = this.app.getInventoryByProviderId(itemProviderId);
+            // if (inv) {
+            //     roomItem.beginDerez();
+            //     inv.sendDerezItem(itemId, roomJid, -1, -1);
+            // }
         }
     }
 

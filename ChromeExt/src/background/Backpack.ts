@@ -44,6 +44,15 @@ export class Backpack
         }
     }
 
+    isItem(itemId: string): boolean
+    {
+        var item = this.items[itemId];
+        if (item) {
+            return true;
+        }
+        return false;
+    }
+
     setItemProperties(itemId: string, properties: ItemProperties)
     {
         var item = this.items[itemId];

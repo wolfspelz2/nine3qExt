@@ -22,6 +22,16 @@ export class GetBackpackStateResponse
     ) { }
 }
 
+export class IsBackpackItemResponse
+{
+    constructor(
+        public ok: boolean,
+        public status: string,
+        public statusText: string,
+        public isItem: boolean
+    ) { }
+}
+
 export class BackgroundMessage
 {
     static type_test = 'test';
@@ -189,13 +199,12 @@ export class BackgroundMessage
         });
     }
 
-    static type_getBackpackState = 'getBackpackState';
     static async getBackpackState(): Promise<GetBackpackStateResponse>
     {
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_getBackpackState }, response =>
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.getBackpackState.name }, response =>
                 {
                     resolve(response);
                 });
@@ -205,13 +214,12 @@ export class BackgroundMessage
         });
     }
 
-    static type_setBackpackItemProperties = 'setBackpackItemProperties';
     static setBackpackItemProperties(id: string, properties: ItemProperties): Promise<void>
     {
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_setBackpackItemProperties, 'id': id, 'properties': properties }, response =>
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.setBackpackItemProperties.name, 'id': id, 'properties': properties }, response =>
                 {
                     resolve(response);
                 });
@@ -221,13 +229,12 @@ export class BackgroundMessage
         });
     }
 
-    static type_rezBackpackItem = 'rezBackpackItem';
     static rezBackpackItem(id: string, room: string, x: number, destination: string): Promise<void>
     {
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_rezBackpackItem, 'id': id, 'room': room, 'x': x, 'destination': destination }, response =>
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.rezBackpackItem.name, 'id': id, 'room': room, 'x': x, 'destination': destination }, response =>
                 {
                     resolve(response);
                 });
@@ -237,13 +244,27 @@ export class BackgroundMessage
         });
     }
 
-    static type_derezBackpackItem = BackgroundMessage.derezBackpackItem.name;
     static derezBackpackItem(id: string, room: string, x: number, y: number): Promise<void>
     {
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_derezBackpackItem, 'id': id, 'room': room, 'x': x, 'y': y }, response =>
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.derezBackpackItem.name, 'id': id, 'room': room, 'x': x, 'y': y }, response =>
+                {
+                    resolve(response);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    static async isBackpackItem(id: string): Promise<IsBackpackItemResponse>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            try {
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.isBackpackItem.name, 'id': id }, response =>
                 {
                     resolve(response);
                 });

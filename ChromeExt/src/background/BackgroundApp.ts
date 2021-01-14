@@ -3,7 +3,7 @@ import { client, xml, jid } from '@xmpp/client';
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
-import { BackgroundMessage, GetBackpackStateResponse } from '../lib/BackgroundMessage';
+import { BackgroundMessage, GetBackpackStateResponse, IsBackpackItemResponse } from '../lib/BackgroundMessage';
 import { Client } from '../lib/Client';
 import { ItemProperties } from '../lib/ItemProperties';
 import { ConfigUpdater } from './ConfigUpdater';
@@ -78,35 +78,35 @@ export class BackgroundApp
             // this.backpack.rezItem(itemId, 'd954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org');
         }
 
-        if (Config.get('inventory.enabled', false)) {
+        {
             let gotAnyProvider = false;
+            if (Config.get('inventory.enabled', false) || Config.get('backpack.enabled', false)) {
+                let itemProviders = Config.get('itemProviders', {});
+                if (itemProviders) {
+                    for (let providerId in itemProviders) {
+                        let itemProvider = itemProviders[providerId];
+                        if (itemProvider.configUrl) {
+                            try {
 
-            let itemProviders = Config.get('itemProviders', {});
-            if (itemProviders) {
-                for (let providerId in itemProviders) {
-                    let itemProvider = itemProviders[providerId];
-                    if (itemProvider.configUrl) {
-                        try {
+                                let userId = await this.getOrCreateItemProviderUserId(providerId);
+                                let url = itemProvider.configUrl;
+                                url = url
+                                    .replace('{id}', encodeURIComponent(userId))
+                                    .replace('{client}', encodeURIComponent(Client.getDetails()))
+                                    ;
 
-                            let userId = await this.getOrCreateItemProviderUserId(providerId);
-                            let url = itemProvider.configUrl;
-                            url = url
-                                .replace('{id}', encodeURIComponent(userId))
-                                .replace('{client}', encodeURIComponent(Client.getDetails()))
-                                ;
+                                var providerConfig = await this.fetchJSON(url);
+                                await Config.setSync(Utils.syncStorageKey_ItemProviderConfig(providerId), providerConfig);
 
-                            var providerConfig = await this.fetchJSON(url);
-                            await Config.setSync(Utils.syncStorageKey_ItemProviderConfig(providerId), providerConfig);
+                                gotAnyProvider = gotAnyProvider || as.Bool(providerConfig['inventoryActive'], false);
 
-                            gotAnyProvider = gotAnyProvider || as.Bool(providerConfig['inventoryActive'], false);
-
-                        } catch (error) {
-                            log.info('Fetch itemProvider config failed:', providerId, itemProvider.configUrl, error);
+                            } catch (error) {
+                                log.info('Fetch itemProvider config failed:', providerId, itemProvider.configUrl, error);
+                            }
                         }
                     }
                 }
             }
-
             if (!gotAnyProvider) {
                 Config.set('inventory.enabled', false)
             }
@@ -194,24 +194,29 @@ export class BackgroundApp
                 return false;
             } break;
 
-            case BackgroundMessage.type_getBackpackState: {
+            case BackgroundMessage.getBackpackState.name: {
                 let response = this.handle_getBackpackState();
                 sendResponse(response);
                 return false; // true if async
             } break;
 
-            case BackgroundMessage.type_setBackpackItemProperties: {
+            case BackgroundMessage.setBackpackItemProperties.name: {
                 sendResponse(this.handle_setBackpackItemProperties(message.id, message.properties));
                 return false;
             } break;
 
-            case BackgroundMessage.type_rezBackpackItem: {
+            case BackgroundMessage.rezBackpackItem.name: {
                 sendResponse(this.handle_rezBackpackItem(message.id, message.room, message.x, message.destination));
                 return false;
             } break;
 
-            case BackgroundMessage.type_derezBackpackItem: {
+            case BackgroundMessage.derezBackpackItem.name: {
                 sendResponse(this.handle_derezBackpackItem(message.id, message.room, message.x, message.y));
+                return false;
+            } break;
+
+            case BackgroundMessage.isBackpackItem.name: {
+                sendResponse(this.handle_isBackpackItem(message.id));
                 return false;
             } break;
 
@@ -421,9 +426,8 @@ export class BackgroundApp
         if (this.backpack) {
             let items = this.backpack.getItems();
             return new GetBackpackStateResponse(true, null, null, items);
-        } else {
-            return new GetBackpackStateResponse(false, 'error', 'No backpack', null);
         }
+        return new GetBackpackStateResponse(false, 'error', 'No backpack', null);
     }
 
     handle_setBackpackItemProperties(id: string, properties: ItemProperties): void
@@ -451,6 +455,15 @@ export class BackgroundApp
         } else {
             log.info('BackgroundApp.handle_derezBackpackItem', 'No backpack');
         }
+    }
+
+    handle_isBackpackItem(id: string): IsBackpackItemResponse
+    {
+        if (this.backpack) {
+            let isItem = this.backpack.isItem(id);
+            return new IsBackpackItemResponse(true, null, null, isItem);
+        }
+        return new IsBackpackItemResponse(false, 'error', 'No backpack', null);
     }
 
     // manage stanza from 2 tabId mappings

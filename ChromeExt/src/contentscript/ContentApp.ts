@@ -69,6 +69,7 @@ export class ContentApp
     getDisplay(): HTMLElement { return this.display; }
     getItemRepository() { return this.itemRepository; }
     getRoom(): Room { return this.room; }
+    getBackpackWindow(): BackpackWindow { return this.backpackWindow; }
     getInventoryByProviderId(providerId: string): Inventory
     {
         for (let invJid in this.inventories) {
@@ -224,9 +225,11 @@ export class ContentApp
 
     showBackpackWindow(aboveElem: HTMLElement): void
     {
-        this.setBackpackIsOpen(true);
-        this.backpackWindow = new BackpackWindow(this);
-        this.backpackWindow.show({ 'above': aboveElem, onClose: () => { this.backpackWindow = null; this.setBackpackIsOpen(false); } });
+        if (this.backpackWindow == null) {
+            this.setBackpackIsOpen(true);
+            this.backpackWindow = new BackpackWindow(this);
+            this.backpackWindow.show({ 'above': aboveElem, onClose: () => { this.backpackWindow = null; this.setBackpackIsOpen(false); } });
+        }
     }
 
     async showInventoryWindow(aboveElem: HTMLElement, providerId: string): Promise<void>
