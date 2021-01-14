@@ -89,7 +89,7 @@ export class Room
         this.stopKeepAlive();
     }
 
-    private async sendPresence(): Promise<void>
+    async sendPresence(): Promise<void>
     {
         let identityUrl = Config.get('identity.url', '');
         let identityDigest = Config.get('identity.digest', '1');

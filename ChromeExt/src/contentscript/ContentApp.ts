@@ -21,7 +21,7 @@ import { ItemProvider } from './ItemProvider';
 import { ItemRepository } from './ItemRepository';
 import { TestWindow } from './TestWindow';
 import { BackpackWindow } from './BackpackWindow';
-import { BackpackAddItemData, BackpackChangeItemData, BackpackRemoveItemData, ContentMessage } from '../lib/ContentMessage';
+import { BackpackShowItemData, BackpackSetItemData, BackpackRemoveItemData, ContentMessage } from '../lib/ContentMessage';
 
 interface ILocationMapperResponse
 {
@@ -354,16 +354,16 @@ export class ContentApp
                 sendResponse();
             } break;
 
-            case ContentMessage.type_onBackpackAddItem: {
-                this.backpackWindow?.onBackpackAddItem(message.data.id, message.data.properties);
+            case ContentMessage.type_onBackpackShowItem: {
+                this.backpackWindow?.onShowItem(message.data.id, message.data.properties);
                 return false;
             } break;
-            case ContentMessage.type_onBackpackChangeItem: {
-                this.backpackWindow?.onBackpackChangeItem(message.data.id, message.data.properties);
+            case ContentMessage.type_onBackpackSetItem: {
+                this.backpackWindow?.onSetItem(message.data.id, message.data.properties);
                 return false;
             } break;
-            case ContentMessage.type_onBackpackRemoveItem: {
-                this.backpackWindow?.onBackpackRemoveItem(message.data.id);
+            case ContentMessage.type_onBackpackHideItem: {
+                this.backpackWindow?.onHideItem(message.data.id);
                 return false;
             } break;
         }
@@ -503,6 +503,13 @@ export class ContentApp
         this.room = new Room(this, roomJid, roomDestination, await this.getSavedPosition());
         log.debug('ContentApp.enterRoom', roomJid);
         this.room.enter();
+    }
+
+    sendPresence(): void
+    {
+        if (this.room) {
+            this.room.sendPresence();
+        }
     }
 
     leaveRoom(): void

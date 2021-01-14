@@ -224,18 +224,15 @@ export class BackpackImage
 
     sendSetItemCoordinates(x: number, y: number)
     {
-        // let params = {
-        //     'x': Math.round(x),
-        //     'y': Math.round(y),
-        // };
-
-        // this.inv.sendItemActionCommand(this.itemId, 'Inventory.MoveTo', params);
+        this.properties.InventoryX = '' + Math.round(x);
+        this.properties.InventoryY = '' + Math.round(y);
+        this.backpackWindow.setItemProperties(this.itemId, this.properties);
     }
 
     sendRezItem(x: number)
     {
-        // log.info('InventoryItem', 'sendRezItem', this.itemId, x);
-        // this.inv.sendRezItemCommand(this.itemId, this.app.getRoom().getJid(), Math.round(x), this.app.getRoom().getDestination());
+        log.info('BackpackItem', 'sendRezItem', this.itemId, x);
+        this.backpackWindow.rezItem(this.itemId, this.app.getRoom().getJid(), Math.round(x), this.app.getRoom().getDestination());
     }
 
     getPseudoRandomCoordinate(space: number, size: number, padding: number, id: string, mod: number): number
@@ -276,12 +273,26 @@ export class BackpackImage
             }
         }
 
+        if (as.Bool(newProperties.IsRezzed, false)) {
+            $(this.elem).addClass('n3q-backpack-item-rezzed');
+        } else {
+            $(this.elem).removeClass('n3q-backpack-item-rezzed');
+        }
+
         if (newProperties.InventoryX && newProperties.InventoryY) {
             var x = as.Int(newProperties.InventoryX, -1);
             var y = as.Int(newProperties.InventoryY, -1);
             if (x >= 0 && y >= 0 && (x != this.x || y != this.y)) {
                 this.setPosition(x, y);
             }
+        }
+
+        if (Config.get('backpack.itemPropertiesTooltip', false)) {
+            let propsText = '';
+            for (let key in newProperties) {
+                propsText += key + ': ' + newProperties[key] + '\r\n';
+            }
+            $(this.elem).prop('title', propsText);;
         }
 
         this.properties = newProperties;

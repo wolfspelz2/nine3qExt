@@ -2,13 +2,13 @@ import log = require('loglevel');
 import { client, xml, jid } from '@xmpp/client';
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
-import { ConfigUpdater } from './ConfigUpdater';
 import { Config } from '../lib/Config';
 import { BackgroundMessage, GetBackpackStateResponse } from '../lib/BackgroundMessage';
 import { Client } from '../lib/Client';
+import { ItemProperties } from '../lib/ItemProperties';
+import { ConfigUpdater } from './ConfigUpdater';
 import { Projector } from './Projector';
 import { Backpack } from './Backpack';
-import { ContentMessage } from '../lib/ContentMessage';
 
 interface ILocationMapperResponse
 {
@@ -73,8 +73,9 @@ export class BackgroundApp
                 'Height': '65',
                 'ImageUrl': '{image.item.nine3q}PirateFlag/image.png',
                 'AnimationsUrl': '{image.item.nine3q}PirateFlag/animations.xml',
+                'IsRezable': 'true',
             });
-            this.backpack.rezItem(itemId, 'd954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org');
+            // this.backpack.rezItem(itemId, 'd954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org');
         }
 
         if (Config.get('inventory.enabled', false)) {
@@ -179,7 +180,7 @@ export class BackgroundApp
             } break;
 
             case BackgroundMessage.type_sendStanza: {
-                sendResponse(this.handle_sendStanza(message.stanza, sender.tab.id, sendResponse));
+                sendResponse(this.handle_sendStanza(message.stanza, sender.tab.id));
                 return false;
             } break;
 
@@ -197,6 +198,16 @@ export class BackgroundApp
                 let response = this.handle_getBackpackState();
                 sendResponse(response);
                 return false; // true if async
+            } break;
+
+            case BackgroundMessage.type_setBackpackItemProperties: {
+                sendResponse(this.handle_setBackpackItemProperties(message.id, message.properties));
+                return false;
+            } break;
+
+            case BackgroundMessage.type_rezBackpackItem: {
+                sendResponse(this.handle_rezBackpackItem(message.id, message.room, message.x, message.destination));
+                return false;
             } break;
 
             default: {
@@ -410,6 +421,24 @@ export class BackgroundApp
         }
     }
 
+    handle_setBackpackItemProperties(id: string, properties: ItemProperties): void
+    {
+        if (this.backpack) {
+            this.backpack.setItemProperties(id, properties);
+        } else {
+            log.info('BackgroundApp.handle_setBackpackItemProperties', 'No backpack');
+        }
+    }
+
+    handle_rezBackpackItem(id: string, room: string, x: number, destination: string): void
+    {
+        if (this.backpack) {
+            this.backpack.rezItem(id, room, x, destination);
+        } else {
+            log.info('BackgroundApp.handle_rezBackpackItem', 'No backpack');
+        }
+    }
+
     // manage stanza from 2 tabId mappings
 
     addRoomJid2TabId(room: string, tabId: number): void
@@ -469,7 +498,7 @@ export class BackgroundApp
 
     // send/recv stanza
 
-    handle_sendStanza(stanza: any, tabId: number, sendResponse: any): void
+    handle_sendStanza(stanza: any, tabId: number): void
     {
         // log.debug('BackgroundApp.handle_sendStanza', stanza, tabId);
 

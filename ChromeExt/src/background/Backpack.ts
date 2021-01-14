@@ -3,23 +3,24 @@ import { as } from '../lib/as';
 import { xml, jid } from '@xmpp/client';
 import { Config } from '../lib/Config';
 import { ItemProperties } from '../lib/ItemProperties';
-import { BackpackAddItemData, ContentMessage } from '../lib/ContentMessage';
+import { BackpackShowItemData, BackpackRemoveItemData, BackpackSetItemData, ContentMessage } from '../lib/ContentMessage';
 import { Projector } from './Projector';
 import { BackgroundApp } from './BackgroundApp';
 
 export class BackpackItem
 {
-    private roomJid: string;
-
-    constructor(private backpack: Backpack, private itemId: string, private properties: ItemProperties)
+    constructor(private app: BackgroundApp, private backpack: Backpack, private itemId: string, private properties: ItemProperties)
     {
     }
 
     getProperties(): ItemProperties { return this.properties; }
 
-    setRezzed(roomJid: string)
+    setProperties(props: ItemProperties)
     {
-        this.roomJid = roomJid;
+        this.properties = props;
+
+        let data = new BackpackSetItemData(this.itemId, props);
+        this.app.sendToAllTabs(ContentMessage.type_onBackpackSetItem, data);
     }
 }
 
@@ -35,11 +36,19 @@ export class Backpack
     {
         var item = this.items[itemId];
         if (item == null) {
-            item = new BackpackItem(this, itemId, props);
+            item = new BackpackItem(this.app, this, itemId, props);
             this.items[itemId] = item;
 
-            let message = new BackpackAddItemData(itemId, props);
-            this.app.sendToAllTabs(ContentMessage.type_onBackpackAddItem, message);
+            let data = new BackpackShowItemData(itemId, props);
+            this.app.sendToAllTabs(ContentMessage.type_onBackpackShowItem, data);
+        }
+    }
+
+    setItemProperties(itemId: string, properties: ItemProperties)
+    {
+        var item = this.items[itemId];
+        if (item) {
+            item.setProperties(properties);
         }
     }
 
@@ -53,12 +62,18 @@ export class Backpack
         return itemProperties
     }
 
-    rezItem(itemId: string, roomJid: string): void
+    rezItem(itemId: string, roomJid: string, rezzedX: number, destinationUrl: string): void
     {
         var item = this.items[itemId];
         if (item) {
-            this.projector.projectItem(itemId, roomJid, item.getProperties());
-            this.items[itemId].setRezzed(roomJid);
+            let props = item.getProperties();
+            props.IsRezzed = 'true';
+            props.RezzedX = '' + rezzedX;
+            props.RezzedDestination = destinationUrl;
+            props.RezzedLoation = roomJid;
+            item.setProperties(props);
+
+            this.projector.projectItem(roomJid, itemId, props);
         }
     }
 

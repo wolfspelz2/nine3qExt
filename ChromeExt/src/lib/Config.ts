@@ -104,6 +104,7 @@ export class Config
             itemSize: 64,
             borderPadding: 4,
             dropZoneHeight: 100,
+            itemPropertiesTooltip: false,
         },
         projector: {
             enabled: false,

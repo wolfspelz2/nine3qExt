@@ -1,7 +1,7 @@
 import log = require('loglevel');
 import { ItemProperties } from './ItemProperties';
 
-export class BackpackAddItemData
+export class BackpackShowItemData
 {
     constructor(
         public id: string,
@@ -9,7 +9,7 @@ export class BackpackAddItemData
     ) { }
 }
 
-export class BackpackChangeItemData
+export class BackpackSetItemData
 {
     constructor(
         public id: string,
@@ -26,7 +26,7 @@ export class BackpackRemoveItemData
 
 export class ContentMessage
 {
-    static type_onBackpackAddItem = 'onBackpackAddItem';
-    static type_onBackpackChangeItem = 'onBackpackChangeItem';
-    static type_onBackpackRemoveItem = 'onBackpackRemoveItem';
+    static type_onBackpackShowItem = 'onBackpackShowItem';
+    static type_onBackpackSetItem = 'onBackpackSetItem';
+    static type_onBackpackHideItem = 'onBackpackHideItem';
 }

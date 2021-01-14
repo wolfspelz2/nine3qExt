@@ -767,6 +767,11 @@
         filter: drop-shadow(1px 1px 2px #505050);
     }
 
+    #n3q div.n3q-backpack-pane .n3q-backpack-item.n3q-backpack-item-rezzed,
+    #n3q div.n3q-backpack-drag .n3q-backpack-item.n3q-backpack-item-rezzed {
+        opacity: 0.5;
+    }
+
     // #n3q div.n3q-chatwindow {}
 
     #n3q div.n3q-chatwindow-chatout {

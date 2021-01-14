@@ -205,4 +205,36 @@ export class BackgroundMessage
         });
     }
 
+    static type_setBackpackItemProperties = 'setBackpackItemProperties';
+    static setBackpackItemProperties(id: string, properties: ItemProperties): Promise<void>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            try {
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_setBackpackItemProperties, 'id': id, 'properties': properties }, response =>
+                {
+                    resolve(response);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    static type_rezBackpackItem = 'rezBackpackItem';
+    static rezBackpackItem(id: string, room: string, x: number, destination: string): Promise<void>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            try {
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_rezBackpackItem, 'id': id, 'room': room, 'x': x, 'destination': destination }, response =>
+                {
+                    resolve(response);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
 }

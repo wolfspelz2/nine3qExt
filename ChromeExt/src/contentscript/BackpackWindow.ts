@@ -9,7 +9,7 @@ import { ItemProperties } from '../lib/ItemProperties';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ContentApp } from './ContentApp';
 import { Window } from './Window';
-import { BackpackImage } from './BackpackImage';
+import { BackpackImage as BackpackImage } from './BackpackImage';
 
 export class BackpackWindow extends Window
 {
@@ -111,7 +111,7 @@ export class BackpackWindow extends Window
     populate(items: { [id: string]: ItemProperties; })
     {
         for (let id in items) {
-            this.onBackpackAddItem(id, items[id]);
+            this.onShowItem(id, items[id]);
         }
     }
 
@@ -139,7 +139,7 @@ export class BackpackWindow extends Window
         return this.windowElem != null;
     }
 
-    onBackpackAddItem(id: string, properties: ItemProperties)
+    onShowItem(id: string, properties: ItemProperties)
     {
         let item = this.items[id];
         if (!item) {
@@ -149,18 +149,29 @@ export class BackpackWindow extends Window
         item.create();
     }
 
-    onBackpackChangeItem(id: string, properties: ItemProperties)
+    onSetItem(id: string, properties: ItemProperties)
     {
         if (this.items[id]) {
             this.items[id].applyProperties(properties);
         }
     }
 
-    onBackpackRemoveItem(id: string)
+    onHideItem(id: string)
     {
         if (this.items[id]) {
             this.items[id].destroy();
             delete this.items[id];
         }
+    }
+
+    setItemProperties(id: string, properties: ItemProperties)
+    {
+        BackgroundMessage.setBackpackItemProperties(id, properties);
+    }
+
+    rezItem(id: string, room: string, x: number, destination: string)
+    {
+        BackgroundMessage.rezBackpackItem(id, room, x, destination);
+        this.app.sendPresence();
     }
 }
