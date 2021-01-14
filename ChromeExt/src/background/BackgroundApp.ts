@@ -7,8 +7,7 @@ import { BackgroundMessage, GetBackpackStateResponse, IsBackpackItemResponse } f
 import { Client } from '../lib/Client';
 import { ItemProperties } from '../lib/ItemProperties';
 import { ConfigUpdater } from './ConfigUpdater';
-import { Projector } from './Projector';
-import { Backpack } from './Backpack';
+import { BackpackRepository } from './BackpackRepository';
 
 interface ILocationMapperResponse
 {
@@ -32,8 +31,7 @@ export class BackgroundApp
     private readonly httpCacheData: Map<string, string> = new Map<string, string>();
     private readonly httpCacheTime: Map<string, number> = new Map<string, number>();
 
-    private projector: Projector;
-    private backpack: Backpack;
+    private backpack: BackpackRepository;
 
     async start(): Promise<void>
     {
@@ -63,8 +61,7 @@ export class BackgroundApp
         await this.configUpdater.startUpdateTimer()
 
         if (Config.get('backpack.enabled', false)) {
-            this.projector = new Projector(this);
-            this.backpack = new Backpack(this, this.projector);
+            this.backpack = new BackpackRepository(this);
             let itemId = Utils.randomString(20);
             this.backpack.addItem(itemId, {
                 'provider': 'nine3q',
@@ -532,8 +529,8 @@ export class BackgroundApp
         try {
             let xmlStanza: xml = Utils.jsObject2xmlObject(stanza);
 
-            if (this.projector) {
-                xmlStanza = this.projector.stanzaOutFilter(xmlStanza);
+            if (this.backpack) {
+                xmlStanza = this.backpack.stanzaOutFilter(xmlStanza);
                 if (xmlStanza == null) { return; }
             }
 

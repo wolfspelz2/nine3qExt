@@ -150,6 +150,7 @@ export class Room
 
     onPresenceAvailable(stanza: any): void
     {
+        let to = jid(stanza.attrs.to);
         let from = jid(stanza.attrs.from);
         let resource = from.getResource();
         let isSelf = (resource == this.resource);
@@ -192,20 +193,21 @@ export class Room
             }
         }
 
-        let vpDependent = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:dependent');
-        if (vpDependent) {
-            let to = jid(stanza.attrs.to);
-
+        {
             let currentDependents = new Array<string>();
-            let dependentPresences = vpDependent.getChildren('presence');
-            if (dependentPresences.length > 0) {
-                for (let i = 0; i < dependentPresences.length; i++) {
-                    var dependentPresence = dependentPresences[i];
-                    dependentPresence.attrs['to'] = to;
-                    let dependentFrom = jid(dependentPresence.attrs.from);
-                    let dependentResource = dependentFrom.getResource();
-                    currentDependents.push(dependentResource);
-                    this.onPresence(dependentPresence);
+            let vpDependent = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:dependent');
+            if (vpDependent) {
+
+                let dependentPresences = vpDependent.getChildren('presence');
+                if (dependentPresences.length > 0) {
+                    for (let i = 0; i < dependentPresences.length; i++) {
+                        var dependentPresence = dependentPresences[i];
+                        dependentPresence.attrs['to'] = to.toString();
+                        let dependentFrom = jid(dependentPresence.attrs.from);
+                        let dependentResource = dependentFrom.getResource();
+                        currentDependents.push(dependentResource);
+                        this.onPresence(dependentPresence);
+                    }
                 }
             }
 
@@ -214,7 +216,7 @@ export class Room
                 for (let i = 0; i < previousDependents.length; i++) {
                     let value = previousDependents[i];
                     if (!currentDependents.includes(value)) {
-                        let dependentUnavailablePresence = xml('presence', { 'from': this.jid + '/' + value, 'type': 'unavailable', 'to': to });
+                        let dependentUnavailablePresence = xml('presence', { 'from': this.jid + '/' + value, 'type': 'unavailable', 'to': to.toString() });
                         this.onPresence(dependentUnavailablePresence);
                     }
                 }

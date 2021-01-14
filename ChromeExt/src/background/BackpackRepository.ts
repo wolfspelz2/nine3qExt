@@ -4,31 +4,15 @@ import { xml, jid } from '@xmpp/client';
 import { Config } from '../lib/Config';
 import { ItemProperties } from '../lib/ItemProperties';
 import { BackpackShowItemData, BackpackRemoveItemData, BackpackSetItemData, ContentMessage } from '../lib/ContentMessage';
-import { Projector } from './Projector';
 import { BackgroundApp } from './BackgroundApp';
+import { BackpackItem } from './BackpackItem';
 
-export class BackpackItem
-{
-    constructor(private app: BackgroundApp, private backpack: Backpack, private itemId: string, private properties: ItemProperties)
-    {
-    }
-
-    getProperties(): ItemProperties { return this.properties; }
-
-    setProperties(props: ItemProperties)
-    {
-        this.properties = props;
-
-        let data = new BackpackSetItemData(this.itemId, props);
-        this.app.sendToAllTabs(ContentMessage.type_onBackpackSetItem, data);
-    }
-}
-
-export class Backpack
+export class BackpackRepository
 {
     private items: { [id: string]: BackpackItem; } = {};
+    private rooms: { [jid: string]: Array<string>; } = {};
 
-    constructor(private app: BackgroundApp, private projector: Projector)
+    constructor(private app: BackgroundApp)
     {
     }
 
@@ -79,10 +63,15 @@ export class Backpack
             props.IsRezzed = 'true';
             props.RezzedX = '' + rezzedX;
             props.RezzedDestination = destinationUrl;
-            props.RezzedLoation = roomJid;
+            props.RezzedLocation = roomJid;
             item.setProperties(props);
 
-            this.projector.projectItem(roomJid, itemId, props);
+            var rezzedIds = this.rooms[roomJid];
+            if (rezzedIds == null) {
+                rezzedIds = new Array<string>();
+                this.rooms[roomJid] = rezzedIds;
+            }
+            rezzedIds.push(itemId);
         }
     }
 
@@ -98,11 +87,65 @@ export class Backpack
             }
             delete props.RezzedX;
             delete props.RezzedDestination;
-            delete props.RezzedLoation;
+            delete props.RezzedLocation;
             item.setProperties(props);
 
-            this.projector.retractItem(roomJid, itemId);
+            var rezzedIds = this.rooms[roomJid];
+            if (rezzedIds) {
+                const index = rezzedIds.indexOf(itemId, 0);
+                if (index > -1) {
+                    rezzedIds.splice(index, 1);
+                    if (rezzedIds.length == 0) {
+                        delete this.rooms[roomJid];
+                    }
+                }
+            }
         }
+    }
+
+    stanzaOutFilter(stanza: xml): any
+    {
+        let toJid = new jid(stanza.attrs.to);
+        let roomJid = toJid.bare().toString();
+        let itemNick = toJid.getResource();
+
+        if (stanza.name == 'presence') {
+            if (as.String(stanza.attrs['type'], 'available') == 'available') {
+
+                var rezzedIds = this.rooms[roomJid];
+                if (rezzedIds && rezzedIds.length > 0) {
+                    let dependentExtension = this.getDependentPresence(roomJid);
+                    if (dependentExtension) {
+                        stanza.append(dependentExtension);
+                    }
+                }
+
+            }
+        }
+
+        // if (stanza.name == 'message') {
+        //     if (as.String(stanza.attrs['type'], 'normal') == 'chat') {
+        //         if (this.isItem(itemNick)) {
+        //             stanza = null;
+        //         }
+        //     }
+        // }
+
+        return stanza;
+    }
+
+    getDependentPresence(roomJid: string): xml
+    {
+        var result = xml('x', { 'xmlns': 'vp:dependent' });
+
+        for (let id in this.items) {
+            if (this.items[id].isRezzed()) {
+                let itemPresence: xml = this.items[id].getDependentPresence(roomJid);
+                result.append(itemPresence);
+            }
+        }
+
+        return result;
     }
 
 }
