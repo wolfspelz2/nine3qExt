@@ -54,6 +54,13 @@ export class RoomProjector
         }
     }
 
+    retractItem(itemId: string)
+    {
+        if (this.items[itemId]) {
+            delete this.items[itemId];
+        }
+    }
+
     isItem(itemId: any): boolean
     {
         if (this.items[itemId]) {
@@ -91,6 +98,14 @@ export class Projector
             this.rooms[roomJid] = roomProjector;
         }
         roomProjector.projectItem(itemId, props);
+    }
+
+    retractItem(roomJid: string, itemId: string)
+    {
+        var roomProjector = this.rooms[roomJid];
+        if (roomProjector) {
+            roomProjector.retractItem(itemId);
+        }
     }
 
     isItem(roomJid: any, itemId: any): boolean

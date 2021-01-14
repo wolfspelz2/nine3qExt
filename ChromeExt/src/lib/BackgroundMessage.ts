@@ -237,4 +237,20 @@ export class BackgroundMessage
         });
     }
 
+    static type_derezBackpackItem = BackgroundMessage.derezBackpackItem.name;
+    static derezBackpackItem(id: string, room: string, x: number, y: number): Promise<void>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            try {
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.type_derezBackpackItem, 'id': id, 'room': room, 'x': x, 'y': y }, response =>
+                {
+                    resolve(response);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
 }

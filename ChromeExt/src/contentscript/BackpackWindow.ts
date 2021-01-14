@@ -77,27 +77,27 @@ export class BackpackWindow extends Window
                 this.saveCoordinates(left, bottom, size.width, size.height);
             };
 
-            // $(paneElem).droppable({
-            //     drop: (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
-            //     {
-            //         let droppedAvatar = ui.draggable.get(0);
-            //         if (droppedAvatar) {
-            //             let droppedEntity = droppedAvatar.parentElement;
-            //             if (droppedEntity) {
-            //                 let droppedId: string = $(droppedEntity).data('nick');
-            //                 if (droppedId) {
-            //                     let roomItem = this.app.getRoom().getItem(droppedId);
-            //                     if (roomItem) {
-            //                         let x = Math.round(ui.offset.left - $(paneElem).offset().left + ui.draggable.width() / 2);
-            //                         let y = Math.round(ui.offset.top - $(paneElem).offset().top + ui.draggable.height() / 2)
-            //                         roomItem.beginDerez();
-            //                         // this.inv.sendDerezItem(roomItem.getNick(), roomItem.getRoom().getJid(), x, y);
-            //                     }
-            //                 }
-            //             }
-            //         }
-            //     }
-            // });
+            $(paneElem).droppable({
+                drop: (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
+                {
+                    let droppedAvatar = ui.draggable.get(0);
+                    if (droppedAvatar) {
+                        let droppedEntity = droppedAvatar.parentElement;
+                        if (droppedEntity) {
+                            let droppedId: string = $(droppedEntity).data('nick');
+                            if (droppedId) {
+                                let roomItem = this.app.getRoom().getItem(droppedId);
+                                if (roomItem) {
+                                    let x = Math.round(ui.offset.left - $(paneElem).offset().left + ui.draggable.width() / 2);
+                                    let y = Math.round(ui.offset.top - $(paneElem).offset().top + ui.draggable.height() / 2)
+                                    // roomItem.beginDerez();
+                                    this.derezItem(roomItem.getNick(), roomItem.getRoom().getJid(), x, y);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
 
             this.paneElem = paneElem;
 
@@ -171,7 +171,15 @@ export class BackpackWindow extends Window
 
     rezItem(id: string, room: string, x: number, destination: string)
     {
+        log.info('BackpackWindow', 'rezItem', id, 'to', room);
         BackgroundMessage.rezBackpackItem(id, room, x, destination);
+        this.app.sendPresence();
+    }
+
+    derezItem(id: string, room: string, x: number, y: number)
+    {
+        log.info('BackpackWindow', 'derezItem', id, 'from', room);
+        BackgroundMessage.derezBackpackItem(id, room, -1, -1);
         this.app.sendPresence();
     }
 }

@@ -72,12 +72,13 @@ export class BackpackImage
             },
             stop: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
+                $(this.elem).show(0);
                 var itemUnchanged = this.onDragStop(ev, ui);
-                if (itemUnchanged) {
-                    $(this.elem).show(0);
-                } else {
-                    $(this.elem).delay(1000).show(0);
-                }
+                // if (itemUnchanged) {
+                //     $(this.elem).show(0);
+                // } else {
+                //     $(this.elem).delay(1000).show(0);
+                // }
                 this.inDrag = false;
                 return true;
             }
@@ -154,7 +155,7 @@ export class BackpackImage
             }
         } else if (this.isPositionInDropzone(ev, ui)) {
             let dropX = ev.pageX - $(this.app.getDisplay()).offset().left;
-            this.sendRezItem(dropX);
+            this.rezItem(dropX);
             return false;
         }
         return true;
@@ -229,9 +230,8 @@ export class BackpackImage
         this.backpackWindow.setItemProperties(this.itemId, this.properties);
     }
 
-    sendRezItem(x: number)
+    rezItem(x: number)
     {
-        log.info('BackpackItem', 'sendRezItem', this.itemId, x);
         this.backpackWindow.rezItem(this.itemId, this.app.getRoom().getJid(), Math.round(x), this.app.getRoom().getDestination());
     }
 

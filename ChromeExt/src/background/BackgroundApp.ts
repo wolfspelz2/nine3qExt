@@ -210,6 +210,11 @@ export class BackgroundApp
                 return false;
             } break;
 
+            case BackgroundMessage.type_derezBackpackItem: {
+                sendResponse(this.handle_derezBackpackItem(message.id, message.room, message.x, message.y));
+                return false;
+            } break;
+
             default: {
                 log.debug('BackgroundApp.onRuntimeMessage unhandled', message);
                 sendResponse({});
@@ -436,6 +441,15 @@ export class BackgroundApp
             this.backpack.rezItem(id, room, x, destination);
         } else {
             log.info('BackgroundApp.handle_rezBackpackItem', 'No backpack');
+        }
+    }
+
+    handle_derezBackpackItem(id: string, room: string, x: number, y: number): void
+    {
+        if (this.backpack) {
+            this.backpack.derezItem(id, room, x, y);
+        } else {
+            log.info('BackgroundApp.handle_derezBackpackItem', 'No backpack');
         }
     }
 

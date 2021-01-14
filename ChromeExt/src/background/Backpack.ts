@@ -77,4 +77,23 @@ export class Backpack
         }
     }
 
+    derezItem(itemId: string, roomJid: string, inventoryX: number, inventoryY: number): void
+    {
+        var item = this.items[itemId];
+        if (item) {
+            let props = item.getProperties();
+            delete props.IsRezzed;
+            if (inventoryX > 0 && inventoryY > 0) {
+                props.InventoryX = '' + inventoryX;
+                props.InventoryY = '' + inventoryY;
+            }
+            delete props.RezzedX;
+            delete props.RezzedDestination;
+            delete props.RezzedLoation;
+            item.setProperties(props);
+
+            this.projector.retractItem(roomJid, itemId);
+        }
+    }
+
 }
