@@ -26,7 +26,10 @@ export class BackpackRemoveItemData
 
 export class ContentMessage
 {
+    static type_recvStanza = 'recvStanza';
+    static type_userSettingsChanged = 'userSettingsChanged';
     static type_onBackpackShowItem = 'onBackpackShowItem';
     static type_onBackpackSetItem = 'onBackpackSetItem';
     static type_onBackpackHideItem = 'onBackpackHideItem';
+    static type_sendPresence = 'sendPresence';
 }

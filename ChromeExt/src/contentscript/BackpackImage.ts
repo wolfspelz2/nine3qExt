@@ -3,7 +3,7 @@ import log = require('loglevel');
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 import { Utils, Point2D } from '../lib/Utils';
-import { ItemProperties } from '../lib/ItemProperties';
+import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { ContentApp } from './ContentApp';
 import { BackpackWindow } from './BackpackWindow';
 
@@ -225,8 +225,8 @@ export class BackpackImage
 
     sendSetItemCoordinates(x: number, y: number)
     {
-        this.properties.InventoryX = '' + Math.round(x);
-        this.properties.InventoryY = '' + Math.round(y);
+        this.properties[Pid.InventoryX] = '' + Math.round(x);
+        this.properties[Pid.InventoryY] = '' + Math.round(y);
         this.backpackWindow.setItemProperties(this.itemId, this.properties);
     }
 
@@ -273,15 +273,15 @@ export class BackpackImage
             }
         }
 
-        if (as.Bool(newProperties.IsRezzed, false)) {
+        if (as.Bool(newProperties[Pid.IsRezzed], false)) {
             $(this.elem).addClass('n3q-backpack-item-rezzed');
         } else {
             $(this.elem).removeClass('n3q-backpack-item-rezzed');
         }
 
-        if (newProperties.InventoryX && newProperties.InventoryY) {
-            var x = as.Int(newProperties.InventoryX, -1);
-            var y = as.Int(newProperties.InventoryY, -1);
+        if (newProperties[Pid.InventoryX] && newProperties[Pid.InventoryY]) {
+            var x = as.Int(newProperties[Pid.InventoryX], -1);
+            var y = as.Int(newProperties[Pid.InventoryY], -1);
             if (x >= 0 && y >= 0 && (x != this.x || y != this.y)) {
                 this.setPosition(x, y);
             }

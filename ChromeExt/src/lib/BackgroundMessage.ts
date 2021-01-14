@@ -229,6 +229,21 @@ export class BackgroundMessage
         });
     }
 
+    static modifyBackpackItemProperties(id: string, changed: ItemProperties, deleted: Array<string>): Promise<void>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            try {
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.modifyBackpackItemProperties.name, 'id': id, 'changed': changed, 'deleted': deleted }, response =>
+                {
+                    resolve(response);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
     static rezBackpackItem(id: string, room: string, x: number, destination: string): Promise<void>
     {
         return new Promise((resolve, reject) =>

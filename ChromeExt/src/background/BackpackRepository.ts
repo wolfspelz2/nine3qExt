@@ -2,7 +2,7 @@ import log = require('loglevel');
 import { as } from '../lib/as';
 import { xml, jid } from '@xmpp/client';
 import { Config } from '../lib/Config';
-import { ItemProperties } from '../lib/ItemProperties';
+import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { BackpackShowItemData, BackpackRemoveItemData, BackpackSetItemData, ContentMessage } from '../lib/ContentMessage';
 import { BackgroundApp } from './BackgroundApp';
 import { BackpackItem } from './BackpackItem';
@@ -45,6 +45,21 @@ export class BackpackRepository
         }
     }
 
+    modifyItemProperties(itemId: string, changed: ItemProperties, deleted: Array<string>)
+    {
+        var item = this.items[itemId];
+        if (item) {
+            let props = item.getProperties();
+            for (let key in changed) {
+                props[key] = changed[key];
+            }
+            for (let i = 0; i < deleted.length; i++) {
+                delete props[deleted[i]];
+            }
+            item.setProperties(props);
+        }
+    }
+
     getItems(): { [id: string]: ItemProperties; }
     {
         let itemProperties: { [id: string]: ItemProperties; } = {};
@@ -59,19 +74,19 @@ export class BackpackRepository
     {
         var item = this.items[itemId];
         if (item) {
-            let props = item.getProperties();
-            props.IsRezzed = 'true';
-            props.RezzedX = '' + rezzedX;
-            props.RezzedDestination = destinationUrl;
-            props.RezzedLocation = roomJid;
-            item.setProperties(props);
-
             var rezzedIds = this.rooms[roomJid];
             if (rezzedIds == null) {
                 rezzedIds = new Array<string>();
                 this.rooms[roomJid] = rezzedIds;
             }
             rezzedIds.push(itemId);
+
+            let props = item.getProperties();
+            props[Pid.IsRezzed] = 'true';
+            props[Pid.RezzedX] = '' + rezzedX;
+            props[Pid.RezzedDestination] = destinationUrl;
+            props[Pid.RezzedLocation] = roomJid;
+            item.setProperties(props);
         }
     }
 
@@ -79,17 +94,6 @@ export class BackpackRepository
     {
         var item = this.items[itemId];
         if (item) {
-            let props = item.getProperties();
-            delete props.IsRezzed;
-            if (inventoryX > 0 && inventoryY > 0) {
-                props.InventoryX = '' + inventoryX;
-                props.InventoryY = '' + inventoryY;
-            }
-            delete props.RezzedX;
-            delete props.RezzedDestination;
-            delete props.RezzedLocation;
-            item.setProperties(props);
-
             var rezzedIds = this.rooms[roomJid];
             if (rezzedIds) {
                 const index = rezzedIds.indexOf(itemId, 0);
@@ -100,6 +104,19 @@ export class BackpackRepository
                     }
                 }
             }
+
+            let props = item.getProperties();
+            delete props[Pid.IsRezzed];
+            if (inventoryX > 0 && inventoryY > 0) {
+                props[Pid.InventoryX] = '' + inventoryX;
+                props[Pid.InventoryY] = '' + inventoryY;
+            }
+            delete props[Pid.RezzedX];
+            delete props[Pid.RezzedDestination];
+            delete props[Pid.RezzedLocation];
+            item.setProperties(props);
+
+            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
         }
     }
 

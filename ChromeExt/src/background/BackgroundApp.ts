@@ -8,6 +8,7 @@ import { Client } from '../lib/Client';
 import { ItemProperties } from '../lib/ItemProperties';
 import { ConfigUpdater } from './ConfigUpdater';
 import { BackpackRepository } from './BackpackRepository';
+import { ContentMessage } from '../lib/ContentMessage';
 
 interface ILocationMapperResponse
 {
@@ -199,6 +200,11 @@ export class BackgroundApp
 
             case BackgroundMessage.setBackpackItemProperties.name: {
                 sendResponse(this.handle_setBackpackItemProperties(message.id, message.properties));
+                return false;
+            } break;
+
+            case BackgroundMessage.modifyBackpackItemProperties.name: {
+                sendResponse(this.handle_modifyBackpackItemProperties(message.id, message.changed, message.deleted));
                 return false;
             } break;
 
@@ -436,6 +442,15 @@ export class BackgroundApp
         }
     }
 
+    handle_modifyBackpackItemProperties(id: string, changed: ItemProperties, deleted: Array<string>): void
+    {
+        if (this.backpack) {
+            this.backpack.modifyItemProperties(id, changed, deleted);
+        } else {
+            log.info('BackgroundApp.handle_setBackpackItemProperties', 'No backpack');
+        }
+    }
+
     handle_rezBackpackItem(id: string, room: string, x: number, destination: string): void
     {
         if (this.backpack) {
@@ -624,7 +639,7 @@ export class BackgroundApp
                     let tabId = this.iqStanzaTabId[stanzaId];
                     if (tabId) {
                         delete this.iqStanzaTabId[stanzaId];
-                        chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
+                        chrome.tabs.sendMessage(tabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
                     }
                 }
             }
@@ -638,7 +653,7 @@ export class BackgroundApp
             if (tabIds) {
                 for (let i = 0; i < tabIds.length; i++) {
                     let tabId = tabIds[i];
-                    chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
+                    chrome.tabs.sendMessage(tabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
                 }
             }
         }
@@ -657,7 +672,7 @@ export class BackgroundApp
             }
 
             if (unavailableTabId >= 0) {
-                chrome.tabs.sendMessage(unavailableTabId, { 'type': 'recvStanza', 'stanza': stanza });
+                chrome.tabs.sendMessage(unavailableTabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
                 this.removeRoomJid2TabId(room, unavailableTabId);
                 log.debug('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', unavailableTabId, 'now:', this.roomJid2tabId);
             } else {
@@ -665,7 +680,7 @@ export class BackgroundApp
                 if (tabIds) {
                     for (let i = 0; i < tabIds.length; i++) {
                         let tabId = tabIds[i];
-                        chrome.tabs.sendMessage(tabId, { 'type': 'recvStanza', 'stanza': stanza });
+                        chrome.tabs.sendMessage(tabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
                     }
                 }
             }
@@ -737,6 +752,17 @@ export class BackgroundApp
             for (let i = 0; i < tabIds.length; i++) {
                 let tabId = tabIds[i];
                 chrome.tabs.sendMessage(tabId, { 'type': type, 'data': data });
+            }
+        }
+    }
+
+    sendToTabsForRoom(room: string, type: string)
+    {
+        let tabIds = this.getRoomJid2TabIds(room);
+        if (tabIds) {
+            for (let i = 0; i < tabIds.length; i++) {
+                let tabId = tabIds[i];
+                chrome.tabs.sendMessage(tabId, { 'type': type });
             }
         }
     }

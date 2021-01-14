@@ -219,7 +219,8 @@ export class ContentApp
 
     test(): void
     {
-        this.showBackpackWindow(null);
+        this.showInventoryWindow(null, 'nine3q');
+        // this.showBackpackWindow(null);
         //new TestWindow(this).show({});
     }
 
@@ -347,14 +348,19 @@ export class ContentApp
     runtimeOnMessage(message, sender: chrome.runtime.MessageSender, sendResponse): any
     {
         switch (message.type) {
-            case 'recvStanza': {
+            case ContentMessage.type_recvStanza: {
                 this.handle_recvStanza(message.stanza);
                 sendResponse();
             } break;
 
-            case 'userSettingsChanged': {
+            case ContentMessage.type_userSettingsChanged: {
                 this.handle_userSettingsChanged();
                 sendResponse();
+            } break;
+
+            case ContentMessage.type_sendPresence: {
+                this.handle_sendPresence();
+                return false;
             } break;
 
             case ContentMessage.type_onBackpackShowItem: {
@@ -395,6 +401,13 @@ export class ContentApp
     handle_userSettingsChanged(): any
     {
         this.messageHandler({ 'type': ContentAppNotification.type_restart });
+    }
+
+    handle_sendPresence(): void
+    {
+        if (this.room) {
+            this.room.sendPresence();
+        }
     }
 
     // enterPage()
@@ -506,13 +519,6 @@ export class ContentApp
         this.room = new Room(this, roomJid, roomDestination, await this.getSavedPosition());
         log.debug('ContentApp.enterRoom', roomJid);
         this.room.enter();
-    }
-
-    sendPresence(): void
-    {
-        if (this.room) {
-            this.room.sendPresence();
-        }
     }
 
     leaveRoom(): void

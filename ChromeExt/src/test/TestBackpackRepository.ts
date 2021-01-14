@@ -3,6 +3,7 @@ import { xml, jid } from '@xmpp/client';
 import { BackgroundApp } from '../background/BackgroundApp';
 import { BackpackRepository } from '../background/BackpackRepository';
 import { as } from '../lib/as';
+import { Pid } from '../lib/ItemProperties';
 
 export class TestBackpackRepository
 {
@@ -18,21 +19,21 @@ export class TestBackpackRepository
         rep.rezItem('item1', 'room1@server', 41, 'd1');
         rep.rezItem('item2', 'room1@server', 42, 'd2');
 
-        expect(rep.getItems()['item1'].IsRezzed).to.equal('true');
-        expect(rep.getItems()['item2'].IsRezzed).to.equal('true');
-        expect(as.Bool(rep.getItems()['item3'].IsRezzed, false)).to.equal(false);
+        expect(rep.getItems()['item1'][Pid.IsRezzed]).to.equal('true');
+        expect(rep.getItems()['item2'][Pid.IsRezzed]).to.equal('true');
+        expect(as.Bool(rep.getItems()['item3'][Pid.IsRezzed], false)).to.equal(false);
 
-        expect(rep.getItems()['item1'].RezzedX).to.equal('41');
-        expect(rep.getItems()['item2'].RezzedX).to.equal('42');
-        expect(as.Int(rep.getItems()['item3'].RezzedX, -1)).to.equal(-1);
+        expect(rep.getItems()['item1'][Pid.RezzedX]).to.equal('41');
+        expect(rep.getItems()['item2'][Pid.RezzedX]).to.equal('42');
+        expect(as.Int(rep.getItems()['item3'][Pid.RezzedX], -1)).to.equal(-1);
 
-        expect(rep.getItems()['item1'].RezzedLocation).to.equal('room1@server');
-        expect(rep.getItems()['item2'].RezzedLocation).to.equal('room1@server');
-        expect(as.String(rep.getItems()['item3'].RezzedLocation, '')).to.equal('');
+        expect(rep.getItems()['item1'][Pid.RezzedLocation]).to.equal('room1@server');
+        expect(rep.getItems()['item2'][Pid.RezzedLocation]).to.equal('room1@server');
+        expect(as.String(rep.getItems()['item3'][Pid.RezzedLocation], '')).to.equal('');
 
-        expect(rep.getItems()['item1'].RezzedDestination).to.equal('d1');
-        expect(rep.getItems()['item2'].RezzedDestination).to.equal('d2');
-        expect(as.String(rep.getItems()['item3'].RezzedDestination, '')).to.equal('');
+        expect(rep.getItems()['item1'][Pid.RezzedDestination]).to.equal('d1');
+        expect(rep.getItems()['item2'][Pid.RezzedDestination]).to.equal('d2');
+        expect(as.String(rep.getItems()['item3'][Pid.RezzedDestination], '')).to.equal('');
 
         let stanza = xml('presence', { 'to': 'room1@server/nick' });
         stanza = rep.stanzaOutFilter(stanza);

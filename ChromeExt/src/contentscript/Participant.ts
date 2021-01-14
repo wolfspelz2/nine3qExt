@@ -554,9 +554,9 @@ export class Participant extends Entity
         this.room?.showVideoConference(this.getElem(), this.nicknameDisplay ? this.nicknameDisplay.getNickname() : this.nick);
     }
 
-    showInventoryWindow(itemProvider: string): void
+    showBackpackWindow(): void
     {
-        this.app.showInventoryWindow(this.getElem(), itemProvider);
+        this.app.showBackpackWindow(this.getElem());
     }
 
     async applyItem(roomItem: RoomItem)
@@ -567,7 +567,7 @@ export class Participant extends Entity
 
             log.info('Participant', 'derezItem', itemId, 'from', roomJid);
             BackgroundMessage.derezBackpackItem(itemId, roomJid, -1, -1);
-            this.app.sendPresence();
+            // this.app.sendPresence();
 
             // await this.app.showBackpackWindow(this.elem);
             // let backpackWindow = this.app.getBackpackWindow();

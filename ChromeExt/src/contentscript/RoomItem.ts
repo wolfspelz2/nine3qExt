@@ -4,6 +4,8 @@ import log = require('loglevel');
 import { as } from '../lib/as';
 import { Point2D } from '../lib/Utils';
 import { Config } from '../lib/Config';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { Pid } from '../lib/ItemProperties';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
@@ -88,7 +90,7 @@ export class RoomItem extends Entity
                     // vpNickname = as.String(attrs.Nickname, '');
                     vpAnimationsUrl = as.String(newProperties.AnimationsUrl, '');
                     vpImageUrl = as.String(newProperties.ImageUrl, '');
-                    vpRezzedX = as.Int(newProperties.RezzedX, -1);
+                    vpRezzedX = as.Int(newProperties[Pid.RezzedX], -1);
                 }
             }
         }
@@ -215,9 +217,15 @@ export class RoomItem extends Entity
         this.sendItemActionCommand('Applier.Apply', { 'passive': passiveItemId });
     }
 
-    sendMoveMessage(newX: number): void
+    async sendMoveMessage(newX: number): Promise<void>
     {
-        this.sendItemActionCommand('Rezzed.MoveTo', { 'x': newX });
+        let itemId = this.nick;
+        let response = await BackgroundMessage.isBackpackItem(itemId);
+        if (response.ok && response.isItem) {
+            BackgroundMessage.modifyBackpackItemProperties(itemId, { [Pid.RezzedX]: '' + newX }, []);
+        } else {
+            this.sendItemActionCommand('Rezzed.MoveTo', { 'x': newX });
+        }
     }
 
     sendItemActionCommand(action: string, params: any)

@@ -170,7 +170,7 @@ export class Config
                     'Vidconfwindow.Video Conference': 'Video Conference',
                     'Settingswindow.Settings': 'Settings',
                     'InventoryWindow.Inventory': 'Your Stuff',
-                    'BackpackWindow.Inventory': 'Local Stuff',
+                    'BackpackWindow.Inventory': 'Your Stuff',
 
                     'Inventory.Not yet loaded': 'Not yet loaded',
                 },
@@ -221,7 +221,7 @@ export class Config
                     'Vidconfwindow.Video Conference': 'Videokonferenz',
                     'Settingswindow.Settings': 'Einstellungen',
                     'InventoryWindow.Inventory': 'Deine Gegenstände',
-                    'BackpackWindow.Inventory': 'Lokale Gegenstände',
+                    'BackpackWindow.Inventory': 'Deine Gegenstände',
 
                     'Inventory.Not yet loaded': 'Noch nicht geladen',
                 },

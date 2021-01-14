@@ -173,13 +173,13 @@ export class BackpackWindow extends Window
     {
         log.info('BackpackWindow', 'rezItem', id, 'to', room);
         BackgroundMessage.rezBackpackItem(id, room, x, destination);
-        this.app.sendPresence();
+        // this.app.sendPresence();
     }
 
     derezItem(id: string, room: string, x: number, y: number)
     {
         log.info('BackpackWindow', 'derezItem', id, 'from', room);
         BackgroundMessage.derezBackpackItem(id, room, -1, -1);
-        this.app.sendPresence();
+        // this.app.sendPresence();
     }
 }

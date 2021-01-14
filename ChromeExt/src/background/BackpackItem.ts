@@ -2,7 +2,7 @@ import log = require('loglevel');
 import { as } from '../lib/as';
 import { xml, jid } from '@xmpp/client';
 import { Config } from '../lib/Config';
-import { ItemProperties } from '../lib/ItemProperties';
+import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { BackpackShowItemData, BackpackRemoveItemData, BackpackSetItemData, ContentMessage } from '../lib/ContentMessage';
 import { BackgroundApp } from './BackgroundApp';
 import { BackpackRepository } from './BackpackRepository';
@@ -21,11 +21,16 @@ export class BackpackItem
 
         let data = new BackpackSetItemData(this.itemId, props);
         this.app.sendToAllTabs(ContentMessage.type_onBackpackSetItem, data);
+
+        if (this.isRezzed()) {
+            let roomJid = this.properties[Pid.RezzedLocation];
+            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
+        }
     }
 
     isRezzed(): boolean
     {
-        return as.Bool(this.properties.IsRezzed, false);
+        return as.Bool(this.properties[Pid.IsRezzed], false);
     }
 
     getDependentPresence(roomJid: string): xml
