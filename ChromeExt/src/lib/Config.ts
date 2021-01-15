@@ -74,6 +74,7 @@ export class Config
             vidconfBottom: 200,
             vidconfWidth: 600,
             vidconfHeight: 400,
+            pokeToastDurationSec: 10,
         },
         xmpp: {
             service: 'wss://xmpp.vulcan.weblin.com/xmpp-websocket',
@@ -173,6 +174,11 @@ export class Config
                     'BackpackWindow.Inventory': 'Your Stuff',
 
                     'Inventory.Not yet loaded': 'Not yet loaded',
+
+                    'Toast.Do not show this message again': 'Do not show this message again',
+                    'Toast.greets': '...greets you',
+                    'Toast.tousles': '...tousled you',
+                    'Toast.nudges': '...nudged you',
                 },
                 'de-DE': {
                     'Common.Close': 'Schließen',
@@ -224,6 +230,11 @@ export class Config
                     'BackpackWindow.Inventory': 'Deine Gegenstände',
 
                     'Inventory.Not yet loaded': 'Noch nicht geladen',
+
+                    'Toast.Do not show this message again': 'Diesen Hinweis nicht mehr anzeigen',
+                    'Toast.greets': '...hat dich gegrüßt',
+                    'Toast.tousles': '...hat dich gewuschelt',
+                    'Toast.nudges': '...hat dich angestupst',
                 },
             },
             'serviceUrl': '',

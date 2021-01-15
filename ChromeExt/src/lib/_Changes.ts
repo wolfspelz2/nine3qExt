@@ -6,9 +6,12 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
-        ['1.0.7', 'UndockVidconf ChatBubbleDuration Items', [
+        ['1.0.7', 'Greet BubbleDuration ShowBackpackItems', [
             ['Add', 'Allow vidconf fullscreen'],
+            ['Add', 'Greet'],
+            ['Add', 'Show user dependent items'],
             ['Change', 'RallySpeaker URL variables, iframe allows 4 vidconf'],
+            ['Change', 'Much longer chat bubble'],
             ['Fix', 'Message replication by tab change'],
         ]],
         ['1.0.6', 'UndockVidconf ChatBubbleDuration Items', [

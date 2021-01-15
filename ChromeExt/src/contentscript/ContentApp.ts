@@ -22,6 +22,7 @@ import { ItemRepository } from './ItemRepository';
 import { TestWindow } from './TestWindow';
 import { BackpackWindow } from './BackpackWindow';
 import { BackpackShowItemData, BackpackSetItemData, BackpackRemoveItemData, ContentMessage } from '../lib/ContentMessage';
+import { SimpleToast } from './Toast';
 
 interface ILocationMapperResponse
 {
@@ -219,8 +220,12 @@ export class ContentApp
 
     test(): void
     {
-        this.showInventoryWindow(null, 'nine3q');
+        new SimpleToast(this, 'test', 4, 'warning', 'Heiner (dev)', 'greets').show();
+
+        // this.showInventoryWindow(null, 'nine3q');
+
         // this.showBackpackWindow(null);
+
         //new TestWindow(this).show({});
     }
 
@@ -668,6 +673,20 @@ export class ContentApp
             }
         }
         return propValue;
+    }
+
+    // Dont show this message again management
+
+    localStorage_DontShowNotice_KeyPrefix: string = 'DontShowNotice';
+
+    async isDontShowNoticeType(type: string): Promise<boolean>
+    {
+        return await Config.getLocal(this.localStorage_DontShowNotice_KeyPrefix + type, false);
+    }
+
+    async setDontShowNoticeType(type: string, value: boolean): Promise<void>
+    {
+        await Config.setLocal(this.localStorage_DontShowNotice_KeyPrefix + type, value);
     }
 
     // my active

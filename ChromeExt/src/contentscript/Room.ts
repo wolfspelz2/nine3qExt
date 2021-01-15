@@ -53,7 +53,7 @@ export class Room
     getJid(): string { return this.jid; }
     getDestination(): string { return this.destination; }
     getItem(nick: string) { return this.items[nick]; }
-    getParticipant(nick: string) { return this.participants[nick]; }
+    getParticipant(nick: string): Participant { return this.participants[nick]; }
 
     iAmAlreadyHere()
     {
@@ -327,6 +327,12 @@ export class Room
                 }
                 break;
 
+            case 'chat':
+                if (this.participants[nick] != undefined) {
+                    this.participants[nick].onMessageChat(stanza);
+                }
+                break;
+
             case 'error':
                 //hw todo
                 break;
@@ -348,6 +354,14 @@ export class Room
     {
         let message = xml('message', { type: 'groupchat', to: this.jid, from: this.jid + '/' + this.myNick })
             .append(xml('body', {}, text))
+            ;
+        this.app.sendStanza(message);
+    }
+
+    sendPoke(nick: string, type: string)
+    {
+        let message = xml('message', { type: 'chat', to: this.jid + '/' + nick, from: this.jid + '/' + this.myNick })
+            .append(xml('x', { 'xmlns': 'vp:poke', 'type': type }))
             ;
         this.app.sendStanza(message);
     }

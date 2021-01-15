@@ -15,6 +15,7 @@ import { url } from 'inspector';
 import { RoomItem } from './RoomItem';
 import log = require('loglevel');
 import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { SimpleToast, Toast } from './Toast';
 
 export class Participant extends Entity
 {
@@ -40,6 +41,15 @@ export class Participant extends Entity
 
     getNick(): string { return this.nick; }
     getChatout(): Chatout { return this.chatoutDisplay; }
+
+    getDisplayName(): string
+    {
+        let name = this.nick;
+        if (this.nicknameDisplay) {
+            this.nicknameDisplay.getNickname();
+        }
+        return name;
+    }
 
     remove(): void
     {
@@ -303,10 +313,6 @@ export class Participant extends Entity
     {
         let url: string;
 
-        if (this.nick == 'kurtz') {
-            let x = 1;
-        }
-
         let vCardNode = stanza.getChildren('vCard').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vcard-temp');
         if (vCardNode) {
             let photoNodes = vCardNode.getChildren('PHOTO');
@@ -331,6 +337,28 @@ export class Participant extends Entity
     }
 
     // message
+
+    onMessageChat(stanza: any): void
+    {
+        let isPoke = false;
+        {
+            let node = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:poke');
+            if (node) {
+                try {
+                    let type = node.attrs.type;
+                    isPoke = true;
+                    let from = jid(stanza.attrs.from);
+                    let nick = from.getResource();
+                    let name = this.room.getParticipant(nick).getDisplayName();
+
+                    new SimpleToast(this.app, 'Poke-' + type, Config.get('room.pokeToastDurationSec', 10), 'greeting', name, type + 's').show();
+                } catch (error) {
+                    //
+                }
+            }
+        }
+
+    }
 
     onMessageGroupchat(stanza: any): void
     {
@@ -557,6 +585,11 @@ export class Participant extends Entity
     showBackpackWindow(): void
     {
         this.app.showBackpackWindow(this.getElem());
+    }
+
+    sendPoke(type: string): void
+    {
+        this.room?.sendPoke(this.getNick(), type);
     }
 
     async applyItem(roomItem: RoomItem)
