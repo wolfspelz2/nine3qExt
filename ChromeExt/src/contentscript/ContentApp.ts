@@ -639,7 +639,7 @@ export class ContentApp
         let gotAnyProvider = false;
 
         for (let providerId in itemProviders) {
-            let providerConfig = await Config.getSync(Utils.syncStorageKey_ItemProviderConfig(providerId), null);
+            let providerConfig = await Config.get('itemProviders.' + providerId, null);
             if (providerConfig) {
                 this.itemProviders[providerId] = new ItemProvider(providerConfig);
                 gotAnyProvider = gotAnyProvider || as.Bool(providerConfig['inventoryActive'], false);

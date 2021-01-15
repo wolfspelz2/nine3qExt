@@ -77,36 +77,28 @@ export class BackgroundApp
         }
 
         {
-            let gotAnyProvider = false;
-            if (Config.get('inventory.enabled', false) || Config.get('backpack.enabled', false)) {
-                let itemProviders = Config.get('itemProviders', {});
-                if (itemProviders) {
-                    for (let providerId in itemProviders) {
-                        let itemProvider = itemProviders[providerId];
-                        if (itemProvider.configUrl) {
-                            try {
+            let itemProviders = Config.get('itemProviders', {});
+            if (itemProviders) {
+                for (let providerId in itemProviders) {
+                    let itemProvider = itemProviders[providerId];
+                    if (itemProvider.configUrl) {
+                        try {
 
-                                let userId = await this.getOrCreateItemProviderUserId(providerId);
-                                let url = itemProvider.configUrl;
-                                url = url
-                                    .replace('{id}', encodeURIComponent(userId))
-                                    .replace('{client}', encodeURIComponent(Client.getDetails()))
-                                    ;
+                            let userId = await this.getOrCreateItemProviderUserId(providerId);
+                            let url = itemProvider.configUrl;
+                            url = url
+                                .replace('{id}', encodeURIComponent(userId))
+                                .replace('{client}', encodeURIComponent(Client.getDetails()))
+                                ;
 
-                                var providerConfig = await this.fetchJSON(url);
-                                await Config.setSync(Utils.syncStorageKey_ItemProviderConfig(providerId), providerConfig);
+                            var providerConfig = await this.fetchJSON(url);
+                            Config.set('itemProviders.' + providerId, providerConfig);
 
-                                gotAnyProvider = gotAnyProvider || as.Bool(providerConfig['inventoryActive'], false);
-
-                            } catch (error) {
-                                log.info('Fetch itemProvider config failed:', providerId, itemProvider.configUrl, error);
-                            }
+                        } catch (error) {
+                            log.info('Fetch itemProvider config failed:', providerId, itemProvider.configUrl, error);
                         }
                     }
                 }
-            }
-            if (!gotAnyProvider) {
-                Config.set('inventory.enabled', false)
             }
         }
 
@@ -391,9 +383,10 @@ export class BackgroundApp
     {
         log.debug('BackgroundApp.handle_getConfigTree', name, this.isReady);
         switch (as.String(name, Config.onlineConfigName)) {
-            case Config.devConfigName:
-                return Config.getDevTree();
-                break;
+            case Config.devConfigName: return Config.getDevTree();
+            case Config.onlineConfigName: return Config.getOnlineTree();
+            case Config.sessionConfigName: return Config.getSessionTree();
+            case Config.staticConfigName: return Config.getStaticTree();
         }
         return Config.getOnlineTree();
     }
