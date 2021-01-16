@@ -16,6 +16,7 @@ import { RoomItem } from './RoomItem';
 import log = require('loglevel');
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { SimpleToast, Toast } from './Toast';
+import { PrivateChatWindow } from './PrivateChatWindow';
 
 export class Participant extends Entity
 {
@@ -24,6 +25,7 @@ export class Participant extends Entity
     private chatinDisplay: Chatin;
     private isFirstPresence: boolean = true;
     private userId: string;
+    private privateChatWindow: PrivateChatWindow;
 
     constructor(app: ContentApp, room: Room, private nick: string, isSelf: boolean)
     {
@@ -338,30 +340,49 @@ export class Participant extends Entity
 
     // message
 
-    onMessageChat(stanza: any): void
+    onMessagePrivateChat(stanza: any): void
     {
-        let isPoke = false;
+        let from = jid(stanza.attrs.from);
+        let nick = from.getResource();
+        let isText = true;
+
         {
             let node = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:poke');
             if (node) {
                 try {
                     let type = node.attrs.type;
-                    isPoke = true;
-                    let from = jid(stanza.attrs.from);
-                    let nick = from.getResource();
                     let name = this.room.getParticipant(nick).getDisplayName();
 
                     new SimpleToast(this.app, 'Poke-' + type, Config.get('room.pokeToastDurationSec', 10), 'greeting', name, type + 's').show();
+                    isText = false;
                 } catch (error) {
                     //
                 }
             }
         }
 
+        if (!isText) { return; }
+
+        let text = '';
+        let bodyNode = stanza.getChild('body');
+        if (bodyNode) {
+            text = bodyNode.getText();
+        }
+
+        if (text == '') { return; }
+
+        let name = this.getDisplayName();
+
+        if (this.privateChatWindow == null) {
+            this.openPrivateChat(this.elem);
+        }
+        this.privateChatWindow?.addLine(nick + Date.now(), name, text);
     }
 
     onMessageGroupchat(stanza: any): void
     {
+        let from = jid(stanza.attrs.from);
+        let nick = from.getResource();
         let now = Date.now();
         let timestamp = 0;
 
@@ -399,24 +420,16 @@ export class Participant extends Entity
             }
         }
 
-        let text = '';
-        let nick = '';
 
+        let text = '';
         let bodyNode = stanza.getChild('body');
-        if (bodyNode != undefined) {
+        if (bodyNode) {
             text = bodyNode.getText();
         }
 
-        if (stanza.attrs != undefined) {
-            let from = jid(stanza.attrs.from);
-            let room = from.bare().toString();
-            nick = from.getResource();
-            if (this.nicknameDisplay != undefined) {
-                nick = this.nicknameDisplay?.getNickname();
-            }
-        }
-
         if (text == '') { return; }
+
+        let name = this.getDisplayName();
 
         if (timestamp == 0) {
             timestamp = now;
@@ -424,7 +437,7 @@ export class Participant extends Entity
         let delayMSec = now - timestamp;
 
         // always
-        this.room?.showChatMessage(nick, text);
+        this.room?.showChatMessage(name, text);
 
         // recent
         if (delayMSec * 1000 < as.Float(Config.get('room.maxChatAgeSec', 60))) {
@@ -590,6 +603,23 @@ export class Participant extends Entity
     sendPoke(type: string): void
     {
         this.room?.sendPoke(this.getNick(), type);
+    }
+
+    openPrivateChat(aboveElem: HTMLElement): void
+    {
+        if (this.privateChatWindow == null) {
+            this.privateChatWindow = new PrivateChatWindow(this.app, this);
+            this.privateChatWindow.show({
+                'above': aboveElem,
+                onClose: () =>
+                {
+                    this.privateChatWindow = null;
+                },
+            });
+        }
+
+        if (this.privateChatWindow == null) {
+        }
     }
 
     async applyItem(roomItem: RoomItem)

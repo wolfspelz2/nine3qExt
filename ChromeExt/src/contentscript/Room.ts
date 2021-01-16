@@ -329,7 +329,7 @@ export class Room
 
             case 'chat':
                 if (this.participants[nick] != undefined) {
-                    this.participants[nick].onMessageChat(stanza);
+                    this.participants[nick].onMessagePrivateChat(stanza);
                 }
                 break;
 
@@ -353,6 +353,14 @@ export class Room
     sendGroupChat(text: string)
     {
         let message = xml('message', { type: 'groupchat', to: this.jid, from: this.jid + '/' + this.myNick })
+            .append(xml('body', {}, text))
+            ;
+        this.app.sendStanza(message);
+    }
+
+    sendPrivateChat(text: string, nick: string)
+    {
+        let message = xml('message', { type: 'chat', to: this.jid + '/' + nick, from: this.jid + '/' + this.myNick })
             .append(xml('body', {}, text))
             ;
         this.app.sendStanza(message);

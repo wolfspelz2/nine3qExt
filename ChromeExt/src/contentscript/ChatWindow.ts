@@ -20,11 +20,11 @@ class ChatLine
 
 export class ChatWindow extends Window
 {
-    private chatoutElem: HTMLElement;
-    private chatinInputElem: HTMLElement;
-    private lines: Record<string, ChatLine> = {};
+    protected chatoutElem: HTMLElement;
+    protected chatinInputElem: HTMLElement;
+    protected lines: Record<string, ChatLine> = {};
 
-    constructor(app: ContentApp, private room: Room)
+    constructor(app: ContentApp, protected room: Room)
     {
         super(app);
 
@@ -38,7 +38,7 @@ export class ChatWindow extends Window
 
     show(options: any)
     {
-        options.titleText = this.app.translateText('Chatwindow.Chat History', 'Chat');
+        if (options.titleText == null) { options.titleText = this.app.translateText('Chatwindow.Chat History', 'Chat'); }
         options.resizable = true;
 
         super.show(options);
@@ -183,7 +183,7 @@ export class ChatWindow extends Window
         }
     }
 
-    private sendChat(): void
+    protected sendChat(): void
     {
         var text: string = as.String($(this.chatinInputElem).val(), '');
         if (text != '') {

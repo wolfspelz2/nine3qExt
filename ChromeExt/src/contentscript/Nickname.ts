@@ -77,6 +77,7 @@ export class Nickname implements IObserver
         if (!this.isSelf) {
             let column = new MenuColumn(menu, 'interaction');
             // column.addItem('chat', 'Chat', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.toggleChatout(); });
+            column.addItem('privatechat', 'Private Chat', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.openPrivateChat(this.participant.getElem()); });
             column.addItem('greet', 'Greet', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.sendPoke('greet'); });
             menu.addColumn(column);
         }

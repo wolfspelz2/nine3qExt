@@ -159,6 +159,8 @@ export class Config
                     'Menu.angry': 'Angry',
                     'Menu.deny': 'Deny',
                     'Menu.yawn': 'Yawn',
+                    'Menu.Greet': 'Greet',
+                    'Menu.Private Chat': 'Private Chat',
 
                     'Chatwindow.Chat History': 'Chat',
                     'Chatwindow.entered the room': '**entered the room**',
@@ -167,6 +169,8 @@ export class Config
                     'Chatwindow.appeared': '*appeared*',
                     'Chatwindow.is present': '*is present*',
                     'Chatwindow.disappeared': '*disappeared*',
+
+                    'PrivateChat.Private Chat with': 'Private Chat with',
 
                     'Vidconfwindow.Video Conference': 'Video Conference',
                     'Settingswindow.Settings': 'Settings',
@@ -215,6 +219,8 @@ export class Config
                     'Menu.angry': 'Ärgern',
                     'Menu.deny': 'Ablehnen',
                     'Menu.yawn': 'Gähnen',
+                    'Menu.Greet': 'Grüßen',
+                    'Menu.Private Chat': 'Privater Chat',
 
                     'Chatwindow.Chat History': 'Chat',
                     'Chatwindow.entered the room': '**hat den Raum betreten**',
@@ -223,6 +229,8 @@ export class Config
                     'Chatwindow.appeared': '*erschienen*',
                     'Chatwindow.is present': '*ist da*',
                     'Chatwindow.disappeared': '*verschwunden*',
+
+                    'PrivateChat.Private Chat with': 'Privater Chat mit',
 
                     'Vidconfwindow.Video Conference': 'Videokonferenz',
                     'Settingswindow.Settings': 'Einstellungen',

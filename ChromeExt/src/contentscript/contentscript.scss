@@ -283,7 +283,7 @@
     #n3q input[type=checkbox].n3q-menu-open:checked + label:after { all: initial; }
     
     #n3q input[type=checkbox].n3q-base.n3q-menu-open {
-        display: none;
+        display: none!important;
     }
 
     #n3q input[type=checkbox].n3q-menu-open:checked + label.n3q-menu-open-button {
@@ -354,25 +354,26 @@
         #n3q div.n3q-menu-item.n3q-menu-column-action { transform: translate(-20px, -15px) scale(0, 0); }
         #n3q div.n3q-menu-item.n3q-menu-column-interaction { transform: translate(-20px, -15px) scale(0, 0); }
 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-test       { transform: translate(80px,  -16px) scale(1, 1); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-inventory  { transform: translate(60px, -154px) scale(1, 1); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-tabstay    { transform: translate(60px, -132px) scale(1, 1); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-settings   { transform: translate(60px, -110px) scale(1, 1); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-vidconf    { transform: translate(60px,  -88px) scale(1, 1); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-chatwin    { transform: translate(60px,  -66px) scale(1, 1); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-chat       { transform: translate(60px,  -44px) scale(1, 1); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-Actions    { transform: translate(-3px, -242px) scale(1, 1); }
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-wave       { transform: translate(-3px, -220px) scale(1, 1); }
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-dance      { transform: translate(-3px, -198px) scale(1, 1); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-cheer      { transform: translate(-3px, -176px) scale(1, 1); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-kiss       { transform: translate(-3px, -154px) scale(1, 1); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-clap       { transform: translate(-3px, -132px) scale(1, 1); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-laugh      { transform: translate(-3px, -110px) scale(1, 1); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-angry      { transform: translate(-3px,  -88px) scale(1, 1); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-deny       { transform: translate(-3px,  -66px) scale(1, 1); } 
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-yawn       { transform: translate(-3px,  -44px) scale(1, 1); } 
-        
-        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-greet      { transform: translate(-3px,  -44px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-test        { transform: translate(80px,  -16px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-inventory   { transform: translate(60px, -154px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-tabstay     { transform: translate(60px, -132px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-settings    { transform: translate(60px, -110px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-vidconf     { transform: translate(60px,  -88px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-chatwin     { transform: translate(60px,  -66px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-chat        { transform: translate(60px,  -44px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-Actions     { transform: translate(-3px, -242px) scale(1, 1); }
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-wave        { transform: translate(-3px, -220px) scale(1, 1); }
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-dance       { transform: translate(-3px, -198px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-cheer       { transform: translate(-3px, -176px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-kiss        { transform: translate(-3px, -154px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-clap        { transform: translate(-3px, -132px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-laugh       { transform: translate(-3px, -110px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-angry       { transform: translate(-3px,  -88px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-deny        { transform: translate(-3px,  -66px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-yawn        { transform: translate(-3px,  -44px) scale(1, 1); } 
+         
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-privatechat { transform: translate(-3px,  -66px) scale(1, 1); } 
+        #n3q input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-greet       { transform: translate(-3px,  -44px) scale(1, 1); } 
 
         #n3q div.n3q-participant-other div.n3q-menu-item.n3q-menu-column-main { transform: translate(-20px, -35px) scale(0, 0); }
         #n3q div.n3q-participant-other input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-chat { transform: translate(-20px, -44px) scale(1, 1); } 
