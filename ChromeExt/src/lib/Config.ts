@@ -176,7 +176,7 @@ export class Config
                     'Inventory.Not yet loaded': 'Not yet loaded',
 
                     'Toast.Do not show this message again': 'Do not show this message again',
-                    'Toast.greets': '...greets you',
+                    'Toast.greets': '...greeted you',
                     'Toast.tousles': '...tousled you',
                     'Toast.nudges': '...nudged you',
                 },
