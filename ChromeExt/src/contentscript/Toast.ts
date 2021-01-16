@@ -43,6 +43,9 @@ export class Toast
         $(footerElem).append(againLabelElem);
         $(this.elem).append(footerElem);
 
+        // let resizeElem = <HTMLElement>$('<div class="n3q-base n3q-window-resize n3q-window-resize-se"/>').get(0);
+        // $(this.elem).append(resizeElem);
+
         $(this.elem).click(() =>
         {
             $(this.elem)
@@ -104,8 +107,8 @@ export class SimpleToast extends Toast
     {
         var bodyElem = $(''
             + '<div class="n3q-base n3q-toast-body" data-translate="children">'
-            + '<div class="n3q-base n3q-title">' + as.Html(title) + '</div>'
-            + '<div class="n3q-base n3q-text" data-translate="text:Toast">' + as.Html(text) + '</div>'
+            + (title != null ? '<div class="n3q-base n3q-title">' + as.Html(title) + '</div>' : '')
+            + (text != null ? '<div class="n3q-base n3q-text" data-translate="text:Toast">' + as.Html(text) + '</div>' : '')
             + '</div>'
         )[0];
 

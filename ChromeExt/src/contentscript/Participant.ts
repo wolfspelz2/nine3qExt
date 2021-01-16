@@ -344,24 +344,23 @@ export class Participant extends Entity
     {
         let from = jid(stanza.attrs.from);
         let nick = from.getResource();
-        let isText = true;
+        let name = this.getDisplayName();
+        let isChat = true;
 
         {
             let node = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:poke');
             if (node) {
                 try {
                     let type = node.attrs.type;
-                    let name = this.room.getParticipant(nick).getDisplayName();
-
                     new SimpleToast(this.app, 'Poke-' + type, Config.get('room.pokeToastDurationSec', 10), 'greeting', name, type + 's').show();
-                    isText = false;
+                    isChat = false;
                 } catch (error) {
                     //
                 }
             }
         }
 
-        if (!isText) { return; }
+        if (!isChat) { return; }
 
         let text = '';
         let bodyNode = stanza.getChild('body');
@@ -371,12 +370,15 @@ export class Participant extends Entity
 
         if (text == '') { return; }
 
-        let name = this.getDisplayName();
-
         if (this.privateChatWindow == null) {
             this.openPrivateChat(this.elem);
         }
         this.privateChatWindow?.addLine(nick + Date.now(), name, text);
+        // if (this.privateChatWindow == null) {
+        //     new SimpleToast(this.app, 'PrivateChat', Config.get('room.privateChatToastDurationSec', 60), 'privatechat', name, text).show();
+        // } else {
+        //     this.privateChatWindow?.addLine(nick + Date.now(), name, text);
+        // }
     }
 
     onMessageGroupchat(stanza: any): void

@@ -75,6 +75,7 @@ export class Config
             vidconfWidth: 600,
             vidconfHeight: 400,
             pokeToastDurationSec: 10,
+            privateChatToastDurationSec: 60,
         },
         xmpp: {
             service: 'wss://xmpp.vulcan.weblin.com/xmpp-websocket',
