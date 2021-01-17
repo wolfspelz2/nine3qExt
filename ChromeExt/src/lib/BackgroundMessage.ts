@@ -214,6 +214,21 @@ export class BackgroundMessage
         });
     }
 
+    static addBackpackItem(id: string, properties: ItemProperties): Promise<void>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            try {
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.addBackpackItem.name, 'id': id, 'properties': properties }, response =>
+                {
+                    resolve(response);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
     static setBackpackItemProperties(id: string, properties: ItemProperties): Promise<void>
     {
         return new Promise((resolve, reject) =>

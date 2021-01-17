@@ -63,17 +63,17 @@ export class BackgroundApp
 
         if (Config.get('backpack.enabled', false)) {
             this.backpack = new BackpackRepository(this);
-            let itemId = Utils.randomString(20);
-            this.backpack.addItem(itemId, {
-                'provider': 'nine3q',
-                'Label': 'PirateFlag',
-                'Width': '43',
-                'Height': '65',
-                'ImageUrl': '{image.item.nine3q}PirateFlag/image.png',
-                'AnimationsUrl': '{image.item.nine3q}PirateFlag/animations.xml',
-                'IsRezable': 'true',
-            });
-            // this.backpack.rezItem(itemId, 'd954c536629c2d729c65630963af57c119e24836@muc4.virtual-presence.org');
+            await this.backpack.init();
+            // let itemId = Utils.randomString(20);
+            // await this.backpack.addItem(itemId, {
+            //     'provider': 'nine3q',
+            //     'Label': 'PirateFlag',
+            //     'Width': '43',
+            //     'Height': '65',
+            //     'ImageUrl': '{image.item.nine3q}PirateFlag/image.png',
+            //     'AnimationsUrl': '{image.item.nine3q}PirateFlag/animations.xml',
+            //     'IsRezable': 'true',
+            // });
         }
 
         {
@@ -188,6 +188,11 @@ export class BackgroundApp
                 let response = this.handle_getBackpackState();
                 sendResponse(response);
                 return false; // true if async
+            } break;
+
+            case BackgroundMessage.addBackpackItem.name: {
+                sendResponse(this.handle_addBackpackItem(message.id, message.properties));
+                return false;
             } break;
 
             case BackgroundMessage.setBackpackItemProperties.name: {
@@ -426,37 +431,46 @@ export class BackgroundApp
         return new GetBackpackStateResponse(false, 'error', 'No backpack', null);
     }
 
-    handle_setBackpackItemProperties(id: string, properties: ItemProperties): void
+    async handle_addBackpackItem(id: string, properties: ItemProperties): Promise<void>
     {
         if (this.backpack) {
-            this.backpack.setItemProperties(id, properties);
+            await this.backpack.addItem(id, properties);
+        } else {
+            log.info('BackgroundApp.handle_addBackpackItem', 'No backpack');
+        }
+    }
+
+    async handle_setBackpackItemProperties(id: string, properties: ItemProperties): Promise<void>
+    {
+        if (this.backpack) {
+            await this.backpack.setItemProperties(id, properties);
         } else {
             log.info('BackgroundApp.handle_setBackpackItemProperties', 'No backpack');
         }
     }
 
-    handle_modifyBackpackItemProperties(id: string, changed: ItemProperties, deleted: Array<string>): void
+    async handle_modifyBackpackItemProperties(id: string, changed: ItemProperties, deleted: Array<string>): Promise<void>
     {
         if (this.backpack) {
-            this.backpack.modifyItemProperties(id, changed, deleted);
+            await this.backpack.modifyItemProperties(id, changed, deleted);
         } else {
-            log.info('BackgroundApp.handle_setBackpackItemProperties', 'No backpack');
+            log.info('BackgroundApp.handle_modifyBackpackItemProperties', 'No backpack');
         }
     }
 
-    handle_rezBackpackItem(id: string, room: string, x: number, destination: string): void
+    async handle_rezBackpackItem(id: string, room: string, x: number, destination: string): Promise<void>
     {
         if (this.backpack) {
-            this.backpack.rezItem(id, room, x, destination);
+            await this.backpack.rezItem(id, room, x, destination);
         } else {
             log.info('BackgroundApp.handle_rezBackpackItem', 'No backpack');
         }
     }
 
-    handle_derezBackpackItem(id: string, room: string, x: number, y: number): void
+    async handle_derezBackpackItem(id: string, room: string, x: number, y: number): Promise<void>
     {
         if (this.backpack) {
-            this.backpack.derezItem(id, room, x, y);
+            await this.backpack.derezItem(id, room, x, y);
         } else {
             log.info('BackgroundApp.handle_derezBackpackItem', 'No backpack');
         }

@@ -9,12 +9,13 @@ import { ItemProperties } from '../lib/ItemProperties';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ContentApp } from './ContentApp';
 import { Window } from './Window';
-import { BackpackImage as BackpackImage } from './BackpackImage';
+import { BackpackItem as BackpackItem } from './BackpackItem';
+import { Environment } from '../lib/Environment';
 
 export class BackpackWindow extends Window
 {
     private paneElem: HTMLElement;
-    private items: { [id: string]: BackpackImage; } = {};
+    private items: { [id: string]: BackpackItem; } = {};
 
     constructor(app: ContentApp)
     {
@@ -57,6 +58,34 @@ export class BackpackWindow extends Window
 
             let paneElem = <HTMLElement>$('<div class="n3q-base n3q-backpack-pane" data-translate="children" />').get(0);
             $(contentElem).append(paneElem);
+
+            if (Environment.isDevelopment()) {
+                let inElem = <HTMLElement>$('<textarea class="n3q-base n3q-backpack-in n3q-input n3q-text" />').get(0);
+                $(inElem).hide();
+                $(contentElem).append(inElem);
+
+                let toggleElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-backpack-button n3q-backpack-toggle">Input</div>').get(0);
+                $(contentElem).append(toggleElem);
+                $(toggleElem).on('click', () =>
+                {
+                    if ($(inElem).is(':hidden')) {
+                        $(inElem).show();
+                    } else {
+                        $(inElem).hide();
+                    }
+                });
+
+                let addElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-backpack-button n3q-backpack-add">Add</div>').get(0);
+                $(contentElem).append(addElem);
+                $(addElem).on('click', () =>
+                {
+                    let text = as.String($(inElem).val(), '');
+                    text = text.replace(/'/g, '"',);
+                    let json = JSON.parse(text);
+                    let itemId = Utils.randomString(20);
+                    this.createItem(itemId, json);
+                });
+            }
 
             this.app.translateElem(windowElem);
 
@@ -143,7 +172,7 @@ export class BackpackWindow extends Window
     {
         let item = this.items[id];
         if (!item) {
-            item = new BackpackImage(this.app, this, id, properties);
+            item = new BackpackItem(this.app, this, id, properties);
             this.items[id] = item;
         }
         item.create();
@@ -162,6 +191,11 @@ export class BackpackWindow extends Window
             this.items[id].destroy();
             delete this.items[id];
         }
+    }
+
+    createItem(id: string, properties: ItemProperties)
+    {
+        BackgroundMessage.addBackpackItem(id, properties);
     }
 
     setItemProperties(id: string, properties: ItemProperties)

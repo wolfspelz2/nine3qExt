@@ -5,49 +5,96 @@ import { Config } from '../lib/Config';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { BackpackShowItemData, BackpackRemoveItemData, BackpackSetItemData, ContentMessage } from '../lib/ContentMessage';
 import { BackgroundApp } from './BackgroundApp';
-import { BackpackItem } from './BackpackItem';
+import { RepositoryItem } from './RepositoryItem';
 
 export class BackpackRepository
 {
-    private items: { [id: string]: BackpackItem; } = {};
+    private static BackpackIdsKey = 'BackpackIds';
+    private static BackpackPropsPrefix = 'BackpackItem-';
+    private items: { [id: string]: RepositoryItem; } = {};
     private rooms: { [jid: string]: Array<string>; } = {};
 
     constructor(private app: BackgroundApp)
     {
     }
 
-    addItem(itemId: string, props: ItemProperties)
+    async init(): Promise<void>
     {
-        var item = this.items[itemId];
-        if (item == null) {
-            item = new BackpackItem(this.app, this, itemId, props);
-            this.items[itemId] = item;
+        let itemIds = await Config.getLocal(BackpackRepository.BackpackIdsKey, []);
+        if (itemIds == null || !Array.isArray(itemIds)) {
+            log.warn('Local storage', BackpackRepository.BackpackIdsKey, 'not an array');
+            return;
+        }
 
-            let data = new BackpackShowItemData(itemId, props);
-            this.app.sendToAllTabs(ContentMessage.type_onBackpackShowItem, data);
+        for (let i = 0; i < itemIds.length; i++) {
+            let itemId = itemIds[i];
+
+            let props = await Config.getLocal(BackpackRepository.BackpackPropsPrefix + itemId, null);
+            if (props == null || typeof props != 'object') {
+                log.warn('Local storage', BackpackRepository.BackpackPropsPrefix + itemId, 'not an object, skipping');
+                continue;
+            }
+
+            let item = this.createItem(itemId, props);
+        }
+    }
+
+    createItem(itemId: string, props: ItemProperties): RepositoryItem
+    {
+        let item = this.items[itemId];
+        if (item == null) {
+            item = new RepositoryItem(this.app, this, itemId, props);
+            this.items[itemId] = item;
+        }
+        return item;
+    }
+
+    async addItem(itemId: string, props: ItemProperties)
+    {
+        let item = this.createItem(itemId, props);
+        await this.saveItem(itemId);
+
+        let data = new BackpackShowItemData(itemId, props);
+        this.app.sendToAllTabs(ContentMessage.type_onBackpackShowItem, data);
+    }
+
+    async saveItem(itemId: string): Promise<void>
+    {
+        let item = this.items[itemId];
+        if (item) {
+            let props = item.getProperties();
+            let itemIds = await Config.getLocal(BackpackRepository.BackpackIdsKey, []);
+            if (itemIds && Array.isArray(itemIds)) {
+                await Config.setLocal(BackpackRepository.BackpackPropsPrefix + itemId, props);
+                if (!itemIds.includes(itemId)) {
+                    itemIds.push(itemId);
+                    await Config.setLocal(BackpackRepository.BackpackIdsKey, itemIds);
+                }
+            }
         }
     }
 
     isItem(itemId: string): boolean
     {
-        var item = this.items[itemId];
+        let item = this.items[itemId];
         if (item) {
             return true;
         }
         return false;
     }
 
-    setItemProperties(itemId: string, properties: ItemProperties)
+    async setItemProperties(itemId: string, props: ItemProperties): Promise<void>
     {
-        var item = this.items[itemId];
+        let item = this.items[itemId];
         if (item) {
-            item.setProperties(properties);
+            item.setProperties(props);
+            await this.saveItem(itemId);
         }
     }
 
-    modifyItemProperties(itemId: string, changed: ItemProperties, deleted: Array<string>)
+    async modifyItemProperties(itemId: string, changed: ItemProperties, deleted: Array<string>): Promise<void>
     {
-        var item = this.items[itemId];
+        let item = this.items[itemId];
         if (item) {
             let props = item.getProperties();
             for (let key in changed) {
@@ -57,6 +104,7 @@ export class BackpackRepository
                 delete props[deleted[i]];
             }
             item.setProperties(props);
+            await this.saveItem(itemId);
         }
     }
 
@@ -70,11 +118,11 @@ export class BackpackRepository
         return itemProperties
     }
 
-    rezItem(itemId: string, roomJid: string, rezzedX: number, destinationUrl: string): void
+    async rezItem(itemId: string, roomJid: string, rezzedX: number, destinationUrl: string): Promise<void>
     {
-        var item = this.items[itemId];
+        let item = this.items[itemId];
         if (item) {
-            var rezzedIds = this.rooms[roomJid];
+            let rezzedIds = this.rooms[roomJid];
             if (rezzedIds == null) {
                 rezzedIds = new Array<string>();
                 this.rooms[roomJid] = rezzedIds;
@@ -87,14 +135,15 @@ export class BackpackRepository
             props[Pid.RezzedDestination] = destinationUrl;
             props[Pid.RezzedLocation] = roomJid;
             item.setProperties(props);
+            await this.saveItem(itemId);
         }
     }
 
-    derezItem(itemId: string, roomJid: string, inventoryX: number, inventoryY: number): void
+    async derezItem(itemId: string, roomJid: string, inventoryX: number, inventoryY: number): Promise<void>
     {
-        var item = this.items[itemId];
+        let item = this.items[itemId];
         if (item) {
-            var rezzedIds = this.rooms[roomJid];
+            let rezzedIds = this.rooms[roomJid];
             if (rezzedIds) {
                 const index = rezzedIds.indexOf(itemId, 0);
                 if (index > -1) {
@@ -115,6 +164,7 @@ export class BackpackRepository
             delete props[Pid.RezzedDestination];
             delete props[Pid.RezzedLocation];
             item.setProperties(props);
+            await this.saveItem(itemId);
 
             this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
         }
@@ -153,7 +203,7 @@ export class BackpackRepository
 
     getDependentPresence(roomJid: string): xml
     {
-        var result = xml('x', { 'xmlns': 'vp:dependent' });
+        let result = xml('x', { 'xmlns': 'vp:dependent' });
 
         for (let id in this.items) {
             if (this.items[id].isRezzed()) {

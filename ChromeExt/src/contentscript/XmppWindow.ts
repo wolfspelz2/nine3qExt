@@ -129,7 +129,7 @@ export class XmppWindow extends Window
         }
         if (text != '') {
             try {
-                let stanza = this.test2Stanza(text);
+                let stanza = this.text2Stanza(text);
                 this.app.sendStanza(stanza);
             } catch (error) {
                 this.showError(error.message);
@@ -172,9 +172,9 @@ export class XmppWindow extends Window
         return await Config.getSync('dev.scratchPad', '');
     }
 
-    test2Stanza(text: string): xml
+    text2Stanza(text: string): xml
     {
-        let json = $.parseJSON(text);
+        let json = JSON.parse(text);
         let stanza = Utils.jsObject2xmlObject(json);
         return stanza;
     }

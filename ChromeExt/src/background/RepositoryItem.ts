@@ -7,7 +7,7 @@ import { BackpackShowItemData, BackpackRemoveItemData, BackpackSetItemData, Cont
 import { BackgroundApp } from './BackgroundApp';
 import { BackpackRepository } from './BackpackRepository';
 
-export class BackpackItem
+export class RepositoryItem
 {
     constructor(private app: BackgroundApp, private backpack: BackpackRepository, private itemId: string, private properties: ItemProperties)
     {

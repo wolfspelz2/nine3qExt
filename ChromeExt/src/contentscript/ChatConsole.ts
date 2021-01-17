@@ -35,7 +35,7 @@ export class ChatConsole
                 ChatConsole.out(context, [
                     ['help', '/xmpp'],
                     ['help', '/room'],
-                    ['help', '/changes']
+                    ['help', '/changes'],
                 ]);
                 isHandled = true;
                 break;

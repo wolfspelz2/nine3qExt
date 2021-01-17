@@ -9,7 +9,7 @@ import { BackpackWindow } from './BackpackWindow';
 
 import imgDefaultItem from '../assets/DefaultItem.png';
 
-export class BackpackImage
+export class BackpackItem
 {
     private isFirstPresence: boolean = true;
     private elem: HTMLDivElement;
