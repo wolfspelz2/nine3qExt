@@ -35,11 +35,20 @@ export class BackpackRepository
                 continue;
             }
 
-            let item = this.createItem(itemId, props);
+            let item = this.createRepositoryItem(itemId, props);
         }
     }
 
-    createItem(itemId: string, props: ItemProperties): RepositoryItem
+    async addItem(itemId: string, props: ItemProperties)
+    {
+        let item = this.createRepositoryItem(itemId, props);
+        await this.saveItem(itemId);
+
+        let data = new BackpackShowItemData(itemId, props);
+        this.app.sendToAllTabs(ContentMessage.type_onBackpackShowItem, data);
+    }
+
+    private createRepositoryItem(itemId: string, props: ItemProperties): RepositoryItem
     {
         let item = this.items[itemId];
         if (item == null) {
@@ -49,16 +58,7 @@ export class BackpackRepository
         return item;
     }
 
-    async addItem(itemId: string, props: ItemProperties)
-    {
-        let item = this.createItem(itemId, props);
-        await this.saveItem(itemId);
-
-        let data = new BackpackShowItemData(itemId, props);
-        this.app.sendToAllTabs(ContentMessage.type_onBackpackShowItem, data);
-    }
-
-    async saveItem(itemId: string): Promise<void>
+    private async saveItem(itemId: string): Promise<void>
     {
         let item = this.items[itemId];
         if (item) {
@@ -201,7 +201,7 @@ export class BackpackRepository
         return stanza;
     }
 
-    getDependentPresence(roomJid: string): xml
+    private getDependentPresence(roomJid: string): xml
     {
         let result = xml('x', { 'xmlns': 'vp:dependent' });
 
