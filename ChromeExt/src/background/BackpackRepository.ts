@@ -36,6 +36,12 @@ export class BackpackRepository
             }
 
             let item = this.createRepositoryItem(itemId, props);
+            if (item.isRezzed()) {
+                let roomJid = item.getProperties()[Pid.RezzedLocation];
+                if (roomJid) {
+                    this.addToRoom(itemId, roomJid);
+                }
+            }
         }
     }
 
@@ -69,6 +75,30 @@ export class BackpackRepository
                 if (!itemIds.includes(itemId)) {
                     itemIds.push(itemId);
                     await Config.setLocal(BackpackRepository.BackpackIdsKey, itemIds);
+                }
+            }
+        }
+    }
+
+    private addToRoom(itemId: string, roomJid: string): void
+    {
+        let rezzedIds = this.rooms[roomJid];
+        if (rezzedIds == null) {
+            rezzedIds = new Array<string>();
+            this.rooms[roomJid] = rezzedIds;
+        }
+        rezzedIds.push(itemId);
+    }
+
+    private removeFromRoom(itemId: string, roomJid: string): void
+    {
+        let rezzedIds = this.rooms[roomJid];
+        if (rezzedIds) {
+            const index = rezzedIds.indexOf(itemId, 0);
+            if (index > -1) {
+                rezzedIds.splice(index, 1);
+                if (rezzedIds.length == 0) {
+                    delete this.rooms[roomJid];
                 }
             }
         }
@@ -122,12 +152,7 @@ export class BackpackRepository
     {
         let item = this.items[itemId];
         if (item) {
-            let rezzedIds = this.rooms[roomJid];
-            if (rezzedIds == null) {
-                rezzedIds = new Array<string>();
-                this.rooms[roomJid] = rezzedIds;
-            }
-            rezzedIds.push(itemId);
+            this.addToRoom(itemId, roomJid);
 
             let props = item.getProperties();
             props[Pid.IsRezzed] = 'true';
@@ -143,16 +168,7 @@ export class BackpackRepository
     {
         let item = this.items[itemId];
         if (item) {
-            let rezzedIds = this.rooms[roomJid];
-            if (rezzedIds) {
-                const index = rezzedIds.indexOf(itemId, 0);
-                if (index > -1) {
-                    rezzedIds.splice(index, 1);
-                    if (rezzedIds.length == 0) {
-                        delete this.rooms[roomJid];
-                    }
-                }
-            }
+            this.removeFromRoom(itemId, roomJid);
 
             let props = item.getProperties();
             delete props[Pid.IsRezzed];

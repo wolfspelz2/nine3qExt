@@ -343,7 +343,10 @@ export class Avatar implements IObserver
 
         // this.currentSpeedPixelPerSec = Math.abs(animation.dx) / durationSec;
         // dx means pixels per sec, not pixels per duration
-        this.currentSpeedPixelPerSec = Math.abs(animation.dx) / 1.0;
+        let newSpeedPixelPerSec = Math.abs(animation.dx) / 1.0;
+        if (newSpeedPixelPerSec > 0) {
+            this.currentSpeedPixelPerSec = Math.abs(animation.dx) / 1.0;
+        }
 
         this.setImage(animation.url);
 

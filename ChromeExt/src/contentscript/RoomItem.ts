@@ -142,7 +142,10 @@ export class RoomItem extends Entity
                 newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition(this.nick);
             }
             if (newX < 0) { newX = 100; }
-            this.setPosition(newX);
+            // this.setPosition(newX);
+            if (this.getPosition() != newX) {
+                this.move(newX);
+            }
         } else {
             if (presenceHasPosition || vpRezzedX >= 0) {
                 if (this.getPosition() != newX) {
