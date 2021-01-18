@@ -240,7 +240,7 @@ export class Config
 
                     'Inventory.Not yet loaded': 'Noch nicht geladen',
 
-                    'Toast.Do not show this message again': 'Diesen Hinweis nicht mehr anzeigen',
+                    'Toast.Do not show this message again': 'Diese Nachricht nicht mehr anzeigen',
                     'Toast.greets': '...hat dich gegrüßt',
                     'Toast.tousles': '...hat dich gewuschelt',
                     'Toast.nudges': '...hat dich angestupst',

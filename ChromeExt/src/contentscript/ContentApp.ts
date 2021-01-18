@@ -220,9 +220,9 @@ export class ContentApp
 
     test(): void
     {
-        new SimpleToast(this, 'test', 4, 'warning', 'Heiner (dev)', 'greets').show();
+        // new SimpleToast(this, 'test', 4, 'warning', 'Heiner (dev)', 'greets').show();
 
-        // this.showInventoryWindow(null, 'nine3q');
+        this.showInventoryWindow(null, 'nine3q');
 
         // this.showBackpackWindow(null);
 
