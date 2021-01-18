@@ -5,7 +5,7 @@ import { as } from '../lib/as';
 import { Point2D } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { Window } from './Window';
-import { Item } from './Item';
+import { RepositoryItem } from './RepositoryItem';
 import { RoomItem } from './RoomItem';
 import { InventoryItem } from './InventoryItem';
 
@@ -13,7 +13,7 @@ type WindowOptions = any;
 
 interface ItemFrameWindowOptions extends WindowOptions
 {
-    item: Item;
+    item: RepositoryItem;
     clickPos: Point2D;
     url: string;
     onClose: { (): void };

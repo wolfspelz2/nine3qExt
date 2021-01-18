@@ -5,11 +5,11 @@ import { Config } from '../lib/Config';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { BackpackShowItemData, BackpackRemoveItemData, BackpackSetItemData, ContentMessage } from '../lib/ContentMessage';
 import { BackgroundApp } from './BackgroundApp';
-import { BackpackRepository } from './BackpackRepository';
+import { Backpack } from './Backpack';
 
-export class RepositoryItem
+export class Item
 {
-    constructor(private app: BackgroundApp, private backpack: BackpackRepository, private itemId: string, private properties: ItemProperties)
+    constructor(private app: BackgroundApp, private backpack: Backpack, private itemId: string, private properties: ItemProperties)
     {
     }
 
@@ -31,6 +31,11 @@ export class RepositoryItem
     isRezzed(): boolean
     {
         return as.Bool(this.properties[Pid.IsRezzed], false);
+    }
+
+    isRezzedTo(roomJid: string): boolean
+    {
+        return as.Bool(this.properties[Pid.IsRezzed], false) && as.String(this.properties[Pid.RezzedLocation], '/-definitely-not-a-room-jid-@') == roomJid;
     }
 
     getDependentPresence(roomJid: string): xml

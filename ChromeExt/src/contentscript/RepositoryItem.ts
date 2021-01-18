@@ -11,7 +11,7 @@ import { ItemFramePopup } from './ItemFramePopup';
 
 import imgDefaultItem from '../assets/DefaultItem.png';
 
-export class Item
+export class RepositoryItem
 {
     private providerId: string;
     private properties: { [pid: string]: string } = {};

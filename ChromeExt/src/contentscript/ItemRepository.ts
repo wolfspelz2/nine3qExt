@@ -3,11 +3,11 @@ import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
-import { Item } from './Item';
+import { RepositoryItem } from './RepositoryItem';
 
 export class ItemRepository
 {
-    private items: { [id: string]: Item; } = {};
+    private items: { [id: string]: RepositoryItem; } = {};
 
     constructor(protected app: ContentApp) 
     {
@@ -20,12 +20,12 @@ export class ItemRepository
 
     addItem(id: string, providerId: string, properties: any): void
     {
-        this.items[id] = new Item(this.app, id);
+        this.items[id] = new RepositoryItem(this.app, id);
         this.items[id].setProviderId(providerId);
         this.items[id].setProperties(properties);
     }
 
-    getItem(id: string): Item
+    getItem(id: string): RepositoryItem
     {
         return this.items[id];
     }

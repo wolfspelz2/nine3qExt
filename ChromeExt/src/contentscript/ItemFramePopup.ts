@@ -5,13 +5,13 @@ import { as } from '../lib/as';
 import { Point2D } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { Popup } from './Popup';
-import { Item } from './Item';
+import { RepositoryItem } from './RepositoryItem';
 
 type PopupOptions = any;
 
 interface ItemFramePopupOptions extends PopupOptions
 {
-    item: Item;
+    item: RepositoryItem;
     clickPos: Point2D;
     url: string;
     onClose: { (): void };

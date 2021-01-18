@@ -74,6 +74,7 @@ export class Config
             vidconfBottom: 200,
             vidconfWidth: 600,
             vidconfHeight: 400,
+            errorToastDurationSec: 8,
             pokeToastDurationSec: 10,
             privateChatToastDurationSec: 60,
         },
@@ -184,6 +185,15 @@ export class Config
                     'Toast.greets': '...greeted you',
                     'Toast.tousles': '...tousled you',
                     'Toast.nudges': '...nudged you',
+
+                    'ErrorFact.Error': 'Error',
+                    'ErrorFact.NotRezzed': 'Failed to drop item',
+                    'ErrorFact.NotDerezzed': 'Faied to pick up item',
+
+                    'ErrorReason.UnknownReason': 'Unknown reason :-(',
+                    'ErrorReason.ItemAlreadyRezzed': 'Item already on page.',
+                    'ErrorReason.ItemNotRezzedHere': 'Item is not on this page',
+                    'ErrorReason.NoItemsAvailable': 'No items available. The feature may be disabled.',
                 },
                 'de-DE': {
                     'Common.Close': 'Schließen',
@@ -244,6 +254,15 @@ export class Config
                     'Toast.greets': '...hat dich gegrüßt',
                     'Toast.tousles': '...hat dich gewuschelt',
                     'Toast.nudges': '...hat dich angestupst',
+
+                    'ErrorFact.Error': 'Fehler',
+                    'ErrorFact.NotRezzed': 'Ablegen fehlgeschlagen',
+                    'ErrorFact.NotDerezzed': 'Von der Seite entfernen fehlgeschlagen',
+
+                    'ErrorReason.UnknownReason': 'Grund unbekannt :-(',
+                    'ErrorReason.ItemAlreadyRezzed': 'Gegenstand ist schon auf einer Seite.',
+                    'ErrorReason.ItemNotRezzedHere': 'Gegenstand ist nicht auf dieser Seite',
+                    'ErrorReason.NoItemsAvailable': 'Keine Gegenstände verfügbar. Die Funktion ist vielleicht nicht eingeschaltet.',
                 },
             },
             'serviceUrl': '',

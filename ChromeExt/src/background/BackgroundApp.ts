@@ -3,12 +3,13 @@ import { client, xml, jid } from '@xmpp/client';
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
-import { BackgroundMessage, GetBackpackStateResponse, IsBackpackItemResponse } from '../lib/BackgroundMessage';
+import { BackgroundErrorResponse, BackgroundItemExceptionResponse, BackgroundMessage, BackgroundResponse, BackgroundSuccessResponse, GetBackpackStateResponse, IsBackpackItemResponse } from '../lib/BackgroundMessage';
 import { Client } from '../lib/Client';
 import { ItemProperties } from '../lib/ItemProperties';
 import { ConfigUpdater } from './ConfigUpdater';
-import { BackpackRepository } from './BackpackRepository';
+import { Backpack } from './Backpack';
 import { ContentMessage } from '../lib/ContentMessage';
+import { ItemException } from '../lib/ItemExcption';
 
 interface ILocationMapperResponse
 {
@@ -32,7 +33,7 @@ export class BackgroundApp
     private readonly httpCacheData: Map<string, string> = new Map<string, string>();
     private readonly httpCacheTime: Map<string, number> = new Map<string, number>();
 
-    private backpack: BackpackRepository;
+    private backpack: Backpack;
 
     async start(): Promise<void>
     {
@@ -62,7 +63,7 @@ export class BackgroundApp
         await this.configUpdater.startUpdateTimer()
 
         if (Config.get('backpack.enabled', false)) {
-            this.backpack = new BackpackRepository(this);
+            this.backpack = new Backpack(this);
             await this.backpack.init();
             // let itemId = Utils.randomString(20);
             // await this.backpack.addItem(itemId, {
@@ -206,8 +207,8 @@ export class BackgroundApp
             } break;
 
             case BackgroundMessage.rezBackpackItem.name: {
-                sendResponse(this.handle_rezBackpackItem(message.id, message.room, message.x, message.destination));
-                return false;
+                return this.handle_rezBackpackItem(message.id, message.room, message.x, message.destination, sendResponse);
+                // sendResponse(this.handle_rezBackpackItem(message.id, message.room, message.x, message.destination));
             } break;
 
             case BackgroundMessage.derezBackpackItem.name: {
@@ -422,67 +423,55 @@ export class BackgroundApp
         }
     }
 
-    handle_getBackpackState(): GetBackpackStateResponse
+    handle_getBackpackState(): BackgroundResponse
     {
         if (this.backpack) {
             let items = this.backpack.getItems();
-            return new GetBackpackStateResponse(true, null, null, items);
+            return new GetBackpackStateResponse(items);
         }
-        return new GetBackpackStateResponse(false, 'error', 'No backpack', null);
+        return new BackgroundErrorResponse('error', 'No backpack');
     }
 
     async handle_addBackpackItem(id: string, properties: ItemProperties): Promise<void>
     {
-        if (this.backpack) {
-            await this.backpack.addItem(id, properties);
-        } else {
-            log.info('BackgroundApp.handle_addBackpackItem', 'No backpack');
-        }
+        await this.backpack?.addItem(id, properties);
     }
 
     async handle_setBackpackItemProperties(id: string, properties: ItemProperties): Promise<void>
     {
-        if (this.backpack) {
-            await this.backpack.setItemProperties(id, properties);
-        } else {
-            log.info('BackgroundApp.handle_setBackpackItemProperties', 'No backpack');
-        }
+        await this.backpack?.setItemProperties(id, properties);
     }
 
     async handle_modifyBackpackItemProperties(id: string, changed: ItemProperties, deleted: Array<string>): Promise<void>
     {
-        if (this.backpack) {
-            await this.backpack.modifyItemProperties(id, changed, deleted);
-        } else {
-            log.info('BackgroundApp.handle_modifyBackpackItemProperties', 'No backpack');
-        }
+        await this.backpack?.modifyItemProperties(id, changed, deleted);
     }
 
-    async handle_rezBackpackItem(id: string, room: string, x: number, destination: string): Promise<void>
+    handle_rezBackpackItem(id: string, room: string, x: number, destination: string, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            await this.backpack.rezItem(id, room, x, destination);
+            this.backpack?.rezItem(id, room, x, destination)
+                .then(() => { sendResponse(new BackgroundSuccessResponse()); })
+                .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
+            return true;
         } else {
-            log.info('BackgroundApp.handle_rezBackpackItem', 'No backpack');
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotRezzed, ItemException.Reason.NoItemsAvailable)));
         }
+        return false;
     }
 
     async handle_derezBackpackItem(id: string, room: string, x: number, y: number): Promise<void>
     {
-        if (this.backpack) {
-            await this.backpack.derezItem(id, room, x, y);
-        } else {
-            log.info('BackgroundApp.handle_derezBackpackItem', 'No backpack');
-        }
+        await this.backpack?.derezItem(id, room, x, y);
     }
 
-    handle_isBackpackItem(id: string): IsBackpackItemResponse
+    handle_isBackpackItem(id: string): BackgroundResponse
     {
         if (this.backpack) {
             let isItem = this.backpack.isItem(id);
-            return new IsBackpackItemResponse(true, null, null, isItem);
+            return new IsBackpackItemResponse(isItem);
         }
-        return new IsBackpackItemResponse(false, 'error', 'No backpack', null);
+        return new IsBackpackItemResponse(false);
     }
 
     // manage stanza from 2 tabId mappings

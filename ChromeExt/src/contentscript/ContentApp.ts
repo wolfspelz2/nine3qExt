@@ -9,6 +9,8 @@ import { Config } from '../lib/Config';
 import { AvatarGallery } from '../lib/AvatarGallery';
 import { Translator } from '../lib/Translator';
 import { Browser } from '../lib/Browser';
+import { ItemException } from '../lib/ItemExcption';
+import { BackpackShowItemData, BackpackSetItemData, BackpackRemoveItemData, ContentMessage } from '../lib/ContentMessage';
 import { HelloWorld } from './HelloWorld';
 import { PropertyStorage } from './PropertyStorage';
 import { Room } from './Room';
@@ -21,8 +23,7 @@ import { ItemProvider } from './ItemProvider';
 import { ItemRepository } from './ItemRepository';
 import { TestWindow } from './TestWindow';
 import { BackpackWindow } from './BackpackWindow';
-import { BackpackShowItemData, BackpackSetItemData, BackpackRemoveItemData, ContentMessage } from '../lib/ContentMessage';
-import { SimpleToast } from './Toast';
+import { SimpleErrorToast, SimpleToast } from './Toast';
 
 interface ILocationMapperResponse
 {
@@ -380,6 +381,10 @@ export class ContentApp
                 this.backpackWindow?.onHideItem(message.data.id);
                 return false;
             } break;
+            // case ContentMessage.Type.onItemException: {
+            //     this.handle_ItemException(message.ex);
+            //     return false;
+            // } break;
         }
         return true;
     }
@@ -414,6 +419,19 @@ export class ContentApp
             this.room.sendPresence();
         }
     }
+
+    // handle_ItemException(ex: ItemException)
+    // {
+    //     new SimpleErrorToast(this,
+    //         'Warning-' + ex.fact.toString() + '-' + ex.reason.toString(),
+    //         Config.get('room.errorToastDurationSec', 10),
+    //         'warning',
+    //         ex.fact.toString(),
+    //         ex.reason.toString(),
+    //         ex.detail ?? ''
+    //     )
+    //         .show();
+    // }
 
     // enterPage()
     // {

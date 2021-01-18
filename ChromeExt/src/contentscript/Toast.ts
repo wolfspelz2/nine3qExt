@@ -103,7 +103,7 @@ export class Toast
 
 export class SimpleToast extends Toast
 {
-    constructor(app: ContentApp, type: string, delay: number, iconClass: string, title: string, text: string)
+    constructor(app: ContentApp, type: string, durationSec: number, iconType: string, title: string, text: string)
     {
         var bodyElem = $(''
             + '<div class="n3q-base n3q-toast-body" data-translate="children">'
@@ -112,21 +112,22 @@ export class SimpleToast extends Toast
             + '</div>'
         )[0];
 
-        super(app, type, delay, iconClass, bodyElem);
+        super(app, type, durationSec, iconType, bodyElem);
     }
 }
 
 export class SimpleErrorToast extends Toast
 {
-    constructor(app: ContentApp, type: string, delay: number, iconClass: string, title: string, text: string)
+    constructor(app: ContentApp, type: string, durationSec: number, iconType: string, fact: string, reason: string, detail: string)
     {
         var bodyElem = $(''
             + '<div class="n3q-base n3q-toast-body" data-translate="children">'
-            + '<div class="n3q-base n3q-title" data-translate="text:ErrorCode">' + as.Html(title) + '</div>'
-            + '<div class="n3q-base n3q-text" data-translate="text:ErrorReason">' + as.Html(text) + '</div>'
+            + '<div class="n3q-base n3q-title" data-translate="text:ErrorFact">' + as.Html(fact) + '</div>'
+            + '<div class="n3q-base n3q-text" data-translate="text:ErrorReason">' + as.Html(reason) + '</div>'
+            + (detail != null && detail != '' ? '<div class="n3q-base n3q-text" data-translate="text:ErrorDetail">' + as.Html(detail) + '</div>' : '')
             + '</div>'
         )[0];
 
-        super(app, type, delay, iconClass, bodyElem);
+        super(app, type, durationSec, iconType, bodyElem);
     }
 }

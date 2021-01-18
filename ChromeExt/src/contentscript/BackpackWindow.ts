@@ -11,6 +11,8 @@ import { ContentApp } from './ContentApp';
 import { Window } from './Window';
 import { BackpackItem as BackpackItem } from './BackpackItem';
 import { Environment } from '../lib/Environment';
+import { ItemException } from '../lib/ItemExcption';
+import { SimpleErrorToast } from './Toast';
 
 export class BackpackWindow extends Window
 {
@@ -203,17 +205,29 @@ export class BackpackWindow extends Window
         BackgroundMessage.setBackpackItemProperties(id, properties);
     }
 
-    rezItem(id: string, room: string, x: number, destination: string)
+    rezItem(id: string, room: string, x: number, destination: string) { this.rezItemAsync(id, room, x, destination); }
+    async rezItemAsync(id: string, room: string, x: number, destination: string)
     {
         log.info('BackpackWindow', 'rezItem', id, 'to', room);
-        BackgroundMessage.rezBackpackItem(id, room, x, destination);
-        // this.app.sendPresence();
+
+        try {
+            await BackgroundMessage.rezBackpackItem(id, room, x, destination);
+        } catch (ex) {
+            new SimpleErrorToast(this.app,
+                'Warning-' + ex.fact.toString() + '-' + ex.reason.toString(),
+                Config.get('room.errorToastDurationSec', 10),
+                'warning',
+                ItemException.Fact[ex.fact],
+                ItemException.Reason[ex.reason],
+                ex.detail ?? ''
+            )
+                .show();
+        }
     }
 
     derezItem(id: string, room: string, x: number, y: number)
     {
         log.info('BackpackWindow', 'derezItem', id, 'from', room);
         BackgroundMessage.derezBackpackItem(id, room, -1, -1);
-        // this.app.sendPresence();
     }
 }

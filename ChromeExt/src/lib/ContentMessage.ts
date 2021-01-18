@@ -33,3 +33,12 @@ export class ContentMessage
     static type_onBackpackHideItem = 'onBackpackHideItem';
     static type_sendPresence = 'sendPresence';
 }
+
+// export namespace ContentMessage
+// {
+//     export enum Type
+//     {
+//         onItemException
+//     }
+// }
+

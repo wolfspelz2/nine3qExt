@@ -5,7 +5,7 @@ import { Config } from '../lib/Config';
 import { Utils, Point2D } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { Inventory } from './Inventory';
-import { Item } from './Item';
+import { RepositoryItem } from './RepositoryItem';
 
 import imgDefaultItem from '../assets/DefaultItem.png';
 
@@ -20,7 +20,7 @@ export class InventoryItem
     private h: number = 64;
     private inDrag: boolean = false;
 
-    private getItem(): Item { return this.app.getItemRepository().getItem(this.itemId); }
+    private getItem(): RepositoryItem { return this.app.getItemRepository().getItem(this.itemId); }
     private getProperties(): { [pid: string]: string } { return this.getItem().getProperties(); }
 
     constructor(protected app: ContentApp, private inv: Inventory, private itemId: string)

@@ -1,35 +1,40 @@
 import log = require('loglevel');
+import { ItemException } from './ItemExcption';
 import { ItemProperties } from './ItemProperties';
-import { Panic } from './Panic';
 
-export class FetchUrlResponse
+export class BackgroundResponse
 {
-    constructor(
-        public ok: boolean,
-        public status: string,
-        public statusText: string,
-        public data: string
-    ) { }
+    constructor(public ok: boolean, public status?: string, public statusText?: string, public ex?: ItemException) { }
 }
 
-export class GetBackpackStateResponse
+export class BackgroundSuccessResponse extends BackgroundResponse
 {
-    constructor(
-        public ok: boolean,
-        public status: string,
-        public statusText: string,
-        public items: { [id: string]: ItemProperties; }
-    ) { }
+    constructor() { super(true); }
 }
 
-export class IsBackpackItemResponse
+export class BackgroundErrorResponse extends BackgroundResponse
 {
-    constructor(
-        public ok: boolean,
-        public status: string,
-        public statusText: string,
-        public isItem: boolean
-    ) { }
+    constructor(public status: string, public statusText: string) { super(false, status, statusText); }
+}
+
+export class BackgroundItemExceptionResponse extends BackgroundResponse
+{
+    constructor(public ex: ItemException) { super(false, 'error', ex.fact.toString() + ' ' + ex.reason.toString() + ' ' + ex.detail, ex); }
+}
+
+export class FetchUrlResponse extends BackgroundResponse
+{
+    constructor(public data: string) { super(true); }
+}
+
+export class GetBackpackStateResponse extends BackgroundResponse
+{
+    constructor(public items: { [id: string]: ItemProperties; }) { super(true); }
+}
+
+export class IsBackpackItemResponse extends BackgroundResponse
+{
+    constructor(public isItem: boolean) { super(true); }
 }
 
 export class BackgroundMessage
@@ -266,11 +271,13 @@ export class BackgroundMessage
             try {
                 chrome.runtime?.sendMessage({ 'type': BackgroundMessage.rezBackpackItem.name, 'id': id, 'room': room, 'x': x, 'destination': destination }, response =>
                 {
-                    resolve(response);
+                    if (response.ok) {
+                        resolve(response);
+                    } else {
+                        reject(new ItemException(response.ex.fact, response.ex.reason, response.ex.detail));
+                    }
                 });
-            } catch (error) {
-                reject(error);
-            }
+            } catch (error) { reject(error); }
         });
     }
 

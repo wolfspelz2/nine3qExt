@@ -5,13 +5,14 @@ import { Config } from '../lib/Config';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { BackpackShowItemData, BackpackRemoveItemData, BackpackSetItemData, ContentMessage } from '../lib/ContentMessage';
 import { BackgroundApp } from './BackgroundApp';
-import { RepositoryItem } from './RepositoryItem';
+import { Item } from './Item';
+import { ItemException } from '../lib/ItemExcption';
 
-export class BackpackRepository
+export class Backpack
 {
     private static BackpackIdsKey = 'BackpackIds';
     private static BackpackPropsPrefix = 'BackpackItem-';
-    private items: { [id: string]: RepositoryItem; } = {};
+    private items: { [id: string]: Item; } = {};
     private rooms: { [jid: string]: Array<string>; } = {};
 
     constructor(private app: BackgroundApp)
@@ -20,18 +21,18 @@ export class BackpackRepository
 
     async init(): Promise<void>
     {
-        let itemIds = await Config.getLocal(BackpackRepository.BackpackIdsKey, []);
+        let itemIds = await Config.getLocal(Backpack.BackpackIdsKey, []);
         if (itemIds == null || !Array.isArray(itemIds)) {
-            log.warn('Local storage', BackpackRepository.BackpackIdsKey, 'not an array');
+            log.warn('Local storage', Backpack.BackpackIdsKey, 'not an array');
             return;
         }
 
         for (let i = 0; i < itemIds.length; i++) {
             let itemId = itemIds[i];
 
-            let props = await Config.getLocal(BackpackRepository.BackpackPropsPrefix + itemId, null);
+            let props = await Config.getLocal(Backpack.BackpackPropsPrefix + itemId, null);
             if (props == null || typeof props != 'object') {
-                log.warn('Local storage', BackpackRepository.BackpackPropsPrefix + itemId, 'not an object, skipping');
+                log.warn('Local storage', Backpack.BackpackPropsPrefix + itemId, 'not an object, skipping');
                 continue;
             }
 
@@ -54,11 +55,11 @@ export class BackpackRepository
         this.app.sendToAllTabs(ContentMessage.type_onBackpackShowItem, data);
     }
 
-    private createRepositoryItem(itemId: string, props: ItemProperties): RepositoryItem
+    private createRepositoryItem(itemId: string, props: ItemProperties): Item
     {
         let item = this.items[itemId];
         if (item == null) {
-            item = new RepositoryItem(this.app, this, itemId, props);
+            item = new Item(this.app, this, itemId, props);
             this.items[itemId] = item;
         }
         return item;
@@ -69,12 +70,12 @@ export class BackpackRepository
         let item = this.items[itemId];
         if (item) {
             let props = item.getProperties();
-            let itemIds = await Config.getLocal(BackpackRepository.BackpackIdsKey, []);
+            let itemIds = await Config.getLocal(Backpack.BackpackIdsKey, []);
             if (itemIds && Array.isArray(itemIds)) {
-                await Config.setLocal(BackpackRepository.BackpackPropsPrefix + itemId, props);
+                await Config.setLocal(Backpack.BackpackPropsPrefix + itemId, props);
                 if (!itemIds.includes(itemId)) {
                     itemIds.push(itemId);
-                    await Config.setLocal(BackpackRepository.BackpackIdsKey, itemIds);
+                    await Config.setLocal(Backpack.BackpackIdsKey, itemIds);
                 }
             }
         }
@@ -152,6 +153,8 @@ export class BackpackRepository
     {
         let item = this.items[itemId];
         if (item) {
+            if (item.isRezzed()) { throw new ItemException(ItemException.Fact.NotRezzed, ItemException.Reason.ItemAlreadyRezzed); }
+
             this.addToRoom(itemId, roomJid);
 
             let props = item.getProperties();
@@ -168,6 +171,8 @@ export class BackpackRepository
     {
         let item = this.items[itemId];
         if (item) {
+            if (!item.isRezzedTo(roomJid)) { throw new ItemException(ItemException.Fact.NotDerezzed, ItemException.Reason.ItemNotRezzedHere); }
+
             this.removeFromRoom(itemId, roomJid);
 
             let props = item.getProperties();
@@ -222,7 +227,7 @@ export class BackpackRepository
         let result = xml('x', { 'xmlns': 'vp:dependent' });
 
         for (let id in this.items) {
-            if (this.items[id].isRezzed()) {
+            if (this.items[id].isRezzedTo(roomJid)) {
                 let itemPresence: xml = this.items[id].getDependentPresence(roomJid);
                 result.append(itemPresence);
             }
