@@ -221,7 +221,7 @@ export class RoomItem extends Entity
     {
         let itemId = this.nick;
         if (await BackgroundMessage.isBackpackItem(itemId)) {
-            BackgroundMessage.modifyBackpackItemProperties(itemId, { [Pid.RezzedX]: '' + newX }, []);
+            BackgroundMessage.modifyBackpackItemProperties(itemId, { [Pid.RezzedX]: '' + newX }, [], false);
         } else {
             this.sendItemActionCommand('Rezzed.MoveTo', { 'x': newX });
         }

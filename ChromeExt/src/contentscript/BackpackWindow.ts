@@ -204,9 +204,9 @@ export class BackpackWindow extends Window
         BackgroundMessage.addBackpackItem(id, properties);
     }
 
-    setItemProperties(id: string, properties: ItemProperties)
+    setItemProperties(id: string, properties: ItemProperties, silent: boolean)
     {
-        BackgroundMessage.setBackpackItemProperties(id, properties);
+        BackgroundMessage.setBackpackItemProperties(id, properties, silent);
     }
 
     rezItem(id: string, room: string, x: number, destination: string) { this.rezItemAsync(id, room, x, destination); }

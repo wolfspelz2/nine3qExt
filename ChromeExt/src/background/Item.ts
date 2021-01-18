@@ -15,16 +15,15 @@ export class Item
 
     getProperties(): ItemProperties { return this.properties; }
 
-    setProperties(props: ItemProperties)
+    setProperties(props: ItemProperties, silent: boolean)
     {
         this.properties = props;
 
-        let data = new BackpackSetItemData(this.itemId, props);
-        this.app.sendToAllTabs(ContentMessage.type_onBackpackSetItem, data);
+        this.app.sendToAllTabs(ContentMessage.Type[ContentMessage.Type.onBackpackSetItem], new BackpackSetItemData(this.itemId, props));
 
-        if (this.isRezzed()) {
+        if (this.isRezzed() && !silent) {
             let roomJid = this.properties[Pid.RezzedLocation];
-            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
+            this.app.sendToTabsForRoom(roomJid, ContentMessage.Type[ContentMessage.Type.sendPresence]);
         }
     }
 

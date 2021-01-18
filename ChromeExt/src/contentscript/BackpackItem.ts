@@ -227,7 +227,7 @@ export class BackpackItem
     {
         this.properties[Pid.InventoryX] = '' + Math.round(x);
         this.properties[Pid.InventoryY] = '' + Math.round(y);
-        this.backpackWindow.setItemProperties(this.itemId, this.properties);
+        this.backpackWindow.setItemProperties(this.itemId, this.properties, true);
     }
 
     rezItem(x: number)

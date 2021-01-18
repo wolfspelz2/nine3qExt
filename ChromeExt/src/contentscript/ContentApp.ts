@@ -354,37 +354,33 @@ export class ContentApp
     runtimeOnMessage(message, sender: chrome.runtime.MessageSender, sendResponse): any
     {
         switch (message.type) {
-            case ContentMessage.type_recvStanza: {
+            case ContentMessage.Type[ContentMessage.Type.recvStanza]: {
                 this.handle_recvStanza(message.stanza);
                 sendResponse();
             } break;
 
-            case ContentMessage.type_userSettingsChanged: {
+            case ContentMessage.Type[ContentMessage.Type.userSettingsChanged]: {
                 this.handle_userSettingsChanged();
                 sendResponse();
             } break;
 
-            case ContentMessage.type_sendPresence: {
+            case ContentMessage.Type[ContentMessage.Type.sendPresence]: {
                 this.handle_sendPresence();
                 return false;
             } break;
 
-            case ContentMessage.type_onBackpackShowItem: {
+            case ContentMessage.Type[ContentMessage.Type.onBackpackShowItem]: {
                 this.backpackWindow?.onShowItem(message.data.id, message.data.properties);
                 return false;
             } break;
-            case ContentMessage.type_onBackpackSetItem: {
+            case ContentMessage.Type[ContentMessage.Type.onBackpackSetItem]: {
                 this.backpackWindow?.onSetItem(message.data.id, message.data.properties);
                 return false;
             } break;
-            case ContentMessage.type_onBackpackHideItem: {
+            case ContentMessage.Type[ContentMessage.Type.onBackpackHideItem]: {
                 this.backpackWindow?.onHideItem(message.data.id);
                 return false;
             } break;
-            // case ContentMessage.Type.onItemException: {
-            //     this.handle_ItemException(message.ex);
-            //     return false;
-            // } break;
         }
         return true;
     }

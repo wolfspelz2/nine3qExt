@@ -52,7 +52,7 @@ export class Backpack
         await this.saveItem(itemId);
 
         let data = new BackpackShowItemData(itemId, props);
-        this.app.sendToAllTabs(ContentMessage.type_onBackpackShowItem, data);
+        this.app.sendToAllTabs(ContentMessage.Type[ContentMessage.Type.onBackpackShowItem], data);
     }
 
     private createRepositoryItem(itemId: string, props: ItemProperties): Item
@@ -114,16 +114,16 @@ export class Backpack
         return false;
     }
 
-    async setItemProperties(itemId: string, props: ItemProperties): Promise<void>
+    async setItemProperties(itemId: string, props: ItemProperties, silent: boolean): Promise<void>
     {
         let item = this.items[itemId];
         if (item) {
-            item.setProperties(props);
+            item.setProperties(props, silent);
             await this.saveItem(itemId);
         }
     }
 
-    async modifyItemProperties(itemId: string, changed: ItemProperties, deleted: Array<string>): Promise<void>
+    async modifyItemProperties(itemId: string, changed: ItemProperties, deleted: Array<string>, silent: boolean): Promise<void>
     {
         let item = this.items[itemId];
         if (item) {
@@ -134,7 +134,7 @@ export class Backpack
             for (let i = 0; i < deleted.length; i++) {
                 delete props[deleted[i]];
             }
-            item.setProperties(props);
+            item.setProperties(props, silent);
             await this.saveItem(itemId);
         }
     }
@@ -162,7 +162,7 @@ export class Backpack
             props[Pid.RezzedX] = '' + rezzedX;
             props[Pid.RezzedDestination] = destinationUrl;
             props[Pid.RezzedLocation] = roomJid;
-            item.setProperties(props);
+            item.setProperties(props, false);
             await this.saveItem(itemId);
         }
     }
@@ -184,10 +184,10 @@ export class Backpack
             delete props[Pid.RezzedX];
             delete props[Pid.RezzedDestination];
             delete props[Pid.RezzedLocation];
-            item.setProperties(props);
+            item.setProperties(props, true);
             await this.saveItem(itemId);
 
-            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
+            this.app.sendToTabsForRoom(roomJid, ContentMessage.Type[ContentMessage.Type.sendPresence]);
         }
     }
 

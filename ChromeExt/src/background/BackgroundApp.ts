@@ -65,16 +65,6 @@ export class BackgroundApp
         if (Config.get('backpack.enabled', false)) {
             this.backpack = new Backpack(this);
             await this.backpack.init();
-            // let itemId = Utils.randomString(20);
-            // await this.backpack.addItem(itemId, {
-            //     'provider': 'nine3q',
-            //     'Label': 'PirateFlag',
-            //     'Width': '43',
-            //     'Height': '65',
-            //     'ImageUrl': '{image.item.nine3q}PirateFlag/image.png',
-            //     'AnimationsUrl': '{image.item.nine3q}PirateFlag/animations.xml',
-            //     'IsRezable': 'true',
-            // });
         }
 
         {
@@ -138,49 +128,49 @@ export class BackgroundApp
     private onRuntimeMessage(message, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void): boolean
     {
         switch (message.type) {
-            case BackgroundMessage.type_test: {
+            case BackgroundMessage.test.name: {
                 sendResponse(this.handle_test());
                 return false;
             } break;
 
-            case BackgroundMessage.type_fetchUrl: {
+            case BackgroundMessage.fetchUrl.name: {
                 return this.handle_fetchUrl(message.url, message.version, sendResponse);
             } break;
 
-            case BackgroundMessage.type_jsonRpc: {
+            case BackgroundMessage.jsonRpc.name: {
                 return this.handle_jsonRpc(message.url, message.json, sendResponse);
             } break;
 
-            case BackgroundMessage.type_waitReady: {
+            case BackgroundMessage.waitReady.name: {
                 return this.handle_waitReady(sendResponse);
             } break;
 
-            case BackgroundMessage.type_getConfigTree: {
+            case BackgroundMessage.getConfigTree.name: {
                 sendResponse(this.handle_getConfigTree(message.name));
                 return false;
             } break;
 
-            case BackgroundMessage.type_getSessionConfig: {
+            case BackgroundMessage.getSessionConfig.name: {
                 sendResponse(this.handle_getSessionConfig(message.key));
                 return false; // true if async
             } break;
 
-            case BackgroundMessage.type_setSessionConfig: {
+            case BackgroundMessage.setSessionConfig.name: {
                 sendResponse(this.handle_setSessionConfig(message.key, message.value));
                 return false; // true if async
             } break;
 
-            case BackgroundMessage.type_sendStanza: {
+            case BackgroundMessage.sendStanza.name: {
                 sendResponse(this.handle_sendStanza(message.stanza, sender.tab.id));
                 return false;
             } break;
 
-            case BackgroundMessage.type_pingBackground: {
+            case BackgroundMessage.pingBackground.name: {
                 sendResponse(this.handle_pingBackground());
                 return false;
             } break;
 
-            case BackgroundMessage.type_userSettingsChanged: {
+            case BackgroundMessage.userSettingsChanged.name: {
                 sendResponse(this.handle_userSettingsChanged());
                 return false;
             } break;
@@ -194,11 +184,11 @@ export class BackgroundApp
             } break;
 
             case BackgroundMessage.setBackpackItemProperties.name: {
-                return this.handle_setBackpackItemProperties(message.id, message.properties, sendResponse);
+                return this.handle_setBackpackItemProperties(message.id, message.properties, message.silent, sendResponse);
             } break;
 
             case BackgroundMessage.modifyBackpackItemProperties.name: {
-                return this.handle_modifyBackpackItemProperties(message.id, message.changed, message.deleted, sendResponse);
+                return this.handle_modifyBackpackItemProperties(message.id, message.changed, message.deleted, message.silent, sendResponse);
             } break;
 
             case BackgroundMessage.rezBackpackItem.name: {
@@ -215,7 +205,7 @@ export class BackgroundApp
 
             default: {
                 log.debug('BackgroundApp.onRuntimeMessage unhandled', message);
-                sendResponse({});
+                sendResponse(new BackgroundErrorResponse('error', 'unhandled message type=' + message.type));
                 return false;
             } break;
         }
@@ -439,10 +429,10 @@ export class BackgroundApp
         return false;
     }
 
-    handle_setBackpackItemProperties(id: string, properties: ItemProperties, sendResponse: (response?: any) => void): boolean
+    handle_setBackpackItemProperties(id: string, properties: ItemProperties, silent: boolean, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            this.backpack.setItemProperties(id, properties)
+            this.backpack.setItemProperties(id, properties, silent)
                 .then(() => { sendResponse(new BackgroundSuccessResponse()); })
                 .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
             return true;
@@ -452,10 +442,10 @@ export class BackgroundApp
         return false;
     }
 
-    handle_modifyBackpackItemProperties(id: string, changed: ItemProperties, deleted: Array<string>, sendResponse: (response?: any) => void): boolean
+    handle_modifyBackpackItemProperties(id: string, changed: ItemProperties, deleted: Array<string>, silent: boolean, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            this.backpack.modifyItemProperties(id, changed, deleted)
+            this.backpack.modifyItemProperties(id, changed, deleted, silent)
                 .then(() => { sendResponse(new BackgroundSuccessResponse()); })
                 .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
             return true;
@@ -663,7 +653,7 @@ export class BackgroundApp
                     let tabId = this.iqStanzaTabId[stanzaId];
                     if (tabId) {
                         delete this.iqStanzaTabId[stanzaId];
-                        chrome.tabs.sendMessage(tabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
+                        chrome.tabs.sendMessage(tabId, { 'type': ContentMessage.Type[ContentMessage.Type.recvStanza], 'stanza': stanza });
                     }
                 }
             }
@@ -677,7 +667,7 @@ export class BackgroundApp
             if (tabIds) {
                 for (let i = 0; i < tabIds.length; i++) {
                     let tabId = tabIds[i];
-                    chrome.tabs.sendMessage(tabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
+                    chrome.tabs.sendMessage(tabId, { 'type': ContentMessage.Type[ContentMessage.Type.recvStanza], 'stanza': stanza });
                 }
             }
         }
@@ -696,7 +686,7 @@ export class BackgroundApp
             }
 
             if (unavailableTabId >= 0) {
-                chrome.tabs.sendMessage(unavailableTabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
+                chrome.tabs.sendMessage(unavailableTabId, { 'type': ContentMessage.Type.recvStanza, 'stanza': stanza });
                 this.removeRoomJid2TabId(room, unavailableTabId);
                 log.debug('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', unavailableTabId, 'now:', this.roomJid2tabId);
             } else {
@@ -704,7 +694,7 @@ export class BackgroundApp
                 if (tabIds) {
                     for (let i = 0; i < tabIds.length; i++) {
                         let tabId = tabIds[i];
-                        chrome.tabs.sendMessage(tabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
+                        chrome.tabs.sendMessage(tabId, { 'type': ContentMessage.Type[ContentMessage.Type.recvStanza], 'stanza': stanza });
                     }
                 }
             }
