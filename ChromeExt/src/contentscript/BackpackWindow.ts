@@ -12,7 +12,7 @@ import { Window } from './Window';
 import { BackpackItem as BackpackItem } from './BackpackItem';
 import { Environment } from '../lib/Environment';
 import { ItemException } from '../lib/ItemExcption';
-import { SimpleErrorToast } from './Toast';
+import { ItemExceptionToast, SimpleErrorToast } from './Toast';
 
 export class BackpackWindow extends Window
 {
@@ -132,9 +132,13 @@ export class BackpackWindow extends Window
 
             this.paneElem = paneElem;
 
-            let response = await BackgroundMessage.getBackpackState();
-            if (response && response.ok) {
-                this.populate(response.items);
+            try {
+                let response = await BackgroundMessage.getBackpackState();
+                if (response && response.ok) {
+                    this.populate(response.items);
+                }
+            } catch (ex) {
+
             }
         }
     }
@@ -213,21 +217,18 @@ export class BackpackWindow extends Window
         try {
             await BackgroundMessage.rezBackpackItem(id, room, x, destination);
         } catch (ex) {
-            new SimpleErrorToast(this.app,
-                'Warning-' + ex.fact.toString() + '-' + ex.reason.toString(),
-                Config.get('room.errorToastDurationSec', 10),
-                'warning',
-                ItemException.Fact[ex.fact],
-                ItemException.Reason[ex.reason],
-                ex.detail ?? ''
-            )
-                .show();
+            new ItemExceptionToast(this.app, Config.get('room.errorToastDurationSec', 8), ex).show();
         }
     }
 
-    derezItem(id: string, room: string, x: number, y: number)
+    async derezItem(id: string, room: string, x: number, y: number)
     {
         log.info('BackpackWindow', 'derezItem', id, 'from', room);
-        BackgroundMessage.derezBackpackItem(id, room, -1, -1);
+
+        try {
+            await BackgroundMessage.derezBackpackItem(id, room, -1, -1);
+        } catch (ex) {
+            new ItemExceptionToast(this.app, Config.get('room.errorToastDurationSec', 8), ex).show();
+        }
     }
 }

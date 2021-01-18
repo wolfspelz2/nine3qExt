@@ -226,11 +226,13 @@ export class BackgroundMessage
             try {
                 chrome.runtime?.sendMessage({ 'type': BackgroundMessage.addBackpackItem.name, 'id': id, 'properties': properties }, response =>
                 {
-                    resolve(response);
+                    if (response.ok) {
+                        resolve();
+                    } else {
+                        reject(response.ex);
+                    }
                 });
-            } catch (error) {
-                reject(error);
-            }
+            } catch (error) { reject(error); }
         });
     }
 
@@ -241,11 +243,13 @@ export class BackgroundMessage
             try {
                 chrome.runtime?.sendMessage({ 'type': BackgroundMessage.setBackpackItemProperties.name, 'id': id, 'properties': properties }, response =>
                 {
-                    resolve(response);
+                    if (response.ok) {
+                        resolve();
+                    } else {
+                        reject(response.ex);
+                    }
                 });
-            } catch (error) {
-                reject(error);
-            }
+            } catch (error) { reject(error); }
         });
     }
 
@@ -256,11 +260,13 @@ export class BackgroundMessage
             try {
                 chrome.runtime?.sendMessage({ 'type': BackgroundMessage.modifyBackpackItemProperties.name, 'id': id, 'changed': changed, 'deleted': deleted }, response =>
                 {
-                    resolve(response);
+                    if (response.ok) {
+                        resolve();
+                    } else {
+                        reject(response.ex);
+                    }
                 });
-            } catch (error) {
-                reject(error);
-            }
+            } catch (error) { reject(error); }
         });
     }
 
@@ -272,9 +278,9 @@ export class BackgroundMessage
                 chrome.runtime?.sendMessage({ 'type': BackgroundMessage.rezBackpackItem.name, 'id': id, 'room': room, 'x': x, 'destination': destination }, response =>
                 {
                     if (response.ok) {
-                        resolve(response);
+                        resolve();
                     } else {
-                        reject(new ItemException(response.ex.fact, response.ex.reason, response.ex.detail));
+                        reject(response.ex);
                     }
                 });
             } catch (error) { reject(error); }
@@ -288,26 +294,30 @@ export class BackgroundMessage
             try {
                 chrome.runtime?.sendMessage({ 'type': BackgroundMessage.derezBackpackItem.name, 'id': id, 'room': room, 'x': x, 'y': y }, response =>
                 {
-                    resolve(response);
+                    if (response.ok) {
+                        resolve();
+                    } else {
+                        reject(response.ex);
+                    }
                 });
-            } catch (error) {
-                reject(error);
-            }
+            } catch (error) { reject(error); }
         });
     }
 
-    static async isBackpackItem(id: string): Promise<IsBackpackItemResponse>
+    static async isBackpackItem(id: string): Promise<boolean>
     {
         return new Promise((resolve, reject) =>
         {
             try {
                 chrome.runtime?.sendMessage({ 'type': BackgroundMessage.isBackpackItem.name, 'id': id }, response =>
                 {
-                    resolve(response);
+                    if (response.ok) {
+                        resolve((<IsBackpackItemResponse>response).isItem);
+                    } else {
+                        reject(response.ex);
+                    }
                 });
-            } catch (error) {
-                reject(error);
-            }
+            } catch (error) { reject(error); }
         });
     }
 

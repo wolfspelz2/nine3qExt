@@ -220,8 +220,7 @@ export class RoomItem extends Entity
     async sendMoveMessage(newX: number): Promise<void>
     {
         let itemId = this.nick;
-        let response = await BackgroundMessage.isBackpackItem(itemId);
-        if (response.ok && response.isItem) {
+        if (await BackgroundMessage.isBackpackItem(itemId)) {
             BackgroundMessage.modifyBackpackItemProperties(itemId, { [Pid.RezzedX]: '' + newX }, []);
         } else {
             this.sendItemActionCommand('Rezzed.MoveTo', { 'x': newX });

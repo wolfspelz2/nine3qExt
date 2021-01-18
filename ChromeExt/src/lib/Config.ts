@@ -186,14 +186,19 @@ export class Config
                     'Toast.tousles': '...tousled you',
                     'Toast.nudges': '...nudged you',
 
+                    // ['ErrorFact.' + ItemException.Fact[ItemException.Fact.Error]]: 'Error',
                     'ErrorFact.Error': 'Error',
+
                     'ErrorFact.NotRezzed': 'Failed to drop item',
-                    'ErrorFact.NotDerezzed': 'Faied to pick up item',
+                    'ErrorFact.NotDerezzed': 'Failed to pick up item',
+                    'ErrorFact.NotAdded': 'Failed to add item',
+                    'ErrorFact.NotChanged': 'Failed to update item',
+                    'ErrorFact.NoItemsReceived': 'No items recevied',
 
                     'ErrorReason.UnknownReason': 'Unknown reason :-(',
                     'ErrorReason.ItemAlreadyRezzed': 'Item already on page.',
                     'ErrorReason.ItemNotRezzedHere': 'Item is not on this page',
-                    'ErrorReason.NoItemsAvailable': 'No items available. The feature may be disabled.',
+                    'ErrorReason.ItemsNotAvailable': 'Items not available. The feature may be disabled.',
                 },
                 'de-DE': {
                     'Common.Close': 'Schließen',
@@ -257,12 +262,15 @@ export class Config
 
                     'ErrorFact.Error': 'Fehler',
                     'ErrorFact.NotRezzed': 'Ablegen fehlgeschlagen',
-                    'ErrorFact.NotDerezzed': 'Von der Seite entfernen fehlgeschlagen',
+                    'ErrorFact.NotDerezzed': 'Von der Seite nehmen fehlgeschlagen',
+                    'ErrorFact.NotAdded': 'Gegenstand nicht hinzugefügt',
+                    'ErrorFact.NotChanged': 'Gegenstand nicht geändert',
+                    'ErrorFact.NoItemsReceived': 'Keine Gegenstände bekommen',
 
                     'ErrorReason.UnknownReason': 'Grund unbekannt :-(',
                     'ErrorReason.ItemAlreadyRezzed': 'Gegenstand ist schon auf einer Seite.',
                     'ErrorReason.ItemNotRezzedHere': 'Gegenstand ist nicht auf dieser Seite',
-                    'ErrorReason.NoItemsAvailable': 'Keine Gegenstände verfügbar. Die Funktion ist vielleicht nicht eingeschaltet.',
+                    'ErrorReason.ItemsNotAvailable': 'Keine Gegenstände verfügbar. Die Funktion ist vielleicht nicht eingeschaltet.',
                 },
             },
             'serviceUrl': '',

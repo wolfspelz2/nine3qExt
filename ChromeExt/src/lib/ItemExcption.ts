@@ -11,7 +11,10 @@ export namespace ItemException
     {
         Error,
         NotRezzed,
-        NotDerezzed
+        NotDerezzed,
+        NotAdded,
+        NotChanged,
+        NoItemsReceived
     }
 
 
@@ -20,7 +23,7 @@ export namespace ItemException
         UnknownReason,
         ItemAlreadyRezzed,
         ItemNotRezzedHere,
-        NoItemsAvailable
+        ItemsNotAvailable
     }
 }
 

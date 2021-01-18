@@ -186,39 +186,31 @@ export class BackgroundApp
             } break;
 
             case BackgroundMessage.getBackpackState.name: {
-                let response = this.handle_getBackpackState();
-                sendResponse(response);
-                return false; // true if async
+                return this.handle_getBackpackState(sendResponse);
             } break;
 
             case BackgroundMessage.addBackpackItem.name: {
-                sendResponse(this.handle_addBackpackItem(message.id, message.properties));
-                return false;
+                return this.handle_addBackpackItem(message.id, message.properties, sendResponse);
             } break;
 
             case BackgroundMessage.setBackpackItemProperties.name: {
-                sendResponse(this.handle_setBackpackItemProperties(message.id, message.properties));
-                return false;
+                return this.handle_setBackpackItemProperties(message.id, message.properties, sendResponse);
             } break;
 
             case BackgroundMessage.modifyBackpackItemProperties.name: {
-                sendResponse(this.handle_modifyBackpackItemProperties(message.id, message.changed, message.deleted));
-                return false;
+                return this.handle_modifyBackpackItemProperties(message.id, message.changed, message.deleted, sendResponse);
             } break;
 
             case BackgroundMessage.rezBackpackItem.name: {
                 return this.handle_rezBackpackItem(message.id, message.room, message.x, message.destination, sendResponse);
-                // sendResponse(this.handle_rezBackpackItem(message.id, message.room, message.x, message.destination));
             } break;
 
             case BackgroundMessage.derezBackpackItem.name: {
-                sendResponse(this.handle_derezBackpackItem(message.id, message.room, message.x, message.y));
-                return false;
+                return this.handle_derezBackpackItem(message.id, message.room, message.x, message.y, sendResponse);
             } break;
 
             case BackgroundMessage.isBackpackItem.name: {
-                sendResponse(this.handle_isBackpackItem(message.id));
-                return false;
+                return this.handle_isBackpackItem(message.id, sendResponse);
             } break;
 
             default: {
@@ -423,55 +415,91 @@ export class BackgroundApp
         }
     }
 
-    handle_getBackpackState(): BackgroundResponse
+    handle_getBackpackState(sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
             let items = this.backpack.getItems();
-            return new GetBackpackStateResponse(items);
+            sendResponse(new GetBackpackStateResponse(items));
+        } else {
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NoItemsReceived, ItemException.Reason.ItemsNotAvailable)));
         }
-        return new BackgroundErrorResponse('error', 'No backpack');
+        return false;
     }
 
-    async handle_addBackpackItem(id: string, properties: ItemProperties): Promise<void>
+    handle_addBackpackItem(id: string, properties: ItemProperties, sendResponse: (response?: any) => void): boolean
     {
-        await this.backpack?.addItem(id, properties);
+        if (this.backpack) {
+            this.backpack.addItem(id, properties)
+                .then(() => { sendResponse(new BackgroundSuccessResponse()); })
+                .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
+            return true;
+        } else {
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotAdded, ItemException.Reason.ItemsNotAvailable)));
+        }
+        return false;
     }
 
-    async handle_setBackpackItemProperties(id: string, properties: ItemProperties): Promise<void>
+    handle_setBackpackItemProperties(id: string, properties: ItemProperties, sendResponse: (response?: any) => void): boolean
     {
-        await this.backpack?.setItemProperties(id, properties);
+        if (this.backpack) {
+            this.backpack.setItemProperties(id, properties)
+                .then(() => { sendResponse(new BackgroundSuccessResponse()); })
+                .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
+            return true;
+        } else {
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotChanged, ItemException.Reason.ItemsNotAvailable)));
+        }
+        return false;
     }
 
-    async handle_modifyBackpackItemProperties(id: string, changed: ItemProperties, deleted: Array<string>): Promise<void>
+    handle_modifyBackpackItemProperties(id: string, changed: ItemProperties, deleted: Array<string>, sendResponse: (response?: any) => void): boolean
     {
-        await this.backpack?.modifyItemProperties(id, changed, deleted);
+        if (this.backpack) {
+            this.backpack.modifyItemProperties(id, changed, deleted)
+                .then(() => { sendResponse(new BackgroundSuccessResponse()); })
+                .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
+            return true;
+        } else {
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotChanged, ItemException.Reason.ItemsNotAvailable)));
+        }
+        return false;
     }
 
     handle_rezBackpackItem(id: string, room: string, x: number, destination: string, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            this.backpack?.rezItem(id, room, x, destination)
+            this.backpack.rezItem(id, room, x, destination)
                 .then(() => { sendResponse(new BackgroundSuccessResponse()); })
                 .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
             return true;
         } else {
-            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotRezzed, ItemException.Reason.NoItemsAvailable)));
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotRezzed, ItemException.Reason.ItemsNotAvailable)));
         }
         return false;
     }
 
-    async handle_derezBackpackItem(id: string, room: string, x: number, y: number): Promise<void>
+    handle_derezBackpackItem(id: string, room: string, x: number, y: number, sendResponse: (response?: any) => void): boolean
     {
-        await this.backpack?.derezItem(id, room, x, y);
+        if (this.backpack) {
+            this.backpack.derezItem(id, room, x, y)
+                .then(() => { sendResponse(new BackgroundSuccessResponse()); })
+                .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
+            return true;
+        } else {
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotRezzed, ItemException.Reason.ItemsNotAvailable)));
+        }
+        return false;
     }
 
-    handle_isBackpackItem(id: string): BackgroundResponse
+    handle_isBackpackItem(id: string, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
             let isItem = this.backpack.isItem(id);
-            return new IsBackpackItemResponse(isItem);
+            sendResponse(new IsBackpackItemResponse(isItem));
+        } else {
+            sendResponse(new IsBackpackItemResponse(false));
         }
-        return new IsBackpackItemResponse(false);
+        return false;
     }
 
     // manage stanza from 2 tabId mappings

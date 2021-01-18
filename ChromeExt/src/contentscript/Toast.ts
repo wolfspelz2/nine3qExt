@@ -2,6 +2,7 @@ import * as $ from 'jquery';
 import log = require('loglevel');
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';
+import { ItemException } from '../lib/ItemExcption';
 import { Utils } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 
@@ -129,5 +130,19 @@ export class SimpleErrorToast extends Toast
         )[0];
 
         super(app, type, durationSec, iconType, bodyElem);
+    }
+}
+
+export class ItemExceptionToast extends SimpleErrorToast
+{
+    constructor(app: ContentApp, durationSec: number, ex: ItemException)
+    {
+        let fact = ItemException.Fact[ex.fact];
+        let reason = ItemException.Reason[ex.reason];
+        let type = 'Warning-' + fact + '-' + reason;
+        let detail = ex.detail;
+        let iconType = 'warning';
+
+        super(app, type, durationSec, iconType, fact, reason, detail);
     }
 }
