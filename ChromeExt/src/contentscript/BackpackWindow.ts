@@ -7,6 +7,7 @@ import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
 import { ItemProperties } from '../lib/ItemProperties';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 import { ContentApp } from './ContentApp';
 import { Window } from './Window';
 import { BackpackItem as BackpackItem } from './BackpackItem';
@@ -204,9 +205,9 @@ export class BackpackWindow extends Window
         BackgroundMessage.addBackpackItem(id, properties);
     }
 
-    setItemProperties(id: string, properties: ItemProperties, silent: boolean)
+    setItemProperties(id: string, properties: ItemProperties, options: ItemChangeOptions)
     {
-        BackgroundMessage.setBackpackItemProperties(id, properties, silent);
+        BackgroundMessage.setBackpackItemProperties(id, properties, options);
     }
 
     rezItem(id: string, room: string, x: number, destination: string) { this.rezItemAsync(id, room, x, destination); }

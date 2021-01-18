@@ -6,10 +6,11 @@ import { Config } from '../lib/Config';
 import { BackgroundErrorResponse, BackgroundItemExceptionResponse, BackgroundMessage, BackgroundResponse, BackgroundSuccessResponse, GetBackpackStateResponse, IsBackpackItemResponse } from '../lib/BackgroundMessage';
 import { Client } from '../lib/Client';
 import { ItemProperties } from '../lib/ItemProperties';
-import { ConfigUpdater } from './ConfigUpdater';
-import { Backpack } from './Backpack';
 import { ContentMessage } from '../lib/ContentMessage';
 import { ItemException } from '../lib/ItemExcption';
+import { ItemChangeOptions } from '../lib/ItemChangeOptions';
+import { ConfigUpdater } from './ConfigUpdater';
+import { Backpack } from './Backpack';
 
 interface ILocationMapperResponse
 {
@@ -184,11 +185,11 @@ export class BackgroundApp
             } break;
 
             case BackgroundMessage.setBackpackItemProperties.name: {
-                return this.handle_setBackpackItemProperties(message.id, message.properties, message.silent, sendResponse);
+                return this.handle_setBackpackItemProperties(message.id, message.properties, message.options, sendResponse);
             } break;
 
             case BackgroundMessage.modifyBackpackItemProperties.name: {
-                return this.handle_modifyBackpackItemProperties(message.id, message.changed, message.deleted, message.silent, sendResponse);
+                return this.handle_modifyBackpackItemProperties(message.id, message.changed, message.deleted, message.options, sendResponse);
             } break;
 
             case BackgroundMessage.rezBackpackItem.name: {
@@ -429,10 +430,10 @@ export class BackgroundApp
         return false;
     }
 
-    handle_setBackpackItemProperties(id: string, properties: ItemProperties, silent: boolean, sendResponse: (response?: any) => void): boolean
+    handle_setBackpackItemProperties(id: string, properties: ItemProperties, options: ItemChangeOptions, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            this.backpack.setItemProperties(id, properties, silent)
+            this.backpack.setItemProperties(id, properties, options)
                 .then(() => { sendResponse(new BackgroundSuccessResponse()); })
                 .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
             return true;
@@ -442,10 +443,10 @@ export class BackgroundApp
         return false;
     }
 
-    handle_modifyBackpackItemProperties(id: string, changed: ItemProperties, deleted: Array<string>, silent: boolean, sendResponse: (response?: any) => void): boolean
+    handle_modifyBackpackItemProperties(id: string, changed: ItemProperties, deleted: Array<string>, options: ItemChangeOptions, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            this.backpack.modifyItemProperties(id, changed, deleted, silent)
+            this.backpack.modifyItemProperties(id, changed, deleted, options)
                 .then(() => { sendResponse(new BackgroundSuccessResponse()); })
                 .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
             return true;

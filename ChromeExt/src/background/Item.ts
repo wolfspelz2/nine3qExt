@@ -6,6 +6,7 @@ import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { BackpackShowItemData, BackpackRemoveItemData, BackpackSetItemData, ContentMessage } from '../lib/ContentMessage';
 import { BackgroundApp } from './BackgroundApp';
 import { Backpack } from './Backpack';
+import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 
 export class Item
 {
@@ -15,13 +16,15 @@ export class Item
 
     getProperties(): ItemProperties { return this.properties; }
 
-    setProperties(props: ItemProperties, silent: boolean)
+    setProperties(props: ItemProperties, options: ItemChangeOptions)
     {
         this.properties = props;
 
-        this.app.sendToAllTabs(ContentMessage.Type[ContentMessage.Type.onBackpackSetItem], new BackpackSetItemData(this.itemId, props));
+        if (!options.skipContentNotification) {
+            this.app.sendToAllTabs(ContentMessage.Type[ContentMessage.Type.onBackpackSetItem], new BackpackSetItemData(this.itemId, props));
+        }
 
-        if (this.isRezzed() && !silent) {
+        if (this.isRezzed() && !options.skipPresenceUpdate) {
             let roomJid = this.properties[Pid.RezzedLocation];
             this.app.sendToTabsForRoom(roomJid, ContentMessage.Type[ContentMessage.Type.sendPresence]);
         }

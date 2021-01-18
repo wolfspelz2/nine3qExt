@@ -6,6 +6,7 @@ import { Point2D } from '../lib/Utils';
 import { Config } from '../lib/Config';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Pid } from '../lib/ItemProperties';
+import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
@@ -221,7 +222,7 @@ export class RoomItem extends Entity
     {
         let itemId = this.nick;
         if (await BackgroundMessage.isBackpackItem(itemId)) {
-            BackgroundMessage.modifyBackpackItemProperties(itemId, { [Pid.RezzedX]: '' + newX }, [], false);
+            BackgroundMessage.modifyBackpackItemProperties(itemId, { [Pid.RezzedX]: '' + newX }, [], ItemChangeOptions.empty);
         } else {
             this.sendItemActionCommand('Rezzed.MoveTo', { 'x': newX });
         }

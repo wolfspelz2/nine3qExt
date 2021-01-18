@@ -8,6 +8,7 @@ import { ContentApp } from './ContentApp';
 import { BackpackWindow } from './BackpackWindow';
 
 import imgDefaultItem from '../assets/DefaultItem.png';
+import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 
 export class BackpackItem
 {
@@ -227,7 +228,7 @@ export class BackpackItem
     {
         this.properties[Pid.InventoryX] = '' + Math.round(x);
         this.properties[Pid.InventoryY] = '' + Math.round(y);
-        this.backpackWindow.setItemProperties(this.itemId, this.properties, true);
+        this.backpackWindow.setItemProperties(this.itemId, this.properties, { skipPresenceUpdate: true });
     }
 
     rezItem(x: number)

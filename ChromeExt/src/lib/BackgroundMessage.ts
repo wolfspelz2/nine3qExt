@@ -1,4 +1,5 @@
 import log = require('loglevel');
+import { ItemChangeOptions } from './ItemChangeOptions';
 import { ItemException } from './ItemExcption';
 import { ItemProperties } from './ItemProperties';
 
@@ -226,12 +227,12 @@ export class BackgroundMessage
         });
     }
 
-    static setBackpackItemProperties(id: string, properties: ItemProperties, silent: boolean): Promise<void>
+    static setBackpackItemProperties(id: string, properties: ItemProperties, options: ItemChangeOptions): Promise<void>
     {
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.setBackpackItemProperties.name, 'id': id, 'properties': properties, 'silent': silent }, response =>
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.setBackpackItemProperties.name, 'id': id, 'properties': properties, 'options': options }, response =>
                 {
                     if (response.ok) {
                         resolve();
@@ -243,12 +244,12 @@ export class BackgroundMessage
         });
     }
 
-    static modifyBackpackItemProperties(id: string, changed: ItemProperties, deleted: Array<string>, silent: boolean): Promise<void>
+    static modifyBackpackItemProperties(id: string, changed: ItemProperties, deleted: Array<string>, options: ItemChangeOptions): Promise<void>
     {
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.modifyBackpackItemProperties.name, 'id': id, 'changed': changed, 'deleted': deleted, 'silent': silent }, response =>
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.modifyBackpackItemProperties.name, 'id': id, 'changed': changed, 'deleted': deleted, 'options': options }, response =>
                 {
                     if (response.ok) {
                         resolve();
