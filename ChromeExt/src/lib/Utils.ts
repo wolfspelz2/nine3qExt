@@ -12,6 +12,7 @@ export class Utils
     static syncStorageKey_Avatar(): string { return 'me.avatar'; }
     static localStorageKey_X(): string { return 'me.x'; }
     static localStorageKey_Active(): string { return 'me.active'; }
+    static localStorageKey_StayOnTabChange(roomJid: string): string { return 'config.stayOnTabChange.' + roomJid; }
     static syncStorageKey_ItemProviderUserId(providerId: string): string { return 'itemProvider.' + providerId + '.userId'; }
 
     static jsObject2xmlObject(stanza: any): xml

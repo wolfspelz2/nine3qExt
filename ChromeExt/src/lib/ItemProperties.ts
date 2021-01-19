@@ -8,4 +8,5 @@ export class Pid
     static readonly RezzedDestination = 'RezzedDestination';
     static readonly InventoryX = 'InventoryX';
     static readonly InventoryY = 'InventoryY';
+    static readonly Provider = 'Provider';
 }

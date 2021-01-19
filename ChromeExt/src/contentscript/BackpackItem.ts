@@ -256,7 +256,7 @@ export class BackpackItem
     applyPropertyFilter(properties: ItemProperties): ItemProperties
     {
         let newProperties: ItemProperties = {};
-        let providerId = as.String(properties['provider'], null);
+        let providerId = as.String(properties[Pid.Provider], null);
         for (let key in properties) {
             let value = properties[key];
             if (key.endsWith('Url')) {

@@ -28,7 +28,11 @@ export class RpcClient
                     {
                         let response = JSON.parse(text);
                         log.debug('BackgroundApp.handle_jsonRpc', 'response', url, response);
-                        resolve(response);
+                        if (response.status == RpcProtocol.Response.status_ok) {
+                            resolve(response);
+                        } else {
+                            reject(response);
+                        }
                     })
                     .catch(ex =>
                     {

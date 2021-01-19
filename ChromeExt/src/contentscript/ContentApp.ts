@@ -160,7 +160,9 @@ export class ContentApp
         chrome.runtime?.onMessage.addListener(this.runtimeOnMessageClosure);
 
         // this.enterPage();
-        this.checkPageUrlChanged();
+        await this.checkPageUrlChanged();
+
+        this.stayHereIsChecked = await Memory.getLocal(Utils.localStorageKey_StayOnTabChange(this.locationUrl), false);
 
         this.startCheckPageUrl();
         this.pingBackgroundToKeepConnectionAlive();
@@ -301,10 +303,21 @@ export class ContentApp
         this.chatIsOpen = value; this.evaluateStayOnTabChange();
     }
 
-    getStayHereIsChecked(): boolean { return this.stayHereIsChecked; }
+    getStayHereIsChecked(): boolean
+    {
+        return this.stayHereIsChecked;
+    }
+
     toggleStayHereIsChecked(): void
     {
         this.stayHereIsChecked = !this.stayHereIsChecked;
+        
+        if (this.stayHereIsChecked) {
+            /* await */ Memory.setLocal(Utils.localStorageKey_StayOnTabChange(this.locationUrl), this.stayHereIsChecked);
+        } else {
+            /* await */ Memory.deleteLocal(Utils.localStorageKey_StayOnTabChange(this.locationUrl));
+        }
+
         this.evaluateStayOnTabChange();
     }
 

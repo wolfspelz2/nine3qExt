@@ -57,11 +57,35 @@ export class Backpack
         let item = this.createRepositoryItem(itemId, props);
 
         if (!options.skipPersistentStorage) {
-            await this.saveItem(itemId);
+            await this.persistentSaveItem(itemId);
         }
 
-        let data = new BackpackShowItemData(itemId, props);
-        this.app.sendToAllTabs(ContentMessage.Type[ContentMessage.Type.onBackpackShowItem], data);
+        if (!options.skipContentNotification) {
+            let data = new BackpackShowItemData(itemId, props);
+            this.app.sendToAllTabs(ContentMessage.Type[ContentMessage.Type.onBackpackShowItem], data);
+        }
+    }
+
+    async deleteItem(itemId: string, options: ItemChangeOptions)
+    {
+        let item = this.items[itemId];
+        if (item) {
+            if (item.isRezzed()) {
+                let roomJid = item.getProperties()[Pid.RezzedLocation];
+                await this.derezItem(itemId, roomJid, -1, -1, options);
+            }
+
+            if (!options.skipPersistentStorage) {
+                await this.persistentDeleteItem(itemId);
+            }
+
+            if (!options.skipContentNotification) {
+                let data = new BackpackRemoveItemData(itemId);
+                this.app.sendToAllTabs(ContentMessage.Type[ContentMessage.Type.onBackpackHideItem], data);
+            }
+
+            this.deleteRepositoryItem(itemId);
+        }
     }
 
     private createRepositoryItem(itemId: string, props: ItemProperties): Item
@@ -74,7 +98,14 @@ export class Backpack
         return item;
     }
 
-    private async saveItem(itemId: string): Promise<void>
+    private deleteRepositoryItem(itemId: string): void
+    {
+        if (this.items[itemId]) {
+            delete this.items[itemId];
+        }
+    }
+
+    private async persistentSaveItem(itemId: string): Promise<void>
     {
         let item = this.items[itemId];
         if (item) {
@@ -84,6 +115,21 @@ export class Backpack
                 await Memory.setLocal(Backpack.BackpackPropsPrefix + itemId, props);
                 if (!itemIds.includes(itemId)) {
                     itemIds.push(itemId);
+                    await Memory.setLocal(Backpack.BackpackIdsKey, itemIds);
+                }
+            }
+        }
+    }
+
+    private async persistentDeleteItem(itemId: string): Promise<void>
+    {
+        let itemIds = await Memory.getLocal(Backpack.BackpackIdsKey, []);
+        if (itemIds && Array.isArray(itemIds)) {
+            await Memory.deleteLocal(Backpack.BackpackPropsPrefix + itemId);
+            if (itemIds.includes(itemId)) {
+                const index = itemIds.indexOf(itemId, 0);
+                if (index > -1) {
+                    itemIds.splice(index, 1);
                     await Memory.setLocal(Backpack.BackpackIdsKey, itemIds);
                 }
             }
@@ -129,7 +175,7 @@ export class Backpack
         if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
 
         item.setProperties(props, options);
-        await this.saveItem(itemId);
+        await this.persistentSaveItem(itemId);
     }
 
     getItemProperties(itemId: string): ItemProperties
@@ -153,7 +199,7 @@ export class Backpack
             delete props[deleted[i]];
         }
         item.setProperties(props, options);
-        await this.saveItem(itemId);
+        await this.persistentSaveItem(itemId);
     }
 
     async executeItemAction(itemId: string, action: string, args: any, involvedIds: Array<string>): Promise<void>
@@ -186,10 +232,34 @@ export class Backpack
         request.args = args;
         request.items = items;
 
-        let response = await this.rpcClient.call(apiUrl, request);
+        try {
+            let response = <RpcProtocol.BackpackTransactionResponse>await this.rpcClient.call(apiUrl, request);
 
-        // item.setProperties(props, options);
-        await this.saveItem(itemId);
+            if (response.changed) {
+                for (let id in response.changed) {
+                    let props = response.changed[id];
+                    await this.setItemProperties(id, props, ItemChangeOptions.empty);
+                }
+            }
+
+            if (response.created) {
+                for (let id in response.created) {
+                    let props = response.created[id];
+                    await this.addItem(id, props, ItemChangeOptions.empty);
+                }
+            }
+
+            if (response.deleted) {
+                for (let i = 0; i < response.deleted.length; i++) {
+                    let id = response.deleted[i];
+                    await this.deleteItem(id, ItemChangeOptions.empty);
+                }
+            }
+
+        } catch (error) {
+            let response = <RpcProtocol.BackpackResponse>error;
+            log.warn(response);
+        }
     }
 
     getItems(): { [id: string]: ItemProperties; }
@@ -218,7 +288,7 @@ export class Backpack
         item.setProperties(props, options);
 
         if (!options.skipPersistentStorage) {
-            await this.saveItem(itemId);
+            await this.persistentSaveItem(itemId);
         }
     }
 
@@ -244,10 +314,12 @@ export class Backpack
         item.setProperties(props, options);
 
         if (!options.skipPersistentStorage) {
-            await this.saveItem(itemId);
+            await this.persistentSaveItem(itemId);
         }
 
-        this.app.sendToTabsForRoom(roomJid, ContentMessage.Type[ContentMessage.Type.sendPresence]);
+        if (!options.skipContentNotification) {
+            this.app.sendToTabsForRoom(roomJid, ContentMessage.Type[ContentMessage.Type.sendPresence]);
+        }
     }
 
     stanzaOutFilter(stanza: xml): any

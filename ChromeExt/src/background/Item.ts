@@ -24,7 +24,14 @@ export class Item
             this.app.sendToAllTabs(ContentMessage.Type[ContentMessage.Type.onBackpackSetItem], new BackpackSetItemData(this.itemId, props));
         }
 
-        if (this.isRezzed() && !options.skipPresenceUpdate) {
+        if (!options.skipPresenceUpdate) {
+            this.sendPresence();
+        }
+    }
+
+    sendPresence()
+    {
+        if (this.isRezzed()) {
             let roomJid = this.properties[Pid.RezzedLocation];
             this.app.sendToTabsForRoom(roomJid, ContentMessage.Type[ContentMessage.Type.sendPresence]);
         }

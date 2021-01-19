@@ -11,6 +11,7 @@ export class _Changes
             ['Add', 'Private chat'],
             ['Add', 'Greet'],
             ['Add', 'Show user dependent items'],
+            ['Add', 'Persist stay-on-tab-change flag'],
             ['Change', 'RallySpeaker URL variables, iframe allows 4 vidconf'],
             ['Fix', 'Message replication by tab change'],
         ]],

@@ -75,4 +75,12 @@ export class Memory
             chrome.storage.local.set(dict, () => { resolve(); });
         });
     }
+
+    static async deleteLocal(key: string): Promise<void>
+    {
+        return new Promise(resolve =>
+        {
+            chrome.storage.local.remove(key, () => { resolve(); });
+        });
+    }
 }
