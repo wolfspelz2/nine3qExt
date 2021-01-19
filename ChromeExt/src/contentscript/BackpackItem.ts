@@ -12,6 +12,7 @@ import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 
 export class BackpackItem
 {
+    private properties: ItemProperties;
     private isFirstPresence: boolean = true;
     private elem: HTMLDivElement;
     private iconElem: HTMLImageElement;
@@ -21,8 +22,10 @@ export class BackpackItem
     private h: number = 64;
     private inDrag: boolean = false;
 
-    constructor(protected app: ContentApp, private backpackWindow: BackpackWindow, private itemId: string, private properties: ItemProperties)
+    constructor(protected app: ContentApp, private backpackWindow: BackpackWindow, private itemId: string, properties: ItemProperties)
     {
+        this.properties = this.applyPropertyFilter(properties);
+
         let paneElem = this.backpackWindow.getPane();
         let padding: number = Config.get('backpack.borderPadding', 4);
 
@@ -250,7 +253,7 @@ export class BackpackItem
         this.applyProperties(this.properties);
     }
 
-    applyProperties(properties: ItemProperties)
+    applyPropertyFilter(properties: ItemProperties): ItemProperties
     {
         let newProperties: ItemProperties = {};
         let providerId = as.String(properties['provider'], null);
@@ -261,6 +264,12 @@ export class BackpackItem
             }
             newProperties[key] = value;
         }
+        return newProperties;
+    }
+
+    applyProperties(properties: ItemProperties)
+    {
+        let newProperties = this.applyPropertyFilter(properties);
 
         if (newProperties.ImageUrl) {
             this.setImage(newProperties.ImageUrl);

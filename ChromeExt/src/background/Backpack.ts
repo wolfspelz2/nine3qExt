@@ -161,7 +161,7 @@ export class Backpack
 
         let providerId = 'nine3q';
 
-        let userToken = Config.get('itemProviders.' + providerId + '.userToken', '');
+        let userToken = Config.get('itemProviders.' + providerId + '.config.userToken', '');
         if (userToken == null || userToken == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.NoUserToken); }
 
         let apiUrl = Config.get('itemProviders.' + providerId + '.backpackApiUrl', '');
