@@ -6,6 +6,7 @@ import { Utils } from '../lib/Utils';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Panic } from '../lib/Panic';
 import { Config } from '../lib/Config';
+import { Memory } from '../lib/Memory';
 import { AvatarGallery } from '../lib/AvatarGallery';
 import { Translator } from '../lib/Translator';
 import { Browser } from '../lib/Browser';
@@ -655,17 +656,12 @@ export class ContentApp
     async initItemProviders(): Promise<void>
     {
         let itemProviders = Config.get('itemProviders', {});
-        let gotAnyProvider = false;
-
         for (let providerId in itemProviders) {
             let providerConfig = await Config.get('itemProviders.' + providerId, null);
             if (providerConfig) {
                 this.itemProviders[providerId] = new ItemProvider(providerConfig);
-                gotAnyProvider = gotAnyProvider || as.Bool(providerConfig['inventoryActive'], false);
             }
         }
-
-        Config.set('inventory.enabled', gotAnyProvider)
     }
 
     getItemProviderConfigValue(providerId: string, configKey: string, defaultValue: any): any
@@ -695,12 +691,12 @@ export class ContentApp
 
     async isDontShowNoticeType(type: string): Promise<boolean>
     {
-        return await Config.getLocal(this.localStorage_DontShowNotice_KeyPrefix + type, false);
+        return await Memory.getLocal(this.localStorage_DontShowNotice_KeyPrefix + type, false);
     }
 
     async setDontShowNoticeType(type: string, value: boolean): Promise<void>
     {
-        await Config.setLocal(this.localStorage_DontShowNotice_KeyPrefix + type, value);
+        await Memory.setLocal(this.localStorage_DontShowNotice_KeyPrefix + type, value);
     }
 
     // my active
@@ -708,9 +704,9 @@ export class ContentApp
     async assertActive()
     {
         try {
-            let active = await Config.getSync(Utils.syncStorageKey_Active(), '');
+            let active = await Memory.getSync(Utils.syncStorageKey_Active(), '');
             if (active == '') {
-                await Config.setSync(Utils.syncStorageKey_Active(), 'true');
+                await Memory.setSync(Utils.syncStorageKey_Active(), 'true');
             }
         } catch (error) {
             log.info(error);
@@ -721,7 +717,7 @@ export class ContentApp
     async getActive(): Promise<boolean>
     {
         try {
-            let active = await Config.getSync(Utils.syncStorageKey_Active(), 'true');
+            let active = await Memory.getSync(Utils.syncStorageKey_Active(), 'true');
             return as.Bool(active, false);
         } catch (error) {
             log.info(error);
@@ -734,9 +730,9 @@ export class ContentApp
     async assertUserNickname()
     {
         try {
-            let nickname = await Config.getSync(Utils.syncStorageKey_Nickname(), '');
+            let nickname = await Memory.getSync(Utils.syncStorageKey_Nickname(), '');
             if (nickname == '') {
-                await Config.setSync(Utils.syncStorageKey_Nickname(), 'Your name');
+                await Memory.setSync(Utils.syncStorageKey_Nickname(), 'Your name');
             }
         } catch (error) {
             log.info(error);
@@ -747,7 +743,7 @@ export class ContentApp
     async getUserNickname(): Promise<string>
     {
         try {
-            return await Config.getSync(Utils.syncStorageKey_Nickname(), 'no name');
+            return await Memory.getSync(Utils.syncStorageKey_Nickname(), 'no name');
         } catch (error) {
             log.info(error);
             return 'no name';
@@ -759,10 +755,10 @@ export class ContentApp
     async assertUserAvatar()
     {
         try {
-            let avatar = await Config.getSync(Utils.syncStorageKey_Avatar(), '');
+            let avatar = await Memory.getSync(Utils.syncStorageKey_Avatar(), '');
             if (avatar == '') {
                 avatar = AvatarGallery.getRandomAvatar();
-                await Config.setSync(Utils.syncStorageKey_Avatar(), avatar);
+                await Memory.setSync(Utils.syncStorageKey_Avatar(), avatar);
             }
         } catch (error) {
             log.info(error);
@@ -773,7 +769,7 @@ export class ContentApp
     async getUserAvatar(): Promise<string>
     {
         try {
-            return await Config.getSync(Utils.syncStorageKey_Avatar(), '004/pinguin');
+            return await Memory.getSync(Utils.syncStorageKey_Avatar(), '004/pinguin');
         } catch (error) {
             log.info(error);
             return '004/pinguin';
@@ -785,7 +781,7 @@ export class ContentApp
     async assertSavedPosition()
     {
         try {
-            let x = as.Int(await BackgroundMessage.getSessionConfig(Utils.syncStorageKey_X(), -1), -1);
+            let x = as.Int(await Memory.getLocal(Utils.localStorageKey_X(), -1), -1);
             if (x < 0) {
                 x = Utils.randomInt(as.Int(Config.get('room.randomEnterPosXMin', 400)), as.Int(Config.get('room.randomEnterPosXMax', 700)))
                 await this.savePosition(x);
@@ -798,7 +794,7 @@ export class ContentApp
     async savePosition(x: number): Promise<void>
     {
         try {
-            await BackgroundMessage.setSessionConfig(Utils.syncStorageKey_X(), x);
+            await Memory.setLocal(Utils.localStorageKey_X(), x);
         } catch (error) {
             log.info(error);
         }
@@ -809,7 +805,7 @@ export class ContentApp
         let x = 0;
 
         try {
-            x = as.Int(await BackgroundMessage.getSessionConfig(Utils.syncStorageKey_X(), -1), -1);
+            x = as.Int(await Memory.getLocal(Utils.localStorageKey_X(), -1), -1);
         } catch (error) {
             log.info(error);
         }

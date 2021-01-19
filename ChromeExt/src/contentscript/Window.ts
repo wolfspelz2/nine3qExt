@@ -5,6 +5,7 @@ import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
 import { ContentApp } from './ContentApp';
+import { Memory } from '../lib/Memory';
 
 type WindowOptions = any;
 
@@ -143,7 +144,7 @@ export class Window
 
     async getSavedOption(options: any, name: string, key: string): Promise<any>
     {
-        let value = await Config.getSync('window.' + name + '.' + key, null);
+        let value = await Memory.getSync('window.' + name + '.' + key, null);
         if (value) {
             options[key] = value;
         }
@@ -152,7 +153,7 @@ export class Window
 
     async saveOption(name: string, key: string, value: any): Promise<void>
     {
-        await Config.setSync('window.' + name + '.' + key, value);
+        await Memory.setSync('window.' + name + '.' + key, value);
     }
 
     isOpen(): boolean

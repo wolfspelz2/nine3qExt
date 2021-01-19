@@ -116,40 +116,6 @@ export class BackgroundMessage
         });
     }
 
-    static getSessionConfig(key: string, defaultValue: any): Promise<any>
-    {
-        return new Promise((resolve, reject) =>
-        {
-            try {
-                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.getSessionConfig.name, 'key': key }, response =>
-                {
-                    if (response != undefined && response[key] != undefined) {
-                        resolve(response[key]);
-                    } else {
-                        resolve(defaultValue);
-                    }
-                });
-            } catch (error) {
-                reject(error);
-            }
-        });
-    }
-
-    static setSessionConfig(key: string, value: any): Promise<void>
-    {
-        return new Promise((resolve, reject) =>
-        {
-            try {
-                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.setSessionConfig.name, 'key': key, 'value': value }, response =>
-                {
-                    resolve(response);
-                });
-            } catch (error) {
-                reject(error);
-            }
-        });
-    }
-
     static sendStanza(stanza: any): Promise<void>
     {
         return new Promise((resolve, reject) =>
@@ -210,12 +176,12 @@ export class BackgroundMessage
         });
     }
 
-    static addBackpackItem(itemId: string, properties: ItemProperties): Promise<void>
+    static addBackpackItem(itemId: string, properties: ItemProperties, options: ItemChangeOptions): Promise<void>
     {
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.addBackpackItem.name, 'itemId': itemId, 'properties': properties }, response =>
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.addBackpackItem.name, 'itemId': itemId, 'properties': properties, 'options': options }, response =>
                 {
                     if (response.ok) {
                         resolve();
@@ -261,12 +227,12 @@ export class BackgroundMessage
         });
     }
 
-    static rezBackpackItem(itemId: string, roomJid: string, x: number, destination: string): Promise<void>
+    static rezBackpackItem(itemId: string, roomJid: string, x: number, destination: string, options: ItemChangeOptions): Promise<void>
     {
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.rezBackpackItem.name, 'itemId': itemId, 'roomJid': roomJid, 'x': x, 'destination': destination }, response =>
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.rezBackpackItem.name, 'itemId': itemId, 'roomJid': roomJid, 'x': x, 'destination': destination, 'options': options }, response =>
                 {
                     if (response.ok) {
                         resolve();
@@ -278,12 +244,12 @@ export class BackgroundMessage
         });
     }
 
-    static derezBackpackItem(itemId: string, roomJid: string, x: number, y: number): Promise<void>
+    static derezBackpackItem(itemId: string, roomJid: string, x: number, y: number, options: ItemChangeOptions): Promise<void>
     {
         return new Promise((resolve, reject) =>
         {
             try {
-                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.derezBackpackItem.name, 'itemId': itemId, 'roomJid': roomJid, 'x': x, 'y': y }, response =>
+                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.derezBackpackItem.name, 'itemId': itemId, 'roomJid': roomJid, 'x': x, 'y': y, 'options': options }, response =>
                 {
                     if (response.ok) {
                         resolve();

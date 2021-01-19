@@ -7,6 +7,7 @@ import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { Window } from './Window';
+import { Memory } from '../lib/Memory';
 
 export class XmppWindow extends Window
 {
@@ -164,12 +165,12 @@ export class XmppWindow extends Window
 
     async storeText(text: string)
     {
-        await Config.setSync('dev.scratchPad', text);
+        await Memory.setSync('dev.scratchPad', text);
     }
 
     async getStoredText(): Promise<string>
     {
-        return await Config.getSync('dev.scratchPad', '');
+        return await Memory.getSync('dev.scratchPad', '');
     }
 
     text2Stanza(text: string): xml

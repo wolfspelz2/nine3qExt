@@ -3,6 +3,7 @@ import * as $ from 'jquery';
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
+import { Memory } from '../lib/Memory';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Translator } from '../lib/Translator';
 import { AvatarGallery } from '../lib/AvatarGallery';
@@ -54,9 +55,9 @@ export class PopupApp
 
         this.display = $('<div id="n3q-id-popup" class="n3q-base" data-translate="children"/>').get(0);
 
-        let nickname = as.String(await Config.getSync(Utils.syncStorageKey_Nickname(), 'Your name'));
-        let avatar = as.String(await Config.getSync(Utils.syncStorageKey_Avatar(), ''));
-        let active = as.String(await Config.getSync(Utils.syncStorageKey_Active(), 'true'));
+        let nickname = as.String(await Memory.getSync(Utils.syncStorageKey_Nickname(), 'Your name'));
+        let avatar = as.String(await Memory.getSync(Utils.syncStorageKey_Avatar(), ''));
+        let active = as.String(await Memory.getSync(Utils.syncStorageKey_Active(), 'true'));
 
         {
             let group = $('<div class="n3q-base n3q-popup-header" data-translate="children"/>').get(0);
@@ -116,7 +117,7 @@ export class PopupApp
                 if (avatarIdx < 0) {
                     avatar = '004/pinguin';
                 }
-                await Config.setSync(Utils.syncStorageKey_Avatar(), avatar);
+                await Memory.setSync(Utils.syncStorageKey_Avatar(), avatar);
             }
 
             let group = $('<div class="n3q-base n3q-popup-group n3q-popup-group-avatar" data-translate="children"/>').get(0);
@@ -185,20 +186,20 @@ export class PopupApp
             {
                 $(saving).fadeTo(200, 1.0);
                 let nickname2Save = $('#n3q-id-popup-nickname').val();
-                await Config.setSync(Utils.syncStorageKey_Nickname(), nickname2Save);
+                await Memory.setSync(Utils.syncStorageKey_Nickname(), nickname2Save);
 
                 let avatar2Save = $('#n3q-id-popup-avatar').val();
-                await Config.setSync(Utils.syncStorageKey_Avatar(), avatar2Save);
+                await Memory.setSync(Utils.syncStorageKey_Avatar(), avatar2Save);
 
                 let isActive = $('#n3q-id-popup-active').prop('checked');
                 let active2Save = as.String(isActive, 'false');
-                await Config.setSync(Utils.syncStorageKey_Active(), active2Save);
+                await Memory.setSync(Utils.syncStorageKey_Active(), active2Save);
 
                 // Verify
                 {
-                    let nickname2Verify = await Config.getSync(Utils.syncStorageKey_Nickname(), '');
-                    let avatar2Verify = await Config.getSync(Utils.syncStorageKey_Avatar(), '');
-                    let active2Verify = await Config.getSync(Utils.syncStorageKey_Active(), '');
+                    let nickname2Verify = await Memory.getSync(Utils.syncStorageKey_Nickname(), '');
+                    let avatar2Verify = await Memory.getSync(Utils.syncStorageKey_Avatar(), '');
+                    let active2Verify = await Memory.getSync(Utils.syncStorageKey_Active(), '');
                     $(saving).fadeTo(100, 0.0);
 
                     if (true
@@ -252,14 +253,14 @@ export class PopupApp
         if (dev == null) {
             dev = $('<div id="n3q-popup-dev" class="n3q-base n3q-popup-hidden" style="" />').get(0);
             let text = $('<textarea class="n3q-base" style="width: 100%; height: 100px; margin-top: 1em;" />').get(0);
-            let data = await Config.getSync('dev.config', this.defaultDevConfig);
+            let data = await Memory.getSync('dev.config', this.defaultDevConfig);
             $(text).val(data);
             $(dev).append(text);
             let apply = $('<button class="n3q-base" style="margin-top: 0.5em;">Save</button>').get(0);
             $(apply).on('click', async ev =>
             {
                 let data = $(text).val();
-                await Config.setSync('dev.config', data);
+                await Memory.setSync('dev.config', data);
             });
             $(dev).append(apply);
             $(group).append(dev);

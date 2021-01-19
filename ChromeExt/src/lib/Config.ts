@@ -305,18 +305,9 @@ export class Config
         return result;
     }
 
-    static set(key: string, value: any): void
+    static setSession(key: string, value: any): void
     {
         this.sessionConfig[key] = value;
-    }
-
-    static async getPreferSync(key: string, defaultValue: any)
-    {
-        let result = await Config.getSync(key, undefined);
-        if (result == undefined) {
-            result = Config.get(key, defaultValue);
-        }
-        return result;
     }
 
     static getSession(key: string): any
@@ -332,6 +323,11 @@ export class Config
     static getOnline(key: string): any
     {
         return Config.getFromTree(this.onlineConfig, key);
+    }
+
+    static setOnline(key: string, value: any)
+    {
+        return Config.setInTree(this.onlineConfig, key, value);
     }
 
     static getStatic(key: string): any
@@ -354,62 +350,24 @@ export class Config
         return current;
     }
 
-    static async getSync(key: string, defaultValue: any): Promise<any>
+    private static setInTree(tree: any, key: string, value: any)
     {
-        return new Promise((resolve, reject) =>
+        let parts = key.split('.');
+        if (parts.length == 0) { return; }
+        let lastPart = parts[parts.length - 1];
+        parts.splice(parts.length - 1, 1);
+        let current = tree;
+        parts.forEach(part =>
         {
-            if (chrome.storage != undefined) {
-                chrome.storage.sync.get([key], result =>
-                {
-                    if (result[key] != undefined) {
-                        resolve(result[key]);
-                    } else {
-                        resolve(defaultValue);
-                    }
-                });
+            if (current != undefined && current != null && current[part] != undefined) {
+                current = current[part];
             } else {
-                reject('chrome.storage undefined');
+                current = null;
             }
         });
-    }
-
-    static async setSync(key: string, value: any): Promise<void>
-    {
-        return new Promise((resolve, reject) =>
-        {
-            let dict = {};
-            dict[key] = value;
-            if (chrome.storage != undefined) {
-                chrome.storage.sync.set(dict, () => { resolve(); });
-            } else {
-                reject('chrome.storage undefined');
-            }
-        });
-    }
-
-    static async getLocal(key: string, defaultValue: any): Promise<any>
-    {
-        return new Promise(resolve =>
-        {
-            chrome.storage.local.get([key], result =>
-            {
-                if (result[key] != undefined) {
-                    resolve(result[key]);
-                } else {
-                    resolve(defaultValue);
-                }
-            });
-        });
-    }
-
-    static async setLocal(key: string, value: any): Promise<void>
-    {
-        return new Promise(resolve =>
-        {
-            let dict = {};
-            dict[key] = value;
-            chrome.storage.local.set(dict, () => { resolve(); });
-        });
+        if (current) {
+            current[lastPart] = value;
+        }
     }
 
     static getDevTree(): any { return this.devConfig; }
@@ -417,28 +375,28 @@ export class Config
     static getOnlineTree(): any { return this.onlineConfig; }
     static getStaticTree(): any { return this.staticConfig; }
 
-    static setDevTree(values: any)
+    static setDevTree(tree: any)
     {
         log.debug('Config.setDevTree');
-        this.devConfig = values;
+        this.devConfig = tree;
     }
 
-    static setSessionTree(values: any)
+    static setSessionTree(tree: any)
     {
         log.debug('Config.setSessionTree');
-        this.sessionConfig = values;
+        this.sessionConfig = tree;
     }
 
-    static setOnlineTree(values: any): void
+    static setOnlineTree(tree: any): void
     {
         log.debug('Config.setOnlineTree');
-        this.onlineConfig = values;
+        this.onlineConfig = tree;
     }
 
-    static setStaticTree(values: any): void
+    static setStaticTree(tree: any): void
     {
         log.debug('Config.setStaticTree');
-        this.staticConfig = values;
+        this.staticConfig = tree;
     }
 
 }

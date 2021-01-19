@@ -86,7 +86,7 @@ export class BackpackWindow extends Window
                     text = text.replace(/'/g, '"',);
                     let json = JSON.parse(text);
                     let itemId = Utils.randomString(20);
-                    this.createItem(itemId, json);
+                    this.createItem(itemId, json, ItemChangeOptions.empty);
                 });
             }
 
@@ -200,9 +200,9 @@ export class BackpackWindow extends Window
         }
     }
 
-    createItem(id: string, properties: ItemProperties)
+    createItem(id: string, properties: ItemProperties, options: ItemChangeOptions)
     {
-        BackgroundMessage.addBackpackItem(id, properties);
+        BackgroundMessage.addBackpackItem(id, properties, options);
     }
 
     setItemProperties(id: string, properties: ItemProperties, options: ItemChangeOptions)
@@ -216,7 +216,7 @@ export class BackpackWindow extends Window
         log.info('BackpackWindow', 'rezItem', id, 'to', room);
 
         try {
-            await BackgroundMessage.rezBackpackItem(id, room, x, destination);
+            await BackgroundMessage.rezBackpackItem(id, room, x, destination, ItemChangeOptions.empty);
         } catch (ex) {
             new ItemExceptionToast(this.app, Config.get('room.errorToastDurationSec', 8), ex).show();
         }
@@ -227,7 +227,7 @@ export class BackpackWindow extends Window
         log.info('BackpackWindow', 'derezItem', id, 'from', room);
 
         try {
-            await BackgroundMessage.derezBackpackItem(id, room, -1, -1);
+            await BackgroundMessage.derezBackpackItem(id, room, -1, -1, ItemChangeOptions.empty);
         } catch (ex) {
             new ItemExceptionToast(this.app, Config.get('room.errorToastDurationSec', 8), ex).show();
         }

@@ -56,6 +56,32 @@ export class TestConfig
         expect(Config.getStatic('notInOnlineConfig1.notInOnlineConfig2')).to.equal('notInOnlineConfig3');
         expect(Config.getStatic('xmpp.service')).to.equal('no-service');
         expect(Config.getOnline('xmpp.service')).to.equal('wss://xmpp.weblin.sui.li/xmpp-websocket');
-        expect(Config.get('xmpp.service','no-value')).to.equal('wss://xmpp.weblin.sui.li/xmpp-websocket');
+        expect(Config.get('xmpp.service', 'no-value')).to.equal('wss://xmpp.weblin.sui.li/xmpp-websocket');
     }
+
+    set_online_config_subtree()
+    {
+        Config.setOnlineTree(
+            {
+                itemProviders: {
+                    nine3q: {
+                        name: 'weblin Items',
+                        description: 'Things on web pages',
+                        configUrl: 'https://webit.vulcan.weblin.com/Config?id={id}',
+                    }
+                }
+            });
+        let userToken = '-user-token-';
+        Config.setOnline('itemProviders.nine3q.config',
+            {
+                apiUrl: 'http://localhost:5000/rpc',
+                'userToken': userToken,
+                itemPropertyUrlFilter: {
+                    '{image.item.nine3q}': 'http://localhost:5000/images/Items/',
+                    '{iframe.item.nine3q}': 'http://localhost:5000/ItemFrame/'
+                }
+            })
+            expect(Config.getOnline('itemProviders.nine3q.name')).to.equal('weblin Items');
+            expect(Config.getOnline('itemProviders.nine3q.config.userToken')).to.equal(userToken);
+        }
 }

@@ -9,6 +9,7 @@ import { ItemProperties } from '../lib/ItemProperties';
 import { ContentMessage } from '../lib/ContentMessage';
 import { ItemException } from '../lib/ItemExcption';
 import { ItemChangeOptions } from '../lib/ItemChangeOptions';
+import { Memory } from '../lib/Memory';
 import { ConfigUpdater } from './ConfigUpdater';
 import { Backpack } from './Backpack';
 
@@ -41,7 +42,7 @@ export class BackgroundApp
         this.isReady = false;
 
         {
-            let devConfig = await Config.getSync('dev.config', '{}');
+            let devConfig = await Memory.getSync('dev.config', '{}');
             try {
                 let parsed = JSON.parse(devConfig);
                 Config.setDevTree(parsed);
@@ -51,9 +52,9 @@ export class BackgroundApp
         }
 
         {
-            let uniqueId = await Config.getSync('me.id', '');
+            let uniqueId = await Memory.getSync('me.id', '');
             if (uniqueId == '') {
-                await Config.setSync('me.id', 'mid' + Utils.randomString(20).toLowerCase());
+                await Memory.setSync('me.id', 'mid' + Utils.randomString(20).toLowerCase());
             }
         }
 
@@ -84,7 +85,7 @@ export class BackgroundApp
                                 ;
 
                             var providerConfig = await this.fetchJSON(url);
-                            Config.set('itemProviders.' + providerId, providerConfig);
+                            Config.setOnline('itemProviders.' + providerId + '.config', providerConfig);
 
                         } catch (error) {
                             log.info('Fetch itemProvider config failed:', providerId, itemProvider.configUrl, error);
@@ -116,10 +117,10 @@ export class BackgroundApp
 
     async getOrCreateItemProviderUserId(providerId: string): Promise<string>
     {
-        let userId = await Config.getSync(Utils.syncStorageKey_ItemProviderUserId(providerId), '');
+        let userId = await Memory.getSync(Utils.syncStorageKey_ItemProviderUserId(providerId), '');
         if (userId == '') {
             userId = 'ext' + Utils.randomString(40).toLowerCase();
-            await Config.setSync(Utils.syncStorageKey_ItemProviderUserId(providerId), userId);
+            await Memory.setSync(Utils.syncStorageKey_ItemProviderUserId(providerId), userId);
         }
         return userId;
     }
@@ -151,16 +152,6 @@ export class BackgroundApp
                 return false;
             } break;
 
-            case BackgroundMessage.getSessionConfig.name: {
-                sendResponse(this.handle_getSessionConfig(message.key));
-                return false; // true if async
-            } break;
-
-            case BackgroundMessage.setSessionConfig.name: {
-                sendResponse(this.handle_setSessionConfig(message.key, message.value));
-                return false; // true if async
-            } break;
-
             case BackgroundMessage.sendStanza.name: {
                 sendResponse(this.handle_sendStanza(message.stanza, sender.tab.id));
                 return false;
@@ -181,7 +172,7 @@ export class BackgroundApp
             } break;
 
             case BackgroundMessage.addBackpackItem.name: {
-                return this.handle_addBackpackItem(message.itemId, message.properties, sendResponse);
+                return this.handle_addBackpackItem(message.itemId, message.properties, message.options, sendResponse);
             } break;
 
             case BackgroundMessage.setBackpackItemProperties.name: {
@@ -193,11 +184,11 @@ export class BackgroundApp
             } break;
 
             case BackgroundMessage.rezBackpackItem.name: {
-                return this.handle_rezBackpackItem(message.itemId, message.roomJid, message.x, message.destination, sendResponse);
+                return this.handle_rezBackpackItem(message.itemId, message.roomJid, message.x, message.destination, message.options, sendResponse);
             } break;
 
             case BackgroundMessage.derezBackpackItem.name: {
-                return this.handle_derezBackpackItem(message.itemId, message.roomJid, message.x, message.y, sendResponse);
+                return this.handle_derezBackpackItem(message.itemId, message.roomJid, message.x, message.y, message.options, sendResponse);
             } break;
 
             case BackgroundMessage.isBackpackItem.name: {
@@ -404,7 +395,7 @@ export class BackgroundApp
     {
         log.debug('BackgroundApp.handle_setSessionConfig', key, value);
         try {
-            Config.set(key, value);
+            Memory.setSession(key, value);
         } catch (error) {
             log.info('BackgroundApp.handle_setSessionConfig', error);
         }
@@ -421,10 +412,10 @@ export class BackgroundApp
         return false;
     }
 
-    handle_addBackpackItem(itemId: string, properties: ItemProperties, sendResponse: (response?: any) => void): boolean
+    handle_addBackpackItem(itemId: string, properties: ItemProperties, options: ItemChangeOptions, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            this.backpack.addItem(itemId, properties)
+            this.backpack.addItem(itemId, properties, options)
                 .then(() => { sendResponse(new BackgroundSuccessResponse()); })
                 .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
             return true;
@@ -460,10 +451,10 @@ export class BackgroundApp
         return false;
     }
 
-    handle_rezBackpackItem(itemId: string, room: string, x: number, destination: string, sendResponse: (response?: any) => void): boolean
+    handle_rezBackpackItem(itemId: string, room: string, x: number, destination: string, options: ItemChangeOptions, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            this.backpack.rezItem(itemId, room, x, destination)
+            this.backpack.rezItem(itemId, room, x, destination, options)
                 .then(() => { sendResponse(new BackgroundSuccessResponse()); })
                 .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
             return true;
@@ -473,10 +464,10 @@ export class BackgroundApp
         return false;
     }
 
-    handle_derezBackpackItem(itemId: string, roomJid: string, x: number, y: number, sendResponse: (response?: any) => void): boolean
+    handle_derezBackpackItem(itemId: string, roomJid: string, x: number, y: number, options: ItemChangeOptions, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            this.backpack.derezItem(itemId, roomJid, x, y)
+            this.backpack.derezItem(itemId, roomJid, x, y, options)
                 .then(() => { sendResponse(new BackgroundSuccessResponse()); })
                 .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
             return true;
@@ -725,13 +716,19 @@ export class BackgroundApp
     {
         this.resource = Utils.randomString(15);
 
+        let xmppUser = await Memory.getSync('xmpp.user', undefined);
+        if (xmppUser == undefined) { xmppUser = Config.get('xmpp.user', ''); }
+
+        let xmppPass = await Memory.getSync('xmpp.pass', undefined);
+        if (xmppPass == undefined) { xmppPass = Config.get('xmpp.pass', ''); }
+
         try {
             var conf = {
                 service: Config.get('xmpp.service', 'wss://xmpp.k8s.sui.li/xmpp-websocket'),
                 domain: Config.get('xmpp.domain', 'xmpp.weblin.sui.li'),
                 resource: this.resource,
-                username: await Config.getPreferSync('xmpp.user', ''),
-                password: await Config.getPreferSync('xmpp.pass', ''),
+                username: xmppUser,
+                password: xmppPass,
             };
             if (conf.username == '' || conf.password == '') {
                 throw 'Missing xmpp.user or xmpp.pass';

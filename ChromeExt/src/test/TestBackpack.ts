@@ -4,20 +4,21 @@ import { BackgroundApp } from '../background/BackgroundApp';
 import { Backpack } from '../background/Backpack';
 import { as } from '../lib/as';
 import { Pid } from '../lib/ItemProperties';
+import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 
-export class TestBackpackRepository
+export class TestBackpack
 {
     Projector_stanzaOutFilter()
     {
         let ba = new BackgroundApp();
         let rep = new Backpack(ba);
 
-        rep.addItem('item1', { 'a': 'b1', 'c': '41' });
-        rep.addItem('item2', { 'a': 'b2', 'c': '42' });
-        rep.addItem('item3', { 'a': 'b3', 'c': '43' });
+        rep.addItem('item1', { 'a': 'b1', 'c': '41' }, { skipPersistentStorage: true });
+        rep.addItem('item2', { 'a': 'b2', 'c': '42' }, { skipPersistentStorage: true });
+        rep.addItem('item3', { 'a': 'b3', 'c': '43' }, { skipPersistentStorage: true });
 
-        rep.rezItem('item1', 'room1@server', 41, 'd1');
-        rep.rezItem('item2', 'room1@server', 42, 'd2');
+        rep.rezItem('item1', 'room1@server', 41, 'd1', { skipPersistentStorage: true });
+        rep.rezItem('item2', 'room1@server', 42, 'd2', { skipPersistentStorage: true });
 
         expect(rep.getItems()['item1'][Pid.IsRezzed]).to.equal('true');
         expect(rep.getItems()['item2'][Pid.IsRezzed]).to.equal('true');

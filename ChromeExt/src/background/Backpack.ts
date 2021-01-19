@@ -8,6 +8,7 @@ import { ItemException } from '../lib/ItemExcption';
 import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 import { RpcProtocol } from '../lib/RpcProtocol';
 import { RpcClient } from '../lib/RpcClient';
+import { Memory } from '../lib/Memory';
 import { BackgroundApp } from './BackgroundApp';
 import { Item } from './Item';
 
@@ -24,7 +25,7 @@ export class Backpack
 
     async init(): Promise<void>
     {
-        let itemIds = await Config.getLocal(Backpack.BackpackIdsKey, []);
+        let itemIds = await Memory.getLocal(Backpack.BackpackIdsKey, []);
         if (itemIds == null || !Array.isArray(itemIds)) {
             log.warn('Local storage', Backpack.BackpackIdsKey, 'not an array');
             return;
@@ -33,7 +34,7 @@ export class Backpack
         for (let i = 0; i < itemIds.length; i++) {
             let itemId = itemIds[i];
 
-            let props = await Config.getLocal(Backpack.BackpackPropsPrefix + itemId, null);
+            let props = await Memory.getLocal(Backpack.BackpackPropsPrefix + itemId, null);
             if (props == null || typeof props != 'object') {
                 log.warn('Local storage', Backpack.BackpackPropsPrefix + itemId, 'not an object, skipping');
                 continue;
@@ -49,10 +50,13 @@ export class Backpack
         }
     }
 
-    async addItem(itemId: string, props: ItemProperties)
+    async addItem(itemId: string, props: ItemProperties, options: ItemChangeOptions)
     {
         let item = this.createRepositoryItem(itemId, props);
-        await this.saveItem(itemId);
+
+        if (!options.skipPersistentStorage) {
+            await this.saveItem(itemId);
+        }
 
         let data = new BackpackShowItemData(itemId, props);
         this.app.sendToAllTabs(ContentMessage.Type[ContentMessage.Type.onBackpackShowItem], data);
@@ -73,12 +77,12 @@ export class Backpack
         let item = this.items[itemId];
         if (item) {
             let props = item.getProperties();
-            let itemIds = await Config.getLocal(Backpack.BackpackIdsKey, []);
+            let itemIds = await Memory.getLocal(Backpack.BackpackIdsKey, []);
             if (itemIds && Array.isArray(itemIds)) {
-                await Config.setLocal(Backpack.BackpackPropsPrefix + itemId, props);
+                await Memory.setLocal(Backpack.BackpackPropsPrefix + itemId, props);
                 if (!itemIds.includes(itemId)) {
                     itemIds.push(itemId);
-                    await Config.setLocal(Backpack.BackpackIdsKey, itemIds);
+                    await Memory.setLocal(Backpack.BackpackIdsKey, itemIds);
                 }
             }
         }
@@ -160,7 +164,7 @@ export class Backpack
         let userToken = Config.get('itemProviders.' + providerId + '.userToken', '');
         if (userToken == null || userToken == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.NoUserToken); }
 
-        let apiUrl  = Config.get('itemProviders.' + providerId + '.backpackApiUrl', '');
+        let apiUrl = Config.get('itemProviders.' + providerId + '.backpackApiUrl', '');
         if (apiUrl == null || apiUrl == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.SeeDetail, 'Missing backpackApi for ' + providerId); }
 
         let roomJid = item.getProperties()[Pid.RezzedLocation];
@@ -198,7 +202,7 @@ export class Backpack
         return itemProperties
     }
 
-    async rezItem(itemId: string, roomJid: string, rezzedX: number, destinationUrl: string): Promise<void>
+    async rezItem(itemId: string, roomJid: string, rezzedX: number, destinationUrl: string, options: ItemChangeOptions): Promise<void>
     {
         let item = this.items[itemId];
         if (item == null) { throw new ItemException(ItemException.Fact.NotRezzed, ItemException.Reason.ItemDoesNotExist, itemId); }
@@ -211,11 +215,14 @@ export class Backpack
         props[Pid.RezzedX] = '' + rezzedX;
         props[Pid.RezzedDestination] = destinationUrl;
         props[Pid.RezzedLocation] = roomJid;
-        item.setProperties(props, ItemChangeOptions.empty);
-        await this.saveItem(itemId);
+        item.setProperties(props, options);
+
+        if (!options.skipPersistentStorage) {
+            await this.saveItem(itemId);
+        }
     }
 
-    async derezItem(itemId: string, roomJid: string, inventoryX: number, inventoryY: number): Promise<void>
+    async derezItem(itemId: string, roomJid: string, inventoryX: number, inventoryY: number, options: ItemChangeOptions): Promise<void>
     {
         let item = this.items[itemId];
         if (item == null) { throw new ItemException(ItemException.Fact.NotDerezzed, ItemException.Reason.ItemDoesNotExist, itemId); }
@@ -232,8 +239,13 @@ export class Backpack
         delete props[Pid.RezzedX];
         delete props[Pid.RezzedDestination];
         delete props[Pid.RezzedLocation];
-        item.setProperties(props, { skipPresenceUpdate: true });
-        await this.saveItem(itemId);
+
+        options.skipPresenceUpdate = true;
+        item.setProperties(props, options);
+
+        if (!options.skipPersistentStorage) {
+            await this.saveItem(itemId);
+        }
 
         this.app.sendToTabsForRoom(roomJid, ContentMessage.Type[ContentMessage.Type.sendPresence]);
     }

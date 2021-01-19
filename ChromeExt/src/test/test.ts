@@ -13,7 +13,7 @@ import { TestMisc } from './TestMisc'; s.addTestClass(TestMisc);
 import { TestVpiResolver } from './TestVpiResolver'; s.addTestClass(TestVpiResolver);
 import { TestItemProvider } from './TestItemProvider'; s.addTestClass(TestItemProvider);
 import { TestAs } from './TestAs'; s.addTestClass(TestAs);
-import { TestBackpackRepository } from './TestBackpackRepository'; s.addTestClass(TestBackpackRepository);
+import { TestBackpack } from './TestBackpack'; s.addTestClass(TestBackpack);
 
 s.run().then(() =>
 {

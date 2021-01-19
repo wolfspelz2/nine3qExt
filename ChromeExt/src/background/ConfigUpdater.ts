@@ -2,6 +2,7 @@ import log = require('loglevel');
 import * as $ from 'jquery';
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';
+import { Memory } from '../lib/Memory';
 
 export class ConfigUpdater
 {
@@ -16,7 +17,7 @@ export class ConfigUpdater
     async checkUpdate()
     {
         try {
-            let lastUpdateConfigTime: number = as.Int(Config.get('config.lastUpdateTime', 0), 0);
+            let lastUpdateConfigTime: number = as.Int(Memory.getSession('config.lastUpdateTime', 0), 0);
             if (Date.now() - lastUpdateConfigTime > as.Int(Config.get('config.updateIntervalSec', 86331))) {
                 await this.getUpdate()
             }
@@ -30,7 +31,7 @@ export class ConfigUpdater
         try {
             let data = await this.fetchConfig();
             Config.setOnlineTree(data);
-            Config.set('config.lastUpdateTime', Date.now());
+            Memory.setSession('config.lastUpdateTime', Date.now());
         } catch (error) {
             log.info('ConfigUpdater.checkUpdate', 'fetchConfig failed')
         }
