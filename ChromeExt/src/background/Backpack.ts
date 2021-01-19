@@ -18,9 +18,11 @@ export class Backpack
     private static BackpackPropsPrefix = 'BackpackItem-';
     private items: { [id: string]: Item; } = {};
     private rooms: { [jid: string]: Array<string>; } = {};
+    private rpcClient: RpcClient = new RpcClient();
 
-    constructor(private app: BackgroundApp, private rpcClient: RpcClient = null)
+    constructor(private app: BackgroundApp, rpcClient: RpcClient = null)
     {
+        if (rpcClient) { this.rpcClient = rpcClient; }
     }
 
     async init(): Promise<void>
@@ -164,7 +166,7 @@ export class Backpack
         let userToken = Config.get('itemProviders.' + providerId + '.config.userToken', '');
         if (userToken == null || userToken == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.NoUserToken); }
 
-        let apiUrl = Config.get('itemProviders.' + providerId + '.backpackApiUrl', '');
+        let apiUrl = Config.get('itemProviders.' + providerId + '.config.backpackApiUrl', '');
         if (apiUrl == null || apiUrl == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.SeeDetail, 'Missing backpackApi for ' + providerId); }
 
         let roomJid = item.getProperties()[Pid.RezzedLocation];
@@ -186,10 +188,8 @@ export class Backpack
 
         let response = await this.rpcClient.call(apiUrl, request);
 
-
-
         // item.setProperties(props, options);
-        // await this.saveItem(itemId);
+        await this.saveItem(itemId);
     }
 
     getItems(): { [id: string]: ItemProperties; }
