@@ -14,16 +14,19 @@ export namespace ItemException
         NotDerezzed,
         NotAdded,
         NotChanged,
-        NoItemsReceived
+        NoItemsReceived,
+        NotExecuted
     }
-
 
     export enum Reason
     {
         UnknownReason,
         ItemAlreadyRezzed,
         ItemNotRezzedHere,
-        ItemsNotAvailable
+        ItemsNotAvailable,
+        ItemDoesNotExist,
+        NoUserToken,
+        SeeDetail
     }
 }
 

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { xml, jid } from '@xmpp/client';
 import { BackgroundApp } from '../background/BackgroundApp';
-import { BackpackRepository } from '../background/BackpackRepository';
+import { Backpack } from '../background/Backpack';
 import { as } from '../lib/as';
 import { Pid } from '../lib/ItemProperties';
 
@@ -10,7 +10,7 @@ export class TestBackpackRepository
     Projector_stanzaOutFilter()
     {
         let ba = new BackgroundApp();
-        let rep = new BackpackRepository(ba);
+        let rep = new Backpack(ba);
 
         rep.addItem('item1', { 'a': 'b1', 'c': '41' });
         rep.addItem('item2', { 'a': 'b2', 'c': '42' });

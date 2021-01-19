@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import log = require('loglevel');
 import { Payload } from '../lib/Payload';
-import { SimpleRpc } from '../lib/SimpleRpc';
+import { SimpleRpc } from './SimpleRpc';
 import { Config } from '../lib/Config';
 
 export class TestSimpleRpc

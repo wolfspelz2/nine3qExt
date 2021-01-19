@@ -1,6 +1,6 @@
 import log = require('loglevel');
 import { Utils } from './Utils';
-import { SimpleRpc } from './SimpleRpc';
+import { SimpleRpc } from '../contentscript/SimpleRpc';
 
 export class Payload
 {

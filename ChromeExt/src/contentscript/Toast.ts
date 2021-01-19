@@ -124,7 +124,7 @@ export class SimpleErrorToast extends Toast
         var bodyElem = $(''
             + '<div class="n3q-base n3q-toast-body" data-translate="children">'
             + '<div class="n3q-base n3q-title" data-translate="text:ErrorFact">' + as.Html(fact) + '</div>'
-            + '<div class="n3q-base n3q-text" data-translate="text:ErrorReason">' + as.Html(reason) + '</div>'
+            + (reason != null && reason != '' ? '<div class="n3q-base n3q-text" data-translate="text:ErrorReason">' + as.Html(reason) + '</div>' : '')
             + (detail != null && detail != '' ? '<div class="n3q-base n3q-text" data-translate="text:ErrorDetail">' + as.Html(detail) + '</div>' : '')
             + '</div>'
         )[0];

@@ -66,13 +66,13 @@ export class TestVpiResolver
         let vpi = new VpiResolver(new TestDataProvider(), new TestConfigInstance());
         vpi.language = 'xx';
         let mapped = await vpi.map('https://www.facebook.com/');
-        expect([ 
+        expect([
             'xmpp:b7c70898d90f5bb3a32353817e451b646b40299a-01@muc4.virtual-presence.org',
             'xmpp:b7c70898d90f5bb3a32353817e451b646b40299a-02@muc4.virtual-presence.org',
             'xmpp:b7c70898d90f5bb3a32353817e451b646b40299a-03@muc4.virtual-presence.org',
             'xmpp:b7c70898d90f5bb3a32353817e451b646b40299a-04@muc4.virtual-presence.org',
             'xmpp:b7c70898d90f5bb3a32353817e451b646b40299a-05@muc4.virtual-presence.org',
-         ]).to.include(mapped)
+        ]).to.include(mapped)
     }
 }
 
@@ -393,7 +393,7 @@ class TestDataProvider implements VpiResolverUrlFetcher
         return new Promise((resolve, reject) =>
         {
             if (this.data[url]) {
-                resolve(new FetchUrlResponse(true, '', '', this.data[url]));
+                resolve(new FetchUrlResponse(this.data[url]));
             } else {
                 reject('No data for ' + url);
             }

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { SimpleRpc } from '../lib/SimpleRpc';
+import { SimpleRpc } from '../contentscript/SimpleRpc';
 // import markdown = require('markdown');
 
 export class TestMisc

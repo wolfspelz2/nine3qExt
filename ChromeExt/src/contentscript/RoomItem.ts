@@ -5,12 +5,14 @@ import { as } from '../lib/as';
 import { Point2D } from '../lib/Utils';
 import { Config } from '../lib/Config';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
-import { Pid } from '../lib/ItemProperties';
+import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { ItemChangeOptions } from '../lib/ItemChangeOptions';
+import { RpcProtocol } from '../lib/RpcProtocol';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
+import { ItemExceptionToast } from './Toast';
 
 import imgDefaultItem from '../assets/DefaultItem.png';
 
@@ -212,10 +214,16 @@ export class RoomItem extends Entity
         }
     }
 
-    applyItem(passiveItem: RoomItem)
+    async applyItem(passiveItem: RoomItem)
     {
+        let itemId = this.nick;
         let passiveItemId = passiveItem.getNick();
-        this.sendItemActionCommand('Applier.Apply', { 'passive': passiveItemId });
+        if (await BackgroundMessage.isBackpackItem(itemId)) {
+            BackgroundMessage.executeBackpackItemAction(itemId, 'Applier.Apply', { 'passive': passiveItemId }, [itemId, passiveItemId]);
+            // this.requestItemTransaction('Applier.Apply', { 'passive': passiveItemId });
+        } else {
+            this.sendItemActionCommand('Applier.Apply', { 'passive': passiveItemId });
+        }
     }
 
     async sendMoveMessage(newX: number): Promise<void>

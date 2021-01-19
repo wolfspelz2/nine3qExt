@@ -3,7 +3,9 @@
         "titleBar.activeBackground": "#202020",
         "titleBar.inactiveBackground": "#202020"
     },
-    "editor.formatOnSave": true,
     "files.insertFinalNewline": true,
-    "editor.detectIndentation": true
+    "editor.formatOnSave": false,
+    "editor.detectIndentation": false,
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
 }

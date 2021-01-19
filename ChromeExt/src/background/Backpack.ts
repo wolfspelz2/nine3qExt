@@ -4,10 +4,12 @@ import { xml, jid } from '@xmpp/client';
 import { Config } from '../lib/Config';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { BackpackShowItemData, BackpackRemoveItemData, BackpackSetItemData, ContentMessage } from '../lib/ContentMessage';
-import { BackgroundApp } from './BackgroundApp';
-import { Item } from './Item';
 import { ItemException } from '../lib/ItemExcption';
 import { ItemChangeOptions } from '../lib/ItemChangeOptions';
+import { RpcProtocol } from '../lib/RpcProtocol';
+import { RpcClient } from '../lib/RpcClient';
+import { BackgroundApp } from './BackgroundApp';
+import { Item } from './Item';
 
 export class Backpack
 {
@@ -16,7 +18,7 @@ export class Backpack
     private items: { [id: string]: Item; } = {};
     private rooms: { [jid: string]: Array<string>; } = {};
 
-    constructor(private app: BackgroundApp)
+    constructor(private app: BackgroundApp, private rpcClient: RpcClient = null)
     {
     }
 
@@ -118,26 +120,72 @@ export class Backpack
     async setItemProperties(itemId: string, props: ItemProperties, options: ItemChangeOptions): Promise<void>
     {
         let item = this.items[itemId];
-        if (item) {
-            item.setProperties(props, options);
-            await this.saveItem(itemId);
-        }
+        if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
+
+        item.setProperties(props, options);
+        await this.saveItem(itemId);
+    }
+
+    getItemProperties(itemId: string): ItemProperties
+    {
+        let item = this.items[itemId];
+        if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
+
+        return item.getProperties();
     }
 
     async modifyItemProperties(itemId: string, changed: ItemProperties, deleted: Array<string>, options: ItemChangeOptions): Promise<void>
     {
         let item = this.items[itemId];
-        if (item) {
-            let props = item.getProperties();
-            for (let key in changed) {
-                props[key] = changed[key];
-            }
-            for (let i = 0; i < deleted.length; i++) {
-                delete props[deleted[i]];
-            }
-            item.setProperties(props, options);
-            await this.saveItem(itemId);
+        if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
+
+        let props = item.getProperties();
+        for (let key in changed) {
+            props[key] = changed[key];
         }
+        for (let i = 0; i < deleted.length; i++) {
+            delete props[deleted[i]];
+        }
+        item.setProperties(props, options);
+        await this.saveItem(itemId);
+    }
+
+    async executeItemAction(itemId: string, action: string, args: any, involvedIds: Array<string>): Promise<void>
+    {
+        let item = this.items[itemId];
+        if (item == null) { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.ItemDoesNotExist, itemId); }
+
+        let providerId = 'nine3q';
+
+        let userToken = Config.get('itemProviders.' + providerId + '.userToken', '');
+        if (userToken == null || userToken == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.NoUserToken); }
+
+        let apiUrl  = Config.get('itemProviders.' + providerId + '.backpackApiUrl', '');
+        if (apiUrl == null || apiUrl == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.SeeDetail, 'Missing backpackApi for ' + providerId); }
+
+        let roomJid = item.getProperties()[Pid.RezzedLocation];
+        if (roomJid == null || roomJid == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.SeeDetail, 'Item ' + itemId + ' missing RezzedLocation'); }
+
+        let items: { [id: string]: ItemProperties } = {};
+        for (let i = 0; i < involvedIds.length; i++) {
+            items[involvedIds[i]] = this.getItemProperties(involvedIds[i]);
+        }
+
+        let request = new RpcProtocol.BackpackTransactionRequest();
+        request.method = RpcProtocol.BackpackTransactionRequest.method;
+        request.user = userToken;
+        request.item = itemId;
+        request.room = roomJid;
+        request.action = action;
+        request.args = args;
+        request.items = items;
+
+        let response = await this.rpcClient.call(apiUrl, request);
+
+
+
+        // item.setProperties(props, options);
+        // await this.saveItem(itemId);
     }
 
     getItems(): { [id: string]: ItemProperties; }
@@ -153,43 +201,41 @@ export class Backpack
     async rezItem(itemId: string, roomJid: string, rezzedX: number, destinationUrl: string): Promise<void>
     {
         let item = this.items[itemId];
-        if (item) {
-            if (item.isRezzed()) { throw new ItemException(ItemException.Fact.NotRezzed, ItemException.Reason.ItemAlreadyRezzed); }
+        if (item == null) { throw new ItemException(ItemException.Fact.NotRezzed, ItemException.Reason.ItemDoesNotExist, itemId); }
+        if (item.isRezzed()) { throw new ItemException(ItemException.Fact.NotRezzed, ItemException.Reason.ItemAlreadyRezzed); }
 
-            this.addToRoom(itemId, roomJid);
+        this.addToRoom(itemId, roomJid);
 
-            let props = item.getProperties();
-            props[Pid.IsRezzed] = 'true';
-            props[Pid.RezzedX] = '' + rezzedX;
-            props[Pid.RezzedDestination] = destinationUrl;
-            props[Pid.RezzedLocation] = roomJid;
-            item.setProperties(props, ItemChangeOptions.empty);
-            await this.saveItem(itemId);
-        }
+        let props = item.getProperties();
+        props[Pid.IsRezzed] = 'true';
+        props[Pid.RezzedX] = '' + rezzedX;
+        props[Pid.RezzedDestination] = destinationUrl;
+        props[Pid.RezzedLocation] = roomJid;
+        item.setProperties(props, ItemChangeOptions.empty);
+        await this.saveItem(itemId);
     }
 
     async derezItem(itemId: string, roomJid: string, inventoryX: number, inventoryY: number): Promise<void>
     {
         let item = this.items[itemId];
-        if (item) {
-            if (!item.isRezzedTo(roomJid)) { throw new ItemException(ItemException.Fact.NotDerezzed, ItemException.Reason.ItemNotRezzedHere); }
+        if (item == null) { throw new ItemException(ItemException.Fact.NotDerezzed, ItemException.Reason.ItemDoesNotExist, itemId); }
+        if (!item.isRezzedTo(roomJid)) { throw new ItemException(ItemException.Fact.NotDerezzed, ItemException.Reason.ItemNotRezzedHere); }
 
-            this.removeFromRoom(itemId, roomJid);
+        this.removeFromRoom(itemId, roomJid);
 
-            let props = item.getProperties();
-            delete props[Pid.IsRezzed];
-            if (inventoryX > 0 && inventoryY > 0) {
-                props[Pid.InventoryX] = '' + inventoryX;
-                props[Pid.InventoryY] = '' + inventoryY;
-            }
-            delete props[Pid.RezzedX];
-            delete props[Pid.RezzedDestination];
-            delete props[Pid.RezzedLocation];
-            item.setProperties(props, { skipPresenceUpdate: true });
-            await this.saveItem(itemId);
-
-            this.app.sendToTabsForRoom(roomJid, ContentMessage.Type[ContentMessage.Type.sendPresence]);
+        let props = item.getProperties();
+        delete props[Pid.IsRezzed];
+        if (inventoryX > 0 && inventoryY > 0) {
+            props[Pid.InventoryX] = '' + inventoryX;
+            props[Pid.InventoryY] = '' + inventoryY;
         }
+        delete props[Pid.RezzedX];
+        delete props[Pid.RezzedDestination];
+        delete props[Pid.RezzedLocation];
+        item.setProperties(props, { skipPresenceUpdate: true });
+        await this.saveItem(itemId);
+
+        this.app.sendToTabsForRoom(roomJid, ContentMessage.Type[ContentMessage.Type.sendPresence]);
     }
 
     stanzaOutFilter(stanza: xml): any

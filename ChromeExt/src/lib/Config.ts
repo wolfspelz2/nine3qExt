@@ -194,11 +194,15 @@ export class Config
                     'ErrorFact.NotAdded': 'Failed to add item',
                     'ErrorFact.NotChanged': 'Failed to update item',
                     'ErrorFact.NoItemsReceived': 'No items recevied',
+                    'ErrorFact.NotExecuted': 'Not executed',
 
                     'ErrorReason.UnknownReason': 'Unknown reason :-(',
                     'ErrorReason.ItemAlreadyRezzed': 'Item already on page.',
                     'ErrorReason.ItemNotRezzedHere': 'Item is not on this page',
                     'ErrorReason.ItemsNotAvailable': 'Items not available. The feature may be disabled.',
+                    'ErrorReason.ItemDoesNotExist': 'This is an not a known item.',
+                    'ErrorReason.NoUserToken': 'No user id. Maybe not logged in as item user.',
+                    'ErrorReason.SeeDetail': '',
                 },
                 'de-DE': {
                     'Common.Close': 'Schließen',
@@ -266,11 +270,15 @@ export class Config
                     'ErrorFact.NotAdded': 'Gegenstand nicht hinzugefügt',
                     'ErrorFact.NotChanged': 'Gegenstand nicht geändert',
                     'ErrorFact.NoItemsReceived': 'Keine Gegenstände bekommen',
+                    'ErrorFact.NotExecuted': 'Nicht ausgeführt',
 
                     'ErrorReason.UnknownReason': 'Grund unbekannt :-(',
                     'ErrorReason.ItemAlreadyRezzed': 'Gegenstand ist schon auf einer Seite.',
                     'ErrorReason.ItemNotRezzedHere': 'Gegenstand ist nicht auf dieser Seite',
                     'ErrorReason.ItemsNotAvailable': 'Keine Gegenstände verfügbar. Die Funktion ist vielleicht nicht eingeschaltet.',
+                    'ErrorReason.ItemDoesNotExist': 'Dieser Gegenstand ist nicht bekannt.',
+                    'ErrorReason.NoUserToken': 'Keine Benutzerkennung. Möglicherwise nicht als Benutzer von Gegenständen angemeldet.',
+                    'ErrorReason.SeeDetail': '',
                 },
             },
             'serviceUrl': '',
@@ -313,7 +321,7 @@ export class Config
 
     static getSession(key: string): any
     {
-        return this.sessionConfig[key];
+        return Config.getFromTree(this.sessionConfig, key); //this.sessionConfig[key];
     }
 
     static getDev(key: string): any

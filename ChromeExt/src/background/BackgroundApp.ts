@@ -181,27 +181,31 @@ export class BackgroundApp
             } break;
 
             case BackgroundMessage.addBackpackItem.name: {
-                return this.handle_addBackpackItem(message.id, message.properties, sendResponse);
+                return this.handle_addBackpackItem(message.itemId, message.properties, sendResponse);
             } break;
 
             case BackgroundMessage.setBackpackItemProperties.name: {
-                return this.handle_setBackpackItemProperties(message.id, message.properties, message.options, sendResponse);
+                return this.handle_setBackpackItemProperties(message.itemId, message.properties, message.options, sendResponse);
             } break;
 
             case BackgroundMessage.modifyBackpackItemProperties.name: {
-                return this.handle_modifyBackpackItemProperties(message.id, message.changed, message.deleted, message.options, sendResponse);
+                return this.handle_modifyBackpackItemProperties(message.itemId, message.changed, message.deleted, message.options, sendResponse);
             } break;
 
             case BackgroundMessage.rezBackpackItem.name: {
-                return this.handle_rezBackpackItem(message.id, message.room, message.x, message.destination, sendResponse);
+                return this.handle_rezBackpackItem(message.itemId, message.roomJid, message.x, message.destination, sendResponse);
             } break;
 
             case BackgroundMessage.derezBackpackItem.name: {
-                return this.handle_derezBackpackItem(message.id, message.room, message.x, message.y, sendResponse);
+                return this.handle_derezBackpackItem(message.itemId, message.roomJid, message.x, message.y, sendResponse);
             } break;
 
             case BackgroundMessage.isBackpackItem.name: {
-                return this.handle_isBackpackItem(message.id, sendResponse);
+                return this.handle_isBackpackItem(message.itemId, sendResponse);
+            } break;
+
+            case BackgroundMessage.executeBackpackItemAction.name: {
+                return this.handle_executeBackpackItemAction(message.itemId, message.action, message.args, message.involvedIds, sendResponse);
             } break;
 
             default: {
@@ -417,10 +421,10 @@ export class BackgroundApp
         return false;
     }
 
-    handle_addBackpackItem(id: string, properties: ItemProperties, sendResponse: (response?: any) => void): boolean
+    handle_addBackpackItem(itemId: string, properties: ItemProperties, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            this.backpack.addItem(id, properties)
+            this.backpack.addItem(itemId, properties)
                 .then(() => { sendResponse(new BackgroundSuccessResponse()); })
                 .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
             return true;
@@ -430,10 +434,10 @@ export class BackgroundApp
         return false;
     }
 
-    handle_setBackpackItemProperties(id: string, properties: ItemProperties, options: ItemChangeOptions, sendResponse: (response?: any) => void): boolean
+    handle_setBackpackItemProperties(itemId: string, properties: ItemProperties, options: ItemChangeOptions, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            this.backpack.setItemProperties(id, properties, options)
+            this.backpack.setItemProperties(itemId, properties, options)
                 .then(() => { sendResponse(new BackgroundSuccessResponse()); })
                 .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
             return true;
@@ -443,10 +447,10 @@ export class BackgroundApp
         return false;
     }
 
-    handle_modifyBackpackItemProperties(id: string, changed: ItemProperties, deleted: Array<string>, options: ItemChangeOptions, sendResponse: (response?: any) => void): boolean
+    handle_modifyBackpackItemProperties(itemId: string, changed: ItemProperties, deleted: Array<string>, options: ItemChangeOptions, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            this.backpack.modifyItemProperties(id, changed, deleted, options)
+            this.backpack.modifyItemProperties(itemId, changed, deleted, options)
                 .then(() => { sendResponse(new BackgroundSuccessResponse()); })
                 .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
             return true;
@@ -456,10 +460,10 @@ export class BackgroundApp
         return false;
     }
 
-    handle_rezBackpackItem(id: string, room: string, x: number, destination: string, sendResponse: (response?: any) => void): boolean
+    handle_rezBackpackItem(itemId: string, room: string, x: number, destination: string, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            this.backpack.rezItem(id, room, x, destination)
+            this.backpack.rezItem(itemId, room, x, destination)
                 .then(() => { sendResponse(new BackgroundSuccessResponse()); })
                 .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
             return true;
@@ -469,10 +473,10 @@ export class BackgroundApp
         return false;
     }
 
-    handle_derezBackpackItem(id: string, room: string, x: number, y: number, sendResponse: (response?: any) => void): boolean
+    handle_derezBackpackItem(itemId: string, roomJid: string, x: number, y: number, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            this.backpack.derezItem(id, room, x, y)
+            this.backpack.derezItem(itemId, roomJid, x, y)
                 .then(() => { sendResponse(new BackgroundSuccessResponse()); })
                 .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
             return true;
@@ -482,13 +486,26 @@ export class BackgroundApp
         return false;
     }
 
-    handle_isBackpackItem(id: string, sendResponse: (response?: any) => void): boolean
+    handle_isBackpackItem(itemId: string, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            let isItem = this.backpack.isItem(id);
+            let isItem = this.backpack.isItem(itemId);
             sendResponse(new IsBackpackItemResponse(isItem));
         } else {
             sendResponse(new IsBackpackItemResponse(false));
+        }
+        return false;
+    }
+
+    handle_executeBackpackItemAction(itemId: string, action: string, args: any, involvedIds: Array<string>, sendResponse: (response?: any) => void): boolean
+    {
+        if (this.backpack) {
+            this.backpack.executeItemAction(itemId, action, args, involvedIds)
+                .then(() => { sendResponse(new BackgroundSuccessResponse()); })
+                .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
+            return true;
+        } else {
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotChanged, ItemException.Reason.ItemsNotAvailable)));
         }
         return false;
     }

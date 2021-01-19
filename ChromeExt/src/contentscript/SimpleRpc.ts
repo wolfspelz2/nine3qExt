@@ -1,6 +1,6 @@
 import log = require('loglevel');
-import { BackgroundMessage } from './BackgroundMessage';
-import { Utils } from './Utils';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { Utils } from '../lib/Utils';
 import { parseJSON } from 'jquery';
 
 export class SimpleRpcResponse
@@ -33,7 +33,7 @@ export class SimpleRpc
         try {
             var response = await BackgroundMessage.jsonRpc(url, this.params);
             if (response.ok) {
-                let data = parseJSON(response.data);
+                let data = JSON.parse(response.data);
                 if (data.status == 'ok') {
                     return new SimpleRpcResponse(true, data)
                 } else {
