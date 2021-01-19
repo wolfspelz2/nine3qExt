@@ -273,7 +273,7 @@ export class InventoryItem
                 for (let attrName in attrs) {
                     let attrValue = attrs[attrName];
                     if (attrName.endsWith('Url')) {
-                        attrValue = this.app.itemProviderUrlFilter(newProviderId, attrName, attrValue);
+                        attrValue = ContentApp.itemProviderUrlFilter(newProviderId, attrName, attrValue);
                     }
                     newProperties[attrName] = attrValue;
                 }

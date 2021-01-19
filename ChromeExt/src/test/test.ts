@@ -11,7 +11,6 @@ import { TestConfig } from './TestConfig'; s.addTestClass(TestConfig);
 import { TestTranslator } from './TestTranslator'; s.addTestClass(TestTranslator);
 import { TestMisc } from './TestMisc'; s.addTestClass(TestMisc);
 import { TestVpiResolver } from './TestVpiResolver'; s.addTestClass(TestVpiResolver);
-import { TestItemProvider } from './TestItemProvider'; s.addTestClass(TestItemProvider);
 import { TestAs } from './TestAs'; s.addTestClass(TestAs);
 import { TestBackpack } from './TestBackpack'; s.addTestClass(TestBackpack);
 

@@ -64,8 +64,8 @@ export class RepositoryItem
     {
         let iframeUrl = as.String(this.properties.IframeUrl, null);
         let room = this.app.getRoom();
-        let apiUrl = this.app.getItemProviderConfigValue(this.providerId, 'apiUrl', '');
-        let userId = this.app.getItemProviderConfigValue(this.providerId, 'userToken', '');
+        let apiUrl = ContentApp.getItemProviderConfigValue(this.providerId, 'apiUrl', '');
+        let userId = ContentApp.getItemProviderConfigValue(this.providerId, 'userToken', '');
 
         if (iframeUrl != '' && room && apiUrl != '' && userId != '') {
             // iframeUrl = 'https://jitsi.vulcan.weblin.com/{room}#userInfo.displayName="{name}"';

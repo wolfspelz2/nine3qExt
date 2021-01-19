@@ -20,7 +20,6 @@ import { SettingsWindow } from './SettingsWindow';
 import { XmppWindow } from './XmppWindow';
 import { ChangesWindow } from './ChangesWindow';
 import { Inventory } from './Inventory';
-import { ItemProvider } from './ItemProvider';
 import { ItemRepository } from './ItemRepository';
 import { TestWindow } from './TestWindow';
 import { BackpackWindow } from './BackpackWindow';
@@ -50,7 +49,6 @@ export class ContentApp
     private locationUrl: string;
     private room: Room;
     private inventories: { [invJid: string]: Inventory; } = {};
-    private itemProviders: { [providerId: string]: ItemProvider; } = {};
     private itemRepository: ItemRepository;
     private propertyStorage: PropertyStorage = new PropertyStorage();
     private babelfish: Translator;
@@ -137,8 +135,6 @@ export class ContentApp
                 }
             }
         }
-
-        await this.initItemProviders();
 
         await Utils.sleep(as.Float(Config.get('vp.deferPageEnterSec', 1)) * 1000);
 
@@ -653,33 +649,25 @@ export class ContentApp
 
     // Item provider
 
-    async initItemProviders(): Promise<void>
-    {
-        let itemProviders = Config.get('itemProviders', {});
-        for (let providerId in itemProviders) {
-            let providerConfig = await Config.get('itemProviders.' + providerId, null);
-            if (providerConfig) {
-                this.itemProviders[providerId] = new ItemProvider(providerConfig);
-            }
-        }
-    }
-
-    getItemProviderConfigValue(providerId: string, configKey: string, defaultValue: any): any
+    static getItemProviderConfigValue(providerId: string, configKey: string, defaultValue: any): any
     {
         if (providerId) {
-            var itemProvider = this.itemProviders[providerId];
-            if (itemProvider) {
-                return itemProvider.getConfig(configKey, defaultValue);
-            }
+            return Config.get('itemProviders.' + providerId + '.config.' + configKey, defaultValue);
         }
         return defaultValue;
     }
 
-    itemProviderUrlFilter(providerId: string, propName: string, propValue: string): string
+    static itemProviderUrlFilter(providerId: string, propName: string, propValue: string): string
     {
         if (providerId) {
-            if (this.itemProviders[providerId]) {
-                return this.itemProviders[providerId].propertyUrlFilter(propValue);
+            let propertyUrlFilter = Config.get('itemProviders.' + providerId + '.config.itemPropertyUrlFilter', {});
+            if (propertyUrlFilter) {
+                for (let key in propertyUrlFilter) {
+                    let value = propertyUrlFilter[key];
+                    if (key && value) {
+                        propValue = propValue.replace(key, value);
+                    }
+                }
             }
         }
         return propValue;

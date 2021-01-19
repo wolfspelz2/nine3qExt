@@ -257,7 +257,7 @@ export class BackpackItem
         for (let key in properties) {
             let value = properties[key];
             if (key.endsWith('Url')) {
-                value = this.app.itemProviderUrlFilter(providerId, key, value);
+                value = ContentApp.itemProviderUrlFilter(providerId, key, value);
             }
             newProperties[key] = value;
         }

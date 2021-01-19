@@ -85,7 +85,7 @@ export class RoomItem extends Entity
                     for (let attrName in attrs) {
                         let attrValue = attrs[attrName];
                         if (attrName.endsWith('Url')) {
-                            attrValue = this.app.itemProviderUrlFilter(newProviderId, attrName, attrValue);
+                            attrValue = ContentApp.itemProviderUrlFilter(newProviderId, attrName, attrValue);
                         }
                         newProperties[attrName] = attrValue;
                     }
@@ -241,7 +241,7 @@ export class RoomItem extends Entity
         let itemId = this.nick;
         let item = this.app.getItemRepository().getItem(itemId);
         if (item) {
-            let userToken = this.app.getItemProviderConfigValue(item.getProviderId(), 'userToken', '');
+            let userToken = ContentApp.getItemProviderConfigValue(item.getProviderId(), 'userToken', '');
             if (userToken != '') {
 
                 let cmd = {};

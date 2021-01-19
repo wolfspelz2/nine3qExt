@@ -21,10 +21,10 @@ export class Inventory
 
     constructor(protected app: ContentApp, private providerId: string) 
     {
-        this.userToken = this.app.getItemProviderConfigValue(this.providerId, 'userToken', '');
-        let serviceUrl = this.app.getItemProviderConfigValue(this.providerId, 'serviceUrl', '');
-        let inventoryMucRoom = this.app.getItemProviderConfigValue(this.providerId, 'inventoryMucRoom', '');
-        this.resource = this.app.getItemProviderConfigValue(this.providerId, 'inventoryMucParticipant', '');
+        this.userToken = ContentApp.getItemProviderConfigValue(this.providerId, 'userToken', '');
+        let serviceUrl = ContentApp.getItemProviderConfigValue(this.providerId, 'serviceUrl', '');
+        let inventoryMucRoom = ContentApp.getItemProviderConfigValue(this.providerId, 'inventoryMucRoom', '');
+        this.resource = ContentApp.getItemProviderConfigValue(this.providerId, 'inventoryMucParticipant', '');
 
         if (serviceUrl != '') {
             let url = new URL(serviceUrl);

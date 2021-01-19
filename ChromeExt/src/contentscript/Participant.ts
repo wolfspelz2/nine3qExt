@@ -17,6 +17,7 @@ import log = require('loglevel');
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { SimpleToast, Toast } from './Toast';
 import { PrivateChatWindow } from './PrivateChatWindow';
+import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 
 export class Participant extends Entity
 {
@@ -631,7 +632,7 @@ export class Participant extends Entity
             let roomJid = this.getRoom().getJid();
 
             log.info('Participant', 'derezItem', itemId, 'from', roomJid);
-            BackgroundMessage.derezBackpackItem(itemId, roomJid, -1, -1);
+            BackgroundMessage.derezBackpackItem(itemId, roomJid, -1, -1, ItemChangeOptions.empty);
             // this.app.sendPresence();
 
             // await this.app.showBackpackWindow(this.elem);
