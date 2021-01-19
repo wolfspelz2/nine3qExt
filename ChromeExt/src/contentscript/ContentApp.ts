@@ -692,9 +692,9 @@ export class ContentApp
     async assertActive()
     {
         try {
-            let active = await Memory.getSync(Utils.syncStorageKey_Active(), '');
+            let active = await Memory.getLocal(Utils.localStorageKey_Active(), '');
             if (active == '') {
-                await Memory.setSync(Utils.syncStorageKey_Active(), 'true');
+                await Memory.setLocal(Utils.localStorageKey_Active(), 'true');
             }
         } catch (error) {
             log.info(error);
@@ -705,7 +705,7 @@ export class ContentApp
     async getActive(): Promise<boolean>
     {
         try {
-            let active = await Memory.getSync(Utils.syncStorageKey_Active(), 'true');
+            let active = await Memory.getLocal(Utils.localStorageKey_Active(), 'true');
             return as.Bool(active, false);
         } catch (error) {
             log.info(error);

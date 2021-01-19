@@ -11,7 +11,7 @@ export class Utils
     static syncStorageKey_Nickname(): string { return 'me.nickname'; }
     static syncStorageKey_Avatar(): string { return 'me.avatar'; }
     static localStorageKey_X(): string { return 'me.x'; }
-    static syncStorageKey_Active(): string { return 'me.active'; }
+    static localStorageKey_Active(): string { return 'me.active'; }
     static syncStorageKey_ItemProviderUserId(providerId: string): string { return 'itemProvider.' + providerId + '.userId'; }
 
     static jsObject2xmlObject(stanza: any): xml

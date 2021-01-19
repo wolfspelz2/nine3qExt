@@ -42,7 +42,7 @@ export class BackgroundApp
         this.isReady = false;
 
         {
-            let devConfig = await Memory.getSync('dev.config', '{}');
+            let devConfig = await Memory.getLocal('dev.config', '{}');
             try {
                 let parsed = JSON.parse(devConfig);
                 Config.setDevTree(parsed);
