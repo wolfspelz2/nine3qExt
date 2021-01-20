@@ -34,7 +34,7 @@ export class Nickname implements IObserver
             if (Environment.isDevelopment()) { column.addItem('test', 'Test', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.app.test(); }); }
 
             if (Config.get('backpack.enabled', false)) {
-                column.addItem('inventory', 'Inventory', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showBackpackWindow(); });
+                column.addItem('inventory', 'Backpack', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showBackpackWindow(); });
             }
 
             column.addItem(

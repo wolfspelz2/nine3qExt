@@ -181,7 +181,11 @@
 #n3q div.n3q-button {
     color: #666;
     cursor: default;
+    user-select: none;
 }
+
+        #n3q div.n3q-button:hover { filter: brightness(0.9); }
+        #n3q div.n3q-button:active { filter: brightness(0.8); }   
 
         #n3q div.n3q-button-symbol:hover {
             opacity: 0.5;
@@ -708,9 +712,6 @@
             text-align: center;
             padding: 4px;
         }
-
-            #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-button:hover { filter: brightness(0.9); }
-            #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-button:active { filter: brightness(0.8); }   
  
             #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-xmppwindow-out-clear { right: 30px; top: 8px; }
             #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-xmppwindow-in-send { right: 35px; bottom: 13px; border-width: 2px; }
@@ -758,9 +759,9 @@
     #n3q textarea.n3q-backpack-in {
         position: absolute;
         left: 16px;
-        right: 16px;
         top: 16px;
         bottom: 16px;
+        width: 50%;
         border: 1px solid #808080;
         border-radius: 4px;
         resize: none;
