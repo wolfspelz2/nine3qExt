@@ -202,64 +202,68 @@ export class Backpack
         await this.persistentSaveItem(itemId);
     }
 
-    async executeItemAction(itemId: string, action: string, args: any, involvedIds: Array<string>): Promise<void>
+    executeItemAction(itemId: string, action: string, args: any, involvedIds: Array<string>): Promise<void>
     {
-        let item = this.items[itemId];
-        if (item == null) { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.ItemDoesNotExist, itemId); }
+        return new Promise(async (resolve, reject) =>
+        {
+            try {
 
-        let providerId = 'nine3q';
+                let item = this.items[itemId];
+                if (item == null) { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.ItemDoesNotExist, itemId); }
 
-        let userToken = Config.get('itemProviders.' + providerId + '.config.userToken', '');
-        if (userToken == null || userToken == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.NoUserToken); }
+                let providerId = 'nine3q';
 
-        let apiUrl = Config.get('itemProviders.' + providerId + '.config.backpackApiUrl', '');
-        if (apiUrl == null || apiUrl == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.SeeDetail, 'Missing backpackApi for ' + providerId); }
+                let userToken = Config.get('itemProviders.' + providerId + '.config.userToken', '');
+                if (userToken == null || userToken == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.NoUserToken); }
 
-        let roomJid = item.getProperties()[Pid.RezzedLocation];
-        if (roomJid == null || roomJid == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.SeeDetail, 'Item ' + itemId + ' missing RezzedLocation'); }
+                let apiUrl = Config.get('itemProviders.' + providerId + '.config.backpackApiUrl', '');
+                if (apiUrl == null || apiUrl == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.SeeDetail, 'Missing backpackApi for ' + providerId); }
 
-        let items: { [id: string]: ItemProperties } = {};
-        for (let i = 0; i < involvedIds.length; i++) {
-            items[involvedIds[i]] = this.getItemProperties(involvedIds[i]);
-        }
+                let roomJid = item.getProperties()[Pid.RezzedLocation];
+                if (roomJid == null || roomJid == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.SeeDetail, 'Item ' + itemId + ' missing RezzedLocation'); }
 
-        let request = new RpcProtocol.BackpackTransactionRequest();
-        request.method = RpcProtocol.BackpackTransactionRequest.method;
-        request.user = userToken;
-        request.item = itemId;
-        request.room = roomJid;
-        request.action = action;
-        request.args = args;
-        request.items = items;
-
-        try {
-            let response = <RpcProtocol.BackpackTransactionResponse>await this.rpcClient.call(apiUrl, request);
-
-            if (response.changed) {
-                for (let id in response.changed) {
-                    let props = response.changed[id];
-                    await this.setItemProperties(id, props, ItemChangeOptions.empty);
+                let items: { [id: string]: ItemProperties } = {};
+                for (let i = 0; i < involvedIds.length; i++) {
+                    items[involvedIds[i]] = this.getItemProperties(involvedIds[i]);
                 }
-            }
 
-            if (response.created) {
-                for (let id in response.created) {
-                    let props = response.created[id];
-                    await this.addItem(id, props, ItemChangeOptions.empty);
+                let request = new RpcProtocol.BackpackTransactionRequest();
+                request.method = RpcProtocol.BackpackTransactionRequest.method;
+                request.user = userToken;
+                request.item = itemId;
+                request.room = roomJid;
+                request.action = action;
+                request.args = args;
+                request.items = items;
+
+                let response = <RpcProtocol.BackpackTransactionResponse>await this.rpcClient.call(apiUrl, request);
+
+                if (response.changed) {
+                    for (let id in response.changed) {
+                        let props = response.changed[id];
+                        await this.setItemProperties(id, props, ItemChangeOptions.empty);
+                    }
                 }
-            }
 
-            if (response.deleted) {
-                for (let i = 0; i < response.deleted.length; i++) {
-                    let id = response.deleted[i];
-                    await this.deleteItem(id, ItemChangeOptions.empty);
+                if (response.created) {
+                    for (let id in response.created) {
+                        let props = response.created[id];
+                        await this.addItem(id, props, ItemChangeOptions.empty);
+                    }
                 }
-            }
 
-        } catch (error) {
-            let response = <RpcProtocol.BackpackResponse>error;
-            log.warn(response);
-        }
+                if (response.deleted) {
+                    for (let i = 0; i < response.deleted.length; i++) {
+                        let id = response.deleted[i];
+                        await this.deleteItem(id, ItemChangeOptions.empty);
+                    }
+                }
+
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     getItems(): { [id: string]: ItemProperties; }

@@ -16,7 +16,7 @@ export class Config
     private static onlineConfig: any = {};
 
     public static staticConfigName = 'static';
-    private static staticConfig: any = {
+    public static staticConfig: any = {
         me: {
             nickname: '',//'新しいアバター',//'new-avatar',
             avatar: '',
@@ -74,9 +74,10 @@ export class Config
             vidconfBottom: 200,
             vidconfWidth: 600,
             vidconfHeight: 400,
-            errorToastDurationSec: 8,
             pokeToastDurationSec: 10,
             privateChatToastDurationSec: 60,
+            errorToastDurationSec: 8,
+            applyItemErrorToastDurationSec: 5,
         },
         xmpp: {
             service: 'wss://xmpp.vulcan.weblin.com/xmpp-websocket',
@@ -203,6 +204,9 @@ export class Config
                     'ErrorReason.ItemDoesNotExist': 'This is an not a known item.',
                     'ErrorReason.NoUserToken': 'No user id. Maybe not logged in as item user.',
                     'ErrorReason.SeeDetail': '',
+                    'ErrorReason.InvalidChecksum': 'Invalid checksum. Maybe not a valid item.',
+
+                    'ErrorDetail.Applier.Apply': 'Applying an item to another',
                 },
                 'de-DE': {
                     'Common.Close': 'Schließen',
@@ -277,8 +281,11 @@ export class Config
                     'ErrorReason.ItemNotRezzedHere': 'Gegenstand ist nicht auf dieser Seite',
                     'ErrorReason.ItemsNotAvailable': 'Keine Gegenstände verfügbar. Die Funktion ist vielleicht nicht eingeschaltet.',
                     'ErrorReason.ItemDoesNotExist': 'Dieser Gegenstand ist nicht bekannt.',
-                    'ErrorReason.NoUserToken': 'Keine Benutzerkennung. Möglicherwise nicht als Benutzer von Gegenständen angemeldet.',
+                    'ErrorReason.NoUserToken': 'Keine Benutzerkennung. Möglicherweise nicht als Benutzer von Gegenständen angemeldet.',
                     'ErrorReason.SeeDetail': '',
+                    'ErrorReason.InvalidChecksum': 'Falsche Checksumme. Möglicherweise kein zulässiger Gegenstand.',
+
+                    'ErrorDetail.Applier.Apply': 'Beim Anwenden eines Gegenstands auf einen anderen.',
                 },
             },
             'serviceUrl': '',

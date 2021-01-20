@@ -15,11 +15,7 @@ export class PopupApp
 {
     private display: HTMLElement;
     private babelfish: Translator;
-    private defaultDevConfig = `{
-    "config": {
-        "serviceUrl": "https://config.weblin.sui.li/"
-    }
-}`;
+    private defaultDevConfig = `{}`;
 
     constructor(protected appendToMe: HTMLElement)
     {

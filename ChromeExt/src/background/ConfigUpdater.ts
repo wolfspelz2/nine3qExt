@@ -39,7 +39,7 @@ export class ConfigUpdater
 
     private async fetchConfig(): Promise<any>
     {
-        let url = Config.get('config.serviceUrl', 'https://config.weblin.sui.li/');
+        let url = Config.get('config.serviceUrl', 'https://webex.vulcan.weblin.com/Config');
         log.info('ConfigUpdater.fetchConfig', url);
 
         return new Promise((resolve, reject) =>

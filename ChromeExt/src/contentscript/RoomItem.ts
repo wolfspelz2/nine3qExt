@@ -12,7 +12,7 @@ import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
-import { ItemExceptionToast } from './Toast';
+import { ItemExceptionToast, SimpleErrorToast } from './Toast';
 
 import imgDefaultItem from '../assets/DefaultItem.png';
 
@@ -214,18 +214,6 @@ export class RoomItem extends Entity
         }
     }
 
-    async applyItem(passiveItem: RoomItem)
-    {
-        let itemId = this.nick;
-        let passiveItemId = passiveItem.getNick();
-        if (await BackgroundMessage.isBackpackItem(itemId)) {
-            BackgroundMessage.executeBackpackItemAction(itemId, 'Applier.Apply', { 'passive': passiveItemId }, [itemId, passiveItemId]);
-            // this.requestItemTransaction('Applier.Apply', { 'passive': passiveItemId });
-        } else {
-            this.sendItemActionCommand('Applier.Apply', { 'passive': passiveItemId });
-        }
-    }
-
     async sendMoveMessage(newX: number): Promise<void>
     {
         let itemId = this.nick;
@@ -233,6 +221,23 @@ export class RoomItem extends Entity
             BackgroundMessage.modifyBackpackItemProperties(itemId, { [Pid.RezzedX]: '' + newX }, [], ItemChangeOptions.empty);
         } else {
             this.sendItemActionCommand('Rezzed.MoveTo', { 'x': newX });
+        }
+    }
+
+    async applyItem(passiveItem: RoomItem)
+    {
+        let itemId = this.nick;
+        let passiveItemId = passiveItem.getNick();
+        if (await BackgroundMessage.isBackpackItem(itemId)) {
+
+            try {
+                await BackgroundMessage.executeBackpackItemAction(itemId, 'Applier.Apply', { 'passive': passiveItemId }, [itemId, passiveItemId]);
+            } catch (error) {
+                new SimpleErrorToast(this.app, 'Warning-' + error.fact + '-' + error.reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', error.fact, error.reason, error.detail).show();
+            }
+
+        } else {
+            this.sendItemActionCommand('Applier.Apply', { 'passive': passiveItemId });
         }
     }
 
