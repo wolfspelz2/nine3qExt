@@ -1,8 +1,9 @@
 import log = require('loglevel');
-import { as } from '../lib/as';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Config } from '../lib/Config';
-import { Utils } from '../lib/Utils';
+import { ItemException } from '../lib/ItemExcption';
 import { ContentApp } from './ContentApp';
+import { SimpleErrorToast } from './Toast';
 
 export class IframeApi
 {
@@ -49,13 +50,29 @@ export class IframeApi
 
         switch (request.type) {
             case WeblinClientApi.ItemActionRequest.type: {
-                this.handle_ItemActionRequest(<WeblinClientApi.ItemActionRequest>request);
+                /* await */ this.handle_ItemActionRequest(<WeblinClientApi.ItemActionRequest>request);
             } break;
         }
     }
 
-    handle_ItemActionRequest(request: WeblinClientApi.ItemActionRequest)
+    async handle_ItemActionRequest(request: WeblinClientApi.ItemActionRequest)
     {
+        try {
+            let itemId = request.item;
+            let actionName = request.action;
+            let args = request.args;
+            await BackgroundMessage.executeBackpackItemAction(itemId, actionName, args, [itemId]);
+        } catch (ex) {
+            // if (ex instanceof ItemException) {
+            //     new ItemExceptionToast(this.app, Config.get('room.applyItemErrorToastDurationSec', 5), ex).show();
+            // } else {
+            //     new SimpleErrorToast(this.app, 'Warning-' + ex.fact + '-' + ex.reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', ex.fact, ex.reason, ex.detail).show();
+            // }
+            let fact = typeof ex.fact === 'number' ? ItemException.Fact[ex.fact]: ex.fact;
+            let reason = typeof ex.reason === 'number' ? ItemException.Reason[ex.reason]: ex.reason;
+            let detail = ex.detail;
+            new SimpleErrorToast(this.app, 'Warning-' + fact + '-' + reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', fact, reason, detail).show();
+        }
     }
 }
 
