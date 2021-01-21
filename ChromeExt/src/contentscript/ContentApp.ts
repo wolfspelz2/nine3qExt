@@ -25,6 +25,7 @@ import { TestWindow } from './TestWindow';
 import { BackpackWindow } from './BackpackWindow';
 import { SimpleErrorToast, SimpleToast } from './Toast';
 import { IframeApi } from './IframeApi';
+import { Environment } from '../lib/Environment';
 
 interface ILocationMapperResponse
 {
@@ -57,7 +58,7 @@ export class ContentApp
     private backpackWindow: BackpackWindow;
     private settingsWindow: SettingsWindow;
     private stanzasResponses: { [stanzaId: string]: StanzaResponseHandler } = {}
-    private runtimeOnMessageClosure: (message: any, sender: any, sendResponse: any) => any;
+    private onRuntimeMessageClosure: (message: any, sender: any, sendResponse: any) => any;
     private iframeApi: IframeApi;
 
     private stayHereIsChecked: boolean = false;
@@ -150,9 +151,9 @@ export class ContentApp
         $(page).append(this.display);
         this.appendToMe.append(page);
 
-        if (chrome.runtime && chrome.runtime.onMessage) {
-            this.runtimeOnMessageClosure = this.getRuntimeOnMessageClosure();
-            chrome.runtime.onMessage.addListener(this.runtimeOnMessageClosure);
+        if (Environment.isExtension()) {
+            this.onRuntimeMessageClosure = this.getOnRuntimeMessageClosure();
+            chrome.runtime.onMessage.addListener(this.onRuntimeMessageClosure);
         }
 
         // this.enterPage();
@@ -165,14 +166,14 @@ export class ContentApp
         this.iframeApi = new IframeApi(this).start();
     }
 
-    getRuntimeOnMessageClosure()
+    getOnRuntimeMessageClosure()
     {
         var self = this;
-        function runtimeOnMessageClosure(message, sender, sendResponse)
+        function onRuntimeMessageClosure(message, sender, sendResponse)
         {
-            return self.runtimeOnMessage(message, sender, sendResponse);
+            return self.onRuntimeMessage(message, sender, sendResponse);
         }
-        return runtimeOnMessageClosure;
+        return onRuntimeMessageClosure;
     }
 
     stop()
@@ -199,7 +200,7 @@ export class ContentApp
         }
 
         try {
-            chrome.runtime?.onMessage.removeListener(this.runtimeOnMessageClosure);
+            chrome.runtime?.onMessage.removeListener(this.onRuntimeMessageClosure);
         } catch (error) {
             //            
         }
@@ -353,16 +354,19 @@ export class ContentApp
         }
     }
 
-    onDirectRuntimeMessage(message: any) {
-        this.simpleRuntimeOnMessage(message);
-    }
+    // IPC
 
-    runtimeOnMessage(message, sender: chrome.runtime.MessageSender, sendResponse): any
+    onDirectRuntimeMessage(message: any)
     {
-        this.simpleRuntimeOnMessage(message);
+        this.onSimpleRuntimeMessage(message);
     }
 
-    simpleRuntimeOnMessage(message): any
+    private onRuntimeMessage(message, sender: chrome.runtime.MessageSender, sendResponse): any
+    {
+        this.onSimpleRuntimeMessage(message);
+    }
+
+    private onSimpleRuntimeMessage(message): any
     {
         switch (message.type) {
             case ContentMessage.Type[ContentMessage.Type.recvStanza]: {

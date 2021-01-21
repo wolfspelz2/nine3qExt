@@ -1,6 +1,6 @@
 import log = require('loglevel');
 import {ItemProperties} from './ItemProperties';
-import {ContentApp} from "../contentscript/ContentApp";
+import {ContentApp} from '../contentscript/ContentApp';
 
 export class BackpackShowItemData {
     constructor(public id: string, public properties: ItemProperties) {

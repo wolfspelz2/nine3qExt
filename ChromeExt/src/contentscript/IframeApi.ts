@@ -51,8 +51,6 @@ export class IframeApi
             case WeblinClientApi.ItemActionRequest.type: {
                 this.handle_ItemActionRequest(<WeblinClientApi.ItemActionRequest>request);
             } break;
-
-            default: log.info(IframeApi.name, this.onMessage.name, 'Unknown type=', );
         }
     }
 

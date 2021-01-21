@@ -2,8 +2,8 @@ import log = require('loglevel');
 import { ItemChangeOptions } from './ItemChangeOptions';
 import { ItemException } from './ItemExcption';
 import { ItemProperties } from './ItemProperties';
-import {BackgroundApp} from "../background/BackgroundApp";
-import {Environment} from "./Environment";
+import { BackgroundApp } from '../background/BackgroundApp';
+import { Environment } from './Environment';
 
 export class BackgroundResponse
 {
@@ -49,19 +49,21 @@ export class BackgroundMessage
         return new Promise((resolve, reject) =>
         {
             try {
-                    if (Environment.isEmbedded()) {
-                        if (BackgroundMessage.background) {
-                            BackgroundMessage.background.onDirectRuntimeMessage(message, response => {
-                                resolve(response);
-                            });
-                        } else {
-                            window.parent.postMessage(message, '*');
-                            resolve();
-                        }
-                    } else {
-                        chrome.runtime?.sendMessage(message, response => {
+                if (Environment.isEmbedded()) {
+                    if (BackgroundMessage.background) {
+                        BackgroundMessage.background.onDirectRuntimeMessage(message, response =>
+                        {
                             resolve(response);
                         });
+                    } else {
+                        window.parent.postMessage(message, '*');
+                        resolve({});
+                    }
+                } else {
+                    chrome.runtime?.sendMessage(message, response =>
+                    {
+                        resolve(response);
+                    });
                 }
             } catch (error) {
                 reject(error);
@@ -75,17 +77,19 @@ export class BackgroundMessage
         {
             try {
                 if (BackgroundMessage.background) {
-                    BackgroundMessage.background.onDirectRuntimeMessage(message, response => {
+                    BackgroundMessage.background.onDirectRuntimeMessage(message, response =>
+                    {
                         if (response.ok) {
-                            resolve();
+                            resolve(response);
                         } else {
                             reject(response.ex);
                         }
                     });
                 } else {
-                    chrome.runtime?.sendMessage(message, response => {
+                    chrome.runtime?.sendMessage(message, response =>
+                    {
                         if (response.ok) {
-                            resolve();
+                            resolve(response);
                         } else {
                             reject(response.ex);
                         }
@@ -107,7 +111,6 @@ export class BackgroundMessage
         return BackgroundMessage.sendMessage({ 'type': BackgroundMessage.jsonRpc.name, 'url': url, 'json': jsonBodyData });
     }
 
-    static fetchUrl_nocache = '_nocache';
     static fetchUrl(url: string, version: string): Promise<FetchUrlResponse>
     {
         return BackgroundMessage.sendMessage({ 'type': BackgroundMessage.fetchUrl.name, 'url': url, 'version': version });
@@ -115,7 +118,7 @@ export class BackgroundMessage
 
     static waitReady(): Promise<any>
     {
-        return BackgroundMessage.sendMessage({'type': BackgroundMessage.waitReady.name});
+        return BackgroundMessage.sendMessage({ 'type': BackgroundMessage.waitReady.name });
     }
 
     static getConfigTree(name: string): Promise<any>
@@ -170,7 +173,15 @@ export class BackgroundMessage
 
     static isBackpackItem(itemId: string): Promise<boolean>
     {
-        return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.isBackpackItem.name, 'itemId': itemId });
+        return new Promise(async (resolve, reject) =>
+        {
+            try {
+                let response = await BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.isBackpackItem.name, 'itemId': itemId });
+                resolve((<IsBackpackItemResponse>response).isItem);
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     static executeBackpackItemAction(itemId: string, action: string, args: any, involvedIds: Array<string>): Promise<void>

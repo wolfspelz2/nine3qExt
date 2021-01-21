@@ -30,4 +30,9 @@ export class Environment
     {
         return typeof chrome.storage === 'undefined';
     }
+
+    static isExtension(): boolean
+    {
+        return chrome.storage != null;
+    }
 }

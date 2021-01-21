@@ -59,7 +59,8 @@ export class BackgroundApp
         }
 
         if (chrome.runtime && chrome.runtime.onMessage) {
-            chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+            chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
+            {
                 return this.onRuntimeMessage(message, sender, sendResponse);
             });
         }
@@ -131,8 +132,9 @@ export class BackgroundApp
 
     // IPC
 
-    onDirectRuntimeMessage(message: any, sendResponse: (response?: any) => void) {
-        const sender = {tab: {id: 0}};
+    onDirectRuntimeMessage(message: any, sendResponse: (response?: any) => void)
+    {
+        const sender = { tab: { id: 0 } };
         this.onRuntimeMessage(message, sender, sendResponse);
     }
 

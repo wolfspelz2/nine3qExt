@@ -1,14 +1,13 @@
 import log = require('loglevel');
 import { Environment } from '../lib/Environment';
-import { BackgroundApp } from '../background/BackgroundApp';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { ContentMessage } from '../lib/ContentMessage';
+import { BackgroundApp } from '../background/BackgroundApp';
+import { ContentApp, ContentAppNotification } from '../contentscript/ContentApp';
 import '../contentscript/contentscript.scss';
 import * as $ from 'jquery';
 import { Panic } from '../lib/Panic';
 import { Config } from '../lib/Config';
-import { ContentApp, ContentAppNotification } from '../contentscript/ContentApp';
-import {ContentMessage} from "../lib/ContentMessage";
-
 
 console.log('Background');
 
@@ -48,7 +47,8 @@ function deactivate()
     }
 }
 
-window.addEventListener("message", (event) => {
+window.addEventListener('message', (event) =>
+{
     if (event.data.type === BackgroundMessage.userSettingsChanged.name) {
         if (app) {
             app.handle_userSettingsChanged();
@@ -56,12 +56,9 @@ window.addEventListener("message", (event) => {
     }
 }, false);
 
-
 activate();
 
-
 // contentscript
-
 
 let dev = Environment.isDevelopment();
 log.setLevel(log.levels.INFO);
@@ -72,16 +69,16 @@ if (dev) {
     log.setLevel(log.levels.DEBUG);
 }
 
-var app2 = null;
+var appContent = null;
 let onTabChangeStay = false;
 
 try {
 
-    function activate2()
+    function activateContent()
     {
-        if (app2 == null) {
+        if (appContent == null) {
             log.debug('Contentscript.activate');
-            app2 = new ContentApp($('body').get(0), msg =>
+            appContent = new ContentApp($('body').get(0), msg =>
             {
                 log.debug('Contentscript msg', msg.type);
                 switch (msg.type) {
@@ -97,68 +94,68 @@ try {
                     } break;
 
                     case ContentAppNotification.type_restart: {
-                        restart2();
+                        restartContent();
                     } break;
                 }
             });
-            ContentMessage.content = app2;
-            app2.start();
+            ContentMessage.content = appContent;
+            appContent.start();
         }
     }
 
-    function deactivate2()
+    function deactivateContent()
     {
-        if (app2 != null) {
+        if (appContent != null) {
             log.debug('Contentscript.deactivate');
-            app2.stop();
-            app2 = null;
+            appContent.stop();
+            appContent = null;
         }
     }
 
-    function restart2()
+    function restartContent()
     {
-        setTimeout(restart_deactivate2, 100);
+        setTimeout(restart_deactivateContent, 100);
     }
 
-    function restart_deactivate2()
+    function restart_deactivateContent()
     {
-        deactivate2();
-        setTimeout(restart_activate2, 100);
+        deactivateContent();
+        setTimeout(restart_activateContent, 100);
     }
 
-    function restart_activate2()
+    function restart_activateContent()
     {
-        activate2();
+        activateContent();
     }
 
-    function onUnload2()
+    function onUnloadContent()
     {
-        if (app2 != null) {
+        if (appContent != null) {
             log.debug('Contentscript.onUnload');
-            app2.onUnload();
-            app2 = null;
+            appContent.onUnload();
+            appContent = null;
         }
     }
 
-    Panic.onNow(onUnload2);
+    Panic.onNow(onUnloadContent);
 
-    window.addEventListener('onbeforeunload', deactivate2);
+    window.addEventListener('onbeforeunload', deactivateContent);
 
     window.addEventListener('visibilitychange', function ()
     {
         if (document.visibilityState === 'visible') {
-            activate2();
+            activateContent();
         } else {
             if (onTabChangeStay) {
                 log.debug('staying');
             } else {
-                deactivate2();
+                deactivateContent();
             }
         }
     });
 
     if (document.visibilityState === 'visible') {
-        activate2();
+        activateContent();
     }
 
 } catch (error) {
