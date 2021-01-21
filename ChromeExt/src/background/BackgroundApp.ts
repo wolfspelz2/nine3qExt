@@ -723,8 +723,8 @@ export class BackgroundApp
 
         try {
             var conf = {
-                service: Config.get('xmpp.service', 'wss://xmpp.k8s.sui.li/xmpp-websocket'),
-                domain: Config.get('xmpp.domain', 'xmpp.weblin.sui.li'),
+                service: Config.get('xmpp.service', 'wss://xmpp.vulcan.weblin.com/xmpp-websocket'),
+                domain: Config.get('xmpp.domain', 'xmpp.vulcan.weblin.com'),
                 resource: this.resource,
                 username: xmppUser,
                 password: xmppPass,

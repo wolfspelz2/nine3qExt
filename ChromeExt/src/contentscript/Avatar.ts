@@ -232,7 +232,7 @@ export class Avatar implements IObserver
 
     async getDataUrlImage(imageUrl: string): Promise<string>
     {
-        let proxiedUrl = as.String(Config.get('avatars.dataUrlProxyUrlTemplate', 'https://avatar.weblin.sui.li/avatar/?url={url}')).replace('{url}', encodeURIComponent(imageUrl));
+        let proxiedUrl = as.String(Config.get('avatars.dataUrlProxyUrlTemplate', 'https://webex.vulcan.weblin.com/Avatar/DataUrl?url={url}')).replace('{url}', encodeURIComponent(imageUrl));
         return new Promise(async (resolve, reject) =>
         {
             try {
