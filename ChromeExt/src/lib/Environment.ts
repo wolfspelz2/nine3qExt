@@ -25,4 +25,9 @@ export class Environment
     {
         return Environment.get_NODE_ENV() == Environment.NODE_ENV_development;
     }
+
+    static isEmbedded(): boolean
+    {
+        return typeof chrome.storage === 'undefined';
+    }
 }

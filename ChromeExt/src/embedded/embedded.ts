@@ -30,8 +30,6 @@ async function activate()
     if (app == null) {
         app = new BackgroundApp();
         BackgroundMessage.background = app;
-        BackgroundMessage.fetchUrl_nocache = "was anderes";
-        log.debug( BackgroundMessage.background );
 
         try {
             await app.start();
@@ -49,6 +47,15 @@ function deactivate()
         app = null;
     }
 }
+
+window.addEventListener("message", (event) => {
+    if (event.data.type === BackgroundMessage.userSettingsChanged.name) {
+        if (app) {
+            app.handle_userSettingsChanged();
+        }
+    }
+}, false);
+
 
 activate();
 

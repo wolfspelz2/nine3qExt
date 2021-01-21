@@ -150,10 +150,10 @@ export class ContentApp
         $(page).append(this.display);
         this.appendToMe.append(page);
 
-        /*
-        this.runtimeOnMessageClosure = this.getRuntimeOnMessageClosure();
-        chrome.runtime?.onMessage.addListener(this.runtimeOnMessageClosure);
-        */
+        if (chrome.runtime && chrome.runtime.onMessage) {
+            this.runtimeOnMessageClosure = this.getRuntimeOnMessageClosure();
+            chrome.runtime.onMessage.addListener(this.runtimeOnMessageClosure);
+        }
 
         // this.enterPage();
         await this.checkPageUrlChanged();
