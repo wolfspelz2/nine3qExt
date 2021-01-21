@@ -45,7 +45,8 @@ export class SettingsWindow extends Window
                 }
             }
 
-            let uri = 'chrome-extension://' + chrome.runtime.id + '/popup.html';
+            let uri = Environment.isEmbedded() ? './popup.html' : 'chrome-extension://' + chrome.runtime.id + '/popup.html';
+
             let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-settingswindow-content" style="width: 420px; height: 380px;" src="' + uri + ' " frameborder="0"></iframe>').get(0);
 
             $(contentElem).append(iframeElem);

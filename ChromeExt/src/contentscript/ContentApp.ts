@@ -150,8 +150,10 @@ export class ContentApp
         $(page).append(this.display);
         this.appendToMe.append(page);
 
-        this.runtimeOnMessageClosure = this.getRuntimeOnMessageClosure();
-        chrome.runtime?.onMessage.addListener(this.runtimeOnMessageClosure);
+        if (chrome.runtime && chrome.runtime.onMessage) {
+            this.runtimeOnMessageClosure = this.getRuntimeOnMessageClosure();
+            chrome.runtime.onMessage.addListener(this.runtimeOnMessageClosure);
+        }
 
         // this.enterPage();
         await this.checkPageUrlChanged();
@@ -351,17 +353,24 @@ export class ContentApp
         }
     }
 
+    onDirectRuntimeMessage(message: any) {
+        this.simpleRuntimeOnMessage(message);
+    }
+
     runtimeOnMessage(message, sender: chrome.runtime.MessageSender, sendResponse): any
+    {
+        this.simpleRuntimeOnMessage(message);
+    }
+
+    simpleRuntimeOnMessage(message): any
     {
         switch (message.type) {
             case ContentMessage.Type[ContentMessage.Type.recvStanza]: {
                 this.handle_recvStanza(message.stanza);
-                sendResponse();
             } break;
 
             case ContentMessage.Type[ContentMessage.Type.userSettingsChanged]: {
                 this.handle_userSettingsChanged();
-                sendResponse();
             } break;
 
             case ContentMessage.Type[ContentMessage.Type.sendPresence]: {

@@ -58,7 +58,11 @@ export class BackgroundApp
             }
         }
 
-        chrome.runtime?.onMessage.addListener((message, sender, sendResponse) => { return this.onRuntimeMessage(message, sender, sendResponse); });
+        if (chrome.runtime && chrome.runtime.onMessage) {
+            chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+                return this.onRuntimeMessage(message, sender, sendResponse);
+            });
+        }
 
         this.configUpdater = new ConfigUpdater();
         await this.configUpdater.getUpdate();
@@ -127,7 +131,12 @@ export class BackgroundApp
 
     // IPC
 
-    private onRuntimeMessage(message, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void): boolean
+    onDirectRuntimeMessage(message: any, sendResponse: (response?: any) => void) {
+        const sender = {tab: {id: 0}};
+        this.onRuntimeMessage(message, sender, sendResponse);
+    }
+
+    private onRuntimeMessage(message, sender/*: chrome.runtime.MessageSender*/, sendResponse: (response?: any) => void): boolean
     {
         switch (message.type) {
             case BackgroundMessage.test.name: {
@@ -661,7 +670,7 @@ export class BackgroundApp
                     let tabId = this.iqStanzaTabId[stanzaId];
                     if (tabId) {
                         delete this.iqStanzaTabId[stanzaId];
-                        chrome.tabs.sendMessage(tabId, { 'type': ContentMessage.Type[ContentMessage.Type.recvStanza], 'stanza': stanza });
+                        ContentMessage.sendMessage(tabId, { 'type': ContentMessage.Type[ContentMessage.Type.recvStanza], 'stanza': stanza });
                     }
                 }
             }
@@ -675,7 +684,7 @@ export class BackgroundApp
             if (tabIds) {
                 for (let i = 0; i < tabIds.length; i++) {
                     let tabId = tabIds[i];
-                    chrome.tabs.sendMessage(tabId, { 'type': ContentMessage.Type[ContentMessage.Type.recvStanza], 'stanza': stanza });
+                    ContentMessage.sendMessage(tabId, { 'type': ContentMessage.Type[ContentMessage.Type.recvStanza], 'stanza': stanza });
                 }
             }
         }
@@ -694,7 +703,7 @@ export class BackgroundApp
             }
 
             if (unavailableTabId >= 0) {
-                chrome.tabs.sendMessage(unavailableTabId, { 'type': ContentMessage.Type.recvStanza, 'stanza': stanza });
+                ContentMessage.sendMessage(unavailableTabId, { 'type': ContentMessage.Type.recvStanza, 'stanza': stanza });
                 this.removeRoomJid2TabId(room, unavailableTabId);
                 log.debug('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', unavailableTabId, 'now:', this.roomJid2tabId);
             } else {
@@ -702,7 +711,7 @@ export class BackgroundApp
                 if (tabIds) {
                     for (let i = 0; i < tabIds.length; i++) {
                         let tabId = tabIds[i];
-                        chrome.tabs.sendMessage(tabId, { 'type': ContentMessage.Type[ContentMessage.Type.recvStanza], 'stanza': stanza });
+                        ContentMessage.sendMessage(tabId, { 'type': ContentMessage.Type[ContentMessage.Type.recvStanza], 'stanza': stanza });
                     }
                 }
             }
@@ -779,7 +788,7 @@ export class BackgroundApp
         if (tabIds) {
             for (let i = 0; i < tabIds.length; i++) {
                 let tabId = tabIds[i];
-                chrome.tabs.sendMessage(tabId, { 'type': type, 'data': data });
+                ContentMessage.sendMessage(tabId, { 'type': type, 'data': data });
             }
         }
     }
@@ -790,7 +799,7 @@ export class BackgroundApp
         if (tabIds) {
             for (let i = 0; i < tabIds.length; i++) {
                 let tabId = tabIds[i];
-                chrome.tabs.sendMessage(tabId, { 'type': type });
+                ContentMessage.sendMessage(tabId, { 'type': type });
             }
         }
     }
@@ -823,7 +832,7 @@ export class BackgroundApp
                 if (tabIds) {
                     tabIds.forEach(tabId =>
                     {
-                        chrome.tabs.sendMessage(tabId, { 'type': 'userSettingsChanged' });
+                        ContentMessage.sendMessage(tabId, { 'type': 'userSettingsChanged' });
                     });
                 }
             }

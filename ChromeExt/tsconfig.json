@@ -11,7 +11,8 @@
   },
   "include": [
     "src/background", 
-    "src/contentscript", 
+    "src/contentscript",
+    "src/embedded",
     "src/lib"
   ]
 }
