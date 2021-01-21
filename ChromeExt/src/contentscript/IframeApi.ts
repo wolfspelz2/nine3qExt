@@ -6,7 +6,7 @@ import { ContentApp } from './ContentApp';
 
 export class IframeApi
 {
-    private messageHandler: (ev: MessageEvent<any>) => any;
+    private messageHandler: (ev: any) => any;
 
     constructor(protected app: ContentApp) 
     {
@@ -34,14 +34,14 @@ export class IframeApi
     getMessageHandler()
     {
         var self = this;
-        function onMessageClosure(ev: MessageEvent<any>)
+        function onMessageClosure(ev: any)
         {
             return self.onMessage(ev);
         }
         return onMessageClosure;
     }
 
-    onMessage(ev: MessageEvent<any>): any
+    onMessage(ev: any): any
     {
         log.debug(IframeApi.name, this.onMessage.name, ev);
 

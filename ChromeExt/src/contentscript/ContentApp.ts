@@ -114,13 +114,6 @@ export class ContentApp
         if (Panic.isOn) { return; }
 
         try {
-            let config = await BackgroundMessage.getConfigTree(Config.sessionConfigName);
-            Config.setSessionTree(config);
-        } catch (error) {
-            log.debug(error.message);
-        }
-
-        try {
             let config = await BackgroundMessage.getConfigTree(Config.devConfigName);
             Config.setDevTree(config);
         } catch (error) {

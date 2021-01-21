@@ -369,7 +369,6 @@ export class BackgroundApp
         switch (as.String(name, Config.onlineConfigName)) {
             case Config.devConfigName: return Config.getDevTree();
             case Config.onlineConfigName: return Config.getOnlineTree();
-            case Config.sessionConfigName: return Config.getSessionTree();
             case Config.staticConfigName: return Config.getStaticTree();
         }
         return Config.getOnlineTree();

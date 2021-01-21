@@ -6,9 +6,6 @@ interface ConfigSetCallback { (): void }
 
 export class Config
 {
-    public static sessionConfigName = 'session';
-    private static sessionConfig: any = {};
-
     public static devConfigName = 'dev';
     private static devConfig: any = {};
 
@@ -296,7 +293,7 @@ export class Config
 
     static get(key: string, defaultValue: any): any
     {
-        let result = Config.getSession(key);
+        let result = null;
         if (result == undefined || result == null) {
             result = Config.getDev(key);
         }
@@ -310,16 +307,6 @@ export class Config
             result = defaultValue;
         }
         return result;
-    }
-
-    static setSession(key: string, value: any): void
-    {
-        this.sessionConfig[key] = value;
-    }
-
-    static getSession(key: string): any
-    {
-        return Config.getFromTree(this.sessionConfig, key); //this.sessionConfig[key];
     }
 
     static getDev(key: string): any
@@ -378,7 +365,6 @@ export class Config
     }
 
     static getDevTree(): any { return this.devConfig; }
-    static getSessionTree(): any { return this.sessionConfig; }
     static getOnlineTree(): any { return this.onlineConfig; }
     static getStaticTree(): any { return this.staticConfig; }
 
@@ -386,12 +372,6 @@ export class Config
     {
         log.debug('Config.setDevTree');
         this.devConfig = tree;
-    }
-
-    static setSessionTree(tree: any)
-    {
-        log.debug('Config.setSessionTree');
-        this.sessionConfig = tree;
     }
 
     static setOnlineTree(tree: any): void
