@@ -2,6 +2,7 @@ import log = require('loglevel');
 import { ItemChangeOptions } from './ItemChangeOptions';
 import { ItemException } from './ItemExcption';
 import { ItemProperties } from './ItemProperties';
+import {BackgroundApp} from "../background/BackgroundApp";
 
 export class BackgroundResponse
 {
@@ -73,28 +74,33 @@ export class BackgroundMessage
     static fetchUrl_nocache = '_nocache';
     static fetchUrl(url: string, version: string): Promise<FetchUrlResponse>
     {
-        return new Promise((resolve, reject) =>
-        {
-            try {
-                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.fetchUrl.name, 'url': url, 'version': version }, response =>
-                {
-                    resolve(response);
-                });
-            } catch (error) {
-                reject(error);
-            }
-        });
+        return BackgroundMessage.sendMessage({ 'type': BackgroundMessage.fetchUrl.name, 'url': url, 'version': version });
     }
+
+    static background: BackgroundApp;
 
     static waitReady(): Promise<any>
     {
+        return BackgroundMessage.sendMessage({'type': BackgroundMessage.waitReady.name});
+
+
+    }
+
+    static sendMessage(message: any): Promise<any>
+    {
         return new Promise((resolve, reject) =>
         {
+
             try {
-                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.waitReady.name }, response =>
-                {
-                    resolve(response);
-                });
+                if (BackgroundMessage.background) {
+                    BackgroundMessage.background.onDirectRuntimeMessage(message, response => {
+                        resolve(response);
+                    });
+                } else {
+                    chrome.runtime?.sendMessage(message, response => {
+                        resolve(response);
+                    });
+                }
             } catch (error) {
                 reject(error);
             }
@@ -103,21 +109,13 @@ export class BackgroundMessage
 
     static getConfigTree(name: string): Promise<any>
     {
-        return new Promise((resolve, reject) =>
-        {
-            try {
-                chrome.runtime?.sendMessage({ 'type': BackgroundMessage.getConfigTree.name, 'name': name }, response =>
-                {
-                    resolve(response);
-                });
-            } catch (error) {
-                reject(error);
-            }
-        });
+        return BackgroundMessage.sendMessage({ 'type': BackgroundMessage.getConfigTree.name, 'name': name });
     }
 
     static sendStanza(stanza: any): Promise<void>
     {
+        return BackgroundMessage.sendMessage({ 'type': BackgroundMessage.sendStanza.name, 'stanza': stanza });
+        /*
         return new Promise((resolve, reject) =>
         {
             try {
@@ -129,6 +127,7 @@ export class BackgroundMessage
                 reject(error);
             }
         });
+        */
     }
 
     static pingBackground(): Promise<void>

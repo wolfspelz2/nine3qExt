@@ -4,6 +4,7 @@ import { Utils } from './Utils';
 export class Memory
 {
     private static sessionConfig: any = {};
+    private static localConfig: any = {};
 
     static getSession(key: string, defaultValue: any): any
     {
@@ -20,49 +21,62 @@ export class Memory
 
     static async getSync(key: string, defaultValue: any): Promise<any>
     {
-        return new Promise((resolve, reject) =>
-        {
-            if (chrome.storage != undefined) {
-                chrome.storage.sync.get([key], result =>
-                {
+        if (chrome.storage) {
+            return new Promise((resolve, reject) => {
+                chrome.storage.sync.get([key], result => {
                     if (result[key] != undefined) {
                         resolve(result[key]);
                     } else {
                         resolve(defaultValue);
                     }
                 });
-            } else {
-                reject('chrome.storage undefined');
-            }
-        });
+            });
+        } else {
+            return Memory.getLocal(key, defaultValue);
+        }
     }
 
     static async setSync(key: string, value: any): Promise<void>
     {
-        return new Promise((resolve, reject) =>
-        {
-            let dict = {};
-            dict[key] = value;
-            if (chrome.storage != undefined) {
-                chrome.storage.sync.set(dict, () => { resolve(); });
-            } else {
-                reject('chrome.storage undefined');
-            }
-        });
+        if (chrome.storage) {
+            return new Promise((resolve, reject) => {
+                let dict = {};
+                dict[key] = value;
+                    chrome.storage.sync.set(dict, () => {
+                        resolve();
+                    });
+            });
+        } else {
+            return Memory.setLocal(key, value);
+        }
     }
 
     static async getLocal(key: string, defaultValue: any): Promise<any>
     {
         return new Promise(resolve =>
         {
-            chrome.storage.local.get([key], result =>
-            {
-                if (result[key] != undefined) {
-                    resolve(result[key]);
+            if (chrome.storage) {
+                chrome.storage.local.get([key], result => {
+                    if (result[key] != undefined) {
+                        resolve(result[key]);
+                    } else {
+                        resolve(defaultValue);
+                    }
+                });
+            } else if (window.localStorage) {
+                let value = window.localStorage.getItem(key);
+                if (value) {
+                    resolve(value);
                 } else {
                     resolve(defaultValue);
                 }
-            });
+            } else {
+                if (Memory.localConfig[key]) {
+                    resolve(Memory.localConfig[key]);
+                } else {
+                    resolve(defaultValue);
+                }
+            }
         });
     }
 
@@ -72,7 +86,17 @@ export class Memory
         {
             let dict = {};
             dict[key] = value;
-            chrome.storage.local.set(dict, () => { resolve(); });
+            if (chrome.storage) {
+                chrome.storage.local.set(dict, () => {
+                    resolve();
+                });
+            } else if (window.localStorage) {
+                window.localStorage.setItem(key, value);
+                resolve();
+            } else {
+                Memory.localConfig[key] = value;
+                resolve();
+            }
         });
     }
 
@@ -80,7 +104,17 @@ export class Memory
     {
         return new Promise(resolve =>
         {
-            chrome.storage.local.remove(key, () => { resolve(); });
+            if (chrome.storage) {
+                chrome.storage.local.remove(key, () => {
+                    resolve();
+                });
+            } else if (window.localStorage) {
+                window.localStorage.removeItem(key);
+                resolve();
+            } else if (Memory.localConfig[key]) {
+                delete Memory.localConfig[key];
+                resolve();
+            }
         });
     }
 }
