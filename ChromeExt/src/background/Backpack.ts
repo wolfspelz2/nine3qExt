@@ -227,8 +227,8 @@ export class Backpack
                     items[involvedIds[i]] = this.getItemProperties(involvedIds[i]);
                 }
 
-                let request = new RpcProtocol.BackpackTransactionRequest();
-                request.method = RpcProtocol.BackpackTransactionRequest.method;
+                let request = new RpcProtocol.BackpackActionRequest();
+                request.method = RpcProtocol.BackpackActionRequest.method;
                 request.user = userToken;
                 request.item = itemId;
                 request.room = roomJid;
@@ -236,7 +236,7 @@ export class Backpack
                 request.args = args;
                 request.items = items;
 
-                let response = <RpcProtocol.BackpackTransactionResponse>await this.rpcClient.call(apiUrl, request);
+                let response = <RpcProtocol.BackpackActionResponse>await this.rpcClient.call(apiUrl, request);
 
                 if (response.changed) {
                     for (let id in response.changed) {

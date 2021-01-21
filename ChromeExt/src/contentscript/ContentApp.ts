@@ -24,6 +24,7 @@ import { ItemRepository } from './ItemRepository';
 import { TestWindow } from './TestWindow';
 import { BackpackWindow } from './BackpackWindow';
 import { SimpleErrorToast, SimpleToast } from './Toast';
+import { IframeApi } from './IframeApi';
 
 interface ILocationMapperResponse
 {
@@ -57,6 +58,7 @@ export class ContentApp
     private settingsWindow: SettingsWindow;
     private stanzasResponses: { [stanzaId: string]: StanzaResponseHandler } = {}
     private runtimeOnMessageClosure: (message: any, sender: any, sendResponse: any) => any;
+    private iframeApi: IframeApi;
 
     private stayHereIsChecked: boolean = false;
     private backpackIsOpen: boolean = false;
@@ -155,7 +157,6 @@ export class ContentApp
         $(page).append(this.display);
         this.appendToMe.append(page);
 
-        // chrome.runtime?.onMessage.addListener((message, sender, sendResponse) => { return this.runtimeOnMessage(message, sender, sendResponse); });
         this.runtimeOnMessageClosure = this.getRuntimeOnMessageClosure();
         chrome.runtime?.onMessage.addListener(this.runtimeOnMessageClosure);
 
@@ -166,6 +167,7 @@ export class ContentApp
 
         this.startCheckPageUrl();
         this.pingBackgroundToKeepConnectionAlive();
+        this.iframeApi = new IframeApi(this).start();
     }
 
     getRuntimeOnMessageClosure()
@@ -178,11 +180,9 @@ export class ContentApp
         return runtimeOnMessageClosure;
     }
 
-    //   var myFunc = makeFunc();
-    //   myFunc();
-
     stop()
     {
+        this.iframeApi.stop();
         this.stop_pingBackgroundToKeepConnectionAlive();
         this.stopCheckPageUrl();
         this.leavePage();
@@ -208,9 +208,6 @@ export class ContentApp
         } catch (error) {
             //            
         }
-
-        // Remove all jquery dialogs (they are appended to <body> and appendTo:#n3q wont work)
-        $('.n3q-ui-dialog').remove();
 
         // Remove our own top element
         $('#n3q').remove();
@@ -311,7 +308,7 @@ export class ContentApp
     toggleStayHereIsChecked(): void
     {
         this.stayHereIsChecked = !this.stayHereIsChecked;
-        
+
         if (this.stayHereIsChecked) {
             /* await */ Memory.setLocal(Utils.localStorageKey_StayOnTabChange(this.locationUrl), this.stayHereIsChecked);
         } else {

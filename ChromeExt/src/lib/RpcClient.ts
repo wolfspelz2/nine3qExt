@@ -3,7 +3,7 @@ import { RpcProtocol } from './RpcProtocol';
 
 export class RpcClient
 {
-    call(url: string, request: RpcProtocol.BackpackTransactionRequest): Promise<RpcProtocol.Response>
+    call(url: string, request: RpcProtocol.BackpackActionRequest): Promise<RpcProtocol.Response>
     {
         return new Promise((resolve, reject) =>
         {

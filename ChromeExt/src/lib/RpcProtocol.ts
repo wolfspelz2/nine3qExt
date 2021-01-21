@@ -28,9 +28,9 @@ export namespace RpcProtocol
     {
     }
 
-    export class BackpackTransactionRequest extends BackpackRequest
+    export class BackpackActionRequest extends BackpackRequest
     {
-        static method = 'ItemTransaction';
+        static method = 'ItemAction';
         user: string;
         item: string;
         room: string;
@@ -39,7 +39,7 @@ export namespace RpcProtocol
         items: { [id: string]: ItemProperties };
     }
 
-    export class BackpackTransactionResponse extends BackpackResponse
+    export class BackpackActionResponse extends BackpackResponse
     {
         created: { [id: string]: ItemProperties };
         changed: { [id: string]: ItemProperties };
