@@ -200,7 +200,7 @@ export class Config
                     'ErrorReason.ItemDoesNotExist': 'This is an not a known item.',
                     'ErrorReason.NoUserToken': 'No user id. Maybe not logged in as item user.',
                     'ErrorReason.SeeDetail': '',
-                    'ErrorReason.InvalidChecksum': 'Invalid checksum. Maybe not a valid item.',
+                    'ErrorReason.InvalidChecksum': 'Invalid checksum. Not a valid item.',
                     'ErrorReason.StillInCooldown': 'Still in cooldown period.',
 
                     'ErrorDetail.Applier.Apply': 'Applying an item to another',
@@ -281,7 +281,7 @@ export class Config
                     'ErrorReason.ItemDoesNotExist': 'Dieser Gegenstand ist nicht bekannt.',
                     'ErrorReason.NoUserToken': 'Keine Benutzerkennung. Möglicherweise nicht als Benutzer von Gegenständen angemeldet.',
                     'ErrorReason.SeeDetail': '',
-                    'ErrorReason.InvalidChecksum': 'Falsche Checksumme. Möglicherweise kein zulässiger Gegenstand.',
+                    'ErrorReason.InvalidChecksum': 'Falsche Checksumme. Kein zulässiger Gegenstand.',
                     'ErrorReason.StillInCooldown': 'Braucht noch Zeit, um sich zu erholen.',
 
                     'ErrorDetail.Applier.Apply': 'Beim Anwenden eines Gegenstands auf einen anderen.',

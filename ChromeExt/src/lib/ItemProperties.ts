@@ -9,4 +9,10 @@ export class Pid
     static readonly InventoryX = 'InventoryX';
     static readonly InventoryY = 'InventoryY';
     static readonly Provider = 'Provider';
+    static readonly IframeAspect = 'IframeAspect';
+    static readonly IframeWidth = 'IframeWidth';
+    static readonly IframeHeight = 'IframeHeight';
+    static readonly IframeResizable = 'IframeResizable';
+    static readonly IframeFrame = 'IframeFrame';
+    static readonly IframeUrl = 'IframeUrl';
 }
