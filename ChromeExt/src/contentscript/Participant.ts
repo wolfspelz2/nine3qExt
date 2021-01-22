@@ -632,7 +632,7 @@ export class Participant extends Entity
             let roomJid = this.getRoom().getJid();
 
             log.info('Participant', 'derezItem', itemId, 'from', roomJid);
-            BackgroundMessage.derezBackpackItem(itemId, roomJid, -1, -1, ItemChangeOptions.empty);
+            BackgroundMessage.derezBackpackItem(itemId, roomJid, -1, -1, {});
             // this.app.sendPresence();
 
             // await this.app.showBackpackWindow(this.elem);

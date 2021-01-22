@@ -191,6 +191,7 @@ export class Config
                     'ErrorFact.NotChanged': 'Failed to update item',
                     'ErrorFact.NoItemsReceived': 'No items recevied',
                     'ErrorFact.NotExecuted': 'Not executed',
+                    'ErrorFact.NotCreated': 'No item created',
 
                     'ErrorReason.UnknownReason': 'Unknown reason :-(',
                     'ErrorReason.ItemAlreadyRezzed': 'Item already on page.',
@@ -200,6 +201,7 @@ export class Config
                     'ErrorReason.NoUserToken': 'No user id. Maybe not logged in as item user.',
                     'ErrorReason.SeeDetail': '',
                     'ErrorReason.InvalidChecksum': 'Invalid checksum. Maybe not a valid item.',
+                    'ErrorReason.StillInCooldown': 'Still in cooldown period.',
 
                     'ErrorDetail.Applier.Apply': 'Applying an item to another',
                 },
@@ -270,6 +272,7 @@ export class Config
                     'ErrorFact.NotChanged': 'Gegenstand nicht geändert',
                     'ErrorFact.NoItemsReceived': 'Keine Gegenstände bekommen',
                     'ErrorFact.NotExecuted': 'Nicht ausgeführt',
+                    'ErrorFact.NotCreated': 'Kein Gegenstand erstellt',
 
                     'ErrorReason.UnknownReason': 'Grund unbekannt :-(',
                     'ErrorReason.ItemAlreadyRezzed': 'Gegenstand ist schon auf einer Seite.',
@@ -279,6 +282,7 @@ export class Config
                     'ErrorReason.NoUserToken': 'Keine Benutzerkennung. Möglicherweise nicht als Benutzer von Gegenständen angemeldet.',
                     'ErrorReason.SeeDetail': '',
                     'ErrorReason.InvalidChecksum': 'Falsche Checksumme. Möglicherweise kein zulässiger Gegenstand.',
+                    'ErrorReason.StillInCooldown': 'Braucht noch Zeit, um sich zu erholen.',
 
                     'ErrorDetail.Applier.Apply': 'Beim Anwenden eines Gegenstands auf einen anderen.',
                 },

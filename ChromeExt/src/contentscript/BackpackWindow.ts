@@ -86,7 +86,7 @@ export class BackpackWindow extends Window
                     text = text.replace(/'/g, '"',);
                     let json = JSON.parse(text);
                     let itemId = Utils.randomString(20);
-                    this.createItem(itemId, json, ItemChangeOptions.empty);
+                    this.createItem(itemId, json, {});
                 });
             }
 
@@ -216,7 +216,7 @@ export class BackpackWindow extends Window
         log.info('BackpackWindow', 'rezItem', id, 'to', room);
 
         try {
-            await BackgroundMessage.rezBackpackItem(id, room, x, destination, ItemChangeOptions.empty);
+            await BackgroundMessage.rezBackpackItem(id, room, x, destination, {});
         } catch (ex) {
             new ItemExceptionToast(this.app, Config.get('room.errorToastDurationSec', 8), ex).show();
         }
@@ -227,7 +227,7 @@ export class BackpackWindow extends Window
         log.info('BackpackWindow', 'derezItem', id, 'from', room);
 
         try {
-            await BackgroundMessage.derezBackpackItem(id, room, -1, -1, ItemChangeOptions.empty);
+            await BackgroundMessage.derezBackpackItem(id, room, -1, -1, {});
         } catch (ex) {
             new ItemExceptionToast(this.app, Config.get('room.errorToastDurationSec', 8), ex).show();
         }
