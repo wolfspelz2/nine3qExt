@@ -5,6 +5,7 @@ export class RpcClient
 {
     call(url: string, request: RpcProtocol.BackpackActionRequest): Promise<RpcProtocol.Response>
     {
+        log.debug(RpcClient.name, RpcClient.call.name, url, request);
         return new Promise((resolve, reject) =>
         {
             try {

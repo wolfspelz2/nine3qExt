@@ -827,6 +827,7 @@
     #n3q div.n3q-backpack-pane .n3q-backpack-item.n3q-backpack-item-rezzed,
     #n3q div.n3q-backpack-drag .n3q-backpack-item.n3q-backpack-item-rezzed {
         opacity: 0.5;
+        background-color: #e0e0e0;
     }
 
     // #n3q div.n3q-chatwindow {}
@@ -982,7 +983,7 @@
         word-wrap: break-word;
         position: absolute;
         bottom: 26px;
-        top: 28px;
+        top: 30px;
         right: 8px;
         left: 8px;
         overflow: auto;
