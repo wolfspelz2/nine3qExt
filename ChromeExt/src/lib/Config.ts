@@ -202,8 +202,10 @@ export class Config
                     'ErrorReason.SeeDetail': '',
                     'ErrorReason.InvalidChecksum': 'Invalid checksum. Not a valid item.',
                     'ErrorReason.StillInCooldown': 'Still in cooldown period.',
+                    'ErrorReason.InvalidPropertyValue': 'Property invalid.',
 
                     'ErrorDetail.Applier.Apply': 'Applying an item to another',
+                    'ErrorDetail.Pid.Id': 'Id',
                 },
                 'de-DE': {
                     'Common.Close': 'Schließen',
@@ -283,8 +285,10 @@ export class Config
                     'ErrorReason.SeeDetail': '',
                     'ErrorReason.InvalidChecksum': 'Falsche Checksumme. Kein zulässiger Gegenstand.',
                     'ErrorReason.StillInCooldown': 'Braucht noch Zeit, um sich zu erholen.',
+                    'ErrorReason.InvalidPropertyValue': 'Falsche Eigenschaft.',
 
                     'ErrorDetail.Applier.Apply': 'Beim Anwenden eines Gegenstands auf einen anderen.',
+                    'ErrorDetail.Pid.Id': 'Id',
                 },
             },
             'serviceUrl': '',

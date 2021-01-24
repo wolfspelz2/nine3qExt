@@ -790,6 +790,30 @@
         top: 28px;
     }
 
+    #n3q div.n3q-backpack-dump { 
+        position: absolute;
+        width: 50px;
+        height: 20px;
+        background-color: #808080;
+    }
+
+    #n3q div.n3q-backpack-dump { 
+        position: absolute;
+        right: 4px;
+        top: 52px;
+        width: 60px;
+        height: 60px;
+        // background-color: #808080;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+        #n3q div.n3q-backpack-dump-drophilite { 
+            filter: brightness(0.7);
+            // background-color: #000000;
+        }
+
     #n3q div.n3q-backpack-pane {
         position: absolute;
         left: 0;

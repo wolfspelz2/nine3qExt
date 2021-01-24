@@ -4,11 +4,12 @@ import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 import { Utils, Point2D } from '../lib/Utils';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
+import { ItemChangeOptions } from '../lib/ItemChangeOptions';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ContentApp } from './ContentApp';
 import { BackpackWindow } from './BackpackWindow';
 
 import imgDefaultItem from '../assets/DefaultItem.png';
-import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 
 export class BackpackItem
 {
@@ -149,13 +150,13 @@ export class BackpackItem
         return true;
     }
 
-    private onDragStop(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
+    private async onDragStop(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): Promise<boolean>
     {
         if (this.isPositionInBackpack(ev, ui)) {
             let pos = this.getPositionRelativeToPane(ev, ui);
             if (pos.x != this.x || pos.y != this.y) {
                 this.setPosition(pos.x, pos.y);
-                this.sendSetItemCoordinates(pos.x, pos.y);
+                await this.sendSetItemCoordinates(pos.x, pos.y);
             }
         } else if (this.isPositionInDropzone(ev, ui)) {
             let dropX = ev.pageX - $(this.app.getDisplay()).offset().left;
@@ -227,11 +228,13 @@ export class BackpackItem
         return inDropzone;
     }
 
-    sendSetItemCoordinates(x: number, y: number)
+    async sendSetItemCoordinates(x: number, y: number)
     {
-        this.properties[Pid.InventoryX] = '' + Math.round(x);
-        this.properties[Pid.InventoryY] = '' + Math.round(y);
-        this.backpackWindow.setItemProperties(this.itemId, this.properties, { skipPresenceUpdate: true });
+        if (await BackgroundMessage.isBackpackItem(this.itemId)) {
+            this.properties[Pid.InventoryX] = '' + Math.round(x);
+            this.properties[Pid.InventoryY] = '' + Math.round(y);
+            this.backpackWindow.setItemProperties(this.itemId, this.properties, { skipPresenceUpdate: true });
+        }
     }
 
     rezItem(x: number)

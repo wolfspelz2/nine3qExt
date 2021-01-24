@@ -37,7 +37,7 @@ export class RpcClient
                     })
                     .catch(ex =>
                     {
-                        log.debug('BackgroundApp.handle_jsonRpc', 'catch', url, ex);
+                        log.debug(RpcClient.name, RpcClient.call.name, 'catch', url, ex);
                         reject(ex);
                     });
             } catch (ex) {

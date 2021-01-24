@@ -13,6 +13,7 @@ export namespace ItemException
         NotRezzed,
         NotDerezzed,
         NotAdded,
+        NotDeleted,
         NotChanged,
         NoItemsReceived,
         NotExecuted

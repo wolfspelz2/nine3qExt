@@ -202,6 +202,10 @@ export class BackgroundApp
                 return this.handle_derezBackpackItem(message.itemId, message.roomJid, message.x, message.y, message.options, sendResponse);
             } break;
 
+            case BackgroundMessage.deleteBackpackItem.name: {
+                return this.handle_deleteBackpackItem(message.itemId, message.options, sendResponse);
+            } break;
+
             case BackgroundMessage.isBackpackItem.name: {
                 return this.handle_isBackpackItem(message.itemId, sendResponse);
             } break;
@@ -483,6 +487,19 @@ export class BackgroundApp
             return true;
         } else {
             sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotRezzed, ItemException.Reason.ItemsNotAvailable)));
+        }
+        return false;
+    }
+
+    handle_deleteBackpackItem(itemId: string, options: ItemChangeOptions, sendResponse: (response?: any) => void): boolean
+    {
+        if (this.backpack) {
+            this.backpack.deleteItem(itemId, options)
+                .then(() => { sendResponse(new BackgroundSuccessResponse()); })
+                .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
+            return true;
+        } else {
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotDeleted, ItemException.Reason.ItemsNotAvailable)));
         }
         return false;
     }

@@ -171,6 +171,11 @@ export class BackgroundMessage
         return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.derezBackpackItem.name, 'itemId': itemId, 'roomJid': roomJid, 'x': x, 'y': y, 'options': options });
     }
 
+    static deleteBackpackItem(itemId: string, options: ItemChangeOptions): Promise<void>
+    {
+        return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.deleteBackpackItem.name, 'itemId': itemId, 'options': options });
+    }
+
     static isBackpackItem(itemId: string): Promise<boolean>
     {
         return new Promise(async (resolve, reject) =>
