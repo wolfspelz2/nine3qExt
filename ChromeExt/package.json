@@ -8,6 +8,7 @@
     "prebuild": "npm run clean",
     "build:contentscript-background": "cross-env NODE_ENV=production webpack --config webpack.config.js",
     "build:popup": "cross-env NODE_ENV=production webpack --config webpack.popup.config.js",
+    "build:embedded": "cross-env NODE_ENV=production webpack --config webpack.embedded.config.js",
     "build": "npm-run-all build:*",
     "prewatch": "npm run clean",
     "watch:contentscript-background": "cross-env NODE_ENV=development webpack --config webpack.config.js -w",

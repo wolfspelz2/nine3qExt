@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: n3q-embedded
+  namespace: n3q-prod
+spec:
+  selector:
+    matchLabels:
+      run: n3q-embedded
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: n3q-embedded
+    spec:
+      containers:
+        - name: n3q-embedded
+          image: docker.k8s.sui.li/n3q-embedded:latest
+          ports:
+            - containerPort: 80
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: n3q-embedded
+  namespace: n3q-prod
+  labels:
+    run: n3q-embedded
+spec:
+  selector:
+    run: n3q-embedded
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: n3q-embedded-ingress
+  namespace: n3q-prod
+  annotations:
+    haproxy.org/check: "true"
+    haproxy.org/forwarded-for: "true"
+    haproxy.org/load-balance: "roundrobin"
+    haproxy.org/ssl-redirect: "true"
+spec:
+  tls:
+    - hosts:
+      - cdn.weblin.io
+      secretName: devops/tls-vulcan-weblin-com
+  rules:
+  - host: cdn.weblin.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: n3q-embedded
+            port:
+              number: 80
