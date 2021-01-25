@@ -1,3 +1,36 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cdn-embedded
+  namespace: n3q-prod
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: modify-secrets
+  namespace: n3q-prod
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "watch", "list", "create", "delete"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: modify-secrets-to-sa
+  namespace: n3q-prod
+subjects:
+  - kind: ServiceAccount
+    name: cdn-embedded
+roleRef:
+  kind: Role
+  name: modify-secrets
+  apiGroup: rbac.authorization.k8s.io
+
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -13,12 +46,22 @@ spec:
       labels:
         run: n3q-embedded
     spec:
+      serviceAccountName: cdn-embedded
       containers:
         - name: n3q-embedded
-          image: docker.k8s.sui.li/n3q-embedded:latest
+          image: docker.k8s.sui.li/n3q-embedded:7c9cb968dd
           ports:
             - containerPort: 80
               protocol: TCP
+          volumeMounts:
+            - name: kubectl-binary
+              mountPath: /usr/bin/kubectl
+              readOnly: true
+      volumes:
+      - name: kubectl-binary
+        hostPath:
+          path: /usr/bin/kubectl
+
 ---
 apiVersion: v1
 kind: Service
@@ -50,7 +93,7 @@ spec:
   tls:
     - hosts:
       - cdn.weblin.io
-      secretName: devops/tls-vulcan-weblin-com
+      secretName: n3q-prod/tls-cdn-weblin-io
   rules:
   - host: cdn.weblin.io
     http:
