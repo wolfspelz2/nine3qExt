@@ -191,6 +191,8 @@ export class Config
                     'ErrorFact.NotChanged': 'Failed to update item',
                     'ErrorFact.NoItemsReceived': 'No items recevied',
                     'ErrorFact.NotExecuted': 'Not executed',
+                    'ErrorFact.NotCreated': 'No item created',
+                    'ErrorFact.NotApplied': 'Item not applied',
 
                     'ErrorReason.UnknownReason': 'Unknown reason :-(',
                     'ErrorReason.ItemAlreadyRezzed': 'Item already on page.',
@@ -199,9 +201,13 @@ export class Config
                     'ErrorReason.ItemDoesNotExist': 'This is an not a known item.',
                     'ErrorReason.NoUserToken': 'No user id. Maybe not logged in as item user.',
                     'ErrorReason.SeeDetail': '',
-                    'ErrorReason.InvalidChecksum': 'Invalid checksum. Maybe not a valid item.',
+                    'ErrorReason.InvalidChecksum': 'Invalid checksum. Not a valid item.',
+                    'ErrorReason.StillInCooldown': 'Still in cooldown period.',
+                    'ErrorReason.InvalidPropertyValue': 'Property invalid.',
+                    'ErrorReason.NotYourItem': 'This is not your item.',
 
                     'ErrorDetail.Applier.Apply': 'Applying an item to another',
+                    'ErrorDetail.Pid.Id': 'Id',
                 },
                 'de-DE': {
                     'Common.Close': 'Schließen',
@@ -270,6 +276,8 @@ export class Config
                     'ErrorFact.NotChanged': 'Gegenstand nicht geändert',
                     'ErrorFact.NoItemsReceived': 'Keine Gegenstände bekommen',
                     'ErrorFact.NotExecuted': 'Nicht ausgeführt',
+                    'ErrorFact.NotCreated': 'Kein Gegenstand erstellt',
+                    'ErrorFact.NotApplied': 'Gegenstand nicht angewendet',
 
                     'ErrorReason.UnknownReason': 'Grund unbekannt :-(',
                     'ErrorReason.ItemAlreadyRezzed': 'Gegenstand ist schon auf einer Seite.',
@@ -278,9 +286,13 @@ export class Config
                     'ErrorReason.ItemDoesNotExist': 'Dieser Gegenstand ist nicht bekannt.',
                     'ErrorReason.NoUserToken': 'Keine Benutzerkennung. Möglicherweise nicht als Benutzer von Gegenständen angemeldet.',
                     'ErrorReason.SeeDetail': '',
-                    'ErrorReason.InvalidChecksum': 'Falsche Checksumme. Möglicherweise kein zulässiger Gegenstand.',
+                    'ErrorReason.InvalidChecksum': 'Falsche Checksumme. Kein zulässiger Gegenstand.',
+                    'ErrorReason.StillInCooldown': 'Braucht noch Zeit, um sich zu erholen.',
+                    'ErrorReason.InvalidPropertyValue': 'Falsche Eigenschaft.',
+                    'ErrorReason.NotYourItem': 'Das ist nicht dein Gegenstand.',
 
                     'ErrorDetail.Applier.Apply': 'Beim Anwenden eines Gegenstands auf einen anderen.',
+                    'ErrorDetail.Pid.Id': 'Id',
                 },
             },
             'serviceUrl': '',
@@ -307,25 +319,9 @@ export class Config
         return result;
     }
 
-    static getDev(key: string): any
-    {
-        return Config.getFromTree(this.devConfig, key);
-    }
-
-    static getOnline(key: string): any
-    {
-        return Config.getFromTree(this.onlineConfig, key);
-    }
-
-    static setOnline(key: string, value: any)
-    {
-        return Config.setInTree(this.onlineConfig, key, value);
-    }
-
-    static getStatic(key: string): any
-    {
-        return Config.getFromTree(this.staticConfig, key);
-    }
+    static getDev(key: string): any { return Config.getFromTree(this.devConfig, key); }
+    static getOnline(key: string): any { return Config.getFromTree(this.onlineConfig, key); }
+    static getStatic(key: string): any { return Config.getFromTree(this.staticConfig, key); }
 
     private static getFromTree(tree: any, key: string): any
     {
@@ -366,21 +362,27 @@ export class Config
     static getOnlineTree(): any { return this.onlineConfig; }
     static getStaticTree(): any { return this.staticConfig; }
 
+    static setOnline(key: string, value: any)
+    {
+        log.debug(Config.name, this.setOnline.name, key);
+        return Config.setInTree(this.onlineConfig, key, value);
+    }
+
     static setDevTree(tree: any)
     {
-        log.debug('Config.setDevTree');
+        log.debug(Config.name, this.setDevTree.name);
         this.devConfig = tree;
     }
 
     static setOnlineTree(tree: any): void
     {
-        log.debug('Config.setOnlineTree');
+        log.debug(Config.name, this.setOnlineTree.name);
         this.onlineConfig = tree;
     }
 
     static setStaticTree(tree: any): void
     {
-        log.debug('Config.setStaticTree');
+        log.debug(Config.name, this.setStaticTree.name);
         this.staticConfig = tree;
     }
 

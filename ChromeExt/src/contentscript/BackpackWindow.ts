@@ -15,6 +15,8 @@ import { Environment } from '../lib/Environment';
 import { ItemException } from '../lib/ItemExcption';
 import { ItemExceptionToast, SimpleErrorToast } from './Toast';
 
+import shredderImage from '../assets/Shredder.png';
+
 export class BackpackWindow extends Window
 {
     private paneElem: HTMLElement;
@@ -29,7 +31,7 @@ export class BackpackWindow extends Window
 
     async show(options: any)
     {
-        options = await this.getSavedOptions(options, BackpackWindow.name);
+        options = await this.getSavedOptions(BackpackWindow.name, options);
 
         options.titleText = this.app.translateText('BackpackWindow.Inventory', 'Local Stuff');
         options.resizable = true;
@@ -46,9 +48,11 @@ export class BackpackWindow extends Window
             let contentElem = this.contentElem;
             $(windowElem).addClass('n3q-inventorywindow');
 
-            let left = 50;
-            if (aboveElem) {
-                left = Math.max(aboveElem.offsetLeft - 120, left);
+            let left = as.Int(options.left, 50);
+            if (options.left == null) {
+                if (aboveElem) {
+                    left = Math.max(aboveElem.offsetLeft - 120, left);
+                }
             }
             let top = this.app.getDisplay().offsetHeight - height - bottom;
             {
@@ -86,7 +90,27 @@ export class BackpackWindow extends Window
                     text = text.replace(/'/g, '"',);
                     let json = JSON.parse(text);
                     let itemId = Utils.randomString(20);
-                    this.createItem(itemId, json, ItemChangeOptions.empty);
+                    json.Id = itemId;
+                    this.createItem(itemId, json, {});
+                });
+
+                let dumpElem = <HTMLElement>$('<div class="n3q-base n3q-backpack-dump" />').get(0);
+                $(dumpElem).css({ backgroundImage: 'url(' + shredderImage + ')' });
+                $(contentElem).append(dumpElem);
+                $(dumpElem).droppable({
+                    hoverClass: 'n3q-backpack-dump-drophilite',
+                    tolerance: 'pointer',
+                    drop: async (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
+                    {
+                        let droppedItem = ui.draggable.get(0);
+                        if (droppedItem) {
+                            let droppedId: string = $(droppedItem).data('id');
+                            if (droppedId) {
+                                this.deleteItem(droppedId);
+                                ev.stopPropagation();
+                            }
+                        }
+                    }
                 });
             }
 
@@ -164,10 +188,7 @@ export class BackpackWindow extends Window
 
     async saveCoordinates(left: number, bottom: number, width: number, height: number)
     {
-        await this.saveOption(BackpackWindow.name, 'left', left);
-        await this.saveOption(BackpackWindow.name, 'bottom', bottom);
-        await this.saveOption(BackpackWindow.name, 'width', width);
-        await this.saveOption(BackpackWindow.name, 'height', height);
+        await this.saveOptions(BackpackWindow.name, { 'left': left, 'bottom': bottom, 'width': width, 'height': height });
     }
 
     isOpen(): boolean
@@ -216,7 +237,7 @@ export class BackpackWindow extends Window
         log.info('BackpackWindow', 'rezItem', id, 'to', room);
 
         try {
-            await BackgroundMessage.rezBackpackItem(id, room, x, destination, ItemChangeOptions.empty);
+            await BackgroundMessage.rezBackpackItem(id, room, x, destination, {});
         } catch (ex) {
             new ItemExceptionToast(this.app, Config.get('room.errorToastDurationSec', 8), ex).show();
         }
@@ -227,7 +248,18 @@ export class BackpackWindow extends Window
         log.info('BackpackWindow', 'derezItem', id, 'from', room);
 
         try {
-            await BackgroundMessage.derezBackpackItem(id, room, -1, -1, ItemChangeOptions.empty);
+            await BackgroundMessage.derezBackpackItem(id, room, -1, -1, {});
+        } catch (ex) {
+            new ItemExceptionToast(this.app, Config.get('room.errorToastDurationSec', 8), ex).show();
+        }
+    }
+
+    async deleteItem(id: string)
+    {
+        log.info(BackpackWindow.name, this.deleteItem.name, id);
+
+        try {
+            await BackgroundMessage.deleteBackpackItem(id, {});
         } catch (ex) {
             new ItemExceptionToast(this.app, Config.get('room.errorToastDurationSec', 8), ex).show();
         }

@@ -790,6 +790,30 @@
         top: 28px;
     }
 
+    #n3q div.n3q-backpack-dump { 
+        position: absolute;
+        width: 50px;
+        height: 20px;
+        background-color: #808080;
+    }
+
+    #n3q div.n3q-backpack-dump { 
+        position: absolute;
+        right: 4px;
+        top: 52px;
+        width: 60px;
+        height: 60px;
+        // background-color: #808080;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+        #n3q div.n3q-backpack-dump-drophilite { 
+            filter: brightness(0.5);
+            // background-color: #000000;
+        }
+
     #n3q div.n3q-backpack-pane {
         position: absolute;
         left: 0;
@@ -827,6 +851,7 @@
     #n3q div.n3q-backpack-pane .n3q-backpack-item.n3q-backpack-item-rezzed,
     #n3q div.n3q-backpack-drag .n3q-backpack-item.n3q-backpack-item-rezzed {
         opacity: 0.5;
+        background-color: #e0e0e0;
     }
 
     // #n3q div.n3q-chatwindow {}
@@ -982,7 +1007,7 @@
         word-wrap: break-word;
         position: absolute;
         bottom: 26px;
-        top: 28px;
+        top: 30px;
         right: 8px;
         left: 8px;
         overflow: auto;

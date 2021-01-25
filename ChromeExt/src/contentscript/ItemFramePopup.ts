@@ -6,6 +6,7 @@ import { Point2D } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { Popup } from './Popup';
 import { RepositoryItem } from './RepositoryItem';
+import { Pid } from '../lib/ItemProperties';
 
 type PopupOptions = any;
 
@@ -34,8 +35,8 @@ export class ItemFramePopup extends Popup
             options.minTop = as.Int(options.minTop, 10);
             options.offsetLeft = as.Int(options.bottom, 0);
             options.offsetTop = as.Int(options.bottom, -60);
-            options.width = as.Int(options.item.getProperties().IframeWidth, 400);
-            options.height = as.Int(options.item.getProperties().IframeHeight, 400);
+            options.width = as.Int(options.item.getProperties()[Pid.IframeWidth], 400);
+            options.height = as.Int(options.item.getProperties()[Pid.IframeHeight], 400);
 
             log.debug('ItemFramePopup', url);
             super.show(options);

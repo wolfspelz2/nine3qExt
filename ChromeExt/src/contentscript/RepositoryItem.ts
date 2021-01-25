@@ -10,6 +10,7 @@ import { ItemFrameWindow } from './ItemFrameWindow';
 import { ItemFramePopup } from './ItemFramePopup';
 
 import imgDefaultItem from '../assets/DefaultItem.png';
+import { Pid } from '../lib/ItemProperties';
 
 export class RepositoryItem
 {
@@ -32,8 +33,8 @@ export class RepositoryItem
 
     onClick(clickedElem: HTMLElement, clickPoint: Point2D)
     {
-        if (as.Bool(this.properties['IframeAspect'], false)) {
-            let frame = as.String(this.properties.IframeFrame, 'Window');
+        if (as.Bool(this.properties[Pid.IframeAspect], false)) {
+            let frame = as.String(this.properties[Pid.IframeFrame], 'Window');
             if (frame == 'Popup') {
                 if (this.framePopup) {
                     this.framePopup.close();
@@ -50,8 +51,8 @@ export class RepositoryItem
 
     onDrag(clickedElem: HTMLElement, clickPoint: Point2D)
     {
-        if (as.Bool(this.properties['IframeAspect'], false)) {
-            let frame = as.String(this.properties.IframeFrame, 'Window');
+        if (as.Bool(this.properties[Pid.IframeAspect], false)) {
+            let frame = as.String(this.properties[Pid.IframeFrame], 'Window');
             if (frame == 'Popup') {
                 if (this.framePopup) {
                     this.framePopup.close();
@@ -62,7 +63,7 @@ export class RepositoryItem
 
     async openIframe(clickedElem: HTMLElement, clickPoint: Point2D)
     {
-        let iframeUrl = as.String(this.properties.IframeUrl, null);
+        let iframeUrl = as.String(this.properties[Pid.IframeUrl], null);
         let room = this.app.getRoom();
         let apiUrl = ContentApp.getItemProviderConfigValue(this.providerId, 'apiUrl', '');
         let userId = ContentApp.getItemProviderConfigValue(this.providerId, 'userToken', '');
@@ -78,7 +79,7 @@ export class RepositoryItem
                 .replace('{name}', encodeURIComponent(roomNick))
                 ;
 
-            let frame = as.String(this.properties.IframeFrame, 'Window');
+            let frame = as.String(this.properties[Pid.IframeFrame], 'Window');
             if (frame == 'Popup') {
                 this.openIframePopup(iframeUrl, clickPoint);
             } else {
