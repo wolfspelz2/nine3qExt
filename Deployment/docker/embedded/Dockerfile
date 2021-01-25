@@ -4,7 +4,7 @@ WORKDIR /app
 COPY ./ChromeExt ./
 
 RUN npm install
-RUN npm run build:embedded
+RUN npm run build
 
 #ed -s /etc/ssh/sshd_config <<< $'/Port 22/s/22/57831/g\nw'
 
