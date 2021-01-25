@@ -172,7 +172,7 @@ export class ContentApp
 
     stop()
     {
-        this.iframeApi.stop();
+        this.iframeApi?.stop();
         this.stop_pingBackgroundToKeepConnectionAlive();
         this.stopCheckPageUrl();
         this.leavePage();

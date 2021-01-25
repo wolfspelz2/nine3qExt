@@ -319,25 +319,9 @@ export class Config
         return result;
     }
 
-    static getDev(key: string): any
-    {
-        return Config.getFromTree(this.devConfig, key);
-    }
-
-    static getOnline(key: string): any
-    {
-        return Config.getFromTree(this.onlineConfig, key);
-    }
-
-    static setOnline(key: string, value: any)
-    {
-        return Config.setInTree(this.onlineConfig, key, value);
-    }
-
-    static getStatic(key: string): any
-    {
-        return Config.getFromTree(this.staticConfig, key);
-    }
+    static getDev(key: string): any { return Config.getFromTree(this.devConfig, key); }
+    static getOnline(key: string): any { return Config.getFromTree(this.onlineConfig, key); }
+    static getStatic(key: string): any { return Config.getFromTree(this.staticConfig, key); }
 
     private static getFromTree(tree: any, key: string): any
     {
@@ -378,21 +362,27 @@ export class Config
     static getOnlineTree(): any { return this.onlineConfig; }
     static getStaticTree(): any { return this.staticConfig; }
 
+    static setOnline(key: string, value: any)
+    {
+        log.debug(Config.name, this.setOnline.name, key);
+        return Config.setInTree(this.onlineConfig, key, value);
+    }
+
     static setDevTree(tree: any)
     {
-        log.debug('Config.setDevTree');
+        log.debug(Config.name, this.setDevTree.name);
         this.devConfig = tree;
     }
 
     static setOnlineTree(tree: any): void
     {
-        log.debug('Config.setOnlineTree');
+        log.debug(Config.name, this.setOnlineTree.name);
         this.onlineConfig = tree;
     }
 
     static setStaticTree(tree: any): void
     {
-        log.debug('Config.setStaticTree');
+        log.debug(Config.name, this.setStaticTree.name);
         this.staticConfig = tree;
     }
 
