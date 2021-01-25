@@ -10,5 +10,5 @@ RUN npm run build:embedded
 
 FROM nginx:1.19.0-alpine
 WORKDIR /app
-RUN ed /etc/nginx/nginx.conf <<< $'/#gzip/s/#//g\nw'
+RUN sed -i "s|#gzip|gzip|g" /etc/nginx/nginx.conf
 COPY --from=build /app/dist /usr/share/nginx/html/v1
