@@ -192,6 +192,7 @@ export class Config
                     'ErrorFact.NoItemsReceived': 'No items recevied',
                     'ErrorFact.NotExecuted': 'Not executed',
                     'ErrorFact.NotCreated': 'No item created',
+                    'ErrorFact.NotApplied': 'Item not applied',
 
                     'ErrorReason.UnknownReason': 'Unknown reason :-(',
                     'ErrorReason.ItemAlreadyRezzed': 'Item already on page.',
@@ -203,6 +204,7 @@ export class Config
                     'ErrorReason.InvalidChecksum': 'Invalid checksum. Not a valid item.',
                     'ErrorReason.StillInCooldown': 'Still in cooldown period.',
                     'ErrorReason.InvalidPropertyValue': 'Property invalid.',
+                    'ErrorReason.NotYourItem': 'This is not your item.',
 
                     'ErrorDetail.Applier.Apply': 'Applying an item to another',
                     'ErrorDetail.Pid.Id': 'Id',
@@ -275,6 +277,7 @@ export class Config
                     'ErrorFact.NoItemsReceived': 'Keine Gegenstände bekommen',
                     'ErrorFact.NotExecuted': 'Nicht ausgeführt',
                     'ErrorFact.NotCreated': 'Kein Gegenstand erstellt',
+                    'ErrorFact.NotApplied': 'Gegenstand nicht angewendet',
 
                     'ErrorReason.UnknownReason': 'Grund unbekannt :-(',
                     'ErrorReason.ItemAlreadyRezzed': 'Gegenstand ist schon auf einer Seite.',
@@ -286,6 +289,7 @@ export class Config
                     'ErrorReason.InvalidChecksum': 'Falsche Checksumme. Kein zulässiger Gegenstand.',
                     'ErrorReason.StillInCooldown': 'Braucht noch Zeit, um sich zu erholen.',
                     'ErrorReason.InvalidPropertyValue': 'Falsche Eigenschaft.',
+                    'ErrorReason.NotYourItem': 'Das ist nicht dein Gegenstand.',
 
                     'ErrorDetail.Applier.Apply': 'Beim Anwenden eines Gegenstands auf einen anderen.',
                     'ErrorDetail.Pid.Id': 'Id',

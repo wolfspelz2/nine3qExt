@@ -19,7 +19,6 @@ import { VpiResolver } from './VpiResolver';
 import { SettingsWindow } from './SettingsWindow';
 import { XmppWindow } from './XmppWindow';
 import { ChangesWindow } from './ChangesWindow';
-import { Inventory } from './Inventory';
 import { ItemRepository } from './ItemRepository';
 import { TestWindow } from './TestWindow';
 import { BackpackWindow } from './BackpackWindow';
@@ -50,7 +49,6 @@ export class ContentApp
     private pageUrl: string;
     private locationUrl: string;
     private room: Room;
-    private inventories: { [invJid: string]: Inventory; } = {};
     private itemRepository: ItemRepository;
     private propertyStorage: PropertyStorage = new PropertyStorage();
     private babelfish: Translator;
@@ -74,15 +72,6 @@ export class ContentApp
     getItemRepository() { return this.itemRepository; }
     getRoom(): Room { return this.room; }
     getBackpackWindow(): BackpackWindow { return this.backpackWindow; }
-    getInventoryByProviderId(providerId: string): Inventory
-    {
-        for (let invJid in this.inventories) {
-            let inv = this.inventories[invJid];
-            if (inv.getProviderId() == providerId) {
-                return inv;
-            }
-        }
-    }
 
     constructor(protected appendToMe: HTMLElement, private messageHandler: ContentAppNotificationCallback)
     {
@@ -161,6 +150,11 @@ export class ContentApp
 
         this.stayHereIsChecked = await Memory.getLocal(Utils.localStorageKey_StayOnTabChange(this.locationUrl), false);
 
+        this.backpackIsOpen = await Memory.getLocal(Utils.localStorageKey_BackpackIsOpen(), false);
+        if (this.backpackIsOpen) {
+            this.showBackpackWindow(null);
+        }
+
         this.startCheckPageUrl();
         this.pingBackgroundToKeepConnectionAlive();
         this.iframeApi = new IframeApi(this).start();
@@ -187,13 +181,6 @@ export class ContentApp
 
     onUnload()
     {
-        for (let inventoryJid in this.inventories) {
-            if (this.inventories[inventoryJid]) {
-                this.inventories[inventoryJid].onUnload();
-                delete this.inventories[inventoryJid];
-            }
-        }
-
         if (this.room) {
             this.room.onUnload();
             this.room = null;
@@ -215,8 +202,6 @@ export class ContentApp
     {
         // new SimpleToast(this, 'test', 4, 'warning', 'Heiner (dev)', 'greets').show();
 
-        this.showInventoryWindow(null, 'nine3q');
-
         // this.showBackpackWindow(null);
 
         //new TestWindow(this).show({});
@@ -228,30 +213,6 @@ export class ContentApp
             this.setBackpackIsOpen(true);
             this.backpackWindow = new BackpackWindow(this);
             this.backpackWindow.show({ 'above': aboveElem, onClose: () => { this.backpackWindow = null; this.setBackpackIsOpen(false); } });
-        }
-    }
-
-    async showInventoryWindow(aboveElem: HTMLElement, providerId: string): Promise<void>
-    {
-        let inv = new Inventory(this, providerId);
-        let jid = inv.getJid();
-
-        if (!this.inventories[jid]) {
-            this.inventories[jid] = inv;
-
-            this.setInventoryIsOpen(true);
-
-            await inv.open({
-                'above': aboveElem,
-                onClose: () =>
-                {
-                    if (this.inventories[jid]) {
-                        this.inventories[jid].close();
-                        delete this.inventories[jid];
-                    }
-                    this.setInventoryIsOpen(false);
-                },
-            });
         }
     }
 
@@ -279,6 +240,11 @@ export class ContentApp
     setBackpackIsOpen(value: boolean): void
     {
         this.backpackIsOpen = value; this.evaluateStayOnTabChange();
+        if (value) {
+            /* await */ Memory.setLocal(Utils.localStorageKey_BackpackIsOpen(), this.stayHereIsChecked);
+        } else {
+            /* await */ Memory.deleteLocal(Utils.localStorageKey_BackpackIsOpen());
+        }
     }
 
     setInventoryIsOpen(value: boolean): void
@@ -451,11 +417,6 @@ export class ContentApp
     leavePage()
     {
         this.leaveRoom();
-
-        for (let inventoryJid in this.inventories) {
-            var inv = this.inventories[inventoryJid];
-            inv.close();
-        }
     }
 
     async checkPageUrlChanged()
@@ -575,13 +536,6 @@ export class ContentApp
                     this.room.onPresence(stanza);
                     isHandled = true;
                 }
-            }
-        }
-
-        if (!isHandled) {
-            if (this.inventories[roomOrUser]) {
-                this.inventories[roomOrUser].onPresence(stanza);
-                isHandled = true;
             }
         }
     }

@@ -7,7 +7,6 @@ import { ContentApp } from './ContentApp';
 import { Window } from './Window';
 import { RepositoryItem } from './RepositoryItem';
 import { RoomItem } from './RoomItem';
-import { InventoryItem } from './InventoryItem';
 import { Pid } from '../lib/ItemProperties';
 
 type WindowOptions = any;

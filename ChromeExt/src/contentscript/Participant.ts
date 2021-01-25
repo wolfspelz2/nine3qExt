@@ -4,6 +4,7 @@ import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { IObserver } from '../lib/ObservableProperty';
+import { Pid } from '../lib/ItemProperties';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
@@ -177,9 +178,9 @@ export class Participant extends Entity
         if (this.isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, this.isSelf);
             if (Config.get('backpack.enabled', false)) {
-                if (this.isSelf) {
-                    this.avatarDisplay.makeDroppable();
-                }
+                // if (this.isSelf) {
+                this.avatarDisplay.makeDroppable();
+                // }
             }
 
             this.nicknameDisplay = new Nickname(this.app, this, this.isSelf, this.getElem());
@@ -341,24 +342,23 @@ export class Participant extends Entity
 
     // message
 
-    onMessagePrivateChat(stanza: any): void
+    onMessagePrivateChat(stanza: any): Promise<void>
     {
         let from = jid(stanza.attrs.from);
         let nick = from.getResource();
         let name = this.getDisplayName();
         let isChat = true;
 
-        {
-            let node = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:poke');
-            if (node) {
-                try {
-                    let type = node.attrs.type;
-                    new SimpleToast(this.app, 'Poke-' + type, Config.get('room.pokeToastDurationSec', 10), 'greeting', name, type + 's').show();
-                    isChat = false;
-                } catch (error) {
-                    //
-                }
-            }
+        let pokeNode = stanza.getChildren('x').find(child => (child.attrs == null) ? false : as.String(child.attrs.xmlns, '') == 'vp:poke');
+        if (pokeNode) {
+            isChat = false;
+            this.onReceivePoke(pokeNode);
+        }
+
+        let transferNode = stanza.getChildren('x').find(child => (child.attrs == null) ? false : as.String(child.attrs.xmlns, '') == 'vp:transfer');
+        if (transferNode) {
+            isChat = false;
+            this.onReceiveTransfer(transferNode);
         }
 
         if (!isChat) { return; }
@@ -380,6 +380,52 @@ export class Participant extends Entity
         // } else {
         //     this.privateChatWindow?.addLine(nick + Date.now(), name, text);
         // }
+    }
+
+    onReceivePoke(node: any): void
+    {
+        try {
+            let type = node.attrs.type;
+            new SimpleToast(this.app, 'Poke-' + type, Config.get('room.pokeToastDurationSec', 10), 'greeting', this.getDisplayName(), type + 's').show();
+        } catch (error) {
+            //
+        }
+    }
+
+    async onReceiveTransfer(node: any): Promise<void>
+    {
+        try {
+            let type = as.String(node.attrs.type, '');
+            let itemId = as.String(node.attrs.item, '');
+            if (type != '' && itemId != '') {
+                switch (type) {
+
+                    case 'request':
+                        if (node.children && node.children.length > 0)
+                            for (let i = 0; i < node.children.length; i++) {
+                                let body = as.String(node.children[i], '');
+                                if (body != '') {
+                                    let props = JSON.parse(body);
+                                    await BackgroundMessage.addBackpackItem(itemId, props, {});
+                                    await BackgroundMessage.derezBackpackItem(itemId, this.room.getJid(), -1, -1, {});
+                                    await BackgroundMessage.modifyBackpackItemProperties(itemId, {}, [Pid.TransferState], { skipPresenceUpdate: true });
+                                    this.room.confirmItemTransfer(itemId, this.nick);
+                                }
+                            }
+                        break;
+
+                    case 'confirm':
+                        let props = await BackgroundMessage.getBackpackItemProperties(itemId);
+                        if (props[Pid.TransferState] == Pid.TransferState_Source) {
+                        await BackgroundMessage.deleteBackpackItem(itemId, {});
+                        }
+                        break;
+
+                }
+            }
+        } catch (error) {
+            //
+        }
     }
 
     onMessageGroupchat(stanza: any): void
@@ -605,7 +651,7 @@ export class Participant extends Entity
 
     sendPoke(type: string): void
     {
-        this.room?.sendPoke(this.getNick(), type);
+        this.room?.sendPoke(this.nick, type);
     }
 
     openPrivateChat(aboveElem: HTMLElement): void
@@ -627,26 +673,14 @@ export class Participant extends Entity
 
     async applyItem(roomItem: RoomItem)
     {
+        let itemId = roomItem.getNick();
+        let roomJid = this.getRoom().getJid();
         if (this.isSelf) {
-            let itemId = roomItem.getNick();
-            let roomJid = this.getRoom().getJid();
-
-            log.info('Participant', 'derezItem', itemId, 'from', roomJid);
-            BackgroundMessage.derezBackpackItem(itemId, roomJid, -1, -1, {});
-            // this.app.sendPresence();
-
-            // await this.app.showBackpackWindow(this.elem);
-            // let backpackWindow = this.app.getBackpackWindow();
-            // if (backpackWindow) {
-            //     backpackWindow.derezItem(itemId, roomJid, -1, -1);
-            // }
-
-            // let itemProviderId = roomItem.getProviderId();
-            // let inv = this.app.getInventoryByProviderId(itemProviderId);
-            // if (inv) {
-            //     roomItem.beginDerez();
-            //     inv.sendDerezItem(itemId, roomJid, -1, -1);
-            // }
+            log.info(Participant.name, this.applyItem.name, 'derez', itemId, 'from', roomJid);
+            await BackgroundMessage.derezBackpackItem(itemId, roomJid, -1, -1, {});
+        } else {
+            log.info(Participant.name, this.applyItem.name, 'transfer', itemId, 'from', roomJid);
+            await this.room?.transferItem(itemId, this.nick);
         }
     }
 

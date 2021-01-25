@@ -31,7 +31,7 @@ export class BackpackWindow extends Window
 
     async show(options: any)
     {
-        options = await this.getSavedOptions(options, BackpackWindow.name);
+        options = await this.getSavedOptions(BackpackWindow.name, options);
 
         options.titleText = this.app.translateText('BackpackWindow.Inventory', 'Local Stuff');
         options.resizable = true;
@@ -48,9 +48,11 @@ export class BackpackWindow extends Window
             let contentElem = this.contentElem;
             $(windowElem).addClass('n3q-inventorywindow');
 
-            let left = 50;
-            if (aboveElem) {
-                left = Math.max(aboveElem.offsetLeft - 120, left);
+            let left = as.Int(options.left, 50);
+            if (options.left == null) {
+                if (aboveElem) {
+                    left = Math.max(aboveElem.offsetLeft - 120, left);
+                }
             }
             let top = this.app.getDisplay().offsetHeight - height - bottom;
             {
@@ -186,10 +188,7 @@ export class BackpackWindow extends Window
 
     async saveCoordinates(left: number, bottom: number, width: number, height: number)
     {
-        await this.saveOption(BackpackWindow.name, 'left', left);
-        await this.saveOption(BackpackWindow.name, 'bottom', bottom);
-        await this.saveOption(BackpackWindow.name, 'width', width);
-        await this.saveOption(BackpackWindow.name, 'height', height);
+        await this.saveOptions(BackpackWindow.name, { 'left': left, 'bottom': bottom, 'width': width, 'height': height });
     }
 
     isOpen(): boolean

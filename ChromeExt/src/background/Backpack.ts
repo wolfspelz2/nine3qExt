@@ -306,6 +306,7 @@ export class Backpack
     {
         let item = this.items[itemId];
         if (item == null) { throw new ItemException(ItemException.Fact.NotDerezzed, ItemException.Reason.ItemDoesNotExist, itemId); }
+        if (!item.isRezzed()) { return; }
         if (!item.isRezzedTo(roomJid)) { throw new ItemException(ItemException.Fact.NotDerezzed, ItemException.Reason.ItemNotRezzedHere); }
 
         this.removeFromRoom(itemId, roomJid);

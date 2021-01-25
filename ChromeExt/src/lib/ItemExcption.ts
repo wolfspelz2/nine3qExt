@@ -16,8 +16,10 @@ export namespace ItemException
         NotDeleted,
         NotChanged,
         NoItemsReceived,
-        NotExecuted
+        NotExecuted,
+        NotApplied
     }
+
 
     export enum Reason
     {
@@ -27,7 +29,8 @@ export namespace ItemException
         ItemsNotAvailable,
         ItemDoesNotExist,
         NoUserToken,
-        SeeDetail
+        SeeDetail,
+        NotYourItem
     }
 }
 

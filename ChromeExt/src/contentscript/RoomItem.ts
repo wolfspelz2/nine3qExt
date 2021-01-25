@@ -8,13 +8,14 @@ import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 import { RpcProtocol } from '../lib/RpcProtocol';
+import { ItemExceptionToast, SimpleErrorToast } from './Toast';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
-import { ItemExceptionToast, SimpleErrorToast } from './Toast';
 
 import imgDefaultItem from '../assets/DefaultItem.png';
+import { ItemException } from '../lib/ItemExcption';
 
 export class RoomItem extends Entity
 {
@@ -228,12 +229,25 @@ export class RoomItem extends Entity
     {
         let itemId = this.nick;
         let passiveItemId = passiveItem.getNick();
+
+        if (!await BackgroundMessage.isBackpackItem(passiveItemId)) {
+            let fact = ItemException.Fact[ItemException.Fact.NotApplied];
+            let reason = ItemException.Reason[ItemException.Reason.NotYourItem];
+            let detail = passiveItemId;
+            new SimpleErrorToast(this.app, 'Warning-' + fact + '-' + reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', fact, reason, detail).show();
+            return;
+        }
+
         if (await BackgroundMessage.isBackpackItem(itemId)) {
 
             try {
                 await BackgroundMessage.executeBackpackItemAction(itemId, 'Applier.Apply', { 'passive': passiveItemId }, [itemId, passiveItemId]);
-            } catch (error) {
-                new SimpleErrorToast(this.app, 'Warning-' + error.fact + '-' + error.reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', error.fact, error.reason, error.detail).show();
+            } catch (ex) {
+                // new SimpleErrorToast(this.app, 'Warning-' + error.fact + '-' + error.reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', error.fact, error.reason, error.detail).show();
+                let fact = typeof ex.fact === 'number' ? ItemException.Fact[ex.fact] : ex.fact;
+                let reason = typeof ex.reason === 'number' ? ItemException.Reason[ex.reason] : ex.reason;
+                let detail = ex.detail;
+                new SimpleErrorToast(this.app, 'Warning-' + fact + '-' + reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', fact, reason, detail).show();
             }
 
         } else {

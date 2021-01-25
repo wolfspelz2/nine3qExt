@@ -134,26 +134,19 @@ export class Window
         }
     }
 
-    async getSavedOptions(options: any, name: string): Promise<any>
+    async getSavedOptions(name: string, presetOptions : any): Promise<any>
     {
-        options = await this.getSavedOption(options, name, 'bottom');
-        options = await this.getSavedOption(options, name, 'width');
-        options = await this.getSavedOption(options, name, 'height');
-        return options;
-    }
-
-    async getSavedOption(options: any, name: string, key: string): Promise<any>
-    {
-        let value = await Memory.getLocal('window.' + name + '.' + key, null);
-        if (value) {
-            options[key] = value;
+        let savedOptions = await Memory.getLocal('window.' + name, null);
+        let options = presetOptions;
+        for (let key in savedOptions) {
+            options[key] = savedOptions[key];
         }
         return options;
     }
 
-    async saveOption(name: string, key: string, value: any): Promise<void>
+    async saveOptions(name: string, value: any): Promise<void>
     {
-        await Memory.setLocal('window.' + name + '.' + key, value);
+        await Memory.setLocal('window.' + name, value);
     }
 
     isOpen(): boolean

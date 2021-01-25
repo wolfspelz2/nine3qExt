@@ -3,7 +3,7 @@ import { client, xml, jid } from '@xmpp/client';
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
-import { BackgroundErrorResponse, BackgroundItemExceptionResponse, BackgroundMessage, BackgroundResponse, BackgroundSuccessResponse, GetBackpackStateResponse, IsBackpackItemResponse } from '../lib/BackgroundMessage';
+import { BackgroundErrorResponse, BackgroundItemExceptionResponse, BackgroundMessage, BackgroundResponse, BackgroundSuccessResponse, GetBackpackItemPropertiesResponse, GetBackpackStateResponse, IsBackpackItemResponse } from '../lib/BackgroundMessage';
 import { Client } from '../lib/Client';
 import { ItemProperties } from '../lib/ItemProperties';
 import { ContentMessage } from '../lib/ContentMessage';
@@ -208,6 +208,10 @@ export class BackgroundApp
 
             case BackgroundMessage.isBackpackItem.name: {
                 return this.handle_isBackpackItem(message.itemId, sendResponse);
+            } break;
+
+            case BackgroundMessage.getBackpackItemProperties.name: {
+                return this.handle_getBackpackItemProperties(message.itemId, sendResponse);
             } break;
 
             case BackgroundMessage.executeBackpackItemAction.name: {
@@ -511,6 +515,17 @@ export class BackgroundApp
             sendResponse(new IsBackpackItemResponse(isItem));
         } else {
             sendResponse(new IsBackpackItemResponse(false));
+        }
+        return false;
+    }
+
+    handle_getBackpackItemProperties(itemId: string, sendResponse: (response?: any) => void): boolean
+    {
+        if (this.backpack) {
+            let props = this.backpack.getItemProperties(itemId);
+            sendResponse(new GetBackpackItemPropertiesResponse(props));
+        } else {
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemsNotAvailable)));
         }
         return false;
     }

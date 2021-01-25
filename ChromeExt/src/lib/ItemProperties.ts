@@ -15,4 +15,8 @@ export class Pid
     static readonly IframeResizable = 'IframeResizable';
     static readonly IframeFrame = 'IframeFrame';
     static readonly IframeUrl = 'IframeUrl';
+    static readonly TransferState = 'TransferState';
+
+    static readonly TransferState_Source = 'Source';
+    static readonly TransferState_Destination = 'Destination';
 }
