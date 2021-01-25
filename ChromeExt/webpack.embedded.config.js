@@ -56,7 +56,7 @@ module.exports = {
         }),
         new HtmlWebpackPlugin({
             filename: "embedded.html",
-            title: "Unit Tests",
+            title: "weblin.io Embedded Demo",
         })
     ],
     resolve: {
