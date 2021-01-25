@@ -7,7 +7,7 @@ import { ContentApp } from './ContentApp';
 import { Window } from './Window';
 import { RepositoryItem } from './RepositoryItem';
 import { RoomItem } from './RoomItem';
-import { InventoryItem } from './InventoryItem';
+import { Pid } from '../lib/ItemProperties';
 
 type WindowOptions = any;
 
@@ -36,9 +36,9 @@ export class ItemFrameWindow extends Window
             options.minTop = as.Int(options.minTop, 10);
             options.offsetLeft = as.Int(options.bottom, 20);
             options.offsetTop = as.Int(options.bottom, -350);
-            options.width = as.Int(options.item.getProperties().IframeWidth, 400);
-            options.height = as.Int(options.item.getProperties().IframeHeight, 400);
-            options.resizable = as.Bool(options.item.getProperties().IframeResizable, true);
+            options.width = as.Int(options.item.getProperties()[Pid.IframeWidth], 400);
+            options.height = as.Int(options.item.getProperties()[Pid.IframeHeight], 400);
+            options.resizable = as.Bool(options.item.getProperties()[Pid.IframeResizable], true);
             options.titleText = as.String(options.item.getProperties().Label, 'Item');
 
             log.debug('ItemFrameWindow', url);

@@ -3,7 +3,7 @@ import { client, xml, jid } from '@xmpp/client';
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
-import { BackgroundErrorResponse, BackgroundItemExceptionResponse, BackgroundMessage, BackgroundResponse, BackgroundSuccessResponse, GetBackpackStateResponse, IsBackpackItemResponse } from '../lib/BackgroundMessage';
+import { BackgroundErrorResponse, BackgroundItemExceptionResponse, BackgroundMessage, BackgroundResponse, BackgroundSuccessResponse, GetBackpackItemPropertiesResponse, GetBackpackStateResponse, IsBackpackItemResponse } from '../lib/BackgroundMessage';
 import { Client } from '../lib/Client';
 import { ItemProperties } from '../lib/ItemProperties';
 import { ContentMessage } from '../lib/ContentMessage';
@@ -202,8 +202,16 @@ export class BackgroundApp
                 return this.handle_derezBackpackItem(message.itemId, message.roomJid, message.x, message.y, message.options, sendResponse);
             } break;
 
+            case BackgroundMessage.deleteBackpackItem.name: {
+                return this.handle_deleteBackpackItem(message.itemId, message.options, sendResponse);
+            } break;
+
             case BackgroundMessage.isBackpackItem.name: {
                 return this.handle_isBackpackItem(message.itemId, sendResponse);
+            } break;
+
+            case BackgroundMessage.getBackpackItemProperties.name: {
+                return this.handle_getBackpackItemProperties(message.itemId, sendResponse);
             } break;
 
             case BackgroundMessage.executeBackpackItemAction.name: {
@@ -487,6 +495,19 @@ export class BackgroundApp
         return false;
     }
 
+    handle_deleteBackpackItem(itemId: string, options: ItemChangeOptions, sendResponse: (response?: any) => void): boolean
+    {
+        if (this.backpack) {
+            this.backpack.deleteItem(itemId, options)
+                .then(() => { sendResponse(new BackgroundSuccessResponse()); })
+                .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
+            return true;
+        } else {
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotDeleted, ItemException.Reason.ItemsNotAvailable)));
+        }
+        return false;
+    }
+
     handle_isBackpackItem(itemId: string, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
@@ -494,6 +515,17 @@ export class BackgroundApp
             sendResponse(new IsBackpackItemResponse(isItem));
         } else {
             sendResponse(new IsBackpackItemResponse(false));
+        }
+        return false;
+    }
+
+    handle_getBackpackItemProperties(itemId: string, sendResponse: (response?: any) => void): boolean
+    {
+        if (this.backpack) {
+            let props = this.backpack.getItemProperties(itemId);
+            sendResponse(new GetBackpackItemPropertiesResponse(props));
+        } else {
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemsNotAvailable)));
         }
         return false;
     }

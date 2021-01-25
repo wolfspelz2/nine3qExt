@@ -4,12 +4,14 @@ import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { Panic } from '../lib/Panic';
+import { Pid } from '../lib/ItemProperties';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Participant } from './Participant';
 import { RoomItem } from './RoomItem';
 import { ChatWindow } from './ChatWindow'; // Wants to be after Participant and Item otherwise $().resizable does not work
 import { VidconfWindow } from './VidconfWindow';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 
 export interface IRoomInfoLine extends Array<string | string> { 0: string, 1: string }
 export interface IRoomInfo extends Array<IRoomInfoLine> { }
@@ -372,6 +374,33 @@ export class Room
             .append(xml('x', { 'xmlns': 'vp:poke', 'type': type }))
             ;
         this.app.sendStanza(message);
+    }
+
+    async transferItem(itemId: string, nick: string)
+    {
+        try {
+            await BackgroundMessage.derezBackpackItem(itemId, this.getJid(), -1, -1, {});
+            await BackgroundMessage.modifyBackpackItemProperties(itemId, { [Pid.TransferState]: Pid.TransferState_Source }, [], { skipPresenceUpdate: true });
+            let props = await BackgroundMessage.getBackpackItemProperties(itemId);
+            let message = xml('message', { type: 'chat', to: this.jid + '/' + nick, from: this.jid + '/' + this.myNick })
+                .append(xml('x', { 'xmlns': 'vp:transfer', 'type': 'request', 'item': itemId }, JSON.stringify(props)))
+                ;
+            this.app.sendStanza(message);
+        } catch (error) {
+
+        }
+    }
+
+    confirmItemTransfer(itemId: string, nick: string)
+    {
+        try {
+            let message = xml('message', { type: 'chat', to: this.jid + '/' + nick, from: this.jid + '/' + this.myNick })
+                .append(xml('x', { 'xmlns': 'vp:transfer', 'type': 'confirm', 'item': itemId }))
+                ;
+            this.app.sendStanza(message);
+        } catch (error) {
+
+        }
     }
 
     showChatWindow(aboveElem: HTMLElement): void

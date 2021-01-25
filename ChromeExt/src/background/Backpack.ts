@@ -56,6 +56,12 @@ export class Backpack
     {
         let item = this.createRepositoryItem(itemId, props);
 
+        if (item.isRezzed()) {
+            if (!options.skipPresenceUpdate) {
+                item.sendPresence();
+            }
+        }
+
         if (!options.skipPersistentStorage) {
             await this.persistentSaveItem(itemId);
         }
@@ -241,21 +247,21 @@ export class Backpack
                 if (response.changed) {
                     for (let id in response.changed) {
                         let props = response.changed[id];
-                        await this.setItemProperties(id, props, ItemChangeOptions.empty);
+                        await this.setItemProperties(id, props, {});
                     }
                 }
 
                 if (response.created) {
                     for (let id in response.created) {
                         let props = response.created[id];
-                        await this.addItem(id, props, ItemChangeOptions.empty);
+                        await this.addItem(id, props, {});
                     }
                 }
 
                 if (response.deleted) {
                     for (let i = 0; i < response.deleted.length; i++) {
                         let id = response.deleted[i];
-                        await this.deleteItem(id, ItemChangeOptions.empty);
+                        await this.deleteItem(id, {});
                     }
                 }
 
@@ -300,6 +306,7 @@ export class Backpack
     {
         let item = this.items[itemId];
         if (item == null) { throw new ItemException(ItemException.Fact.NotDerezzed, ItemException.Reason.ItemDoesNotExist, itemId); }
+        if (!item.isRezzed()) { return; }
         if (!item.isRezzedTo(roomJid)) { throw new ItemException(ItemException.Fact.NotDerezzed, ItemException.Reason.ItemNotRezzedHere); }
 
         this.removeFromRoom(itemId, roomJid);

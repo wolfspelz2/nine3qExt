@@ -5,6 +5,7 @@ export class RpcClient
 {
     call(url: string, request: RpcProtocol.BackpackActionRequest): Promise<RpcProtocol.Response>
     {
+        log.debug(RpcClient.name, RpcClient.call.name, url, request);
         return new Promise((resolve, reject) =>
         {
             try {
@@ -36,7 +37,7 @@ export class RpcClient
                     })
                     .catch(ex =>
                     {
-                        log.debug('BackgroundApp.handle_jsonRpc', 'catch', url, ex);
+                        log.debug(RpcClient.name, RpcClient.call.name, 'catch', url, ex);
                         reject(ex);
                     });
             } catch (ex) {

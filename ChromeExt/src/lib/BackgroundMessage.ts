@@ -40,6 +40,11 @@ export class IsBackpackItemResponse extends BackgroundResponse
     constructor(public isItem: boolean) { super(true); }
 }
 
+export class GetBackpackItemPropertiesResponse extends BackgroundResponse
+{
+    constructor(public properties: ItemProperties) { super(true); }
+}
+
 export class BackgroundMessage
 {
     static background: BackgroundApp;
@@ -171,6 +176,11 @@ export class BackgroundMessage
         return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.derezBackpackItem.name, 'itemId': itemId, 'roomJid': roomJid, 'x': x, 'y': y, 'options': options });
     }
 
+    static deleteBackpackItem(itemId: string, options: ItemChangeOptions): Promise<void>
+    {
+        return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.deleteBackpackItem.name, 'itemId': itemId, 'options': options });
+    }
+
     static isBackpackItem(itemId: string): Promise<boolean>
     {
         return new Promise(async (resolve, reject) =>
@@ -178,6 +188,19 @@ export class BackgroundMessage
             try {
                 let response = await BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.isBackpackItem.name, 'itemId': itemId });
                 resolve((<IsBackpackItemResponse>response).isItem);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    static getBackpackItemProperties(itemId: string): Promise<ItemProperties>
+    {
+        return new Promise(async (resolve, reject) =>
+        {
+            try {
+                let response = await BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.getBackpackItemProperties.name, 'itemId': itemId });
+                resolve((<GetBackpackItemPropertiesResponse>response).properties);
             } catch (error) {
                 reject(error);
             }
