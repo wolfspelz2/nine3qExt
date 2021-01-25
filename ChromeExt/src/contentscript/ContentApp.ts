@@ -241,7 +241,7 @@ export class ContentApp
     {
         this.backpackIsOpen = value; this.evaluateStayOnTabChange();
         if (value) {
-            /* await */ Memory.setLocal(Utils.localStorageKey_BackpackIsOpen(), this.stayHereIsChecked);
+            /* await */ Memory.setLocal(Utils.localStorageKey_BackpackIsOpen(), value);
         } else {
             /* await */ Memory.deleteLocal(Utils.localStorageKey_BackpackIsOpen());
         }
