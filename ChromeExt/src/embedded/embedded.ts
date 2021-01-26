@@ -9,6 +9,8 @@ import * as $ from 'jquery';
 import { Panic } from '../lib/Panic';
 import { Config } from '../lib/Config';
 
+declare var n3qConfig: any;
+
 let debug = Environment.isDevelopment();
 console.log('cdn.weblin.io Background', 'dev', debug);
 
@@ -18,7 +20,7 @@ if (debug) {
     log.setLevel(log.levels.DEBUG);
 }
 
-var app = null;
+let app: BackgroundApp = null;
 
 async function activate()
 {
@@ -59,7 +61,7 @@ activate();
 
 console.log('cdn.weblin.io Content', 'dev', debug);
 
-var appContent = null;
+let appContent : ContentApp = null;
 let onTabChangeStay = false;
 
 try {
@@ -89,7 +91,7 @@ try {
                 }
             });
             ContentMessage.content = appContent;
-            appContent.start();
+            appContent.start(n3qConfig);
         }
     }
 

@@ -47,6 +47,7 @@ export class ContentApp
 {
     private display: HTMLElement;
     private pageUrl: string;
+    private presetPageUrl: string;
     private locationUrl: string;
     private room: Room;
     private itemRepository: ItemRepository;
@@ -78,8 +79,13 @@ export class ContentApp
         this.itemRepository = new ItemRepository(this);
     }
 
-    async start()
+    async start(params: any)
     {
+        if (params && params.nickname) { await Memory.setSync(Utils.syncStorageKey_Nickname(), params.nickname); }
+        if (params && params.avatar) { await Memory.setSync(Utils.syncStorageKey_Avatar(), params.avatar); }
+        if (params && params.pageUrl) { this.presetPageUrl = params.pageUrl; }
+        if (params && params.x) { await Memory.setLocal(Utils.localStorageKey_X(), params.x); }
+        
         try {
             await BackgroundMessage.waitReady();
         } catch (error) {
@@ -412,7 +418,7 @@ export class ContentApp
     async checkPageUrlChanged()
     {
         try {
-            let pageUrl = Browser.getCurrentPageUrl();
+            let pageUrl = this.presetPageUrl ?? Browser.getCurrentPageUrl();
 
             let newSignificatParts = pageUrl ? this.getSignificantUrlParts(pageUrl) : '';
             let oldSignificatParts = this.pageUrl ? this.getSignificantUrlParts(this.pageUrl) : '';
