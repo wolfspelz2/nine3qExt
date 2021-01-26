@@ -61,7 +61,7 @@ activate();
 
 console.log('cdn.weblin.io Content', 'dev', debug);
 
-let appContent : ContentApp = null;
+let appContent: ContentApp = null;
 let onTabChangeStay = false;
 
 try {
@@ -91,7 +91,7 @@ try {
                 }
             });
             ContentMessage.content = appContent;
-            appContent.start(n3qConfig);
+            appContent.start(n3qConfig ?? {});
         }
     }
 
