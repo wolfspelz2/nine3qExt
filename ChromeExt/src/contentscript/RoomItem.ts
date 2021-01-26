@@ -163,14 +163,6 @@ export class RoomItem extends Entity
             this.show(true, Config.get('room.fadeInSec', 0.3));
         }
 
-        if (this.isFirstPresence) {
-            if (this.room?.iAmAlreadyHere()) {
-                this.room?.showChatMessage(this.roomNick, 'appeared');
-            } else {
-                this.room?.showChatMessage(this.roomNick, 'is present');
-            }
-        }
-
         if (newProperties && newProviderId != '') {
             let item = this.app.getItemRepository().getItem(this.roomNick);
             if (item) {
@@ -180,14 +172,27 @@ export class RoomItem extends Entity
             }
         }
 
+        if (this.isFirstPresence) {
+            let props = this.app.getItemRepository().getItem(this.roomNick).getProperties();
+            let label = as.String(props[Pid.Label], this.roomNick);
+            if (this.room?.iAmAlreadyHere()) {
+                this.room?.showChatMessage(label, 'appeared');
+            } else {
+                this.room?.showChatMessage(label, 'is present');
+            }
+        }
+
         this.isFirstPresence = false;
     }
 
     onPresenceUnavailable(stanza: any): void
     {
+        let props = this.app.getItemRepository().getItem(this.roomNick).getProperties();
+        let label = as.String(props[Pid.Label], this.roomNick);
+
         this.remove();
 
-        this.room?.showChatMessage(this.roomNick, 'disappeared');
+        this.room?.showChatMessage(label, 'disappeared');
     }
 
     onMouseClickAvatar(ev: JQuery.Event): void

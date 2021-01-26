@@ -3,6 +3,7 @@ export class ItemProperties { [pid: string]: string }
 export class Pid
 {
     static readonly Id = 'Id';
+    static readonly Label = 'Label';
     static readonly IsRezzed = 'IsRezzed';
     static readonly RezzedX = 'RezzedX';
     static readonly RezzedLocation = 'RezzedLocation';
@@ -36,6 +37,7 @@ export class Property
 {
     private static config: { [pid: string]: PropertyDefinition } = {
         [Pid.Id]: { inPresence: true },
+        [Pid.Label]: { inPresence: true },
         [Pid.Provider]: { inPresence: true },
         [Pid.ImageUrl]: { inPresence: true },
         [Pid.AnimationsUrl]: { inPresence: true },
