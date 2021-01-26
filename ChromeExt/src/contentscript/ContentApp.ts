@@ -141,7 +141,7 @@ export class ContentApp
         this.appendToMe.append(page);
 
         if (Environment.isExtension()) {
-            this.onRuntimeMessageClosure = this.getOnRuntimeMessageClosure();
+            this.onRuntimeMessageClosure = (message: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => this.onRuntimeMessage(message, sender, sendResponse);
             chrome.runtime.onMessage.addListener(this.onRuntimeMessageClosure);
         }
 
@@ -158,16 +158,6 @@ export class ContentApp
         this.startCheckPageUrl();
         this.pingBackgroundToKeepConnectionAlive();
         this.iframeApi = new IframeApi(this).start();
-    }
-
-    getOnRuntimeMessageClosure()
-    {
-        var self = this;
-        function onRuntimeMessageClosure(message, sender, sendResponse)
-        {
-            return self.onRuntimeMessage(message, sender, sendResponse);
-        }
-        return onRuntimeMessageClosure;
     }
 
     stop()
@@ -327,7 +317,7 @@ export class ContentApp
         this.onSimpleRuntimeMessage(message);
     }
 
-    private onRuntimeMessage(message, sender: chrome.runtime.MessageSender, sendResponse): any
+    private onRuntimeMessage(message, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void): any
     {
         this.onSimpleRuntimeMessage(message);
     }

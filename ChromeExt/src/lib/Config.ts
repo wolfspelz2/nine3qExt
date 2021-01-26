@@ -35,8 +35,8 @@ export class Config
         },
         config: {
             serviceUrl: 'https://webex.vulcan.weblin.com/Config',
-            updateIntervalSec: Utils.randomInt(60000, 80000),
-            checkUpdateIntervalSec: 600,
+            updateIntervalSec: Utils.randomInt(86400-2000, 86400+1000),
+            checkUpdateIntervalSec: Utils.randomInt(120-10, 120+10),
         },
         httpCache: {
             maxAgeSec: 3600,
@@ -111,9 +111,9 @@ export class Config
         itemProviders: {
             'nine3q':
             {
-                name: 'weblin Items',
+                name: 'weblin.io Items',
                 description: 'Things on web pages',
-                configUrl: 'https://webit.vulcan.weblin.com/Config?id={id}',
+                configUrl: 'https://webit.vulcan.weblin.com/Config?id={id}&client={client}',
             }
         },
         i18n: {

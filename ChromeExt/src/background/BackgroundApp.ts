@@ -27,6 +27,8 @@ export class BackgroundApp
     private resource: string;
     private isReady: boolean = false;
     private clientDetails: string = '"weblin.io"';
+    private backpack: Backpack = null;
+    private xmppStarted = false;
 
     private readonly stanzaQ: Array<xml> = [];
     private readonly roomJid2tabId: Map<string, Array<number>> = new Map<string, Array<number>>();
@@ -34,8 +36,6 @@ export class BackgroundApp
     private readonly iqStanzaTabId: Map<string, number> = new Map<string, number>();
     private readonly httpCacheData: Map<string, string> = new Map<string, string>();
     private readonly httpCacheTime: Map<string, number> = new Map<string, number>();
-
-    private backpack: Backpack;
 
     async start(): Promise<void>
     {
@@ -65,45 +65,27 @@ export class BackgroundApp
             });
         }
 
-        this.configUpdater = new ConfigUpdater();
-        await this.configUpdater.getUpdate();
-        await this.configUpdater.startUpdateTimer()
+        this.configUpdater = new ConfigUpdater(this);
+        await this.configUpdater.getUpdate(() => this.onConfigUpdated());
+        await this.configUpdater.startUpdateTimer(() => this.onConfigUpdated());
+    }
 
-        if (Config.get('backpack.enabled', false)) {
-            this.backpack = new Backpack(this);
-            await this.backpack.init();
-        }
-
-        {
-            let itemProviders = Config.get('itemProviders', {});
-            if (itemProviders) {
-                for (let providerId in itemProviders) {
-                    let itemProvider = itemProviders[providerId];
-                    if (itemProvider.configUrl) {
-                        try {
-
-                            let userId = await this.getOrCreateItemProviderUserId(providerId);
-                            let url = itemProvider.configUrl;
-                            url = url
-                                .replace('{id}', encodeURIComponent(userId))
-                                .replace('{client}', encodeURIComponent(Client.getDetails()))
-                                ;
-
-                            var providerConfig = await this.fetchJSON(url);
-                            Config.setOnline('itemProviders.' + providerId + '.config', providerConfig);
-
-                        } catch (error) {
-                            log.info('Fetch itemProvider config failed:', providerId, itemProvider.configUrl, error);
-                        }
-                    }
-                }
+    async onConfigUpdated()
+    {
+        if (this.backpack == null) {
+            if (Config.get('backpack.enabled', false)) {
+                this.backpack = new Backpack(this);
+                await this.backpack.init();
             }
         }
 
-        try {
-            await this.startXmpp();
-        } catch (error) {
-            throw error;
+        if (!this.xmppStarted) {
+            try {
+                await this.startXmpp();
+                this.xmppStarted = true;
+            } catch (error) {
+                throw error;
+            }
         }
 
         this.isReady = true;
@@ -118,16 +100,6 @@ export class BackgroundApp
 
         // this.unsubscribeItemInventories();
         this.stopXmpp();
-    }
-
-    async getOrCreateItemProviderUserId(providerId: string): Promise<string>
-    {
-        let userId = await Memory.getSync(Utils.syncStorageKey_ItemProviderUserId(providerId), '');
-        if (userId == '') {
-            userId = 'ext' + Utils.randomString(40).toLowerCase();
-            await Memory.setSync(Utils.syncStorageKey_ItemProviderUserId(providerId), userId);
-        }
-        return userId;
     }
 
     // IPC

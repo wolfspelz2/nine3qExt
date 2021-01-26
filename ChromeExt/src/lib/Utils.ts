@@ -8,12 +8,12 @@ export class Point2D
 
 export class Utils
 {
-    static syncStorageKey_Nickname(): string { return 'me.nickname'; }
-    static syncStorageKey_Avatar(): string { return 'me.avatar'; }
     static localStorageKey_X(): string { return 'me.x'; }
     static localStorageKey_Active(): string { return 'me.active'; }
     static localStorageKey_StayOnTabChange(roomJid: string): string { return 'config.stayOnTabChange.' + roomJid; }
     static localStorageKey_BackpackIsOpen(): string { return 'config.backpackIsOpen'; }
+    static syncStorageKey_Nickname(): string { return 'me.nickname'; }
+    static syncStorageKey_Avatar(): string { return 'me.avatar'; }
     static syncStorageKey_ItemProviderUserId(providerId: string): string { return 'itemProvider.' + providerId + '.userId'; }
 
     static jsObject2xmlObject(stanza: any): xml
