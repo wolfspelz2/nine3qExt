@@ -15,4 +15,5 @@ WORKDIR /app
 RUN sed -i "s|#gzip|gzip_types text/css application/javascript;\ngzip|g" /etc/nginx/nginx.conf
 COPY ./Deployment/certbot/run.sh /etc/periodic/daily/run.sh
 RUN chmod +x /etc/periodic/daily/run.sh
+COPY ./Deployment/html/* /usr/share/nginx/html
 COPY --from=build /app/dist /usr/share/nginx/html/v1

@@ -97,7 +97,7 @@ export class ConfigUpdater
 
     private async fetchJson(url: string): Promise<any>
     {
-        log.info('ConfigUpdater.fetchConfig', url);
+        log.debug('ConfigUpdater.fetchConfig', url);
 
         return new Promise((resolve, reject) =>
         {

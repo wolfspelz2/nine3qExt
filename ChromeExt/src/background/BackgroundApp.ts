@@ -88,7 +88,10 @@ export class BackgroundApp
             }
         }
 
-        this.isReady = true;
+        if (!this.isReady) {
+            log.info(BackgroundApp.name, 'isReady', this.isReady);
+            this.isReady = true;
+        }
     }
 
     stop(): void
@@ -220,7 +223,7 @@ export class BackgroundApp
 
     private async fetchJSON(url: string): Promise<any>
     {
-        log.info('BackgroundApp.fetchJSON', url);
+        log.debug('BackgroundApp.fetchJSON', url);
 
         return new Promise((resolve, reject) =>
         {
@@ -374,7 +377,7 @@ export class BackgroundApp
                 response[key] = value;
             }
         } catch (error) {
-            log.info('BackgroundApp.handle_getSessionConfig', error);
+            log.debug('BackgroundApp.handle_getSessionConfig', error);
         }
 
         log.debug('BackgroundApp.handle_getSessionConfig', key, 'response', response);
@@ -387,7 +390,7 @@ export class BackgroundApp
         try {
             Memory.setSession(key, value);
         } catch (error) {
-            log.info('BackgroundApp.handle_setSessionConfig', error);
+            log.debug('BackgroundApp.handle_setSessionConfig', error);
         }
     }
 
@@ -614,7 +617,7 @@ export class BackgroundApp
             this.sendStanza(xmlStanza);
 
         } catch (error) {
-            log.info('BackgroundApp.handle_sendStanza', error);
+            log.debug('BackgroundApp.handle_sendStanza', error);
         }
     }
 
@@ -634,7 +637,7 @@ export class BackgroundApp
 
             this.xmpp.send(stanza);
         } catch (error) {
-            log.info('BackgroundApp.sendStanza', error.message ?? '');
+            log.debug('BackgroundApp.sendStanza', error.message ?? '');
         }
     }
 
@@ -645,8 +648,7 @@ export class BackgroundApp
             isConnectionPresence = (!stanza.attrs || !stanza.attrs.to || jid(stanza.attrs.to).getResource() == this.resource);
         }
         if (!isConnectionPresence) {
-            // log.info('BackgroundApp.sendStanza', stanza);
-            log.info('BackgroundApp.sendStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to);
+            log.debug('BackgroundApp.sendStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to);
         }
     }
 
@@ -663,8 +665,7 @@ export class BackgroundApp
                 isConnectionPresence = stanza.attrs.from && (jid(stanza.attrs.from).getResource() == this.resource);
             }
             if (!isConnectionPresence) {
-                // log.info('BackgroundApp.recvStanza', stanza);
-                log.info('BackgroundApp.recvStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to, 'from=', stanza.attrs.from);
+                log.debug('BackgroundApp.recvStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to, 'from=', stanza.attrs.from);
             }
         }
 

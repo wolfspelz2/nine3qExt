@@ -676,10 +676,10 @@ export class Participant extends Entity
         let itemId = roomItem.getNick();
         let roomJid = this.getRoom().getJid();
         if (this.isSelf) {
-            log.info(Participant.name, this.applyItem.name, 'derez', itemId, 'from', roomJid);
+            log.debug(Participant.name, this.applyItem.name, 'derez', itemId, 'from', roomJid);
             await BackgroundMessage.derezBackpackItem(itemId, roomJid, -1, -1, {});
         } else {
-            log.info(Participant.name, this.applyItem.name, 'transfer', itemId, 'from', roomJid);
+            log.debug(Participant.name, this.applyItem.name, 'transfer', itemId, 'from', roomJid);
             await this.room?.transferItem(itemId, this.nick);
         }
     }
