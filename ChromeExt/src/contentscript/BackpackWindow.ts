@@ -15,7 +15,7 @@ import { Environment } from '../lib/Environment';
 import { ItemException } from '../lib/ItemExcption';
 import { ItemExceptionToast, SimpleErrorToast } from './Toast';
 
-import shredderImage from '../assets/Shredder.png';
+import deleteImage from '../assets/Blackhole.png';
 
 export class BackpackWindow extends Window
 {
@@ -28,6 +28,7 @@ export class BackpackWindow extends Window
     }
 
     getPane() { return this.paneElem; }
+    getItem(itemId: string) { return this.items[itemId]; }
 
     async show(options: any)
     {
@@ -95,7 +96,7 @@ export class BackpackWindow extends Window
                 });
 
                 let dumpElem = <HTMLElement>$('<div class="n3q-base n3q-backpack-dump" />').get(0);
-                $(dumpElem).css({ backgroundImage: 'url(' + shredderImage + ')' });
+                $(dumpElem).css({ backgroundImage: 'url(' + deleteImage + ')' });
                 $(contentElem).append(dumpElem);
                 $(dumpElem).droppable({
                     hoverClass: 'n3q-backpack-dump-drophilite',

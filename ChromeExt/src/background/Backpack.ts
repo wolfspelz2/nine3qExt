@@ -78,7 +78,9 @@ export class Backpack
         if (item) {
             if (item.isRezzed()) {
                 let roomJid = item.getProperties()[Pid.RezzedLocation];
-                await this.derezItem(itemId, roomJid, -1, -1, options);
+                if (roomJid) {
+                    await this.derezItem(itemId, roomJid, -1, -1, options);
+                }
             }
 
             if (!options.skipPersistentStorage) {

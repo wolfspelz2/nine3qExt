@@ -32,9 +32,8 @@ export class ItemFramePopup extends Popup
             if (!url) { throw 'No url' }
 
             options.minLeft = as.Int(options.minLeft, 10);
-            options.minTop = as.Int(options.minTop, 10);
-            options.offsetLeft = as.Int(options.bottom, 0);
-            options.offsetTop = as.Int(options.bottom, -60);
+            options.offsetLeft = as.Int(options.offsetLeft, 0);
+            options.offsetBottom = as.Int(options.offsetBottom, 10);
             options.width = as.Int(options.item.getProperties()[Pid.IframeWidth], 400);
             options.height = as.Int(options.item.getProperties()[Pid.IframeHeight], 400);
 
@@ -44,7 +43,7 @@ export class ItemFramePopup extends Popup
             $(this.windowElem).addClass('n3q-itemframepopup');
 
             let left = Math.max(options.clickPos.x - options.width / 2 + options.offsetLeft, options.minLeft);
-            let top = Math.max(options.clickPos.y - options.height / 2 + options.offsetTop, options.minTop);
+            let top = options.clickPos.y - options.offsetBottom - options.height;
 
             let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-itemframepopup-content" src="' + url + ' " frameborder="0"></iframe>').get(0);
 

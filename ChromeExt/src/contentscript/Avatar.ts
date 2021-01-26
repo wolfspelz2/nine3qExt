@@ -10,6 +10,7 @@ import { IObserver, IObservable } from '../lib/ObservableProperty';
 import * as AnimationsXml from './AnimationsXml';
 import { RoomItem } from './RoomItem';
 import { Participant } from './Participant';
+import { BackpackItem } from './BackpackItem';
 
 class AvatarGetAnimationResult
 {
@@ -133,15 +134,16 @@ export class Avatar implements IObserver
     {
         $(this.elem).droppable({
             hoverClass: 'n3q-avatar-drophilite',
+            // accept: 'n3q-',
             drop: async (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
             {
                 let droppedElem = ui.draggable.get(0);
-                let droppedRoomItem = this.getRoomItemByAvatarElem(droppedElem);
+                let droppedRoomItem = this.getRoomItemByDomElem(droppedElem);
 
                 if (droppedRoomItem) {
                     let droppedAvatar = droppedRoomItem.getAvatar();
 
-                    let thisRoomItem = this.getRoomItemByAvatarElem(this.elem);
+                    let thisRoomItem = this.getRoomItemByDomElem(this.elem);
                     if (thisRoomItem) {
                         droppedAvatar?.ignoreDrag();
                         this.app.getRoom().applyItemToItem(thisRoomItem, droppedRoomItem);
@@ -154,31 +156,41 @@ export class Avatar implements IObserver
                             this.app.getRoom().applyItemToParticipant(thisParticipant, droppedRoomItem);
                         }
                     }
+                } else {
+                    let droppedBackpackItem = this.getBackpackItemByDomElem(droppedElem);
                 }
             }
         });
     }
 
-    getRoomItemByAvatarElem(avatarElem: HTMLElement): RoomItem
+    getBackpackItemByDomElem(elem: HTMLElement): BackpackItem
     {
-        let avatarEntityId = this.getEntityIdByAvatarElem(avatarElem);
+        let itemId = $(elem).data('id');
+        if (itemId) {
+            return this.app.getBackpackWindow()?.getItem(itemId);
+        }
+    }
+
+    getRoomItemByDomElem(elem: HTMLElement): RoomItem
+    {
+        let avatarEntityId = this.getEntityIdByAvatarElem(elem);
         if (avatarEntityId) {
             return this.app.getRoom().getItem(avatarEntityId);
         }
     }
 
-    getParticipantByAvatarElem(avatarElem: HTMLElement): Participant
+    getParticipantByAvatarElem(elem: HTMLElement): Participant
     {
-        let avatarEntityId = this.getEntityIdByAvatarElem(avatarElem);
+        let avatarEntityId = this.getEntityIdByAvatarElem(elem);
         if (avatarEntityId) {
             return this.app.getRoom().getParticipant(avatarEntityId);
         }
     }
 
-    getEntityIdByAvatarElem(avatarElem: HTMLElement): string
+    getEntityIdByAvatarElem(elem: HTMLElement): string
     {
-        if (avatarElem) {
-            let avatarEntityElem = avatarElem.parentElement;
+        if (elem) {
+            let avatarEntityElem = elem.parentElement;
             if (avatarEntityElem) {
                 return $(avatarEntityElem).data('nick');
             }
