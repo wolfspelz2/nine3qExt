@@ -29,12 +29,12 @@ export class Participant extends Entity
     private userId: string;
     private privateChatWindow: PrivateChatWindow;
 
-    constructor(app: ContentApp, room: Room, private nick: string, isSelf: boolean)
+    constructor(app: ContentApp, room: Room, private roomNick: string, isSelf: boolean)
     {
         super(app, room, isSelf);
 
         $(this.getElem()).addClass('n3q-participant');
-        $(this.getElem()).attr('data-nick', nick);
+        $(this.getElem()).attr('data-nick', roomNick);
 
         if (isSelf) {
             $(this.getElem()).addClass('n3q-participant-self');
@@ -43,12 +43,12 @@ export class Participant extends Entity
         }
     }
 
-    getNick(): string { return this.nick; }
+    getRoomNick(): string { return this.roomNick; }
     getChatout(): Chatout { return this.chatoutDisplay; }
 
     getDisplayName(): string
     {
-        let name = this.nick;
+        let name = this.roomNick;
         if (this.nicknameDisplay) {
             this.nicknameDisplay.getNickname();
         }
@@ -249,7 +249,7 @@ export class Participant extends Entity
 
         if (this.isFirstPresence) {
             if (!hasPosition) {
-                newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition(this.nick);
+                newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition(this.roomNick);
             }
             if (newX < 0) { newX = 100; }
             this.setPosition(newX);
@@ -272,12 +272,12 @@ export class Participant extends Entity
         if (this.isFirstPresence) {
             // if (this.isSelf && Environment.isDevelopment()) { this.showChatWindow(); }
             if (this.isSelf) {
-                this.room?.showChatMessage(this.nick, 'entered the room');
+                this.room?.showChatMessage(this.roomNick, 'entered the room');
             } else {
                 if (this.room?.iAmAlreadyHere()) {
-                    this.room?.showChatMessage(this.nick, 'entered the room');
+                    this.room?.showChatMessage(this.roomNick, 'entered the room');
                 } else {
-                    this.room?.showChatMessage(this.nick, 'was already there');
+                    this.room?.showChatMessage(this.roomNick, 'was already there');
                 }
             }
         }
@@ -295,13 +295,13 @@ export class Participant extends Entity
     {
         this.remove();
 
-        this.room?.showChatMessage(this.nick, 'left the room');
+        this.room?.showChatMessage(this.roomNick, 'left the room');
     }
 
     fetchVcardImage(avatarDisplay: IObserver)
     {
         let stanzaId = Utils.randomString(15);
-        let iq = xml('iq', { 'type': 'get', 'id': stanzaId, 'to': this.room.getJid() + '/' + this.nick })
+        let iq = xml('iq', { 'type': 'get', 'id': stanzaId, 'to': this.room.getJid() + '/' + this.roomNick })
             .append(xml('vCard', { 'xmlns': 'vcard-temp' }))
             ;
         this.app.sendStanza(iq, stanzaId, (stanza) =>
@@ -409,7 +409,7 @@ export class Participant extends Entity
                                     await BackgroundMessage.addBackpackItem(itemId, props, {});
                                     await BackgroundMessage.derezBackpackItem(itemId, this.room.getJid(), -1, -1, {});
                                     await BackgroundMessage.modifyBackpackItemProperties(itemId, {}, [Pid.TransferState], { skipPresenceUpdate: true });
-                                    this.room.confirmItemTransfer(itemId, this.nick);
+                                    this.room.confirmItemTransfer(itemId, this.roomNick);
                                 }
                             }
                         break;
@@ -641,7 +641,7 @@ export class Participant extends Entity
 
     showVideoConference(): void
     {
-        this.room?.showVideoConference(this.getElem(), this.nicknameDisplay ? this.nicknameDisplay.getNickname() : this.nick);
+        this.room?.showVideoConference(this.getElem(), this.nicknameDisplay ? this.nicknameDisplay.getNickname() : this.roomNick);
     }
 
     showBackpackWindow(): void
@@ -651,7 +651,7 @@ export class Participant extends Entity
 
     sendPoke(type: string): void
     {
-        this.room?.sendPoke(this.nick, type);
+        this.room?.sendPoke(this.roomNick, type);
     }
 
     openPrivateChat(aboveElem: HTMLElement): void
@@ -673,14 +673,14 @@ export class Participant extends Entity
 
     async applyItem(roomItem: RoomItem)
     {
-        let itemId = roomItem.getNick();
+        let itemId = roomItem.getRoomNick();
         let roomJid = this.getRoom().getJid();
         if (this.isSelf) {
             log.debug('Participant.applyItem', 'derez', itemId, 'from', roomJid);
             await BackgroundMessage.derezBackpackItem(itemId, roomJid, -1, -1, {});
         } else {
             log.debug('Participant.applyItem', 'transfer', itemId, 'from', roomJid);
-            await this.room?.transferItem(itemId, this.nick);
+            await this.room?.transferItem(itemId, this.roomNick);
         }
     }
 

@@ -29,7 +29,7 @@ export class PrivateChatWindow extends ChatWindow
         var text: string = as.String($(this.chatinInputElem).val(), '');
         if (text != '') {
 
-            let nick = this.participant.getNick();
+            let nick = this.participant.getRoomNick();
 
             let name = this.room.getParticipant(this.room.getMyNick()).getDisplayName();
 

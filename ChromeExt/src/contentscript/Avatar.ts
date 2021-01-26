@@ -150,7 +150,7 @@ export class Avatar implements IObserver
                     } else {
                         droppedAvatar?.ignoreDrag();
 
-                        let itemId = droppedRoomItem.getNick();
+                        let itemId = droppedRoomItem.getRoomNick();
                         if (await BackgroundMessage.isBackpackItem(itemId)) {
                             let thisParticipant = this.getParticipantByAvatarElem(this.elem);
                             this.app.getRoom().applyItemToParticipant(thisParticipant, droppedRoomItem);

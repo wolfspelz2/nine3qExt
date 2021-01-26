@@ -274,13 +274,13 @@ export class BackpackItem
     {
         let newProperties = this.applyPropertyFilter(properties);
 
-        if (newProperties.ImageUrl) {
-            this.setImage(newProperties.ImageUrl);
+        if (newProperties[Pid.ImageUrl]) {
+            this.setImage(newProperties[Pid.ImageUrl]);
         }
 
-        if (newProperties.Width && newProperties.Height) {
-            var w = as.Int(newProperties.Width, -1);
-            var h = as.Int(newProperties.Height, -1);
+        if (newProperties[Pid.Width] && newProperties[Pid.Height]) {
+            var w = as.Int(newProperties[Pid.Width], -1);
+            var h = as.Int(newProperties[Pid.Height], -1);
             if (w > 0 && h > 0 && (w != this.w || h != this.h)) {
                 this.setSize(w, h);
             }

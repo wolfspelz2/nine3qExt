@@ -148,7 +148,7 @@ export class BackpackWindow extends Window
                                     let x = Math.round(ui.offset.left - $(paneElem).offset().left + ui.draggable.width() / 2);
                                     let y = Math.round(ui.offset.top - $(paneElem).offset().top + ui.draggable.height() / 2)
                                     // roomItem.beginDerez();
-                                    this.derezItem(roomItem.getNick(), roomItem.getRoom().getJid(), x, y);
+                                    this.derezItem(roomItem.getRoomNick(), roomItem.getRoom().getJid(), x, y);
                                 }
                             }
                         }

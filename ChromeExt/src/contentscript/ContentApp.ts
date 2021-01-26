@@ -619,7 +619,7 @@ export class ContentApp
 
     static itemProviderUrlFilter(providerId: string, propName: string, propValue: string): string
     {
-        if (providerId) {
+        if (providerId && providerId != '') {
             let propertyUrlFilter = Config.get('itemProviders.' + providerId + '.config.itemPropertyUrlFilter', {});
             if (propertyUrlFilter) {
                 for (let key in propertyUrlFilter) {

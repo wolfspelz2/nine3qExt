@@ -21,17 +21,17 @@ export class RoomItem extends Entity
 {
     private isFirstPresence: boolean = true;
 
-    constructor(app: ContentApp, room: Room, private nick: string, isSelf: boolean)
+    constructor(app: ContentApp, room: Room, private roomNick: string, isSelf: boolean)
     {
         super(app, room, isSelf);
 
         $(this.getElem()).addClass('n3q-item');
-        $(this.getElem()).attr('data-nick', nick);
+        $(this.getElem()).attr('data-nick', roomNick);
     }
 
     getDefaultAvatar(): string { return imgDefaultItem; }
-    getNick(): string { return this.nick; }
-    getProviderId(): string { return this.app.getItemRepository().getItem(this.nick).getProviderId(); }
+    getRoomNick(): string { return this.roomNick; }
+    getProviderId(): string { return this.app.getItemRepository().getItem(this.roomNick).getProviderId(); }
 
     remove(): void
     {
@@ -48,6 +48,8 @@ export class RoomItem extends Entity
 
         let presenceHasCondition: boolean = false;
         let newCondition: string = '';
+
+        let itemId: string = this.roomNick;
 
         let vpAnimationsUrl = '';
         let vpImageUrl = '';
@@ -76,12 +78,15 @@ export class RoomItem extends Entity
             }
         }
 
-        {
+        if (await BackgroundMessage.isBackpackItem(itemId)) {
+            newProperties = await BackgroundMessage.getBackpackItemProperties(itemId);
+            newProviderId = as.String(newProperties[Pid.Provider], '');
+        } else {
             let vpPropsNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
             if (vpPropsNode) {
                 let attrs = vpPropsNode.attrs;
                 if (attrs) {
-                    newProviderId = as.String(attrs.provider, null);
+                    newProviderId = as.String(attrs.provider, '');
 
                     for (let attrName in attrs) {
                         let attrValue = attrs[attrName];
@@ -90,14 +95,14 @@ export class RoomItem extends Entity
                         }
                         newProperties[attrName] = attrValue;
                     }
-
-                    // vpNickname = as.String(attrs.Nickname, '');
-                    vpAnimationsUrl = as.String(newProperties.AnimationsUrl, '');
-                    vpImageUrl = as.String(newProperties.ImageUrl, '');
-                    vpRezzedX = as.Int(newProperties[Pid.RezzedX], -1);
                 }
             }
         }
+
+        // vpNickname = as.String(attrs.Nickname, '');
+        vpAnimationsUrl = as.String(newProperties[Pid.AnimationsUrl], '');
+        vpImageUrl = as.String(newProperties[Pid.ImageUrl], '');
+        vpRezzedX = as.Int(newProperties[Pid.RezzedX], -1);
 
         // Do someting with the data
 
@@ -108,8 +113,7 @@ export class RoomItem extends Entity
 
         if (this.isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, false);
-            var hasApplierAspect = as.Bool(newProperties.ApplierAspect, false);
-            if (hasApplierAspect) {
+            if (newProperties[Pid.ApplierAspect]) {
                 this.avatarDisplay.makeDroppable();
             }
         }
@@ -125,9 +129,9 @@ export class RoomItem extends Entity
             }
         }
 
-        if (newProperties.Width && newProperties.Height) {
-            var w = as.Int(newProperties.Width, -1);
-            var h = as.Int(newProperties.Height, -1);
+        if (newProperties[Pid.Width] && newProperties[Pid.Height]) {
+            var w = as.Int(newProperties[Pid.Width], -1);
+            var h = as.Int(newProperties[Pid.Height], -1);
             if (w > 0 && h > 0) {
                 this.avatarDisplay?.setSize(w, h);
             }
@@ -143,7 +147,7 @@ export class RoomItem extends Entity
 
         if (this.isFirstPresence) {
             if (!presenceHasPosition && vpRezzedX < 0) {
-                newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition(this.nick);
+                newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition(this.roomNick);
             }
             if (newX < 0) { newX = 100; }
             this.setPosition(newX);
@@ -161,18 +165,18 @@ export class RoomItem extends Entity
 
         if (this.isFirstPresence) {
             if (this.room?.iAmAlreadyHere()) {
-                this.room?.showChatMessage(this.nick, 'appeared');
+                this.room?.showChatMessage(this.roomNick, 'appeared');
             } else {
-                this.room?.showChatMessage(this.nick, 'is present');
+                this.room?.showChatMessage(this.roomNick, 'is present');
             }
         }
 
-        if (newProperties && newProviderId) {
-            let item = this.app.getItemRepository().getItem(this.nick);
+        if (newProperties && newProviderId != '') {
+            let item = this.app.getItemRepository().getItem(this.roomNick);
             if (item) {
-                this.app.getItemRepository().getItem(this.nick).setProperties(newProperties);
+                this.app.getItemRepository().getItem(this.roomNick).setProperties(newProperties);
             } else {
-                this.app.getItemRepository().addItem(this.nick, newProviderId, newProperties);
+                this.app.getItemRepository().addItem(this.roomNick, newProviderId, newProperties);
             }
         }
 
@@ -183,14 +187,14 @@ export class RoomItem extends Entity
     {
         this.remove();
 
-        this.room?.showChatMessage(this.nick, 'disappeared');
+        this.room?.showChatMessage(this.roomNick, 'disappeared');
     }
 
     onMouseClickAvatar(ev: JQuery.Event): void
     {
         super.onMouseClickAvatar(ev);
 
-        let item = this.app.getItemRepository().getItem(this.nick);
+        let item = this.app.getItemRepository().getItem(this.roomNick);
         if (item) {
             item.onClick(this.getElem(), new Point2D(ev.clientX, ev.clientY));
         }
@@ -200,7 +204,7 @@ export class RoomItem extends Entity
     {
         super.onDragAvatarStart(ev, ui);
 
-        let item = this.app.getItemRepository().getItem(this.nick);
+        let item = this.app.getItemRepository().getItem(this.roomNick);
         if (item) {
             item.onDrag(this.getElem(), new Point2D(ev.clientX, ev.clientY));
         }
@@ -217,7 +221,7 @@ export class RoomItem extends Entity
 
     async sendMoveMessage(newX: number): Promise<void>
     {
-        let itemId = this.nick;
+        let itemId = this.roomNick;
         if (await BackgroundMessage.isBackpackItem(itemId)) {
             BackgroundMessage.modifyBackpackItemProperties(itemId, { [Pid.RezzedX]: '' + newX }, [], {});
         } else {
@@ -227,8 +231,8 @@ export class RoomItem extends Entity
 
     async applyItem(passiveItem: RoomItem)
     {
-        let itemId = this.nick;
-        let passiveItemId = passiveItem.getNick();
+        let itemId = this.roomNick;
+        let passiveItemId = passiveItem.getRoomNick();
 
         if (!await BackgroundMessage.isBackpackItem(passiveItemId)) {
             let fact = ItemException.Fact[ItemException.Fact.NotApplied];
@@ -257,7 +261,7 @@ export class RoomItem extends Entity
 
     sendItemActionCommand(action: string, params: any)
     {
-        let itemId = this.nick;
+        let itemId = this.roomNick;
         let item = this.app.getItemRepository().getItem(itemId);
         if (item) {
             let userToken = ContentApp.getItemProviderConfigValue(item.getProviderId(), 'userToken', '');

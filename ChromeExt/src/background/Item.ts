@@ -2,7 +2,7 @@ import log = require('loglevel');
 import { as } from '../lib/as';
 import { xml, jid } from '@xmpp/client';
 import { Config } from '../lib/Config';
-import { ItemProperties, Pid } from '../lib/ItemProperties';
+import { ItemProperties, Pid, Property } from '../lib/ItemProperties';
 import { BackpackShowItemData, BackpackRemoveItemData, BackpackSetItemData, ContentMessage } from '../lib/ContentMessage';
 import { BackgroundApp } from './BackgroundApp';
 import { Backpack } from './Backpack';
@@ -50,8 +50,13 @@ export class Item
     getDependentPresence(roomJid: string): xml
     {
         var presence = xml('presence', { 'from': roomJid + '/' + this.itemId });
-        let protocolAttrs = { 'xmlns': 'vp:props', 'type': 'item', 'provider': 'nine3q' };
-        let attrs = Object.assign(protocolAttrs, this.properties);
+        let attrs = { 'xmlns': 'vp:props', 'type': 'item', 'provider': 'nine3q' };
+        for (let pid in this.properties) {
+            if (Property.inPresence(pid)) {
+                attrs[pid] = this.properties[pid];
+            }
+        }
+        // let attrs = Object.assign(protocolAttrs, this.properties);
         presence.append(xml('x', attrs));
         return presence;
     }
