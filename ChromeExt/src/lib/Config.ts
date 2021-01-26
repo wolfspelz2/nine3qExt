@@ -193,6 +193,7 @@ export class Config
                     'ErrorFact.NotExecuted': 'Not executed',
                     'ErrorFact.NotCreated': 'No item created',
                     'ErrorFact.NotApplied': 'Item not applied',
+                    'ErrorFact.ClaimFailed': 'Failed to claim the page',
 
                     'ErrorReason.UnknownReason': 'Unknown reason :-(',
                     'ErrorReason.ItemAlreadyRezzed': 'Item already on page.',
@@ -205,6 +206,7 @@ export class Config
                     'ErrorReason.StillInCooldown': 'Still in cooldown period.',
                     'ErrorReason.InvalidPropertyValue': 'Property invalid.',
                     'ErrorReason.NotYourItem': 'This is not your item.',
+                    'ErrorReason.ItemStronger': 'The other item is stronger.',
 
                     'ErrorDetail.Applier.Apply': 'Applying an item to another',
                     'ErrorDetail.Pid.Id': 'Id',
@@ -278,6 +280,7 @@ export class Config
                     'ErrorFact.NotExecuted': 'Nicht ausgeführt',
                     'ErrorFact.NotCreated': 'Kein Gegenstand erstellt',
                     'ErrorFact.NotApplied': 'Gegenstand nicht angewendet',
+                    'ErrorFact.ClaimFailed': 'Die Seite konnte nicht erobert werden',
 
                     'ErrorReason.UnknownReason': 'Grund unbekannt :-(',
                     'ErrorReason.ItemAlreadyRezzed': 'Gegenstand ist schon auf einer Seite.',
@@ -290,6 +293,7 @@ export class Config
                     'ErrorReason.StillInCooldown': 'Braucht noch Zeit, um sich zu erholen.',
                     'ErrorReason.InvalidPropertyValue': 'Falsche Eigenschaft.',
                     'ErrorReason.NotYourItem': 'Das ist nicht dein Gegenstand.',
+                    'ErrorReason.ItemStronger': 'Der andere Gegenstand ist stärker.',
 
                     'ErrorDetail.Applier.Apply': 'Beim Anwenden eines Gegenstands auf einen anderen.',
                     'ErrorDetail.Pid.Id': 'Id',

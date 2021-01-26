@@ -17,8 +17,11 @@ export namespace ItemException
         NotChanged,
         NoItemsReceived,
         NotExecuted,
-        NotApplied
+        NotApplied,
+        ClaimFailed
     }
+
+
 
 
     export enum Reason
@@ -30,7 +33,8 @@ export namespace ItemException
         ItemDoesNotExist,
         NoUserToken,
         SeeDetail,
-        NotYourItem
+        NotYourItem,
+        ItemStronger
     }
 }
 

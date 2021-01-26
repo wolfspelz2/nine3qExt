@@ -31,7 +31,9 @@ export class RoomItem extends Entity
 
     getDefaultAvatar(): string { return imgDefaultItem; }
     getRoomNick(): string { return this.roomNick; }
+    getDisplayName(): string { return as.String(this.getProperties()[Pid.Label], this.roomNick); }
     getProviderId(): string { return this.app.getItemRepository().getItem(this.roomNick).getProviderId(); }
+    getProperties(): ItemProperties { return this.app.getItemRepository().getItem(this.roomNick).getProperties(); }
 
     remove(): void
     {
@@ -99,21 +101,24 @@ export class RoomItem extends Entity
             }
         }
 
-        // vpNickname = as.String(attrs.Nickname, '');
+        if (newProperties && newProviderId != '') {
+            let item = this.app.getItemRepository().getItem(this.roomNick);
+            if (item) {
+                this.app.getItemRepository().getItem(this.roomNick).setProperties(newProperties);
+            } else {
+                this.app.getItemRepository().addItem(this.roomNick, newProviderId, newProperties);
+            }
+        }
+
         vpAnimationsUrl = as.String(newProperties[Pid.AnimationsUrl], '');
         vpImageUrl = as.String(newProperties[Pid.ImageUrl], '');
         vpRezzedX = as.Int(newProperties[Pid.RezzedX], -1);
 
         // Do someting with the data
 
-        // vpAnimationsUrl = 'https://weblin-avatar.dev.sui.li/items/baum/avatar.xml';
-        // vpAnimationsUrl = '';
-        // vpImageUrl = 'https://weblin-avatar.dev.sui.li/items/baum/idle.png';
-        // vpImageUrl = '';
-
         if (this.isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, false);
-            if (newProperties[Pid.ApplierAspect]) {
+            if (as.Bool(newProperties[Pid.ApplierAspect], false)) {
                 this.avatarDisplay.makeDroppable();
             }
         }
@@ -163,22 +168,11 @@ export class RoomItem extends Entity
             this.show(true, Config.get('room.fadeInSec', 0.3));
         }
 
-        if (newProperties && newProviderId != '') {
-            let item = this.app.getItemRepository().getItem(this.roomNick);
-            if (item) {
-                this.app.getItemRepository().getItem(this.roomNick).setProperties(newProperties);
-            } else {
-                this.app.getItemRepository().addItem(this.roomNick, newProviderId, newProperties);
-            }
-        }
-
         if (this.isFirstPresence) {
-            let props = this.app.getItemRepository().getItem(this.roomNick).getProperties();
-            let label = as.String(props[Pid.Label], this.roomNick);
             if (this.room?.iAmAlreadyHere()) {
-                this.room?.showChatMessage(label, 'appeared');
+                this.room?.showChatMessage(this.getDisplayName(), 'appeared');
             } else {
-                this.room?.showChatMessage(label, 'is present');
+                this.room?.showChatMessage(this.getDisplayName(), 'is present');
             }
         }
 
@@ -187,12 +181,9 @@ export class RoomItem extends Entity
 
     onPresenceUnavailable(stanza: any): void
     {
-        let props = this.app.getItemRepository().getItem(this.roomNick).getProperties();
-        let label = as.String(props[Pid.Label], this.roomNick);
-
+        this.room?.showChatMessage(this.getDisplayName(), 'disappeared');
         this.remove();
 
-        this.room?.showChatMessage(label, 'disappeared');
     }
 
     onMouseClickAvatar(ev: JQuery.Event): void

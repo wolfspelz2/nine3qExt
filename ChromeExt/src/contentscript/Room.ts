@@ -54,8 +54,19 @@ export class Room
     getMyNick(): string { return this.myNick; }
     getJid(): string { return this.jid; }
     getDestination(): string { return this.destination; }
-    getItem(nick: string) { return this.items[nick]; }
     getParticipant(nick: string): Participant { return this.participants[nick]; }
+    getItem(nick: string) { return this.items[nick]; }
+
+    getPageClaimItem(): RoomItem
+    {
+        for (let nick in this.items) {
+            let props = this.items[nick].getProperties();
+            if (as.Bool(props[Pid.ClaimAspect], false)) {
+                return this.getItem(nick);
+            }
+        }
+        return null;
+    }
 
     iAmAlreadyHere()
     {

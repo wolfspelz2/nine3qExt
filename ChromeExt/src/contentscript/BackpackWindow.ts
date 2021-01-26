@@ -5,7 +5,7 @@ import log = require('loglevel');
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
-import { ItemProperties } from '../lib/ItemProperties';
+import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 import { ContentApp } from './ContentApp';
@@ -16,6 +16,7 @@ import { ItemException } from '../lib/ItemExcption';
 import { ItemExceptionToast, SimpleErrorToast } from './Toast';
 
 import deleteImage from '../assets/Blackhole.png';
+import { pid } from 'process';
 
 export class BackpackWindow extends Window
 {
@@ -197,70 +198,89 @@ export class BackpackWindow extends Window
         return this.windowElem != null;
     }
 
-    onShowItem(id: string, properties: ItemProperties)
+    onShowItem(itemId: string, properties: ItemProperties)
     {
-        let item = this.items[id];
+        let item = this.items[itemId];
         if (!item) {
-            item = new BackpackItem(this.app, this, id, properties);
-            this.items[id] = item;
+            item = new BackpackItem(this.app, this, itemId, properties);
+            this.items[itemId] = item;
         }
         item.create();
     }
 
-    onSetItem(id: string, properties: ItemProperties)
+    onSetItem(itemId: string, properties: ItemProperties)
     {
-        if (this.items[id]) {
-            this.items[id].applyProperties(properties);
+        if (this.items[itemId]) {
+            this.items[itemId].applyProperties(properties);
         }
     }
 
-    onHideItem(id: string)
+    onHideItem(itemId: string)
     {
-        if (this.items[id]) {
-            this.items[id].destroy();
-            delete this.items[id];
+        if (this.items[itemId]) {
+            this.items[itemId].destroy();
+            delete this.items[itemId];
         }
     }
 
-    createItem(id: string, properties: ItemProperties, options: ItemChangeOptions)
+    createItem(itemId: string, properties: ItemProperties, options: ItemChangeOptions)
     {
-        BackgroundMessage.addBackpackItem(id, properties, options);
+        BackgroundMessage.addBackpackItem(itemId, properties, options);
     }
 
-    setItemProperties(id: string, properties: ItemProperties, options: ItemChangeOptions)
+    setItemProperties(itemId: string, properties: ItemProperties, options: ItemChangeOptions)
     {
-        BackgroundMessage.setBackpackItemProperties(id, properties, options);
+        BackgroundMessage.setBackpackItemProperties(itemId, properties, options);
     }
 
-    rezItem(id: string, room: string, x: number, destination: string) { this.rezItemAsync(id, room, x, destination); }
-    async rezItemAsync(id: string, room: string, x: number, destination: string)
+    rezItem(itemId: string, room: string, x: number, destination: string) { this.rezItemAsync(itemId, room, x, destination); }
+    async rezItemAsync(itemId: string, room: string, x: number, destination: string)
     {
-        log.debug('BackpackWindow.rezItem', id, 'to', room);
+        log.debug('BackpackWindow.rezItem', itemId, 'to', room);
 
         try {
-            await BackgroundMessage.rezBackpackItem(id, room, x, destination, {});
+            let props = await BackgroundMessage.getBackpackItemProperties(itemId);
+            if (as.Bool(props[Pid.ClaimAspect], false)) {
+                await this.checkPageClaim(itemId);
+            }
+
+            await BackgroundMessage.rezBackpackItem(itemId, room, x, destination, {});
         } catch (ex) {
             new ItemExceptionToast(this.app, Config.get('room.errorToastDurationSec', 8), ex).show();
         }
     }
 
-    async derezItem(id: string, room: string, x: number, y: number)
+    async checkPageClaim(itemId: string): Promise<void>
     {
-        log.debug('BackpackWindow.derezItem', id, 'from', room);
+        var roomItem = this.app.getRoom().getPageClaimItem();
+        if (roomItem) {
+            let otherProps = roomItem.getProperties();
+            let otherStrength = as.Int(otherProps[Pid.ClaimStrength], 0);
+            let myProps = await BackgroundMessage.getBackpackItemProperties(itemId);
+            let myStrength = as.Int(myProps[Pid.ClaimStrength], 0);
+            if (myStrength <= otherStrength) {
+                throw new ItemException(ItemException.Fact.ClaimFailed, ItemException.Reason.ItemStronger, roomItem.getDisplayName());
+            }
+        }
+    }
+
+    async derezItem(itemId: string, room: string, x: number, y: number)
+    {
+        log.debug('BackpackWindow.derezItem', itemId, 'from', room);
 
         try {
-            await BackgroundMessage.derezBackpackItem(id, room, -1, -1, {});
+            await BackgroundMessage.derezBackpackItem(itemId, room, -1, -1, {});
         } catch (ex) {
             new ItemExceptionToast(this.app, Config.get('room.errorToastDurationSec', 8), ex).show();
         }
     }
 
-    async deleteItem(id: string)
+    async deleteItem(itemId: string)
     {
-        log.debug('BackpackWindow.deleteItem', id);
+        log.debug('BackpackWindow.deleteItem', itemId);
 
         try {
-            await BackgroundMessage.deleteBackpackItem(id, {});
+            await BackgroundMessage.deleteBackpackItem(itemId, {});
         } catch (ex) {
             new ItemExceptionToast(this.app, Config.get('room.errorToastDurationSec', 8), ex).show();
         }

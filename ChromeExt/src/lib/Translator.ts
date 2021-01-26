@@ -77,7 +77,7 @@ export class Translator
 
     translateText(key: any, defaultText: string): string
     {
-        if (this.translations[key] != undefined) {
+        if (this.translations[key]) {
             return this.translations[key];
         } else {
             return defaultText;
@@ -87,7 +87,7 @@ export class Translator
     translateElem(elem: HTMLElement): void
     {
         var translate: string = $(elem).data('translate');
-        if (translate != null) {
+        if (translate) {
 
             var parts = translate.split(' ');
             for (var i = 0; i < parts.length; i++) {
@@ -120,7 +120,7 @@ export class Translator
                 }
 
                 if (applier != null) {
-                    if (this.translations[key] != undefined) {
+                    if (this.translations[key]) {
                         this.translationAvailable[key] = true;
                         this.applyTranslation(applier, this.translations[key], true);
                     } else {
@@ -129,7 +129,7 @@ export class Translator
                                 var url = this.translationService + '?lang=' + encodeURI(this.language) + '&key=' + encodeURI(key);
                                 jQuery.getJSON(url, data =>
                                 {
-                                    if (data.translatedText != undefined) {
+                                    if (data.translatedText) {
                                         var response: ITranslationResponse = <ITranslationResponse>data;
                                         this.translationAvailable[key] = response.isTranslated;
                                         if (response.isTranslated) {

@@ -23,6 +23,8 @@ export class Pid
     static readonly Width = 'Width';
     static readonly Height = 'Height';
     static readonly ApplierAspect = 'ApplierAspect';
+    static readonly ClaimAspect = 'ClaimAspect';
+    static readonly ClaimStrength = 'ClaimStrength';
 
     static readonly TransferState_Source = 'Source';
     static readonly TransferState_Destination = 'Destination';
@@ -44,6 +46,8 @@ export class Property
         [Pid.Width]: { inPresence: true },
         [Pid.Height]: { inPresence: true },
         [Pid.RezzedX]: { inPresence: true },
+        [Pid.ClaimAspect]: { inPresence: true },
+        [Pid.ClaimStrength]: { inPresence: true },
     };
 
     static inPresence(pid: string): boolean
