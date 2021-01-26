@@ -89,7 +89,7 @@ export class BackgroundApp
         }
 
         if (!this.isReady) {
-            log.info(BackgroundApp.name, 'isReady', this.isReady);
+            log.info('BackgroundApp', 'isReady', this.isReady);
             this.isReady = true;
         }
     }

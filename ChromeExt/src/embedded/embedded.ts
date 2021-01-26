@@ -9,16 +9,13 @@ import * as $ from 'jquery';
 import { Panic } from '../lib/Panic';
 import { Config } from '../lib/Config';
 
-console.log('Background');
-
 let debug = Environment.isDevelopment();
-console.log('Background', 'debug', debug);
+console.log('cdn.weblin.io Background', 'dev', debug);
 
 log.setLevel(log.levels.INFO);
 
 if (debug) {
     log.setLevel(log.levels.DEBUG);
-    // log.setLevel(log.levels.TRACE);
 }
 
 var app = null;
@@ -60,14 +57,7 @@ activate();
 
 // contentscript
 
-let dev = Environment.isDevelopment();
-log.setLevel(log.levels.INFO);
-
-if (dev) {
-    console.log('Contentscript', 'dev', dev);
-    // Config.getAllStatic().vp.deferPageEnterSec = 0;
-    log.setLevel(log.levels.DEBUG);
-}
+console.log('cdn.weblin.io Content', 'dev', debug);
 
 var appContent = null;
 let onTabChangeStay = false;

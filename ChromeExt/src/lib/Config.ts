@@ -364,25 +364,25 @@ export class Config
 
     static setOnline(key: string, value: any)
     {
-        log.debug(Config.name, this.setOnline.name, key);
+        log.debug('Config.setOnline', key);
         return Config.setInTree(this.onlineConfig, key, value);
     }
 
     static setDevTree(tree: any)
     {
-        log.debug(Config.name, this.setDevTree.name);
+        log.debug('Config.setDevTree');
         this.devConfig = tree;
     }
 
     static setOnlineTree(tree: any): void
     {
-        log.debug(Config.name, this.setOnlineTree.name);
+        log.debug('Config.setOnlineTree');
         this.onlineConfig = tree;
     }
 
     static setStaticTree(tree: any): void
     {
-        log.debug(Config.name, this.setStaticTree.name);
+        log.debug('Config.setStaticTree');
         this.staticConfig = tree;
     }
 

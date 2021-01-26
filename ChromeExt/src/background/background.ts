@@ -3,10 +3,8 @@ import { Environment } from '../lib/Environment';
 import { BackgroundApp } from './BackgroundApp';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 
-console.log('Background');
-
 let debug = Environment.isDevelopment();
-console.log('Background', 'debug', debug);
+console.log('weblin.io Background', 'dev', debug);
 
 log.setLevel(log.levels.INFO);
 
@@ -40,32 +38,3 @@ function deactivate()
 }
 
 activate();
-
-// chrome.runtime?.onMessage.addListener(
-//     function (request, sender, sendResponse)
-//     {
-//         if (app != null) {
-//             return app.runtimeOnMessage(request, sender, function (response)
-//             {
-//                 sendResponse(response);
-//             });
-//         }
-//         return true;
-//     }
-// );
-
-// chrome.runtime?.onInstalled.addListener(function (details)
-// {
-//     // details = {previousVersion: "1.0.0", reason: update" }
-//     chrome.tabs.query({}, function (tabs)
-//     {
-//         tabs.forEach(tab =>
-//         {
-//             if (tab.url != undefined) {
-//                 if (!tab.url.match(/(chrome):\/\//gi)) {
-//                     chrome.tabs.sendMessage(tab.id, { 'type': 'backgroundInstalled' });
-//                 }
-//             }
-//         });
-//     });
-// })

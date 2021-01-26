@@ -49,7 +49,7 @@ export class ConfigUpdater
                 await this.getUpdate(onUpdate)
             }
         } catch (error) {
-            log.info(ConfigUpdater.name, this.checkUpdate.name, error);
+            log.info('ConfigUpdater.checkUpdate', error);
         }
     }
 
@@ -62,7 +62,7 @@ export class ConfigUpdater
             this.gotConfig = true;
             Memory.setSession('config.lastUpdateTime', Date.now() / 1000);
         } catch (error) {
-            log.info(ConfigUpdater.name, this.getUpdate.name, 'fetchConfig failed', configUrl, error)
+            log.info('ConfigUpdater.getUpdate', 'fetchConfig failed', configUrl, error)
         }
 
         if (this.gotConfig) {
@@ -82,7 +82,7 @@ export class ConfigUpdater
                             var providerConfig = await this.fetchJson(providerConfigUrl);
                             Config.setOnline('itemProviders.' + providerId + '.config', providerConfig);
                         } catch (error) {
-                            log.info(ConfigUpdater.name, this.getUpdate.name, 'Fetch itemProvider config failed', providerId, providerConfigUrl, error);
+                            log.info('ConfigUpdater.getUpdate', 'Fetch itemProvider config failed', providerId, providerConfigUrl, error);
                         }
                     }
                 }

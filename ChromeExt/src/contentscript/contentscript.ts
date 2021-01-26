@@ -6,14 +6,16 @@ import { Config } from '../lib/Config';
 import { Environment } from '../lib/Environment';
 import { ContentApp, ContentAppNotification } from './ContentApp';
 
-let dev = Environment.isDevelopment();
+let debug = Environment.isDevelopment();
+console.log('weblin.io Content', 'dev', debug);
+
 log.setLevel(log.levels.INFO);
 
-if (dev) {
-    console.log('Contentscript', 'dev', dev);
-    // Config.getAllStatic().vp.deferPageEnterSec = 0;
+if (debug) {
     log.setLevel(log.levels.DEBUG);
+    // log.setLevel(log.levels.TRACE);
 }
+
 
 var app = null;
 let onTabChangeStay = false;

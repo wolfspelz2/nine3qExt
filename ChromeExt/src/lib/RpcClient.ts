@@ -5,7 +5,7 @@ export class RpcClient
 {
     call(url: string, request: RpcProtocol.BackpackActionRequest): Promise<RpcProtocol.Response>
     {
-        log.debug(RpcClient.name, RpcClient.call.name, url, request);
+        log.debug('RpcClient.call', url, request);
         return new Promise((resolve, reject) =>
         {
             try {
@@ -18,7 +18,7 @@ export class RpcClient
                 })
                     .then(httpResponse =>
                     {
-                        log.debug(RpcClient.name + '.call', 'httpResponse', url, request, httpResponse);
+                        log.debug('RpcClient.call', 'httpResponse', url, request, httpResponse);
                         if (httpResponse.ok) {
                             return httpResponse.text();
                         } else {
@@ -28,7 +28,7 @@ export class RpcClient
                     .then(text =>
                     {
                         let response = JSON.parse(text);
-                        log.debug('BackgroundApp.handle_jsonRpc', 'response', url, response);
+                        log.debug('RpcClient.call', 'response', url, response);
                         if (response.status == RpcProtocol.Response.status_ok) {
                             resolve(response);
                         } else {
@@ -37,7 +37,7 @@ export class RpcClient
                     })
                     .catch(ex =>
                     {
-                        log.debug(RpcClient.name, RpcClient.call.name, 'catch', url, ex);
+                        log.debug('RpcClient.call', 'catch', url, ex);
                         reject(ex);
                     });
             } catch (ex) {

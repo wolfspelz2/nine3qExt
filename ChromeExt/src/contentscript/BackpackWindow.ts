@@ -234,7 +234,7 @@ export class BackpackWindow extends Window
     rezItem(id: string, room: string, x: number, destination: string) { this.rezItemAsync(id, room, x, destination); }
     async rezItemAsync(id: string, room: string, x: number, destination: string)
     {
-        log.debug('BackpackWindow', 'rezItem', id, 'to', room);
+        log.debug('BackpackWindow.rezItem', id, 'to', room);
 
         try {
             await BackgroundMessage.rezBackpackItem(id, room, x, destination, {});
@@ -245,7 +245,7 @@ export class BackpackWindow extends Window
 
     async derezItem(id: string, room: string, x: number, y: number)
     {
-        log.debug('BackpackWindow', 'derezItem', id, 'from', room);
+        log.debug('BackpackWindow.derezItem', id, 'from', room);
 
         try {
             await BackgroundMessage.derezBackpackItem(id, room, -1, -1, {});
@@ -256,7 +256,7 @@ export class BackpackWindow extends Window
 
     async deleteItem(id: string)
     {
-        log.debug(BackpackWindow.name, this.deleteItem.name, id);
+        log.debug('BackpackWindow.deleteItem', id);
 
         try {
             await BackgroundMessage.deleteBackpackItem(id, {});
