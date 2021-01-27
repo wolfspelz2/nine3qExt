@@ -15,7 +15,8 @@
     "watch:popup": "cross-env NODE_ENV=development webpack --config webpack.popup.config.js -w",
     "watch:test": "webpack --config webpack.test.config.js -w",
     "watch:embedded": "cross-env NODE_ENV=development webpack --config webpack.embedded.config.js -w",
-    "build": "npm-run-all extension-data build:*",
+
+    "build": "npm-run-all extension-data build:* build:shared:*",
     "watch": "npm-run-all --parallel extension-data watch:*",
     "zip": "bestzip extension.zip dist/*",
     "release-extension": "npm-run-all clean extension-data build:contentscript-background build:shared:* zip",
