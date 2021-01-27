@@ -91,7 +91,7 @@ try {
                 }
             });
             ContentMessage.content = appContent;
-            appContent.start(n3qConfig ?? {});
+            appContent.start(typeof n3qConfig == 'undefined' ? {} : n3qConfig);
         }
     }
 
