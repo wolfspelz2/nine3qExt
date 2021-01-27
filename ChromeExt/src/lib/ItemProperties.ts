@@ -48,12 +48,20 @@ export class Property
         [Pid.RezzedX]: { inPresence: true },
         [Pid.ClaimAspect]: { inPresence: true },
         [Pid.ClaimStrength]: { inPresence: true },
+
+        // For unit test
+        ['Test1']: { inPresence: true },
+        ['Test2']: { inPresence: true },
+        ['Test3']: { inPresence: false },
+        // ['Test4']: { inPresence: true },
     };
 
     static inPresence(pid: string): boolean
     {
         if (this.config[pid]) {
-            return this.config[pid].inPresence;
+            if (this.config[pid].inPresence) {
+                return this.config[pid].inPresence;
+            }
         }
         return false;
     }
