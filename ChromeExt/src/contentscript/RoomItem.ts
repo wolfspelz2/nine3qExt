@@ -121,13 +121,7 @@ export class RoomItem extends Entity
                 let claimingRoomItem = this.room.getPageClaimItem();
                 if (claimingRoomItem) {
                     // There already is a claim
-                    if (await BackgroundMessage.isBackpackItem(this.roomNick)) {
-                        // The new item is my backpack item
-                        // if (this.room.claimDefersToExisting(props)) {
-                        //     // My new item is better
-                        //     // Trust that the other withdraws
-                        // }
-                    } else {
+                    if (!await BackgroundMessage.isBackpackItem(this.roomNick)) {
                         // The new item is a remote item
                         if (!this.room.claimDefersToExisting(props)) {
                             // The new item is better
