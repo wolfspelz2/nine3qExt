@@ -11,145 +11,159 @@ import { Config } from '../lib/Config';
 
 declare var n3qConfig: any;
 
-let debug = Environment.isDevelopment();
-console.log('cdn.weblin.io Background', 'dev', debug);
+let extensionId = Config.get('extension.id', 'cgfkfhdinajjhfeghebnljbanpcjdlkm');
+fetch('chrome-extension://' + extensionId + '/manifest.json')
+    .then(function (response) {
 
-log.setLevel(log.levels.INFO);
+    })
+    .catch(function (error) {
+        activateAll();
+    });
 
-if (debug) {
-    log.setLevel(log.levels.DEBUG);
-}
 
-let app: BackgroundApp = null;
-
-async function activate()
+function activateAll()
 {
-    log.debug('Background.activate');
-    if (app == null) {
-        app = new BackgroundApp();
-        BackgroundMessage.background = app;
 
-        try {
-            await app.start();
+    let debug = Environment.isDevelopment();
+    console.log('cdn.weblin.io Background', 'dev', debug);
+
+    log.setLevel(log.levels.INFO);
+
+    if (debug) {
+        log.setLevel(log.levels.DEBUG);
+    }
+
+    let app: BackgroundApp = null;
+
+    async function activate()
+    {
+        log.debug('Background.activate');
+        if (app == null) {
+            app = new BackgroundApp();
+            BackgroundMessage.background = app;
+
+            try {
+                await app.start();
+            }
+            catch (error) {
+                app = null;
+            }
         }
-        catch (error) {
+    }
+
+    function deactivate()
+    {
+        if (app != null) {
+            app.stop();
             app = null;
         }
     }
-}
 
-function deactivate()
-{
-    if (app != null) {
-        app.stop();
-        app = null;
-    }
-}
-
-window.addEventListener('message', (event) =>
-{
-    if (event.data.type === BackgroundMessage.userSettingsChanged.name) {
-        if (app) {
-            app.handle_userSettingsChanged();
+    window.addEventListener('message', (event) =>
+    {
+        if (event.data.type === BackgroundMessage.userSettingsChanged.name) {
+            if (app) {
+                app.handle_userSettingsChanged();
+            }
         }
-    }
-}, false);
+    }, false);
 
-activate();
+    activate();
 
 // contentscript
 
-console.log('cdn.weblin.io Content', 'dev', debug);
+    console.log('cdn.weblin.io Content', 'dev', debug);
 
-let appContent: ContentApp = null;
-let onTabChangeStay = false;
+    let appContent: ContentApp = null;
+    let onTabChangeStay = false;
 
-try {
+    try {
 
-    function activateContent()
-    {
-        if (appContent == null) {
-            log.debug('Contentscript.activate');
-            appContent = new ContentApp($('body').get(0), msg =>
-            {
-                log.debug('Contentscript msg', msg.type);
-                switch (msg.type) {
-                    case ContentAppNotification.type_onTabChangeStay: {
-                        onTabChangeStay = true;
-                    } break;
+        function activateContent()
+        {
+            if (appContent == null) {
+                log.debug('Contentscript.activate');
+                appContent = new ContentApp($('body').get(0), msg =>
+                {
+                    log.debug('Contentscript msg', msg.type);
+                    switch (msg.type) {
+                        case ContentAppNotification.type_onTabChangeStay: {
+                            onTabChangeStay = true;
+                        } break;
 
-                    case ContentAppNotification.type_onTabChangeLeave: {
-                        onTabChangeStay = false;
-                    } break;
+                        case ContentAppNotification.type_onTabChangeLeave: {
+                            onTabChangeStay = false;
+                        } break;
 
-                    case ContentAppNotification.type_stopped: {
-                    } break;
+                        case ContentAppNotification.type_stopped: {
+                        } break;
 
-                    case ContentAppNotification.type_restart: {
-                        restartContent();
-                    } break;
-                }
-            });
-            ContentMessage.content = appContent;
-            appContent.start(n3qConfig ?? {});
-        }
-    }
-
-    function deactivateContent()
-    {
-        if (appContent != null) {
-            log.debug('Contentscript.deactivate');
-            appContent.stop();
-            appContent = null;
-        }
-    }
-
-    function restartContent()
-    {
-        setTimeout(restart_deactivateContent, 100);
-    }
-
-    function restart_deactivateContent()
-    {
-        deactivateContent();
-        setTimeout(restart_activateContent, 100);
-    }
-
-    function restart_activateContent()
-    {
-        activateContent();
-    }
-
-    function onUnloadContent()
-    {
-        if (appContent != null) {
-            log.debug('Contentscript.onUnload');
-            appContent.onUnload();
-            appContent = null;
-        }
-    }
-
-    Panic.onNow(onUnloadContent);
-
-    window.addEventListener('onbeforeunload', deactivateContent);
-
-    window.addEventListener('visibilitychange', function ()
-    {
-        if (document.visibilityState === 'visible') {
-            activateContent();
-        } else {
-            if (onTabChangeStay) {
-                log.debug('staying');
-            } else {
-                deactivateContent();
+                        case ContentAppNotification.type_restart: {
+                            restartContent();
+                        } break;
+                    }
+                });
+                ContentMessage.content = appContent;
+                appContent.start(n3qConfig ?? {});
             }
         }
-    });
 
-    if (document.visibilityState === 'visible') {
-        activateContent();
+        function deactivateContent()
+        {
+            if (appContent != null) {
+                log.debug('Contentscript.deactivate');
+                appContent.stop();
+                appContent = null;
+            }
+        }
+
+        function restartContent()
+        {
+            setTimeout(restart_deactivateContent, 100);
+        }
+
+        function restart_deactivateContent()
+        {
+            deactivateContent();
+            setTimeout(restart_activateContent, 100);
+        }
+
+        function restart_activateContent()
+        {
+            activateContent();
+        }
+
+        function onUnloadContent()
+        {
+            if (appContent != null) {
+                log.debug('Contentscript.onUnload');
+                appContent.onUnload();
+                appContent = null;
+            }
+        }
+
+        Panic.onNow(onUnloadContent);
+
+        window.addEventListener('onbeforeunload', deactivateContent);
+
+        window.addEventListener('visibilitychange', function ()
+        {
+            if (document.visibilityState === 'visible') {
+                activateContent();
+            } else {
+                if (onTabChangeStay) {
+                    log.debug('staying');
+                } else {
+                    deactivateContent();
+                }
+            }
+        });
+
+        if (document.visibilityState === 'visible') {
+            activateContent();
+        }
+
+    } catch (error) {
+        log.info(error);
     }
-
-} catch (error) {
-    log.info(error);
 }
