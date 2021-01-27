@@ -98,15 +98,15 @@ function activateAll()
                         case ContentAppNotification.type_stopped: {
                         } break;
 
-                        case ContentAppNotification.type_restart: {
-                            restartContent();
-                        } break;
-                    }
-                });
-                ContentMessage.content = appContent;
-                appContent.start(n3qConfig ?? {});
-            }
+                    case ContentAppNotification.type_restart: {
+                        restartContent();
+                    } break;
+                }
+            });
+            ContentMessage.content = appContent;
+            appContent.start(typeof n3qConfig == 'undefined' ? {} : n3qConfig);
         }
+    }
 
         function deactivateContent()
         {

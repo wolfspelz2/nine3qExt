@@ -6,21 +6,23 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
-        ['1.0.7', 'PrivateChat Greet RecvProjectedItems', [
+        ['1.0.7', 'Items', [
+            ['Add', 'Have items'],
+        ]],
+        ['1.0.6', 'PrivateChat Greet RecvDependentItems', [
             ['Add', 'Allow vidconf fullscreen'],
             ['Add', 'Private chat'],
             ['Add', 'Greet'],
             ['Add', 'Show user dependent items'],
             ['Add', 'Persist stay-on-tab-change flag'],
-            ['Change', 'RallySpeaker URL variables, iframe allows 4 vidconf'],
-            ['Fix', 'Message replication by tab change'],
-        ]],
-        ['1.0.6', 'UndockVidconf ChatBubbleDuration Items', [
+            ['Add', 'Persist open backpack'],
             ['Add', 'Undock vidconf window'],
             ['Add', 'vpi ignore (e.g. all google)'],
+            ['Change', 'RallySpeaker URL variables, iframe allows 4 vidconf'],
             ['Change', 'Much longer chat bubble duration, 2 min. total instead of 20 sec.'],
             ['Change', 'Update to item inventory grain and chat room based inventory view (internal).'],
             ['Fix', 'Chat window focused input style'],
+            ['Fix', 'Message replication by tab change'],
         ]],
         ['1.0.5', 'SPA', [
             ['Add', 'Stay in the room if vidconf|inventory|chat are open'],

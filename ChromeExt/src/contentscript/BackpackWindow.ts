@@ -239,10 +239,10 @@ export class BackpackWindow extends Window
         log.debug('BackpackWindow.rezItem', itemId, 'to', room);
 
         try {
-            let props = await BackgroundMessage.getBackpackItemProperties(itemId);
-            if (as.Bool(props[Pid.ClaimAspect], false)) {
-                await this.checkPageClaim(itemId);
-            }
+            // let props = await BackgroundMessage.getBackpackItemProperties(itemId);
+            // if (as.Bool(props[Pid.ClaimAspect], false)) {
+            //     await this.checkPageClaim(itemId);
+            // }
 
             await BackgroundMessage.rezBackpackItem(itemId, room, x, destination, {});
         } catch (ex) {
