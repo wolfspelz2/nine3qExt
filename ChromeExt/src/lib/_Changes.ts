@@ -6,7 +6,7 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
-        ['1.0.7', 'PrivateChat Greet RecvDependentItems', [
+        ['1.0.6', 'PrivateChat Greet RecvDependentItems', [
             ['Add', 'Allow vidconf fullscreen'],
             ['Add', 'Private chat'],
             ['Add', 'Greet'],
