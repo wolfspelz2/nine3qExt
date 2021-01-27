@@ -603,9 +603,9 @@ export class ContentApp
         // }
     }
 
-    translateText(key: string, text: string): string
+    translateText(key: string, defaultText: string = null): string
     {
-        return this.babelfish.translateText(key, text);
+        return this.babelfish.translateText(key, defaultText);
     }
 
     translateElem(elem: HTMLElement): void

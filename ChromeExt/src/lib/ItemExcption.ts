@@ -34,7 +34,7 @@ export namespace ItemException
         NoUserToken,
         SeeDetail,
         NotYourItem,
-        ItemStronger
+        ItemMustBeStronger
     }
 }
 

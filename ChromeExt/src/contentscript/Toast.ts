@@ -69,6 +69,7 @@ export class Toast
         let skip = await this.app.isDontShowNoticeType(this.messageType);
         if (!skip) {
             this.setVisibility(true);
+            this.app.toFront(this.elem);
 
             $(this.elem)
                 .css({ 'opacity': '0.0', 'bottom': '-20px' })

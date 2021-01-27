@@ -8,7 +8,7 @@ import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 import { RpcProtocol } from '../lib/RpcProtocol';
-import { ItemExceptionToast, SimpleErrorToast } from './Toast';
+import { ItemExceptionToast, SimpleErrorToast, SimpleToast } from './Toast';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
@@ -51,8 +51,6 @@ export class RoomItem extends Entity
         let presenceHasCondition: boolean = false;
         let newCondition: string = '';
 
-        let itemId: string = this.roomNick;
-
         let vpAnimationsUrl = '';
         let vpImageUrl = '';
         let vpRezzedX = -1;
@@ -80,8 +78,8 @@ export class RoomItem extends Entity
             }
         }
 
-        if (await BackgroundMessage.isBackpackItem(itemId)) {
-            newProperties = await BackgroundMessage.getBackpackItemProperties(itemId);
+        if (await BackgroundMessage.isBackpackItem(this.roomNick)) {
+            newProperties = await BackgroundMessage.getBackpackItemProperties(this.roomNick);
             newProviderId = as.String(newProperties[Pid.Provider], '');
         } else {
             let vpPropsNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
@@ -115,6 +113,34 @@ export class RoomItem extends Entity
         vpRezzedX = as.Int(newProperties[Pid.RezzedX], -1);
 
         // Do someting with the data
+
+        if (this.isFirstPresence) {
+            let props = newProperties;
+            if (as.Bool(props[Pid.ClaimAspect], false)) {
+                // The new item has a claim
+                let claimingRoomItem = this.room.getPageClaimItem();
+                if (claimingRoomItem) {
+                    // There already is a claim
+                    if (await BackgroundMessage.isBackpackItem(this.roomNick)) {
+                        // The new item is my backpack item
+                        // if (this.room.claimDefersToExisting(props)) {
+                        //     // My new item is better
+                        //     // Trust that the other withdraws
+                        // }
+                    } else {
+                        // The new item is a remote item
+                        if (!this.room.claimDefersToExisting(props)) {
+                            // The new item is better
+                            if (await BackgroundMessage.isBackpackItem(claimingRoomItem.getRoomNick())) {
+                                // The existing claim is mine
+                                await BackgroundMessage.derezBackpackItem(claimingRoomItem.getRoomNick(), this.room.getJid(), -1, -1, {});
+                                new SimpleToast(this.app, 'ClaimDerezzed', Config.get('room.claimToastDurationSec', 15), 'notice', this.app.translateText('Toast.Your claim has been removed'), 'A stronger item just appeared').show();
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         if (this.isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, false);

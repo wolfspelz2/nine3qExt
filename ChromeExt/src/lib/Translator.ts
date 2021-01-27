@@ -75,13 +75,17 @@ export class Translator
         return language.substr(0, 2);
     }
 
-    translateText(key: any, defaultText: string): string
+    translateText(key: string, defaultText: string): string
     {
         if (this.translations[key]) {
             return this.translations[key];
         } else {
-            return defaultText;
+            if (defaultText) { return defaultText; }
         }
+
+        let parts = key.split('.', 2);
+        if (parts.length == 2) { return parts[1]; }
+        return key;
     }
 
     translateElem(elem: HTMLElement): void

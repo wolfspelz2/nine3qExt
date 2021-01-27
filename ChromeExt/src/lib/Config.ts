@@ -73,6 +73,7 @@ export class Config
             privateChatToastDurationSec: 60,
             errorToastDurationSec: 8,
             applyItemErrorToastDurationSec: 5,
+            claimToastDurationSec: 15,
         },
         xmpp: {
             service: 'wss://xmpp.vulcan.weblin.com/xmpp-websocket',
@@ -177,6 +178,8 @@ export class Config
                     'Toast.greets': '...greeted you',
                     'Toast.tousles': '...tousled you',
                     'Toast.nudges': '...nudged you',
+                    'Toast.Your claim has been removed': 'Your claim has been removed',
+                    'Toast.A stronger A stronger item just appeared': 'A stronger item just appeared.',
 
                     // ['ErrorFact.' + ItemException.Fact[ItemException.Fact.Error]]: 'Error',
                     'ErrorFact.Error': 'Error',
@@ -202,7 +205,7 @@ export class Config
                     'ErrorReason.StillInCooldown': 'Still in cooldown period.',
                     'ErrorReason.InvalidPropertyValue': 'Property invalid.',
                     'ErrorReason.NotYourItem': 'This is not your item.',
-                    'ErrorReason.ItemStronger': 'The other item is stronger.',
+                    'ErrorReason.ItemMustBeStronger': 'Your item is not stronger than the other.',
 
                     'ErrorDetail.Applier.Apply': 'Applying an item to another',
                     'ErrorDetail.Pid.Id': 'Id',
@@ -262,6 +265,8 @@ export class Config
                     'Toast.greets': '...hat dich gegrüßt',
                     'Toast.tousles': '...hat dich gewuschelt',
                     'Toast.nudges': '...hat dich angestupst',
+                    'Toast.Your claim has been removed': 'Der Anspruch wurde zurückgenommen',
+                    'Toast.A stronger item just appeared': 'Ein stärkerer Gegenstand wurde gerade installiert.',
 
                     'ErrorFact.Error': 'Fehler',
                     'ErrorFact.NotRezzed': 'Ablegen fehlgeschlagen',
@@ -272,7 +277,7 @@ export class Config
                     'ErrorFact.NotExecuted': 'Nicht ausgeführt',
                     'ErrorFact.NotCreated': 'Kein Gegenstand erstellt',
                     'ErrorFact.NotApplied': 'Gegenstand nicht angewendet',
-                    'ErrorFact.ClaimFailed': 'Die Seite konnte nicht erobert werden',
+                    'ErrorFact.ClaimFailed': 'Anspruch nicht durchgesetzt',
 
                     'ErrorReason.UnknownReason': 'Grund unbekannt :-(',
                     'ErrorReason.ItemAlreadyRezzed': 'Gegenstand ist schon auf einer Seite.',
@@ -285,7 +290,7 @@ export class Config
                     'ErrorReason.StillInCooldown': 'Braucht noch Zeit, um sich zu erholen.',
                     'ErrorReason.InvalidPropertyValue': 'Falsche Eigenschaft.',
                     'ErrorReason.NotYourItem': 'Das ist nicht dein Gegenstand.',
-                    'ErrorReason.ItemStronger': 'Der andere Gegenstand ist stärker.',
+                    'ErrorReason.ItemMustBeStronger': 'Der Gegenstand ist nicht stärker als der andere.',
 
                     'ErrorDetail.Applier.Apply': 'Beim Anwenden eines Gegenstands auf einen anderen.',
                     'ErrorDetail.Pid.Id': 'Id',

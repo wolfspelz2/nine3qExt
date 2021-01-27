@@ -4,7 +4,7 @@ import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { Panic } from '../lib/Panic';
-import { Pid } from '../lib/ItemProperties';
+import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Participant } from './Participant';
@@ -486,6 +486,24 @@ export class Room
     applyItemToParticipant(participant: Participant, passiveItem: RoomItem)
     {
         participant.applyItem(passiveItem);
+    }
+
+    claimDefersToExisting(props: ItemProperties): boolean
+    {
+        var competingRoomItem = this.getPageClaimItem();
+        if (competingRoomItem) {
+            let competingProps = competingRoomItem.getProperties();
+            let myId = as.String(props[Pid.Id], null);
+            let competingId = as.String(competingProps[Pid.Id], null);
+            if (myId != '' && myId != competingId) {
+                let competingStrength = as.Float(competingProps[Pid.ClaimStrength], 0.0);
+                let myStrength = as.Float(props[Pid.ClaimStrength], 0.0);
+                if (myStrength <= competingStrength) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

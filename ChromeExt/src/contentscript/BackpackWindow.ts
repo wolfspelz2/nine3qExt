@@ -14,9 +14,9 @@ import { BackpackItem as BackpackItem } from './BackpackItem';
 import { Environment } from '../lib/Environment';
 import { ItemException } from '../lib/ItemExcption';
 import { ItemExceptionToast, SimpleErrorToast } from './Toast';
+import { RoomItem } from './RoomItem';
 
-import deleteImage from '../assets/Blackhole.png';
-import { pid } from 'process';
+import devModeDeleteImage from '../assets/Blackhole.png';
 
 export class BackpackWindow extends Window
 {
@@ -97,7 +97,7 @@ export class BackpackWindow extends Window
                 });
 
                 let dumpElem = <HTMLElement>$('<div class="n3q-base n3q-backpack-dump" />').get(0);
-                $(dumpElem).css({ backgroundImage: 'url(' + deleteImage + ')' });
+                $(dumpElem).css({ backgroundImage: 'url(' + devModeDeleteImage + ')' });
                 $(contentElem).append(dumpElem);
                 $(dumpElem).droppable({
                     hoverClass: 'n3q-backpack-dump-drophilite',
@@ -239,28 +239,16 @@ export class BackpackWindow extends Window
         log.debug('BackpackWindow.rezItem', itemId, 'to', room);
 
         try {
-            // let props = await BackgroundMessage.getBackpackItemProperties(itemId);
-            // if (as.Bool(props[Pid.ClaimAspect], false)) {
-            //     await this.checkPageClaim(itemId);
-            // }
+            let props = await BackgroundMessage.getBackpackItemProperties(itemId);
+            if (as.Bool(props[Pid.ClaimAspect], false)) {
+                if (this.app.getRoom().claimDefersToExisting(props)) {
+                    throw new ItemException(ItemException.Fact.ClaimFailed, ItemException.Reason.ItemMustBeStronger, this.app.getRoom().getPageClaimItem()?.getDisplayName());
+                }
+            }
 
             await BackgroundMessage.rezBackpackItem(itemId, room, x, destination, {});
         } catch (ex) {
             new ItemExceptionToast(this.app, Config.get('room.errorToastDurationSec', 8), ex).show();
-        }
-    }
-
-    async checkPageClaim(itemId: string): Promise<void>
-    {
-        var roomItem = this.app.getRoom().getPageClaimItem();
-        if (roomItem) {
-            let otherProps = roomItem.getProperties();
-            let otherStrength = as.Int(otherProps[Pid.ClaimStrength], 0);
-            let myProps = await BackgroundMessage.getBackpackItemProperties(itemId);
-            let myStrength = as.Int(myProps[Pid.ClaimStrength], 0);
-            if (myStrength <= otherStrength) {
-                throw new ItemException(ItemException.Fact.ClaimFailed, ItemException.Reason.ItemStronger, roomItem.getDisplayName());
-            }
         }
     }
 
