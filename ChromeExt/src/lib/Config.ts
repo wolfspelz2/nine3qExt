@@ -142,7 +142,6 @@ export class Config
 
                     'Menu.Settings': 'Settings',
                     'Menu.Stay Here': 'Stay on tab change',
-                    'Menu.Inventory': 'Your Stuff',
                     'Menu.Backpack': 'Stuff',
                     'Menu.Chat Window': 'History',
                     'Menu.Video Conference': 'Video Conference',
@@ -172,10 +171,7 @@ export class Config
 
                     'Vidconfwindow.Video Conference': 'Video Conference',
                     'Settingswindow.Settings': 'Settings',
-                    'InventoryWindow.Inventory': 'Your Stuff',
                     'BackpackWindow.Inventory': 'Your Stuff',
-
-                    'Inventory.Not yet loaded': 'Not yet loaded',
 
                     'Toast.Do not show this message again': 'Do not show this message again',
                     'Toast.greets': '...greeted you',
@@ -231,7 +227,6 @@ export class Config
 
                     'Menu.Settings': 'Einstellungen',
                     'Menu.Stay Here': 'Bleiben bei Tabwechsel',
-                    'Menu.Inventory': 'Deine Gegenstände',
                     'Menu.Backpack': 'Gegenstände',
                     'Menu.Chat Window': 'Chatverlauf',
                     'Menu.Video Conference': 'Videokonferenz',
@@ -261,10 +256,7 @@ export class Config
 
                     'Vidconfwindow.Video Conference': 'Videokonferenz',
                     'Settingswindow.Settings': 'Einstellungen',
-                    'InventoryWindow.Inventory': 'Deine Gegenstände',
                     'BackpackWindow.Inventory': 'Deine Gegenstände',
-
-                    'Inventory.Not yet loaded': 'Noch nicht geladen',
 
                     'Toast.Do not show this message again': 'Diese Nachricht nicht mehr anzeigen',
                     'Toast.greets': '...hat dich gegrüßt',
