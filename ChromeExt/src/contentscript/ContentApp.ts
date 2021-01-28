@@ -85,7 +85,7 @@ export class ContentApp
         if (params && params.avatar) { await Memory.setSync(Utils.syncStorageKey_Avatar(), params.avatar); }
         if (params && params.pageUrl) { this.presetPageUrl = params.pageUrl; }
         if (params && params.x) { await Memory.setLocal(Utils.localStorageKey_X(), params.x); }
-        
+
         try {
             await BackgroundMessage.waitReady();
         } catch (error) {
@@ -602,6 +602,37 @@ export class ContentApp
         //     this.screenElem.style.height = this.originalScreenHeight;
         // }
     }
+
+    private dropzoneELem: HTMLElement = null;
+    showDropzone()
+    {
+        this.hideDropzone();
+
+        this.dropzoneELem = <HTMLElement>$('<div class="n3q-base n3q-dropzone" />').get(0);
+        $(this.display).append(this.dropzoneELem);
+        this.toFront(this.dropzoneELem);
+    }
+
+    hideDropzone()
+    {
+        if (this.dropzoneELem) {
+            $(this.dropzoneELem).remove();
+            this.dropzoneELem = null;
+        }
+    }
+
+    hiliteDropzone(state: boolean)
+    {
+        if (this.dropzoneELem) {
+            if (state) {
+                $(this.dropzoneELem).addClass('n3q-dropzone-hilite');
+            } else {
+                $(this.dropzoneELem).removeClass('n3q-dropzone-hilite');
+            }
+        }
+    }
+
+    // i18n
 
     translateText(key: string, defaultText: string = null): string
     {

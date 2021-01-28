@@ -58,8 +58,8 @@ export class BackpackItem
                 let itemElem = $(this).clone().get(0);
                 $(itemElem).css({ 'left': '0', 'top': '0', 'width': this.w, 'height': this.h });
                 $(dragElem).append(itemElem);
-                app.toFront(itemElem);
                 $(app.getDisplay()).append(dragElem);
+                app.toFront(itemElem);
                 return dragElem;
             },
             // zIndex: 2000000000,
@@ -137,6 +137,8 @@ export class BackpackItem
     private onDragStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
     {
         this.dragIsRezable = as.Bool(this.properties['IsRezable'], true);
+        this.app.showDropzone();
+        this.app.toFront(ui.helper.get(0));
         return true;
     }
 
@@ -146,12 +148,19 @@ export class BackpackItem
             if (!this.isPositionInBackpack(ev, ui)) {
                 return false;
             }
+        } else {
+            if (this.isPositionInDropzone(ev, ui)) {
+                this.app.hiliteDropzone(true);
+            } else {
+                this.app.hiliteDropzone(false);
+            }
         }
         return true;
     }
 
     private async onDragStop(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): Promise<boolean>
     {
+        this.app.hideDropzone();
         if (this.isPositionInBackpack(ev, ui)) {
             let pos = this.getPositionRelativeToPane(ev, ui);
             if (pos.x != this.x || pos.y != this.y) {

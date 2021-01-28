@@ -147,6 +147,20 @@
     width: 1px;
 }
 
+#n3q div.n3q-dropzone {
+    position: absolute;
+    bottom: 0;
+    left: 0px;
+    right: 0;
+    height: 100px;
+    opacity: 0.1;
+    background-color: #abc115;
+}
+
+    #n3q div.n3q-dropzone-hilite {
+        opacity: 0.2;
+    }
+
 // General
 
 #n3q div.n3q-text {
