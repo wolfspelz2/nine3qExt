@@ -157,7 +157,7 @@ export class ContentApp
         this.stayHereIsChecked = await Memory.getLocal(Utils.localStorageKey_StayOnTabChange(this.locationUrl), false);
 
         this.backpackIsOpen = await Memory.getLocal(Utils.localStorageKey_BackpackIsOpen(), false);
-        if (this.backpackIsOpen) {
+        if (this.backpackIsOpen && this.locationUrl != '') {
             this.showBackpackWindow(null);
         }
 
