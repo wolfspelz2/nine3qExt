@@ -119,6 +119,9 @@ export class ContentApp
         {
             let pageUrl = Browser.getCurrentPageUrl();
             let parsedUrl = new URL(pageUrl);
+            if (parsedUrl.hash.search('#n3qdisable') >= 0) {
+                return;
+            }
             let ignoredDomains: Array<string> = Config.get('vp.ignoredDomainSuffixes', []);
             for (let i = 0; i < ignoredDomains.length; i++) {
                 if (parsedUrl.host.endsWith(ignoredDomains[i])) {
@@ -642,32 +645,6 @@ export class ContentApp
     translateElem(elem: HTMLElement): void
     {
         this.babelfish.translateElem(elem);
-    }
-
-    // Item provider
-
-    static getItemProviderConfigValue(providerId: string, configKey: string, defaultValue: any): any
-    {
-        if (providerId) {
-            return Config.get('itemProviders.' + providerId + '.config.' + configKey, defaultValue);
-        }
-        return defaultValue;
-    }
-
-    static itemProviderUrlFilter(providerId: string, propName: string, propValue: string): string
-    {
-        if (providerId && providerId != '') {
-            let propertyUrlFilter = Config.get('itemProviders.' + providerId + '.config.itemPropertyUrlFilter', {});
-            if (propertyUrlFilter) {
-                for (let key in propertyUrlFilter) {
-                    let value = propertyUrlFilter[key];
-                    if (key && value) {
-                        propValue = propValue.replace(key, value);
-                    }
-                }
-            }
-        }
-        return propValue;
     }
 
     // Dont show this message again management

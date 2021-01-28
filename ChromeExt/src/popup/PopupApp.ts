@@ -1,3 +1,6 @@
+// @ts-ignore
+import imgPopupIcon from '../assets/PopupIcon.png';
+
 import log = require('loglevel');
 import * as $ from 'jquery';
 import { as } from '../lib/as';
@@ -7,9 +10,6 @@ import { Memory } from '../lib/Memory';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Translator } from '../lib/Translator';
 import { AvatarGallery } from '../lib/AvatarGallery';
-
-// @ts-ignore
-import imgPopupIcon from '../assets/PopupIcon.png';
 
 export class PopupApp
 {

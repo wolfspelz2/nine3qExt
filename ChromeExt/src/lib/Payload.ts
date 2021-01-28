@@ -4,7 +4,7 @@ import { SimpleRpc } from '../contentscript/SimpleRpc';
 
 export class Payload
 {
-    static async getContextToken(api: string, user: string, item: string, ttlSec: number, params: any): Promise<string>
+    static async getContextToken(api: string, user: string, item: string, ttlSec: number, payloadOptions: any, tokenOptions: any): Promise<string>
     {
         let expires = 10000000000 + ttlSec;
         var payload = {
@@ -13,14 +13,17 @@ export class Payload
             'entropy': Utils.randomString(20),
             'expires': expires
         };
-        for (let key in params) {
-            payload[key] = params[key];
+        for (let key in payloadOptions) {
+            payload[key] = payloadOptions[key];
         }
         let hash = await this.getPayloadHash(api, payload);
         let token = {
             'api': api,
             'payload': payload,
             'hash': hash
+        }
+        for (let key in tokenOptions) {
+            token[key] = tokenOptions[key];
         }
         let tokenString = JSON.stringify(token);
         let tokenBase64Encoded = Utils.base64Encode(tokenString);

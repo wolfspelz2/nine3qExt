@@ -1,3 +1,5 @@
+import imgDefaultAvatar from '../assets/DefaultAvatar.png';
+
 import log = require('loglevel');
 import * as $ from 'jquery';
 import 'jqueryui';
@@ -6,8 +8,6 @@ import { Config } from '../lib/Config';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
 import { ContentApp } from './ContentApp';
-
-import imgDefaultAvatar from '../assets/DefaultAvatar.png';
 
 export class Entity
 {

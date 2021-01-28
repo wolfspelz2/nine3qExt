@@ -66,31 +66,6 @@ export class ConfigUpdater
         }
 
         if (this.gotConfig) {
-
-            let itemProviders = Config.get('itemProviders', {});
-            if (itemProviders) {
-                for (let providerId in itemProviders) {
-                    let itemProvider = itemProviders[providerId];
-                    if (itemProvider.configUrl) {
-                        let userId = await this.getOrCreateItemProviderUserId(providerId);
-                        let providerConfigUrl = as.String(itemProvider.configUrl, 'https://webit.vulcan.weblin.com/Config?id={id}&client={client}');
-                        providerConfigUrl = providerConfigUrl
-                            .replace('{id}', encodeURIComponent(userId))
-                            .replace('{client}', encodeURIComponent(Client.getDetails()))
-                            ;
-                        try {
-                            var providerConfig = await this.fetchJson(providerConfigUrl);
-                            Config.setOnline('itemProviders.' + providerId + '.config', providerConfig);
-                        } catch (error) {
-                            log.info('ConfigUpdater.getUpdate', 'Fetch itemProvider config failed', providerId, providerConfigUrl, error);
-                        }
-                    }
-                }
-            }
-
-        }
-
-        if (this.gotConfig) {
             if (onUpdate) { onUpdate(); }
         }
     }
@@ -105,15 +80,5 @@ export class ConfigUpdater
                 .getJSON(url, data => resolve(data))
                 .fail(reason => reject(null));
         });
-    }
-
-    async getOrCreateItemProviderUserId(providerId: string): Promise<string>
-    {
-        let userId = await Memory.getSync(Utils.syncStorageKey_ItemProviderUserId(providerId), '');
-        if (userId == '') {
-            userId = 'ext' + Utils.randomString(40).toLowerCase();
-            await Memory.setSync(Utils.syncStorageKey_ItemProviderUserId(providerId), userId);
-        }
-        return userId;
     }
 }

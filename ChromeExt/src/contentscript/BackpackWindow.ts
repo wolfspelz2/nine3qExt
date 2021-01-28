@@ -1,3 +1,5 @@
+import devModeDeleteImage from '../assets/Blackhole.png';
+
 import * as $ from 'jquery';
 import 'webpack-jquery-ui';
 // import markdown = require('markdown');
@@ -15,8 +17,6 @@ import { Environment } from '../lib/Environment';
 import { ItemException } from '../lib/ItemExcption';
 import { ItemExceptionToast, SimpleErrorToast } from './Toast';
 import { RoomItem } from './RoomItem';
-
-import devModeDeleteImage from '../assets/Blackhole.png';
 
 export class BackpackWindow extends Window
 {
@@ -91,7 +91,7 @@ export class BackpackWindow extends Window
                     let text = as.String($(inElem).val(), '');
                     text = text.replace(/'/g, '"',);
                     let json = JSON.parse(text);
-                    let itemId = Utils.randomString(20);
+                    let itemId = Utils.randomString(30);
                     json.Id = itemId;
                     this.createItem(itemId, json, {});
                 });

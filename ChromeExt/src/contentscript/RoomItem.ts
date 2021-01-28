@@ -1,21 +1,22 @@
+import imgDefaultItem from '../assets/DefaultItem.png';
+
 import * as $ from 'jquery';
 import { xml, jid } from '@xmpp/client';
 import log = require('loglevel');
 import { as } from '../lib/as';
-import { Point2D } from '../lib/Utils';
+import { Point2D, Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 import { RpcProtocol } from '../lib/RpcProtocol';
+import { ItemException } from '../lib/ItemExcption';
 import { ItemExceptionToast, SimpleErrorToast, SimpleToast } from './Toast';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
-
-import imgDefaultItem from '../assets/DefaultItem.png';
-import { ItemException } from '../lib/ItemExcption';
+import { Memory } from '../lib/Memory';
 
 export class RoomItem extends Entity
 {
@@ -89,11 +90,7 @@ export class RoomItem extends Entity
                     newProviderId = as.String(attrs.provider, '');
 
                     for (let attrName in attrs) {
-                        let attrValue = attrs[attrName];
-                        if (attrName.endsWith('Url')) {
-                            attrValue = ContentApp.itemProviderUrlFilter(newProviderId, attrName, attrValue);
-                        }
-                        newProperties[attrName] = attrValue;
+                        newProperties[attrName] = attrs[attrName];
                     }
                 }
             }
@@ -241,7 +238,7 @@ export class RoomItem extends Entity
         if (await BackgroundMessage.isBackpackItem(itemId)) {
             BackgroundMessage.modifyBackpackItemProperties(itemId, { [Pid.RezzedX]: '' + newX }, [], {});
         } else {
-            this.sendItemActionCommand('Rezzed.MoveTo', { 'x': newX });
+            await this.sendItemActionCommand('Rezzed.MoveTo', { 'x': newX });
         }
     }
 
@@ -271,23 +268,23 @@ export class RoomItem extends Entity
             }
 
         } else {
-            this.sendItemActionCommand('Applier.Apply', { 'passive': passiveItemId });
+            await this.sendItemActionCommand('Applier.Apply', { 'passive': passiveItemId });
         }
     }
 
-    sendItemActionCommand(action: string, params: any)
+    async sendItemActionCommand(action: string, params: any)
     {
         let itemId = this.roomNick;
         let item = this.app.getItemRepository().getItem(itemId);
         if (item) {
-            let userToken = ContentApp.getItemProviderConfigValue(item.getProviderId(), 'userToken', '');
-            if (userToken != '') {
+            let userId = await Memory.getSync(Utils.syncStorageKey_Id(), '');
+            if (userId != '') {
 
                 let cmd = {};
                 cmd['xmlns'] = 'vp:cmd';
                 cmd['method'] = 'itemAction';
                 cmd['action'] = action;
-                cmd['user'] = userToken;
+                cmd['user'] = userId;
                 cmd['item'] = itemId;
                 for (let paramName in params) {
                     cmd[paramName] = params[paramName];

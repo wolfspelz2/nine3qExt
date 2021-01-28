@@ -1,16 +1,19 @@
+import imgDefaultItem from '../assets/DefaultItem.png';
+
 import * as $ from 'jquery';
 import { xml, jid } from '@xmpp/client';
 import log = require('loglevel');
 import { as } from '../lib/as';
-import { Point2D } from '../lib/Utils';
+import { Point2D, Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
 import { Payload } from '../lib/Payload';
 import { ContentApp } from './ContentApp';
 import { ItemFrameWindow } from './ItemFrameWindow';
 import { ItemFramePopup } from './ItemFramePopup';
-
-import imgDefaultItem from '../assets/DefaultItem.png';
 import { Pid } from '../lib/ItemProperties';
+import { Memory } from '../lib/Memory';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { BackgroundApp } from '../background/BackgroundApp';
 
 export class RepositoryItem
 {
@@ -65,14 +68,18 @@ export class RepositoryItem
     {
         let iframeUrl = as.String(this.properties[Pid.IframeUrl], null);
         let room = this.app.getRoom();
-        let apiUrl = ContentApp.getItemProviderConfigValue(this.providerId, 'apiUrl', '');
-        let userId = ContentApp.getItemProviderConfigValue(this.providerId, 'userToken', '');
+        let apiUrl = Config.get('itemProviders.' + this.providerId + '.config.' + 'apiUrl', '');
+        let userId = await Memory.getSync(Utils.syncStorageKey_Id(), '');
 
         if (iframeUrl != '' && room && apiUrl != '' && userId != '') {
             // iframeUrl = 'https://jitsi.vulcan.weblin.com/{room}#userInfo.displayName="{name}"';
             let roomJid = room.getJid();
             let roomNick = room.getMyNick();
-            let contextToken = await Payload.getContextToken(apiUrl, userId, this.id, 3600, { 'room': roomJid });
+            let tokenOptions = {};
+            if (await BackgroundMessage.isBackpackItem(this.id)) {
+                tokenOptions['properties'] = await BackgroundMessage.getBackpackItemProperties(this.id);
+            }
+            let contextToken = await Payload.getContextToken(apiUrl, userId, this.id, 600, { 'room': roomJid }, tokenOptions);
             iframeUrl = iframeUrl
                 .replace('{context}', encodeURIComponent(contextToken))
                 .replace('{room}', encodeURIComponent(roomJid))

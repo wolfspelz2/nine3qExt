@@ -31,7 +31,7 @@ export namespace ItemException
         ItemNotRezzedHere,
         ItemsNotAvailable,
         ItemDoesNotExist,
-        NoUserToken,
+        NoUserId,
         SeeDetail,
         NotYourItem,
         ItemMustBeStronger

@@ -52,9 +52,9 @@ export class BackgroundApp
         }
 
         {
-            let uniqueId = await Memory.getSync('me.id', '');
+            let uniqueId = await Memory.getSync(Utils.syncStorageKey_Id(), '');
             if (uniqueId == '') {
-                await Memory.setSync('me.id', 'mid' + Utils.randomString(20).toLowerCase());
+                await Memory.setSync(Utils.syncStorageKey_Id(), 'mid' + Utils.randomString(30).toLowerCase());
             }
         }
 
@@ -270,6 +270,9 @@ export class BackgroundApp
                     {
                         if (version == '_nocache') {
                             //dont cache
+                        } else if (text == '') {
+                            this.httpCacheData[key] = text;
+                            this.httpCacheTime[key] = 0;
                         } else {
                             this.httpCacheData[key] = text;
                             this.httpCacheTime[key] = now;

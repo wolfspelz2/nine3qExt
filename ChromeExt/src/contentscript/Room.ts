@@ -33,7 +33,7 @@ export class Room
 
     constructor(protected app: ContentApp, private jid: string, private destination: string, private posX: number) 
     {
-        let user = Config.get('xmpp.user', Utils.randomString(0));
+        let user = Config.get('xmpp.user', '');
         let domain = Config.get('xmpp.domain', '');
         if (domain == '') {
             Panic.now();

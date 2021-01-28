@@ -1,3 +1,5 @@
+import imgDefaultItem from '../assets/DefaultItem.png';
+
 import * as $ from 'jquery';
 import log = require('loglevel');
 import { as } from '../lib/as';
@@ -9,11 +11,8 @@ import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ContentApp } from './ContentApp';
 import { BackpackWindow } from './BackpackWindow';
 
-import imgDefaultItem from '../assets/DefaultItem.png';
-
 export class BackpackItem
 {
-    private properties: ItemProperties;
     private isFirstPresence: boolean = true;
     private elem: HTMLDivElement;
     private iconElem: HTMLImageElement;
@@ -23,10 +22,8 @@ export class BackpackItem
     private h: number = 64;
     private inDrag: boolean = false;
 
-    constructor(protected app: ContentApp, private backpackWindow: BackpackWindow, private itemId: string, properties: ItemProperties)
+    constructor(protected app: ContentApp, private backpackWindow: BackpackWindow, private itemId: string, private properties: ItemProperties)
     {
-        this.properties = this.applyPropertyFilter(properties);
-
         let paneElem = this.backpackWindow.getPane();
         let padding: number = Config.get('backpack.borderPadding', 4);
 
@@ -265,45 +262,29 @@ export class BackpackItem
         this.applyProperties(this.properties);
     }
 
-    applyPropertyFilter(properties: ItemProperties): ItemProperties
-    {
-        let newProperties: ItemProperties = {};
-        let providerId = as.String(properties[Pid.Provider], null);
-        for (let key in properties) {
-            let value = properties[key];
-            if (key.endsWith('Url')) {
-                value = ContentApp.itemProviderUrlFilter(providerId, key, value);
-            }
-            newProperties[key] = value;
-        }
-        return newProperties;
-    }
-
     applyProperties(properties: ItemProperties)
     {
-        let newProperties = this.applyPropertyFilter(properties);
-
-        if (newProperties[Pid.ImageUrl]) {
-            this.setImage(newProperties[Pid.ImageUrl]);
+        if (properties[Pid.ImageUrl]) {
+            this.setImage(properties[Pid.ImageUrl]);
         }
 
-        if (newProperties[Pid.Width] && newProperties[Pid.Height]) {
-            var w = as.Int(newProperties[Pid.Width], -1);
-            var h = as.Int(newProperties[Pid.Height], -1);
+        if (properties[Pid.Width] && properties[Pid.Height]) {
+            var w = as.Int(properties[Pid.Width], -1);
+            var h = as.Int(properties[Pid.Height], -1);
             if (w > 0 && h > 0 && (w != this.w || h != this.h)) {
                 this.setSize(w, h);
             }
         }
 
-        if (as.Bool(newProperties[Pid.IsRezzed], false)) {
+        if (as.Bool(properties[Pid.IsRezzed], false)) {
             $(this.elem).addClass('n3q-backpack-item-rezzed');
         } else {
             $(this.elem).removeClass('n3q-backpack-item-rezzed');
         }
 
-        if (newProperties[Pid.InventoryX] && newProperties[Pid.InventoryY]) {
-            var x = as.Int(newProperties[Pid.InventoryX], -1);
-            var y = as.Int(newProperties[Pid.InventoryY], -1);
+        if (properties[Pid.InventoryX] && properties[Pid.InventoryY]) {
+            var x = as.Int(properties[Pid.InventoryX], -1);
+            var y = as.Int(properties[Pid.InventoryY], -1);
             if (x >= 0 && y >= 0 && (x != this.x || y != this.y)) {
                 this.setPosition(x, y);
             }
@@ -311,13 +292,13 @@ export class BackpackItem
 
         if (Config.get('backpack.itemPropertiesTooltip', false)) {
             let propsText = '';
-            for (let key in newProperties) {
-                propsText += key + ': ' + newProperties[key] + '\r\n';
+            for (let key in properties) {
+                propsText += key + ': ' + properties[key] + '\r\n';
             }
             $(this.elem).prop('title', propsText);;
         }
 
-        this.properties = newProperties;
+        this.properties = properties;
     }
 
     destroy()

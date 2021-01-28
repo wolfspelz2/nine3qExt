@@ -9,6 +9,7 @@ import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 import { RpcProtocol } from '../lib/RpcProtocol';
 import { RpcClient } from '../lib/RpcClient';
 import { Memory } from '../lib/Memory';
+import { Utils } from '../lib/Utils';
 import { BackgroundApp } from './BackgroundApp';
 import { Item } from './Item';
 
@@ -221,8 +222,8 @@ export class Backpack
 
                 let providerId = 'nine3q';
 
-                let userToken = Config.get('itemProviders.' + providerId + '.config.userToken', '');
-                if (userToken == null || userToken == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.NoUserToken); }
+                let userId = await Memory.getSync(Utils.syncStorageKey_Id(), '');
+                if (userId == null || userId == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.NoUserId); }
 
                 let apiUrl = Config.get('itemProviders.' + providerId + '.config.backpackApiUrl', '');
                 if (apiUrl == null || apiUrl == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.SeeDetail, 'Missing backpackApi for ' + providerId); }
@@ -237,7 +238,7 @@ export class Backpack
 
                 let request = new RpcProtocol.BackpackActionRequest();
                 request.method = RpcProtocol.BackpackActionRequest.method;
-                request.user = userToken;
+                request.user = userId;
                 request.item = itemId;
                 request.room = roomJid;
                 request.action = action;
