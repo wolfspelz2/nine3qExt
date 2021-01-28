@@ -78,6 +78,8 @@ export class RepositoryItem
             let tokenOptions = {};
             if (await BackgroundMessage.isBackpackItem(this.id)) {
                 tokenOptions['properties'] = await BackgroundMessage.getBackpackItemProperties(this.id);
+            } else {
+                tokenOptions['properties'] = this.properties;
             }
             let contextToken = await Payload.getContextToken(apiUrl, userId, this.id, 600, { 'room': roomJid }, tokenOptions);
             iframeUrl = iframeUrl

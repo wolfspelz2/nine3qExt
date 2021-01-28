@@ -4,6 +4,8 @@ export class Pid
 {
     static readonly Id = 'Id';
     static readonly Label = 'Label';
+    static readonly OwnerId = 'OwnerId';
+    static readonly OwnerName = 'OwnerName';
     static readonly IsRezzed = 'IsRezzed';
     static readonly RezzedX = 'RezzedX';
     static readonly RezzedLocation = 'RezzedLocation';
@@ -40,6 +42,8 @@ export class Property
     private static config: { [pid: string]: PropertyDefinition } = {
         [Pid.Id]: { inPresence: true },
         [Pid.Label]: { inPresence: true },
+        [Pid.OwnerId]: { inPresence: true },
+        [Pid.OwnerName]: { inPresence: true },
         [Pid.Provider]: { inPresence: true },
         [Pid.ImageUrl]: { inPresence: true },
         [Pid.AnimationsUrl]: { inPresence: true },

@@ -43,7 +43,7 @@ export class Backpack
                 continue;
             }
 
-            let item = this.createRepositoryItem(itemId, props);
+            let item = await this.createRepositoryItem(itemId, props);
             if (item.isRezzed()) {
                 let roomJid = item.getProperties()[Pid.RezzedLocation];
                 if (roomJid) {
@@ -55,7 +55,7 @@ export class Backpack
 
     async addItem(itemId: string, props: ItemProperties, options: ItemChangeOptions)
     {
-        let item = this.createRepositoryItem(itemId, props);
+        let item = await this.createRepositoryItem(itemId, props);
 
         if (item.isRezzed()) {
             if (!options.skipPresenceUpdate) {
@@ -97,8 +97,11 @@ export class Backpack
         }
     }
 
-    private createRepositoryItem(itemId: string, props: ItemProperties): Item
+    private async createRepositoryItem(itemId: string, props: ItemProperties): Promise<Item>
     {
+        props[Pid.OwnerId] = await Memory.getSync(Utils.syncStorageKey_Id(), '');
+        props[Pid.OwnerName] = await Memory.getSync(Utils.syncStorageKey_Nickname(), as.String(props[Pid.OwnerName]));
+
         let item = this.items[itemId];
         if (item == null) {
             item = new Item(this.app, this, itemId, props);
@@ -298,6 +301,7 @@ export class Backpack
         props[Pid.RezzedX] = '' + rezzedX;
         props[Pid.RezzedDestination] = destinationUrl;
         props[Pid.RezzedLocation] = roomJid;
+        props[Pid.OwnerName] = await Memory.getSync(Utils.syncStorageKey_Nickname(), as.String(props[Pid.OwnerName]));
         item.setProperties(props, options);
 
         if (!options.skipPersistentStorage) {
