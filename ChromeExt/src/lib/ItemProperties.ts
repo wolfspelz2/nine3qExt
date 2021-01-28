@@ -48,6 +48,11 @@ export class Property
         [Pid.RezzedX]: { inPresence: true },
         [Pid.ClaimAspect]: { inPresence: true },
         [Pid.ClaimStrength]: { inPresence: true },
+        [Pid.IframeAspect]: { inPresence: true },
+        [Pid.IframeWidth]: { inPresence: true },
+        [Pid.IframeHeight]: { inPresence: true },
+        [Pid.IframeFrame]: { inPresence: true },
+        [Pid.IframeUrl]: { inPresence: true },
 
         // For unit test
         ['Test1']: { inPresence: true },
