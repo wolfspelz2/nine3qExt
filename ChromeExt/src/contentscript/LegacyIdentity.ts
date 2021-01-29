@@ -62,7 +62,7 @@ export class LegacyIdentity
                 {
                     let animationsUrl = as.String(props.src, '');
                     if (animationsUrl != '') {
-                        let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://webex.vulcan.weblin.com/Avatar/DataUrl?url={url}')).replace('{url}', encodeURIComponent(animationsUrl));
+                        let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://webex.vulcan.weblin.com/Avatar/InlineData?url={url}')).replace('{url}', encodeURIComponent(animationsUrl));
                         this.storage.setProperty(this.entity, 'AnimationsUrl', proxiedAnimationsUrl);
                     }
                 }

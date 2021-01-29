@@ -1,49 +1,72 @@
-* { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 12px; }
 
-body {
-    margin: 0;
-    padding: 0;
-    background-color: white;
-}
-
-#n3q-id-popup {
-    width: 400px;
+div.n3q-window-content div#n3q-id-popup {
+    width: 382px;
     padding: 10px;
+    margin: 8px;
+    font-size: 13px;
+    line-height: 14px;
 }
 
-.n3q-base {
-    display:block;
+div.n3q-window-content div#n3q-id-popup.n3q-base div,
+div.n3q-window-content div#n3q-id-popup.n3q-base span,
+div.n3q-window-content div#n3q-id-popup.n3q-base button,
+div.n3q-window-content div#n3q-id-popup.n3q-base input,
+div.n3q-window-content div#n3q-id-popup.n3q-base input[type="text"]
+div.n3q-window-content div#n3q-id-popup.n3q-base input[type="text"]:focus
+{
+    font-size: 13px;
+    line-height: 14px;
 }
 
-input.n3q-base {
+div.n3q-window-content div#n3q-id-popup button
+{
+    display: inline;
+    border-width: 1px;
+    border-style: solid;
+    border-color: grey;
+    border-image: initial;
+    padding: 2px 10px;
+    background-color: #f0f0f0;
+    border-color: #808080;
+    color: #000000;
+    border-width: 1px;
+    padding: 2px 6px;
+}
+
+// div.n3q-window-content div#n3q-id-popup .n3q-base {
+//     display:block;
+// }
+
+div.n3q-window-content div#n3q-id-popup input.n3q-base {
     display: inline;
 }
 
-.n3q-popup-hidden {
+div.n3q-window-content div#n3q-id-popup .n3q-popup-hidden {
     display: none;
 }
 
-.n3q-popup-title {
-    font-size: 24px;
+div.n3q-window-content div#n3q-id-popup div.n3q-popup-title {
+    font-size: 20px;
+    line-height: 24px;
     font-weight: bold;
     max-width: 300px;
 }
 
-.n3q-popup-description {
+div.n3q-window-content div#n3q-id-popup div.n3q-popup-description {
     margin-top: 10px;
-    font-size: 14px;
+    font-size: 13px;
     max-width: 300px;
 }
 
-.n3q-popup-icon {
+div.n3q-window-content div#n3q-id-popup img.n3q-popup-icon {
     width: 64px;
     float: right;
 }
 
-// .n3q-popup-header {
+// div.n3q-window-content div#n3q-id-popup div.n3q-popup-header {
 // }
 
-.n3q-popup-group {
+div.n3q-window-content div#n3q-id-popup div.n3q-popup-group {
     margin-top: 15px;
     padding-top: 10px;
     border-color: #a9a9a9;
@@ -51,46 +74,46 @@ input.n3q-base {
     border-width: 1px 0 0 0;
 }   
 
-.n3q-popup-label {
+div.n3q-window-content div#n3q-id-popup div.n3q-popup-label {
     display: inline;
     margin-right: 10px;
 }
 
-// .n3q-popup-group-nickname {
+// div.n3q-window-content div#n3q-id-popup div.n3q-popup-group-nickname {
 // }   
 
-    #n3q-id-popup-nickname {
+    div.n3q-window-content div#n3q-id-popup input#n3q-id-popup-nickname {
         border-color: #a9a9a9;
         border-style: solid;
         border-width: 0 0 1px 0;
     }
 
-    .n3q-popup-label::after { 
+    div.n3q-window-content div#n3q-id-popup div.n3q-popup-label::after { 
         content: ":"; 
     }
 
-    .n3q-popup-random { 
+    div.n3q-window-content div#n3q-id-popup button.n3q-popup-random { 
         display: inline;
         margin-left: 10px;
     }
 
-// .n3q-popup-group-avatar {
+// div.n3q-window-content div#n3q-id-popup div.n3q-popup-group-avatar {
 // }   
 
-    .n3q-popup-group-avatar .n3q-popup-label {
+    div.n3q-window-content div#n3q-id-popup div.n3q-popup-group-avatar div.n3q-popup-label {
         vertical-align: top;
     }
 
-    .n3q-popup-avatar-arrow, .n3q-popup-avatar-current, .n3q-popup-avatar-name { 
+    div.n3q-window-content div#n3q-id-popup button.n3q-popup-avatar-arrow, img.n3q-popup-avatar-current, div.n3q-popup-avatar-name { 
         vertical-align: top;
         display: inline;
     }
 
-    .n3q-popup-avatar-name { 
+    div.n3q-window-content div#n3q-id-popup div.n3q-popup-avatar-name { 
         margin-left: 10px;
     }
 
-    .n3q-popup-avatar-arrow { 
+    div.n3q-window-content div#n3q-id-popup button.n3q-popup-avatar-arrow { 
         width: 20px;
         height: 100px;
         background-repeat: no-repeat;
@@ -99,49 +122,49 @@ input.n3q-base {
         vertical-align: top;
     }
 
-    .n3q-popup-avatar-arrow:hover {
+    div.n3q-window-content div#n3q-id-popup button.n3q-popup-avatar-arrow:hover {
         filter: brightness(1.2);
     }
     
-    .n3q-popup-avatar-arrow:active {
+    div.n3q-window-content div#n3q-id-popup button.n3q-popup-avatar-arrow:active {
         filter: brightness(0.8);
     }
 
-// .n3q-popup-group-active {
+// div.n3q-window-content div#n3q-id-popup div.n3q-popup-group-active {
 // }
 
-    .n3q-popup-group-active .n3q-popup-label {
+    div.n3q-window-content div#n3q-id-popup div.n3q-popup-group-active div.n3q-popup-label {
         vertical-align: middle;
     }
     
-    .n3q-popup-active {
+    div.n3q-window-content div#n3q-id-popup input.n3q-popup-active {
         width: 16px;
         height: 16px;
         vertical-align: middle;
     }
 
 
-.n3q-popup-group-save {
+div.n3q-window-content div#n3q-id-popup div.n3q-popup-group-save {
     padding: 15px 0 0 0;    
     margin: 15px 0 5px 0;    
 }
 
-    .n3q-popup-save {
+    div.n3q-window-content div#n3q-id-popup button.n3q-popup-save {
         background-color: #b1c032;
         display: inline;
         border: 1px solid grey;
         padding: 2px 10px;
     }
 
-    .n3q-popup-save:hover {
+    div.n3q-window-content div#n3q-id-popup button.n3q-popup-save:hover {
         filter: brightness(1.2);
     }
     
-    .n3q-popup-save:active {
+    div.n3q-window-content div#n3q-id-popup button.n3q-popup-save:active {
         filter: brightness(0.8);
     }
 
-    .n3q-popup-save-saving {
+    div.n3q-window-content div#n3q-id-popup div.n3q-popup-save-saving {
         display: inline;
         margin-left: 5px;
         background-color: lightgray;
@@ -149,7 +172,7 @@ input.n3q-base {
         opacity: 0;
     }
 
-    .n3q-popup-save-saved {
+    div.n3q-window-content div#n3q-id-popup div.n3q-popup-save-saved {
         display: inline;
         margin-left: 0.5em;
         background-color: #b1c032;
@@ -157,7 +180,7 @@ input.n3q-base {
         opacity: 0;
     }
 
-    .n3q-popup-close {
+    div.n3q-window-content div#n3q-id-popup button.n3q-popup-close {
         display: none;
         float: right;
     }

@@ -12,6 +12,7 @@ import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 import { Memory } from '../lib/Memory';
 import { ConfigUpdater } from './ConfigUpdater';
 import { Backpack } from './Backpack';
+import { Translator } from '../lib/Translator';
 
 interface ILocationMapperResponse
 {
@@ -29,6 +30,7 @@ export class BackgroundApp
     private clientDetails: string = '"weblin.io"';
     private backpack: Backpack = null;
     private xmppStarted = false;
+    private babelfish: Translator;
 
     private readonly stanzaQ: Array<xml> = [];
     private readonly roomJid2tabId: Map<string, Array<number>> = new Map<string, Array<number>>();
@@ -58,10 +60,20 @@ export class BackgroundApp
             }
         }
 
+        let language: string = Translator.mapLanguage(navigator.language, lang => { return Config.get('i18n.languageMapping', {})[lang]; }, Config.get('i18n.defaultLanguage', 'en-US'));
+        this.babelfish = new Translator(Config.get('i18n.translations', {})[language], language, Config.get('i18n.serviceUrl', ''));
+
         if (chrome.runtime && chrome.runtime.onMessage) {
             chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
             {
                 return this.onRuntimeMessage(message, sender, sendResponse);
+            });
+        }
+
+        if (chrome.browserAction && chrome.browserAction.onClicked) {
+            chrome.browserAction.onClicked.addListener(async tab =>
+            {
+                await this.onBrowserActionClicked(tab);
             });
         }
 
@@ -105,12 +117,26 @@ export class BackgroundApp
         this.stopXmpp();
     }
 
+    translateText(key: string, defaultText: string = null): string
+    {
+        return this.babelfish.translateText(key, defaultText);
+    }
+
     // IPC
 
     onDirectRuntimeMessage(message: any, sendResponse: (response?: any) => void)
     {
         const sender = { tab: { id: 0 } };
         this.onRuntimeMessage(message, sender, sendResponse);
+    }
+
+    private async onBrowserActionClicked(tab): Promise<void>
+    {
+        let state = !as.Bool(await Memory.getLocal(Utils.localStorageKey_Active(), false), false);
+        await Memory.setLocal(Utils.localStorageKey_Active(), state);
+        chrome.browserAction.setIcon({ path: '/assets/' + (state ? 'icon.png' : 'iconDisabled.png') });
+        chrome.browserAction.setTitle({ title: this.translateText('Extension.' + (state ? 'Disable' : 'Enable')) });
+        this.handle_userSettingsChanged();
     }
 
     private onRuntimeMessage(message, sender/*: chrome.runtime.MessageSender*/, sendResponse: (response?: any) => void): boolean

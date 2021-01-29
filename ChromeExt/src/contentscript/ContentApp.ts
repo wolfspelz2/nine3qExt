@@ -230,7 +230,7 @@ export class ContentApp
     {
         if (!this.settingsWindow) {
             this.settingsWindow = new SettingsWindow(this);
-            this.settingsWindow.show({ 'above': aboveElem });
+            /* await */ this.settingsWindow.show({ 'above': aboveElem, onClose: () => { this.settingsWindow = null; } });
         }
     }
 
