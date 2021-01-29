@@ -71,7 +71,7 @@ function activateAll()
     {
         if (event.data.type === BackgroundMessage.userSettingsChanged.name) {
             if (app) {
-                app.handle_userSettingsChanged(event.data.settings);
+                app.handle_userSettingsChanged();
             }
         }
     }, false);
