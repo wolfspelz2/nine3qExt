@@ -56,7 +56,7 @@ export class ContentApp
     private xmppWindow: XmppWindow;
     private backpackWindow: BackpackWindow;
     private settingsWindow: SettingsWindow;
-    private stanzasResponses: { [stanzaId: string]: StanzaResponseHandler } = {}
+    private stanzasResponses: { [stanzaId: string]: StanzaResponseHandler } = {};
     private onRuntimeMessageClosure: (message: any, sender: any, sendResponse: any) => any;
     private iframeApi: IframeApi;
 
@@ -334,28 +334,32 @@ export class ContentApp
     private onSimpleRuntimeMessage(message): any
     {
         switch (message.type) {
-            case ContentMessage.Type[ContentMessage.Type.recvStanza]: {
+            case ContentMessage.type_recvStanza: {
                 this.handle_recvStanza(message.stanza);
             } break;
 
-            case ContentMessage.Type[ContentMessage.Type.userSettingsChanged]: {
+            case ContentMessage.type_userSettingsChanged: {
                 this.handle_userSettingsChanged();
             } break;
 
-            case ContentMessage.Type[ContentMessage.Type.sendPresence]: {
+            case ContentMessage.type_extensionActiveChanged: {
+                this.handle_extensionActiveChanged(message.data.state);
+            } break;
+
+            case ContentMessage.type_sendPresence: {
                 this.handle_sendPresence();
                 return false;
             } break;
 
-            case ContentMessage.Type[ContentMessage.Type.onBackpackShowItem]: {
+            case ContentMessage.type_onBackpackShowItem: {
                 this.backpackWindow?.onShowItem(message.data.id, message.data.properties);
                 return false;
             } break;
-            case ContentMessage.Type[ContentMessage.Type.onBackpackSetItem]: {
+            case ContentMessage.type_onBackpackSetItem: {
                 this.backpackWindow?.onSetItem(message.data.id, message.data.properties);
                 return false;
             } break;
-            case ContentMessage.Type[ContentMessage.Type.onBackpackHideItem]: {
+            case ContentMessage.type_onBackpackHideItem: {
                 this.backpackWindow?.onHideItem(message.data.id);
                 return false;
             } break;
@@ -385,6 +389,15 @@ export class ContentApp
     handle_userSettingsChanged(): any
     {
         this.messageHandler({ 'type': ContentAppNotification.type_restart });
+    }
+
+    handle_extensionActiveChanged(state: boolean): any
+    {
+        if (state) {
+            // should not happen
+        } else {
+            this.messageHandler({ 'type': ContentAppNotification.type_stopped });
+        }
     }
 
     handle_sendPresence(): void

@@ -73,7 +73,7 @@ export class BackgroundApp
         if (chrome.browserAction && chrome.browserAction.onClicked) {
             chrome.browserAction.onClicked.addListener(async tab =>
             {
-                await this.onBrowserActionClicked(tab);
+                await this.onBrowserActionClicked(tab.id);
             });
         }
 
@@ -124,19 +124,19 @@ export class BackgroundApp
 
     // IPC
 
-    onDirectRuntimeMessage(message: any, sendResponse: (response?: any) => void)
-    {
-        const sender = { tab: { id: 0 } };
-        this.onRuntimeMessage(message, sender, sendResponse);
-    }
-
-    private async onBrowserActionClicked(tab): Promise<void>
+    private async onBrowserActionClicked(tabId:number): Promise<void>
     {
         let state = !as.Bool(await Memory.getLocal(Utils.localStorageKey_Active(), false), false);
         await Memory.setLocal(Utils.localStorageKey_Active(), state);
         chrome.browserAction.setIcon({ path: '/assets/' + (state ? 'icon.png' : 'iconDisabled.png') });
         chrome.browserAction.setTitle({ title: this.translateText('Extension.' + (state ? 'Disable' : 'Enable')) });
-        this.handle_userSettingsChanged();
+        ContentMessage.sendMessage(tabId, { 'type': ContentMessage.type_extensionActiveChanged, 'data': { 'state': state } });
+    }
+
+    onDirectRuntimeMessage(message: any, sendResponse: (response?: any) => void)
+    {
+        const sender = { tab: { id: 0 } };
+        this.onRuntimeMessage(message, sender, sendResponse);
     }
 
     private onRuntimeMessage(message, sender/*: chrome.runtime.MessageSender*/, sendResponse: (response?: any) => void): boolean
@@ -706,7 +706,7 @@ export class BackgroundApp
                     let tabId = this.iqStanzaTabId[stanzaId];
                     if (tabId) {
                         delete this.iqStanzaTabId[stanzaId];
-                        ContentMessage.sendMessage(tabId, { 'type': ContentMessage.Type[ContentMessage.Type.recvStanza], 'stanza': stanza });
+                        ContentMessage.sendMessage(tabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
                     }
                 }
             }
@@ -720,7 +720,7 @@ export class BackgroundApp
             if (tabIds) {
                 for (let i = 0; i < tabIds.length; i++) {
                     let tabId = tabIds[i];
-                    ContentMessage.sendMessage(tabId, { 'type': ContentMessage.Type[ContentMessage.Type.recvStanza], 'stanza': stanza });
+                    ContentMessage.sendMessage(tabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
                 }
             }
         }
@@ -739,7 +739,7 @@ export class BackgroundApp
             }
 
             if (unavailableTabId >= 0) {
-                ContentMessage.sendMessage(unavailableTabId, { 'type': ContentMessage.Type.recvStanza, 'stanza': stanza });
+                ContentMessage.sendMessage(unavailableTabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
                 this.removeRoomJid2TabId(room, unavailableTabId);
                 log.debug('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', unavailableTabId, 'now:', this.roomJid2tabId);
             } else {
@@ -747,7 +747,7 @@ export class BackgroundApp
                 if (tabIds) {
                     for (let i = 0; i < tabIds.length; i++) {
                         let tabId = tabIds[i];
-                        ContentMessage.sendMessage(tabId, { 'type': ContentMessage.Type[ContentMessage.Type.recvStanza], 'stanza': stanza });
+                        ContentMessage.sendMessage(tabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
                     }
                 }
             }
@@ -820,23 +820,31 @@ export class BackgroundApp
 
     sendToAllTabs(type: string, data: any)
     {
-        let tabIds = this.getAllTabIds();
-        if (tabIds) {
-            for (let i = 0; i < tabIds.length; i++) {
-                let tabId = tabIds[i];
-                ContentMessage.sendMessage(tabId, { 'type': type, 'data': data });
+        try {
+            let tabIds = this.getAllTabIds();
+            if (tabIds) {
+                for (let i = 0; i < tabIds.length; i++) {
+                    let tabId = tabIds[i];
+                    ContentMessage.sendMessage(tabId, { 'type': type, 'data': data });
+                }
             }
+        } catch (error) {
+            //
         }
     }
 
     sendToTabsForRoom(room: string, type: string)
     {
-        let tabIds = this.getRoomJid2TabIds(room);
-        if (tabIds) {
-            for (let i = 0; i < tabIds.length; i++) {
-                let tabId = tabIds[i];
-                ContentMessage.sendMessage(tabId, { 'type': type });
+        try {
+            let tabIds = this.getRoomJid2TabIds(room);
+            if (tabIds) {
+                for (let i = 0; i < tabIds.length; i++) {
+                    let tabId = tabIds[i];
+                    ContentMessage.sendMessage(tabId, { 'type': type });
+                }
             }
+        } catch (error) {
+            //
         }
     }
 
@@ -862,20 +870,7 @@ export class BackgroundApp
     handle_userSettingsChanged(): void
     {
         log.debug('BackgroundApp.handle_userSettingsChanged');
-        try {
-            for (let room in this.roomJid2tabId) {
-                let tabIds = this.roomJid2tabId[room];
-                if (tabIds) {
-                    tabIds.forEach(tabId =>
-                    {
-                        ContentMessage.sendMessage(tabId, { 'type': 'userSettingsChanged' });
-                    });
-                }
-            }
-
-        } catch (error) {
-            //
-        }
+        this.sendToAllTabs(ContentMessage.type_userSettingsChanged, {});
     }
 
     handle_test(): void

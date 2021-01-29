@@ -10,7 +10,6 @@ import { Memory } from '../lib/Memory';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Translator } from '../lib/Translator';
 import { AvatarGallery } from '../lib/AvatarGallery';
-import { Environment } from '../lib/Environment';
 
 export class PopupApp
 {
@@ -57,7 +56,6 @@ export class PopupApp
 
         let nickname = as.String(await Memory.getSync(Utils.syncStorageKey_Nickname(), 'Your name'));
         let avatar = as.String(await Memory.getSync(Utils.syncStorageKey_Avatar(), ''));
-        let active = as.String(await Memory.getLocal(Utils.localStorageKey_Active(), 'true'));
 
         {
             let group = $('<div class="n3q-base n3q-popup-header" data-translate="children"/>').get(0);
@@ -162,19 +160,6 @@ export class PopupApp
             this.display.append(group);
         }
 
-        if (false) {
-            let group = $('<div class="n3q-base n3q-popup-group n3q-popup-group-active" data-translate="children"/>').get(0);
-
-            let label = $('<div class="n3q-base n3q-popup-label" data-translate="text:Popup">Show avatar</div>').get(0);
-            group.append(label);
-
-            let checkbox = $('<input type="checkbox" id="n3q-id-popup-active" name="n3q-id-popup-active" class="n3q-base n3q-popup-active" title="Uncheck to hide" data-translate="attr:title:Popup"></input>').get(0);
-            $(checkbox).prop('checked', as.Bool(active, false));
-            group.append(checkbox);
-
-            this.display.append(group);
-        }
-
         {
             let group = $('<div class="n3q-base n3q-popup-group n3q-popup-group-save" data-translate="children"/>').get(0);
 
@@ -189,12 +174,6 @@ export class PopupApp
 
                 let avatar2Save = $('#n3q-id-popup-avatar').val();
                 await Memory.setSync(Utils.syncStorageKey_Avatar(), avatar2Save);
-
-                if (!Environment.isEmbedded()) {
-                    let isActive = $('#n3q-id-popup-active').prop('checked');
-                    let active2Save = as.String(isActive, 'false');
-                    await Memory.setLocal(Utils.localStorageKey_Active(), active2Save);
-                }
 
                 await BackgroundMessage.userSettingsChanged();
 
