@@ -5,6 +5,7 @@ import { Panic } from '../lib/Panic';
 import { Config } from '../lib/Config';
 import { Environment } from '../lib/Environment';
 import { ContentApp, ContentAppNotification } from './ContentApp';
+import { ContentMessage } from '../lib/ContentMessage';
 
 let debug = Environment.isDevelopment();
 console.log('weblin.io Content', 'dev', debug);
@@ -16,15 +17,28 @@ if (debug) {
     // log.setLevel(log.levels.TRACE);
 }
 
-
-var app = null;
-let onTabChangeStay = false;
-
 try {
+
+    var app = null;
+    let onTabChangeStay = false;
+
+    let runtimeMessageHandlerWhileDeactivated: (message: any, sender: any, sendResponse: any) => any;
+    function onRuntimeMessage(message, sender, sendResponse): any
+    {
+        if (message.type == ContentMessage.type_extensionActiveChanged && message.data && message.data.state) {
+            activate();
+        }
+        sendResponse();
+        return false;
+    }
 
     function activate()
     {
         if (app == null) {
+            if (chrome.runtime && chrome.runtime.onMessage && runtimeMessageHandlerWhileDeactivated) {
+                chrome.runtime.onMessage.removeListener(runtimeMessageHandlerWhileDeactivated);
+            }
+
             log.debug('Contentscript.activate');
             app = new ContentApp($('body').get(0), msg =>
             {
@@ -39,6 +53,7 @@ try {
                     } break;
 
                     case ContentAppNotification.type_stopped: {
+                        deactivate();
                     } break;
 
                     case ContentAppNotification.type_restart: {
@@ -56,6 +71,11 @@ try {
             log.debug('Contentscript.deactivate');
             app.stop();
             app = null;
+
+            if (chrome.runtime && chrome.runtime.onMessage) {
+                runtimeMessageHandlerWhileDeactivated = (message, sender, sendResponse) => onRuntimeMessage(message, sender, sendResponse);
+                chrome.runtime.onMessage.addListener(runtimeMessageHandlerWhileDeactivated);
+            }
         }
     }
 

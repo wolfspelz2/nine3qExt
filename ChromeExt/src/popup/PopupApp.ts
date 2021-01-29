@@ -16,6 +16,7 @@ export class PopupApp
     private display: HTMLElement;
     private babelfish: Translator;
     private defaultDevConfig = `{}`;
+    private onClose: () => void;
 
     constructor(protected appendToMe: HTMLElement)
     {
@@ -28,7 +29,7 @@ export class PopupApp
         let start = $('<button style="display:inline">Start</button>').get(0);
         $(start).bind('click', async ev =>
         {
-            await this.start();
+            await this.start(null);
         });
         let stop = $('<button style="display:inline">Stop</button>').get(0);
         $(stop).bind('click', async ev =>
@@ -40,8 +41,10 @@ export class PopupApp
         this.appendToMe.style.minWidth = '25em';
     }
 
-    async start()
+    async start(onClose: () => void)
     {
+        this.onClose = onClose;
+
         try {
             let config = await BackgroundMessage.getConfigTree(Config.onlineConfigName);
             Config.setOnlineTree(config);
@@ -53,7 +56,6 @@ export class PopupApp
 
         let nickname = as.String(await Memory.getSync(Utils.syncStorageKey_Nickname(), 'Your name'));
         let avatar = as.String(await Memory.getSync(Utils.syncStorageKey_Avatar(), ''));
-        let active = as.String(await Memory.getLocal(Utils.localStorageKey_Active(), 'true'));
 
         {
             let group = $('<div class="n3q-base n3q-popup-header" data-translate="children"/>').get(0);
@@ -159,23 +161,9 @@ export class PopupApp
         }
 
         {
-            let group = $('<div class="n3q-base n3q-popup-group n3q-popup-group-active" data-translate="children"/>').get(0);
-
-            let label = $('<div class="n3q-base n3q-popup-label" data-translate="text:Popup">Show avatar</div>').get(0);
-            group.append(label);
-
-            let checkbox = $('<input type="checkbox" id="n3q-id-popup-active" name="n3q-id-popup-active" class="n3q-base n3q-popup-active" title="Uncheck to hide" data-translate="attr:title:Popup"></input>').get(0);
-            $(checkbox).prop('checked', as.Bool(active, false));
-            group.append(checkbox);
-
-            this.display.append(group);
-        }
-
-        {
             let group = $('<div class="n3q-base n3q-popup-group n3q-popup-group-save" data-translate="children"/>').get(0);
 
             let saving = $('<div class="n3q-base n3q-popup-save-saving" data-translate="text:Popup">Saving</div>').get(0);
-            let saved = $('<div class="n3q-base n3q-popup-save-saved" data-translate="text:Popup">Saved</div>').get(0);
 
             let save = $('<button class="n3q-base n3q-popup-save" data-translate="text:Popup">Save</button>').get(0);
             $(save).bind('click', async ev =>
@@ -187,42 +175,15 @@ export class PopupApp
                 let avatar2Save = $('#n3q-id-popup-avatar').val();
                 await Memory.setSync(Utils.syncStorageKey_Avatar(), avatar2Save);
 
-                let isActive = $('#n3q-id-popup-active').prop('checked');
-                let active2Save = as.String(isActive, 'false');
-                await Memory.setLocal(Utils.localStorageKey_Active(), active2Save);
+                await BackgroundMessage.userSettingsChanged();
 
-                // Verify
+                $(saving).fadeTo(1000, 0.0, () =>
                 {
-                    let nickname2Verify = await Memory.getSync(Utils.syncStorageKey_Nickname(), '');
-                    let avatar2Verify = await Memory.getSync(Utils.syncStorageKey_Avatar(), '');
-                    let active2Verify = await Memory.getLocal(Utils.localStorageKey_Active(), '');
-                    $(saving).fadeTo(100, 0.0);
-
-                    if (true
-                        && nickname2Verify == nickname2Save
-                        && avatar2Verify == avatar2Save
-                        && active2Verify == active2Save
-                    ) {
-                        if (false
-                            || nickname != nickname2Save
-                            || avatar != avatar2Save
-                            || active != active2Save
-                        ) {
-                            await BackgroundMessage.userSettingsChanged();
-                        }
-
-
-                        $(saved).fadeTo(100, 1.0).fadeTo(1000, 0.0, () =>
-                        {
-                            this.close();
-                        });
-                    }
-                }
+                    this.close();
+                });
             });
             group.append(save);
-
             group.append(saving);
-            group.append(saved);
 
             let close = $('<button class="n3q-base n3q-popup-close" data-translate="text:Common">Close</button>').get(0);
             $(close).bind('click', async ev =>
@@ -240,7 +201,7 @@ export class PopupApp
 
     close()
     {
-        window.close();
+        if (this.onClose) { this.onClose(); }
     }
 
     async devConfig(group: HTMLElement)

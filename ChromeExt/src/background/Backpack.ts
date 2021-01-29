@@ -69,7 +69,7 @@ export class Backpack
 
         if (!options.skipContentNotification) {
             let data = new BackpackShowItemData(itemId, props);
-            this.app.sendToAllTabs(ContentMessage.Type[ContentMessage.Type.onBackpackShowItem], data);
+            this.app.sendToAllTabs(ContentMessage.type_onBackpackShowItem, data);
         }
     }
 
@@ -90,7 +90,7 @@ export class Backpack
 
             if (!options.skipContentNotification) {
                 let data = new BackpackRemoveItemData(itemId);
-                this.app.sendToAllTabs(ContentMessage.Type[ContentMessage.Type.onBackpackHideItem], data);
+                this.app.sendToAllTabs(ContentMessage.type_onBackpackHideItem, data);
             }
 
             this.deleteRepositoryItem(itemId);
@@ -336,7 +336,7 @@ export class Backpack
         }
 
         if (!options.skipContentNotification) {
-            this.app.sendToTabsForRoom(roomJid, ContentMessage.Type[ContentMessage.Type.sendPresence]);
+            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
         }
     }
 

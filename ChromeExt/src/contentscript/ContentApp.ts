@@ -48,7 +48,7 @@ export class ContentApp
     private display: HTMLElement;
     private pageUrl: string;
     private presetPageUrl: string;
-    private locationUrl: string;
+    private roomJid: string;
     private room: Room;
     private itemRepository: ItemRepository;
     private propertyStorage: PropertyStorage = new PropertyStorage();
@@ -56,7 +56,7 @@ export class ContentApp
     private xmppWindow: XmppWindow;
     private backpackWindow: BackpackWindow;
     private settingsWindow: SettingsWindow;
-    private stanzasResponses: { [stanzaId: string]: StanzaResponseHandler } = {}
+    private stanzasResponses: { [stanzaId: string]: StanzaResponseHandler } = {};
     private onRuntimeMessageClosure: (message: any, sender: any, sendResponse: any) => any;
     private iframeApi: IframeApi;
 
@@ -157,10 +157,10 @@ export class ContentApp
         // this.enterPage();
         await this.checkPageUrlChanged();
 
-        this.stayHereIsChecked = await Memory.getLocal(Utils.localStorageKey_StayOnTabChange(this.locationUrl), false);
+        this.stayHereIsChecked = await Memory.getLocal(Utils.localStorageKey_StayOnTabChange(this.roomJid), false);
 
-        this.backpackIsOpen = await Memory.getLocal(Utils.localStorageKey_BackpackIsOpen(), false);
-        if (this.backpackIsOpen && this.locationUrl != '') {
+        this.backpackIsOpen = await Memory.getLocal(Utils.localStorageKey_BackpackIsOpen(this.roomJid), false);
+        if (this.backpackIsOpen && this.roomJid != '') {
             this.showBackpackWindow(null);
         }
 
@@ -230,7 +230,7 @@ export class ContentApp
     {
         if (!this.settingsWindow) {
             this.settingsWindow = new SettingsWindow(this);
-            this.settingsWindow.show({ 'above': aboveElem });
+            /* await */ this.settingsWindow.show({ 'above': aboveElem, onClose: () => { this.settingsWindow = null; } });
         }
     }
 
@@ -240,9 +240,9 @@ export class ContentApp
     {
         this.backpackIsOpen = value; this.evaluateStayOnTabChange();
         if (value) {
-            /* await */ Memory.setLocal(Utils.localStorageKey_BackpackIsOpen(), value);
+            /* await */ Memory.setLocal(Utils.localStorageKey_BackpackIsOpen(this.roomJid), value);
         } else {
-            /* await */ Memory.deleteLocal(Utils.localStorageKey_BackpackIsOpen());
+            /* await */ Memory.deleteLocal(Utils.localStorageKey_BackpackIsOpen(this.roomJid));
         }
     }
 
@@ -271,9 +271,9 @@ export class ContentApp
         this.stayHereIsChecked = !this.stayHereIsChecked;
 
         if (this.stayHereIsChecked) {
-            /* await */ Memory.setLocal(Utils.localStorageKey_StayOnTabChange(this.locationUrl), this.stayHereIsChecked);
+            /* await */ Memory.setLocal(Utils.localStorageKey_StayOnTabChange(this.roomJid), this.stayHereIsChecked);
         } else {
-            /* await */ Memory.deleteLocal(Utils.localStorageKey_StayOnTabChange(this.locationUrl));
+            /* await */ Memory.deleteLocal(Utils.localStorageKey_StayOnTabChange(this.roomJid));
         }
 
         this.evaluateStayOnTabChange();
@@ -334,28 +334,32 @@ export class ContentApp
     private onSimpleRuntimeMessage(message): any
     {
         switch (message.type) {
-            case ContentMessage.Type[ContentMessage.Type.recvStanza]: {
+            case ContentMessage.type_recvStanza: {
                 this.handle_recvStanza(message.stanza);
             } break;
 
-            case ContentMessage.Type[ContentMessage.Type.userSettingsChanged]: {
+            case ContentMessage.type_userSettingsChanged: {
                 this.handle_userSettingsChanged();
             } break;
 
-            case ContentMessage.Type[ContentMessage.Type.sendPresence]: {
+            case ContentMessage.type_extensionActiveChanged: {
+                this.handle_extensionActiveChanged(message.data.state);
+            } break;
+
+            case ContentMessage.type_sendPresence: {
                 this.handle_sendPresence();
                 return false;
             } break;
 
-            case ContentMessage.Type[ContentMessage.Type.onBackpackShowItem]: {
+            case ContentMessage.type_onBackpackShowItem: {
                 this.backpackWindow?.onShowItem(message.data.id, message.data.properties);
                 return false;
             } break;
-            case ContentMessage.Type[ContentMessage.Type.onBackpackSetItem]: {
+            case ContentMessage.type_onBackpackSetItem: {
                 this.backpackWindow?.onSetItem(message.data.id, message.data.properties);
                 return false;
             } break;
-            case ContentMessage.Type[ContentMessage.Type.onBackpackHideItem]: {
+            case ContentMessage.type_onBackpackHideItem: {
                 this.backpackWindow?.onHideItem(message.data.id);
                 return false;
             } break;
@@ -385,6 +389,15 @@ export class ContentApp
     handle_userSettingsChanged(): any
     {
         this.messageHandler({ 'type': ContentAppNotification.type_restart });
+    }
+
+    handle_extensionActiveChanged(state: boolean): any
+    {
+        if (state) {
+            // should not happen
+        } else {
+            this.messageHandler({ 'type': ContentAppNotification.type_stopped });
+        }
     }
 
     handle_sendPresence(): void
@@ -433,19 +446,20 @@ export class ContentApp
             let vpi = new VpiResolver(BackgroundMessage, Config);
             vpi.language = Translator.getShortLanguageCode(this.babelfish.getLanguage());
             let newLocation = await vpi.map(pageUrl);
-            if (newLocation == this.locationUrl) {
-                log.debug('Same room', pageUrl, ' => ', this.locationUrl);
+            let newRoomJid = ContentApp.getRoomJidFromLocationUrl(newLocation);
+
+            if (newRoomJid == this.roomJid) {
+                log.debug('Same room', pageUrl, ' => ', this.roomJid);
                 return;
             }
 
             this.leavePage();
 
-            this.locationUrl = newLocation;
-            log.debug('Mapped', pageUrl, ' => ', this.locationUrl);
+            this.roomJid = newRoomJid;
+            log.debug('Mapped', pageUrl, ' => ', this.roomJid);
 
-            if (this.locationUrl != '') {
-                let roomJid = ContentApp.getRoomJidFromLocationUrl(this.locationUrl);
-                this.enterRoom(roomJid, pageUrl);
+            if (this.roomJid != '') {
+                this.enterRoom(this.roomJid, pageUrl);
             }
 
         } catch (error) {

@@ -209,11 +209,11 @@ export class Participant extends Entity
         if (this.avatarDisplay) {
             if (vpAvatarId != '') {
                 let animationsUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'https://webex.vulcan.weblin.com/avatars/gif/{id}/config.xml')).replace('{id}', vpAvatarId);
-                let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://webex.vulcan.weblin.com/Avatar/DataUrl?url={url}')).replace('{url}', encodeURIComponent(animationsUrl));
+                let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://webex.vulcan.weblin.com/Avatar/InlineData?url={url}')).replace('{url}', encodeURIComponent(animationsUrl));
                 this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
                 hasAvatar = true;
             } else if (vpAnimationsUrl != '') {
-                let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://webex.vulcan.weblin.com/Avatar/DataUrl?url={url}')).replace('{url}', encodeURIComponent(vpAnimationsUrl));
+                let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://webex.vulcan.weblin.com/Avatar/InlineData?url={url}')).replace('{url}', encodeURIComponent(vpAnimationsUrl));
                 this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
                 hasAvatar = true;
             } else {

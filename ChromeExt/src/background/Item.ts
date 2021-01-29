@@ -21,7 +21,7 @@ export class Item
         this.properties = props;
 
         if (!options.skipContentNotification) {
-            this.app.sendToAllTabs(ContentMessage.Type[ContentMessage.Type.onBackpackSetItem], new BackpackSetItemData(this.itemId, props));
+            this.app.sendToAllTabs(ContentMessage.type_onBackpackSetItem, new BackpackSetItemData(this.itemId, props));
         }
 
         if (!options.skipPresenceUpdate) {
@@ -33,7 +33,7 @@ export class Item
     {
         if (this.isRezzed()) {
             let roomJid = this.properties[Pid.RezzedLocation];
-            this.app.sendToTabsForRoom(roomJid, ContentMessage.Type[ContentMessage.Type.sendPresence]);
+            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
         }
     }
 
