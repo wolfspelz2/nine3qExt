@@ -4,7 +4,7 @@ import { Payload } from '../lib/Payload';
 import { SimpleRpc } from './SimpleRpc';
 import { Config } from '../lib/Config';
 
-export class TestSimpleRpc
+export class LiveTestSimpleRpc
 {
     async SimpleRpc_echo()
     {

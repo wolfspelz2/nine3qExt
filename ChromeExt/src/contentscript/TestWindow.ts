@@ -5,8 +5,8 @@ import { sut } from '../lib/sut';
 import { sutGui } from '../lib/sutGui';
 import { Window } from './Window';
 import { ContentApp } from './ContentApp';
-import { TestPayload } from './TestPayload';
-import { TestSimpleRpc } from './TestSimpleRpc';
+import { LiveTestPayload } from './LiveTestPayload';
+import { LiveTestSimpleRpc } from './LiveTestSimpleRpc';
 
 export class TestWindow extends Window
 {
@@ -76,8 +76,8 @@ export class TestWindow extends Window
     {
         var s = new sut();
 
-        s.addTestClass(TestSimpleRpc);
-        s.addTestClass(TestPayload);
+        s.addTestClass(LiveTestSimpleRpc);
+        s.addTestClass(LiveTestPayload);
 
         s.run().then(() =>
         {

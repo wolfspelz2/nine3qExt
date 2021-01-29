@@ -6,8 +6,11 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
-        ['1.0.7', 'Items', [
-            ['Add', 'Have items'],
+        ['1.0.7', 'unsafe-eval', [
+            ['Add', 'Manage page claims'],
+            ['Add', 'Detecatable for embedded'],
+            ['Change', 'Skip call to item config'],
+            ['Fix', 'Remove unneccesary unsafe-eval from content_security_policy (for MS Edge Addons Store)'],
         ]],
         ['1.0.6', 'PrivateChat Greet RecvDependentItems', [
             ['Add', 'Allow vidconf fullscreen'],

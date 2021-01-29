@@ -35,8 +35,8 @@ export class Config
         },
         config: {
             serviceUrl: 'https://webex.vulcan.weblin.com/Config',
-            updateIntervalSec: Utils.randomInt(86400-2000, 86400+1000),
-            checkUpdateIntervalSec: Utils.randomInt(120-10, 120+10),
+            updateIntervalSec: Utils.randomInt(86400 - 2000, 86400 + 1000),
+            checkUpdateIntervalSec: Utils.randomInt(120 - 10, 120 + 10),
         },
         httpCache: {
             maxAgeSec: 3600,
@@ -100,7 +100,7 @@ export class Config
             dropZoneHeight: 100,
         },
         backpack: {
-            enabled: false,
+            enabled: true,
             itemSize: 64,
             borderPadding: 4,
             dropZoneHeight: 100,
@@ -115,6 +115,14 @@ export class Config
                 name: 'weblin.io Items',
                 description: 'Things on web pages',
                 configUrl: 'https://webit.vulcan.weblin.com/Config?id={id}&client={client}',
+                config: {
+                    apiUrl: 'https://webit.vulcan.weblin.com/rpc',
+                    backpackApiUrl: 'https://webit.vulcan.weblin.com/backpack',
+                    itemPropertyUrlFilter: {
+                        '{image.item.nine3q}': 'https://webit.vulcan.weblin.com/images/Items/',
+                        '{iframe.item.nine3q}': 'https://webit.vulcan.weblin.com/ItemFrame/',
+                    },
+                },
             }
         },
         i18n: {

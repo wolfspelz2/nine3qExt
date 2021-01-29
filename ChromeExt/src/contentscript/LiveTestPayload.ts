@@ -6,7 +6,7 @@ import { parseJSON } from 'jquery';
 import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
 
-export class TestPayload
+export class LiveTestPayload
 {
     async Payload_getToken()
     {
@@ -18,6 +18,7 @@ export class TestPayload
             {
                 room: '9ca05afb1a49f26fb59642305c481661f8b370bd@muc4.virtual-presence.org',
             }
+            ,{}
         );
         log.info('TEST', 'Payload_getToken', token);
         var record = JSON.parse(Utils.base64Decode(token));

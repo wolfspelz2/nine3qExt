@@ -14,5 +14,5 @@
     "src/contentscript",
     "src/embedded",
     "src/lib"
-  ]
+, "src/test/TestPayload.ts", "src/test/TestSimpleRpc.ts"  ]
 }
