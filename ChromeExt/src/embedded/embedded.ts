@@ -19,10 +19,9 @@ if (typeof n3qConfig != 'undefined' && typeof n3qConfig.preferredClient != 'unde
 if (preferredClient == 'extension') {
     let extensionId = Config.get('extension.id', 'cgfkfhdinajjhfeghebnljbanpcjdlkm');
     fetch('chrome-extension://' + extensionId + '/manifest.json')
-        .then(function (response) {
-
-        })
-        .catch(function (error) {
+        .then(function (response) { })
+        .catch(function (error)
+        {
             activateAll();
         });
 } else {
@@ -78,7 +77,7 @@ function activateAll()
 
     activate();
 
-// contentscript
+    // contentscript
 
     console.log('cdn.weblin.io Content', 'dev', debug);
 
@@ -106,15 +105,15 @@ function activateAll()
                         case ContentAppNotification.type_stopped: {
                         } break;
 
-                    case ContentAppNotification.type_restart: {
-                        restartContent();
-                    } break;
-                }
-            });
-            ContentMessage.content = appContent;
-            appContent.start(typeof n3qConfig == 'undefined' ? {} : n3qConfig);
+                        case ContentAppNotification.type_restart: {
+                            restartContent();
+                        } break;
+                    }
+                });
+                ContentMessage.content = appContent;
+                appContent.start(typeof n3qConfig == 'undefined' ? {} : n3qConfig);
+            }
         }
-    }
 
         function deactivateContent()
         {

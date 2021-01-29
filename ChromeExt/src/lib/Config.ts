@@ -1,4 +1,5 @@
 import log = require('loglevel');
+import { Environment } from './Environment';
 import { Utils } from './Utils';
 
 interface ConfigGetCallback { (value: any): void }
@@ -15,8 +16,7 @@ export class Config
     public static staticConfigName = 'static';
     public static staticConfig: any = {
         extension: {
-            id: 'cgfkfhdinajjhfeghebnljbanpcjdlkm',
-            cdnBaseUrl: 'https://cdn.weblin.io/v1/',            // @todo remove after popup.html refactored
+            id: Environment.isDevelopment() ? 'nppemnmnakkjjfflngkmpcagndbkgpgg': 'cgfkfhdinajjhfeghebnljbanpcjdlkm',
         },
         me: {
             nickname: '',//'新しいアバター',//'new-avatar',
