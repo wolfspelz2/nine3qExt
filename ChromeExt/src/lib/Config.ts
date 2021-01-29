@@ -16,7 +16,7 @@ export class Config
     public static staticConfigName = 'static';
     public static staticConfig: any = {
         extension: {
-            id: Environment.isDevelopment() ? 'nppemnmnakkjjfflngkmpcagndbkgpgg': 'cgfkfhdinajjhfeghebnljbanpcjdlkm',
+            id: 'cgfkfhdinajjhfeghebnljbanpcjdlkm',
         },
         me: {
             nickname: '',//'新しいアバター',//'new-avatar',
@@ -36,6 +36,7 @@ export class Config
             vpiRoot: 'https://lms.virtual-presence.org/v7/root.xml',
             vpiMaxIterations: 15,
             ignoredDomainSuffixes: ['vulcan.weblin.com'],
+            strippedUrlPrefixes: ['https://cdn.weblin.io/?'],
         },
         config: {
             serviceUrl: 'https://webex.vulcan.weblin.com/Config',

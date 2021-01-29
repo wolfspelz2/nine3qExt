@@ -197,6 +197,7 @@ export class PopupApp
 
         this.babelfish.translateElem(this.display);
         this.appendToMe.append(this.display);
+        $(this.appendToMe).css({ overflow: 'auto' });
     }
 
     close()
@@ -210,14 +211,14 @@ export class PopupApp
         if (dev == null) {
             dev = $('<div id="n3q-popup-dev" class="n3q-base n3q-popup-hidden" style="" />').get(0);
             let text = $('<textarea class="n3q-base" style="width: 100%; height: 100px; margin-top: 1em;" />').get(0);
-            let data = await Memory.getLocal('dev.config', this.defaultDevConfig);
+            let data = await Memory.getLocal(Utils.localStorageKey_CustomConfig(), this.defaultDevConfig);
             $(text).val(data);
             $(dev).append(text);
             let apply = $('<button class="n3q-base" style="margin-top: 0.5em;">Save</button>').get(0);
             $(apply).on('click', async ev =>
             {
                 let data = $(text).val();
-                await Memory.setLocal('dev.config', data);
+                await Memory.setLocal(Utils.localStorageKey_CustomConfig(), data);
             });
             $(dev).append(apply);
             $(group).append(dev);

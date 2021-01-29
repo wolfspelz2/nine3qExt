@@ -291,7 +291,7 @@ export class ContentApp
 
     // Backgound pages dont allow timers 
     // and alerts were unreliable on first test.
-    // So ,let the content script call the background
+    // So, let the content script call the background
     private pingBackgroundToKeepConnectionAliveSec: number = Config.get('xmpp.pingBackgroundToKeepConnectionAliveSec', 180);
     private pingBackgroundToKeepConnectionAliveTimer: number = undefined;
     private pingBackgroundToKeepConnectionAlive()
@@ -436,6 +436,13 @@ export class ContentApp
         try {
             let pageUrl = this.presetPageUrl ?? Browser.getCurrentPageUrl();
 
+            let strippedUrlPrefixes = Config.get('vp.strippedUrlPrefixes', []);
+            for (let i in strippedUrlPrefixes) {
+                if (pageUrl.startsWith(strippedUrlPrefixes[i])) {
+                    pageUrl = pageUrl.substring(strippedUrlPrefixes[i].length);
+                }
+            }
+            
             let newSignificatParts = pageUrl ? this.getSignificantUrlParts(pageUrl) : '';
             let oldSignificatParts = this.pageUrl ? this.getSignificantUrlParts(this.pageUrl) : '';
             if (newSignificatParts == oldSignificatParts) { return }

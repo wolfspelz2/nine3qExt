@@ -9,11 +9,11 @@ import * as $ from 'jquery';
 import { Panic } from '../lib/Panic';
 import { Config } from '../lib/Config';
 
-declare var n3qConfig: any;
+declare var n3q: any;
 
 let preferredClient = 'extension';
-if (typeof n3qConfig != 'undefined' && typeof n3qConfig.preferredClient != 'undefined') {
-    preferredClient = n3qConfig.preferredClient;
+if (typeof n3q != 'undefined' && typeof n3q.preferredClient != 'undefined') {
+    preferredClient = n3q.preferredClient;
 }
 
 if (preferredClient == 'extension') {
@@ -30,7 +30,6 @@ if (preferredClient == 'extension') {
 
 function activateAll()
 {
-
     let debug = Environment.isDevelopment();
     console.log('cdn.weblin.io Background', 'dev', debug);
 
@@ -111,7 +110,7 @@ function activateAll()
                     }
                 });
                 ContentMessage.content = appContent;
-                appContent.start(typeof n3qConfig == 'undefined' ? {} : n3qConfig);
+                appContent.start(typeof n3q == 'undefined' ? {} : n3q);
             }
         }
 

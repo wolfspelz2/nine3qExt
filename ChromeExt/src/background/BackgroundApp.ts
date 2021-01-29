@@ -44,7 +44,7 @@ export class BackgroundApp
         this.isReady = false;
 
         {
-            let devConfig = await Memory.getLocal('dev.config', '{}');
+            let devConfig = await Memory.getLocal(Utils.localStorageKey_CustomConfig(), '{}');
             try {
                 let parsed = JSON.parse(devConfig);
                 Config.setDevTree(parsed);
