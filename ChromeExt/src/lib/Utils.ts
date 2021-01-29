@@ -10,8 +10,8 @@ export class Utils
 {
     static localStorageKey_X(): string { return 'me.x'; }
     static localStorageKey_Active(): string { return 'me.active'; }
-    static localStorageKey_StayOnTabChange(roomJid: string): string { return 'config.stayOnTabChange.' + roomJid; }
-    static localStorageKey_BackpackIsOpen(): string { return 'config.backpackIsOpen'; }
+    static localStorageKey_StayOnTabChange(roomJid: string): string { return 'room.' + roomJid + '.stayOnTabChange'; }
+    static localStorageKey_BackpackIsOpen(roomJid: string): string { return 'room.' + roomJid + '.backpackIsOpen'; }
     static syncStorageKey_Id(): string { return 'me.id'; }
     static syncStorageKey_Nickname(): string { return 'me.nickname'; }
     static syncStorageKey_Avatar(): string { return 'me.avatar'; }
