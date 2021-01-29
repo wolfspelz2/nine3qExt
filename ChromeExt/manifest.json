@@ -38,7 +38,8 @@
     "web_accessible_resources": [
         "manifest.json",
         "assets/*",
-        "popup.*"
+        "popup.*",
+        "manifest.json"
     ],
     "content_security_policy": "script-src 'self'; object-src 'self'"
 }

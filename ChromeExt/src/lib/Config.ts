@@ -14,6 +14,10 @@ export class Config
 
     public static staticConfigName = 'static';
     public static staticConfig: any = {
+        extension: {
+            id: 'cgfkfhdinajjhfeghebnljbanpcjdlkm',
+            cdnBaseUrl: 'https://cdn.weblin.io/v1/',            // @todo remove after popup.html refactored
+        },
         me: {
             nickname: '',//'新しいアバター',//'new-avatar',
             avatar: '',
