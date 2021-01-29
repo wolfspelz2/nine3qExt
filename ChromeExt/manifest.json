@@ -36,7 +36,6 @@
         "persistent": false
     },
     "web_accessible_resources": [
-        "manifest.json",
         "assets/*",
         "popup.*",
         "manifest.json"
