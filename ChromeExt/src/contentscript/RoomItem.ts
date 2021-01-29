@@ -188,22 +188,21 @@ export class RoomItem extends Entity
             this.show(true, Config.get('room.fadeInSec', 0.3));
         }
 
-        if (this.isFirstPresence) {
-            if (this.room?.iAmAlreadyHere()) {
-                this.room?.showChatMessage(this.getDisplayName(), 'appeared');
-            } else {
-                this.room?.showChatMessage(this.getDisplayName(), 'is present');
-            }
-        }
+        // if (this.isFirstPresence) {
+        //     if (this.room?.iAmAlreadyHere()) {
+        //         this.room?.showChatMessage(this.getDisplayName(), 'appeared');
+        //     } else {
+        //         this.room?.showChatMessage(this.getDisplayName(), 'is present');
+        //     }
+        // }
 
         this.isFirstPresence = false;
     }
 
     onPresenceUnavailable(stanza: any): void
     {
-        this.room?.showChatMessage(this.getDisplayName(), 'disappeared');
+        // this.room?.showChatMessage(this.getDisplayName(), 'disappeared');
         this.remove();
-
     }
 
     onMouseClickAvatar(ev: JQuery.Event): void
