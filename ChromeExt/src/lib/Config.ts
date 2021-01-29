@@ -7,12 +7,7 @@ interface ConfigSetCallback { (): void }
 export class Config
 {
     public static devConfigName = 'dev';
-    private static devConfig: any = {
-        extension: {
-            id: 'lfhldeennnchiglhchmlegofdlbcpkfd',
-            cdnBaseUrl: './',
-        }
-    };
+    private static devConfig: any = {};
 
     public static onlineConfigName = 'online';
     private static onlineConfig: any = {};
@@ -21,7 +16,7 @@ export class Config
     public static staticConfig: any = {
         extension: {
             id: 'cgfkfhdinajjhfeghebnljbanpcjdlkm',
-            cdnBaseUrl: 'https://cdn.weblin.io/v1/',
+            cdnBaseUrl: 'https://cdn.weblin.io/v1/',            // @todo remove after popup.html refactored
         },
         me: {
             nickname: '',//'新しいアバター',//'new-avatar',

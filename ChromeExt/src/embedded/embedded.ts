@@ -11,15 +11,23 @@ import { Config } from '../lib/Config';
 
 declare var n3qConfig: any;
 
-let extensionId = Config.get('extension.id', 'cgfkfhdinajjhfeghebnljbanpcjdlkm');
-fetch('chrome-extension://' + extensionId + '/manifest.json')
-    .then(function (response) {
+let preferredClient = 'extension';
+if (typeof n3qConfig != 'undefined' && typeof n3qConfig.preferredClient != 'undefined') {
+    preferredClient = n3qConfig.preferredClient;
+}
 
-    })
-    .catch(function (error) {
-        activateAll();
-    });
+if (preferredClient == 'extension') {
+    let extensionId = Config.get('extension.id', 'cgfkfhdinajjhfeghebnljbanpcjdlkm');
+    fetch('chrome-extension://' + extensionId + '/manifest.json')
+        .then(function (response) {
 
+        })
+        .catch(function (error) {
+            activateAll();
+        });
+} else {
+    activateAll();
+}
 
 function activateAll()
 {
@@ -63,7 +71,7 @@ function activateAll()
     {
         if (event.data.type === BackgroundMessage.userSettingsChanged.name) {
             if (app) {
-                app.handle_userSettingsChanged();
+                app.handle_userSettingsChanged(event.data.settings);
             }
         }
     }, false);
