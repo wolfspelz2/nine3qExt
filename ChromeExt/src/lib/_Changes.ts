@@ -7,6 +7,7 @@ export class _Changes
 {
     static data: IHistory = [
         ['1.0.7', 'unsafe-eval', [
+            ['Add', 'Have items'],
             ['Add', 'Manage page claims'],
             ['Add', 'Detecatable for embedded'],
             ['Change', 'Skip call to item config'],
