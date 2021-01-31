@@ -134,7 +134,9 @@ export class BackpackItem
     private onDragStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
     {
         this.dragIsRezable = as.Bool(this.properties['IsRezable'], true);
-        this.app.showDropzone();
+        if (this.dragIsRezable) {
+            this.app.showDropzone();
+        }
         this.app.toFront(ui.helper.get(0));
         return true;
     }
@@ -157,7 +159,9 @@ export class BackpackItem
 
     private async onDragStop(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): Promise<boolean>
     {
-        this.app.hideDropzone();
+        if (this.dragIsRezable) {
+            this.app.hideDropzone();
+        }
         if (this.isPositionInBackpack(ev, ui)) {
             let pos = this.getPositionRelativeToPane(ev, ui);
             if (pos.x != this.x || pos.y != this.y) {
