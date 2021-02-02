@@ -20,6 +20,11 @@ interface ILocationMapperResponse
     sLocationURL: string;
 }
 
+interface PointsActivity { 
+    channel: string;
+    n:number;
+}
+
 export class BackgroundApp
 {
     private xmpp: any;
@@ -177,6 +182,10 @@ export class BackgroundApp
             case BackgroundMessage.userSettingsChanged.name: {
                 sendResponse(this.handle_userSettingsChanged());
                 return false;
+            } break;
+
+            case BackgroundMessage.pointsActivity.name: {
+                sendResponse(this.handle_pointsActivity(message.channel, message.n));
             } break;
 
             case BackgroundMessage.getBackpackState.name: {
@@ -873,7 +882,14 @@ export class BackgroundApp
         this.sendToAllTabs(ContentMessage.type_userSettingsChanged, {});
     }
 
+    private pointsActivities: Array<PointsActivity> = [];
+    handle_pointsActivity(channel: string, n: number): void
+    {
+        log.debug('BackgroundApp.handle_pointsActivity', channel, n);
+    }
+
     handle_test(): void
     {
     }
+
 }

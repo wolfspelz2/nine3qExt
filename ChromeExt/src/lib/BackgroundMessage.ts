@@ -146,6 +146,11 @@ export class BackgroundMessage
         return BackgroundMessage.sendMessage({ 'type': BackgroundMessage.userSettingsChanged.name });
     }
 
+    static pointsActivity(channel: string, n: number): Promise<void>
+    {
+        return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.pointsActivity.name, 'channel': channel, 'n': n });
+    }
+
     static getBackpackState(): Promise<GetBackpackStateResponse>
     {
         return BackgroundMessage.sendMessage({ 'type': BackgroundMessage.getBackpackState.name });

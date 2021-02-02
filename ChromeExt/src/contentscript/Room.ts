@@ -369,6 +369,7 @@ export class Room
             .append(xml('body', {}, text))
             ;
         this.app.sendStanza(message);
+        /* await */ BackgroundMessage.pointsActivity('Chat', 1);
     }
 
     sendPrivateChat(text: string, nick: string)
