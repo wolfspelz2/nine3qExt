@@ -44,6 +44,10 @@ export class ChatConsole
                 context.app?.showXmppWindow();
                 isHandled = true;
                 break;
+            case '/chat':
+                context.app?.getRoom().showChatWindow(context.app?.getRoom().getParticipant(context.app?.getRoom().getMyNick()).getElem());
+                isHandled = true;
+                break;
             case '/test':
                 new TestWindow(context.app).show({});
                 isHandled = true;
