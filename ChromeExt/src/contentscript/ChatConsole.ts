@@ -48,6 +48,21 @@ export class ChatConsole
                 context.app?.getRoom().showChatWindow(context.app?.getRoom().getParticipant(context.app?.getRoom().getMyNick()).getElem());
                 isHandled = true;
                 break;
+            case '/items':
+            case '/backpack':
+            case '/stuff':
+            case '/things':
+                context.app?.showBackpackWindow(context.app?.getRoom().getParticipant(context.app?.getRoom().getMyNick()).getElem());
+                isHandled = true;
+                break;
+            case '/video':
+            case '/vid':
+            case '/vidconf':
+            case '/conf':
+            case '/jitsi':
+                context.app?.getRoom().showVideoConference(context.app?.getRoom().getParticipant(context.app?.getRoom().getMyNick()).getElem(), context.app?.getRoom().getParticipant(context.app?.getRoom().getMyNick()).getDisplayName());
+                isHandled = true;
+                break;
             case '/test':
                 new TestWindow(context.app).show({});
                 isHandled = true;
