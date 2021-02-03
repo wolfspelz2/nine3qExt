@@ -6,6 +6,9 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
+        ['1.0.8', '??', [
+            ['Add', 'Greet back'],
+        ]],
         ['1.0.7', 'unsafe-eval', [
             ['Add', 'Have items'],
             ['Add', 'Manage page claims'],
