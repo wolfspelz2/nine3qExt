@@ -8,11 +8,12 @@ export class _Changes
     static data: IHistory = [
         ['1.0.8', '??', [
             ['Add', 'Greet back'],
+            ['Add', 'Chat commands for windows'],
         ]],
         ['1.0.7', 'unsafe-eval', [
             ['Add', 'Have items'],
             ['Add', 'Manage page claims'],
-            ['Add', 'Detecatable for embedded'],
+            ['Add', 'Detectable for embedded'],
             ['Change', 'Skip call to item config'],
             ['Fix', 'Remove unneccesary unsafe-eval from content_security_policy (for MS Edge Addons Store)'],
         ]],

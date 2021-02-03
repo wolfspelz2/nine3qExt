@@ -200,9 +200,12 @@ export class Room
             entity.onPresenceAvailable(stanza);
 
             if (isSelf && !this.isEntered) {
-                this.isEntered = true;
                 this.myNick = resource;
+                this.isEntered = true;
+
                 this.keepAlive();
+
+                this.app.reshowVidconfWindow();
             }
         }
 

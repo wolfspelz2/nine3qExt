@@ -45,14 +45,14 @@ export class ChatConsole
                 isHandled = true;
                 break;
             case '/chat':
-                context.app?.getRoom().showChatWindow(context.app?.getRoom().getParticipant(context.app?.getRoom().getMyNick()).getElem());
+                context.app?.showChatWindow();
                 isHandled = true;
                 break;
             case '/items':
             case '/backpack':
             case '/stuff':
             case '/things':
-                context.app?.showBackpackWindow(context.app?.getRoom().getParticipant(context.app?.getRoom().getMyNick()).getElem());
+                context.app?.showBackpackWindow();
                 isHandled = true;
                 break;
             case '/video':
@@ -60,7 +60,7 @@ export class ChatConsole
             case '/vidconf':
             case '/conf':
             case '/jitsi':
-                context.app?.getRoom().showVideoConference(context.app?.getRoom().getParticipant(context.app?.getRoom().getMyNick()).getElem(), context.app?.getRoom().getParticipant(context.app?.getRoom().getMyNick()).getDisplayName());
+                context.app?.showVidconfWindow();
                 isHandled = true;
                 break;
             case '/test':

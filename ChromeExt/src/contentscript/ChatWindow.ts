@@ -36,8 +36,10 @@ export class ChatWindow extends Window
         }
     }
 
-    show(options: any)
+    async show(options: any)
     {
+        options = await this.getSavedOptions('Chat', options);
+
         if (options.titleText == null) { options.titleText = this.app.translateText('Chatwindow.Chat History', 'Chat'); }
         options.resizable = true;
 
@@ -54,9 +56,11 @@ export class ChatWindow extends Window
             let contentElem = this.contentElem;
             $(windowElem).addClass('n3q-chatwindow');
 
-            let left = 50;
-            if (aboveElem) {
-                left = Math.max(aboveElem.offsetLeft - 180, left);
+            let left = as.Int(options.left, 50);
+            if (options.left == null) {
+                if (aboveElem) {
+                    left = Math.max(aboveElem.offsetLeft - 180, left);
+                }
             }
             let top = this.app.getDisplay().offsetHeight - height - bottom;
             {
@@ -85,6 +89,21 @@ export class ChatWindow extends Window
 
             $(windowElem).css({ 'width': width + 'px', 'height': height + 'px', 'left': left + 'px', 'top': top + 'px' });
 
+            this.onResizeStop = (ev: JQueryEventObject, ui: JQueryUI.ResizableUIParams) =>
+            {
+                let left = ui.position.left;
+                let bottom = this.app.getDisplay().offsetHeight - (ui.position.top + ui.size.height);
+                this.saveCoordinates(left, bottom, ui.size.width, ui.size.height);
+            };
+
+            this.onDragStop = (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) =>
+            {
+                let size = { width: $(this.windowElem).width(), height: $(this.windowElem).height() }
+                let left = ui.position.left;
+                let bottom = this.app.getDisplay().offsetHeight - (ui.position.top + size.height);
+                this.saveCoordinates(left, bottom, size.width, size.height);
+            };
+
             this.fixChatInTextWidth(chatinTextElem, chatinElem);
 
             this.onResize = (ev: JQueryEventObject) =>
@@ -111,11 +130,6 @@ export class ChatWindow extends Window
                 if (onClose) { onClose(); }
             };
 
-            this.onDragStop = (ev: JQueryEventObject) =>
-            {
-                // $(chatinText).focus();
-            };
-
             for (let id in this.lines) {
                 let line = this.lines[id];
                 this.showLine(line.nick, line.text);
@@ -123,6 +137,11 @@ export class ChatWindow extends Window
 
             $(chatinTextElem).focus();
         }
+    }
+
+    async saveCoordinates(left: number, bottom: number, width: number, height: number)
+    {
+        await this.saveOptions('Chat', { 'left': left, 'bottom': bottom, 'width': width, 'height': height });
     }
 
     isOpen(): boolean

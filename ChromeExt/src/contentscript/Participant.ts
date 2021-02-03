@@ -641,14 +641,14 @@ export class Participant extends Entity
         this.room?.showChatWindow(this.getElem());
     }
 
-    showVideoConference(): void
+    showVidconfWindow(): void
     {
-        this.room?.showVideoConference(this.getElem(), this.nicknameDisplay ? this.nicknameDisplay.getNickname() : this.roomNick);
+        this.app.showVidconfWindow();
     }
 
     showBackpackWindow(): void
     {
-        this.app.showBackpackWindow(this.getElem());
+        this.app.showBackpackWindow();
     }
 
     sendPoke(type: string): void

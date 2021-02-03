@@ -17,8 +17,10 @@ export class VidconfWindow extends Window
         super(app);
     }
 
-    show(options: any)
+    async show(options: any)
     {
+        options = await this.getSavedOptions('Vidconf', options);
+
         options.titleText = this.app.translateText('Vidconfwindow.Video Conference', 'Video Conference');
         options.resizable = true;
         options.undockable = true;
@@ -35,9 +37,11 @@ export class VidconfWindow extends Window
             let contentElem = this.contentElem;
             $(windowElem).addClass('n3q-vidconfwindow');
 
-            let left = 50;
-            if (aboveElem) {
-                left = Math.max(aboveElem.offsetLeft - 250, left);
+            let left = as.Int(options.left, 50);
+            if (options.left == null) {
+                if (aboveElem) {
+                    left = Math.max(aboveElem.offsetLeft - 250, left);
+                }
             }
             let top = this.app.getDisplay().offsetHeight - height - bottom;
             {
@@ -56,6 +60,21 @@ export class VidconfWindow extends Window
             $(contentElem).append(iframeElem);
 
             this.app.translateElem(windowElem);
+
+            this.onResizeStop = (ev: JQueryEventObject, ui: JQueryUI.ResizableUIParams) =>
+            {
+                let left = ui.position.left;
+                let bottom = this.app.getDisplay().offsetHeight - (ui.position.top + ui.size.height);
+                this.saveCoordinates(left, bottom, ui.size.width, ui.size.height);
+            };
+
+            this.onDragStop = (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) =>
+            {
+                let size = { width: $(this.windowElem).width(), height: $(this.windowElem).height() }
+                let left = ui.position.left;
+                let bottom = this.app.getDisplay().offsetHeight - (ui.position.top + size.height);
+                this.saveCoordinates(left, bottom, size.width, size.height);
+            };
 
             $(windowElem).css({ 'width': width + 'px', 'height': height + 'px', 'left': left + 'px', 'top': top + 'px' });
         }
@@ -91,6 +110,11 @@ export class VidconfWindow extends Window
 
         undocked.focus();
         this.close();
+    }
+
+    async saveCoordinates(left: number, bottom: number, width: number, height: number)
+    {
+        await this.saveOptions('Vidconf', { 'left': left, 'bottom': bottom, 'width': width, 'height': height });
     }
 
     isOpen(): boolean

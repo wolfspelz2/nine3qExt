@@ -33,7 +33,7 @@ export class BackpackWindow extends Window
 
     async show(options: any)
     {
-        options = await this.getSavedOptions(BackpackWindow.name, options);
+        options = await this.getSavedOptions('Backpack', options);
 
         options.titleText = this.app.translateText('BackpackWindow.Inventory', 'Local Stuff');
         options.resizable = true;
@@ -177,20 +177,9 @@ export class BackpackWindow extends Window
         }
     }
 
-    setCoordinates(left: number, bottom: number, width: number, height: number)
-    {
-        let coords = {};
-        if (left > 0) { coords['left'] = left; }
-        if (bottom > 0 && height > 0) { coords['top'] = this.app.getDisplay().offsetHeight - bottom - height; }
-        if (width > 0) { coords['width'] = width; }
-        if (height > 0) { coords['height'] = height; }
-
-        $(this.windowElem).css(coords);
-    }
-
     async saveCoordinates(left: number, bottom: number, width: number, height: number)
     {
-        await this.saveOptions(BackpackWindow.name, { 'left': left, 'bottom': bottom, 'width': width, 'height': height });
+        await this.saveOptions('Backpack', { 'left': left, 'bottom': bottom, 'width': width, 'height': height });
     }
 
     isOpen(): boolean

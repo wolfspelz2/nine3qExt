@@ -62,7 +62,6 @@ export class ContentApp
 
     private stayHereIsChecked: boolean = false;
     private backpackIsOpen: boolean = false;
-    private inventoryIsOpen: boolean = false;
     private vidconfIsOpen: boolean = false;
     private chatIsOpen: boolean = false;
 
@@ -157,11 +156,15 @@ export class ContentApp
         // this.enterPage();
         await this.checkPageUrlChanged();
 
-        this.stayHereIsChecked = await Memory.getLocal(Utils.localStorageKey_StayOnTabChange(this.roomJid), false);
+        if (this.roomJid != '') {
+            this.stayHereIsChecked = await Memory.getLocal(Utils.localStorageKey_StayOnTabChange(this.roomJid), false);
+            this.backpackIsOpen = await Memory.getLocal(Utils.localStorageKey_BackpackIsOpen(this.roomJid), false);
+            this.chatIsOpen = await Memory.getLocal(Utils.localStorageKey_ChatIsOpen(this.roomJid), false);
+            this.vidconfIsOpen = await Memory.getLocal(Utils.localStorageKey_VidconfIsOpen(this.roomJid), false);
 
-        this.backpackIsOpen = await Memory.getLocal(Utils.localStorageKey_BackpackIsOpen(this.roomJid), false);
-        if (this.backpackIsOpen && this.roomJid != '') {
-            this.showBackpackWindow(null);
+            this.reshowBackpackWindow();
+            this.reshowChatWindow();
+            // this.reshowVidconfWindow(); // must be after enter
         }
 
         this.startCheckPageUrl();
@@ -204,13 +207,58 @@ export class ContentApp
         // this.showBackpackWindow(null);
     }
 
-    showBackpackWindow(aboveElem: HTMLElement): void
+    getMyParticipantELem(): HTMLElement
     {
+        if (this.room) {
+            let participant = this.room.getParticipant(this.room.getMyNick());
+            if (participant) {
+                return participant.getElem();
+            }
+        }
+        return null;
+    }
+
+    reshowBackpackWindow(): void
+    {
+        if (this.backpackIsOpen) { this.showBackpackWindow(); }
+    }
+    showBackpackWindow(aboveElem?: HTMLElement): void
+    {
+        aboveElem = aboveElem ?? this.getMyParticipantELem();
         if (this.backpackWindow == null) {
             this.setBackpackIsOpen(true);
             this.backpackWindow = new BackpackWindow(this);
-            this.backpackWindow.show({ 'above': aboveElem, onClose: () => { this.backpackWindow = null; this.setBackpackIsOpen(false); } });
+            this.backpackWindow.show({
+                'above': aboveElem,
+                onClose: () => { this.backpackWindow = null; this.setBackpackIsOpen(false); }
+            });
         }
+    }
+
+    reshowVidconfWindow(): void
+    {
+        if (this.vidconfIsOpen) { this.showVidconfWindow(); } // must be after enter
+    }
+    showVidconfWindow(aboveElem?: HTMLElement): void
+    {
+        aboveElem = aboveElem ?? this.getMyParticipantELem();
+        if (this.room) {
+            let participant = this.room.getParticipant(this.room.getMyNick());
+            if (participant) {
+                let displayName = participant.getDisplayName();
+                this.room.showVideoConference(aboveElem, displayName);
+            }
+        }
+    }
+
+    reshowChatWindow(): void
+    {
+        if (this.chatIsOpen) { this.showChatWindow(); }
+    }
+    showChatWindow(aboveElem?: HTMLElement): void
+    {
+        aboveElem = aboveElem ?? this.getMyParticipantELem();
+        this.room.showChatWindow(aboveElem);
     }
 
     showXmppWindow()
@@ -244,19 +292,24 @@ export class ContentApp
         }
     }
 
-    setInventoryIsOpen(value: boolean): void
-    {
-        this.inventoryIsOpen = value; this.evaluateStayOnTabChange();
-    }
-
     setVidconfIsOpen(value: boolean): void
     {
         this.vidconfIsOpen = value; this.evaluateStayOnTabChange();
+        if (value) {
+            /* await */ Memory.setLocal(Utils.localStorageKey_VidconfIsOpen(this.roomJid), value);
+        } else {
+            /* await */ Memory.deleteLocal(Utils.localStorageKey_VidconfIsOpen(this.roomJid));
+        }
     }
 
     setChatIsOpen(value: boolean): void
     {
         this.chatIsOpen = value; this.evaluateStayOnTabChange();
+        if (value) {
+            /* await */ Memory.setLocal(Utils.localStorageKey_ChatIsOpen(this.roomJid), value);
+        } else {
+            /* await */ Memory.deleteLocal(Utils.localStorageKey_ChatIsOpen(this.roomJid));
+        }
     }
 
     getStayHereIsChecked(): boolean
@@ -279,7 +332,7 @@ export class ContentApp
 
     evaluateStayOnTabChange(): void
     {
-        let stay = this.backpackIsOpen || this.inventoryIsOpen || this.vidconfIsOpen || this.chatIsOpen || this.stayHereIsChecked;
+        let stay = this.backpackIsOpen || this.vidconfIsOpen || this.chatIsOpen || this.stayHereIsChecked;
         if (stay) {
             this.messageHandler({ 'type': ContentAppNotification.type_onTabChangeStay });
         } else {
@@ -440,7 +493,7 @@ export class ContentApp
                     pageUrl = pageUrl.substring(strippedUrlPrefixes[i].length);
                 }
             }
-            
+
             let newSignificatParts = pageUrl ? this.getSignificantUrlParts(pageUrl) : '';
             let oldSignificatParts = this.pageUrl ? this.getSignificantUrlParts(this.pageUrl) : '';
             if (newSignificatParts == oldSignificatParts) { return }

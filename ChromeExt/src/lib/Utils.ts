@@ -12,6 +12,8 @@ export class Utils
     static localStorageKey_Active(): string { return 'me.active'; }
     static localStorageKey_StayOnTabChange(roomJid: string): string { return 'room.' + roomJid + '.stayOnTabChange'; }
     static localStorageKey_BackpackIsOpen(roomJid: string): string { return 'room.' + roomJid + '.backpackIsOpen'; }
+    static localStorageKey_VidconfIsOpen(roomJid: string): string { return 'room.' + roomJid + '.vidconfIsOpen'; }
+    static localStorageKey_ChatIsOpen(roomJid: string): string { return 'room.' + roomJid + '.chatIsOpen'; }
     static localStorageKey_CustomConfig(): string { return 'dev.config'; }
     static syncStorageKey_Id(): string { return 'me.id'; }
     static syncStorageKey_Nickname(): string { return 'me.nickname'; }

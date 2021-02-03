@@ -34,7 +34,7 @@ export class Nickname implements IObserver
             if (Environment.isDevelopment()) { column.addItem('test', 'Test', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.app.test(); }); }
 
             if (Config.get('backpack.enabled', false)) {
-                column.addItem('inventory', 'Backpack', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showBackpackWindow(); });
+                column.addItem('inventory', 'Backpack', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.app.showBackpackWindow(); });
             }
 
             column.addItem(
@@ -52,9 +52,9 @@ export class Nickname implements IObserver
 
             column.addItem('settings', 'Settings', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { if (this.participant) { this.app.showSettings(this.participant.getElem()); } });
 
-            column.addItem('vidconf', 'Video Conference', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { if (this.participant) { this.participant?.showVideoConference(); } });
+            column.addItem('vidconf', 'Video Conference', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { if (this.participant) { this.app.showVidconfWindow(); } });
 
-            column.addItem('chatwin', 'Chat Window', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showChatWindow(); });
+            column.addItem('chatwin', 'Chat Window', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.app.showChatWindow(); });
 
             menu.addColumn(column);
         }

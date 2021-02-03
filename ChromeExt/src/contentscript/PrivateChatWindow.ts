@@ -17,11 +17,11 @@ export class PrivateChatWindow extends ChatWindow
         super(app, participant.getRoom());
     }
 
-    show(options: any)
+    async show(options: any)
     {
         if (options.titleText == null) { options.titleText = this.app.translateText('PrivateChat.Private Chat with', 'Private Chat with') + ' ' + this.participant.getDisplayName(); }
 
-        super.show(options);
+        await super.show(options);
     }
 
     protected sendChat(): void
