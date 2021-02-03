@@ -194,7 +194,11 @@
 // Buttons
 
 #n3q div.n3q-button {
-    color: #666;
+    color: #000000;
+    background-color: #f0f0f0;
+    border: 1px solid #808080;
+    text-align: center;
+    padding: 4px;
     cursor: default;
     user-select: none;
 }
@@ -202,9 +206,7 @@
         #n3q div.n3q-button:hover { filter: brightness(0.9); }
         #n3q div.n3q-button:active { filter: brightness(0.8); }   
 
-        #n3q div.n3q-button-symbol:hover {
-            opacity: 0.5;
-        }
+        #n3q div.n3q-button-symbol:hover { opacity: 0.5; }
 
     #n3q div.n3q-button-overlay {
         position: absolute;
@@ -212,12 +214,15 @@
         top: -7px;
         background-color: #FFF;
         border-radius: 100%;
+        border: none;
+        padding: 0;
     }
     
     #n3q div.n3q-button-inline {
         display: inline-block;
         vertical-align: middle;
-        // margin: 0 2px 0 2px;
+        border: none;
+        padding: 0;
     }
     
     #n3q div.n3q-button-sendchat {
@@ -721,11 +726,6 @@
         #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-button {
             position: absolute;
             width: 50px;
-            color: #000000;
-            background-color: #f0f0f0;
-            border: 1px solid #808080;
-            text-align: center;
-            padding: 4px;
         }
  
             #n3q div.n3q-xmppwindow div.n3q-window-content div.n3q-xmppwindow-out-clear { right: 30px; top: 8px; }
@@ -943,7 +943,6 @@
         right: 4px;
         top: 4px;
         bottom: 4px;
-
         width: 14px;
         height: 14px;
     }
@@ -1016,13 +1015,13 @@
     }
 
     #n3q div.n3q-toast .n3q-text {
+        margin-top: 10px;
         word-wrap: break-word;
-        position: absolute;
-        bottom: 26px;
-        top: 30px;
-        right: 8px;
-        left: 8px;
         overflow: auto;
+    }
+
+    #n3q div.n3q-toast .n3q-toast-button {
+        margin-top: 10px;
     }
 
     #n3q div.n3q-toast-footer

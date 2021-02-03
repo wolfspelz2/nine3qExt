@@ -196,6 +196,9 @@ export class Config
                     'Toast.nudges': '...nudged you',
                     'Toast.Your claim has been removed': 'Your claim has been removed',
                     'Toast.A stronger A stronger item just appeared': 'A stronger item just appeared.',
+                    'Toast.greet back': 'Greet back',
+                    'Toast.tousle back': 'Tousle back',
+                    'Toast.nudge back': 'Nudge back',
 
                     // ['ErrorFact.' + ItemException.Fact[ItemException.Fact.Error]]: 'Error',
                     'ErrorFact.Error': 'Error',
@@ -286,6 +289,9 @@ export class Config
                     'Toast.nudges': '...hat dich angestupst',
                     'Toast.Your claim has been removed': 'Der Anspruch wurde zurückgenommen',
                     'Toast.A stronger item just appeared': 'Ein stärkerer Gegenstand wurde gerade installiert.',
+                    'Toast.greet back': 'Zurück grüßen',
+                    'Toast.tousle back': 'Zurück wuscheln',
+                    'Toast.nudge back': 'Zurück stupsen',
 
                     'ErrorFact.Error': 'Fehler',
                     'ErrorFact.NotRezzed': 'Ablegen fehlgeschlagen',

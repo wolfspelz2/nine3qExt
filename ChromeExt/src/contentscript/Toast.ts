@@ -10,7 +10,7 @@ export class Toast
 {
     private elem: HTMLElement = null;
 
-    constructor(protected app: ContentApp, protected messageType: string, protected durationSec: number, iconType: string, bodyElem: HTMLElement)
+    constructor(protected app: ContentApp, protected messageType: string, protected durationSec: number, protected iconType: string, protected bodyElem: HTMLElement)
     {
         var checkboxId = Utils.randomString(10);
 
@@ -82,7 +82,7 @@ export class Toast
         }
     }
 
-    protected close(): void
+    close(): void
     {
         if (this.elem != null) {
             $(this.elem).stop();
@@ -107,7 +107,7 @@ export class SimpleToast extends Toast
 {
     constructor(app: ContentApp, type: string, durationSec: number, iconType: string, title: string, text: string)
     {
-        var bodyElem = $(''
+        let bodyElem = $(''
             + '<div class="n3q-base n3q-toast-body" data-translate="children">'
             + (title != null ? '<div class="n3q-base n3q-title">' + as.Html(title) + '</div>' : '')
             + (text != null ? '<div class="n3q-base n3q-text" data-translate="text:Toast">' + as.Html(text) + '</div>' : '')
@@ -115,6 +115,17 @@ export class SimpleToast extends Toast
         )[0];
 
         super(app, type, durationSec, iconType, bodyElem);
+    }
+
+    actionButton(text: string, action: () => void): void
+    {
+        let buttonElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-toast-button n3q-toast-button-action" data-translate="text:Toast">' + as.Html(text) + '</div>').get(0);
+        $(this.bodyElem).append(buttonElem);
+        this.app.translateElem(buttonElem);
+        $(buttonElem).on('click', () =>
+        {
+            if (action) { action(); }
+        });
     }
 }
 

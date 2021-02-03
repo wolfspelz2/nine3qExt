@@ -202,8 +202,6 @@ export class ContentApp
         // new SimpleToast(this, 'test', 4, 'warning', 'Heiner (dev)', 'greets').show();
 
         // this.showBackpackWindow(null);
-
-        //new TestWindow(this).show({});
     }
 
     showBackpackWindow(aboveElem: HTMLElement): void

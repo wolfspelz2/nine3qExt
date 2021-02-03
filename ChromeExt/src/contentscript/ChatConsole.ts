@@ -1,6 +1,7 @@
 import { Client } from '../lib/Client';
 import { ContentApp } from './ContentApp';
 import { Room } from './Room';
+import { TestWindow } from './TestWindow';
 
 export interface ChatConsoleOut { (data: any): void }
 
@@ -41,6 +42,10 @@ export class ChatConsole
                 break;
             case '/xmpp':
                 context.app?.showXmppWindow();
+                isHandled = true;
+                break;
+            case '/test':
+                new TestWindow(context.app).show({});
                 isHandled = true;
                 break;
             case '/changes':

@@ -385,8 +385,10 @@ export class Participant extends Entity
     onReceivePoke(node: any): void
     {
         try {
-            let type = node.attrs.type;
-            new SimpleToast(this.app, 'Poke-' + type, Config.get('room.pokeToastDurationSec', 10), 'greeting', this.getDisplayName(), type + 's').show();
+            let pokeType = node.attrs.type;
+            let toast = new SimpleToast(this.app, 'Poke-' + pokeType, Config.get('room.pokeToastDurationSec', 10), 'greeting', this.getDisplayName(), pokeType + 's');
+            toast.actionButton(pokeType + ' back', () => { this.sendPoke(pokeType); toast.close(); })
+            toast.show();
         } catch (error) {
             //
         }
@@ -417,7 +419,7 @@ export class Participant extends Entity
                     case 'confirm':
                         let props = await BackgroundMessage.getBackpackItemProperties(itemId);
                         if (props[Pid.TransferState] == Pid.TransferState_Source) {
-                        await BackgroundMessage.deleteBackpackItem(itemId, {});
+                            await BackgroundMessage.deleteBackpackItem(itemId, {});
                         }
                         break;
 
