@@ -9,6 +9,7 @@ export class _Changes
         ['1.0.8', '??', [
             ['Add', 'Greet back'],
             ['Add', 'Chat commands for windows'],
+            ['Add', 'Save window state'],
         ]],
         ['1.0.7', 'unsafe-eval', [
             ['Add', 'Have items'],
