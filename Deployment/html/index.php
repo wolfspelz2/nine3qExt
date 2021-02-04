@@ -62,7 +62,7 @@ ob_start();
             margin-top: 200px;
         }
     </style>
-    <link href="v1/embedded.css" rel="stylesheet">
+    <link href="/v1/embedded.css" rel="stylesheet">
 </head>
 <body>
 <?php if ($isDenied) { ?>
@@ -80,7 +80,7 @@ ob_start();
         x: <?=rand(100, 400)?>
     };
 </script>
-<script src="v1/embedded.js"></script>
+<script src="/v1/embedded.js"></script>
 </body>
 </html>
 <?php
