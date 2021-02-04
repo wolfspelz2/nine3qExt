@@ -1,6 +1,6 @@
 <?php
 
-ini_set('display_errors', 1);
+//ini_set('display_errors', 1);
 include(dirname(__FILE__) . '/functions.inc.php');
 $isDenied = false;
 $url = substr($_SERVER['REQUEST_URI'], 1);
@@ -10,6 +10,12 @@ if (preg_match('/^http:\/\//si', $url)) {
     $isDeniedReason = 'https required';
 } elseif (!preg_match('/^https:\/\//si', $url)) {
     $url = 'https://' . $url;
+}
+
+$cacheKey = md5($url);
+if ($page = getCache($cacheKey)) {
+    echo $page;
+    exit();
 }
 
 $r = getPage($url, 1);
@@ -31,7 +37,7 @@ if (count($r['errors']) > 0) {
 
 $htmlHead = getHtmlHead($r['body']);
 
-
+ob_start();
 ?><!DOCTYPE html>
 <html>
 <head>
@@ -77,3 +83,8 @@ $htmlHead = getHtmlHead($r['body']);
 <script src="v1/embedded.js"></script>
 </body>
 </html>
+<?php
+$content = ob_get_contents();
+ob_end_clean();
+echo $content;
+setCache($cacheKey, $content);

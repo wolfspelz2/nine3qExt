@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: n3q-embedded
-          image: docker.k8s.sui.li/n3qe-test
+          image: docker.k8s.sui.li/n3q-embedded:e92e4864
           imagePullPolicy: Always
           ports:
             - containerPort: 80
@@ -36,12 +36,17 @@ spec:
             postStart:
               exec:
                 command: ["/bin/sh", "-c", "cp -r /usr/share/nginx/html /pod-shared/public; chmod -R 777 /pod-shared"]
+
         - name: php7fpm
           image: docker.k8s.sui.li/php7fpm
           imagePullPolicy: Always
           volumeMounts:
             - name: htdocs
               mountPath: /pod-shared
+
+        - name: redis
+          image: redis
+
         - name: ssh
           image: linuxserver/openssh-server
           env:

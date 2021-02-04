@@ -1,4 +1,28 @@
 <?php
+
+$redis = fsockopen('127.0.0.1', 6379);
+
+function setCache($key, $value) {
+    global $redis;
+    fputs($redis, 'SET ' . $key . ' ' . base64_encode($value) . "\r\n");
+    fgets($redis, 255);
+    fputs($redis, 'EXPIRE ' . $key . " 300\n");
+    fgets($redis, 255);
+}
+
+function getCache($key) {
+    global $redis;
+    fputs($redis, 'GET ' . $key . "\n");
+    $s = fgets($redis, 255);
+
+    $l = intval(preg_replace('/^\$/', '', $s));
+    if ($l === -1) {
+        return false;
+    }
+    $val = base64_decode(fread($redis, $l));
+    return $val;
+}
+
 function getHtmlHead($body) {
     $head = [];
 
