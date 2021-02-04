@@ -5,7 +5,7 @@ WORKDIR /app
 COPY ./ChromeExt ./
 
 RUN npm install
-RUN npm run release-embedded
+RUN npm run build
 
 # === setup webserver
 FROM nginx:1.19.0-alpine
