@@ -122,4 +122,15 @@ export class RepositoryItem
             });
         }
     }
+
+    closeFrame()
+    {
+        if (this.framePopup) {
+            this.framePopup.close();
+            this.framePopup = null;
+        } else if (this.frameWindow) {
+            this.frameWindow.close();
+            this.frameWindow = null;
+        }
+    }
 }

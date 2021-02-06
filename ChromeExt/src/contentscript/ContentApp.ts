@@ -280,6 +280,14 @@ export class ContentApp
         }
     }
 
+    closeItemFrame(itemId: string)
+    {
+        let item = this.getItemRepository().getItem(itemId);
+        if (item) {
+            item.closeFrame();
+        }
+    }
+
     // Stay on tab change
 
     setBackpackIsOpen(value: boolean): void

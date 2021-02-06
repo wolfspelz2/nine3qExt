@@ -52,6 +52,19 @@ export class IframeApi
             case WeblinClientApi.ItemActionRequest.type: {
                 /* await */ this.handle_ItemActionRequest(<WeblinClientApi.ItemActionRequest>request);
             } break;
+            case WeblinClientApi.CloseWindowRequest.type: {
+                this.handle_CloseWindowRequest(<WeblinClientApi.ItemActionRequest>request);
+            } break;
+        }
+    }
+
+    handle_CloseWindowRequest(request: WeblinClientApi.CloseWindowRequest)
+    {
+        try {
+            let itemId = request.item;
+            this.app.closeItemFrame(itemId);
+        } catch (ex) {
+            // ignore
         }
     }
 
@@ -68,13 +81,14 @@ export class IframeApi
             // } else {
             //     new SimpleErrorToast(this.app, 'Warning-' + ex.fact + '-' + ex.reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', ex.fact, ex.reason, ex.detail).show();
             // }
-            let fact = typeof ex.fact === 'number' ? ItemException.Fact[ex.fact]: ex.fact;
-            let reason = typeof ex.reason === 'number' ? ItemException.Reason[ex.reason]: ex.reason;
+            let fact = typeof ex.fact === 'number' ? ItemException.Fact[ex.fact] : ex.fact;
+            let reason = typeof ex.reason === 'number' ? ItemException.Reason[ex.reason] : ex.reason;
             let detail = ex.detail;
             new SimpleErrorToast(this.app, 'Warning-' + fact + '-' + reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', fact, reason, detail).show();
         }
     }
 }
+
 
 export class WeblinClientIframeApi
 {
@@ -113,6 +127,12 @@ export namespace WeblinClientApi
         fact: string;
         reason: string;
         detail: string;
+    }
+
+    export class CloseWindowRequest extends Request
+    {
+        static type = 'CloseWindow';
+        item: string;
     }
 
     export class ItemActionRequest extends Request
