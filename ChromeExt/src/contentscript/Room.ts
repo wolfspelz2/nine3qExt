@@ -372,7 +372,7 @@ export class Room
             .append(xml('body', {}, text))
             ;
         this.app.sendStanza(message);
-        /* await */ BackgroundMessage.pointsActivity('Chat', 1);
+        /* await */ BackgroundMessage.pointsActivity(Pid.PointsChannelChat, 1);
     }
 
     sendPrivateChat(text: string, nick: string)
@@ -389,6 +389,7 @@ export class Room
             .append(xml('x', { 'xmlns': 'vp:poke', 'type': type }))
             ;
         this.app.sendStanza(message);
+        /* await */ BackgroundMessage.pointsActivity(Pid.PointsChannelGreet, 1);
     }
 
     async transferItem(itemId: string, nick: string)

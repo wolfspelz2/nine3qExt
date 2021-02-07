@@ -28,6 +28,13 @@ export class Pid
     static readonly ClaimAspect = 'ClaimAspect';
     static readonly ClaimStrength = 'ClaimStrength';
     static readonly PointsAspect = 'PointsAspect';
+    static readonly PointsChannelEntered = 'PointsChannelEntered';
+    static readonly PointsChannelChat = 'PointsChannelChat';
+    static readonly PointsChannelEmote = 'PointsChannelEmote';
+    static readonly PointsChannelGreet = 'PointsChannelGreet';
+    static readonly PointsChannelNavigation = 'PointsChannelNavigation';
+    static readonly PointsChannelItemRez = 'PointsChannelItemRez';
+    static readonly PointsChannelItemApply = 'PointsChannelItemApply';
 
     static readonly TransferState_Source = 'Source';
     static readonly TransferState_Destination = 'Destination';
