@@ -5,7 +5,7 @@ import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
 import { BackgroundErrorResponse, BackgroundItemExceptionResponse, BackgroundMessage, BackgroundResponse, BackgroundSuccessResponse, GetBackpackItemPropertiesResponse, GetBackpackStateResponse, IsBackpackItemResponse } from '../lib/BackgroundMessage';
 import { Client } from '../lib/Client';
-import { ItemProperties } from '../lib/ItemProperties';
+import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { ContentMessage } from '../lib/ContentMessage';
 import { ItemException } from '../lib/ItemExcption';
 import { ItemChangeOptions } from '../lib/ItemChangeOptions';
@@ -20,9 +20,10 @@ interface ILocationMapperResponse
     sLocationURL: string;
 }
 
-interface PointsActivity { 
+interface PointsActivity
+{
     channel: string;
-    n:number;
+    n: number;
 }
 
 export class BackgroundApp
@@ -129,7 +130,7 @@ export class BackgroundApp
 
     // IPC
 
-    private async onBrowserActionClicked(tabId:number): Promise<void>
+    private async onBrowserActionClicked(tabId: number): Promise<void>
     {
         let state = !as.Bool(await Memory.getLocal(Utils.localStorageKey_Active(), false), false);
         await Memory.setLocal(Utils.localStorageKey_Active(), state);
@@ -882,10 +883,50 @@ export class BackgroundApp
         this.sendToAllTabs(ContentMessage.type_userSettingsChanged, {});
     }
 
+    private lastPointsSubmissionTime: number = 0;
     private pointsActivities: Array<PointsActivity> = [];
     handle_pointsActivity(channel: string, n: number): void
     {
         log.debug('BackgroundApp.handle_pointsActivity', channel, n);
+        this.pointsActivities.push({ channel: channel, n: n });
+
+        let now = Date.now();
+        let submissionIntervalSec = Config.get('points.submissionIntervalSec', 300);
+        if (now - this.lastPointsSubmissionTime > submissionIntervalSec * 1000) {
+            this.submitPoints();
+            this.lastPointsSubmissionTime = now;
+        }
+    }
+
+    submitPoints()
+    {
+        let consolidated: { [channel: string]: number } = {};
+
+        for (let i = 0; i < this.pointsActivities.length; i++) {
+            let activity = this.pointsActivities[i];
+            if (consolidated[activity.channel]) {
+                consolidated[activity.channel] = consolidated[activity.channel] + activity.n;
+            } else {
+                consolidated[activity.channel] = activity.n;
+            }
+        }
+
+        this.pointsActivities = [];
+
+        if (this.backpack) {
+            let pointsItems = this.backpack.findItems(props => as.Bool(props[Pid.PointsAspect], false));
+            if (pointsItems.length == 0) {
+                // ignored
+            } else if (pointsItems.length > 1) {
+                log.debug('BackgroundApp.submitPoints', 'Too many points items: ' + pointsItems.length);
+            } else {
+                let points = pointsItems[0];
+                let itemId = as.String(points.getProperties[Pid.Id], '');
+                if (itemId != '') {
+                    this.backpack.executeItemAction(itemId, 'Points.ChannelValues', consolidated, [itemId])
+                }
+            }
+        }
     }
 
     handle_test(): void

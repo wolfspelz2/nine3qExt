@@ -97,6 +97,22 @@ export class Backpack
         }
     }
 
+    findItems(filter: (props: ItemProperties) => boolean): Array<Item>
+    {
+        let found: Array<Item> = [];
+
+        for (let itemId in this.items) {
+            let item = this.items[itemId];
+            if (item) {
+                if (filter(item.getProperties())) {
+                    found.push(item);
+                }
+            }
+        }
+
+        return found;
+    }
+
     private async createRepositoryItem(itemId: string, props: ItemProperties): Promise<Item>
     {
         props[Pid.OwnerId] = await Memory.getSync(Utils.syncStorageKey_Id(), '');

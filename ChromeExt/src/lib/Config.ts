@@ -47,6 +47,9 @@ export class Config
             maxAgeSec: 3600,
             maintenanceIntervalSec: 60,
         },
+        points: {
+            submissionIntervalSec: 300,
+        },
         test: {
             itemServiceRpcUrl: 'http://localhost:5000/rpc',
         },

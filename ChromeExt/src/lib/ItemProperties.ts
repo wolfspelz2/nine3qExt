@@ -27,6 +27,7 @@ export class Pid
     static readonly ApplierAspect = 'ApplierAspect';
     static readonly ClaimAspect = 'ClaimAspect';
     static readonly ClaimStrength = 'ClaimStrength';
+    static readonly PointsAspect = 'PointsAspect';
 
     static readonly TransferState_Source = 'Source';
     static readonly TransferState_Destination = 'Destination';
