@@ -49,7 +49,7 @@ spec:
       serviceAccountName: cdn-embedded
       containers:
         - name: n3q-embedded
-          image: docker.k8s.sui.li/n3q-embedded:7c9cb968dd
+          image: docker.k8s.sui.li/n3q-embedded:5f44abf8
           ports:
             - containerPort: 80
               protocol: TCP
@@ -57,10 +57,29 @@ spec:
             - name: kubectl-binary
               mountPath: /usr/bin/kubectl
               readOnly: true
+            - name: htdocs
+              mountPath: /pod-shared
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/bin/sh", "-c", "cp -r /usr/share/nginx/html /pod-shared/public; chmod -R 777 /pod-shared"]
+
+        - name: php7fpm
+          image: docker.k8s.sui.li/php7fpm
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: htdocs
+              mountPath: /pod-shared
+
+        - name: redis
+          image: redis
+
       volumes:
       - name: kubectl-binary
         hostPath:
           path: /usr/bin/kubectl
+      - name: htdocs
+        emptyDir: {}
 
 ---
 apiVersion: v1
@@ -78,30 +97,4 @@ spec:
     port: 80
     protocol: TCP
 
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: n3q-embedded-ingress
-  namespace: n3q-prod
-  annotations:
-    haproxy.org/check: "true"
-    haproxy.org/forwarded-for: "true"
-    haproxy.org/load-balance: "roundrobin"
-    haproxy.org/ssl-redirect: "true"
-spec:
-  tls:
-    - hosts:
-      - cdn.weblin.io
-      secretName: n3q-prod/tls-cdn-weblin-io
-  rules:
-  - host: cdn.weblin.io
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: n3q-embedded
-            port:
-              number: 80
+
