@@ -13,7 +13,7 @@ import { Memory } from '../lib/Memory';
 import { ConfigUpdater } from './ConfigUpdater';
 import { Backpack } from './Backpack';
 import { Translator } from '../lib/Translator';
-import { Environment } from "../lib/Environment";
+import { Environment } from '../lib/Environment';
 
 interface ILocationMapperResponse
 {
