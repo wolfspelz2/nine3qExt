@@ -21,7 +21,7 @@ export class Memory
 
     static async getSync(key: string, defaultValue: any): Promise<any>
     {
-        if (chrome.storage) {
+        if (Utils.hasChromeStorage()) {
             return new Promise((resolve, reject) => {
                 chrome.storage.sync.get([key], result => {
                     if (result[key] != undefined) {
@@ -38,7 +38,7 @@ export class Memory
 
     static async setSync(key: string, value: any): Promise<void>
     {
-        if (chrome.storage) {
+        if (Utils.hasChromeStorage()) {
             return new Promise((resolve, reject) => {
                 let dict = {};
                 dict[key] = value;
@@ -55,7 +55,7 @@ export class Memory
     {
         return new Promise(resolve =>
         {
-            if (chrome.storage) {
+            if (Utils.hasChromeStorage()) {
                 chrome.storage.local.get([key], result => {
                     if (result[key] != undefined) {
                         resolve(result[key]);
@@ -86,7 +86,7 @@ export class Memory
         {
             let dict = {};
             dict[key] = value;
-            if (chrome.storage) {
+            if (Utils.hasChromeStorage()) {
                 chrome.storage.local.set(dict, () => {
                     resolve();
                 });
@@ -104,7 +104,7 @@ export class Memory
     {
         return new Promise(resolve =>
         {
-            if (chrome.storage) {
+            if (Utils.hasChromeStorage()) {
                 chrome.storage.local.remove(key, () => {
                     resolve();
                 });

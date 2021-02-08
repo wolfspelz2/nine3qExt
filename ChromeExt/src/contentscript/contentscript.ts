@@ -35,7 +35,7 @@ try {
     function activate()
     {
         if (app == null) {
-            if (chrome.runtime && chrome.runtime.onMessage && runtimeMessageHandlerWhileDeactivated) {
+            if (Environment.isExtension() && chrome.runtime.onMessage && runtimeMessageHandlerWhileDeactivated) {
                 chrome.runtime.onMessage.removeListener(runtimeMessageHandlerWhileDeactivated);
             }
 
@@ -72,7 +72,7 @@ try {
             app.stop();
             app = null;
 
-            if (chrome.runtime && chrome.runtime.onMessage) {
+            if (Environment.isExtension() && chrome.runtime.onMessage) {
                 runtimeMessageHandlerWhileDeactivated = (message, sender, sendResponse) => onRuntimeMessage(message, sender, sendResponse);
                 chrome.runtime.onMessage.addListener(runtimeMessageHandlerWhileDeactivated);
             }
