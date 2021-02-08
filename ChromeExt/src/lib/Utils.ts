@@ -107,4 +107,8 @@ export class Utils
     {
         return window.atob(s);
     }
+
+    static hasChromeStorage(): boolean {
+        return (typeof chrome !== 'undefined' && typeof chrome.storage !== 'undefined');
+    }
 }

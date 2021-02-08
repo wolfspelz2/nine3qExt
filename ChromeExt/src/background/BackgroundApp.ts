@@ -13,6 +13,7 @@ import { Memory } from '../lib/Memory';
 import { ConfigUpdater } from './ConfigUpdater';
 import { Backpack } from './Backpack';
 import { Translator } from '../lib/Translator';
+import { Environment } from "../lib/Environment";
 
 interface ILocationMapperResponse
 {
@@ -69,14 +70,14 @@ export class BackgroundApp
         let language: string = Translator.mapLanguage(navigator.language, lang => { return Config.get('i18n.languageMapping', {})[lang]; }, Config.get('i18n.defaultLanguage', 'en-US'));
         this.babelfish = new Translator(Config.get('i18n.translations', {})[language], language, Config.get('i18n.serviceUrl', ''));
 
-        if (chrome.runtime && chrome.runtime.onMessage) {
+        if (Environment.isExtension() && chrome.runtime.onMessage) {
             chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
             {
                 return this.onRuntimeMessage(message, sender, sendResponse);
             });
         }
 
-        if (chrome.browserAction && chrome.browserAction.onClicked) {
+        if (Environment.isExtension() && chrome.browserAction && chrome.browserAction.onClicked) {
             chrome.browserAction.onClicked.addListener(async tab =>
             {
                 await this.onBrowserActionClicked(tab.id);

@@ -28,11 +28,16 @@ export class Environment
 
     static isEmbedded(): boolean
     {
-        return typeof chrome.storage === 'undefined';
+        return !Environment.isExtension(); //typeof chrome === 'undefined' && typeof chrome.storage === 'undefined';
     }
 
     static isExtension(): boolean
     {
-        return chrome.storage != null;
+        if (typeof chrome !== 'undefined') {
+            if (typeof chrome.runtime !== 'undefined') {
+                return true;
+            }
+        }
+        return false;
     }
 }

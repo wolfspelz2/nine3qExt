@@ -76,8 +76,7 @@ ob_start();
 
     var n3q = {
         apiVersion: '1',
-        pageUrl: url,
-        x: <?=rand(100, 400)?>
+        pageUrl: url
     };
 </script>
 <script src="/v1/embedded.js"></script>
