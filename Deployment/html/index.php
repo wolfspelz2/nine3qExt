@@ -74,7 +74,7 @@ ob_start();
     let url = '<?=$url?>';
     document.getElementById('iframe').src = url;
 
-    var n3qConfig = {
+    var n3q = {
         apiVersion: '1',
         pageUrl: url,
         x: <?=rand(100, 400)?>
