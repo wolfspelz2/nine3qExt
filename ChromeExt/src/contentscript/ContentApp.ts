@@ -499,6 +499,9 @@ export class ContentApp
             for (let i in strippedUrlPrefixes) {
                 if (pageUrl.startsWith(strippedUrlPrefixes[i])) {
                     pageUrl = pageUrl.substring(strippedUrlPrefixes[i].length);
+                    if (!pageUrl.startsWith('https://')) {
+                        pageUrl = 'https://' + pageUrl;
+                    }
                 }
             }
 

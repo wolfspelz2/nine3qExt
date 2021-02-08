@@ -36,7 +36,7 @@ export class Config
             vpiRoot: 'https://lms.virtual-presence.org/v7/root.xml',
             vpiMaxIterations: 15,
             ignoredDomainSuffixes: ['vulcan.weblin.com'],
-            strippedUrlPrefixes: ['https://cdn.weblin.io/?'],
+            strippedUrlPrefixes: ['https://cdn.weblin.io/?', 'https://cdn.weblin.io/'],
         },
         config: {
             serviceUrl: 'https://webex.vulcan.weblin.com/Config',
