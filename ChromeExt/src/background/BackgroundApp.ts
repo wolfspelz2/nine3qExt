@@ -188,6 +188,7 @@ export class BackgroundApp
 
             case BackgroundMessage.pointsActivity.name: {
                 sendResponse(this.handle_pointsActivity(message.channel, message.n));
+                return false;
             } break;
 
             case BackgroundMessage.getBackpackState.name: {
@@ -376,7 +377,7 @@ export class BackgroundApp
         return false;
     }
 
-    handle_waitReady(sendResponse: (response?: any) => void)
+    handle_waitReady(sendResponse: (response?: any) => void): boolean
     {
         log.debug('BackgroundApp.handle_waitReady');
         let sendResponseIsAsync = false;
@@ -397,7 +398,7 @@ export class BackgroundApp
         return sendResponseIsAsync;
     }
 
-    handle_getConfigTree(name: any)
+    handle_getConfigTree(name: any): any
     {
         log.debug('BackgroundApp.handle_getConfigTree', name, this.isReady);
         switch (as.String(name, Config.onlineConfigName)) {
@@ -617,7 +618,7 @@ export class BackgroundApp
 
     // send/recv stanza
 
-    handle_sendStanza(stanza: any, tabId: number): void
+    handle_sendStanza(stanza: any, tabId: number): BackgroundResponse
     {
         // log.debug('BackgroundApp.handle_sendStanza', stanza, tabId);
 
@@ -862,7 +863,7 @@ export class BackgroundApp
     // Keep connection alive
 
     private lastPingTime: number = 0;
-    handle_pingBackground(): void
+    handle_pingBackground(): BackgroundResponse
     {
         log.debug('BackgroundApp.handle_pingBackground');
         try {
@@ -871,22 +872,24 @@ export class BackgroundApp
                 this.lastPingTime = now;
                 this.sendPresence();
             }
+            return new BackgroundSuccessResponse();
         } catch (error) {
-            //
+            return new BackgroundErrorResponse('error', error);
         }
     }
 
     // 
 
-    handle_userSettingsChanged(): void
+    handle_userSettingsChanged(): BackgroundResponse
     {
         log.debug('BackgroundApp.handle_userSettingsChanged');
         this.sendToAllTabs(ContentMessage.type_userSettingsChanged, {});
+        return new BackgroundSuccessResponse();
     }
 
     private lastPointsSubmissionTime: number = 0;
     private pointsActivities: Array<PointsActivity> = [];
-    handle_pointsActivity(channel: string, n: number): void
+    handle_pointsActivity(channel: string, n: number): BackgroundResponse
     {
         log.debug('BackgroundApp.handle_pointsActivity', channel, n);
         this.pointsActivities.push({ channel: channel, n: n });
@@ -897,6 +900,8 @@ export class BackgroundApp
             this.submitPoints();
             this.lastPointsSubmissionTime = now;
         }
+
+        return new BackgroundSuccessResponse();
     }
 
     submitPoints()
@@ -930,7 +935,7 @@ export class BackgroundApp
         }
     }
 
-    handle_test(): void
+    handle_test(): any
     {
     }
 
