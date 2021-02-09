@@ -386,7 +386,7 @@ export class Participant extends Entity
     {
         try {
             let pokeType = node.attrs.type;
-            let toast = new SimpleToast(this.app, 'Poke-' + pokeType, Config.get('room.pokeToastDurationSec', 10), 'greeting', this.getDisplayName(), pokeType + 's');
+            let toast = new SimpleToast(this.app, 'poke-' + pokeType, Config.get('room.pokeToastDurationSec', 10), 'greeting', this.getDisplayName(), pokeType + 's');
             toast.actionButton(pokeType + ' back', () => { this.sendPoke(pokeType); toast.close(); })
             toast.show();
         } catch (error) {

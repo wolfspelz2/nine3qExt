@@ -732,7 +732,7 @@ export class ContentApp
 
     // Dont show this message again management
 
-    localStorage_DontShowNotice_KeyPrefix: string = 'DontShowNotice';
+    localStorage_DontShowNotice_KeyPrefix: string = 'dontShowNotice.';
 
     async isDontShowNoticeType(type: string): Promise<boolean>
     {
