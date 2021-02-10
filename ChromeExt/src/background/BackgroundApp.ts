@@ -927,7 +927,7 @@ export class BackgroundApp
                 log.debug('BackgroundApp.submitPoints', 'Too many points items: ' + pointsItems.length);
             } else {
                 let points = pointsItems[0];
-                let itemId = as.String(points.getProperties[Pid.Id], '');
+                let itemId = as.String(points.getProperties()[Pid.Id], '');
                 if (itemId != '') {
                     this.backpack.executeItemAction(itemId, 'Points.ChannelValues', consolidated, [itemId])
                 }
