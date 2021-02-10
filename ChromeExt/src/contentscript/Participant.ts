@@ -178,9 +178,8 @@ export class Participant extends Entity
         if (this.isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, this.isSelf);
             if (Config.get('backpack.enabled', false)) {
-                // if (this.isSelf) {
+                this.avatarDisplay.addClass('n3q-participant-avatar');
                 this.avatarDisplay.makeDroppable();
-                // }
             }
 
             this.nicknameDisplay = new Nickname(this.app, this, this.isSelf, this.getElem());

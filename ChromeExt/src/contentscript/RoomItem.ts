@@ -138,6 +138,9 @@ export class RoomItem extends Entity
 
         if (this.isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, false);
+            if (Config.get('backpack.enabled', false)) {
+                this.avatarDisplay.addClass('n3q-item-avatar');
+            }
             if (as.Bool(newProperties[Pid.ApplierAspect], false)) {
                 this.avatarDisplay.makeDroppable();
             }
