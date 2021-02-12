@@ -618,6 +618,9 @@ export class Participant extends Entity
     do(what: string): void
     {
         this.room?.sendGroupChat('/do ' + what);
+        if (Config.get('points.enabled', false)) {
+            /* await */ BackgroundMessage.pointsActivity(Pid.PointsChannelEmote, 1);
+        }
     }
 
     toggleChatin(): void

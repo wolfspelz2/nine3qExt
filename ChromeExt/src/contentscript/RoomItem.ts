@@ -264,6 +264,9 @@ export class RoomItem extends Entity
 
             try {
                 await BackgroundMessage.executeBackpackItemAction(itemId, 'Applier.Apply', { 'passive': passiveItemId }, [itemId, passiveItemId]);
+                if (Config.get('points.enabled', false)) {
+                    /* await */ BackgroundMessage.pointsActivity(Pid.PointsChannelItemApply, 1);
+                }
             } catch (ex) {
                 // new SimpleErrorToast(this.app, 'Warning-' + error.fact + '-' + error.reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', error.fact, error.reason, error.detail).show();
                 let fact = typeof ex.fact === 'number' ? ItemException.Fact[ex.fact] : ex.fact;

@@ -258,6 +258,9 @@ export class BackpackItem
     rezItem(x: number)
     {
         this.backpackWindow.rezItem(this.itemId, this.app.getRoom().getJid(), Math.round(x), this.app.getRoom().getDestination());
+        if (Config.get('points.enabled', false)) {
+            /* await */ BackgroundMessage.pointsActivity(Pid.PointsChannelItemRez, 1);
+        }
     }
 
     getPseudoRandomCoordinate(space: number, size: number, padding: number, id: string, mod: number): number

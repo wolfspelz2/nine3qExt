@@ -84,6 +84,8 @@ export class BackgroundApp
             });
         }
 
+        this.lastPointsSubmissionTime = Date.now();
+
         this.configUpdater = new ConfigUpdater(this);
         await this.configUpdater.getUpdate(() => this.onConfigUpdated());
         await this.configUpdater.startUpdateTimer(() => this.onConfigUpdated());
@@ -186,11 +188,6 @@ export class BackgroundApp
                 return false;
             } break;
 
-            case BackgroundMessage.pointsActivity.name: {
-                sendResponse(this.handle_pointsActivity(message.channel, message.n));
-                return false;
-            } break;
-
             case BackgroundMessage.getBackpackState.name: {
                 return this.handle_getBackpackState(sendResponse);
             } break;
@@ -229,6 +226,10 @@ export class BackgroundApp
 
             case BackgroundMessage.executeBackpackItemAction.name: {
                 return this.handle_executeBackpackItemAction(message.itemId, message.action, message.args, message.involvedIds, sendResponse);
+            } break;
+
+            case BackgroundMessage.pointsActivity.name: {
+                return this.handle_pointsActivity(message.channel, message.n, sendResponse);
             } break;
 
             default: {
@@ -549,10 +550,34 @@ export class BackgroundApp
     handle_executeBackpackItemAction(itemId: string, action: string, args: any, involvedIds: Array<string>, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            this.backpack.executeItemAction(itemId, action, args, involvedIds)
+            this.backpack.executeItemAction(itemId, action, args, involvedIds, false)
                 .then(() => { sendResponse(new BackgroundSuccessResponse()); })
                 .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
             return true;
+        } else {
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotChanged, ItemException.Reason.ItemsNotAvailable)));
+        }
+        return false;
+    }
+
+    private lastPointsSubmissionTime: number = 0;
+    private pointsActivities: Array<PointsActivity> = [];
+    handle_pointsActivity(channel: string, n: number, sendResponse: (response?: any) => void): boolean
+    {
+        if (this.backpack) {
+            if (Config.get('points.enabled', false)) {
+                this.pointsActivities.push({ channel: channel, n: n });
+
+                let now = Date.now();
+                let submissionIntervalSec = Config.get('points.submissionIntervalSec', 300);
+                if (now - this.lastPointsSubmissionTime > submissionIntervalSec * 1000) {
+                    this.lastPointsSubmissionTime = now;
+                    this.submitPoints()
+                        .then(() => { sendResponse(new BackgroundSuccessResponse()); })
+                        .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
+                    return true;
+                }
+            }
         } else {
             sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotChanged, ItemException.Reason.ItemsNotAvailable)));
         }
@@ -887,24 +912,7 @@ export class BackgroundApp
         return new BackgroundSuccessResponse();
     }
 
-    private lastPointsSubmissionTime: number = 0;
-    private pointsActivities: Array<PointsActivity> = [];
-    handle_pointsActivity(channel: string, n: number): BackgroundResponse
-    {
-        log.debug('BackgroundApp.handle_pointsActivity', channel, n);
-        this.pointsActivities.push({ channel: channel, n: n });
-
-        let now = Date.now();
-        let submissionIntervalSec = Config.get('points.submissionIntervalSec', 300);
-        if (now - this.lastPointsSubmissionTime > submissionIntervalSec * 1000) {
-            this.submitPoints();
-            this.lastPointsSubmissionTime = now;
-        }
-
-        return new BackgroundSuccessResponse();
-    }
-
-    submitPoints()
+    async submitPoints()
     {
         let consolidated: { [channel: string]: number } = {};
 
@@ -920,16 +928,13 @@ export class BackgroundApp
         this.pointsActivities = [];
 
         if (this.backpack) {
-            let pointsItems = this.backpack.findItems(props => as.Bool(props[Pid.PointsAspect], false));
-            if (pointsItems.length == 0) {
-                // ignored
-            } else if (pointsItems.length > 1) {
-                log.debug('BackgroundApp.submitPoints', 'Too many points items: ' + pointsItems.length);
-            } else {
-                let points = pointsItems[0];
-                let itemId = as.String(points.getProperties()[Pid.Id], '');
-                if (itemId != '') {
-                    this.backpack.executeItemAction(itemId, 'Points.ChannelValues', consolidated, [itemId])
+            if (Config.get('points.enabled', false)) {
+                let points = await this.backpack.getOrCreatePointsItem();
+                if (points) {
+                    let itemId = as.String(points.getProperties()[Pid.Id], '');
+                    if (itemId != '') {
+                        this.backpack.executeItemAction(itemId, 'Points.ChannelValues', consolidated, [itemId], true)
+                    }
                 }
             }
         }

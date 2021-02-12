@@ -45,4 +45,16 @@ export namespace RpcProtocol
         changed: { [id: string]: ItemProperties };
         deleted: string[];
     }
+
+    export class BackpackCreateRequest extends BackpackRequest
+    {
+        static method = 'CreateItem';
+        user: string;
+        template: string;
+    }
+
+    export class BackpackCreateResponse extends BackpackResponse
+    {
+        properties: ItemProperties;
+    }
 }

@@ -12,6 +12,8 @@ import { Translator } from '../lib/Translator';
 import { Browser } from '../lib/Browser';
 import { ItemException } from '../lib/ItemExcption';
 import { BackpackShowItemData, BackpackSetItemData, BackpackRemoveItemData, ContentMessage } from '../lib/ContentMessage';
+import { Environment } from '../lib/Environment';
+import { Pid } from '../lib/ItemProperties';
 import { HelloWorld } from './HelloWorld';
 import { PropertyStorage } from './PropertyStorage';
 import { Room } from './Room';
@@ -24,7 +26,6 @@ import { TestWindow } from './TestWindow';
 import { BackpackWindow } from './BackpackWindow';
 import { SimpleErrorToast, SimpleToast } from './Toast';
 import { IframeApi } from './IframeApi';
-import { Environment } from '../lib/Environment';
 
 interface ILocationMapperResponse
 {
@@ -466,25 +467,6 @@ export class ContentApp
         }
     }
 
-    // handle_ItemException(ex: ItemException)
-    // {
-    //     new SimpleErrorToast(this,
-    //         'Warning-' + ex.fact.toString() + '-' + ex.reason.toString(),
-    //         Config.get('room.errorToastDurationSec', 10),
-    //         'warning',
-    //         ex.fact.toString(),
-    //         ex.reason.toString(),
-    //         ex.detail ?? ''
-    //     )
-    //         .show();
-    // }
-
-    // enterPage()
-    // {
-    //     this.pageUrl = Browser.getCurrentPageUrl();
-    //     this.enterRoomByPageUrl(this.pageUrl);
-    // }
-
     leavePage()
     {
         this.leaveRoom();
@@ -529,6 +511,9 @@ export class ContentApp
 
             if (this.roomJid != '') {
                 this.enterRoom(this.roomJid, pageUrl);
+                if (Config.get('points.enabled', false)) {
+                    /* await */ BackgroundMessage.pointsActivity(Pid.PointsChannelNavigation, 1);
+                }
             }
 
         } catch (error) {

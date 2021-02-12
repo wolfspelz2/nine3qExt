@@ -4,6 +4,7 @@ export class Pid
 {
     static readonly Id = 'Id';
     static readonly Label = 'Label';
+    static readonly Template: 'Template';
     static readonly OwnerId = 'OwnerId';
     static readonly OwnerName = 'OwnerName';
     static readonly IsRezzed = 'IsRezzed';
