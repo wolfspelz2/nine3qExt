@@ -1,4 +1,5 @@
 export class ItemProperties { [pid: string]: string }
+export class ItemPropertiesSet { [id: string]: ItemProperties }
 
 export class Pid
 {
@@ -36,6 +37,7 @@ export class Pid
     static readonly PointsChannelNavigation = 'PointsChannelNavigation';
     static readonly PointsChannelItemRez = 'PointsChannelItemRez';
     static readonly PointsChannelItemApply = 'PointsChannelItemApply';
+    static readonly PointsTotal = 'PointsTotal';
 
     static readonly TransferState_Source = 'Source';
     static readonly TransferState_Destination = 'Destination';

@@ -3,7 +3,7 @@ import { client, xml, jid } from '@xmpp/client';
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
-import { BackgroundErrorResponse, BackgroundItemExceptionResponse, BackgroundMessage, BackgroundResponse, BackgroundSuccessResponse, GetBackpackItemPropertiesResponse, GetBackpackStateResponse, IsBackpackItemResponse } from '../lib/BackgroundMessage';
+import { BackgroundEmptyResponse, BackgroundErrorResponse, BackgroundItemExceptionResponse, BackgroundMessage, BackgroundResponse, BackgroundSuccessResponse, FindBackpackItemPropertiesResponse, GetBackpackItemPropertiesResponse, GetBackpackStateResponse, IsBackpackItemResponse } from '../lib/BackgroundMessage';
 import { Client } from '../lib/Client';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { ContentMessage } from '../lib/ContentMessage';
@@ -222,6 +222,10 @@ export class BackgroundApp
 
             case BackgroundMessage.getBackpackItemProperties.name: {
                 return this.handle_getBackpackItemProperties(message.itemId, sendResponse);
+            } break;
+
+            case BackgroundMessage.findBackpackItemProperties.name: {
+                return this.handle_findBackpackItemProperties(message.filterProperties, sendResponse);
             } break;
 
             case BackgroundMessage.executeBackpackItemAction.name: {
@@ -541,6 +545,31 @@ export class BackgroundApp
         if (this.backpack) {
             let props = this.backpack.getItemProperties(itemId);
             sendResponse(new GetBackpackItemPropertiesResponse(props));
+        } else {
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemsNotAvailable)));
+        }
+        return false;
+    }
+
+    handle_findBackpackItemProperties(filterProperties: ItemProperties, sendResponse: (response?: any) => void): boolean
+    {
+        if (this.backpack) {
+            let items = this.backpack.findItems(props =>
+            {
+                let match = true;
+                for (let pid in filterProperties) {
+                    if (props[pid] != filterProperties[pid]) { match = false; }
+                }
+                as.Bool(props[Pid.PointsAspect], false);
+                return match;
+            });
+            let propertiesSet = {};
+            for (let i = 0; i < items.length; i++) {
+                let item = items[i];
+                let itemId = item.getProperties()[Pid.Id];
+                propertiesSet[itemId] = item.getProperties();
+            }
+            sendResponse(new FindBackpackItemPropertiesResponse(propertiesSet));
         } else {
             sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemsNotAvailable)));
         }

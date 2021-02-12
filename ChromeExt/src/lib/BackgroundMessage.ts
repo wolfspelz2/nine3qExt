@@ -1,7 +1,7 @@
 import log = require('loglevel');
 import { ItemChangeOptions } from './ItemChangeOptions';
 import { ItemException } from './ItemExcption';
-import { ItemProperties } from './ItemProperties';
+import { ItemProperties, ItemPropertiesSet } from './ItemProperties';
 import { BackgroundApp } from '../background/BackgroundApp';
 import { Environment } from './Environment';
 
@@ -11,6 +11,11 @@ export class BackgroundResponse
 }
 
 export class BackgroundSuccessResponse extends BackgroundResponse
+{
+    constructor() { super(true); }
+}
+
+export class BackgroundEmptyResponse extends BackgroundResponse
 {
     constructor() { super(true); }
 }
@@ -43,6 +48,11 @@ export class IsBackpackItemResponse extends BackgroundResponse
 export class GetBackpackItemPropertiesResponse extends BackgroundResponse
 {
     constructor(public properties: ItemProperties) { super(true); }
+}
+
+export class FindBackpackItemPropertiesResponse extends BackgroundResponse
+{
+    constructor(public propertiesSet: ItemPropertiesSet) { super(true); }
 }
 
 export class BackgroundMessage
@@ -206,6 +216,19 @@ export class BackgroundMessage
             try {
                 let response = await BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.getBackpackItemProperties.name, 'itemId': itemId });
                 resolve((<GetBackpackItemPropertiesResponse>response).properties);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    static findBackpackItemProperties(filterProperties: ItemProperties): Promise<ItemPropertiesSet>
+    {
+        return new Promise(async (resolve, reject) =>
+        {
+            try {
+                let response = await BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.findBackpackItemProperties.name, 'filterProperties': filterProperties });
+                resolve((<FindBackpackItemPropertiesResponse>response).propertiesSet);
             } catch (error) {
                 reject(error);
             }
