@@ -581,6 +581,7 @@ export class BackgroundApp
         } else {
             sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotChanged, ItemException.Reason.ItemsNotAvailable)));
         }
+        sendResponse(new BackgroundSuccessResponse());
         return false;
     }
 
