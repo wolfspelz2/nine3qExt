@@ -136,7 +136,7 @@ export class BackpackWindow extends Window
             };
 
             $(paneElem).droppable({
-                drop: (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
+                drop: async (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
                 {
                     let droppedAvatar = ui.draggable.get(0);
                     if (droppedAvatar) {
@@ -148,8 +148,9 @@ export class BackpackWindow extends Window
                                 if (roomItem) {
                                     let x = Math.round(ui.offset.left - $(paneElem).offset().left + ui.draggable.width() / 2);
                                     let y = Math.round(ui.offset.top - $(paneElem).offset().top + ui.draggable.height() / 2)
-                                    // roomItem.beginDerez();
-                                    this.derezItem(roomItem.getRoomNick(), roomItem.getRoom().getJid(), x, y);
+                                    roomItem.beginDerez();
+                                    await this.derezItem(roomItem.getRoomNick(), roomItem.getRoom().getJid(), x, y);
+                                    roomItem.endDerez();
                                 }
                             }
                         }

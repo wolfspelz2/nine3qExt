@@ -228,6 +228,15 @@ export class RoomItem extends Entity
         }
     }
 
+    onDragAvatarStop(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
+    {
+        if (!this.isDerezzing) {
+            let dX = ui.position.left - this.dragStartPosition.left;
+            let newX = this.getPosition() + dX;
+            this.onDraggedTo(newX);
+        }
+    }
+
     onQuickSlideReached(newX: number): void
     {
         super.onQuickSlideReached(newX);
@@ -310,5 +319,10 @@ export class RoomItem extends Entity
     {
         this.isDerezzing = true;
         $(this.getElem()).hide().delay(1000).show(0);
+    }
+
+    endDerez(): void
+    {
+        this.isDerezzing = false;
     }
 }

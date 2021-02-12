@@ -134,8 +134,9 @@ export class Backpack
 
     private async createRepositoryItem(itemId: string, props: ItemProperties): Promise<Item>
     {
-        props[Pid.OwnerId] = await Memory.getSync(Utils.syncStorageKey_Id(), '');
-        props[Pid.OwnerName] = await Memory.getSync(Utils.syncStorageKey_Nickname(), as.String(props[Pid.OwnerName]));
+        if (props[Pid.OwnerId] == null) {
+            props[Pid.OwnerId] = await Memory.getSync(Utils.syncStorageKey_Id(), '');
+        }
 
         let item = this.items[itemId];
         if (item == null) {

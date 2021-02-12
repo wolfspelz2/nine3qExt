@@ -163,7 +163,7 @@ export class Entity
 
     // Drag
 
-    private dragStartPosition: { top: number; left: number; };
+    protected dragStartPosition: { top: number; left: number; };
     onDragAvatarStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
     {
         this.dragStartPosition = ui.position;
