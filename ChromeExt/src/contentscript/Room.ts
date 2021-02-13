@@ -102,35 +102,55 @@ export class Room
         this.stopKeepAlive();
     }
 
+    async getMyPoints(): Promise<number>
+    {
+        let propSet = await BackgroundMessage.findBackpackItemProperties({ [Pid.PointsAspect]: 'true' });
+
+        let item = null;
+        for (let id in propSet) {
+            let props = propSet[id];
+            if (props) {
+                let points = as.Int(props[Pid.PointsTotal], 0);
+                return points;
+            }
+        }
+
+        return 0;
+    }
+
     async sendPresence(): Promise<void>
     {
+        let presence = xml('presence', { to: this.jid + '/' + this.resource })
+            .append(
+                xml('x', { xmlns: 'firebat:avatar:state', })
+                    .append(xml('position', { x: as.Int(this.posX) }))
+            );
+
+        let vpProps = { xmlns: 'vp:props', 'Nickname': this.resource, 'AvatarId': this.avatar, 'nickname': this.resource, 'avatar': this.avatar };
+        let points = 0;
+        if (Config.get('points.enabled', false)) {
+            points = await this.getMyPoints();
+            if (points > 0) {
+                vpProps['Points'] = points;
+            }
+        } presence.append(xml('x', vpProps));
+
         let identityUrl = Config.get('identity.url', '');
         let identityDigest = Config.get('identity.digest', '1');
         if (identityUrl == '') {
             let avatarUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'https://webex.vulcan.weblin.com/avatars/gif/{id}/config.xml')).replace('{id}', this.avatar);
             identityDigest = as.String(Utils.hash(this.resource + avatarUrl));
-            identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}'))
+            identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}&points={points}'))
                 .replace('{nickname}', encodeURIComponent(this.resource))
                 .replace('{avatarUrl}', encodeURIComponent(avatarUrl))
                 .replace('{digest}', encodeURIComponent(identityDigest))
                 .replace('{imageUrl}', encodeURIComponent(''))
                 ;
+            if (points > 0) { identityUrl = identityUrl.replace('{points}', encodeURIComponent('' + points)); }
         }
-
-        let presence = xml('presence', { to: this.jid + '/' + this.resource })
-            .append(
-                xml('x', { xmlns: 'firebat:avatar:state', })
-                    .append(xml('position', { x: as.Int(this.posX) }))
-            )
-            ;
-
         if (identityUrl != '') {
             presence.append(
                 xml('x', { xmlns: 'firebat:user:identity', 'jid': this.userJid, 'src': identityUrl, 'digest': identityDigest })
-            );
-        } else {
-            presence.append(
-                xml('x', { xmlns: 'vp:props', 'Nickname': this.resource, 'AvatarId': this.avatar, 'nickname': this.resource, 'avatar': this.avatar })
             );
         }
 
@@ -372,7 +392,9 @@ export class Room
             .append(xml('body', {}, text))
             ;
         this.app.sendStanza(message);
-        /* await */ BackgroundMessage.pointsActivity(Pid.PointsChannelChat, 1);
+        if (Config.get('points.enabled', false)) {
+            /* await */ BackgroundMessage.pointsActivity(Pid.PointsChannelChat, 1);
+        }
     }
 
     sendPrivateChat(text: string, nick: string)
@@ -389,7 +411,9 @@ export class Room
             .append(xml('x', { 'xmlns': 'vp:poke', 'type': type }))
             ;
         this.app.sendStanza(message);
-        /* await */ BackgroundMessage.pointsActivity(Pid.PointsChannelGreet, 1);
+        if (Config.get('points.enabled', false)) {
+            /* await */ BackgroundMessage.pointsActivity(Pid.PointsChannelGreet, 1);
+        }
     }
 
     async transferItem(itemId: string, nick: string)

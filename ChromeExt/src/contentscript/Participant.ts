@@ -178,9 +178,8 @@ export class Participant extends Entity
         if (this.isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, this.isSelf);
             if (Config.get('backpack.enabled', false)) {
-                // if (this.isSelf) {
+                this.avatarDisplay.addClass('n3q-participant-avatar');
                 this.avatarDisplay.makeDroppable();
-                // }
             }
 
             this.nicknameDisplay = new Nickname(this.app, this, this.isSelf, this.getElem());
@@ -386,7 +385,7 @@ export class Participant extends Entity
     {
         try {
             let pokeType = node.attrs.type;
-            let toast = new SimpleToast(this.app, 'Poke-' + pokeType, Config.get('room.pokeToastDurationSec', 10), 'greeting', this.getDisplayName(), pokeType + 's');
+            let toast = new SimpleToast(this.app, 'poke-' + pokeType, Config.get('room.pokeToastDurationSec', 10), 'greeting', this.getDisplayName(), pokeType + 's');
             toast.actionButton(pokeType + ' back', () => { this.sendPoke(pokeType); toast.close(); })
             toast.show();
         } catch (error) {
@@ -619,6 +618,9 @@ export class Participant extends Entity
     do(what: string): void
     {
         this.room?.sendGroupChat('/do ' + what);
+        if (Config.get('points.enabled', false)) {
+            /* await */ BackgroundMessage.pointsActivity(Pid.PointsChannelEmote, 1);
+        }
     }
 
     toggleChatin(): void

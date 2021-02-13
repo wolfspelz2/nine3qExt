@@ -1,5 +1,6 @@
 import log = require('loglevel');
 import { Environment } from './Environment';
+import { Pid } from './ItemProperties';
 import { Utils } from './Utils';
 
 interface ConfigGetCallback { (value: any): void }
@@ -48,6 +49,7 @@ export class Config
             maintenanceIntervalSec: 60,
         },
         points: {
+            enabled: true,
             submissionIntervalSec: 300,
         },
         test: {
@@ -99,7 +101,7 @@ export class Config
         identity: {
             url: '',
             digest: '',
-            identificatorUrlTemplate: 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}',
+            identificatorUrlTemplate: 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}&points={points}',
         },
         inventory: {
             enabled: false,

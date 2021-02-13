@@ -130,11 +130,21 @@ export class Avatar implements IObserver
         });
     }
 
+    addClass(className: string): void
+    {
+        $(this.elem).addClass(className);
+    }
+
     makeDroppable(): void
     {
         $(this.elem).droppable({
             hoverClass: 'n3q-avatar-drophilite',
-            // accept: 'n3q-',
+            accept: function (draggable)
+            {
+                if (draggable.hasClass('n3q-item-avatar')) {
+                    return true;
+                }
+            },
             drop: async (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
             {
                 let droppedElem = ui.draggable.get(0);

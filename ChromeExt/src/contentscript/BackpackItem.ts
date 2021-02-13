@@ -131,13 +131,18 @@ export class BackpackItem
     }
 
     private dragIsRezable: boolean = false;
+    private dragIsRezzed: boolean = false;
     private onDragStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
     {
         this.dragIsRezable = as.Bool(this.properties['IsRezable'], true);
-        if (this.dragIsRezable) {
+        this.dragIsRezzed = as.Bool(this.properties['IsRezzed'], false);
+
+        if (this.dragIsRezable && !this.dragIsRezzed) {
             this.app.showDropzone();
         }
+
         this.app.toFront(ui.helper.get(0));
+
         return true;
     }
 
@@ -147,13 +152,16 @@ export class BackpackItem
             if (!this.isPositionInBackpack(ev, ui)) {
                 return false;
             }
-        } else {
+        }
+
+        if (!this.dragIsRezzed) {
             if (this.isPositionInDropzone(ev, ui)) {
                 this.app.hiliteDropzone(true);
             } else {
                 this.app.hiliteDropzone(false);
             }
         }
+
         return true;
     }
 
