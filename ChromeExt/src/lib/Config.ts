@@ -49,7 +49,7 @@ export class Config
             maintenanceIntervalSec: 60,
         },
         points: {
-            enabled: true,
+            enabled: false,
             submissionIntervalSec: 300,
         },
         test: {
