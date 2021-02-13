@@ -71,12 +71,12 @@ ob_start();
 <iframe id="iframe" src=""></iframe>
 <?php } ?>
 <script>
-    let url = '<?=$url?>';
-    document.getElementById('iframe').src = url;
+    let url = new URL('<?=$url?>');
+    document.getElementById('iframe').src = url.href;
 
     var n3q = {
         apiVersion: '1',
-        pageUrl: url
+        pageUrl: url.href
     };
 </script>
 <script src="/v1/embedded.js"></script>
