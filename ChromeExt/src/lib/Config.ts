@@ -166,7 +166,7 @@ export class Config
                     'Menu.Settings': 'Settings',
                     'Menu.Stay Here': 'Stay on tab change',
                     'Menu.Backpack': 'Stuff',
-                    'Menu.Chat Window': 'History',
+                    'Menu.Chat Window': 'Chat History',
                     'Menu.Video Conference': 'Video Conference',
                     'Menu.Chat': 'Chat',
                     'Menu.Actions:': 'Actions:',
