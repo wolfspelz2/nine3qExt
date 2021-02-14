@@ -71,6 +71,7 @@ export class Config
             chatWindowMaxHeight: 800,
             keepAliveSec: 120,
             nicknameOnHover: true,
+            pointsOnHover: true,
             defaultStillimageSize: 80,
             defaultAnimationSize: 100,
             vCardAvatarFallback: false,

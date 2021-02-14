@@ -22,9 +22,6 @@ export class Nickname implements IObserver
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-nickname n3q-shadow-small" />').get(0);
         $(this.elem).click(() => { this.participant?.select(); });
 
-        // $(this.elem).on('mouseenter', ev => this.participant?.onMouseEnterAvatar(ev));
-        // $(this.elem).on('mouseleave', ev => this.participant?.onMouseLeaveAvatar(ev));
-
         let menu = new Menu(this.app, Utils.randomString(15));
 
         if (this.isSelf) {
@@ -100,7 +97,9 @@ export class Nickname implements IObserver
 
     updateObservableProperty(name: string, value: string): void
     {
-        this.setNickname(value);
+        if (name == 'Nickname') {
+            this.setNickname(value);
+        }
     }
 
     setNickname(nickname: string): void

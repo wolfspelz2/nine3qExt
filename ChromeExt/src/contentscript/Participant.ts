@@ -1,10 +1,12 @@
 import * as $ from 'jquery';
 import { xml, jid } from '@xmpp/client';
+import log = require('loglevel');
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { IObserver } from '../lib/ObservableProperty';
 import { Pid } from '../lib/ItemProperties';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
@@ -12,17 +14,15 @@ import { Avatar } from './Avatar';
 import { Nickname } from './Nickname';
 import { Chatout } from './Chatout';
 import { Chatin } from './Chatin';
-import { url } from 'inspector';
 import { RoomItem } from './RoomItem';
-import log = require('loglevel');
-import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { SimpleToast, Toast } from './Toast';
 import { PrivateChatWindow } from './PrivateChatWindow';
-import { ItemChangeOptions } from '../lib/ItemChangeOptions';
+import { PointsBar } from './PointsBar';
 
 export class Participant extends Entity
 {
     private nicknameDisplay: Nickname;
+    private pointsDisplay: PointsBar;
     private chatoutDisplay: Chatout;
     private chatinDisplay: Chatin;
     private isFirstPresence: boolean = true;
@@ -80,6 +80,7 @@ export class Participant extends Entity
         let vpAvatarId = '';
         let vpAnimationsUrl = '';
         let vpImageUrl = '';
+        let vpPoints = '';
 
         let hasIdentityUrl = false;
 
@@ -189,11 +190,28 @@ export class Participant extends Entity
                     nicknameElem.style.display = 'none';
                     $(this.getElem()).hover(function ()
                     {
-                        $(this).find(nicknameElem).stop().fadeIn('fast');
+                        if (nicknameElem) { $(nicknameElem).stop().fadeIn('fast'); }
                     }, function ()
                     {
-                        $(this).find(nicknameElem).stop().fadeOut();
+                        if (nicknameElem) { $(nicknameElem).stop().fadeOut(); }
                     });
+                }
+            }
+
+            if (Config.get('points.enabled', false)) {
+                this.pointsDisplay = new PointsBar(this.app, this, this.getElem());
+                if (!this.isSelf) {
+                    if (Config.get('room.pointsOnHover', true)) {
+                        let pointsElem = this.pointsDisplay.getElem();
+                        pointsElem.style.display = 'none';
+                        $(this.getElem()).hover(function ()
+                        {
+                            if (pointsElem) { $(pointsElem).stop().fadeIn('fast'); }
+                        }, function ()
+                        {
+                            if (pointsElem) { $(pointsElem).stop().fadeOut(); }
+                        });
+                    }
                 }
             }
 
@@ -238,6 +256,19 @@ export class Participant extends Entity
                 }
                 if (hasIdentityUrl && this.isFirstPresence) {
                     this.app.getPropertyStorage().watch(this.userId, 'Nickname', this.nicknameDisplay);
+                }
+            }
+        }
+
+        if (this.pointsDisplay) {
+            if (vpPoints != '') {
+                let newPoints = as.Int(vpPoints, 0);
+                if (newPoints != this.pointsDisplay.getPoints()) {
+                    this.pointsDisplay.setPoints(newPoints);
+                }
+            } else {
+                if (hasIdentityUrl && this.isFirstPresence) {
+                    this.app.getPropertyStorage().watch(this.userId, 'Points', this.pointsDisplay);
                 }
             }
         }
