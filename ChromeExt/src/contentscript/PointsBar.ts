@@ -42,7 +42,10 @@ export class PointsBar implements IObserver
         $(this.elem).empty();
         $(this.elem).attr('title', '' + points);
 
-        let pg = new PointsGenerator(4, 2, 1);
+        let pg = new PointsGenerator(4, 
+            Config.get('points.fullLevels', 2), 
+            Config.get('points.fractionalLevels', 1)
+            );
         let digits = pg.getDigitList(points);
         let parts = pg.getPartsList(digits);
         let stars = parts.map(part => <HTMLDivElement>$('<div class="n3q-base n3q-points-star n3q-points-star-' + part + '" />').get(0));

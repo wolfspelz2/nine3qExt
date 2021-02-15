@@ -51,6 +51,8 @@ export class Config
         points: {
             enabled: false,
             submissionIntervalSec: 300,
+            fullLevels: 2,
+            fractionalLevels: 1,
         },
         test: {
             itemServiceRpcUrl: 'http://localhost:5000/rpc',
