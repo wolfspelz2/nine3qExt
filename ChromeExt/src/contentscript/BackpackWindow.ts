@@ -90,10 +90,12 @@ export class BackpackWindow extends Window
                 {
                     let text = as.String($(inElem).val(), '');
                     text = text.replace(/'/g, '"',);
-                    let json = JSON.parse(text);
-                    let itemId = Utils.randomString(30);
-                    json.Id = itemId;
-                    this.createItem(itemId, json, {});
+                    if (text != '') {
+                        let json = JSON.parse(text);
+                        let itemId = Utils.randomString(30);
+                        json.Id = itemId;
+                        this.createItem(itemId, json, {});
+                    }
                 });
 
                 let dumpElem = <HTMLElement>$('<div class="n3q-base n3q-backpack-dump" />').get(0);
