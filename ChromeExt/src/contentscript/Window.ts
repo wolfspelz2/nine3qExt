@@ -66,6 +66,7 @@ export class Window
             this.windowElem = windowElem;
 
             $(this.app.getDisplay()).append(windowElem);
+            this.app.toFront(windowElem);
 
             let maskId = Utils.randomString(15);
 
