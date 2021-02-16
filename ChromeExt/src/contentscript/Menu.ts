@@ -131,7 +131,7 @@ export class Menu
 
     render(): HTMLElement
     {
-        let menu = <HTMLElement>$('<div class="n3q-base n3q-menu n3q-menu-avatar" data-translate="children">').get(0);
+        let menu = <HTMLElement>$('<div class="n3q-base n3q-menu n3q-menu-avatar" data-translate="attr:title:Menu children" title="Menu">').get(0);
         this.checkboxElem = <HTMLElement>$('<input type="checkbox" href="#" class="n3q-base n3q-menu-open" name="n3q-id-menu-open-avatarmenu-' + this.id + '" id="n3q-id-menu-open-avatarmenu-' + this.id + '" />').get(0);
 
         $(menu).append(this.checkboxElem);

@@ -226,7 +226,9 @@ export class ContentApp
     showBackpackWindow(aboveElem?: HTMLElement): void
     {
         aboveElem = aboveElem ?? this.getMyParticipantELem();
-        if (this.backpackWindow == null) {
+        if (this.backpackWindow) {
+            this.backpackWindow.close();
+        } else {
             this.setBackpackIsOpen(true);
             this.backpackWindow = new BackpackWindow(this);
             this.backpackWindow.show({

@@ -446,7 +446,9 @@ export class Room
     showChatWindow(aboveElem: HTMLElement): void
     {
         if (this.chatWindow) {
-            if (!this.chatWindow.isOpen()) {
+            if (this.chatWindow.isOpen()) {
+                this.chatWindow.close();
+            } else {
                 this.app.setChatIsOpen(true);
                 this.chatWindow.show({
                     'above': aboveElem,
@@ -477,7 +479,9 @@ export class Room
 
     showVideoConference(aboveElem: HTMLElement, displayName: string): void
     {
-        if (!this.vidconfWindow) {
+        if (this.vidconfWindow) {
+            this.vidconfWindow.close();
+        } else {
             let urlTemplate = Config.get('room.vidconfUrl', 'https://meet.jit.si/{room}#userInfo.displayName="{name}"');
             let url = urlTemplate
                 .replace('{room}', this.jid)

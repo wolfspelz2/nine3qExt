@@ -198,7 +198,7 @@ export class Participant extends Entity
                 }
             }
 
-            if (Config.get('points.enabled', false)) {
+            if (Config.get('points.enabled', false) || Config.get('points.passiveEnabled', false)) {
                 this.pointsDisplay = new PointsBar(this.app, this, this.getElem());
                 if (!this.isSelf) {
                     if (Config.get('room.pointsOnHover', true)) {

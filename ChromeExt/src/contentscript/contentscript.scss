@@ -259,8 +259,8 @@
 
         div.n3q-points {
             position: absolute;
-            left: 21px;
-            bottom: 1px;
+            left: 20px;
+            bottom: 0px;
             height: max-content;
             width: max-content;
             z-index: 2;
@@ -626,24 +626,28 @@
         background: #ffffff;
         right: 4px;
         top: 4px;
+
+        div.n3q-button-close {
+            background: url(../assets/icons/carbon_close-outline.svg) no-repeat center center / contain;
+            width: 20px;
+            height: 20px;
+            // right: 30px;
+        }
+
+        div.n3q-button-undock {
+            background: url(../assets/icons/clarity_pop-out-line.svg) no-repeat center center / contain;
+            width: 20px;
+            height: 20px;
+        }
     }
-            
-    div.n3q-window-button:hover { filter: brightness(1.2); }
-    div.n3q-window-button:active { filter: brightness(0.8); }   
-    
-    div.n3q-window-button div.n3q-button-undock {
-        background: url(../assets/icons/clarity_pop-out-line.svg) no-repeat center center / contain;
-        width: 20px;
-        height: 20px;
-    }
-                
-    div.n3q-window-button div.n3q-button-close {
-        background: url(../assets/icons/carbon_close-outline.svg) no-repeat center center / contain;
-        width: 20px;
-        height: 20px;
+
+    div.n3q-window-button-2 {
         right: 30px;
     }
     
+    div.n3q-window-button:hover { filter: brightness(1.2); }
+    div.n3q-window-button:active { filter: brightness(0.8); }   
+        
     div.n3q-window-content {
         display: block;
         position: absolute;

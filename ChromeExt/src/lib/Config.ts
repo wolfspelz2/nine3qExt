@@ -50,6 +50,7 @@ export class Config
         },
         points: {
             enabled: false,
+            passiveEnabled: true,
             submissionIntervalSec: 300,
             fullLevels: 2,
             fractionalLevels: 1,
@@ -165,6 +166,7 @@ export class Config
                     'Popup.Show avatar': 'Show avatar on pages',
                     'Popup.Uncheck to hide': 'Uncheck to hide avatar on pages',
 
+                    'Menu.Menu': 'Menu',
                     'Menu.Settings': 'Settings',
                     'Menu.Stay Here': 'Stay on tab change',
                     'Menu.Backpack': 'Stuff',
@@ -258,6 +260,7 @@ export class Config
                     'Popup.Show avatar': 'Avatar auf Seiten anzeigen',
                     'Popup.Uncheck to hide': 'Abschalten, um das Avatar auf Webseiten nicht anzuzeigen',
 
+                    'Menu.Menu': 'Menü',
                     'Menu.Settings': 'Einstellungen',
                     'Menu.Stay Here': 'Bleiben bei Tabwechsel',
                     'Menu.Backpack': 'Gegenstände',
