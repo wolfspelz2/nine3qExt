@@ -18,8 +18,13 @@ export namespace ItemException
         NoItemsReceived,
         NotExecuted,
         NotApplied,
-        ClaimFailed
+        ClaimFailed,
+        NotTransferred
     }
+
+
+
+
 
 
 
@@ -34,7 +39,8 @@ export namespace ItemException
         NoUserId,
         SeeDetail,
         NotYourItem,
-        ItemMustBeStronger
+        ItemMustBeStronger,
+        ItemIsNotTransferable
     }
 }
 

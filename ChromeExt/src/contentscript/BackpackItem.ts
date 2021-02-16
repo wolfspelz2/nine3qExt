@@ -22,6 +22,8 @@ export class BackpackItem
     private h: number = 64;
     private inDrag: boolean = false;
 
+    getElem(): HTMLElement { return this.elem; }
+
     constructor(protected app: ContentApp, private backpackWindow: BackpackWindow, private itemId: string, private properties: ItemProperties)
     {
         let paneElem = this.backpackWindow.getPane();
@@ -134,8 +136,8 @@ export class BackpackItem
     private dragIsRezzed: boolean = false;
     private onDragStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
     {
-        this.dragIsRezable = as.Bool(this.properties['IsRezable'], true);
-        this.dragIsRezzed = as.Bool(this.properties['IsRezzed'], false);
+        this.dragIsRezable = as.Bool(this.properties[Pid.IsRezable], true);
+        this.dragIsRezzed = as.Bool(this.properties[Pid.IsRezzed], false);
 
         if (this.dragIsRezable && !this.dragIsRezzed) {
             this.app.showDropzone();

@@ -8,6 +8,8 @@ export class Pid
     static readonly Template: 'Template';
     static readonly OwnerId = 'OwnerId';
     static readonly OwnerName = 'OwnerName';
+    static readonly IsRezable = 'IsRezable';
+    static readonly IsTransferable = 'IsTransferable';
     static readonly IsRezzed = 'IsRezzed';
     static readonly RezzedX = 'RezzedX';
     static readonly RezzedLocation = 'RezzedLocation';

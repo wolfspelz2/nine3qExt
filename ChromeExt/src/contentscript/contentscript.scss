@@ -558,7 +558,9 @@
         }
 
         .n3q-toast-button {
+            display: inline-block;
             margin-top: 10px;
+            margin-right: 4px;
         }
 
         div.n3q-toast-footer
@@ -715,7 +717,9 @@
 
     div.n3q-testwindow div.n3q-testwindow-run { right: 30px; top: 8px; }
     
-    //  div.n3q-vidconfwindow {}
+    div.n3q-vidconfwindow {
+        min-height: 180px;
+    }
 
     div.n3q-vidconfwindow iframe.n3q-vidconfwindow-content {
         width: 100%;
@@ -830,7 +834,9 @@
     div.n3q-xmppwindow div.n3q-window-content div.n3q-xmppwindow-in-send { right: 35px; bottom: 13px; border-width: 2px; }
     div.n3q-xmppwindow div.n3q-window-content div.n3q-xmppwindow-in-save { right: 36px; bottom: 40px; }
 
-    //  div.n3q-backpackwindow {}
+    div.n3q-backpackwindow {
+        min-height: 96px;
+    }
 
     textarea.n3q-backpack-in {
         position: absolute;
@@ -858,31 +864,27 @@
 
     div.n3q-backpack-toggle { 
         right: 4px;
-        top: 4px;
+        top: 68px;
     }
 
     div.n3q-backpack-add { 
         right: 4px;
-        top: 28px;
+        top: 92px;
     }
 
     div.n3q-backpack-dump { 
         position: absolute;
         right: 4px;
-        top: 52px;
+        top: 4px;
         width: 60px;
         height: 60px;
-        background-color: #ffffff;
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-        box-shadow: inset 1px 1px 3px #808080;
+        background: url(../assets/icons/shredder.svg) no-repeat center center / contain;
+        box-shadow: #404040 1px 1px 3px inset;
     }
 
-
-    div.n3q-backpack-dump-drophilite { 
-        filter: brightness(0.5);
-        // background-color: #000000;
+    div.n3q-backpack-dump.ui-droppable-hover { 
+        box-shadow: #000000 3px 3px 10px inset;
+        background-color: #808080;
     }
 
     div.n3q-backpack-pane {
@@ -913,7 +915,10 @@
         background-color: #e0e0e0;
     }
 
-    //  div.n3q-chatwindow {}
+    div.n3q-chatwindow {
+        min-height: 150px;
+        min-width: 300px;
+    }
 
     div.n3q-chatwindow-chatout {
         position: absolute;

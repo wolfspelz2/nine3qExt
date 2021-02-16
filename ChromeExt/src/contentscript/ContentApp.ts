@@ -116,6 +116,8 @@ export class ContentApp
             log.debug(error.message);
         }
 
+        Environment.NODE_ENV = Config.get('environment.NODE_ENV', null);
+
         {
             let pageUrl = Browser.getCurrentPageUrl();
             let parsedUrl = new URL(pageUrl);

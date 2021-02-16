@@ -15,9 +15,10 @@ import { Nickname } from './Nickname';
 import { Chatout } from './Chatout';
 import { Chatin } from './Chatin';
 import { RoomItem } from './RoomItem';
-import { SimpleToast, Toast } from './Toast';
+import { SimpleErrorToast, SimpleToast, Toast } from './Toast';
 import { PrivateChatWindow } from './PrivateChatWindow';
 import { PointsBar } from './PointsBar';
+import { ItemException } from '../lib/ItemExcption';
 
 export class Participant extends Entity
 {
@@ -438,6 +439,10 @@ export class Participant extends Entity
                                 let body = as.String(node.children[i], '');
                                 if (body != '') {
                                     let props = JSON.parse(body);
+
+                                    delete props[Pid.InventoryX];
+                                    delete props[Pid.InventoryX];
+
                                     await BackgroundMessage.addBackpackItem(itemId, props, {});
                                     await BackgroundMessage.derezBackpackItem(itemId, this.room.getJid(), -1, -1, {});
                                     await BackgroundMessage.modifyBackpackItemProperties(itemId, {}, [Pid.TransferState], { skipPresenceUpdate: true });
@@ -715,7 +720,15 @@ export class Participant extends Entity
             await BackgroundMessage.derezBackpackItem(itemId, roomJid, -1, -1, {});
         } else {
             log.debug('Participant.applyItem', 'transfer', itemId, 'from', roomJid);
-            await this.room?.transferItem(itemId, this.roomNick);
+
+            if (!as.Bool(roomItem.getProperties()[Pid.IsTransferable], true)) {
+                let fact = ItemException.Fact[ItemException.Fact.NotTransferred];
+                let reason = ItemException.Reason[ItemException.Reason.ItemIsNotTransferable];
+                new SimpleErrorToast(this.app, 'Warning-' + fact + '-' + reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', fact, reason, '').show();
+            } else {
+                await this.room?.transferItem(itemId, this.roomNick);
+            }
+
         }
     }
 

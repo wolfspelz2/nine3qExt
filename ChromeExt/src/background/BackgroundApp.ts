@@ -60,6 +60,8 @@ export class BackgroundApp
             }
         }
 
+        Environment.NODE_ENV = Config.get('environment.NODE_ENV', null);
+
         {
             let uniqueId = await Memory.getSync(Utils.syncStorageKey_Id(), '');
             if (uniqueId == '') {

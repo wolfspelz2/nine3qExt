@@ -16,6 +16,9 @@ export class Config
 
     public static staticConfigName = 'static';
     public static staticConfig: any = {
+        environment: {
+            // NODE_ENV: 'production',
+        },
         extension: {
             id: 'cgfkfhdinajjhfeghebnljbanpcjdlkm',
         },
@@ -107,18 +110,13 @@ export class Config
             digest: '',
             identificatorUrlTemplate: 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}&points={points}',
         },
-        inventory: {
-            enabled: false,
-            itemSize: 64,
-            borderPadding: 4,
-            dropZoneHeight: 100,
-        },
         backpack: {
             enabled: true,
             itemSize: 64,
             borderPadding: 4,
             dropZoneHeight: 100,
             itemPropertiesTooltip: false,
+            deleteToastDurationSec: 100,
         },
         projector: {
             enabled: false,
@@ -200,6 +198,8 @@ export class Config
                     'Settingswindow.Settings': 'Settings',
                     'BackpackWindow.Inventory': 'Your Stuff',
 
+                    'Backpack.Shredder': 'Shredder',
+
                     'Toast.Do not show this message again': 'Do not show this message again',
                     'Toast.greets': '...greeted you',
                     'Toast.tousles': '...tousled you',
@@ -209,19 +209,23 @@ export class Config
                     'Toast.greet back': 'Greet back',
                     'Toast.tousle back': 'Tousle back',
                     'Toast.nudge back': 'Nudge back',
+                    'Toast.Really delete?': 'Really delete?',
+                    'Toast.Yes, delete item': 'Yes, delete item',
+                    'Toast.No, keep it': 'No, keep it',
 
                     // ['ErrorFact.' + ItemException.Fact[ItemException.Fact.Error]]: 'Error',
                     'ErrorFact.Error': 'Error',
 
-                    'ErrorFact.NotRezzed': 'Failed to drop item',
+                    'ErrorFact.NotRezzed': 'Item not dropped',
                     'ErrorFact.NotDerezzed': 'Failed to pick up item',
-                    'ErrorFact.NotAdded': 'Failed to add item',
-                    'ErrorFact.NotChanged': 'Failed to update item',
+                    'ErrorFact.NotAdded': 'Item not added',
+                    'ErrorFact.NotChanged': 'Item not changed',
                     'ErrorFact.NoItemsReceived': 'No items recevied',
                     'ErrorFact.NotExecuted': 'Not executed',
                     'ErrorFact.NotCreated': 'No item created',
                     'ErrorFact.NotApplied': 'Item not applied',
                     'ErrorFact.ClaimFailed': 'Failed to claim the page',
+                    'ErrorFact.NotTransferred': 'Item not transferred',
 
                     'ErrorReason.UnknownReason': 'Unknown reason :-(',
                     'ErrorReason.ItemAlreadyRezzed': 'Item already on page.',
@@ -235,9 +239,12 @@ export class Config
                     'ErrorReason.InvalidPropertyValue': 'Property invalid.',
                     'ErrorReason.NotYourItem': 'This is not your item.',
                     'ErrorReason.ItemMustBeStronger': 'Your item is not stronger than the other.',
+                    'ErrorReason.ItemIsNotTransferable': 'Item not transferable.',
 
                     'ErrorDetail.Applier.Apply': 'Applying an item to another',
                     'ErrorDetail.Pid.Id': 'Id',
+
+                    'ItemLabel.Dot1': '1-Point',
                 },
                 'de-DE': {
                     'Extension.Disable': 'weblin.io ausschalten',
@@ -294,6 +301,8 @@ export class Config
                     'Settingswindow.Settings': 'Einstellungen',
                     'BackpackWindow.Inventory': 'Deine Gegenstände',
 
+                    'Backpack.Shredder': 'Schredder',
+
                     'Toast.Do not show this message again': 'Diese Nachricht nicht mehr anzeigen',
                     'Toast.greets': '...hat dich gegrüßt',
                     'Toast.tousles': '...hat dich gewuschelt',
@@ -303,6 +312,9 @@ export class Config
                     'Toast.greet back': 'Zurück grüßen',
                     'Toast.tousle back': 'Zurück wuscheln',
                     'Toast.nudge back': 'Zurück stupsen',
+                    'Toast.Really delete?': 'Wirklich löschen?',
+                    'Toast.Yes, delete item': 'Ja, Gegenstand löschen',
+                    'Toast.No, keep it': 'Nein, behalten',
 
                     'ErrorFact.Error': 'Fehler',
                     'ErrorFact.NotRezzed': 'Ablegen fehlgeschlagen',
@@ -314,6 +326,7 @@ export class Config
                     'ErrorFact.NotCreated': 'Kein Gegenstand erstellt',
                     'ErrorFact.NotApplied': 'Gegenstand nicht angewendet',
                     'ErrorFact.ClaimFailed': 'Anspruch nicht durchgesetzt',
+                    'ErrorFact.NotTransferred': 'Gegenstand nicht übertragen',
 
                     'ErrorReason.UnknownReason': 'Grund unbekannt :-(',
                     'ErrorReason.ItemAlreadyRezzed': 'Gegenstand ist schon auf einer Seite.',
@@ -327,9 +340,12 @@ export class Config
                     'ErrorReason.InvalidPropertyValue': 'Falsche Eigenschaft.',
                     'ErrorReason.NotYourItem': 'Das ist nicht dein Gegenstand.',
                     'ErrorReason.ItemMustBeStronger': 'Der Gegenstand ist nicht stärker als der andere.',
+                    'ErrorReason.ItemIsNotTransferable': 'Der Gegenstand ist nicht übertragbar.',
 
                     'ErrorDetail.Applier.Apply': 'Beim Anwenden eines Gegenstands auf einen anderen.',
                     'ErrorDetail.Pid.Id': 'Id',
+
+                    'ItemLabel.Dot1': '1-Punkt',
                 },
             },
             'serviceUrl': '',

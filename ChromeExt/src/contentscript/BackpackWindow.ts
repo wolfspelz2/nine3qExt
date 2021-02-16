@@ -15,7 +15,7 @@ import { Window } from './Window';
 import { BackpackItem as BackpackItem } from './BackpackItem';
 import { Environment } from '../lib/Environment';
 import { ItemException } from '../lib/ItemExcption';
-import { ItemExceptionToast, SimpleErrorToast } from './Toast';
+import { ItemExceptionToast, SimpleErrorToast, SimpleToast } from './Toast';
 import { RoomItem } from './RoomItem';
 
 export class BackpackWindow extends Window
@@ -48,7 +48,7 @@ export class BackpackWindow extends Window
         if (this.windowElem) {
             let windowElem = this.windowElem;
             let contentElem = this.contentElem;
-            $(windowElem).addClass('n3q-inventorywindow');
+            $(windowElem).addClass('n3q-backpackwindow');
 
             let left = as.Int(options.left, 50);
             if (options.left == null) {
@@ -67,6 +67,31 @@ export class BackpackWindow extends Window
 
             let paneElem = <HTMLElement>$('<div class="n3q-base n3q-backpack-pane" data-translate="children" />').get(0);
             $(contentElem).append(paneElem);
+
+            let dumpElem = <HTMLElement>$('<div class="n3q-base n3q-backpack-dump" title="Shredder" data-translate="attr:title:Backpack"/>').get(0);
+            $(contentElem).append(dumpElem);
+            $(dumpElem).droppable({
+                tolerance: 'pointer',
+                drop: async (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
+                {
+                    let droppedItem = ui.draggable.get(0);
+                    if (droppedItem) {
+                        let droppedId: string = $(droppedItem).data('id');
+                        if (droppedId) {
+
+                            let props = await BackgroundMessage.getBackpackItemProperties(droppedId);
+                            let itemName = props[Pid.Label] ?? props[Pid.Template];
+                            let toast = new SimpleToast(this.app, 'backpack-reallyDelete', Config.get('backpack.deleteToastDurationSec', 1000), 'greeting', 'Really delete?', this.app.translateText('ItemLabel.' + itemName) + '\n' + droppedId);
+                            toast.actionButton('Yes, delete item', () => { this.deleteItem(droppedId); toast.close(); })
+                            toast.actionButton('No, keep it', () => { toast.close(); })
+                            toast.setDontShow(false);
+                            toast.show();
+                            
+                            ev.stopPropagation();
+                        }
+                    }
+                }
+            });
 
             if (Environment.isDevelopment()) {
                 let inElem = <HTMLElement>$('<textarea class="n3q-base n3q-backpack-in n3q-input n3q-text" />').get(0);
@@ -95,25 +120,6 @@ export class BackpackWindow extends Window
                         let itemId = Utils.randomString(30);
                         json.Id = itemId;
                         this.createItem(itemId, json, {});
-                    }
-                });
-
-                let dumpElem = <HTMLElement>$('<div class="n3q-base n3q-backpack-dump" />').get(0);
-                $(dumpElem).css({ backgroundImage: 'url(' + devModeDeleteImage + ')' });
-                $(contentElem).append(dumpElem);
-                $(dumpElem).droppable({
-                    hoverClass: 'n3q-backpack-dump-drophilite',
-                    tolerance: 'pointer',
-                    drop: async (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
-                    {
-                        let droppedItem = ui.draggable.get(0);
-                        if (droppedItem) {
-                            let droppedId: string = $(droppedItem).data('id');
-                            if (droppedId) {
-                                this.deleteItem(droppedId);
-                                ev.stopPropagation();
-                            }
-                        }
                     }
                 });
             }
@@ -198,6 +204,7 @@ export class BackpackWindow extends Window
             this.items[itemId] = item;
         }
         item.create();
+        this.app.toFront(item.getElem());
     }
 
     onSetItem(itemId: string, properties: ItemProperties)
