@@ -76,8 +76,8 @@ export class Toast
         });
 
         $(this.app.getDisplay()).append(this.elem);
-        this.app.translateElem(this.elem);
         this.setVisibility(true);
+        this.app.translateElem(this.elem);
         this.app.toFront(this.elem);
 
         $(this.elem)

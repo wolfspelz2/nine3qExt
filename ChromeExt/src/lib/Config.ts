@@ -91,6 +91,8 @@ export class Config
             errorToastDurationSec: 8,
             applyItemErrorToastDurationSec: 5,
             claimToastDurationSec: 15,
+            itemStatsTooltip: true,
+            itemStatsTooltipOffset: { x: 3, y: 3 },
         },
         xmpp: {
             service: 'wss://xmpp.vulcan.weblin.com/xmpp-websocket',
@@ -116,6 +118,7 @@ export class Config
             borderPadding: 4,
             dropZoneHeight: 100,
             itemPropertiesTooltip: false,
+            itemPropertiesTooltipOffset: { x: 3, y: 3 },
             deleteToastDurationSec: 100,
         },
         projector: {
@@ -244,6 +247,15 @@ export class Config
                     'ErrorDetail.Applier.Apply': 'Applying an item to another',
                     'ErrorDetail.Pid.Id': 'Id',
 
+                    'ItemPid.Label': 'Label',
+                    'ItemPid.ClaimStrength': 'Strength',
+                    'ItemPid.OwnerName': 'Owner',
+                    'ItemPid.DispenserAvailable': 'Remaining items',
+                    'ItemPid.DispenserCooldownSec': 'Cooldown (s)',
+                    'ItemPid.NicknameText': 'Name',
+                    'ItemPid.PointsTotal': 'Total points',
+                    'ItemPid.PointsCurrent': 'Available points',
+
                     'ItemLabel.Dot1': '1-Point',
                 },
                 'de-DE': {
@@ -344,6 +356,15 @@ export class Config
 
                     'ErrorDetail.Applier.Apply': 'Beim Anwenden eines Gegenstands auf einen anderen.',
                     'ErrorDetail.Pid.Id': 'Id',
+
+                    'ItemPid.Label': 'Bezeichnung',
+                    'ItemPid.ClaimStrength': 'Stärke',
+                    'ItemPid.OwnerName': 'Besitzer',
+                    'ItemPid.DispenserAvailable': 'Übrige Anzahl',
+                    'ItemPid.DispenserCooldownSec': 'Wartezeit (s)',
+                    'ItemPid.NicknameText': 'Name',
+                    'ItemPid.PointsTotal': 'Gesamtpunkzzahl',
+                    'ItemPid.PointsCurrent': 'Verfügbare Punkte',
 
                     'ItemLabel.Dot1': '1-Punkt',
                 },

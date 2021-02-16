@@ -8,15 +8,14 @@ import { Point2D, Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
-import { ItemChangeOptions } from '../lib/ItemChangeOptions';
-import { RpcProtocol } from '../lib/RpcProtocol';
+import { Memory } from '../lib/Memory';
 import { ItemException } from '../lib/ItemExcption';
 import { ItemExceptionToast, SimpleErrorToast, SimpleToast } from './Toast';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
-import { Memory } from '../lib/Memory';
+import { ItemStatsTooltip } from './ItemStatsTooltip';
 
 export class RoomItem extends Entity
 {
@@ -206,6 +205,15 @@ export class RoomItem extends Entity
     {
         // this.room?.showChatMessage(this.getDisplayName(), 'disappeared');
         this.remove();
+    }
+
+    onMouseEnterAvatar(ev: JQuery.Event): void
+    {
+        super.onMouseEnterAvatar(ev);
+
+        if (Config.get('room.itemStatsTooltip', false)) {
+            new ItemStatsTooltip(this.app, this.roomNick, this.elem).show(ev.clientX, ev.clientY);
+        }
     }
 
     onMouseClickAvatar(ev: JQuery.Event): void

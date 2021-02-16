@@ -104,6 +104,7 @@ export class BackpackWindow extends Window
                 {
                     if ($(inElem).is(':hidden')) {
                         $(inElem).show();
+                        this.app.toFront(inElem);
                     } else {
                         $(inElem).hide();
                     }

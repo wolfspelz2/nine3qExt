@@ -10,6 +10,7 @@ import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ContentApp } from './ContentApp';
 import { BackpackWindow } from './BackpackWindow';
+import { ItemPropertiesTooltip } from './ItemPropertiesTooltip';
 
 export class BackpackItem
 {
@@ -45,6 +46,15 @@ export class BackpackItem
         {
             this.onMouseClick(ev);
         });
+
+        if (Config.get('backpack.itemPropertiesTooltip', false)) {
+            $(this.elem).on({
+                mouseenter: async (ev) => 
+                {
+                    await new ItemPropertiesTooltip(this.app, itemId, this.elem).show(ev.clientX, ev.clientY);
+                },
+            });
+        }
 
         $(this.elem).draggable({
             scroll: false,
@@ -302,14 +312,6 @@ export class BackpackItem
             if (x >= 0 && y >= 0 && (x != this.x || y != this.y)) {
                 this.setPosition(x, y);
             }
-        }
-
-        if (Config.get('backpack.itemPropertiesTooltip', false)) {
-            let propsText = '';
-            for (let key in properties) {
-                propsText += key + ': ' + properties[key] + '\r\n';
-            }
-            $(this.elem).prop('title', propsText);;
         }
 
         this.properties = properties;

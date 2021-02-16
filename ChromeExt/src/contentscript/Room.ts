@@ -78,8 +78,11 @@ export class Room
     async enter(): Promise<void>
     {
         try {
-            this.resource = await this.app.getUserNickname();
-            this.avatar = await this.app.getUserAvatar();
+            let nickname = await this.app.getUserNickname();
+            let avatar = await this.app.getUserAvatar();
+
+            this.resource = await this.getSettingsItemNickname(nickname);
+            this.avatar = await this.getSettingsItemAvatarId(avatar);
         } catch (error) {
             log.info(error);
             this.resource = 'new-user';
@@ -102,43 +105,34 @@ export class Room
         this.stopKeepAlive();
     }
 
-    async getMyPoints(): Promise<number>
-    {
-        let propSet = await BackgroundMessage.findBackpackItemProperties({ [Pid.PointsAspect]: 'true' });
-
-        let item = null;
-        for (let id in propSet) {
-            let props = propSet[id];
-            if (props) {
-                let points = as.Int(props[Pid.PointsTotal], 0);
-                return points;
-            }
-        }
-
-        return 0;
-    }
-
     async sendPresence(): Promise<void>
     {
-        let presence = xml('presence', { to: this.jid + '/' + this.resource })
-            .append(
-                xml('x', { xmlns: 'firebat:avatar:state', })
-                    .append(xml('position', { x: as.Int(this.posX) }))
-            );
-
         let vpProps = { xmlns: 'vp:props', 'Nickname': this.resource, 'AvatarId': this.avatar, 'nickname': this.resource, 'avatar': this.avatar };
+
+        let avatarUrl = await this.getSettingsItemAvatarUrl('');
+        if (avatarUrl != '') {
+            vpProps['AvatarUrl'] = avatarUrl;
+        }
+
         let points = 0;
         if (Config.get('points.enabled', false)) {
-            points = await this.getMyPoints();
+            points = await this.getPointsItemPoints(0);
             if (points > 0) {
                 vpProps['Points'] = points;
             }
-        } presence.append(xml('x', vpProps));
+        }
+
+        let presence = xml('presence', { to: this.jid + '/' + this.resource });
+
+        presence.append(xml('x', { xmlns: 'firebat:avatar:state', }).append(xml('position', { x: as.Int(this.posX) })));
+        presence.append(xml('x', vpProps));
 
         let identityUrl = Config.get('identity.url', '');
         let identityDigest = Config.get('identity.digest', '1');
         if (identityUrl == '') {
-            let avatarUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'https://webex.vulcan.weblin.com/avatars/gif/{id}/config.xml')).replace('{id}', this.avatar);
+            if (avatarUrl == '') {
+                 avatarUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'https://webex.vulcan.weblin.com/avatars/gif/{id}/config.xml')).replace('{id}', this.avatar);
+            }
             identityDigest = as.String(Utils.hash(this.resource + avatarUrl));
             identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}&points={points}'))
                 .replace('{nickname}', encodeURIComponent(this.resource))
@@ -162,6 +156,28 @@ export class Room
         }
 
         this.app.sendStanza(presence);
+    }
+
+    async getPointsItemPoints(defaultValue: number): Promise<number> { return as.Int(await this.getItemProperty(Pid.PointsAspect, Pid.PointsTotal, defaultValue)); }
+    async getSettingsItemAvatarId(defaultValue: string): Promise<string> { return as.String(await this.getItemProperty(Pid.SettingsAspect, Pid.SettingsAvatarId, defaultValue)); }
+    async getSettingsItemAvatarUrl(defaultValue: string): Promise<string> { return as.String(await this.getItemProperty(Pid.SettingsAspect, Pid.SettingsAvatarUrl, defaultValue)); }
+    async getSettingsItemNickname(defaultValue: string): Promise<string> { return as.String(await this.getItemProperty(Pid.SettingsAspect, Pid.SettingsNickname, defaultValue)); }
+
+    async getItemProperty(aspectPid: string, propertyPid: string, defautValue: any): Promise<any>
+    {
+        if (Config.get('backpack.enabled', false)) {
+            let propSet = await BackgroundMessage.findBackpackItemProperties({ [aspectPid]: 'true' });
+            let item = null;
+            for (let id in propSet) {
+                let props = propSet[id];
+                if (props) {
+                    if (props[propertyPid]) {
+                        return props[propertyPid];
+                    }
+                }
+            }
+        }
+        return defautValue;
     }
 
     private sendPresenceUnavailable(): void

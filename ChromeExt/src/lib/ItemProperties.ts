@@ -17,6 +17,7 @@ export class Pid
     static readonly InventoryX = 'InventoryX';
     static readonly InventoryY = 'InventoryY';
     static readonly Provider = 'Provider';
+    static readonly Stats = 'Stats';
     static readonly IframeAspect = 'IframeAspect';
     static readonly IframeWidth = 'IframeWidth';
     static readonly IframeHeight = 'IframeHeight';
@@ -32,6 +33,10 @@ export class Pid
     static readonly ClaimAspect = 'ClaimAspect';
     static readonly ClaimStrength = 'ClaimStrength';
     static readonly PointsAspect = 'PointsAspect';
+    static readonly SettingsAspect = 'SettingsAspect';
+    static readonly SettingsNickname = 'SettingsNickname';
+    static readonly SettingsAvatarId = 'SettingsAvatarId';
+    static readonly SettingsAvatarUrl = 'SettingsAvatarUrl';
     static readonly PointsChannelEntered = 'PointsChannelEntered';
     static readonly PointsChannelChat = 'PointsChannelChat';
     static readonly PointsChannelEmote = 'PointsChannelEmote';

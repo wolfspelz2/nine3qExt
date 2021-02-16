@@ -580,6 +580,55 @@
         }
     }
 
+    div.n3q-tooltip {
+        position: absolute;
+        background-color: #ffffff;
+        border: 1px solid #808080;
+        padding: 4px;
+        // pointer-events: auto;
+    }
+
+    div.n3q-propstooltip {
+        max-width: 400px;
+
+        div.n3q-tooltip-line {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        span.n3q-propstooltip-key {
+            font-weight: bold;
+        }
+
+        span.n3q-propstooltip-key:after {
+            content: '=';
+        }
+    }
+
+    div.n3q-statstooltip {
+        max-width: 400px;
+        opacity: 0.9;
+
+        div.n3q-statstooltip-label {
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        div.n3q-tooltip-line {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        span.n3q-statstooltip-key {
+            font-weight: bold;
+        }
+
+        span.n3q-statstooltip-key:after {
+            content: ': ';
+        }
+    }
 
      div.n3q-window {
         position: absolute;
