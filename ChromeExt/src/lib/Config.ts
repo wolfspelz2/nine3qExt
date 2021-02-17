@@ -202,6 +202,7 @@ export class Config
                     'BackpackWindow.Inventory': 'Your Stuff',
 
                     'Backpack.Shredder': 'Shredder',
+                    'Backpack.Go to item': 'Go there',
 
                     'Toast.Do not show this message again': 'Do not show this message again',
                     'Toast.greets': '...greeted you',
@@ -257,6 +258,11 @@ export class Config
                     'ItemPid.NicknameText': 'Name',
                     'ItemPid.PointsTotal': 'Collected',
                     'ItemPid.PointsCurrent': 'Available',
+                    'ItemPid.RezzedDestination': 'Page',
+                    'ItemPid.IsRezzed': 'On page',
+
+                    'ItemValue.true': 'Yes',
+                    'ItemValue.false': 'No',
 
                     'ItemLabel.Dot1': '1-Point',
                 },
@@ -316,6 +322,7 @@ export class Config
                     'BackpackWindow.Inventory': 'Deine Gegenstände',
 
                     'Backpack.Shredder': 'Schredder',
+                    'Backpack.Go to item': 'Dort hingehen',
 
                     'Toast.Do not show this message again': 'Diese Nachricht nicht mehr anzeigen',
                     'Toast.greets': '...hat dich gegrüßt',
@@ -369,6 +376,11 @@ export class Config
                     'ItemPid.NicknameText': 'Name',
                     'ItemPid.PointsTotal': 'Gesammelt',
                     'ItemPid.PointsCurrent': 'Verfügbar',
+                    'ItemPid.RezzedDestination': 'Webseite',
+                    'ItemPid.IsRezzed': 'Auf Webseite',
+
+                    'ItemValue.true': 'Ja',
+                    'ItemValue.false': 'Nein',
 
                     'ItemLabel.Points': 'Punkte',
                     'ItemLabel.Dot1': '1-Punkt',

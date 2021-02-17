@@ -10,7 +10,8 @@ import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ContentApp } from './ContentApp';
 import { BackpackWindow } from './BackpackWindow';
-import { ItemPropsPopup } from './ItemPropsPopup';
+import { DevItemProps } from './DevItemProps';
+import { BackpackItemInfo } from './BackpackItemInfo';
 
 export class BackpackItem
 {
@@ -22,8 +23,10 @@ export class BackpackItem
     private w: number = 64;
     private h: number = 64;
     private inDrag: boolean = false;
+    private info: BackpackItemInfo = null;
 
     getElem(): HTMLElement { return this.elem; }
+    getProperties(): ItemProperties { return this.properties; }
 
     constructor(protected app: ContentApp, private backpackWindow: BackpackWindow, private itemId: string, private properties: ItemProperties)
     {
@@ -48,7 +51,7 @@ export class BackpackItem
         });
 
         if (Config.get('backpack.itemPropertiesTooltip', false)) {
-            let propsPopup = new ItemPropsPopup(this.app, this.getElem(), this.itemId);
+            let propsPopup = new DevItemProps(this.app, this.getElem(), this.itemId);
             $(this.elem).on({
                 mouseenter: async (ev) => 
                 {
@@ -64,6 +67,19 @@ export class BackpackItem
                 },
             });
         }
+
+        $(this.elem).on({
+            click: async (ev) => 
+            {
+                if (this.info) {
+                    this.info.hide();
+                    this.info = null;
+                } else {
+                        this.info = new BackpackItemInfo(this.app, this);
+                        this.info.show();
+                }
+            }
+        });
 
         $(this.elem).draggable({
             scroll: false,

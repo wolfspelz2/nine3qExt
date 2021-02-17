@@ -6,10 +6,9 @@ import { Pid } from '../lib/ItemProperties';
 import { ContentApp } from './ContentApp';
 import { RoomItem } from './RoomItem';
 
-export class ItemStatsDisplay
+export class RoomItemStats
 {
     private elem: HTMLElement = null;
-    private hasStats = false;
 
     constructor(protected app: ContentApp, protected roomItem: RoomItem)
     {
@@ -21,10 +20,8 @@ export class ItemStatsDisplay
             this.setup();
         }
 
-        if (this.hasStats) {
-            this.app.toFront(this.elem);
-            $(this.elem).stop().fadeIn('fast');
-        }
+        this.app.toFront(this.elem);
+        $(this.elem).stop().fadeIn('fast');
     }
 
     hide(): void
@@ -36,7 +33,7 @@ export class ItemStatsDisplay
 
     setup(): void
     {
-        this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-itemstats n3q-shadow-small" data-translate="children" />').get(0);
+        this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops n3q-roomitemstats n3q-shadow-small" data-translate="children" />').get(0);
         $(this.elem).css({ display: 'none' });
 
         let props = this.roomItem.getProperties();
@@ -46,25 +43,31 @@ export class ItemStatsDisplay
             let label = as.String(props[Pid.Template], null);
         }
         if (label) {
-            let labelElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemstats-label" data-translate="text:ItemLabel">' + label + '</div>').get(0);
+            let labelElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops-title" data-translate="text:ItemLabel">' + label + '</div>').get(0);
             $(this.elem).append(labelElem);
         }
 
         let stats = as.String(props[Pid.Stats], null);
         let statsPids = stats.split(' ');
 
+        let listElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops-list" data-translate="children" />').get(0);
+        let hasStats = false;
         for (let i = 0; i < statsPids.length; i++) {
             let pid = statsPids[i];
             let value = props[pid];
             if (value) {
-                this.hasStats = true;
-                let lineElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemstats-line" data-translate="children">'
-                    + '<span class="n3q-base n3q-itemstats-key" data-translate="text:ItemPid">'
-                    + pid + '</span><span class="n3q-base n3q-itemstats-value">'
+                hasStats = true;
+                let lineElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops-line" data-translate="children">'
+                    + '<span class="n3q-base n3q-itemprops-key" data-translate="text:ItemPid">'
+                    + pid + '</span><span class="n3q-base n3q-itemprops-value" data-translate="text:ItemValue" title="'
+                    + as.Html(value) + '">'
                     + as.Html(value) + '</span>'
                     + '</div>').get(0);
-                $(this.elem).append(lineElem);
+                $(listElem).append(lineElem);
             }
+        }
+        if (hasStats) {
+            $(this.elem).append(listElem);
         }
 
         this.app.translateElem(this.elem);

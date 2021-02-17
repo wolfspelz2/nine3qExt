@@ -7,7 +7,7 @@ import { Pid } from '../lib/ItemProperties';
 import { ContentApp } from './ContentApp';
 import { RoomItem } from './RoomItem';
 
-export class ItemPropsPopup
+export class DevItemProps
 {
     private elem: HTMLElement = null;
 
@@ -34,7 +34,7 @@ export class ItemPropsPopup
 
     async setup(): Promise<void>
     {
-        this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops" data-translate="children" />').get(0);
+        this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops n3q-devitemprops" data-translate="children" />').get(0);
         $(this.elem).css({ display: 'none' });
 
         let props = await BackgroundMessage.getBackpackItemProperties(this.itemId);

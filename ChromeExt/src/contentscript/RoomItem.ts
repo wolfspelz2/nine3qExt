@@ -15,12 +15,12 @@ import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
-import { ItemStatsDisplay } from './ItemStatsDisplay';
+import { RoomItemStats } from './RoomItemStats';
 
 export class RoomItem extends Entity
 {
     private isFirstPresence: boolean = true;
-    protected statsDisplay: ItemStatsDisplay;
+    protected statsDisplay: RoomItemStats;
 
     constructor(app: ContentApp, room: Room, private roomNick: string, isSelf: boolean)
     {
@@ -148,7 +148,7 @@ export class RoomItem extends Entity
 
         if (this.isFirstPresence) {
             if (Config.get('backpack.enabled', false)) {
-                this.statsDisplay = new ItemStatsDisplay(this.app, this);
+                this.statsDisplay = new RoomItemStats(this.app, this);
                 $(this.getElem()).hover(() =>
                 {
                     this.statsDisplay?.show();
