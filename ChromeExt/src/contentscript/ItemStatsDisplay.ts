@@ -1,13 +1,12 @@
 import * as $ from 'jquery';
 import log = require('loglevel');
 import { as } from '../lib/as';
-import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Config } from '../lib/Config';
 import { Pid } from '../lib/ItemProperties';
 import { ContentApp } from './ContentApp';
 import { RoomItem } from './RoomItem';
 
-export class ItemStats
+export class ItemStatsDisplay
 {
     private elem: HTMLElement = null;
     private hasStats = false;
@@ -70,6 +69,5 @@ export class ItemStats
 
         this.app.translateElem(this.elem);
         $(this.roomItem.getElem()).append(this.elem);
-        this.app.toFront(this.elem);
     }
 }

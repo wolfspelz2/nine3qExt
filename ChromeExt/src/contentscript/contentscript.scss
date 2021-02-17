@@ -580,37 +580,31 @@
         }
     }
 
-    div.n3q-tooltip {
+    div.n3q-itemprops {
         position: absolute;
-        background-color: #ffffff;
-        border: 1px solid #808080;
-        padding: 4px;
-        // pointer-events: auto;
-    }
-
-    div.n3q-propstooltip {
+        left: 70%;
+        top: 70%;
         max-width: 400px;
+        background-color: #ffffff;
+        border: 1px solid #888;
+        padding: 1px 2px 1px 2px;
 
-        div.n3q-tooltip-line {
+        div.n3q-itemprops-line {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        span.n3q-propstooltip-key {
-            font-weight: bold;
-        }
-
-        span.n3q-propstooltip-key:after {
-            content: '=';
+        span.n3q-itemprops-key:after {
+            content: ': ';
         }
     }
 
     div.n3q-itemstats {
         position: absolute;
         left: -60px;
-        bottom: 50px;
-        width: 140px;
+        bottom: 70px;
+        width: 130px;
         background-color: #ffffff;
         border: 1px solid #888;
         padding: 1px 2px 1px 2px;
@@ -903,7 +897,7 @@
         border-radius: 4px;
         resize: none;
         padding: 4px;
-        opacity: 0.7;
+        opacity: 0.8;
         resize: auto;
     }
 
@@ -965,7 +959,6 @@
 
     div.n3q-backpack-pane .n3q-backpack-item.n3q-backpack-item-rezzed,
     div.n3q-backpack-drag .n3q-backpack-item.n3q-backpack-item-rezzed {
-        opacity: 0.5;
         background-color: #e0e0e0;
     }
 

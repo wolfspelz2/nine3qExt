@@ -10,7 +10,7 @@ import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ContentApp } from './ContentApp';
 import { BackpackWindow } from './BackpackWindow';
-import { ItemPropertiesTooltip } from './ItemPropertiesTooltip';
+import { ItemPropsPopup } from './ItemPropsPopup';
 
 export class BackpackItem
 {
@@ -48,23 +48,20 @@ export class BackpackItem
         });
 
         if (Config.get('backpack.itemPropertiesTooltip', false)) {
-            let timer: NodeJS.Timeout;
-            let tooltip: ItemPropertiesTooltip;
+            let propsPopup = new ItemPropsPopup(this.app, this.getElem(), this.itemId);
             $(this.elem).on({
-                mousemove: (ev) => 
+                mouseenter: async (ev) => 
                 {
-                    if (tooltip == null) {
-                        if (timer) { clearTimeout(timer); }
-                        timer = setTimeout(async () =>
-                        {
-                            tooltip = await new ItemPropertiesTooltip(this.app, this.elem, itemId, () => { tooltip = null; }).show(ev.offsetX, ev.offsetY);
-                        }, 400);
-                    }
+                    await propsPopup.show();
                 },
                 mouseleave: () => 
                 {
-                    tooltip?.close();
-                }
+                    propsPopup.hide();
+                },
+                mousedown: () => 
+                {
+                    propsPopup.hide();
+                },
             });
         }
 
