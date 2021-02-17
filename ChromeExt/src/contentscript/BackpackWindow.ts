@@ -233,8 +233,8 @@ export class BackpackWindow extends Window
         BackgroundMessage.setBackpackItemProperties(itemId, properties, options);
     }
 
-    rezItem(itemId: string, room: string, x: number, destination: string) { this.rezItemAsync(itemId, room, x, destination); }
-    async rezItemAsync(itemId: string, room: string, x: number, destination: string)
+    rezItemSync(itemId: string, room: string, x: number, destination: string) { this.rezItem(itemId, room, x, destination); }
+    async rezItem(itemId: string, room: string, x: number, destination: string)
     {
         log.debug('BackpackWindow.rezItem', itemId, 'to', room);
 
@@ -252,6 +252,7 @@ export class BackpackWindow extends Window
         }
     }
 
+    derezItemSync(itemId: string, room: string, x: number, y: number) { this.derezItem(itemId, room, x, y); }
     async derezItem(itemId: string, room: string, x: number, y: number)
     {
         log.debug('BackpackWindow.derezItem', itemId, 'from', room);

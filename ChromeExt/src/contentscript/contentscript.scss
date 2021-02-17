@@ -630,10 +630,13 @@
         left: 10px;
         top: 10px;
         width: 130px;
-        opacity: 0.9;
 
-        div.n3q-backpack-go {
+        div.n3q-button {
             margin-top: 4px;
+        }
+
+        div.n3q-button.n3q-button-overlay {
+            margin: 0;
         }
     }
 

@@ -9,9 +9,10 @@ import { ContentApp } from './ContentApp';
 export class BackpackItemInfo
 {
     private elem: HTMLElement = null;
-    private hasStats = false;
 
-    constructor(protected app: ContentApp, protected backpackItem: BackpackItem)
+    getElem(): HTMLElement { return this.elem; }
+
+    constructor(protected app: ContentApp, protected backpackItem: BackpackItem, protected onClose: () => void)
     {
     }
 
@@ -25,16 +26,24 @@ export class BackpackItemInfo
         $(this.elem).stop().fadeIn('fast');
     }
 
-    hide(): void
+    close(): void
     {
         $(this.elem).remove();
-        this.elem = null;
+        if (this.onClose) { this.onClose(); }
     }
 
     setup(): void
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops n3q-backpackiteminfo n3q-shadow-small" data-translate="children" />').get(0);
         $(this.elem).css({ display: 'none' });
+
+        let closeElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-overlay n3q-shadow-small" title="Close" data-translate="attr:title:Common"><div class="n3q-base n3q-button-symbol n3q-button-close-small" />').get(0);
+        $(closeElem).on('click', ev =>
+        {
+            this.close();
+            ev.stopPropagation();
+        });
+        $(this.elem).append(closeElem);
 
         let props = this.backpackItem.getProperties();
 
@@ -47,7 +56,11 @@ export class BackpackItemInfo
             $(this.elem).append(labelElem);
         }
 
-        let statsPids = [Pid.IsRezzed, Pid.RezzedDestination];
+        let stats = as.String(props[Pid.Stats], null);
+        let statsPids = stats.split(' ');
+        statsPids.push(Pid.IsRezzed);
+        statsPids.push(Pid.RezzedDestination);
+
         let listElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops-list" data-translate="children" />').get(0);
         let hasStats = false;
         for (let i = 0; i < statsPids.length; i++) {
@@ -76,14 +89,50 @@ export class BackpackItemInfo
             $(this.elem).append(listElem);
         }
 
-        let destination = as.String(props[Pid.RezzedDestination], null);
-        if (destination) {
-            let goElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-backpack-go" data-translate="text:Backpack">Go to item</div>').get(0);
-            $(goElem).on('click', () =>
+        if (as.Bool(props[Pid.IsRezzed], false)) {
+            let destination = as.String(props[Pid.RezzedDestination], null);
+            if (destination) {
+                let goElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-backpack-go" data-translate="text:Backpack">Go to item</div>').get(0);
+                $(goElem).on('click', () =>
+                {
+                    window.location.assign(destination);
+                });
+                $(this.elem).append(goElem);
+            }
+
+            let derezElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-backpack-derez" data-translate="text:Backpack">Derez item</div>').get(0);
+            $(derezElem).on('click', () =>
             {
-                window.location.assign(destination);
+                this.backpackItem.derezItem();
+                this.close();
             });
-            $(this.elem).append(goElem);
+            $(this.elem).append(derezElem);
+        }
+
+        if (Config.get('backpack.itemPropertiesTooltip', false)) {
+            let moreElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-backpack-more" data-translate="text:Backpack">Show all</div>').get(0);
+            $(moreElem).on('click', () =>
+            {
+                let keys = [];
+                for (let pid in props) { keys.push(pid); }
+                keys = keys.sort();
+
+                let completeListElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops-list" data-translate="children" />').get(0);
+                for (let i in keys) {
+                    let pid = keys[i]
+                    let value = props[pid];
+                    let lineElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops-line">'
+                        + '<span class="n3q-base n3q-itemprops-key">'
+                        + pid + '</span><span class="n3q-base n3q-itemprops-value">'
+                        + as.Html(value) + '</span>'
+                        + '</div>').get(0);
+                    $(completeListElem).append(lineElem);
+                    $(this.elem).css({ maxWidth: '400px', width: '400px' });
+                    $(moreElem).remove();
+                }
+                $(this.elem).append(completeListElem);
+            });
+            $(this.elem).append(moreElem);
         }
 
         this.app.translateElem(this.elem);

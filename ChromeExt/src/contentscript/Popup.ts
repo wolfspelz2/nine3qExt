@@ -31,7 +31,6 @@ export class Popup
                 this.close();
                 ev.stopPropagation();
             });
-
             $(windowElem).append(closeElem);
 
             this.windowElem = windowElem;

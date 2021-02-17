@@ -10,7 +10,6 @@ import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ContentApp } from './ContentApp';
 import { BackpackWindow } from './BackpackWindow';
-import { DevItemProps } from './DevItemProps';
 import { BackpackItemInfo } from './BackpackItemInfo';
 
 export class BackpackItem
@@ -50,33 +49,16 @@ export class BackpackItem
             this.onMouseClick(ev);
         });
 
-        if (Config.get('backpack.itemPropertiesTooltip', false)) {
-            let propsPopup = new DevItemProps(this.app, this.getElem(), this.itemId);
-            $(this.elem).on({
-                mouseenter: async (ev) => 
-                {
-                    await propsPopup.show();
-                },
-                mouseleave: () => 
-                {
-                    propsPopup.hide();
-                },
-                mousedown: () => 
-                {
-                    propsPopup.hide();
-                },
-            });
-        }
-
         $(this.elem).on({
             click: async (ev) => 
             {
-                if (this.info) {
-                    this.info.hide();
-                    this.info = null;
-                } else {
-                        this.info = new BackpackItemInfo(this.app, this);
+                if (ev.target == this.elem || (this.info != null && ev.target == this.info.getElem())) {
+                    if (this.info) {
+                        this.info.close();
+                    } else {
+                        this.info = new BackpackItemInfo(this.app, this, () => { this.info = null; });
                         this.info.show();
+                    }
                 }
             }
         });
@@ -179,6 +161,8 @@ export class BackpackItem
         }
 
         this.app.toFront(ui.helper.get(0));
+
+        this.info?.close();
 
         return true;
     }
@@ -294,7 +278,12 @@ export class BackpackItem
 
     rezItem(x: number)
     {
-        this.backpackWindow.rezItem(this.itemId, this.app.getRoom().getJid(), Math.round(x), this.app.getRoom().getDestination());
+        this.backpackWindow.rezItemSync(this.itemId, this.app.getRoom().getJid(), Math.round(x), this.app.getRoom().getDestination());
+    }
+
+    derezItem()
+    {
+        this.backpackWindow.derezItem(this.itemId, this.properties[Pid.RezzedLocation], -1, -1);
     }
 
     getPseudoRandomCoordinate(space: number, size: number, padding: number, id: string, mod: number): number
