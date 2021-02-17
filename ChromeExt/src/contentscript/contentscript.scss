@@ -316,7 +316,7 @@
             bottom: 13px;
             border: 1px solid #888;
             padding: 1px 2px 1px 2px;
-            background-color: #f5f5f5;
+            background-color: #ffffff;
             white-space: nowrap;
             z-index: 2;
 
@@ -606,26 +606,32 @@
         }
     }
 
-    div.n3q-statstooltip {
-        max-width: 400px;
+    div.n3q-itemstats {
+        position: absolute;
+        left: -60px;
+        bottom: 50px;
+        width: 140px;
+        background-color: #ffffff;
+        border: 1px solid #888;
+        padding: 1px 2px 1px 2px;
         opacity: 0.9;
 
-        div.n3q-statstooltip-label {
+        div.n3q-itemstats-label {
             font-weight: bold;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
-        div.n3q-tooltip-line {
+        div.n3q-itemstats-line {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        span.n3q-statstooltip-key {
+        span.n3q-itemstats-key {
             font-weight: bold;
         }
 
-        span.n3q-statstooltip-key:after {
+        span.n3q-itemstats-key:after {
             content: ': ';
         }
     }
@@ -949,7 +955,6 @@
     div.n3q-backpack-drag .n3q-backpack-item {
         display: block;
         position: absolute;
-        overflow: hidden;
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;

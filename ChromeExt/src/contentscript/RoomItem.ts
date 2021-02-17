@@ -15,11 +15,12 @@ import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
-import { ItemStatsTooltip } from './ItemStatsTooltip';
+import { ItemStats } from './ItemStats';
 
 export class RoomItem extends Entity
 {
     private isFirstPresence: boolean = true;
+    protected statsDisplay: ItemStats;
 
     constructor(app: ContentApp, room: Room, private roomNick: string, isSelf: boolean)
     {
@@ -145,6 +146,19 @@ export class RoomItem extends Entity
             }
         }
 
+        if (this.isFirstPresence) {
+            if (Config.get('backpack.enabled', false)) {
+                this.statsDisplay = new ItemStats(this.app, this);
+                $(this.getElem()).hover(() =>
+                {
+                    this.statsDisplay?.show();
+                }, () =>
+                {
+                    this.statsDisplay?.hide();
+                });
+            }
+        }
+
         if (this.avatarDisplay) {
             if (vpAnimationsUrl != '') {
                 let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://webex.vulcan.weblin.com/Avatar/InlineData?url={url}')).replace('{url}', encodeURIComponent(vpAnimationsUrl));
@@ -207,15 +221,6 @@ export class RoomItem extends Entity
         this.remove();
     }
 
-    onMouseEnterAvatar(ev: JQuery.Event): void
-    {
-        super.onMouseEnterAvatar(ev);
-
-        if (Config.get('room.itemStatsTooltip', false)) {
-            new ItemStatsTooltip(this.app, this.roomNick, this.elem).show(ev.clientX, ev.clientY);
-        }
-    }
-
     onMouseClickAvatar(ev: JQuery.Event): void
     {
         super.onMouseClickAvatar(ev);
@@ -224,6 +229,8 @@ export class RoomItem extends Entity
         if (item) {
             item.onClick(this.getElem(), new Point2D(ev.clientX, ev.clientY));
         }
+
+        this.statsDisplay?.hide();
     }
 
     onDragAvatarStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
@@ -234,6 +241,8 @@ export class RoomItem extends Entity
         if (item) {
             item.onDrag(this.getElem(), new Point2D(ev.clientX, ev.clientY));
         }
+
+        this.statsDisplay?.hide();
     }
 
     onDragAvatarStop(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void

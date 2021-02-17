@@ -48,11 +48,23 @@ export class BackpackItem
         });
 
         if (Config.get('backpack.itemPropertiesTooltip', false)) {
+            let timer: NodeJS.Timeout;
+            let tooltip: ItemPropertiesTooltip;
             $(this.elem).on({
-                mouseenter: async (ev) => 
+                mousemove: (ev) => 
                 {
-                    await new ItemPropertiesTooltip(this.app, itemId, this.elem).show(ev.clientX, ev.clientY);
+                    if (tooltip == null) {
+                        if (timer) { clearTimeout(timer); }
+                        timer = setTimeout(async () =>
+                        {
+                            tooltip = await new ItemPropertiesTooltip(this.app, this.elem, itemId, () => { tooltip = null; }).show(ev.offsetX, ev.offsetY);
+                        }, 400);
+                    }
                 },
+                mouseleave: () => 
+                {
+                    tooltip?.close();
+                }
             });
         }
 

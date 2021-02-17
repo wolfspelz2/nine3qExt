@@ -11,36 +11,11 @@ export class ItemPropertiesTooltip
     private elem: HTMLElement = null;
     private offset = Config.get('backpack.itemPropertiesTooltipOffset', { x: 0, y: 0 });
 
-    constructor(protected app: ContentApp, protected itemId: string, protected target: HTMLElement)
+    constructor(protected app: ContentApp, protected parentElem: HTMLElement, protected itemId: string, protected onClose: { (): void })
     {
-        $(this.target).on({
-            mousemove: (ev) =>
-            {
-                this.moveTo(ev.clientX, ev.clientY);
-            },
-            mouseleave: () => 
-            {
-                this.close();
-            }
-        });
-
-        // $(this.elem).on({
-        //     click: (ev) =>
-        //     {
-        //         this.detach();
-        //     }
-        // });
     }
 
-    // detach()
-    // {
-    //     if (this.target) {
-    //         $(this.target).off('mousemove', 'mouseleave');
-    //         this.target = null;
-    //     }
-    // }
-
-    async show(x: number, y: number): Promise<void>
+    async show(x: number, y: number): Promise<ItemPropertiesTooltip>
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-tooltip n3q-propstooltip" data-translate="children" />').get(0);
         $(this.elem).css({ display: 'none' });
@@ -64,9 +39,11 @@ export class ItemPropertiesTooltip
 
         this.app.translateElem(this.elem);
         this.moveTo(x, y);
-        $(this.app.getDisplay()).append(this.elem);
+        $(this.parentElem).append(this.elem);
         this.app.toFront(this.elem);
-        $(this.elem).delay(400).fadeIn(200);
+        $(this.elem).fadeIn(100);
+
+        return this;
     }
 
     moveTo(x: number, y: number)
@@ -81,6 +58,7 @@ export class ItemPropertiesTooltip
         if (this.elem != null) {
             $(this.elem).stop();
             $(this.elem).remove();
+            if (this.onClose) { this.onClose(); }
             this.elem = null;
         }
     }
