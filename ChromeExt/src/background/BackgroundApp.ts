@@ -185,6 +185,11 @@ export class BackgroundApp
                 return false;
             } break;
 
+            case BackgroundMessage.log.name: {
+                sendResponse(this.handle_log(message.pieces));
+                return false;
+            } break;
+
             case BackgroundMessage.userSettingsChanged.name: {
                 sendResponse(this.handle_userSettingsChanged());
                 return false;
@@ -936,6 +941,12 @@ export class BackgroundApp
     }
 
     // 
+
+    handle_log(pieces: any): BackgroundResponse
+    {
+        log.debug(...pieces);
+        return new BackgroundSuccessResponse();
+    }
 
     handle_userSettingsChanged(): BackgroundResponse
     {

@@ -44,8 +44,8 @@ export class Config
         },
         config: {
             serviceUrl: 'https://webex.vulcan.weblin.com/Config',
-            updateIntervalSec: Utils.randomInt(86400 - 2000, 86400 + 1000),
-            checkUpdateIntervalSec: Utils.randomInt(120 - 10, 120 + 10),
+            updateIntervalSec: 83567,
+            checkUpdateIntervalSec: 123,
         },
         httpCache: {
             maxAgeSec: 3600,
@@ -101,9 +101,14 @@ export class Config
             pingBackgroundToKeepConnectionAliveSec: 12,
         },
         avatars: {
-            animationsUrlTemplate: 'https://webex.vulcan.weblin.com/avatars/gif/{id}/config.xml',
             animationsProxyUrlTemplate: 'https://webex.vulcan.weblin.com/Avatar/InlineData?url={url}',
             dataUrlProxyUrlTemplate: 'https://webex.vulcan.weblin.com/Avatar/DataUrl?url={url}',
+
+            animationsUrlTemplate: 'https://webex.vulcan.weblin.com/avatars/{id}/config.xml',
+            // animationsUrlTemplate: 'https://webex.vulcan.weblin.com/avatars/gif/{id}/config.xml',
+
+            // list: ['gif/002/sportive03_m', 'gif/002/business03_m', 'gif/002/child02_m', 'gif/002/sportive01_m', 'gif/002/business06_m', 'gif/002/casual04_f', 'gif/002/business01_f', 'gif/002/casual30_m', 'gif/002/sportive03_f', 'gif/002/casual16_m', 'gif/002/casual10_f', 'gif/002/business03_f', 'gif/002/casual03_m', 'gif/002/sportive07_m', 'gif/002/casual13_f', 'gif/002/casual09_m', 'gif/002/casual16_f', 'gif/002/child02_f', 'gif/002/sportive08_m', 'gif/002/casual15_m', 'gif/002/casual15_f', 'gif/002/casual01_f', 'gif/002/casual11_f', 'gif/002/sportive09_m', 'gif/002/casual20_f', 'gif/002/sportive02_f', 'gif/002/business05_m', 'gif/002/casual06_m', 'gif/002/casual10_m', 'gif/002/casual02_f',],
+            // randomList: ['gif/002/sportive03_m', 'gif/002/business03_m', 'gif/002/child02_m', 'gif/002/sportive01_m', 'gif/002/business06_m', 'gif/002/casual04_f', 'gif/002/business01_f', 'gif/002/casual30_m', 'gif/002/sportive03_f', 'gif/002/casual16_m', 'gif/002/casual10_f', 'gif/002/business03_f', 'gif/002/casual03_m', 'gif/002/sportive07_m', 'gif/002/casual13_f', 'gif/002/casual09_m', 'gif/002/casual16_f', 'gif/002/child02_f', 'gif/002/sportive08_m', 'gif/002/casual15_m', 'gif/002/casual15_f', 'gif/002/casual01_f', 'gif/002/casual11_f', 'gif/002/sportive09_m', 'gif/002/casual20_f', 'gif/002/sportive02_f', 'gif/002/business05_m', 'gif/002/casual06_m', 'gif/002/casual10_m', 'gif/002/casual02_f',],
             list: ['002/sportive03_m', '002/business03_m', '002/child02_m', '002/sportive01_m', '002/business06_m', '002/casual04_f', '002/business01_f', '002/casual30_m', '002/sportive03_f', '002/casual16_m', '002/casual10_f', '002/business03_f', '002/casual03_m', '002/sportive07_m', '002/casual13_f', '002/casual09_m', '002/casual16_f', '002/child02_f', '002/sportive08_m', '002/casual15_m', '002/casual15_f', '002/casual01_f', '002/casual11_f', '002/sportive09_m', '002/casual20_f', '002/sportive02_f', '002/business05_m', '002/casual06_m', '002/casual10_m', '002/casual02_f',],
             randomList: ['002/sportive03_m', '002/business03_m', '002/child02_m', '002/sportive01_m', '002/business06_m', '002/casual04_f', '002/business01_f', '002/casual30_m', '002/sportive03_f', '002/casual16_m', '002/casual10_f', '002/business03_f', '002/casual03_m', '002/sportive07_m', '002/casual13_f', '002/casual09_m', '002/casual16_f', '002/child02_f', '002/sportive08_m', '002/casual15_m', '002/casual15_f', '002/casual01_f', '002/casual11_f', '002/sportive09_m', '002/casual20_f', '002/sportive02_f', '002/business05_m', '002/casual06_m', '002/casual10_m', '002/casual02_f',],
         },
@@ -118,7 +123,7 @@ export class Config
             borderPadding: 4,
             dropZoneHeight: 100,
             itemPropertiesTooltip: false,
-            itemPropertiesTooltipOffset: { x: 3, y: 3 },
+            itemInfoOffset: { x: 3, y: 3 },
             deleteToastDurationSec: 100,
         },
         projector: {
@@ -261,6 +266,8 @@ export class Config
                     'ItemPid.PointsCurrent': 'Available',
                     'ItemPid.RezzedDestination': 'Page',
                     'ItemPid.IsRezzed': 'On page',
+                    'ItemPid.CoinCurrency': 'Currency',
+                    'ItemPid.CoinAmount': 'Amount',
 
                     'ItemValue.true': 'Yes',
                     'ItemValue.false': 'No',
@@ -380,6 +387,8 @@ export class Config
                     'ItemPid.PointsCurrent': 'Verfügbar',
                     'ItemPid.RezzedDestination': 'Webseite',
                     'ItemPid.IsRezzed': 'Auf Webseite',
+                    'ItemPid.CoinCurrency': 'Währung',
+                    'ItemPid.CoinAmount': 'Betrag',
 
                     'ItemValue.true': 'Ja',
                     'ItemValue.false': 'Nein',

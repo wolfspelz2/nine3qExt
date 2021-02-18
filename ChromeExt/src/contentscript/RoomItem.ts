@@ -28,6 +28,17 @@ export class RoomItem extends Entity
 
         $(this.getElem()).addClass('n3q-item');
         $(this.getElem()).attr('data-nick', roomNick);
+
+        if (Config.get('backpack.enabled', false)) {
+            $(this.getElem()).hover(() =>
+            {
+                this.statsDisplay = new RoomItemStats(this.app, this, () => { this.statsDisplay = null; });
+                this.statsDisplay?.show();
+            }, () =>
+            {
+                this.statsDisplay?.close();
+            });
+        }
     }
 
     getDefaultAvatar(): string { return imgDefaultItem; }
@@ -146,19 +157,6 @@ export class RoomItem extends Entity
             }
         }
 
-        if (this.isFirstPresence) {
-            if (Config.get('backpack.enabled', false)) {
-                this.statsDisplay = new RoomItemStats(this.app, this);
-                $(this.getElem()).hover(() =>
-                {
-                    this.statsDisplay?.show();
-                }, () =>
-                {
-                    this.statsDisplay?.hide();
-                });
-            }
-        }
-
         if (this.avatarDisplay) {
             if (vpAnimationsUrl != '') {
                 let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://webex.vulcan.weblin.com/Avatar/InlineData?url={url}')).replace('{url}', encodeURIComponent(vpAnimationsUrl));
@@ -230,7 +228,7 @@ export class RoomItem extends Entity
             item.onClick(this.getElem(), new Point2D(ev.clientX, ev.clientY));
         }
 
-        this.statsDisplay?.hide();
+        this.statsDisplay?.close();
     }
 
     onDragAvatarStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
@@ -242,7 +240,7 @@ export class RoomItem extends Entity
             item.onDrag(this.getElem(), new Point2D(ev.clientX, ev.clientY));
         }
 
-        this.statsDisplay?.hide();
+        this.statsDisplay?.close();
     }
 
     onDragAvatarStop(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void

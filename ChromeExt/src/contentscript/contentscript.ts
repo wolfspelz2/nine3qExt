@@ -6,6 +6,7 @@ import { Config } from '../lib/Config';
 import { Environment } from '../lib/Environment';
 import { ContentApp, ContentAppNotification } from './ContentApp';
 import { ContentMessage } from '../lib/ContentMessage';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 
 let debug = Environment.isDevelopment();
 console.log('weblin.io Content', 'dev', debug);
@@ -106,7 +107,10 @@ try {
 
     Panic.onNow(onUnload);
 
-    window.addEventListener('onbeforeunload', deactivate);
+    window.addEventListener('unload', function ()
+    {
+        deactivate();
+    });
 
     window.addEventListener('visibilitychange', function ()
     {

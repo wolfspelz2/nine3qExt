@@ -16,12 +16,17 @@ export class BackpackItemInfo
     {
     }
 
-    show(): void
+    show(x: number, y: number): void
     {
         if (this.elem == null) {
             this.setup();
         }
 
+        let offset = Config.get('backpack.itemInfoOffset', { x: 4, y: 4 });
+        x = x + offset.x;
+        y = y + offset.y;
+
+        $(this.elem).css({ left: x, top: y });
         this.app.toFront(this.elem);
         $(this.elem).stop().fadeIn('fast');
     }

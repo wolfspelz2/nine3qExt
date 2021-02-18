@@ -226,7 +226,7 @@ export class Participant extends Entity
         let hasAvatar = false;
         if (this.avatarDisplay) {
             if (vpAvatarId != '') {
-                let animationsUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'https://webex.vulcan.weblin.com/avatars/gif/{id}/config.xml')).replace('{id}', vpAvatarId);
+                let animationsUrl = Utils.getAvatarUrlFromAvatarId(vpAvatarId);
                 let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://webex.vulcan.weblin.com/Avatar/InlineData?url={url}')).replace('{url}', encodeURIComponent(animationsUrl));
                 this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
                 hasAvatar = true;

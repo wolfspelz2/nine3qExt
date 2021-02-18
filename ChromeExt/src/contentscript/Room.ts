@@ -81,8 +81,8 @@ export class Room
             let nickname = await this.app.getUserNickname();
             let avatar = await this.app.getUserAvatar();
 
-            this.resource = await this.getSettingsItemNickname(nickname);
-            this.avatar = await this.getSettingsItemAvatarId(avatar);
+            this.resource = await this.getBackpackItemNickname(nickname);
+            this.avatar = await this.getBackpackItemAvatarId(avatar);
         } catch (error) {
             log.info(error);
             this.resource = 'new-user';
@@ -107,9 +107,9 @@ export class Room
 
     async sendPresence(): Promise<void>
     {
-        let vpProps = { xmlns: 'vp:props', 'Nickname': this.resource, 'AvatarId': this.avatar, 'nickname': this.resource, 'avatar': this.avatar };
+        let vpProps = { xmlns: 'vp:props', 'Nickname': this.resource, 'AvatarId': this.avatar, 'nickname': this.resource, 'avatar': 'gif/' + this.avatar };
 
-        let avatarUrl = await this.getSettingsItemAvatarUrl('');
+        let avatarUrl = await this.getBackpackItemAvatarUrl('');
         if (avatarUrl != '') {
             vpProps['AvatarUrl'] = avatarUrl;
         }
@@ -131,7 +131,7 @@ export class Room
         let identityDigest = Config.get('identity.digest', '1');
         if (identityUrl == '') {
             if (avatarUrl == '') {
-                 avatarUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'https://webex.vulcan.weblin.com/avatars/gif/{id}/config.xml')).replace('{id}', this.avatar);
+                avatarUrl = Utils.getAvatarUrlFromAvatarId(this.avatar);
             }
             identityDigest = as.String(Utils.hash(this.resource + avatarUrl));
             identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}&points={points}'))
@@ -158,15 +158,15 @@ export class Room
         this.app.sendStanza(presence);
     }
 
-    async getPointsItemPoints(defaultValue: number): Promise<number> { return as.Int(await this.getItemProperty(Pid.PointsAspect, Pid.PointsTotal, defaultValue)); }
-    async getSettingsItemAvatarId(defaultValue: string): Promise<string> { return as.String(await this.getItemProperty(Pid.SettingsAspect, Pid.SettingsAvatarId, defaultValue)); }
-    async getSettingsItemAvatarUrl(defaultValue: string): Promise<string> { return as.String(await this.getItemProperty(Pid.SettingsAspect, Pid.SettingsAvatarUrl, defaultValue)); }
-    async getSettingsItemNickname(defaultValue: string): Promise<string> { return as.String(await this.getItemProperty(Pid.SettingsAspect, Pid.SettingsNickname, defaultValue)); }
+    async getPointsItemPoints(defaultValue: number): Promise<number> { return as.Int(await this.getBackpackItemProperty({ [Pid.PointsAspect]: 'true' }, Pid.PointsTotal, defaultValue)); }
+    async getBackpackItemAvatarId(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.AvatarAspect]: 'true' }, Pid.AvatarAvatarId, defaultValue)); }
+    async getBackpackItemAvatarUrl(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.AvatarAspect]: 'true' }, Pid.AvatarAnimationsUrl, defaultValue)); }
+    async getBackpackItemNickname(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.NicknameAspect]: 'true', }, Pid.NicknameText, defaultValue)); }
 
-    async getItemProperty(aspectPid: string, propertyPid: string, defautValue: any): Promise<any>
+    async getBackpackItemProperty(filterProperties: ItemProperties, propertyPid: string, defautValue: any): Promise<any>
     {
         if (Config.get('backpack.enabled', false)) {
-            let propSet = await BackgroundMessage.findBackpackItemProperties({ [aspectPid]: 'true' });
+            let propSet = await BackgroundMessage.findBackpackItemProperties(filterProperties);
             let item = null;
             for (let id in propSet) {
                 let props = propSet[id];

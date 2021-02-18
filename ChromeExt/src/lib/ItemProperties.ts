@@ -34,9 +34,11 @@ export class Pid
     static readonly ClaimStrength = 'ClaimStrength';
     static readonly PointsAspect = 'PointsAspect';
     static readonly SettingsAspect = 'SettingsAspect';
-    static readonly SettingsNickname = 'SettingsNickname';
-    static readonly SettingsAvatarId = 'SettingsAvatarId';
-    static readonly SettingsAvatarUrl = 'SettingsAvatarUrl';
+    static readonly AvatarAspect = 'AvatarAspect';
+    static readonly NicknameAspect = 'NicknameAspect';
+    static readonly NicknameText = 'NicknameText';
+    static readonly AvatarAvatarId = 'AvatarAvatarId';
+    static readonly AvatarAnimationsUrl = 'AvatarAnimationsUrl';
     static readonly PointsChannelEntered = 'PointsChannelEntered';
     static readonly PointsChannelChat = 'PointsChannelChat';
     static readonly PointsChannelEmote = 'PointsChannelEmote';

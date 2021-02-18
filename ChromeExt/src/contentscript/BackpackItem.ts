@@ -57,7 +57,7 @@ export class BackpackItem
                         this.info.close();
                     } else {
                         this.info = new BackpackItemInfo(this.app, this, () => { this.info = null; });
-                        this.info.show();
+                        this.info.show(ev.offsetX, ev.offsetY);
                     }
                 }
             }

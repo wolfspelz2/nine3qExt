@@ -10,7 +10,7 @@ export class RoomItemStats
 {
     private elem: HTMLElement = null;
 
-    constructor(protected app: ContentApp, protected roomItem: RoomItem)
+    constructor(protected app: ContentApp, protected roomItem: RoomItem, protected onClose: () => void)
     {
     }
 
@@ -24,11 +24,11 @@ export class RoomItemStats
         $(this.elem).stop().fadeIn('fast');
     }
 
-    hide(): void
+    close(): void
     {
         // $(this.elem).stop().fadeOut('fast');
         $(this.elem).remove();
-        this.elem = null;
+        if (this.onClose) { this.onClose(); }
     }
 
     setup(): void
