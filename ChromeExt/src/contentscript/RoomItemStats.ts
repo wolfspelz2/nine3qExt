@@ -2,7 +2,7 @@ import * as $ from 'jquery';
 import log = require('loglevel');
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';
-import { Pid } from '../lib/ItemProperties';
+import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { ContentApp } from './ContentApp';
 import { RoomItem } from './RoomItem';
 
@@ -35,6 +35,15 @@ export class RoomItemStats
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops n3q-roomitemstats n3q-shadow-small" data-translate="children" />').get(0);
         $(this.elem).css({ display: 'none' });
+
+        this.update();
+
+        $(this.roomItem.getElem()).append(this.elem);
+    }
+
+    update(): void
+    {
+        $(this.elem).empty();
 
         let props = this.roomItem.getProperties();
 
@@ -71,6 +80,5 @@ export class RoomItemStats
         }
 
         this.app.translateElem(this.elem);
-        $(this.roomItem.getElem()).append(this.elem);
     }
 }

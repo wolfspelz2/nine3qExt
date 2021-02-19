@@ -42,6 +42,15 @@ export class BackpackItemInfo
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops n3q-backpackiteminfo n3q-shadow-small" data-translate="children" />').get(0);
         $(this.elem).css({ display: 'none' });
 
+        this.update();
+
+        $(this.backpackItem.getElem()).append(this.elem);
+    }
+
+    update(): void
+    {
+        $(this.elem).empty();
+
         let closeElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-overlay n3q-shadow-small" title="Close" data-translate="attr:title:Common"><div class="n3q-base n3q-button-symbol n3q-button-close-small" />').get(0);
         $(closeElem).on('click', ev =>
         {
@@ -141,6 +150,5 @@ export class BackpackItemInfo
         }
 
         this.app.translateElem(this.elem);
-        $(this.backpackItem.getElem()).append(this.elem);
     }
 }

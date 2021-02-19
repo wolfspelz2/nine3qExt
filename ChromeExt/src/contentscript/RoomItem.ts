@@ -68,7 +68,7 @@ export class RoomItem extends Entity
         let vpRezzedX = -1;
 
         let newProviderId: string = '';
-        let newProperties: { [pid: string]: string } = {};
+        let newProperties: ItemProperties = {};
 
         // Collect info
 
@@ -166,6 +166,10 @@ export class RoomItem extends Entity
                     this.avatarDisplay?.updateObservableProperty('ImageUrl', vpImageUrl);
                 }
             }
+        }
+
+        if (this.statsDisplay) {
+            this.statsDisplay.update();
         }
 
         if (newProperties[Pid.Width] && newProperties[Pid.Height]) {

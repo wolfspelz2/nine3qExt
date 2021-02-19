@@ -77,6 +77,7 @@ export class Property
         [Pid.IframeHeight]: { inPresence: true },
         [Pid.IframeFrame]: { inPresence: true },
         [Pid.IframeUrl]: { inPresence: true },
+        [Pid.Stats]: { inPresence: true },
 
         // For unit test
         ['Test1']: { inPresence: true },

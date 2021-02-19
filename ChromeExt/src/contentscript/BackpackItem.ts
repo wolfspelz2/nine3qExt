@@ -329,6 +329,8 @@ export class BackpackItem
         }
 
         this.properties = properties;
+
+        this.info?.update();
     }
 
     destroy()
