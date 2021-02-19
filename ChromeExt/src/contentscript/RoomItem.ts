@@ -32,8 +32,9 @@ export class RoomItem extends Entity
         if (Config.get('backpack.enabled', false)) {
             $(this.getElem()).hover(() =>
             {
+                this.statsDisplay?.close();
                 this.statsDisplay = new RoomItemStats(this.app, this, () => { this.statsDisplay = null; });
-                this.statsDisplay?.show();
+                this.statsDisplay.show();
             }, () =>
             {
                 this.statsDisplay?.close();
@@ -238,13 +239,12 @@ export class RoomItem extends Entity
     onDragAvatarStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
     {
         super.onDragAvatarStart(ev, ui);
+        this.statsDisplay?.close();
 
         let item = this.app.getItemRepository().getItem(this.roomNick);
         if (item) {
-            item.onDrag(this.getElem(), new Point2D(ev.clientX, ev.clientY));
+            item.onDragStart(this.getElem(), new Point2D(ev.clientX, ev.clientY));
         }
-
-        this.statsDisplay?.close();
     }
 
     onDragAvatarStop(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void

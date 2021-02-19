@@ -52,8 +52,11 @@ export class IframeApi
             case WeblinClientApi.ItemActionRequest.type: {
                 /* await */ this.handle_ItemActionRequest(<WeblinClientApi.ItemActionRequest>request);
             } break;
+            case WeblinClientApi.PositionWindowRequest.type: {
+                this.handle_PositionWindowRequest(<WeblinClientApi.PositionWindowRequest>request);
+            } break;
             case WeblinClientApi.CloseWindowRequest.type: {
-                this.handle_CloseWindowRequest(<WeblinClientApi.ItemActionRequest>request);
+                this.handle_CloseWindowRequest(<WeblinClientApi.CloseWindowRequest>request);
             } break;
         }
     }
@@ -61,10 +64,18 @@ export class IframeApi
     handle_CloseWindowRequest(request: WeblinClientApi.CloseWindowRequest)
     {
         try {
-            let itemId = request.item;
-            this.app.closeItemFrame(itemId);
+            this.app.closeItemFrame(request.item);
         } catch (ex) {
-            // ignore
+            log.info(ex);
+        }
+    }
+
+    handle_PositionWindowRequest(request: WeblinClientApi.PositionWindowRequest)
+    {
+        try {
+            this.app.positionItemFrame(request.item, request.width, request.height, request.left, request.bottom);
+        } catch (ex) {
+            log.info(ex);
         }
     }
 
@@ -131,8 +142,18 @@ export namespace WeblinClientApi
 
     export class CloseWindowRequest extends Request
     {
-        static type = 'CloseWindow';
+        static type = 'Window.Close';
         item: string;
+    }
+
+    export class PositionWindowRequest extends Request
+    {
+        static type = 'Window.Position';
+        item: string;
+        width: number;
+        height: number;
+        left: number;
+        bottom: number;
     }
 
     export class ItemActionRequest extends Request

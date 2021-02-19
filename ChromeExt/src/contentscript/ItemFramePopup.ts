@@ -13,7 +13,7 @@ type PopupOptions = any;
 interface ItemFramePopupOptions extends PopupOptions
 {
     item: RepositoryItem;
-    clickPos: Point2D;
+    elem: HTMLElement;
     url: string;
     onClose: { (): void };
 }
@@ -31,25 +31,26 @@ export class ItemFramePopup extends Popup
             let url: string = options.url;
             if (!url) { throw 'No url' }
 
-            options.minLeft = as.Int(options.minLeft, 10);
-            options.offsetLeft = as.Int(options.offsetLeft, 0);
-            options.offsetBottom = as.Int(options.offsetBottom, 10);
-            options.width = as.Int(options.item.getProperties()[Pid.IframeWidth], 400);
-            options.height = as.Int(options.item.getProperties()[Pid.IframeHeight], 400);
+            let json = as.String(options.item.getProperties()[Pid.IframeOptions], '{}');
+            let iframeOptions = JSON.parse(json);
+
+            options.width = as.Int(iframeOptions.width, 100);
+            options.height = as.Int(iframeOptions.height, 100);
+            options.left = as.Int(iframeOptions.left, -options.width / 2);
+            options.bottom = as.Int(iframeOptions.bottom, 50);
 
             log.debug('ItemFramePopup', url);
             super.show(options);
 
             $(this.windowElem).addClass('n3q-itemframepopup');
 
-            let left = Math.max(options.clickPos.x - options.width / 2 + options.offsetLeft, options.minLeft);
-            let top = options.clickPos.y - options.offsetBottom - options.height;
-
             let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-itemframepopup-content" src="' + url + ' " frameborder="0"></iframe>').get(0);
 
             $(this.windowElem).append(iframeElem);
             this.app.translateElem(this.windowElem);
-            $(this.windowElem).css({ 'width': options.width + 'px', 'height': options.height + 'px', 'left': left + 'px', 'top': top + 'px' });
+
+            this.position(options.width, options.height, options.left, options.bottom);
+
             this.app.toFront(this.windowElem, ContentApp.DisplayLayer_Popup)
 
         } catch (error) {
@@ -61,5 +62,10 @@ export class ItemFramePopup extends Popup
     isOpen(): boolean
     {
         return this.windowElem != null;
+    }
+
+    position(width: number, height: number, left: number, bottom: number): void
+    {
+        $(this.windowElem).css({ width: width + 'px', height: height + 'px', left: left + 'px', bottom: bottom + 'px' });
     }
 }

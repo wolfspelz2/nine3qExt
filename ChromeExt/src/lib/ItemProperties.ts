@@ -19,11 +19,8 @@ export class Pid
     static readonly Provider = 'Provider';
     static readonly Stats = 'Stats';
     static readonly IframeAspect = 'IframeAspect';
-    static readonly IframeWidth = 'IframeWidth';
-    static readonly IframeHeight = 'IframeHeight';
-    static readonly IframeResizable = 'IframeResizable';
-    static readonly IframeFrame = 'IframeFrame';
     static readonly IframeUrl = 'IframeUrl';
+    static readonly IframeOptions = 'IframeOptions';
     static readonly TransferState = 'TransferState';
     static readonly ImageUrl = 'ImageUrl';
     static readonly AnimationsUrl = 'AnimationsUrl';
@@ -73,9 +70,7 @@ export class Property
         [Pid.ClaimAspect]: { inPresence: true },
         [Pid.ClaimStrength]: { inPresence: true },
         [Pid.IframeAspect]: { inPresence: true },
-        [Pid.IframeWidth]: { inPresence: true },
-        [Pid.IframeHeight]: { inPresence: true },
-        [Pid.IframeFrame]: { inPresence: true },
+        [Pid.IframeOptions]: { inPresence: true },
         [Pid.IframeUrl]: { inPresence: true },
         [Pid.Stats]: { inPresence: true },
 

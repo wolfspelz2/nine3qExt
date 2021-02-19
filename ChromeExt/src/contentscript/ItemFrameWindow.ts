@@ -6,7 +6,6 @@ import { Point2D } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { Window } from './Window';
 import { RepositoryItem } from './RepositoryItem';
-import { RoomItem } from './RoomItem';
 import { Pid } from '../lib/ItemProperties';
 
 type WindowOptions = any;
@@ -14,13 +13,15 @@ type WindowOptions = any;
 interface ItemFrameWindowOptions extends WindowOptions
 {
     item: RepositoryItem;
-    clickPos: Point2D;
+    elem: HTMLElement;
     url: string;
     onClose: { (): void };
 }
 
 export class ItemFrameWindow extends Window
 {
+    protected refElem: HTMLElement;
+
     constructor(app: ContentApp)
     {
         super(app);
@@ -32,28 +33,31 @@ export class ItemFrameWindow extends Window
             let url: string = options.url;
             if (!url) { throw 'No url' }
 
-            options.minLeft = as.Int(options.minLeft, 10);
-            options.minTop = as.Int(options.minTop, 10);
-            options.offsetLeft = as.Int(options.bottom, 20);
-            options.offsetTop = as.Int(options.bottom, -350);
-            options.width = as.Int(options.item.getProperties()[Pid.IframeWidth], 400);
-            options.height = as.Int(options.item.getProperties()[Pid.IframeHeight], 400);
-            options.resizable = as.Bool(options.item.getProperties()[Pid.IframeResizable], true);
+            let json = as.String(options.item.getProperties()[Pid.IframeOptions], '{}');
+            let iframeOptions = JSON.parse(json);
+
+            options.width = as.Int(iframeOptions.width, 100);
+            options.height = as.Int(iframeOptions.height, 100);
+            options.left = as.Int(iframeOptions.left, -options.width / 2);
+            options.bottom = as.Int(iframeOptions.bottom, 50);
+
+            options.resizable = as.Bool(options.rezizable, true);
             options.titleText = as.String(options.item.getProperties().Label, 'Item');
+
+            this.refElem = options.elem;
 
             log.debug('ItemFrameWindow', url);
             super.show(options);
 
             $(this.windowElem).addClass('n3q-itemframewindow');
 
-            let left = Math.max(options.clickPos.x - options.width / 2 + options.offsetLeft, options.minLeft);
-            let top = Math.max(options.clickPos.y - options.height / 2 + options.offsetTop, options.minTop);
-
             let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-itemframewindow-content" src="' + url + ' " frameborder="0" allow="camera; microphone; fullscreen; display-capture"></iframe>').get(0);
 
             $(this.contentElem).append(iframeElem);
             this.app.translateElem(this.windowElem);
-            $(this.windowElem).css({ 'width': options.width + 'px', 'height': options.height + 'px', 'left': left + 'px', 'top': top + 'px' });
+
+            this.position(options.width, options.height, options.left, options.bottom);
+
             this.app.toFront(this.windowElem)
 
         } catch (error) {
@@ -65,5 +69,12 @@ export class ItemFrameWindow extends Window
     isOpen(): boolean
     {
         return this.windowElem != null;
+    }
+
+    position(width: number, height: number, left: number, bottom: number): void
+    {
+        let absLeft = $(this.refElem).offset().left + $(this.refElem).width() / 2 + left;
+        let absTop = $(this.refElem).offset().top + $(this.refElem).height() - bottom - height;
+        $(this.windowElem).css({ width: width + 'px', height: height + 'px', left: absLeft + 'px', top: absTop + 'px' });
     }
 }

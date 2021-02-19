@@ -294,6 +294,14 @@ export class ContentApp
         }
     }
 
+    positionItemFrame(itemId: string, width: number, height: number, left: number, bottom: number)
+    {
+        let item = this.getItemRepository().getItem(itemId);
+        if (item) {
+            item.positionFrame(width, height, left, bottom);
+        }
+    }
+
     // Stay on tab change
 
     setBackpackIsOpen(value: boolean): void

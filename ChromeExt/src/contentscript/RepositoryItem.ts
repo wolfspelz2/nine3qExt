@@ -1,7 +1,6 @@
 import imgDefaultItem from '../assets/DefaultItem.png';
 
 import * as $ from 'jquery';
-import { xml, jid } from '@xmpp/client';
 import log = require('loglevel');
 import { as } from '../lib/as';
 import { Point2D, Utils } from '../lib/Utils';
@@ -13,7 +12,6 @@ import { ItemFramePopup } from './ItemFramePopup';
 import { Pid } from '../lib/ItemProperties';
 import { Memory } from '../lib/Memory';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
-import { BackgroundApp } from '../background/BackgroundApp';
 
 export class RepositoryItem
 {
@@ -34,37 +32,31 @@ export class RepositoryItem
     setProperties(properties: { [pid: string]: string; }) { this.properties = properties; }
     getProperties(): any { return this.properties; }
 
+    onDragStart(clickedElem: HTMLElement, clickPoint: Point2D)
+    {
+        if (this.framePopup) {
+            this.framePopup.close();
+        }
+    }
+
     onClick(clickedElem: HTMLElement, clickPoint: Point2D)
     {
         if (as.Bool(this.properties[Pid.IframeAspect], false)) {
-            let frame = as.String(this.properties[Pid.IframeFrame], 'Window');
+
+            let frame = as.String(JSON.parse(as.String(this.properties[Pid.IframeOptions], '{}')).frame, 'Window');
             if (frame == 'Popup') {
                 if (this.framePopup) {
                     this.framePopup.close();
                 } else {
-                    this.openIframe(clickedElem, clickPoint);
+                    this.openIframe(clickedElem);
                 }
             } else {
-                if (!this.frameWindow) {
-                    this.openIframe(clickedElem, clickPoint);
-                }
+                this.openIframe(clickedElem);
             }
         }
     }
 
-    onDrag(clickedElem: HTMLElement, clickPoint: Point2D)
-    {
-        if (as.Bool(this.properties[Pid.IframeAspect], false)) {
-            let frame = as.String(this.properties[Pid.IframeFrame], 'Window');
-            if (frame == 'Popup') {
-                if (this.framePopup) {
-                    this.framePopup.close();
-                }
-            }
-        }
-    }
-
-    async openIframe(clickedElem: HTMLElement, clickPoint: Point2D)
+    async openIframe(clickedElem: HTMLElement)
     {
         let iframeUrl = as.String(this.properties[Pid.IframeUrl], null);
         let room = this.app.getRoom();
@@ -88,39 +80,44 @@ export class RepositoryItem
                 .replace('{name}', encodeURIComponent(roomNick))
                 ;
 
-            let frame = as.String(this.properties[Pid.IframeFrame], 'Window');
+            let frame = as.String(JSON.parse(as.String(this.properties[Pid.IframeOptions], '{}')).frame, 'Window');
             if (frame == 'Popup') {
-                this.openIframePopup(iframeUrl, clickPoint);
+                this.openIframePopup(clickedElem, iframeUrl);
             } else {
-                this.openIframeWindow(iframeUrl, clickPoint);
+                this.openIframeWindow(clickedElem, iframeUrl);
             }
         }
     }
 
-    openIframePopup(iframeUrl: string, clickPoint: Point2D)
+    openIframePopup(clickedElem: HTMLElement, iframeUrl: string)
     {
-        if (!this.framePopup) {
+        if (this.framePopup == null) {
             this.framePopup = new ItemFramePopup(this.app);
             this.framePopup.show({
                 item: this,
-                clickPos: clickPoint,
+                elem: clickedElem,
                 url: iframeUrl,
                 onClose: () => { this.framePopup = null; },
             });
         }
     }
 
-    openIframeWindow(iframeUrl: string, clickPoint: Point2D)
+    openIframeWindow(clickedElem: HTMLElement, iframeUrl: string)
     {
-        if (!this.frameWindow) {
+        if (this.frameWindow == null) {
             this.frameWindow = new ItemFrameWindow(this.app);
             this.frameWindow.show({
                 item: this,
-                clickPos: clickPoint,
+                elem: clickedElem,
                 url: iframeUrl,
                 onClose: () => { this.frameWindow = null; },
             });
         }
+    }
+
+    positionFrame(width: number, height: number, left: number, bottom: number)
+    {
+        this.framePopup?.position(width, height, left, bottom);
     }
 
     closeFrame()

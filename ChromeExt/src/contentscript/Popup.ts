@@ -35,9 +35,7 @@ export class Popup
 
             this.windowElem = windowElem;
 
-            $(this.app.getDisplay()).append(windowElem);
-
-            let maskId = Utils.randomString(15);
+            $(options.elem).append(windowElem);
 
             this.isClosing = false;
             $(closeElem).click(ev =>
@@ -63,9 +61,8 @@ export class Popup
         if (!this.isClosing) {
             this.isClosing = true;
 
-            if (this.onClose) { this.onClose(); }
             $(this.windowElem).remove();
-            this.windowElem = null;
+            if (this.onClose) { this.onClose(); }
         }
     }
 }
