@@ -41,6 +41,7 @@ export class Config
             vpiMaxIterations: 15,
             ignoredDomainSuffixes: ['vulcan.weblin.com'],
             strippedUrlPrefixes: ['https://cdn.weblin.io/?', 'https://cdn.weblin.io/'],
+            notStrippedUrlPrefixes: ['https://cdn.weblin.io/v1/', 'https://cdn.weblin.io/sso/'],
         },
         config: {
             serviceUrl: 'https://webex.vulcan.weblin.com/Config',
