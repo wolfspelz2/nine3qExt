@@ -88,6 +88,7 @@ export class Config
             vidconfWidth: 600,
             vidconfHeight: 400,
             pokeToastDurationSec: 10,
+            privateVidconfToastDurationSec: 60,
             privateChatToastDurationSec: 60,
             errorToastDurationSec: 8,
             applyItemErrorToastDurationSec: 5,
@@ -203,6 +204,8 @@ export class Config
 
                     'PrivateChat.Private Chat with': 'Private Chat with',
 
+                    'PrivateVidconf.Private Videoconference with': 'PrivateVidconf.Private Videoconference with',
+
                     'Vidconfwindow.Video Conference': 'Video Conference',
                     'Settingswindow.Settings': 'Settings',
                     'BackpackWindow.Inventory': 'Your Stuff',
@@ -223,6 +226,10 @@ export class Config
                     'Toast.Really delete?': 'Really delete?',
                     'Toast.Yes, delete item': 'Yes, delete item',
                     'Toast.No, keep it': 'No, keep it',
+                    'Toast.Wants to start a private videoconference': 'Invites you to a private videoconference',
+                    'Toast.Refuses to join the private videoconference': 'Refuses to join the videoconference',
+                    'Toast.Accept': 'Accept',
+                    'Toast.Decline': 'Decline',
 
                     // ['ErrorFact.' + ItemException.Fact[ItemException.Fact.Error]]: 'Error',
                     'ErrorFact.Error': 'Error',
@@ -326,6 +333,8 @@ export class Config
 
                     'PrivateChat.Private Chat with': 'Privater Chat mit',
 
+                    'PrivateVidconf.Private Videoconference with': 'PrivateVidconf.Private Videokonferenz mit',
+
                     'Vidconfwindow.Video Conference': 'Videokonferenz',
                     'Settingswindow.Settings': 'Einstellungen',
                     'BackpackWindow.Inventory': 'Deine Gegenstände',
@@ -346,6 +355,10 @@ export class Config
                     'Toast.Really delete?': 'Wirklich löschen?',
                     'Toast.Yes, delete item': 'Ja, Gegenstand löschen',
                     'Toast.No, keep it': 'Nein, behalten',
+                    'Toast.Wants to start a private videoconference': 'Lädt zu einer privaten Videokonferenz ein',
+                    'Toast.Refuses to join the private videoconference': 'Lehnt die Videokonferenz ab',
+                    'Toast.Accept': 'Annehmen',
+                    'Toast.Decline': 'Ablehnen',
 
                     'ErrorFact.Error': 'Fehler',
                     'ErrorFact.NotRezzed': 'Ablegen fehlgeschlagen',

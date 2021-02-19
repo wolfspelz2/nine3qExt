@@ -6,10 +6,14 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
-        ['1.0.8', '??', [
+        ['1.0.8', 'Points PrivVidConf', [
             ['Add', 'Greet back'],
-            ['Add', 'Chat commands for windows'],
+            ['Add', 'Chat console opens windows'],
             ['Add', 'Save window state'],
+            ['Add', 'Private videoconference'],
+            ['Add', 'Activity points'],
+            ['Add', 'Item info/stats'],
+            ['Add', 'Item shredder'],
         ]],
         ['1.0.7', 'unsafe-eval', [
             ['Add', 'Have items'],

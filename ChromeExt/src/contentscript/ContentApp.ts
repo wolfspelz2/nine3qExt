@@ -65,6 +65,7 @@ export class ContentApp
     private backpackIsOpen: boolean = false;
     private vidconfIsOpen: boolean = false;
     private chatIsOpen: boolean = false;
+    private privateVidconfIsOpen: boolean = false;
 
     // Getter
 
@@ -297,7 +298,8 @@ export class ContentApp
 
     setBackpackIsOpen(value: boolean): void
     {
-        this.backpackIsOpen = value; this.evaluateStayOnTabChange();
+        this.backpackIsOpen = value;
+        this.evaluateStayOnTabChange();
         if (value) {
             /* await */ Memory.setLocal(Utils.localStorageKey_BackpackIsOpen(this.roomJid), value);
         } else {
@@ -307,12 +309,19 @@ export class ContentApp
 
     setVidconfIsOpen(value: boolean): void
     {
-        this.vidconfIsOpen = value; this.evaluateStayOnTabChange();
+        this.vidconfIsOpen = value;
+        this.evaluateStayOnTabChange();
         if (value) {
             /* await */ Memory.setLocal(Utils.localStorageKey_VidconfIsOpen(this.roomJid), value);
         } else {
             /* await */ Memory.deleteLocal(Utils.localStorageKey_VidconfIsOpen(this.roomJid));
         }
+    }
+
+    setPrivateVidconfIsOpen(value: boolean): void
+    {
+        this.privateVidconfIsOpen = value;
+        this.evaluateStayOnTabChange();
     }
 
     setChatIsOpen(value: boolean): void
@@ -345,7 +354,7 @@ export class ContentApp
 
     evaluateStayOnTabChange(): void
     {
-        let stay = this.backpackIsOpen || this.vidconfIsOpen || this.chatIsOpen || this.stayHereIsChecked;
+        let stay = this.backpackIsOpen || this.vidconfIsOpen || this.chatIsOpen || this.stayHereIsChecked || this.privateVidconfIsOpen;
         if (stay) {
             this.messageHandler({ 'type': ContentAppNotification.type_onTabChangeStay });
         } else {

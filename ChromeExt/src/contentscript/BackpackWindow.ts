@@ -2,7 +2,6 @@ import devModeDeleteImage from '../assets/Blackhole.png';
 
 import * as $ from 'jquery';
 import 'webpack-jquery-ui';
-// import markdown = require('markdown');
 import log = require('loglevel');
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';

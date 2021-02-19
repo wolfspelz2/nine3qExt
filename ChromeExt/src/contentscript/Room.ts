@@ -12,6 +12,7 @@ import { RoomItem } from './RoomItem';
 import { ChatWindow } from './ChatWindow'; // Wants to be after Participant and Item otherwise $().resizable does not work
 import { VidconfWindow } from './VidconfWindow';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { VpProtocol } from '../lib/VpProtocol';
 
 export interface IRoomInfoLine extends Array<string | string> { 0: string, 1: string }
 export interface IRoomInfo extends Array<IRoomInfoLine> { }
@@ -430,6 +431,22 @@ export class Room
         if (Config.get('points.enabled', false)) {
             /* await */ BackgroundMessage.pointsActivity(Pid.PointsChannelGreet, 1);
         }
+    }
+
+    sendPrivateVidconf(nick: string, url: string)
+    {
+        let message = xml('message', { type: 'chat', to: this.jid + '/' + nick, from: this.jid + '/' + this.myNick })
+            .append(xml('x', { 'xmlns': VpProtocol.PrivateVideoconfRequest.xmlns, [VpProtocol.PrivateVideoconfRequest.key_url]: url }))
+            ;
+        this.app.sendStanza(message);
+    }
+
+    sendDeclinePrivateVidconfResponse(nick: string, comment: string)
+    {
+        let message = xml('message', { type: 'chat', to: this.jid + '/' + nick, from: this.jid + '/' + this.myNick })
+            .append(xml('x', { 'xmlns': VpProtocol.Response.xmlns, [VpProtocol.Response.key_to]: VpProtocol.PrivateVideoconfRequest.xmlns, [VpProtocol.PrivateVideoconfResponse.key_type]: [VpProtocol.PrivateVideoconfResponse.type_decline], [VpProtocol.PrivateVideoconfResponse.key_comment]: comment }))
+            ;
+        this.app.sendStanza(message);
     }
 
     async transferItem(itemId: string, nick: string)

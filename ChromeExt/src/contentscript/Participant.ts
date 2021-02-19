@@ -7,6 +7,7 @@ import { Utils } from '../lib/Utils';
 import { IObserver } from '../lib/ObservableProperty';
 import { Pid } from '../lib/ItemProperties';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { ItemException } from '../lib/ItemExcption';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
@@ -17,8 +18,9 @@ import { Chatin } from './Chatin';
 import { RoomItem } from './RoomItem';
 import { SimpleErrorToast, SimpleToast, Toast } from './Toast';
 import { PrivateChatWindow } from './PrivateChatWindow';
+import { PrivateVidconfWindow } from './PrivateVidconfWindow';
 import { PointsBar } from './PointsBar';
-import { ItemException } from '../lib/ItemExcption';
+import { VpProtocol } from '../lib/VpProtocol';
 
 export class Participant extends Entity
 {
@@ -29,6 +31,7 @@ export class Participant extends Entity
     private isFirstPresence: boolean = true;
     private userId: string;
     private privateChatWindow: PrivateChatWindow;
+    private privateVidconfWindow: PrivateVidconfWindow;
 
     constructor(app: ContentApp, room: Room, private roomNick: string, isSelf: boolean)
     {
@@ -386,6 +389,18 @@ export class Participant extends Entity
             this.onReceivePoke(pokeNode);
         }
 
+        let vidconfNode = stanza.getChildren('x').find(child => (child.attrs == null) ? false : as.String(child.attrs.xmlns, '') == 'vp:vidconf');
+        if (vidconfNode) {
+            isChat = false;
+            this.onReceiveVidconf(vidconfNode);
+        }
+
+        let responseNode = stanza.getChildren('x').find(child => (child.attrs == null) ? false : as.String(child.attrs.xmlns, '') == 'vp:response');
+        if (responseNode) {
+            isChat = false;
+            this.onReceiveResponse(responseNode);
+        }
+
         let transferNode = stanza.getChildren('x').find(child => (child.attrs == null) ? false : as.String(child.attrs.xmlns, '') == 'vp:transfer');
         if (transferNode) {
             isChat = false;
@@ -418,8 +433,48 @@ export class Participant extends Entity
         try {
             let pokeType = node.attrs.type;
             let toast = new SimpleToast(this.app, 'poke-' + pokeType, Config.get('room.pokeToastDurationSec', 10), 'greeting', this.getDisplayName(), pokeType + 's');
-            toast.actionButton(pokeType + ' back', () => { this.sendPoke(pokeType); toast.close(); })
+            toast.actionButton(pokeType + ' back', () =>
+            {
+                this.sendPoke(pokeType);
+                toast.close();
+            })
             toast.show();
+        } catch (error) {
+            //
+        }
+    }
+
+    onReceiveVidconf(node: any): void
+    {
+        try {
+            let url = node.attrs.url;
+            let toast = new SimpleToast(this.app, 'privatevidconf', Config.get('room.privateVidconfToastDurationSec', 60), 'privatevidconf', this.getDisplayName(), 'Wants to start a private videoconference');
+            toast.actionButton('Accept', () =>
+            {
+                this.openPrivateVidconf(this.getElem(), url);
+                toast.close();
+            })
+            toast.actionButton('Decline', () =>
+            {
+                this.room?.sendDeclinePrivateVidconfResponse(this.roomNick, '');
+                toast.close();
+            })
+            toast.show();
+        } catch (error) {
+            //
+        }
+    }
+
+    onReceiveResponse(node: any): void
+    {
+        try {
+            if (node.attrs.to == VpProtocol.PrivateVideoconfRequest.xmlns) {
+                if (node.attrs.type == VpProtocol.PrivateVideoconfResponse.type_decline) {
+                    let comment = node.attrs.comment;
+                    let toast = new SimpleToast(this.app, 'privatevidconfresponse', Config.get('room.privateVidconfToastDurationSec', 60), 'privatevidconf', this.getDisplayName(), 'Refuses to join the private videoconference');
+                    toast.show();
+                }
+            }
         } catch (error) {
             //
         }
@@ -700,14 +755,45 @@ export class Participant extends Entity
             this.privateChatWindow = new PrivateChatWindow(this.app, this);
             this.privateChatWindow.show({
                 'above': aboveElem,
-                onClose: () =>
-                {
-                    this.privateChatWindow = null;
-                },
+                onClose: () => { this.privateChatWindow = null; },
             });
         }
+    }
 
-        if (this.privateChatWindow == null) {
+    initiatePrivateVidconf(aboveElem: HTMLElement): void
+    {
+        let confId = 'secret-' + Utils.randomString(30);
+
+        let urlTemplate = Config.get('room.vidconfUrl', 'https://meet.jit.si/{room}#userInfo.displayName="{name}"');
+        let url = urlTemplate
+            .replace('{room}', confId)
+            ;
+
+        this.room?.sendPrivateVidconf(this.roomNick, url);
+        this.openPrivateVidconf(aboveElem, url);
+    }
+
+    openPrivateVidconf(aboveElem: HTMLElement, urlTemplate: string): void
+    {
+        if (this.privateVidconfWindow == null) {
+            let displayName = this.room.getParticipant(this.room.getMyNick()).getDisplayName();
+
+            let url = urlTemplate
+                .replace('{name}', displayName)
+                ;
+
+            this.app.setPrivateVidconfIsOpen(true);
+
+            this.privateVidconfWindow = new PrivateVidconfWindow(this.app, this);
+            this.privateVidconfWindow.show({
+                above: aboveElem,
+                url: url,
+                onClose: () =>
+                {
+                    this.privateVidconfWindow = null;
+                    this.app.setPrivateVidconfIsOpen(false);
+                },
+            });
         }
     }
 

@@ -22,13 +22,6 @@ export namespace ItemException
         NotTransferred
     }
 
-
-
-
-
-
-
-
     export enum Reason
     {
         UnknownReason,

@@ -404,6 +404,7 @@
             div.n3q-menuitem-settings div.n3q-menu-icon { background: url(../assets/icons/ic_baseline-settings.svg) no-repeat center center / contain; }
             div.n3q-menuitem-tabstay div.n3q-menu-icon-unchecked { background: url(../assets/icons/ic-outline-check-box-outline-blank.svg) no-repeat center center / contain; }
             div.n3q-menuitem-tabstay div.n3q-menu-icon-checked { background: url(../assets/icons/ic-outline-check-box.svg) no-repeat center center / contain; }
+            div.n3q-menuitem-privatevidconf div.n3q-menu-icon { background: url(../assets/icons/mdi_monitor-eye.svg) no-repeat center center / contain; }
             div.n3q-menuitem-privatechat div.n3q-menu-icon { background: url(../assets/icons/ri_chat-private-line.svg) no-repeat center center / contain; }
             div.n3q-menuitem-greet div.n3q-menu-icon { background: url(../assets/icons/mdi_human-greeting.svg) no-repeat center center / contain; }
 
@@ -411,26 +412,27 @@
             div.n3q-menu-item.n3q-menu-column-action { transform: translate(-20px, -15px) scale(0, 0); }
             div.n3q-menu-item.n3q-menu-column-interaction { transform: translate(-20px, -15px) scale(0, 0); }
 
-            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-test        { transform: translate(80px,  -16px) scale(1, 1); } 
-            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-inventory   { transform: translate(60px, -154px) scale(1, 1); } 
-            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-tabstay     { transform: translate(60px, -132px) scale(1, 1); } 
-            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-settings    { transform: translate(60px, -110px) scale(1, 1); } 
-            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-vidconf     { transform: translate(60px,  -88px) scale(1, 1); } 
-            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-chatwin     { transform: translate(60px,  -66px) scale(1, 1); } 
-            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-chat        { transform: translate(60px,  -44px) scale(1, 1); } 
-            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-Actions     { transform: translate(-3px, -242px) scale(1, 1); }
-            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-wave        { transform: translate(-3px, -220px) scale(1, 1); }
-            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-dance       { transform: translate(-3px, -198px) scale(1, 1); } 
-            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-cheer       { transform: translate(-3px, -176px) scale(1, 1); } 
-            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-kiss        { transform: translate(-3px, -154px) scale(1, 1); } 
-            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-clap        { transform: translate(-3px, -132px) scale(1, 1); } 
-            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-laugh       { transform: translate(-3px, -110px) scale(1, 1); } 
-            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-angry       { transform: translate(-3px,  -88px) scale(1, 1); } 
-            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-deny        { transform: translate(-3px,  -66px) scale(1, 1); } 
-            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-yawn        { transform: translate(-3px,  -44px) scale(1, 1); } 
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-test           { transform: translate(80px,  -16px) scale(1, 1); } 
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-inventory      { transform: translate(60px, -154px) scale(1, 1); } 
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-tabstay        { transform: translate(60px, -132px) scale(1, 1); } 
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-settings       { transform: translate(60px, -110px) scale(1, 1); } 
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-vidconf        { transform: translate(60px,  -88px) scale(1, 1); } 
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-chatwin        { transform: translate(60px,  -66px) scale(1, 1); } 
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-chat           { transform: translate(60px,  -44px) scale(1, 1); } 
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-Actions        { transform: translate(-3px, -242px) scale(1, 1); }
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-wave           { transform: translate(-3px, -220px) scale(1, 1); }
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-dance          { transform: translate(-3px, -198px) scale(1, 1); } 
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-cheer          { transform: translate(-3px, -176px) scale(1, 1); } 
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-kiss           { transform: translate(-3px, -154px) scale(1, 1); } 
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-clap           { transform: translate(-3px, -132px) scale(1, 1); } 
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-laugh          { transform: translate(-3px, -110px) scale(1, 1); } 
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-angry          { transform: translate(-3px,  -88px) scale(1, 1); } 
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-deny           { transform: translate(-3px,  -66px) scale(1, 1); } 
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-yawn           { transform: translate(-3px,  -44px) scale(1, 1); } 
             
-            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-privatechat { transform: translate(-3px,  -66px) scale(1, 1); } 
-            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-greet       { transform: translate(-3px,  -44px) scale(1, 1); } 
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-privatevidconf { transform: translate(-3px,  -88px) scale(1, 1); } 
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-privatechat    { transform: translate(-3px,  -66px) scale(1, 1); } 
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-greet          { transform: translate(-3px,  -44px) scale(1, 1); } 
 
             div.n3q-participant-other div.n3q-menu-item.n3q-menu-column-main { transform: translate(-20px, -35px) scale(0, 0); }
             div.n3q-participant-other input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-chat { transform: translate(-20px, -44px) scale(1, 1); } 
@@ -537,6 +539,7 @@
         .n3q-toast-icon.n3q-toast-icon-warning { background: url(../assets/icons/ic_baseline-warning.svg) no-repeat center center / contain; }
         .n3q-toast-icon.n3q-toast-icon-greeting { background: url(../assets/icons/mdi_human-greeting.svg) no-repeat center center / contain; }
         .n3q-toast-icon.n3q-toast-icon-privatechat { background: url(../assets/icons/ri_chat-private-line.svg) no-repeat center center / contain; }
+        .n3q-toast-icon.n3q-toast-icon-privatevidconf { background: url(../assets/icons/mdi_monitor-eye.svg) no-repeat center center / contain; }
         .n3q-toast-icon.n3q-toast-icon-notice { background: url(../assets/icons/fe_warning.svg) no-repeat center center / contain; }
 
         .n3q-toast-body-container {
