@@ -111,4 +111,16 @@ export class Utils
     static hasChromeStorage(): boolean {
         return (typeof chrome !== 'undefined' && typeof chrome.storage !== 'undefined');
     }
+
+    static startsWith(pageUrl: string, prefixes: Array<string>)
+    {
+        for (let i = 0; i < prefixes.length; i++) {
+            if (pageUrl.startsWith(prefixes[i])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }

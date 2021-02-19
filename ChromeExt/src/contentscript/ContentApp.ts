@@ -478,8 +478,9 @@ export class ContentApp
             let pageUrl = this.presetPageUrl ?? Browser.getCurrentPageUrl();
 
             let strippedUrlPrefixes = Config.get('vp.strippedUrlPrefixes', []);
-            for (let i in strippedUrlPrefixes) {
-                if (pageUrl.startsWith(strippedUrlPrefixes[i])) {
+            let notStrippedUrlPrefixes = Config.get('vp.notStrippedUrlPrefixes', []);
+            for (let i = 0; i < strippedUrlPrefixes.length; i++) {
+                if (pageUrl.startsWith(strippedUrlPrefixes[i]) && !Utils.startsWith(pageUrl, notStrippedUrlPrefixes)) {
                     pageUrl = pageUrl.substring(strippedUrlPrefixes[i].length);
                     if (!pageUrl.startsWith('https://')) {
                         pageUrl = 'https://' + pageUrl;
