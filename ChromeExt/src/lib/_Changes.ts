@@ -14,6 +14,7 @@ export class _Changes
             ['Add', 'Activity points'],
             ['Add', 'Item info/stats'],
             ['Add', 'Item shredder'],
+            ['Add', 'Chat console /map'],
         ]],
         ['1.0.7', 'unsafe-eval', [
             ['Add', 'Have items'],

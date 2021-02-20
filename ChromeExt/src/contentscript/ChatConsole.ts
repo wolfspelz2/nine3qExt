@@ -1,7 +1,11 @@
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Client } from '../lib/Client';
+import { Config } from '../lib/Config';
+import { Translator } from '../lib/Translator';
 import { ContentApp } from './ContentApp';
 import { Room } from './Room';
 import { TestWindow } from './TestWindow';
+import { VpiResolver } from './VpiResolver';
 
 export interface ChatConsoleOut { (data: any): void }
 
@@ -33,7 +37,8 @@ export class ChatConsole
         switch (cmd) {
             case '/help':
             case '/?':
-                ChatConsole.out(context, [
+                this.out(context, ['>', text]);
+                this.out(context, [
                     ['help', '/xmpp'],
                     ['help', '/room'],
                     ['help', '/changes'],
@@ -81,6 +86,25 @@ export class ChatConsole
                 context.room?.getInfo().forEach(line =>
                 {
                     ChatConsole.out(context, [line[0], line[1]]);
+                });
+                isHandled = true;
+                break;
+            case '/map':
+                this.out(context, ['>', text]);
+                let vpi = new VpiResolver(BackgroundMessage, Config);
+                let language: string = Translator.mapLanguage(navigator.language, lang => { return Config.get('i18n.languageMapping', {})[lang]; }, Config.get('i18n.defaultLanguage', 'en-US'));
+                let translator = new Translator(Config.get('i18n.translations', {})[language], language, Config.get('i18n.serviceUrl', ''));
+                vpi.language = Translator.getShortLanguageCode(translator.getLanguage());
+                let lines = new Array<[string, string]>();
+                let url = parts[1];
+                lines.push(['URL', url]);
+                vpi.trace = (key, value) => { lines.push([key, value]); };
+                vpi.map(url).then(location =>
+                {
+                    lines.forEach(line =>
+                    {
+                        ChatConsole.out(context, [line[0], line[1]]);
+                    });
                 });
                 isHandled = true;
                 break;
