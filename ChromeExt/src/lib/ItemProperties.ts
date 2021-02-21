@@ -29,6 +29,7 @@ export class Pid
     static readonly ApplierAspect = 'ApplierAspect';
     static readonly ClaimAspect = 'ClaimAspect';
     static readonly ClaimStrength = 'ClaimStrength';
+    static readonly ClaimName = 'ClaimName';
     static readonly PointsAspect = 'PointsAspect';
     static readonly SettingsAspect = 'SettingsAspect';
     static readonly AvatarAspect = 'AvatarAspect';
@@ -69,6 +70,7 @@ export class Property
         [Pid.RezzedX]: { inPresence: true },
         [Pid.ClaimAspect]: { inPresence: true },
         [Pid.ClaimStrength]: { inPresence: true },
+        [Pid.ClaimName]: { inPresence: true },
         [Pid.IframeAspect]: { inPresence: true },
         [Pid.IframeOptions]: { inPresence: true },
         [Pid.IframeUrl]: { inPresence: true },
