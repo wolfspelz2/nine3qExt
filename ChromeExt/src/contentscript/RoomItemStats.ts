@@ -36,12 +36,14 @@ export class RoomItemStats
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops n3q-roomitemstats n3q-shadow-small" data-translate="children" />').get(0);
         $(this.elem).css({ display: 'none' });
 
-        this.update();
+        let hasStats = this.update();
 
-        $(this.roomItem.getElem()).append(this.elem);
+        if (hasStats) {
+            $(this.roomItem.getElem()).append(this.elem);
+        }
     }
 
-    update(): void
+    update(): boolean
     {
         $(this.elem).empty();
 
@@ -80,5 +82,7 @@ export class RoomItemStats
         }
 
         this.app.translateElem(this.elem);
+
+        return hasStats;
     }
 }

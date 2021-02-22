@@ -73,9 +73,9 @@ export class BackpackWindow extends Window
                 tolerance: 'pointer',
                 drop: async (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
                 {
-                    let droppedItem = ui.draggable.get(0);
-                    if (droppedItem) {
-                        let droppedId: string = $(droppedItem).data('id');
+                    let droppedElem = ui.draggable.get(0);
+                    if (droppedElem) {
+                        let droppedId: string = $(droppedElem).data('id');
                         if (droppedId) {
 
                             let props = await BackgroundMessage.getBackpackItemProperties(droppedId);
@@ -85,7 +85,7 @@ export class BackpackWindow extends Window
                             toast.actionButton('No, keep it', () => { toast.close(); })
                             toast.setDontShow(false);
                             toast.show();
-                            
+
                             ev.stopPropagation();
                         }
                     }
@@ -146,20 +146,17 @@ export class BackpackWindow extends Window
             $(paneElem).droppable({
                 drop: async (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
                 {
-                    let droppedAvatar = ui.draggable.get(0);
-                    if (droppedAvatar) {
-                        let droppedEntity = droppedAvatar.parentElement;
-                        if (droppedEntity) {
-                            let droppedId: string = $(droppedEntity).data('nick');
-                            if (droppedId) {
-                                let roomItem = this.app.getRoom().getItem(droppedId);
-                                if (roomItem) {
-                                    let x = Math.round(ui.offset.left - $(paneElem).offset().left + ui.draggable.width() / 2);
-                                    let y = Math.round(ui.offset.top - $(paneElem).offset().top + ui.draggable.height() / 2)
-                                    roomItem.beginDerez();
-                                    await this.derezItem(roomItem.getRoomNick(), roomItem.getRoom().getJid(), x, y);
-                                    roomItem.endDerez();
-                                }
+                    let droppedElem = ui.draggable.get(0);
+                    if (droppedElem) {
+                        let droppedId = this.getItemIdByElem(droppedElem);
+                        if (droppedId) {
+                            let roomItem = this.app.getRoom().getItem(droppedId);
+                            if (roomItem) {
+                                let x = Math.round(ui.offset.left - $(paneElem).offset().left + ui.draggable.width() / 2);
+                                let y = Math.round(ui.offset.top - $(paneElem).offset().top + ui.draggable.height() / 2)
+                                roomItem.beginDerez();
+                                await this.derezItem(roomItem.getRoomNick(), roomItem.getRoom().getJid(), x, y);
+                                roomItem.endDerez();
                             }
                         }
                     }
@@ -175,6 +172,21 @@ export class BackpackWindow extends Window
                 }
             } catch (ex) {
 
+            }
+        }
+    }
+
+    getItemIdByElem(elem: HTMLElement): string
+    {
+        if (elem) {
+            let avatarElem = elem.parentElement;
+            if ($(avatarElem).hasClass('n3q-entity')) {
+                return $(avatarElem).data('id');
+            } else {
+                let avatarEntityElem = avatarElem.parentElement;
+                if (avatarEntityElem) {
+                    return $(avatarEntityElem).data('id');
+                }
             }
         }
     }

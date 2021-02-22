@@ -16,11 +16,13 @@ import { Entity } from './Entity';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
 import { RoomItemStats } from './RoomItemStats';
+import { ItemFrameUnderlay } from './ItemFrameUnderlay';
 
 export class RoomItem extends Entity
 {
     private isFirstPresence: boolean = true;
     protected statsDisplay: RoomItemStats;
+    protected screenUnderlay: ItemFrameUnderlay;
 
     constructor(app: ContentApp, room: Room, private roomNick: string, isSelf: boolean)
     {
@@ -171,6 +173,17 @@ export class RoomItem extends Entity
 
         if (this.statsDisplay) {
             this.statsDisplay.update();
+        }
+
+        if (this.isFirstPresence) {
+            if (as.Bool(this.getProperties()[Pid.ScreenAspect], false)) {
+                this.screenUnderlay = new ItemFrameUnderlay(this.app, this);
+                this.screenUnderlay.show();
+            }
+        } else {
+            if (this.screenUnderlay) {
+                this.screenUnderlay.update();
+            }
         }
 
         if (newProperties[Pid.Width] && newProperties[Pid.Height]) {

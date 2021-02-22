@@ -73,8 +73,9 @@ export class ItemFrameWindow extends Window
 
     position(width: number, height: number, left: number, bottom: number): void
     {
-        let absLeft = $(this.refElem).offset().left + $(this.refElem).width() / 2 + left;
-        let absTop = $(this.refElem).offset().top + $(this.refElem).height() - bottom - height;
-        $(this.windowElem).css({ width: width + 'px', height: height + 'px', left: absLeft + 'px', top: absTop + 'px' });
+        let offset = this.refElem.getBoundingClientRect();
+        let absLeft = offset.left + left;
+        let absBottom = bottom;
+        $(this.windowElem).css({ width: width + 'px', height: height + 'px', left: absLeft + 'px', bottom: absBottom + 'px' });
     }
 }

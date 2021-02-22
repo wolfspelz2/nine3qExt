@@ -19,8 +19,8 @@ export class Pid
     static readonly Provider = 'Provider';
     static readonly Stats = 'Stats';
     static readonly IframeAspect = 'IframeAspect';
-    static readonly IframeUrl = 'IframeUrl';
     static readonly IframeOptions = 'IframeOptions';
+    static readonly IframeUrl = 'IframeUrl';
     static readonly TransferState = 'TransferState';
     static readonly ImageUrl = 'ImageUrl';
     static readonly AnimationsUrl = 'AnimationsUrl';
@@ -44,6 +44,9 @@ export class Pid
     static readonly PointsChannelItemRez = 'PointsChannelItemRez';
     static readonly PointsChannelItemApply = 'PointsChannelItemApply';
     static readonly PointsTotal = 'PointsTotal';
+    static readonly ScreenAspect = 'ScreenAspect';
+    static readonly ScreenOptions = 'ScreenOptions';
+    static readonly ScreenUrl = 'ScreenUrl';
 
     static readonly TransferState_Source = 'Source';
     static readonly TransferState_Destination = 'Destination';
@@ -72,6 +75,9 @@ export class Property
         [Pid.IframeAspect]: { inPresence: true },
         [Pid.IframeOptions]: { inPresence: true },
         [Pid.IframeUrl]: { inPresence: true },
+        [Pid.ScreenAspect]: { inPresence: true },
+        [Pid.ScreenOptions]: { inPresence: true },
+        [Pid.ScreenUrl]: { inPresence: true },
         [Pid.Stats]: { inPresence: true },
 
         // For unit test

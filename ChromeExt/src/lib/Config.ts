@@ -266,6 +266,7 @@ export class Config
 
                     'ItemPid.Label': 'Label',
                     'ItemPid.ClaimStrength': 'Strength',
+                    'ItemPid.ClaimName': 'For',
                     'ItemPid.OwnerName': 'Owner',
                     'ItemPid.DispenserAvailable': 'Remaining',
                     'ItemPid.DispenserCooldownSec': 'Cooldown',
@@ -393,6 +394,7 @@ export class Config
 
                     'ItemPid.Label': 'Bezeichnung',
                     'ItemPid.ClaimStrength': 'Stärke',
+                    'ItemPid.ClaimName': 'Für',
                     'ItemPid.OwnerName': 'Besitzer',
                     'ItemPid.DispenserAvailable': 'Übrig',
                     'ItemPid.DispenserCooldownSec': 'Wartezeit',
