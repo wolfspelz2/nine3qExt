@@ -5,6 +5,7 @@ export class Pid
 {
     static readonly Id = 'Id';
     static readonly Label = 'Label';
+    static readonly Comment = 'Comment';
     static readonly Template: 'Template';
     static readonly OwnerId = 'OwnerId';
     static readonly OwnerName = 'OwnerName';
@@ -62,6 +63,7 @@ export class Property
     private static config: { [pid: string]: PropertyDefinition } = {
         [Pid.Id]: { inPresence: true },
         [Pid.Label]: { inPresence: true },
+        [Pid.Comment]: { inPresence: true },
         [Pid.OwnerId]: { inPresence: true },
         [Pid.OwnerName]: { inPresence: true },
         [Pid.Provider]: { inPresence: true },

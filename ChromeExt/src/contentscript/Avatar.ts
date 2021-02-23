@@ -187,7 +187,7 @@ export class Avatar implements IObserver
 
     getRoomItemByDomElem(elem: HTMLElement): RoomItem
     {
-        let avatarEntityId = this.getEntityIdByAvatarElem(elem);
+        let avatarEntityId = Avatar.getEntityIdByAvatarElem(elem);
         if (avatarEntityId) {
             return this.app.getRoom().getItem(avatarEntityId);
         }
@@ -195,13 +195,13 @@ export class Avatar implements IObserver
 
     getParticipantByAvatarElem(elem: HTMLElement): Participant
     {
-        let avatarEntityId = this.getEntityIdByAvatarElem(elem);
+        let avatarEntityId = Avatar.getEntityIdByAvatarElem(elem);
         if (avatarEntityId) {
             return this.app.getRoom().getParticipant(avatarEntityId);
         }
     }
 
-    getEntityIdByAvatarElem(elem: HTMLElement): string
+    static getEntityIdByAvatarElem(elem: HTMLElement): string
     {
         if (elem) {
             let avatarElem = elem.parentElement;

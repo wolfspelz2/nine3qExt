@@ -2,7 +2,7 @@ import * as $ from 'jquery';
 import log = require('loglevel');
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';
-import { Pid } from '../lib/ItemProperties';
+import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { BackpackItem } from './BackpackItem';
 import { ContentApp } from './ContentApp';
 
@@ -70,6 +70,12 @@ export class BackpackItemInfo
             $(this.elem).append(labelElem);
         }
 
+        let comment = as.String(props[Pid.Comment], null);
+        if (comment) {
+            let commentElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops-comment">' + comment + '</div>').get(0);
+            $(this.elem).append(commentElem);
+        }
+
         let stats = as.String(props[Pid.Stats], null);
         let statsPids = stats.split(' ');
         statsPids.push(Pid.IsRezzed);
@@ -89,12 +95,12 @@ export class BackpackItemInfo
                     if (value.startsWith('www.')) { value = value.substr('www.'.length); }
                 }
 
-                let lineElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops-line" data-translate="children">'
-                    + '<span class="n3q-base n3q-itemprops-key" data-translate="text:ItemPid">'
-                    + pid + '</span><span class="n3q-base n3q-itemprops-value" data-translate="text:ItemValue" title="'
-                    + as.Html(value) + '">'
-                    + as.Html(value) + '</span>'
-                    + '</div>').get(0);
+                let lineElem = <HTMLDivElement>$(''
+                    + '<div class="n3q-base n3q-itemprops-line" data - translate="children" > '
+                    + '<span class="n3q-base n3q-itemprops-key" data-translate="text:ItemPid">' + pid + '</span>'
+                    + '<span class="n3q-base n3q-itemprops-value" data-translate="text:ItemValue" title="' + as.Html(value) + '">' + as.Html(value) + '</span>'
+                    + '</div>')
+                    .get(0);
                 $(listElem).append(lineElem);
             }
         }

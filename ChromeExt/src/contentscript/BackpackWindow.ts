@@ -16,6 +16,7 @@ import { Environment } from '../lib/Environment';
 import { ItemException } from '../lib/ItemExcption';
 import { ItemExceptionToast, SimpleErrorToast, SimpleToast } from './Toast';
 import { RoomItem } from './RoomItem';
+import { Avatar } from './Avatar';
 
 export class BackpackWindow extends Window
 {
@@ -148,7 +149,7 @@ export class BackpackWindow extends Window
                 {
                     let droppedElem = ui.draggable.get(0);
                     if (droppedElem) {
-                        let droppedId = this.getItemIdByElem(droppedElem);
+                        let droppedId = Avatar.getEntityIdByAvatarElem(droppedElem);
                         if (droppedId) {
                             let roomItem = this.app.getRoom().getItem(droppedId);
                             if (roomItem) {
@@ -176,20 +177,6 @@ export class BackpackWindow extends Window
         }
     }
 
-    getItemIdByElem(elem: HTMLElement): string
-    {
-        if (elem) {
-            let avatarElem = elem.parentElement;
-            if ($(avatarElem).hasClass('n3q-entity')) {
-                return $(avatarElem).data('id');
-            } else {
-                let avatarEntityElem = avatarElem.parentElement;
-                if (avatarEntityElem) {
-                    return $(avatarEntityElem).data('id');
-                }
-            }
-        }
-    }
 
     populate(items: { [id: string]: ItemProperties; })
     {

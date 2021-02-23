@@ -265,6 +265,7 @@ export class Config
                     'ErrorDetail.Pid.Actions': 'Actions',
 
                     'ItemPid.Label': 'Label',
+                    'ItemPid.Comment': 'Comment',
                     'ItemPid.ClaimStrength': 'Strength',
                     'ItemPid.ClaimName': 'For',
                     'ItemPid.OwnerName': 'Owner',
@@ -393,6 +394,7 @@ export class Config
                     'ErrorDetail.Pid.Actions': 'Aktionen',
 
                     'ItemPid.Label': 'Bezeichnung',
+                    'ItemPid.Comment': 'Kommentar',
                     'ItemPid.ClaimStrength': 'Stärke',
                     'ItemPid.ClaimName': 'Für',
                     'ItemPid.OwnerName': 'Besitzer',
