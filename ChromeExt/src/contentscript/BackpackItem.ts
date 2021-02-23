@@ -16,6 +16,7 @@ export class BackpackItem
 {
     private isFirstPresence: boolean = true;
     private elem: HTMLDivElement;
+    private imageElem: HTMLDivElement;
     private iconElem: HTMLImageElement;
     private x: number = 100;
     private y: number = 100;
@@ -36,7 +37,10 @@ export class BackpackItem
         let x = this.getPseudoRandomCoordinate(paneElem.offsetWidth, this.w, padding, itemId, 11345);
         let y = this.getPseudoRandomCoordinate(paneElem.offsetHeight, this.w, padding, itemId, 13532);
 
+        // this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item" data-id="' + this.itemId + '" />').get(0);
+        this.imageElem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item-image" />').get(0);
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item" data-id="' + this.itemId + '" />').get(0);
+        $(this.elem).append(this.imageElem);
 
         this.setImage(imgDefaultItem);
         this.setSize(50, 50);
@@ -52,14 +56,14 @@ export class BackpackItem
         $(this.elem).on({
             click: async (ev) => 
             {
-                if (ev.target == this.elem || (this.info != null && ev.target == this.info.getElem())) {
-                    if (this.info) {
-                        this.info.close();
-                    } else {
-                        this.info = new BackpackItemInfo(this.app, this, () => { this.info = null; });
-                        this.info.show(ev.offsetX, ev.offsetY);
-                    }
+                // if (ev.target == this.elem || (this.info != null && ev.target == this.info.getElem())) {
+                if (this.info) {
+                    this.info.close();
+                } else {
+                    this.info = new BackpackItemInfo(this.app, this, () => { this.info = null; });
+                    this.info.show(ev.offsetX, ev.offsetY);
                 }
+                // }
             }
         });
 
@@ -68,10 +72,11 @@ export class BackpackItem
             stack: '.n3q-item-icon',
             distance: 4,
             //opacity: 0.5,
-            helper: function ()
+            helper: () =>
             {
+                if (this.info) { this.info.close(); }
                 let dragElem = $('<div class="n3q-base n3q-backpack-drag" />').get(0);
-                let itemElem = $(this).clone().get(0);
+                let itemElem = $(this.elem).clone().get(0);
                 $(itemElem).css({ 'left': '0', 'top': '0', 'width': this.w, 'height': this.h });
                 $(dragElem).append(itemElem);
                 $(app.getDisplay()).append(dragElem);
@@ -122,7 +127,7 @@ export class BackpackItem
 
     setImage(url: string): void
     {
-        $(this.elem).css({ 'background-image': 'url("' + url + '")' });
+        $(this.imageElem).css({ 'background-image': 'url("' + url + '")' });
     }
 
     setSize(w: number, h: number)

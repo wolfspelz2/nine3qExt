@@ -96,7 +96,7 @@ export class BackpackItemInfo
                 }
 
                 let lineElem = <HTMLDivElement>$(''
-                    + '<div class="n3q-base n3q-itemprops-line" data - translate="children" > '
+                    + '<div class="n3q-base n3q-itemprops-line" data-translate="children" > '
                     + '<span class="n3q-base n3q-itemprops-key" data-translate="text:ItemPid">' + pid + '</span>'
                     + '<span class="n3q-base n3q-itemprops-value" data-translate="text:ItemValue" title="' + as.Html(value) + '">' + as.Html(value) + '</span>'
                     + '</div>')
@@ -131,8 +131,10 @@ export class BackpackItemInfo
 
         if (Config.get('backpack.itemPropertiesTooltip', false)) {
             let moreElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-backpack-more" data-translate="text:Backpack">Show all</div>').get(0);
-            $(moreElem).on('click', () =>
+            $(moreElem).on('click', (ev) =>
             {
+                ev.stopPropagation();
+
                 let keys = [];
                 for (let pid in props) { keys.push(pid); }
                 keys = keys.sort();

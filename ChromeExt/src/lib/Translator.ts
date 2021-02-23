@@ -1,4 +1,5 @@
 import * as $ from 'jquery';
+import log = require('loglevel');
 import { Config } from './Config';
 import { Utils } from './Utils';
 
@@ -119,7 +120,12 @@ export class Translator
                         break;
 
                     case 'children':
-                        $(elem).children().each((index, child) => this.translateElem(<HTMLElement>child));
+                        $(elem).children().each(
+                            (index, child) =>
+                            {
+                                //log.debug('translate child', child.tagName, child.className);
+                                this.translateElem(<HTMLElement>child);
+                            });
                         break;
                 }
 

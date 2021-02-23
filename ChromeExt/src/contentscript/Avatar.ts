@@ -98,7 +98,14 @@ export class Avatar implements IObserver
             stack: '.n3q-item',
             opacity: 0.5,
             distance: 4,
-            helper: 'clone',
+            // helper: 'clone',
+            helper: () =>
+            {
+                let dragElem = $(this.elem).clone().get(0);
+                let nick = Avatar.getEntityIdByAvatarElem(this.elem);
+                $(dragElem).data('nick', nick);
+                return dragElem;
+            },
             // zIndex: 1100000000,
             containment: 'document',
             start: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
@@ -143,10 +150,13 @@ export class Avatar implements IObserver
     {
         $(this.elem).droppable({
             hoverClass: 'n3q-avatar-drophilite',
-            accept: function (draggable)
+            accept: (draggable) =>
             {
-                if (draggable.hasClass('n3q-item-avatar')) {
-                    return true;
+                if (draggable[0]) { draggable = draggable[0]; }
+                if ($(draggable).hasClass('n3q-avatar-image')) {
+                    if (Avatar.getEntityIdByAvatarElem(draggable) != Avatar.getEntityIdByAvatarElem(this.getElem())) {
+                        return true;
+                    }
                 }
             },
             drop: async (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
@@ -204,13 +214,18 @@ export class Avatar implements IObserver
     static getEntityIdByAvatarElem(elem: HTMLElement): string
     {
         if (elem) {
+            let nick = $(elem).data('nick');
+            if (nick) { if (nick != '') { return nick; } }
+
             let avatarElem = elem.parentElement;
-            if ($(avatarElem).hasClass('n3q-entity')) {
-                return $(avatarElem).data('nick');
-            } else {
-                let avatarEntityElem = avatarElem.parentElement;
-                if (avatarEntityElem) {
-                    return $(avatarEntityElem).data('nick');
+            if (avatarElem) {
+                if ($(avatarElem).hasClass('n3q-entity')) {
+                    return $(avatarElem).data('nick');
+                } else {
+                    let avatarEntityElem = avatarElem.parentElement;
+                    if (avatarEntityElem) {
+                        return $(avatarEntityElem).data('nick');
+                    }
                 }
             }
         }
