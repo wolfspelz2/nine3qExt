@@ -104,10 +104,14 @@ export class IframeApi
             // } else {
             //     new SimpleErrorToast(this.app, 'Warning-' + ex.fact + '-' + ex.reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', ex.fact, ex.reason, ex.detail).show();
             // }
-            let fact = typeof ex.fact === 'number' ? ItemException.Fact[ex.fact] : ex.fact;
-            let reason = typeof ex.reason === 'number' ? ItemException.Reason[ex.reason] : ex.reason;
-            let detail = ex.detail;
-            new SimpleErrorToast(this.app, 'Warning-' + fact + '-' + reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', fact, reason, detail).show();
+            if (ex.fact) {
+                let fact = typeof ex.fact === 'number' ? ItemException.Fact[ex.fact] : ex.fact;
+                let reason = typeof ex.reason === 'number' ? ItemException.Reason[ex.reason] : ex.reason;
+                let detail = ex.detail;
+                new SimpleErrorToast(this.app, 'Warning-' + fact + '-' + reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', fact, reason, detail).show();
+            } else {
+                new SimpleErrorToast(this.app, 'Warning-UnknownError', Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', 'Error', 'UnknownReason', ex.message).show();
+            }
         }
     }
 }
