@@ -120,7 +120,7 @@ export class Config
             digest: '',
             identificatorUrlTemplate: 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}&points={points}',
         },
-        roomitem: {
+        roomItem: {
             messageMagic: 'uzv65b76t_weblin2screen',
         },
         backpack: {
