@@ -2,11 +2,12 @@ import * as $ from 'jquery';
 import 'webpack-jquery-ui';
 import log = require('loglevel');
 import { as } from '../lib/as';
-import { Point2D } from '../lib/Utils';
+import { Point2D, Utils } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { Popup } from './Popup';
 import { RepositoryItem } from './RepositoryItem';
 import { Pid } from '../lib/ItemProperties';
+import { Config } from '../lib/Config';
 
 type PopupOptions = any;
 

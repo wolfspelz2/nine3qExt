@@ -94,6 +94,7 @@ export class Config
             applyItemErrorToastDurationSec: 5,
             claimToastDurationSec: 15,
             itemStatsTooltip: true,
+            itemStatsTooltipDelay: 500,
             itemStatsTooltipOffset: { x: 3, y: 3 },
         },
         xmpp: {
@@ -119,13 +120,16 @@ export class Config
             digest: '',
             identificatorUrlTemplate: 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}&points={points}',
         },
+        roomitem: {
+            messageMagic: 'uzv65b76t_weblin2screen',
+        },
         backpack: {
             enabled: true,
             itemSize: 64,
             borderPadding: 4,
             dropZoneHeight: 100,
-            itemPropertiesTooltip: false,
-            itemInfoOffset: { x: 3, y: 3 },
+            itemInfoOffset: { x: 2, y: 2 },
+            itemInfoExtended: false,
             deleteToastDurationSec: 100,
         },
         projector: {

@@ -55,6 +55,9 @@ export class IframeApi
             case WeblinClientApi.PositionWindowRequest.type: {
                 this.handle_PositionWindowRequest(<WeblinClientApi.PositionWindowRequest>request);
             } break;
+            case WeblinClientApi.ScreenContentMessageRequest.type: {
+                this.handle_ScreenContentMessageRequest(<WeblinClientApi.ScreenContentMessageRequest>request);
+            } break;
             case WeblinClientApi.CloseWindowRequest.type: {
                 this.handle_CloseWindowRequest(<WeblinClientApi.CloseWindowRequest>request);
             } break;
@@ -74,6 +77,15 @@ export class IframeApi
     {
         try {
             this.app.positionItemFrame(request.item, request.width, request.height, request.left, request.bottom);
+        } catch (ex) {
+            log.info(ex);
+        }
+    }
+
+    handle_ScreenContentMessageRequest(request: WeblinClientApi.ScreenContentMessageRequest)
+    {
+        try {
+            this.app.sendMessageToScreenItemFrame(request.item, request.message);
         } catch (ex) {
             log.info(ex);
         }
@@ -154,6 +166,13 @@ export namespace WeblinClientApi
         height: number;
         left: number;
         bottom: number;
+    }
+
+    export class ScreenContentMessageRequest extends Request
+    {
+        static type = 'Screen.ContentMessage';
+        item: string;
+        message: any;
     }
 
     export class ItemActionRequest extends Request

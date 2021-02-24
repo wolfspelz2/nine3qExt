@@ -2,11 +2,10 @@ import * as $ from 'jquery';
 import 'webpack-jquery-ui';
 import log = require('loglevel');
 import { as } from '../lib/as';
-import { Point2D } from '../lib/Utils';
-import { ContentApp } from './ContentApp';
-import { Popup } from './Popup';
-import { RepositoryItem } from './RepositoryItem';
+import { Point2D, Utils } from '../lib/Utils';
 import { Pid } from '../lib/ItemProperties';
+import { Config } from '../lib/Config';
+import { ContentApp } from './ContentApp';
 import { RoomItem } from './RoomItem';
 
 type PopupOptions = any;
@@ -15,6 +14,7 @@ export class ItemFrameUnderlay
 {
     private elem: HTMLElement = null;
     private url = 'about:blank';
+    private iframeId: string;
 
     constructor(app: ContentApp, protected roomItem: RoomItem)
     {
@@ -26,7 +26,9 @@ export class ItemFrameUnderlay
             this.url = as.String(this.roomItem.getProperties()[Pid.ScreenUrl], 'about:blank');
             let options = as.String(this.roomItem.getProperties()[Pid.ScreenOptions], '{}');
             let css = JSON.parse(options);
-            this.elem = <HTMLElement>$('<iframe class="n3q-base n3q-itemframepopunder-content" src="' + this.url + ' " frameborder="0" allow="autoplay; encrypted-media"></iframe>').get(0);
+            this.iframeId = Utils.randomString(15);
+
+            this.elem = <HTMLElement>$('<iframe id="' + this.iframeId + '" class="n3q-base n3q-itemframepopunder-content" src="' + this.url + ' " frameborder="0" allow="autoplay; encrypted-media"></iframe>').get(0);
             $(this.elem).css(css);
 
             let avatar = this.roomItem.getAvatar();
@@ -45,5 +47,14 @@ export class ItemFrameUnderlay
             this.url = url;
             $(this.elem).attr('src', this.url);
         }
+    }
+
+    sendMessage(message: any)
+    {
+        let iframeElem = <HTMLIFrameElement>$('#' + this.iframeId).get(0);
+        let iframeWindow = iframeElem.contentWindow;
+
+        message[Config.get('roomitem.messageMagic', 'uzv65b76t_weblin2screen')] = true;
+        iframeWindow.postMessage(message, '*');
     }
 }

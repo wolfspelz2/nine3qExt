@@ -21,7 +21,7 @@ export class RoomItemStats
         }
 
         this.app.toFront(this.elem);
-        $(this.elem).stop().fadeIn('fast');
+        $(this.elem).stop().delay(Config.get('room.itemStatsTooltipDelay', 500)).fadeIn('fast');
     }
 
     close(): void

@@ -129,8 +129,8 @@ export class BackpackItemInfo
             $(this.elem).append(derezElem);
         }
 
-        if (Config.get('backpack.itemPropertiesTooltip', false)) {
-            let moreElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-backpack-more" data-translate="text:Backpack">Show all</div>').get(0);
+        if (Config.get('backpack.itemInfoExtended', false)) {
+            let moreElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-backpack-more" data-translate="text:Backpack">More</div>').get(0);
             $(moreElem).on('click', (ev) =>
             {
                 ev.stopPropagation();
@@ -143,11 +143,12 @@ export class BackpackItemInfo
                 for (let i in keys) {
                     let pid = keys[i]
                     let value = props[pid];
-                    let lineElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops-line">'
-                        + '<span class="n3q-base n3q-itemprops-key">'
-                        + pid + '</span><span class="n3q-base n3q-itemprops-value">'
-                        + as.Html(value) + '</span>'
-                        + '</div>').get(0);
+                    let lineElem = <HTMLDivElement>$(''
+                        + '<div class="n3q-base n3q-itemprops-line">'
+                        + '<span class="n3q-base n3q-itemprops-key">' + pid + '</span>'
+                        + '<span class="n3q-base n3q-itemprops-value" title="' + as.Html(value) + '">' + as.Html(value) + '</span>'
+                        + '</div>')
+                        .get(0);
                     $(completeListElem).append(lineElem);
                     $(this.elem).css({ maxWidth: '400px', width: '400px' });
                     $(moreElem).remove();

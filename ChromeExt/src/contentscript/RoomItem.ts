@@ -357,4 +357,9 @@ export class RoomItem extends Entity
     {
         this.isDerezzing = false;
     }
+
+    sendsendMessageToScreenFrame(message: any)
+    {
+        this.screenUnderlay?.sendMessage(message);
+    }
 }

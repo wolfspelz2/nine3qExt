@@ -302,6 +302,14 @@ export class ContentApp
         }
     }
 
+    sendMessageToScreenItemFrame(itemId: string, message: any)
+    {
+        let roomItem = this.room.getItem(itemId);
+        if (roomItem) {
+            roomItem.sendsendMessageToScreenFrame(message);
+        }
+    }
+
     // Stay on tab change
 
     setBackpackIsOpen(value: boolean): void
