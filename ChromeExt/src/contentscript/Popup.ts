@@ -25,23 +25,20 @@ export class Popup
 
             let windowElem = <HTMLElement>$('<div id="' + windowId + '" class="n3q-base n3q-window n3q-popupwindow n3q-shadow-medium" data-translate="children" />').get(0);
 
-            let closeElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-overlay n3q-shadow-small" title="Close" data-translate="attr:title:Common"><div class="n3q-base n3q-button-symbol n3q-button-close-small" />').get(0);
-            $(closeElem).click(ev =>
-            {
-                this.close();
-                ev.stopPropagation();
-            });
-            $(windowElem).append(closeElem);
+            if (as.Bool(options.closeButton, true)) {
+                let closeElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-overlay n3q-shadow-small" title="Close" data-translate="attr:title:Common"><div class="n3q-base n3q-button-symbol n3q-button-close-small" />').get(0);
+                this.isClosing = false;
+                $(closeElem).click(ev =>
+                {
+                    this.close();
+                    ev.stopPropagation();
+                });
+                $(windowElem).append(closeElem);
+            }
 
             this.windowElem = windowElem;
 
             $(options.elem).append(windowElem);
-
-            this.isClosing = false;
-            $(closeElem).click(ev =>
-            {
-                this.close();
-            });
 
             $(windowElem).click(ev =>
             {

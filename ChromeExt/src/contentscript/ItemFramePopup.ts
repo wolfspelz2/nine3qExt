@@ -39,6 +39,7 @@ export class ItemFramePopup extends Popup
             options.height = as.Int(iframeOptions.height, 100);
             options.left = as.Int(iframeOptions.left, -options.width / 2);
             options.bottom = as.Int(iframeOptions.bottom, 50);
+            options.closeButton = as.Bool(iframeOptions.closeButton, true);
 
             log.debug('ItemFramePopup', url);
             super.show(options);
