@@ -22,6 +22,7 @@ export class Pid
     static readonly IframeAspect = 'IframeAspect';
     static readonly IframeOptions = 'IframeOptions';
     static readonly IframeUrl = 'IframeUrl';
+    static readonly IframeAuto = 'IframeAuto';
     static readonly TransferState = 'TransferState';
     static readonly ImageUrl = 'ImageUrl';
     static readonly AnimationsUrl = 'AnimationsUrl';
@@ -77,6 +78,7 @@ export class Property
         [Pid.IframeAspect]: { inPresence: true },
         [Pid.IframeOptions]: { inPresence: true },
         [Pid.IframeUrl]: { inPresence: true },
+        [Pid.IframeAuto]: { inPresence: true },
         [Pid.ScreenAspect]: { inPresence: true },
         [Pid.ScreenOptions]: { inPresence: true },
         [Pid.ScreenUrl]: { inPresence: true },

@@ -220,6 +220,17 @@ export class RoomItem extends Entity
             this.show(true, Config.get('room.fadeInSec', 0.3));
         }
 
+        if (this.isFirstPresence) {
+            if (as.Bool(this.getProperties()[Pid.IframeAspect], false)) {
+                if (as.Bool(this.getProperties()[Pid.IframeAuto], false)) {
+                    let item = this.app.getItemRepository().getItem(this.roomNick);
+                    if (item) {
+                        item.openIframe(this.getElem());
+                    }
+                }
+            }
+        }
+
         // if (this.isFirstPresence) {
         //     if (this.room?.iAmAlreadyHere()) {
         //         this.room?.showChatMessage(this.getDisplayName(), 'appeared');

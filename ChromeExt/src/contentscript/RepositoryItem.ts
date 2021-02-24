@@ -42,7 +42,6 @@ export class RepositoryItem
     onClick(clickedElem: HTMLElement, clickPoint: Point2D)
     {
         if (as.Bool(this.properties[Pid.IframeAspect], false)) {
-
             let frame = as.String(JSON.parse(as.String(this.properties[Pid.IframeOptions], '{}')).frame, 'Window');
             if (frame == 'Popup') {
                 if (this.framePopup) {

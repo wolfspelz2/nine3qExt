@@ -121,7 +121,10 @@ export class Config
             identificatorUrlTemplate: 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}&points={points}',
         },
         roomItem: {
+            statsPopupOffset: 10,
             messageMagic: 'uzv65b76t_weblin2screen',
+            frameUndockedLeft: 100,
+            frameUndockedTop: 100,
         },
         backpack: {
             enabled: true,
@@ -282,6 +285,8 @@ export class Config
                     'ItemPid.IsRezzed': 'On page',
                     'ItemPid.CoinCurrency': 'Currency',
                     'ItemPid.CoinAmount': 'Amount',
+                    'ItemPid.IframeUrl': 'URL',
+                    'ItemPid.IframeAuto': 'Autostart',
 
                     'ItemValue.true': 'Yes',
                     'ItemValue.false': 'No',
@@ -411,6 +416,8 @@ export class Config
                     'ItemPid.IsRezzed': 'Auf Webseite',
                     'ItemPid.CoinCurrency': 'Währung',
                     'ItemPid.CoinAmount': 'Betrag',
+                    'ItemPid.IframeUrl': 'URL',
+                    'ItemPid.IframeAuto': 'Automatisch',
 
                     'ItemValue.true': 'Ja',
                     'ItemValue.false': 'Nein',

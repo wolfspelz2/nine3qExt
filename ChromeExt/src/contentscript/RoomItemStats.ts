@@ -18,6 +18,13 @@ export class RoomItemStats
     {
         if (this.elem == null) {
             this.setup();
+
+            let bottom = 70;
+            if (this.roomItem) {
+                let itemHeight = $(this.roomItem.getAvatar().getElem()).height();
+                bottom = itemHeight + Config.get('roomItem.statsPopupOffset', 0);
+            }
+            $(this.elem).css({ bottom: bottom + 'px' });
         }
 
         this.app.toFront(this.elem);

@@ -162,7 +162,7 @@ export class Window
         undocked.focus();
         undocked.onload = function ()
         {
-            let html = `<div style="font-size:30px">Undocked</div>`;
+            let html = `<div style="font-size:30px">Undocked, but not really. Override Window.undock()</div>`;
             undocked.document.body.insertAdjacentHTML('afterbegin', html);
         };
     }
