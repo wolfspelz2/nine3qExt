@@ -231,21 +231,26 @@ export class RoomItem extends Entity
             }
         }
 
-        // if (this.isFirstPresence) {
-        //     if (this.room?.iAmAlreadyHere()) {
-        //         this.room?.showChatMessage(this.getDisplayName(), 'appeared');
-        //     } else {
-        //         this.room?.showChatMessage(this.getDisplayName(), 'is present');
-        //     }
-        // }
+        if (this.isFirstPresence) {
+            if (this.room?.iAmAlreadyHere()) {
+                if (Config.get('roomItem.chatlogItemAppeared', true)) {
+                    this.room?.showChatMessage(this.getDisplayName(), 'appeared');
+                }
+            } else {
+                if (Config.get('roomItem.chatlogItemIsPresent', true)) {
+                    this.room?.showChatMessage(this.getDisplayName(), 'is present');
+                }
+            }
+        }
 
         this.isFirstPresence = false;
     }
 
     onPresenceUnavailable(stanza: any): void
     {
-        // this.room?.showChatMessage(this.getDisplayName(), 'disappeared');
-        this.remove();
+        if (Config.get('roomItem.chatlogItemDisappeared', true)) {
+            this.room?.showChatMessage(this.getDisplayName(), 'disappeared');
+        } this.remove();
     }
 
     onMouseClickAvatar(ev: JQuery.Event): void

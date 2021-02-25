@@ -306,12 +306,18 @@ export class Participant extends Entity
         if (this.isFirstPresence) {
             // if (this.isSelf && Environment.isDevelopment()) { this.showChatWindow(); }
             if (this.isSelf) {
-                this.room?.showChatMessage(this.roomNick, 'entered the room');
+                if (Config.get('room.chatlogEnteredTheRoomSelf', true)) {
+                    this.room?.showChatMessage(this.roomNick, 'entered the room');
+                }
             } else {
                 if (this.room?.iAmAlreadyHere()) {
-                    this.room?.showChatMessage(this.roomNick, 'entered the room');
+                    if (Config.get('room.chatlogEnteredTheRoom', true)) {
+                        this.room?.showChatMessage(this.roomNick, 'entered the room');
+                    }
                 } else {
-                    this.room?.showChatMessage(this.roomNick, 'was already there');
+                    if (Config.get('room.chatlogWasAlreadyThere', true)) {
+                        this.room?.showChatMessage(this.roomNick, 'was already there');
+                    }
                 }
             }
         }
@@ -329,7 +335,9 @@ export class Participant extends Entity
     {
         this.remove();
 
-        this.room?.showChatMessage(this.roomNick, 'left the room');
+        if (Config.get('room.chatlogLeftTheRoom', true)) {
+            this.room?.showChatMessage(this.roomNick, 'left the room');
+        }
     }
 
     fetchVcardImage(avatarDisplay: IObserver)
