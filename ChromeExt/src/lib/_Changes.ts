@@ -15,6 +15,8 @@ export class _Changes
             ['Add', 'Item info/stats'],
             ['Add', 'Item shredder'],
             ['Add', 'Chat console /map'],
+            ['Add', 'Autostart public viewing on item drop'],
+            ['Add', 'Screen item & inter-frame comm'],
         ]],
         ['1.0.7', 'unsafe-eval', [
             ['Add', 'Have items'],
