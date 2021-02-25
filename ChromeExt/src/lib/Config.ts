@@ -52,13 +52,6 @@ export class Config
             maxAgeSec: 3600,
             maintenanceIntervalSec: 60,
         },
-        points: {
-            enabled: false,
-            passiveEnabled: true,
-            submissionIntervalSec: 300,
-            fullLevels: 2,
-            fractionalLevels: 1,
-        },
         test: {
             itemServiceRpcUrl: 'http://localhost:5000/rpc',
         },
@@ -142,8 +135,12 @@ export class Config
             itemInfoExtended: false,
             deleteToastDurationSec: 100,
         },
-        projector: {
-            enabled: false,
+        points: {
+            enabled: true,
+            passiveEnabled: true,
+            submissionIntervalSec: 300,
+            fullLevels: 2,
+            fractionalLevels: 1,
         },
         itemProviders: {
             'nine3q':
