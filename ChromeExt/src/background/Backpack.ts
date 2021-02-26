@@ -12,6 +12,7 @@ import { Memory } from '../lib/Memory';
 import { Utils } from '../lib/Utils';
 import { BackgroundApp } from './BackgroundApp';
 import { Item } from './Item';
+import { Environment } from '../lib/Environment';
 
 export class Backpack
 {
@@ -20,6 +21,14 @@ export class Backpack
     private items: { [id: string]: Item; } = {};
     private rooms: { [jid: string]: Array<string>; } = {};
     private rpcClient: RpcClient = new RpcClient();
+
+    getBackpackIdsKey(): string
+    {
+        if (Config.get('config.clusterName', 'prod') == 'dev') {
+            return Backpack.BackpackIdsKey + '-dev';
+        }
+        return Backpack.BackpackIdsKey;
+    }
 
     constructor(private app: BackgroundApp, rpcClient: RpcClient = null)
     {
@@ -33,9 +42,9 @@ export class Backpack
 
     async loadItems()
     {
-        let itemIds = await Memory.getLocal(Backpack.BackpackIdsKey, []);
+        let itemIds = await Memory.getLocal(this.getBackpackIdsKey(), []);
         if (itemIds == null || !Array.isArray(itemIds)) {
-            log.warn('Local storage', Backpack.BackpackIdsKey, 'not an array');
+            log.warn('Local storage', this.getBackpackIdsKey(), 'not an array');
             return;
         }
 
@@ -158,12 +167,12 @@ export class Backpack
         let item = this.items[itemId];
         if (item) {
             let props = item.getProperties();
-            let itemIds = await Memory.getLocal(Backpack.BackpackIdsKey, []);
+            let itemIds = await Memory.getLocal(this.getBackpackIdsKey(), []);
             if (itemIds && Array.isArray(itemIds)) {
                 await Memory.setLocal(Backpack.BackpackPropsPrefix + itemId, props);
                 if (!itemIds.includes(itemId)) {
                     itemIds.push(itemId);
-                    await Memory.setLocal(Backpack.BackpackIdsKey, itemIds);
+                    await Memory.setLocal(this.getBackpackIdsKey(), itemIds);
                 }
             }
         }
@@ -171,14 +180,14 @@ export class Backpack
 
     private async persistentDeleteItem(itemId: string): Promise<void>
     {
-        let itemIds = await Memory.getLocal(Backpack.BackpackIdsKey, []);
+        let itemIds = await Memory.getLocal(this.getBackpackIdsKey(), []);
         if (itemIds && Array.isArray(itemIds)) {
             await Memory.deleteLocal(Backpack.BackpackPropsPrefix + itemId);
             if (itemIds.includes(itemId)) {
                 const index = itemIds.indexOf(itemId, 0);
                 if (index > -1) {
                     itemIds.splice(index, 1);
-                    await Memory.setLocal(Backpack.BackpackIdsKey, itemIds);
+                    await Memory.setLocal(this.getBackpackIdsKey(), itemIds);
                 }
             }
         }

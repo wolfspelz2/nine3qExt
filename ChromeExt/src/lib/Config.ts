@@ -47,6 +47,7 @@ export class Config
             serviceUrl: 'https://webex.vulcan.weblin.com/Config',
             updateIntervalSec: 83567,
             checkUpdateIntervalSec: 123,
+            clusterName: 'prod',
         },
         httpCache: {
             maxAgeSec: 3600,
