@@ -153,6 +153,7 @@ export class VpiResolver
                                         let locationServiceText: string = locationChild.textContent;
                                         let colonIndex = locationServiceText.indexOf(':');
                                         server = locationServiceText.substr(colonIndex + 1);
+                                        this.trace('server', server);
                                     } break;
 
                                 case 'name': // The same: '<name hash="true">\5</name>' | '<name hash="SHA1">\5</name>' BUT: '<name>\5</name>' does not hash
@@ -198,8 +199,10 @@ export class VpiResolver
                                                     } break;
                                             }
                                         }
+                                        this.trace('options', JSON.stringify(options));
 
                                         let langTag = 'lang:' + language;
+                                        this.trace('language', langTag);
                                         let candidates = options.filter(option => { return option.tag == langTag; });
                                         if (candidates.length == 0) {
                                             candidates = options.filter(option => { return option.tag == defaultTag; });
@@ -208,6 +211,7 @@ export class VpiResolver
                                             let rndIndex = Utils.randomInt(0, candidates.length);
                                             suffix = candidates[rndIndex].suffix;
                                         }
+                                        this.trace('suffix', suffix);
 
                                     } break;
 

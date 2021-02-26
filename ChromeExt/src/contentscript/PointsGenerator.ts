@@ -24,7 +24,10 @@ export class PointsGenerator
             let gap = (lastExp < 0 ? digit.exp + 1 : lastExp) - digit.exp;
             count += gap;
             if (count > this.fullLevels + this.fractionalLevels) { break; }
-            if (count > this.fullLevels && count <= this.fullLevels + this.fractionalLevels) {
+            if (digit.exp == 0) { // list.length > 0 && 
+                if (lastExp > 0 && lastExp - digit.exp > this.fractionalLevels + 1) { break; }
+                list.push('' + digit.exp + '-' + digit.count);
+            } else if (count > this.fullLevels && count <= this.fullLevels + this.fractionalLevels) {
                 if (lastExp > 0 && lastExp - digit.exp > this.fractionalLevels + 1) { break; }
                 list.push('' + digit.exp + '-' + digit.count);
             } else {

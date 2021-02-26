@@ -55,13 +55,14 @@ export class TestPointsGenerator
     {
         let p = new PointsGenerator(4,2,1);
         expect(p.getPartsList(p.getDigitList(0     )).join(' ')).to.equal('');
-        expect(p.getPartsList(p.getDigitList(1     )).join(' ')).to.equal('0');
-        expect(p.getPartsList(p.getDigitList(2     )).join(' ')).to.equal('0 0');
-        expect(p.getPartsList(p.getDigitList(3     )).join(' ')).to.equal('0 0 0');
+        expect(p.getPartsList(p.getDigitList(1     )).join(' ')).to.equal('0-1');
+        expect(p.getPartsList(p.getDigitList(2     )).join(' ')).to.equal('0-2');
+        expect(p.getPartsList(p.getDigitList(3     )).join(' ')).to.equal('0-3');
         expect(p.getPartsList(p.getDigitList(4     )).join(' ')).to.equal('1');
-        expect(p.getPartsList(p.getDigitList(5     )).join(' ')).to.equal('1 0');
+        expect(p.getPartsList(p.getDigitList(5     )).join(' ')).to.equal('1 0-1');
         expect(p.getPartsList(p.getDigitList(8     )).join(' ')).to.equal('1 1');
-        expect(p.getPartsList(p.getDigitList(15    )).join(' ')).to.equal('1 1 1 0 0 0');
+        expect(p.getPartsList(p.getDigitList(10    )).join(' ')).to.equal('1 1 0-2');
+        expect(p.getPartsList(p.getDigitList(15    )).join(' ')).to.equal('1 1 1 0-3');
         expect(p.getPartsList(p.getDigitList(16    )).join(' ')).to.equal('2');
         expect(p.getPartsList(p.getDigitList(17    )).join(' ')).to.equal('2 0-1');
         expect(p.getPartsList(p.getDigitList(25    )).join(' ')).to.equal('2 1 1 0-1');
@@ -73,8 +74,8 @@ export class TestPointsGenerator
         expect(p.getPartsList(p.getDigitList(82    )).join(' ')).to.equal('3 2');
         expect(p.getPartsList(p.getDigitList(783   )).join(' ')).to.equal('4 4 4');
         expect(p.getPartsList(p.getDigitList(812   )).join(' ')).to.equal('4 4 4 2-2');
-        expect(p.getPartsList(p.getDigitList(11    )).join(' ')).to.equal('1 1 0 0 0');
-        expect(p.getPartsList(p.getDigitList(7     )).join(' ')).to.equal('1 0 0 0');
+        expect(p.getPartsList(p.getDigitList(11    )).join(' ')).to.equal('1 1 0-3');
+        expect(p.getPartsList(p.getDigitList(7     )).join(' ')).to.equal('1 0-3');
         expect(p.getPartsList(p.getDigitList(1007  )).join(' ')).to.equal('4 4 4 3 3 3 2-2');
         expect(p.getPartsList(p.getDigitList(1008  )).join(' ')).to.equal('4 4 4 3 3 3 2-3');
         expect(p.getPartsList(p.getDigitList(2500  )).join(' ')).to.equal('5 5 4 3-3');
