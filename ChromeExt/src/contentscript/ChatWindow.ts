@@ -174,10 +174,13 @@ export class ChatWindow extends Window
     private showLine(nick: string, text: string)
     {
         let lineElem = <HTMLElement>$(
-            `<div class="n3q-base n3q-chatwindow-line">
-                <span class="n3q-base n3q-text n3q-nick">`+ as.Html(nick) + `</span>
-                <span class="n3q-base n3q-text n3q-chat">`+ as.Html(text) + `</span>
-            <div>`
+            '<div class="n3q-base n3q-chatwindow-line">'
+            + (nick != '' ?
+                '<span class="n3q-base n3q-text n3q-nick">' + as.Html(nick) + '</span>'
+                + '<span class="n3q-base n3q-text n3q-colon">' + this.app.translateText('Chatwindow.:') + '</span>'
+                : '')
+            + '<span class="n3q-base n3q-text n3q-chat">' + as.Html(text) + '</span>'
+            + '<div>'
         ).get(0);
 
         if (this.chatoutElem) {

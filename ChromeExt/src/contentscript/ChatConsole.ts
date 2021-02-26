@@ -34,6 +34,9 @@ export class ChatConsole
         if (parts.length < 1) { return; }
         var cmd: string = parts[0];
 
+        this.out(context, ['>', text]);
+
+        isHandled = true;
         switch (cmd) {
             case '/help':
             case '/?':
@@ -43,22 +46,18 @@ export class ChatConsole
                     ['help', '/room'],
                     ['help', '/changes'],
                 ]);
-                isHandled = true;
                 break;
             case '/xmpp':
                 context.app?.showXmppWindow();
-                isHandled = true;
                 break;
             case '/chat':
                 context.app?.showChatWindow();
-                isHandled = true;
                 break;
             case '/items':
             case '/backpack':
             case '/stuff':
             case '/things':
                 context.app?.showBackpackWindow();
-                isHandled = true;
                 break;
             case '/video':
             case '/vid':
@@ -66,31 +65,37 @@ export class ChatConsole
             case '/conf':
             case '/jitsi':
                 context.app?.showVidconfWindow();
-                isHandled = true;
                 break;
             case '/test':
                 new TestWindow(context.app).show({});
-                isHandled = true;
                 break;
             case '/changes':
                 context.app?.showChangesWindow();
-                isHandled = true;
                 break;
             case '/info':
                 ChatConsole.out(context, [
                     ['info', Client.getDetails()]
                 ]);
-                isHandled = true;
                 break;
             case '/room':
                 context.room?.getInfo().forEach(line =>
                 {
                     ChatConsole.out(context, [line[0], line[1]]);
                 });
-                isHandled = true;
+                break;
+            case '/who':
+                context.room?.getParticipantIds().forEach(participantNick =>
+                {
+                    ChatConsole.out(context, [participantNick, context.room?.getParticipant(participantNick).getDisplayName()]);
+                });
+                break;
+            case '/what':
+                context.room?.getItemIds().forEach(itemId =>
+                {
+                    ChatConsole.out(context, [itemId, context.room?.getItem(itemId).getDisplayName()]);
+                });
                 break;
             case '/map':
-                this.out(context, ['>', text]);
                 let vpi = new VpiResolver(BackgroundMessage, Config);
                 let language: string = Translator.mapLanguage(navigator.language, lang => { return Config.get('i18n.languageMapping', {})[lang]; }, Config.get('i18n.defaultLanguage', 'en-US'));
                 let translator = new Translator(Config.get('i18n.translations', {})[language], language, Config.get('i18n.serviceUrl', ''));
@@ -106,8 +111,9 @@ export class ChatConsole
                         ChatConsole.out(context, [line[0], line[1]]);
                     });
                 });
-                isHandled = true;
                 break;
+            default:
+                isHandled = false;
         }
 
         return isHandled;

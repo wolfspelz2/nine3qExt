@@ -1025,18 +1025,18 @@
         font-size: 12px;
         line-height: 13px;
         margin-left: 20px; text-indent: -20px;
+
+        span.n3q-nick {
+            font-weight: bold;
+        }
+    
+        span.n3q-colon {
+            font-weight: bold;
+            margin: 0 0.4em 0 0;
+        }
     }
 
-    div.n3q-chatwindow-line span.n3q-nick {
-        font-weight: bold;
-        margin: 0 0.4em 0 0;
-    }
-
-    div.n3q-chatwindow-line span.n3q-nick:after {
-        content: ':';
-    }
-
-        div.n3q-chatwindow-chatin {
+    div.n3q-chatwindow-chatin {
         position: absolute;
         height: 22px;
         left: 8px;

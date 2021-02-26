@@ -213,6 +213,7 @@ export class Config
                     'Chatwindow.appeared': '*appeared*',
                     'Chatwindow.is present': '*is present*',
                     'Chatwindow.disappeared': '*disappeared*',
+                    'Chatwindow.:': ':',
 
                     'PrivateChat.Private Chat with': 'Private Chat with',
 
@@ -346,6 +347,7 @@ export class Config
                     'Chatwindow.appeared': '*erschienen*',
                     'Chatwindow.is present': '*ist da*',
                     'Chatwindow.disappeared': '*verschwunden*',
+                    'Chatwindow.:': ':',
 
                     'PrivateChat.Private Chat with': 'Privater Chat mit',
 

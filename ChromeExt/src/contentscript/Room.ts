@@ -57,6 +57,22 @@ export class Room
     getDestination(): string { return this.destination; }
     getParticipant(nick: string): Participant { return this.participants[nick]; }
     getItem(nick: string) { return this.items[nick]; }
+    getParticipantIds(): Array<string>
+    {
+        let ids = [];
+        for (let id in this.participants) {
+            ids.push(id);
+        }
+        return ids;
+    }
+    getItemIds(): Array<string>
+    {
+        let ids = [];
+        for (let id in this.items) {
+            ids.push(id);
+        }
+        return ids;
+    }
 
     getPageClaimItem(): RoomItem
     {
