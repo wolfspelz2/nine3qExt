@@ -172,7 +172,7 @@ export class VpiResolver
                                         logData['replace'] = nameExpr;
                                         logData['name'] = name;
 
-                                        if (hash && hash != '') {
+                                        if (as.String(hash, '') != '') {
                                             let hasher = crypto.createHash(hash.toLowerCase());
                                             hasher.update(name);
                                             name = hasher.digest('hex');
