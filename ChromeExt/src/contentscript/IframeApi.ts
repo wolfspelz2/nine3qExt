@@ -48,6 +48,15 @@ export class IframeApi
 
         let request = <WeblinClientApi.Request>ev.data;
 
+        if (request[Config.get('w2wMigration.messageMagic', 'hbv67u5rf_w2wMigrate')]) {
+            let cid = (<any>request).cid;
+            if (cid) {
+//hw
+            }
+            return;
+        }
+
+        // if (request[Config.get('iframeApi.messageMagic', 'a67igu67puz_iframeApi')]) {
         switch (request.type) {
             case WeblinClientApi.ItemActionRequest.type: {
                 /* await */ this.handle_ItemActionRequest(<WeblinClientApi.ItemActionRequest>request);
@@ -59,6 +68,7 @@ export class IframeApi
                 this.handle_CloseWindowRequest(<WeblinClientApi.CloseWindowRequest>request);
             } break;
         }
+        // }
     }
 
     handle_CloseWindowRequest(request: WeblinClientApi.CloseWindowRequest)
