@@ -18,7 +18,6 @@ export class Payload
         }
         let hash = await this.getPayloadHash(api, payload);
         let token = {
-            'api': api,
             'payload': payload,
             'hash': hash
         }
