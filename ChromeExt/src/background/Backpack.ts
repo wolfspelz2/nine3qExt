@@ -376,8 +376,14 @@ export class Backpack
         this.addToRoom(itemId, roomJid);
 
         let props = item.getProperties();
+
         props[Pid.IsRezzed] = 'true';
-        props[Pid.RezzedX] = '' + rezzedX;
+        if (rezzedX >= 0) {
+            props[Pid.RezzedX] = '' + rezzedX;
+        }
+        if (as.Int(props[Pid.RezzedX], -1) < 0) {
+            props[Pid.RezzedX] = '' + Utils.randomInt(100, 400);
+        }
         props[Pid.RezzedDestination] = destinationUrl;
         props[Pid.RezzedLocation] = roomJid;
         props[Pid.OwnerName] = await Memory.getSync(Utils.syncStorageKey_Nickname(), as.String(props[Pid.OwnerName]));
@@ -403,7 +409,7 @@ export class Backpack
             props[Pid.InventoryX] = '' + inventoryX;
             props[Pid.InventoryY] = '' + inventoryY;
         }
-        delete props[Pid.RezzedX];
+        // delete props[Pid.RezzedX]; // preserve for rez by button
         delete props[Pid.RezzedDestination];
         delete props[Pid.RezzedLocation];
 

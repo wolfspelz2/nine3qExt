@@ -9,6 +9,7 @@ export class _Changes
         ['1.0.9', '?', [
             ['Add', 'transparent iframe'],
             ['Add', 'Document window'],
+            ['Add', 'Rez item by button'],
         ]],
         ['1.0.8', 'Points PrivVidConf Screen Stats', [
             ['Add', 'Greet back'],

@@ -226,6 +226,7 @@ export class Config
                     'Backpack.Shredder': 'Shredder',
                     'Backpack.Go to item': 'Go there',
                     'Backpack.Derez item': 'Pick up',
+                    'Backpack.Rez item': 'Drop',
 
                     'Toast.Do not show this message again': 'Do not show this message again',
                     'Toast.greets': '...greeted you',
@@ -363,6 +364,7 @@ export class Config
                     'Backpack.Shredder': 'Schredder',
                     'Backpack.Go to item': 'Dort hingehen',
                     'Backpack.Derez item': 'Einsammeln',
+                    'Backpack.Rez item': 'Ablegen',
 
                     'Toast.Do not show this message again': 'Diese Nachricht nicht mehr anzeigen',
                     'Toast.greets': '...hat dich gegrüßt',
