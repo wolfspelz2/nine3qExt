@@ -127,6 +127,12 @@ export class Config
             chatlogItemIsPresent: false,
             chatlogItemDisappeared: false,
         },
+        iframeApi: {
+            messageMagic: 'a67igu67puz_iframeApi',
+        },
+        w2wMigration: {
+            messageMagic: 'hbv67u5rf_w2wMigrate',
+        },
         backpack: {
             enabled: true,
             itemSize: 64,
