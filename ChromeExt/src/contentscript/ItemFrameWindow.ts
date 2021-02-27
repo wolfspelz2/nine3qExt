@@ -11,7 +11,7 @@ import { Config } from '../lib/Config';
 
 type WindowOptions = any;
 
-interface ItemFrameWindowOptions extends WindowOptions
+export interface ItemFrameWindowOptions extends WindowOptions
 {
     item: RepositoryItem;
     elem: HTMLElement;
@@ -24,8 +24,8 @@ export class ItemFrameWindow extends Window
     protected refElem: HTMLElement;
     private url: string;
     private title: string;
-    private width = 600;
-    private height = 600;
+    private width = 400;
+    private height = 400;
 
     constructor(app: ContentApp)
     {
@@ -37,18 +37,6 @@ export class ItemFrameWindow extends Window
         try {
             let url: string = options.url;
             if (!url) { throw 'No url' }
-
-            let json = as.String(options.item.getProperties()[Pid.IframeOptions], '{}');
-            let iframeOptions = JSON.parse(json);
-
-            options.width = as.Int(iframeOptions.width, 100);
-            options.height = as.Int(iframeOptions.height, 100);
-            options.left = as.Int(iframeOptions.left, -options.width / 2);
-            options.bottom = as.Int(iframeOptions.bottom, 50);
-
-            options.resizable = as.Bool(options.rezizable, true);
-            options.undockable = as.Bool(options.undockable, true);
-            options.titleText = as.String(options.item.getProperties().Label, 'Item');
 
             this.refElem = options.elem;
 

@@ -23,7 +23,10 @@ export class Popup
         if (!this.windowElem) {
             let windowId = Utils.randomString(15);
 
-            let windowElem = <HTMLElement>$('<div id="' + windowId + '" class="n3q-base n3q-window n3q-popupwindow n3q-shadow-medium" data-translate="children" />').get(0);
+            let windowElem = <HTMLElement>$('<div id="' + windowId + '" class="n3q-base n3q-window n3q-popupwindow '
+                + (options.transparent ? 'n3q-transparent' : 'n3q-shadow-medium')
+                + '" data-translate="children" />')
+                .get(0);
 
             if (as.Bool(options.closeButton, true)) {
                 let closeElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-overlay n3q-shadow-small" title="Close" data-translate="attr:title:Common"><div class="n3q-base n3q-button-symbol n3q-button-close-small" />').get(0);

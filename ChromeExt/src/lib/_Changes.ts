@@ -7,7 +7,8 @@ export class _Changes
 {
     static data: IHistory = [
         ['1.0.9', '?', [
-            ['Add', '?'],
+            ['Add', 'transparent iframe'],
+            ['Add', 'Document window'],
         ]],
         ['1.0.8', 'Points PrivVidConf Screen Stats', [
             ['Add', 'Greet back'],

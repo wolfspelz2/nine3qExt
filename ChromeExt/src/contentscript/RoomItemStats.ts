@@ -61,7 +61,7 @@ export class RoomItemStats
             let label = as.String(props[Pid.Template], null);
         }
         if (label) {
-            let labelElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops-title" data-translate="text:ItemLabel">' + label + '</div>').get(0);
+            let labelElem = <HTMLDivElement>$('<div class="n3q-base n3q-title" data-translate="text:ItemLabel">' + label + '</div>').get(0);
             $(this.elem).append(labelElem);
         }
 

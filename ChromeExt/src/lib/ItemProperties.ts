@@ -5,7 +5,7 @@ export class Pid
 {
     static readonly Id = 'Id';
     static readonly Label = 'Label';
-    static readonly Comment = 'Comment';
+    static readonly Description = 'Description';
     static readonly Template: 'Template';
     static readonly OwnerId = 'OwnerId';
     static readonly OwnerName = 'OwnerName';
@@ -22,6 +22,8 @@ export class Pid
     static readonly IframeAspect = 'IframeAspect';
     static readonly IframeOptions = 'IframeOptions';
     static readonly IframeUrl = 'IframeUrl';
+    static readonly DocumentOptions = 'DocumentOptions';
+    static readonly DocumentUrl = 'DocumentUrl';
     static readonly IframeAuto = 'IframeAuto';
     static readonly TransferState = 'TransferState';
     static readonly ImageUrl = 'ImageUrl';
@@ -64,7 +66,7 @@ export class Property
     private static config: { [pid: string]: PropertyDefinition } = {
         [Pid.Id]: { inPresence: true },
         [Pid.Label]: { inPresence: true },
-        [Pid.Comment]: { inPresence: true },
+        [Pid.Description]: { inPresence: true },
         [Pid.OwnerId]: { inPresence: true },
         [Pid.OwnerName]: { inPresence: true },
         [Pid.Provider]: { inPresence: true },
@@ -79,6 +81,8 @@ export class Property
         [Pid.IframeOptions]: { inPresence: true },
         [Pid.IframeUrl]: { inPresence: true },
         [Pid.IframeAuto]: { inPresence: true },
+        [Pid.DocumentOptions]: { inPresence: true },
+        [Pid.DocumentUrl]: { inPresence: true },
         [Pid.ScreenAspect]: { inPresence: true },
         [Pid.ScreenOptions]: { inPresence: true },
         [Pid.ScreenUrl]: { inPresence: true },

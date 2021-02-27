@@ -52,19 +52,22 @@ export class IframeApi
             case WeblinClientApi.ItemActionRequest.type: {
                 /* await */ this.handle_ItemActionRequest(<WeblinClientApi.ItemActionRequest>request);
             } break;
-            case WeblinClientApi.PositionWindowRequest.type: {
-                this.handle_PositionWindowRequest(<WeblinClientApi.PositionWindowRequest>request);
+            case WeblinClientApi.WindowPositionRequest.type: {
+                this.handle_PositionWindowRequest(<WeblinClientApi.WindowPositionRequest>request);
             } break;
             case WeblinClientApi.ScreenContentMessageRequest.type: {
                 this.handle_ScreenContentMessageRequest(<WeblinClientApi.ScreenContentMessageRequest>request);
             } break;
-            case WeblinClientApi.CloseWindowRequest.type: {
-                this.handle_CloseWindowRequest(<WeblinClientApi.CloseWindowRequest>request);
+            case WeblinClientApi.WindowOpenDocumentUrlRequest.type: {
+                this.handle_WindowOpenDocumentUrlRequest(<WeblinClientApi.WindowOpenDocumentUrlRequest>request);
+            } break;
+            case WeblinClientApi.WindowCloseRequest.type: {
+                this.handle_CloseWindowRequest(<WeblinClientApi.WindowCloseRequest>request);
             } break;
         }
     }
 
-    handle_CloseWindowRequest(request: WeblinClientApi.CloseWindowRequest)
+    handle_CloseWindowRequest(request: WeblinClientApi.WindowCloseRequest)
     {
         try {
             this.app.closeItemFrame(request.item);
@@ -73,7 +76,16 @@ export class IframeApi
         }
     }
 
-    handle_PositionWindowRequest(request: WeblinClientApi.PositionWindowRequest)
+    handle_WindowOpenDocumentUrlRequest(request: WeblinClientApi.WindowOpenDocumentUrlRequest)
+    {
+        try {
+            this.app.openDocumentUrl(request.item);
+        } catch (ex) {
+            log.info(ex);
+        }
+    }
+
+   handle_PositionWindowRequest(request: WeblinClientApi.WindowPositionRequest)
     {
         try {
             this.app.positionItemFrame(request.item, request.width, request.height, request.left, request.bottom);
@@ -156,13 +168,19 @@ export namespace WeblinClientApi
         detail: string;
     }
 
-    export class CloseWindowRequest extends Request
+    export class WindowOpenDocumentUrlRequest extends Request
+    {
+        static type = 'Window.OpenDocumentUrl';
+        item: string;
+    }
+
+    export class WindowCloseRequest extends Request
     {
         static type = 'Window.Close';
         item: string;
     }
 
-    export class PositionWindowRequest extends Request
+    export class WindowPositionRequest extends Request
     {
         static type = 'Window.Position';
         item: string;

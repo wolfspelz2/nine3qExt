@@ -294,6 +294,17 @@ export class ContentApp
         }
     }
 
+    openDocumentUrl(itemId: string)
+    {
+        let roomItem = this.room.getItem(itemId);
+        if (roomItem) {
+            let item = this.getItemRepository().getItem(itemId);
+            if (item) {
+                item.openDocumentUrl(roomItem.getElem());
+            }
+        }
+    }
+
     positionItemFrame(itemId: string, width: number, height: number, left: number, bottom: number)
     {
         let item = this.getItemRepository().getItem(itemId);

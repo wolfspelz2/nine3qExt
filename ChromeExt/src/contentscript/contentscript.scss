@@ -183,6 +183,10 @@
         box-shadow: 2px 2px 9px #404040;;
     }
 
+    div.n3q-transparent {
+        background-color: rgba(0, 0, 0, 0);
+    }
+
     // Buttons
 
     div.n3q-button {
@@ -604,12 +608,7 @@
         border: 1px solid #888;
         padding: 3px;
 
-        div.n3q-itemprops-title {
-            font-weight: bold;
-            text-align: center;
-        }
-
-        div.n3q-itemprops-comment {
+        div.n3q-description {
             margin-top: 4px;
         }
 
@@ -653,6 +652,10 @@
         min-width: 140px;
         max-width: 220px;
 
+        div.n3q-title {
+            text-align: center;
+        }
+
         div.n3q-button {
             display: inline-block;
             margin-top: 4px;
@@ -664,10 +667,14 @@
         }
     }
 
-     div.n3q-window {
+    div.n3q-window {
         position: absolute;
         background-color: #ffffff;
         pointer-events: auto;
+    }
+
+    div.n3q-window.n3q-transparent {
+        background-color: rgba(0, 0, 0, 0);
     }
         
     div.n3q-window-title-bar {

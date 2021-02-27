@@ -272,13 +272,15 @@ export class Config
                     'ErrorReason.ItemMustBeStronger': 'Your item is not stronger than the other.',
                     'ErrorReason.ItemIsNotTransferable': 'Item not transferable.',
                     'ErrorReason.NoMatch': 'Item do not match.',
+                    'ErrorReason.NoSuchAspect': 'Dem Gegenstand fehlt eine Eigenschaft.',
 
                     'ErrorDetail.Applier.Apply': 'Applying an item to another',
                     'ErrorDetail.Pid.Id': 'Id',
                     'ErrorDetail.Pid.Actions': 'Actions',
+                    'ErrorDetail.Pid.DocumentAspect': 'Dokument',
 
                     'ItemPid.Label': 'Label',
-                    'ItemPid.Comment': 'Comment',
+                    'ItemPid.Description': 'Description',
                     'ItemPid.ClaimStrength': 'Strength',
                     'ItemPid.ClaimName': 'For',
                     'ItemPid.OwnerName': 'Owner',
@@ -293,6 +295,7 @@ export class Config
                     'ItemPid.CoinAmount': 'Amount',
                     'ItemPid.IframeUrl': 'URL',
                     'ItemPid.IframeAuto': 'Autostart',
+                    'ItemPid.DocumentTitle': 'Title',
 
                     'ItemValue.true': 'Yes',
                     'ItemValue.false': 'No',
@@ -404,13 +407,15 @@ export class Config
                     'ErrorReason.ItemMustBeStronger': 'Der Gegenstand ist nicht stärker als der andere.',
                     'ErrorReason.ItemIsNotTransferable': 'Der Gegenstand ist nicht übertragbar.',
                     'ErrorReason.NoMatch': 'Gegenstände passen nicht.',
-
+                    'ErrorReason.NoSuchAspect': 'Dem Gegenstand fehlt eine Eigenschaft.',
+                    
                     'ErrorDetail.Applier.Apply': 'Beim Anwenden eines Gegenstands auf einen anderen.',
                     'ErrorDetail.Pid.Id': 'Id',
                     'ErrorDetail.Pid.Actions': 'Aktionen',
+                    'ErrorDetail.Pid.DocumentAspect': 'Dokument',
 
                     'ItemPid.Label': 'Bezeichnung',
-                    'ItemPid.Comment': 'Kommentar',
+                    'ItemPid.Description': 'Beschreibung',
                     'ItemPid.ClaimStrength': 'Stärke',
                     'ItemPid.ClaimName': 'Für',
                     'ItemPid.OwnerName': 'Besitzer',
@@ -425,6 +430,7 @@ export class Config
                     'ItemPid.CoinAmount': 'Betrag',
                     'ItemPid.IframeUrl': 'URL',
                     'ItemPid.IframeAuto': 'Automatisch',
+                    'ItemPid.DocumentTitle': 'Titel',
 
                     'ItemValue.true': 'Ja',
                     'ItemValue.false': 'Nein',

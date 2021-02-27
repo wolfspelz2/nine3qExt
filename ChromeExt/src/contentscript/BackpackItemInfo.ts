@@ -66,14 +66,14 @@ export class BackpackItemInfo
             let label = as.String(props[Pid.Template], null);
         }
         if (label) {
-            let labelElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops-title" data-translate="text:ItemLabel">' + label + '</div>').get(0);
+            let labelElem = <HTMLDivElement>$('<div class="n3q-base n3q-title" data-translate="text:ItemLabel">' + label + '</div>').get(0);
             $(this.elem).append(labelElem);
         }
 
-        let comment = as.String(props[Pid.Comment], null);
-        if (comment) {
-            let commentElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops-comment">' + comment + '</div>').get(0);
-            $(this.elem).append(commentElem);
+        let description = as.String(props[Pid.Description], null);
+        if (description) {
+            let descriptionElem = <HTMLDivElement>$('<div class="n3q-base n3q-description">' + description + '</div>').get(0);
+            $(this.elem).append(descriptionElem);
         }
 
         let stats = as.String(props[Pid.Stats], null);

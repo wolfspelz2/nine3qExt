@@ -40,7 +40,8 @@ export class ItemFramePopup extends Popup
             options.left = as.Int(iframeOptions.left, -options.width / 2);
             options.bottom = as.Int(iframeOptions.bottom, 50);
             options.closeButton = as.Bool(iframeOptions.closeButton, true);
-
+            options.transparent = as.Bool(iframeOptions.transparent, false);
+            
             log.debug('ItemFramePopup', url);
             super.show(options);
 
