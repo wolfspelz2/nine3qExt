@@ -6,7 +6,10 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
-        ['1.0.8', 'Points PrivVidConf Screen stats', [
+        ['1.0.9', '?', [
+            ['Add', '?'],
+        ]],
+        ['1.0.8', 'Points PrivVidConf Screen Stats', [
             ['Add', 'Greet back'],
             ['Add', 'Chat console opens windows'],
             ['Add', 'Save window state'],
