@@ -1,7 +1,6 @@
 import * as $ from 'jquery';
 import '../popup/popup.scss';
 import 'webpack-jquery-ui';
-// import markdown = require('markdown');
 import log = require('loglevel');
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';

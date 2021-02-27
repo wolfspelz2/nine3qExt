@@ -1,5 +1,6 @@
 import log = require('loglevel');
 import { Environment } from './Environment';
+import { Pid } from './ItemProperties';
 import { Utils } from './Utils';
 
 interface ConfigGetCallback { (value: any): void }
@@ -15,6 +16,9 @@ export class Config
 
     public static staticConfigName = 'static';
     public static staticConfig: any = {
+        environment: {
+            // NODE_ENV: 'production',
+        },
         extension: {
             id: 'cgfkfhdinajjhfeghebnljbanpcjdlkm',
         },
@@ -36,12 +40,14 @@ export class Config
             vpiRoot: 'https://lms.virtual-presence.org/v7/root.xml',
             vpiMaxIterations: 15,
             ignoredDomainSuffixes: ['vulcan.weblin.com'],
-            strippedUrlPrefixes: ['https://cdn.weblin.io/?'],
+            strippedUrlPrefixes: ['https://cdn.weblin.io/?', 'https://cdn.weblin.io/'],
+            notStrippedUrlPrefixes: ['https://cdn.weblin.io/v1/', 'https://cdn.weblin.io/sso/'],
         },
         config: {
             serviceUrl: 'https://webex.vulcan.weblin.com/Config',
-            updateIntervalSec: Utils.randomInt(86400 - 2000, 86400 + 1000),
-            checkUpdateIntervalSec: Utils.randomInt(120 - 10, 120 + 10),
+            updateIntervalSec: 83567,
+            checkUpdateIntervalSec: 123,
+            clusterName: 'prod',
         },
         httpCache: {
             maxAgeSec: 3600,
@@ -65,7 +71,12 @@ export class Config
             chatWindowHeight: 250,
             chatWindowMaxHeight: 800,
             keepAliveSec: 120,
+            chatlogEnteredTheRoom: true,
+            chatlogEnteredTheRoomSelf: false,
+            chatlogWasAlreadyThere: false,
+            chatlogLeftTheRoom: true,
             nicknameOnHover: true,
+            pointsOnHover: true,
             defaultStillimageSize: 80,
             defaultAnimationSize: 100,
             vCardAvatarFallback: false,
@@ -75,10 +86,14 @@ export class Config
             vidconfWidth: 600,
             vidconfHeight: 400,
             pokeToastDurationSec: 10,
+            privateVidconfToastDurationSec: 60,
             privateChatToastDurationSec: 60,
             errorToastDurationSec: 8,
             applyItemErrorToastDurationSec: 5,
             claimToastDurationSec: 15,
+            itemStatsTooltip: true,
+            itemStatsTooltipDelay: 500,
+            itemStatsTooltipOffset: { x: 3, y: 3 },
         },
         xmpp: {
             service: 'wss://xmpp.vulcan.weblin.com/xmpp-websocket',
@@ -87,32 +102,46 @@ export class Config
             pingBackgroundToKeepConnectionAliveSec: 12,
         },
         avatars: {
-            animationsUrlTemplate: 'https://webex.vulcan.weblin.com/avatars/gif/{id}/config.xml',
             animationsProxyUrlTemplate: 'https://webex.vulcan.weblin.com/Avatar/InlineData?url={url}',
             dataUrlProxyUrlTemplate: 'https://webex.vulcan.weblin.com/Avatar/DataUrl?url={url}',
+
+            animationsUrlTemplate: 'https://webex.vulcan.weblin.com/avatars/{id}/config.xml',
+            // animationsUrlTemplate: 'https://webex.vulcan.weblin.com/avatars/gif/{id}/config.xml',
+
+            // list: ['gif/002/sportive03_m', 'gif/002/business03_m', 'gif/002/child02_m', 'gif/002/sportive01_m', 'gif/002/business06_m', 'gif/002/casual04_f', 'gif/002/business01_f', 'gif/002/casual30_m', 'gif/002/sportive03_f', 'gif/002/casual16_m', 'gif/002/casual10_f', 'gif/002/business03_f', 'gif/002/casual03_m', 'gif/002/sportive07_m', 'gif/002/casual13_f', 'gif/002/casual09_m', 'gif/002/casual16_f', 'gif/002/child02_f', 'gif/002/sportive08_m', 'gif/002/casual15_m', 'gif/002/casual15_f', 'gif/002/casual01_f', 'gif/002/casual11_f', 'gif/002/sportive09_m', 'gif/002/casual20_f', 'gif/002/sportive02_f', 'gif/002/business05_m', 'gif/002/casual06_m', 'gif/002/casual10_m', 'gif/002/casual02_f',],
+            // randomList: ['gif/002/sportive03_m', 'gif/002/business03_m', 'gif/002/child02_m', 'gif/002/sportive01_m', 'gif/002/business06_m', 'gif/002/casual04_f', 'gif/002/business01_f', 'gif/002/casual30_m', 'gif/002/sportive03_f', 'gif/002/casual16_m', 'gif/002/casual10_f', 'gif/002/business03_f', 'gif/002/casual03_m', 'gif/002/sportive07_m', 'gif/002/casual13_f', 'gif/002/casual09_m', 'gif/002/casual16_f', 'gif/002/child02_f', 'gif/002/sportive08_m', 'gif/002/casual15_m', 'gif/002/casual15_f', 'gif/002/casual01_f', 'gif/002/casual11_f', 'gif/002/sportive09_m', 'gif/002/casual20_f', 'gif/002/sportive02_f', 'gif/002/business05_m', 'gif/002/casual06_m', 'gif/002/casual10_m', 'gif/002/casual02_f',],
             list: ['002/sportive03_m', '002/business03_m', '002/child02_m', '002/sportive01_m', '002/business06_m', '002/casual04_f', '002/business01_f', '002/casual30_m', '002/sportive03_f', '002/casual16_m', '002/casual10_f', '002/business03_f', '002/casual03_m', '002/sportive07_m', '002/casual13_f', '002/casual09_m', '002/casual16_f', '002/child02_f', '002/sportive08_m', '002/casual15_m', '002/casual15_f', '002/casual01_f', '002/casual11_f', '002/sportive09_m', '002/casual20_f', '002/sportive02_f', '002/business05_m', '002/casual06_m', '002/casual10_m', '002/casual02_f',],
             randomList: ['002/sportive03_m', '002/business03_m', '002/child02_m', '002/sportive01_m', '002/business06_m', '002/casual04_f', '002/business01_f', '002/casual30_m', '002/sportive03_f', '002/casual16_m', '002/casual10_f', '002/business03_f', '002/casual03_m', '002/sportive07_m', '002/casual13_f', '002/casual09_m', '002/casual16_f', '002/child02_f', '002/sportive08_m', '002/casual15_m', '002/casual15_f', '002/casual01_f', '002/casual11_f', '002/sportive09_m', '002/casual20_f', '002/sportive02_f', '002/business05_m', '002/casual06_m', '002/casual10_m', '002/casual02_f',],
         },
         identity: {
             url: '',
             digest: '',
-            identificatorUrlTemplate: 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}',
+            identificatorUrlTemplate: 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}&points={points}',
         },
-        inventory: {
-            enabled: false,
-            itemSize: 64,
-            borderPadding: 4,
-            dropZoneHeight: 100,
+        roomItem: {
+            statsPopupOffset: 10,
+            messageMagic: 'uzv65b76t_weblin2screen',
+            frameUndockedLeft: 100,
+            frameUndockedTop: 100,
+            chatlogItemAppeared: false,
+            chatlogItemIsPresent: false,
+            chatlogItemDisappeared: false,
         },
         backpack: {
             enabled: true,
             itemSize: 64,
             borderPadding: 4,
             dropZoneHeight: 100,
-            itemPropertiesTooltip: false,
+            itemInfoOffset: { x: 2, y: 2 },
+            itemInfoExtended: false,
+            deleteToastDurationSec: 100,
         },
-        projector: {
-            enabled: false,
+        points: {
+            enabled: true,
+            passiveEnabled: true,
+            submissionIntervalSec: 300,
+            fullLevels: 2,
+            fractionalLevels: 1,
         },
         itemProviders: {
             'nine3q':
@@ -157,10 +186,11 @@ export class Config
                     'Popup.Show avatar': 'Show avatar on pages',
                     'Popup.Uncheck to hide': 'Uncheck to hide avatar on pages',
 
+                    'Menu.Menu': 'Menu',
                     'Menu.Settings': 'Settings',
                     'Menu.Stay Here': 'Stay on tab change',
                     'Menu.Backpack': 'Stuff',
-                    'Menu.Chat Window': 'History',
+                    'Menu.Chat Window': 'Chat History',
                     'Menu.Video Conference': 'Video Conference',
                     'Menu.Chat': 'Chat',
                     'Menu.Actions:': 'Actions:',
@@ -183,12 +213,19 @@ export class Config
                     'Chatwindow.appeared': '*appeared*',
                     'Chatwindow.is present': '*is present*',
                     'Chatwindow.disappeared': '*disappeared*',
+                    'Chatwindow.:': ':',
 
                     'PrivateChat.Private Chat with': 'Private Chat with',
+
+                    'PrivateVidconf.Private Videoconference with': 'PrivateVidconf.Private Videoconference with',
 
                     'Vidconfwindow.Video Conference': 'Video Conference',
                     'Settingswindow.Settings': 'Settings',
                     'BackpackWindow.Inventory': 'Your Stuff',
+
+                    'Backpack.Shredder': 'Shredder',
+                    'Backpack.Go to item': 'Go there',
+                    'Backpack.Derez item': 'Pick up',
 
                     'Toast.Do not show this message again': 'Do not show this message again',
                     'Toast.greets': '...greeted you',
@@ -196,19 +233,30 @@ export class Config
                     'Toast.nudges': '...nudged you',
                     'Toast.Your claim has been removed': 'Your claim has been removed',
                     'Toast.A stronger A stronger item just appeared': 'A stronger item just appeared.',
+                    'Toast.greet back': 'Greet back',
+                    'Toast.tousle back': 'Tousle back',
+                    'Toast.nudge back': 'Nudge back',
+                    'Toast.Really delete?': 'Really delete?',
+                    'Toast.Yes, delete item': 'Yes, delete item',
+                    'Toast.No, keep it': 'No, keep it',
+                    'Toast.Wants to start a private videoconference': 'Invites you to a private videoconference',
+                    'Toast.Refuses to join the private videoconference': 'Refuses to join the videoconference',
+                    'Toast.Accept': 'Accept',
+                    'Toast.Decline': 'Decline',
 
                     // ['ErrorFact.' + ItemException.Fact[ItemException.Fact.Error]]: 'Error',
                     'ErrorFact.Error': 'Error',
 
-                    'ErrorFact.NotRezzed': 'Failed to drop item',
+                    'ErrorFact.NotRezzed': 'Item not dropped',
                     'ErrorFact.NotDerezzed': 'Failed to pick up item',
-                    'ErrorFact.NotAdded': 'Failed to add item',
-                    'ErrorFact.NotChanged': 'Failed to update item',
+                    'ErrorFact.NotAdded': 'Item not added',
+                    'ErrorFact.NotChanged': 'Item not changed',
                     'ErrorFact.NoItemsReceived': 'No items recevied',
                     'ErrorFact.NotExecuted': 'Not executed',
                     'ErrorFact.NotCreated': 'No item created',
                     'ErrorFact.NotApplied': 'Item not applied',
                     'ErrorFact.ClaimFailed': 'Failed to claim the page',
+                    'ErrorFact.NotTransferred': 'Item not transferred',
 
                     'ErrorReason.UnknownReason': 'Unknown reason :-(',
                     'ErrorReason.ItemAlreadyRezzed': 'Item already on page.',
@@ -222,9 +270,34 @@ export class Config
                     'ErrorReason.InvalidPropertyValue': 'Property invalid.',
                     'ErrorReason.NotYourItem': 'This is not your item.',
                     'ErrorReason.ItemMustBeStronger': 'Your item is not stronger than the other.',
+                    'ErrorReason.ItemIsNotTransferable': 'Item not transferable.',
+                    'ErrorReason.NoMatch': 'Item do not match.',
 
                     'ErrorDetail.Applier.Apply': 'Applying an item to another',
                     'ErrorDetail.Pid.Id': 'Id',
+                    'ErrorDetail.Pid.Actions': 'Actions',
+
+                    'ItemPid.Label': 'Label',
+                    'ItemPid.Comment': 'Comment',
+                    'ItemPid.ClaimStrength': 'Strength',
+                    'ItemPid.ClaimName': 'For',
+                    'ItemPid.OwnerName': 'Owner',
+                    'ItemPid.DispenserAvailable': 'Remaining',
+                    'ItemPid.DispenserCooldownSec': 'Cooldown',
+                    'ItemPid.NicknameText': 'Name',
+                    'ItemPid.PointsTotal': 'Collected',
+                    'ItemPid.PointsCurrent': 'Available',
+                    'ItemPid.RezzedDestination': 'Page',
+                    'ItemPid.IsRezzed': 'On page',
+                    'ItemPid.CoinCurrency': 'Currency',
+                    'ItemPid.CoinAmount': 'Amount',
+                    'ItemPid.IframeUrl': 'URL',
+                    'ItemPid.IframeAuto': 'Autostart',
+
+                    'ItemValue.true': 'Yes',
+                    'ItemValue.false': 'No',
+
+                    'ItemLabel.Dot1': '1-Point',
                 },
                 'de-DE': {
                     'Extension.Disable': 'weblin.io ausschalten',
@@ -247,6 +320,7 @@ export class Config
                     'Popup.Show avatar': 'Avatar auf Seiten anzeigen',
                     'Popup.Uncheck to hide': 'Abschalten, um das Avatar auf Webseiten nicht anzuzeigen',
 
+                    'Menu.Menu': 'Menü',
                     'Menu.Settings': 'Einstellungen',
                     'Menu.Stay Here': 'Bleiben bei Tabwechsel',
                     'Menu.Backpack': 'Gegenstände',
@@ -273,12 +347,19 @@ export class Config
                     'Chatwindow.appeared': '*erschienen*',
                     'Chatwindow.is present': '*ist da*',
                     'Chatwindow.disappeared': '*verschwunden*',
+                    'Chatwindow.:': ':',
 
                     'PrivateChat.Private Chat with': 'Privater Chat mit',
+
+                    'PrivateVidconf.Private Videoconference with': 'PrivateVidconf.Private Videokonferenz mit',
 
                     'Vidconfwindow.Video Conference': 'Videokonferenz',
                     'Settingswindow.Settings': 'Einstellungen',
                     'BackpackWindow.Inventory': 'Deine Gegenstände',
+
+                    'Backpack.Shredder': 'Schredder',
+                    'Backpack.Go to item': 'Dort hingehen',
+                    'Backpack.Derez item': 'Einsammeln',
 
                     'Toast.Do not show this message again': 'Diese Nachricht nicht mehr anzeigen',
                     'Toast.greets': '...hat dich gegrüßt',
@@ -286,6 +367,16 @@ export class Config
                     'Toast.nudges': '...hat dich angestupst',
                     'Toast.Your claim has been removed': 'Der Anspruch wurde zurückgenommen',
                     'Toast.A stronger item just appeared': 'Ein stärkerer Gegenstand wurde gerade installiert.',
+                    'Toast.greet back': 'Zurück grüßen',
+                    'Toast.tousle back': 'Zurück wuscheln',
+                    'Toast.nudge back': 'Zurück stupsen',
+                    'Toast.Really delete?': 'Wirklich löschen?',
+                    'Toast.Yes, delete item': 'Ja, Gegenstand löschen',
+                    'Toast.No, keep it': 'Nein, behalten',
+                    'Toast.Wants to start a private videoconference': 'Lädt zu einer privaten Videokonferenz ein',
+                    'Toast.Refuses to join the private videoconference': 'Lehnt die Videokonferenz ab',
+                    'Toast.Accept': 'Annehmen',
+                    'Toast.Decline': 'Ablehnen',
 
                     'ErrorFact.Error': 'Fehler',
                     'ErrorFact.NotRezzed': 'Ablegen fehlgeschlagen',
@@ -297,6 +388,7 @@ export class Config
                     'ErrorFact.NotCreated': 'Kein Gegenstand erstellt',
                     'ErrorFact.NotApplied': 'Gegenstand nicht angewendet',
                     'ErrorFact.ClaimFailed': 'Anspruch nicht durchgesetzt',
+                    'ErrorFact.NotTransferred': 'Gegenstand nicht übertragen',
 
                     'ErrorReason.UnknownReason': 'Grund unbekannt :-(',
                     'ErrorReason.ItemAlreadyRezzed': 'Gegenstand ist schon auf einer Seite.',
@@ -310,9 +402,35 @@ export class Config
                     'ErrorReason.InvalidPropertyValue': 'Falsche Eigenschaft.',
                     'ErrorReason.NotYourItem': 'Das ist nicht dein Gegenstand.',
                     'ErrorReason.ItemMustBeStronger': 'Der Gegenstand ist nicht stärker als der andere.',
+                    'ErrorReason.ItemIsNotTransferable': 'Der Gegenstand ist nicht übertragbar.',
+                    'ErrorReason.NoMatch': 'Gegenstände passen nicht.',
 
                     'ErrorDetail.Applier.Apply': 'Beim Anwenden eines Gegenstands auf einen anderen.',
                     'ErrorDetail.Pid.Id': 'Id',
+                    'ErrorDetail.Pid.Actions': 'Aktionen',
+
+                    'ItemPid.Label': 'Bezeichnung',
+                    'ItemPid.Comment': 'Kommentar',
+                    'ItemPid.ClaimStrength': 'Stärke',
+                    'ItemPid.ClaimName': 'Für',
+                    'ItemPid.OwnerName': 'Besitzer',
+                    'ItemPid.DispenserAvailable': 'Übrig',
+                    'ItemPid.DispenserCooldownSec': 'Wartezeit',
+                    'ItemPid.NicknameText': 'Name',
+                    'ItemPid.PointsTotal': 'Gesammelt',
+                    'ItemPid.PointsCurrent': 'Verfügbar',
+                    'ItemPid.RezzedDestination': 'Webseite',
+                    'ItemPid.IsRezzed': 'Auf Webseite',
+                    'ItemPid.CoinCurrency': 'Währung',
+                    'ItemPid.CoinAmount': 'Betrag',
+                    'ItemPid.IframeUrl': 'URL',
+                    'ItemPid.IframeAuto': 'Automatisch',
+
+                    'ItemValue.true': 'Ja',
+                    'ItemValue.false': 'Nein',
+
+                    'ItemLabel.Points': 'Punkte',
+                    'ItemLabel.Dot1': '1-Punkt',
                 },
             },
             'serviceUrl': '',

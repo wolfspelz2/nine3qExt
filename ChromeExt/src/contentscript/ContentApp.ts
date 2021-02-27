@@ -12,6 +12,8 @@ import { Translator } from '../lib/Translator';
 import { Browser } from '../lib/Browser';
 import { ItemException } from '../lib/ItemExcption';
 import { BackpackShowItemData, BackpackSetItemData, BackpackRemoveItemData, ContentMessage } from '../lib/ContentMessage';
+import { Environment } from '../lib/Environment';
+import { Pid } from '../lib/ItemProperties';
 import { HelloWorld } from './HelloWorld';
 import { PropertyStorage } from './PropertyStorage';
 import { Room } from './Room';
@@ -24,7 +26,6 @@ import { TestWindow } from './TestWindow';
 import { BackpackWindow } from './BackpackWindow';
 import { SimpleErrorToast, SimpleToast } from './Toast';
 import { IframeApi } from './IframeApi';
-import { Environment } from '../lib/Environment';
 
 interface ILocationMapperResponse
 {
@@ -62,9 +63,9 @@ export class ContentApp
 
     private stayHereIsChecked: boolean = false;
     private backpackIsOpen: boolean = false;
-    private inventoryIsOpen: boolean = false;
     private vidconfIsOpen: boolean = false;
     private chatIsOpen: boolean = false;
+    private privateVidconfIsOpen: boolean = false;
 
     // Getter
 
@@ -116,6 +117,8 @@ export class ContentApp
             log.debug(error.message);
         }
 
+        Environment.NODE_ENV = Config.get('environment.NODE_ENV', null);
+
         {
             let pageUrl = Browser.getCurrentPageUrl();
             let parsedUrl = new URL(pageUrl);
@@ -157,11 +160,15 @@ export class ContentApp
         // this.enterPage();
         await this.checkPageUrlChanged();
 
-        this.stayHereIsChecked = await Memory.getLocal(Utils.localStorageKey_StayOnTabChange(this.roomJid), false);
+        if (this.roomJid != '') {
+            this.stayHereIsChecked = await Memory.getLocal(Utils.localStorageKey_StayOnTabChange(this.roomJid), false);
+            this.backpackIsOpen = await Memory.getLocal(Utils.localStorageKey_BackpackIsOpen(this.roomJid), false);
+            this.chatIsOpen = await Memory.getLocal(Utils.localStorageKey_ChatIsOpen(this.roomJid), false);
+            this.vidconfIsOpen = await Memory.getLocal(Utils.localStorageKey_VidconfIsOpen(this.roomJid), false);
 
-        this.backpackIsOpen = await Memory.getLocal(Utils.localStorageKey_BackpackIsOpen(this.roomJid), false);
-        if (this.backpackIsOpen && this.roomJid != '') {
-            this.showBackpackWindow(null);
+            this.reshowBackpackWindow();
+            this.reshowChatWindow();
+            // this.reshowVidconfWindow(); // must be after enter
         }
 
         this.startCheckPageUrl();
@@ -202,17 +209,62 @@ export class ContentApp
         // new SimpleToast(this, 'test', 4, 'warning', 'Heiner (dev)', 'greets').show();
 
         // this.showBackpackWindow(null);
-
-        //new TestWindow(this).show({});
     }
 
-    showBackpackWindow(aboveElem: HTMLElement): void
+    getMyParticipantELem(): HTMLElement
     {
-        if (this.backpackWindow == null) {
+        if (this.room) {
+            let participant = this.room.getParticipant(this.room.getMyNick());
+            if (participant) {
+                return participant.getElem();
+            }
+        }
+        return null;
+    }
+
+    reshowBackpackWindow(): void
+    {
+        if (this.backpackIsOpen) { this.showBackpackWindow(); }
+    }
+    showBackpackWindow(aboveElem?: HTMLElement): void
+    {
+        aboveElem = aboveElem ?? this.getMyParticipantELem();
+        if (this.backpackWindow) {
+            this.backpackWindow.close();
+        } else {
             this.setBackpackIsOpen(true);
             this.backpackWindow = new BackpackWindow(this);
-            this.backpackWindow.show({ 'above': aboveElem, onClose: () => { this.backpackWindow = null; this.setBackpackIsOpen(false); } });
+            this.backpackWindow.show({
+                'above': aboveElem,
+                onClose: () => { this.backpackWindow = null; this.setBackpackIsOpen(false); }
+            });
         }
+    }
+
+    reshowVidconfWindow(): void
+    {
+        if (this.vidconfIsOpen) { this.showVidconfWindow(); } // must be after enter
+    }
+    showVidconfWindow(aboveElem?: HTMLElement): void
+    {
+        aboveElem = aboveElem ?? this.getMyParticipantELem();
+        if (this.room) {
+            let participant = this.room.getParticipant(this.room.getMyNick());
+            if (participant) {
+                let displayName = participant.getDisplayName();
+                this.room.showVideoConference(aboveElem, displayName);
+            }
+        }
+    }
+
+    reshowChatWindow(): void
+    {
+        if (this.chatIsOpen) { this.showChatWindow(); }
+    }
+    showChatWindow(aboveElem?: HTMLElement): void
+    {
+        aboveElem = aboveElem ?? this.getMyParticipantELem();
+        this.room.showChatWindow(aboveElem);
     }
 
     showXmppWindow()
@@ -234,11 +286,36 @@ export class ContentApp
         }
     }
 
+    closeItemFrame(itemId: string)
+    {
+        let item = this.getItemRepository().getItem(itemId);
+        if (item) {
+            item.closeFrame();
+        }
+    }
+
+    positionItemFrame(itemId: string, width: number, height: number, left: number, bottom: number)
+    {
+        let item = this.getItemRepository().getItem(itemId);
+        if (item) {
+            item.positionFrame(width, height, left, bottom);
+        }
+    }
+
+    sendMessageToScreenItemFrame(itemId: string, message: any)
+    {
+        let roomItem = this.room.getItem(itemId);
+        if (roomItem) {
+            roomItem.sendsendMessageToScreenFrame(message);
+        }
+    }
+
     // Stay on tab change
 
     setBackpackIsOpen(value: boolean): void
     {
-        this.backpackIsOpen = value; this.evaluateStayOnTabChange();
+        this.backpackIsOpen = value;
+        this.evaluateStayOnTabChange();
         if (value) {
             /* await */ Memory.setLocal(Utils.localStorageKey_BackpackIsOpen(this.roomJid), value);
         } else {
@@ -246,19 +323,31 @@ export class ContentApp
         }
     }
 
-    setInventoryIsOpen(value: boolean): void
-    {
-        this.inventoryIsOpen = value; this.evaluateStayOnTabChange();
-    }
-
     setVidconfIsOpen(value: boolean): void
     {
-        this.vidconfIsOpen = value; this.evaluateStayOnTabChange();
+        this.vidconfIsOpen = value;
+        this.evaluateStayOnTabChange();
+        if (value) {
+            /* await */ Memory.setLocal(Utils.localStorageKey_VidconfIsOpen(this.roomJid), value);
+        } else {
+            /* await */ Memory.deleteLocal(Utils.localStorageKey_VidconfIsOpen(this.roomJid));
+        }
+    }
+
+    setPrivateVidconfIsOpen(value: boolean): void
+    {
+        this.privateVidconfIsOpen = value;
+        this.evaluateStayOnTabChange();
     }
 
     setChatIsOpen(value: boolean): void
     {
         this.chatIsOpen = value; this.evaluateStayOnTabChange();
+        if (value) {
+            /* await */ Memory.setLocal(Utils.localStorageKey_ChatIsOpen(this.roomJid), value);
+        } else {
+            /* await */ Memory.deleteLocal(Utils.localStorageKey_ChatIsOpen(this.roomJid));
+        }
     }
 
     getStayHereIsChecked(): boolean
@@ -281,7 +370,7 @@ export class ContentApp
 
     evaluateStayOnTabChange(): void
     {
-        let stay = this.backpackIsOpen || this.inventoryIsOpen || this.vidconfIsOpen || this.chatIsOpen || this.stayHereIsChecked;
+        let stay = this.backpackIsOpen || this.vidconfIsOpen || this.chatIsOpen || this.stayHereIsChecked || this.privateVidconfIsOpen;
         if (stay) {
             this.messageHandler({ 'type': ContentAppNotification.type_onTabChangeStay });
         } else {
@@ -407,25 +496,6 @@ export class ContentApp
         }
     }
 
-    // handle_ItemException(ex: ItemException)
-    // {
-    //     new SimpleErrorToast(this,
-    //         'Warning-' + ex.fact.toString() + '-' + ex.reason.toString(),
-    //         Config.get('room.errorToastDurationSec', 10),
-    //         'warning',
-    //         ex.fact.toString(),
-    //         ex.reason.toString(),
-    //         ex.detail ?? ''
-    //     )
-    //         .show();
-    // }
-
-    // enterPage()
-    // {
-    //     this.pageUrl = Browser.getCurrentPageUrl();
-    //     this.enterRoomByPageUrl(this.pageUrl);
-    // }
-
     leavePage()
     {
         this.leaveRoom();
@@ -437,12 +507,16 @@ export class ContentApp
             let pageUrl = this.presetPageUrl ?? Browser.getCurrentPageUrl();
 
             let strippedUrlPrefixes = Config.get('vp.strippedUrlPrefixes', []);
-            for (let i in strippedUrlPrefixes) {
-                if (pageUrl.startsWith(strippedUrlPrefixes[i])) {
+            let notStrippedUrlPrefixes = Config.get('vp.notStrippedUrlPrefixes', []);
+            for (let i = 0; i < strippedUrlPrefixes.length; i++) {
+                if (pageUrl.startsWith(strippedUrlPrefixes[i]) && !Utils.startsWith(pageUrl, notStrippedUrlPrefixes)) {
                     pageUrl = pageUrl.substring(strippedUrlPrefixes[i].length);
+                    if (!pageUrl.startsWith('https://')) {
+                        pageUrl = 'https://' + pageUrl;
+                    }
                 }
             }
-            
+
             let newSignificatParts = pageUrl ? this.getSignificantUrlParts(pageUrl) : '';
             let oldSignificatParts = this.pageUrl ? this.getSignificantUrlParts(this.pageUrl) : '';
             if (newSignificatParts == oldSignificatParts) { return }
@@ -467,6 +541,9 @@ export class ContentApp
 
             if (this.roomJid != '') {
                 this.enterRoom(this.roomJid, pageUrl);
+                if (Config.get('points.enabled', false)) {
+                    /* await */ BackgroundMessage.pointsActivity(Pid.PointsChannelNavigation, 1);
+                }
             }
 
         } catch (error) {
@@ -670,7 +747,7 @@ export class ContentApp
 
     // Dont show this message again management
 
-    localStorage_DontShowNotice_KeyPrefix: string = 'DontShowNotice';
+    localStorage_DontShowNotice_KeyPrefix: string = 'dontShowNotice.';
 
     async isDontShowNoticeType(type: string): Promise<boolean>
     {

@@ -12,6 +12,7 @@ import { RoomItem } from './RoomItem';
 import { ChatWindow } from './ChatWindow'; // Wants to be after Participant and Item otherwise $().resizable does not work
 import { VidconfWindow } from './VidconfWindow';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { VpProtocol } from '../lib/VpProtocol';
 
 export interface IRoomInfoLine extends Array<string | string> { 0: string, 1: string }
 export interface IRoomInfo extends Array<IRoomInfoLine> { }
@@ -56,6 +57,22 @@ export class Room
     getDestination(): string { return this.destination; }
     getParticipant(nick: string): Participant { return this.participants[nick]; }
     getItem(nick: string) { return this.items[nick]; }
+    getParticipantIds(): Array<string>
+    {
+        let ids = [];
+        for (let id in this.participants) {
+            ids.push(id);
+        }
+        return ids;
+    }
+    getItemIds(): Array<string>
+    {
+        let ids = [];
+        for (let id in this.items) {
+            ids.push(id);
+        }
+        return ids;
+    }
 
     getPageClaimItem(): RoomItem
     {
@@ -78,8 +95,11 @@ export class Room
     async enter(): Promise<void>
     {
         try {
-            this.resource = await this.app.getUserNickname();
-            this.avatar = await this.app.getUserAvatar();
+            let nickname = await this.app.getUserNickname();
+            let avatar = await this.app.getUserAvatar();
+
+            this.resource = await this.getBackpackItemNickname(nickname);
+            this.avatar = await this.getBackpackItemAvatarId(avatar);
         } catch (error) {
             log.info(error);
             this.resource = 'new-user';
@@ -104,33 +124,44 @@ export class Room
 
     async sendPresence(): Promise<void>
     {
+        let vpProps = { xmlns: 'vp:props', 'Nickname': this.resource, 'AvatarId': this.avatar, 'nickname': this.resource, 'avatar': 'gif/' + this.avatar };
+
+        let avatarUrl = await this.getBackpackItemAvatarUrl('');
+        if (avatarUrl != '') {
+            vpProps['AvatarUrl'] = avatarUrl;
+        }
+
+        let points = 0;
+        if (Config.get('points.enabled', false)) {
+            points = await this.getPointsItemPoints(0);
+            if (points > 0) {
+                vpProps['Points'] = points;
+            }
+        }
+
+        let presence = xml('presence', { to: this.jid + '/' + this.resource });
+
+        presence.append(xml('x', { xmlns: 'firebat:avatar:state', }).append(xml('position', { x: as.Int(this.posX) })));
+        presence.append(xml('x', vpProps));
+
         let identityUrl = Config.get('identity.url', '');
         let identityDigest = Config.get('identity.digest', '1');
         if (identityUrl == '') {
-            let avatarUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'https://webex.vulcan.weblin.com/avatars/gif/{id}/config.xml')).replace('{id}', this.avatar);
+            if (avatarUrl == '') {
+                avatarUrl = Utils.getAvatarUrlFromAvatarId(this.avatar);
+            }
             identityDigest = as.String(Utils.hash(this.resource + avatarUrl));
-            identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}'))
+            identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}&points={points}'))
                 .replace('{nickname}', encodeURIComponent(this.resource))
                 .replace('{avatarUrl}', encodeURIComponent(avatarUrl))
                 .replace('{digest}', encodeURIComponent(identityDigest))
                 .replace('{imageUrl}', encodeURIComponent(''))
                 ;
+            if (points > 0) { identityUrl = identityUrl.replace('{points}', encodeURIComponent('' + points)); }
         }
-
-        let presence = xml('presence', { to: this.jid + '/' + this.resource })
-            .append(
-                xml('x', { xmlns: 'firebat:avatar:state', })
-                    .append(xml('position', { x: as.Int(this.posX) }))
-            )
-            ;
-
         if (identityUrl != '') {
             presence.append(
                 xml('x', { xmlns: 'firebat:user:identity', 'jid': this.userJid, 'src': identityUrl, 'digest': identityDigest })
-            );
-        } else {
-            presence.append(
-                xml('x', { xmlns: 'vp:props', 'Nickname': this.resource, 'AvatarId': this.avatar, 'nickname': this.resource, 'avatar': this.avatar })
             );
         }
 
@@ -142,6 +173,28 @@ export class Room
         }
 
         this.app.sendStanza(presence);
+    }
+
+    async getPointsItemPoints(defaultValue: number): Promise<number> { return as.Int(await this.getBackpackItemProperty({ [Pid.PointsAspect]: 'true' }, Pid.PointsTotal, defaultValue)); }
+    async getBackpackItemAvatarId(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.AvatarAspect]: 'true' }, Pid.AvatarAvatarId, defaultValue)); }
+    async getBackpackItemAvatarUrl(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.AvatarAspect]: 'true' }, Pid.AvatarAnimationsUrl, defaultValue)); }
+    async getBackpackItemNickname(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.NicknameAspect]: 'true', }, Pid.NicknameText, defaultValue)); }
+
+    async getBackpackItemProperty(filterProperties: ItemProperties, propertyPid: string, defautValue: any): Promise<any>
+    {
+        if (Config.get('backpack.enabled', false)) {
+            let propSet = await BackgroundMessage.findBackpackItemProperties(filterProperties);
+            let item = null;
+            for (let id in propSet) {
+                let props = propSet[id];
+                if (props) {
+                    if (props[propertyPid]) {
+                        return props[propertyPid];
+                    }
+                }
+            }
+        }
+        return defautValue;
     }
 
     private sendPresenceUnavailable(): void
@@ -200,9 +253,12 @@ export class Room
             entity.onPresenceAvailable(stanza);
 
             if (isSelf && !this.isEntered) {
-                this.isEntered = true;
                 this.myNick = resource;
+                this.isEntered = true;
+
                 this.keepAlive();
+
+                this.app.reshowVidconfWindow();
             }
         }
 
@@ -369,6 +425,9 @@ export class Room
             .append(xml('body', {}, text))
             ;
         this.app.sendStanza(message);
+        if (Config.get('points.enabled', false)) {
+            /* await */ BackgroundMessage.pointsActivity(Pid.PointsChannelChat, 1);
+        }
     }
 
     sendPrivateChat(text: string, nick: string)
@@ -383,6 +442,25 @@ export class Room
     {
         let message = xml('message', { type: 'chat', to: this.jid + '/' + nick, from: this.jid + '/' + this.myNick })
             .append(xml('x', { 'xmlns': 'vp:poke', 'type': type }))
+            ;
+        this.app.sendStanza(message);
+        if (Config.get('points.enabled', false)) {
+            /* await */ BackgroundMessage.pointsActivity(Pid.PointsChannelGreet, 1);
+        }
+    }
+
+    sendPrivateVidconf(nick: string, url: string)
+    {
+        let message = xml('message', { type: 'chat', to: this.jid + '/' + nick, from: this.jid + '/' + this.myNick })
+            .append(xml('x', { 'xmlns': VpProtocol.PrivateVideoconfRequest.xmlns, [VpProtocol.PrivateVideoconfRequest.key_url]: url }))
+            ;
+        this.app.sendStanza(message);
+    }
+
+    sendDeclinePrivateVidconfResponse(nick: string, comment: string)
+    {
+        let message = xml('message', { type: 'chat', to: this.jid + '/' + nick, from: this.jid + '/' + this.myNick })
+            .append(xml('x', { 'xmlns': VpProtocol.Response.xmlns, [VpProtocol.Response.key_to]: VpProtocol.PrivateVideoconfRequest.xmlns, [VpProtocol.PrivateVideoconfResponse.key_type]: [VpProtocol.PrivateVideoconfResponse.type_decline], [VpProtocol.PrivateVideoconfResponse.key_comment]: comment }))
             ;
         this.app.sendStanza(message);
     }
@@ -417,7 +495,9 @@ export class Room
     showChatWindow(aboveElem: HTMLElement): void
     {
         if (this.chatWindow) {
-            if (!this.chatWindow.isOpen()) {
+            if (this.chatWindow.isOpen()) {
+                this.chatWindow.close();
+            } else {
                 this.app.setChatIsOpen(true);
                 this.chatWindow.show({
                     'above': aboveElem,
@@ -448,7 +528,9 @@ export class Room
 
     showVideoConference(aboveElem: HTMLElement, displayName: string): void
     {
-        if (!this.vidconfWindow) {
+        if (this.vidconfWindow) {
+            this.vidconfWindow.close();
+        } else {
             let urlTemplate = Config.get('room.vidconfUrl', 'https://meet.jit.si/{room}#userInfo.displayName="{name}"');
             let url = urlTemplate
                 .replace('{room}', this.jid)

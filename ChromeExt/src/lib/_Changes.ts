@@ -6,10 +6,22 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
+        ['1.0.8', 'Points PrivVidConf Screen stats', [
+            ['Add', 'Greet back'],
+            ['Add', 'Chat console opens windows'],
+            ['Add', 'Save window state'],
+            ['Add', 'Private videoconference'],
+            ['Add', 'Activity points'],
+            ['Add', 'Item info/stats'],
+            ['Add', 'Item shredder'],
+            ['Add', 'Chat console /map'],
+            ['Add', 'Autostart public viewing on item drop'],
+            ['Add', 'Screen item & inter-frame comm'],
+        ]],
         ['1.0.7', 'unsafe-eval', [
             ['Add', 'Have items'],
             ['Add', 'Manage page claims'],
-            ['Add', 'Detecatable for embedded'],
+            ['Add', 'Detectable for embedded'],
             ['Change', 'Skip call to item config'],
             ['Fix', 'Remove unneccesary unsafe-eval from content_security_policy (for MS Edge Addons Store)'],
         ]],

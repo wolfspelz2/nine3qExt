@@ -10,6 +10,7 @@ import { Memory } from '../lib/Memory';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Translator } from '../lib/Translator';
 import { AvatarGallery } from '../lib/AvatarGallery';
+import { RandomNames } from '../lib/RandomNames';
 
 export class PopupApp
 {
@@ -98,7 +99,7 @@ export class PopupApp
             let button = $('<button class="n3q-base n3q-popup-random" data-translate="text:Popup">Random</button>').get(0);
             $(button).bind('click', async ev =>
             {
-                $('#n3q-id-popup-nickname').val(Utils.randomNickname());
+                $('#n3q-id-popup-nickname').val(RandomNames.getRandomNickname());
             });
             group.append(button);
 
@@ -236,12 +237,12 @@ export class PopupApp
     {
         // $(nameElem).text(id);
         $(hiddenElem).val(id);
-        displayElem.src = this.getAvatarDisplayUrlFromAvatarId(id);
+        displayElem.src = this.getAvatarImageUrlFromAvatarId(id);
     }
 
-    private getAvatarDisplayUrlFromAvatarId(id: string)
+    private getAvatarImageUrlFromAvatarId(id: string)
     {
-        let avatarUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'https://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', id);
+        let avatarUrl = Utils.getAvatarUrlFromAvatarId(id);
         let idleUrl = new URL('idle.gif', avatarUrl);
         return idleUrl.toString();
     }

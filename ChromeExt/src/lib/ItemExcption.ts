@@ -18,11 +18,9 @@ export namespace ItemException
         NoItemsReceived,
         NotExecuted,
         NotApplied,
-        ClaimFailed
+        ClaimFailed,
+        NotTransferred
     }
-
-
-
 
     export enum Reason
     {
@@ -34,7 +32,8 @@ export namespace ItemException
         NoUserId,
         SeeDetail,
         NotYourItem,
-        ItemMustBeStronger
+        ItemMustBeStronger,
+        ItemIsNotTransferable
     }
 }
 

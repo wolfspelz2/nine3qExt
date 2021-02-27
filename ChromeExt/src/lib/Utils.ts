@@ -1,5 +1,6 @@
 import { xml } from '@xmpp/client';
-import { uniqueNamesGenerator, Config, adjectives, colors, animals } from 'unique-names-generator';
+import { as } from './as';
+import { Config } from './Config';
 
 export class Point2D
 {
@@ -12,10 +13,35 @@ export class Utils
     static localStorageKey_Active(): string { return 'me.active'; }
     static localStorageKey_StayOnTabChange(roomJid: string): string { return 'room.' + roomJid + '.stayOnTabChange'; }
     static localStorageKey_BackpackIsOpen(roomJid: string): string { return 'room.' + roomJid + '.backpackIsOpen'; }
+    static localStorageKey_VidconfIsOpen(roomJid: string): string { return 'room.' + roomJid + '.vidconfIsOpen'; }
+    static localStorageKey_ChatIsOpen(roomJid: string): string { return 'room.' + roomJid + '.chatIsOpen'; }
     static localStorageKey_CustomConfig(): string { return 'dev.config'; }
     static syncStorageKey_Id(): string { return 'me.id'; }
     static syncStorageKey_Nickname(): string { return 'me.nickname'; }
     static syncStorageKey_Avatar(): string { return 'me.avatar'; }
+
+    static makeGifExplicit(avatarId: string): string
+    {
+        let parts = avatarId.split('/');
+        if (parts.length == 1) { return 'gif/002/' + avatarId; }
+        else if (parts.length == 2) { return 'gif/' + avatarId; }
+        return 'gif/' + avatarId;
+    }
+
+    static fixDuplicateGif(avatarUrl: string): string
+    {
+        if (avatarUrl.search('gif/gif/') > 0) {
+            return avatarUrl.replace('gif/gif/', 'gif/');
+        }
+        return avatarUrl;
+    }
+
+    static getAvatarUrlFromAvatarId(avatarId: string): string
+    {
+        let avatarUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'https://webex.vulcan.weblin.com/avatars/{id}/config.xml')).replace('{id}', Utils.makeGifExplicit(avatarId));
+        avatarUrl = Utils.fixDuplicateGif(avatarUrl);
+        return avatarUrl;
+    }
 
     static jsObject2xmlObject(stanza: any): xml
     {
@@ -67,19 +93,6 @@ export class Utils
         return i;
     }
 
-    static randomNickname(): string
-    {
-        const customConfig: Config = {
-            dictionaries: [colors, animals],
-            separator: ' ',
-            length: 2,
-            style: 'capital',
-        };
-
-        const randomName: string = uniqueNamesGenerator(customConfig);
-        return randomName;
-    }
-
     static hash(s: string): number
     {
         var hash = 0;
@@ -105,4 +118,21 @@ export class Utils
     {
         return window.atob(s);
     }
+
+    static hasChromeStorage(): boolean
+    {
+        return (typeof chrome !== 'undefined' && typeof chrome.storage !== 'undefined');
+    }
+
+    static startsWith(pageUrl: string, prefixes: Array<string>)
+    {
+        for (let i = 0; i < prefixes.length; i++) {
+            if (pageUrl.startsWith(prefixes[i])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }

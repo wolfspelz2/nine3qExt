@@ -8,19 +8,21 @@ import { Point2D, Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
-import { ItemChangeOptions } from '../lib/ItemChangeOptions';
-import { RpcProtocol } from '../lib/RpcProtocol';
+import { Memory } from '../lib/Memory';
 import { ItemException } from '../lib/ItemExcption';
 import { ItemExceptionToast, SimpleErrorToast, SimpleToast } from './Toast';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
 import { Avatar } from './Avatar';
-import { Memory } from '../lib/Memory';
+import { RoomItemStats } from './RoomItemStats';
+import { ItemFrameUnderlay } from './ItemFrameUnderlay';
 
 export class RoomItem extends Entity
 {
     private isFirstPresence: boolean = true;
+    protected statsDisplay: RoomItemStats;
+    protected screenUnderlay: ItemFrameUnderlay;
 
     constructor(app: ContentApp, room: Room, private roomNick: string, isSelf: boolean)
     {
@@ -28,6 +30,18 @@ export class RoomItem extends Entity
 
         $(this.getElem()).addClass('n3q-item');
         $(this.getElem()).attr('data-nick', roomNick);
+
+        if (Config.get('backpack.enabled', false)) {
+            $(this.getElem()).hover(() =>
+            {
+                this.statsDisplay?.close();
+                this.statsDisplay = new RoomItemStats(this.app, this, () => { this.statsDisplay = null; });
+                this.statsDisplay.show();
+            }, () =>
+            {
+                this.statsDisplay?.close();
+            });
+        }
     }
 
     getDefaultAvatar(): string { return imgDefaultItem; }
@@ -57,7 +71,7 @@ export class RoomItem extends Entity
         let vpRezzedX = -1;
 
         let newProviderId: string = '';
-        let newProperties: { [pid: string]: string } = {};
+        let newProperties: ItemProperties = {};
 
         // Collect info
 
@@ -138,6 +152,9 @@ export class RoomItem extends Entity
 
         if (this.isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, false);
+            if (Config.get('backpack.enabled', false)) {
+                this.avatarDisplay.addClass('n3q-item-avatar');
+            }
             if (as.Bool(newProperties[Pid.ApplierAspect], false)) {
                 this.avatarDisplay.makeDroppable();
             }
@@ -151,6 +168,21 @@ export class RoomItem extends Entity
                 if (vpImageUrl != '') {
                     this.avatarDisplay?.updateObservableProperty('ImageUrl', vpImageUrl);
                 }
+            }
+        }
+
+        if (this.statsDisplay) {
+            this.statsDisplay.update();
+        }
+
+        if (this.isFirstPresence) {
+            if (as.Bool(this.getProperties()[Pid.ScreenAspect], false)) {
+                this.screenUnderlay = new ItemFrameUnderlay(this.app, this);
+                this.screenUnderlay.show();
+            }
+        } else {
+            if (this.screenUnderlay) {
+                this.screenUnderlay.update();
             }
         }
 
@@ -188,21 +220,37 @@ export class RoomItem extends Entity
             this.show(true, Config.get('room.fadeInSec', 0.3));
         }
 
-        // if (this.isFirstPresence) {
-        //     if (this.room?.iAmAlreadyHere()) {
-        //         this.room?.showChatMessage(this.getDisplayName(), 'appeared');
-        //     } else {
-        //         this.room?.showChatMessage(this.getDisplayName(), 'is present');
-        //     }
-        // }
+        if (this.isFirstPresence) {
+            if (as.Bool(this.getProperties()[Pid.IframeAspect], false)) {
+                if (as.Bool(this.getProperties()[Pid.IframeAuto], false)) {
+                    let item = this.app.getItemRepository().getItem(this.roomNick);
+                    if (item) {
+                        item.openIframe(this.getElem());
+                    }
+                }
+            }
+        }
+
+        if (this.isFirstPresence) {
+            if (this.room?.iAmAlreadyHere()) {
+                if (Config.get('roomItem.chatlogItemAppeared', true)) {
+                    this.room?.showChatMessage(this.getDisplayName(), 'appeared');
+                }
+            } else {
+                if (Config.get('roomItem.chatlogItemIsPresent', true)) {
+                    this.room?.showChatMessage(this.getDisplayName(), 'is present');
+                }
+            }
+        }
 
         this.isFirstPresence = false;
     }
 
     onPresenceUnavailable(stanza: any): void
     {
-        // this.room?.showChatMessage(this.getDisplayName(), 'disappeared');
-        this.remove();
+        if (Config.get('roomItem.chatlogItemDisappeared', true)) {
+            this.room?.showChatMessage(this.getDisplayName(), 'disappeared');
+        } this.remove();
     }
 
     onMouseClickAvatar(ev: JQuery.Event): void
@@ -213,15 +261,27 @@ export class RoomItem extends Entity
         if (item) {
             item.onClick(this.getElem(), new Point2D(ev.clientX, ev.clientY));
         }
+
+        this.statsDisplay?.close();
     }
 
     onDragAvatarStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
     {
         super.onDragAvatarStart(ev, ui);
+        this.statsDisplay?.close();
 
         let item = this.app.getItemRepository().getItem(this.roomNick);
         if (item) {
-            item.onDrag(this.getElem(), new Point2D(ev.clientX, ev.clientY));
+            item.onDragStart(this.getElem(), new Point2D(ev.clientX, ev.clientY));
+        }
+    }
+
+    onDragAvatarStop(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
+    {
+        if (!this.isDerezzing) {
+            let dX = ui.position.left - this.dragStartPosition.left;
+            let newX = this.getPosition() + dX;
+            this.onDraggedTo(newX);
         }
     }
 
@@ -261,6 +321,9 @@ export class RoomItem extends Entity
 
             try {
                 await BackgroundMessage.executeBackpackItemAction(itemId, 'Applier.Apply', { 'passive': passiveItemId }, [itemId, passiveItemId]);
+                if (Config.get('points.enabled', false)) {
+                    /* await */ BackgroundMessage.pointsActivity(Pid.PointsChannelItemApply, 1);
+                }
             } catch (ex) {
                 // new SimpleErrorToast(this.app, 'Warning-' + error.fact + '-' + error.reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', error.fact, error.reason, error.detail).show();
                 let fact = typeof ex.fact === 'number' ? ItemException.Fact[ex.fact] : ex.fact;
@@ -304,5 +367,15 @@ export class RoomItem extends Entity
     {
         this.isDerezzing = true;
         $(this.getElem()).hide().delay(1000).show(0);
+    }
+
+    endDerez(): void
+    {
+        this.isDerezzing = false;
+    }
+
+    sendsendMessageToScreenFrame(message: any)
+    {
+        this.screenUnderlay?.sendMessage(message);
     }
 }

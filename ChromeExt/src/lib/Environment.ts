@@ -15,6 +15,7 @@ declare global
 export class Environment
 {
     static NODE_ENV_development = 'development';
+    static NODE_ENV: string;
 
     static get_NODE_ENV(): string
     {
@@ -23,16 +24,23 @@ export class Environment
 
     static isDevelopment(): boolean
     {
-        return Environment.get_NODE_ENV() == Environment.NODE_ENV_development;
+        return (this.NODE_ENV ?? this.get_NODE_ENV()) == this.NODE_ENV_development;
     }
 
     static isEmbedded(): boolean
     {
-        return typeof chrome.storage === 'undefined';
+        return !Environment.isExtension();
     }
 
     static isExtension(): boolean
     {
-        return chrome.storage != null;
+        if (typeof chrome !== 'undefined') {
+            if (typeof chrome.runtime !== 'undefined') {
+                if (typeof chrome.runtime.onMessage !== 'undefined') {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

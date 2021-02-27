@@ -26,6 +26,7 @@ class AvatarGetAnimationResult
 export class Avatar implements IObserver
 {
     private elem: HTMLDivElement;
+    private imageElem: HTMLDivElement;
     private hasAnimation = false;
     private animations: AnimationsXml.AnimationsDefinition;
     private defaultGroup: string;
@@ -44,10 +45,13 @@ export class Avatar implements IObserver
     ignoreDrag(): void { this.ignoreNextDragFlag = true; }
 
     isDefaultAvatar(): boolean { return this.isDefault; }
+    getElem(): HTMLElement { return this.elem; }
 
     constructor(protected app: ContentApp, private entity: Entity, private isSelf: boolean)
     {
+        this.imageElem = <HTMLDivElement>$('<div class="n3q-base n3q-avatar-image" />').get(0);
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-avatar" />').get(0);
+        $(this.elem).append(this.imageElem);
 
         // var url = 'https://www.virtual-presence.org/images/wolf.png';
         // var url = app.getAssetUrl('default-avatar.png');
@@ -89,12 +93,19 @@ export class Avatar implements IObserver
 
         $(entity.getElem()).append(this.elem);
 
-        $(this.elem).draggable({
+        $(this.imageElem).draggable({
             scroll: false,
             stack: '.n3q-item',
             opacity: 0.5,
             distance: 4,
-            helper: 'clone',
+            // helper: 'clone',
+            helper: () =>
+            {
+                let dragElem = $(this.elem).clone().get(0);
+                let nick = Avatar.getEntityIdByAvatarElem(this.elem);
+                $(dragElem).data('nick', nick);
+                return dragElem;
+            },
             // zIndex: 1100000000,
             containment: 'document',
             start: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
@@ -130,11 +141,24 @@ export class Avatar implements IObserver
         });
     }
 
+    addClass(className: string): void
+    {
+        $(this.imageElem).addClass(className);
+    }
+
     makeDroppable(): void
     {
         $(this.elem).droppable({
             hoverClass: 'n3q-avatar-drophilite',
-            // accept: 'n3q-',
+            accept: (draggable) =>
+            {
+                if (draggable[0]) { draggable = draggable[0]; }
+                if ($(draggable).hasClass('n3q-avatar-image')) {
+                    if (Avatar.getEntityIdByAvatarElem(draggable) != Avatar.getEntityIdByAvatarElem(this.getElem())) {
+                        return true;
+                    }
+                }
+            },
             drop: async (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
             {
                 let droppedElem = ui.draggable.get(0);
@@ -173,7 +197,7 @@ export class Avatar implements IObserver
 
     getRoomItemByDomElem(elem: HTMLElement): RoomItem
     {
-        let avatarEntityId = this.getEntityIdByAvatarElem(elem);
+        let avatarEntityId = Avatar.getEntityIdByAvatarElem(elem);
         if (avatarEntityId) {
             return this.app.getRoom().getItem(avatarEntityId);
         }
@@ -181,18 +205,28 @@ export class Avatar implements IObserver
 
     getParticipantByAvatarElem(elem: HTMLElement): Participant
     {
-        let avatarEntityId = this.getEntityIdByAvatarElem(elem);
+        let avatarEntityId = Avatar.getEntityIdByAvatarElem(elem);
         if (avatarEntityId) {
             return this.app.getRoom().getParticipant(avatarEntityId);
         }
     }
 
-    getEntityIdByAvatarElem(elem: HTMLElement): string
+    static getEntityIdByAvatarElem(elem: HTMLElement): string
     {
         if (elem) {
-            let avatarEntityElem = elem.parentElement;
-            if (avatarEntityElem) {
-                return $(avatarEntityElem).data('nick');
+            let nick = $(elem).data('nick');
+            if (nick) { if (nick != '') { return nick; } }
+
+            let avatarElem = elem.parentElement;
+            if (avatarElem) {
+                if ($(avatarElem).hasClass('n3q-entity')) {
+                    return $(avatarElem).data('nick');
+                } else {
+                    let avatarEntityElem = avatarElem.parentElement;
+                    if (avatarEntityElem) {
+                        return $(avatarEntityElem).data('nick');
+                    }
+                }
             }
         }
     }
@@ -208,9 +242,9 @@ export class Avatar implements IObserver
     hilite(on: boolean)
     {
         if (on) {
-            $(this.elem).addClass('n3q-avatar-hilite');
+            $(this.imageElem).addClass('n3q-avatar-hilite');
         } else {
-            $(this.elem).removeClass('n3q-avatar-hilite');
+            $(this.imageElem).removeClass('n3q-avatar-hilite');
         }
     }
 
@@ -261,15 +295,15 @@ export class Avatar implements IObserver
     setImage(url: string): void
     {
         if (url.startsWith('data:')) {
-            $(this.elem).css({ 'background-image': 'url("' + url + '")' });
+            $(this.imageElem).css({ 'background-image': 'url("' + url + '")' });
         } else {
             try {
                 this.getDataUrlImage(url).then(dataUrlImage =>
                 {
-                    $(this.elem).css({ 'background-image': 'url("' + dataUrlImage + '")' });
+                    $(this.imageElem).css({ 'background-image': 'url("' + dataUrlImage + '")' });
                 });
             } catch (error) {
-                $(this.elem).css({ 'background-image': 'url("' + url + '")' });
+                $(this.imageElem).css({ 'background-image': 'url("' + url + '")' });
             }
         }
     }

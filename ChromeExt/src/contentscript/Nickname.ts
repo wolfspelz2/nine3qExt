@@ -22,9 +22,6 @@ export class Nickname implements IObserver
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-nickname n3q-shadow-small" />').get(0);
         $(this.elem).click(() => { this.participant?.select(); });
 
-        // $(this.elem).on('mouseenter', ev => this.participant?.onMouseEnterAvatar(ev));
-        // $(this.elem).on('mouseleave', ev => this.participant?.onMouseLeaveAvatar(ev));
-
         let menu = new Menu(this.app, Utils.randomString(15));
 
         if (this.isSelf) {
@@ -34,7 +31,7 @@ export class Nickname implements IObserver
             if (Environment.isDevelopment()) { column.addItem('test', 'Test', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.app.test(); }); }
 
             if (Config.get('backpack.enabled', false)) {
-                column.addItem('inventory', 'Backpack', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showBackpackWindow(); });
+                column.addItem('inventory', 'Backpack', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.app.showBackpackWindow(); });
             }
 
             column.addItem(
@@ -52,9 +49,9 @@ export class Nickname implements IObserver
 
             column.addItem('settings', 'Settings', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { if (this.participant) { this.app.showSettings(this.participant.getElem()); } });
 
-            column.addItem('vidconf', 'Video Conference', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { if (this.participant) { this.participant?.showVideoConference(); } });
+            column.addItem('vidconf', 'Video Conference', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { if (this.participant) { this.app.showVidconfWindow(); } });
 
-            column.addItem('chatwin', 'Chat Window', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.showChatWindow(); });
+            column.addItem('chatwin', 'Chat Window', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.app.showChatWindow(); });
 
             menu.addColumn(column);
         }
@@ -76,7 +73,7 @@ export class Nickname implements IObserver
 
         if (!this.isSelf) {
             let column = new MenuColumn(menu, 'interaction');
-            // column.addItem('chat', 'Chat', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.toggleChatout(); });
+            column.addItem('privatevidconf', 'Private Video', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.initiatePrivateVidconf(this.participant.getElem()); });
             column.addItem('privatechat', 'Private Chat', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.openPrivateChat(this.participant.getElem()); });
             column.addItem('greet', 'Greet', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.sendPoke('greet'); });
             menu.addColumn(column);
@@ -100,7 +97,9 @@ export class Nickname implements IObserver
 
     updateObservableProperty(name: string, value: string): void
     {
-        this.setNickname(value);
+        if (name == 'Nickname') {
+            this.setNickname(value);
+        }
     }
 
     setNickname(nickname: string): void

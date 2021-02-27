@@ -1,10 +1,13 @@
 import * as $ from 'jquery';
 import { xml, jid } from '@xmpp/client';
+import log = require('loglevel');
 import { as } from '../lib/as';
 import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { IObserver } from '../lib/ObservableProperty';
 import { Pid } from '../lib/ItemProperties';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { ItemException } from '../lib/ItemExcption';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
@@ -12,22 +15,23 @@ import { Avatar } from './Avatar';
 import { Nickname } from './Nickname';
 import { Chatout } from './Chatout';
 import { Chatin } from './Chatin';
-import { url } from 'inspector';
 import { RoomItem } from './RoomItem';
-import log = require('loglevel');
-import { BackgroundMessage } from '../lib/BackgroundMessage';
-import { SimpleToast, Toast } from './Toast';
+import { SimpleErrorToast, SimpleToast, Toast } from './Toast';
 import { PrivateChatWindow } from './PrivateChatWindow';
-import { ItemChangeOptions } from '../lib/ItemChangeOptions';
+import { PrivateVidconfWindow } from './PrivateVidconfWindow';
+import { PointsBar } from './PointsBar';
+import { VpProtocol } from '../lib/VpProtocol';
 
 export class Participant extends Entity
 {
     private nicknameDisplay: Nickname;
+    private pointsDisplay: PointsBar;
     private chatoutDisplay: Chatout;
     private chatinDisplay: Chatin;
     private isFirstPresence: boolean = true;
     private userId: string;
     private privateChatWindow: PrivateChatWindow;
+    private privateVidconfWindow: PrivateVidconfWindow;
 
     constructor(app: ContentApp, room: Room, private roomNick: string, isSelf: boolean)
     {
@@ -80,6 +84,7 @@ export class Participant extends Entity
         let vpAvatarId = '';
         let vpAnimationsUrl = '';
         let vpImageUrl = '';
+        let vpPoints = '';
 
         let hasIdentityUrl = false;
 
@@ -178,9 +183,8 @@ export class Participant extends Entity
         if (this.isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, this.isSelf);
             if (Config.get('backpack.enabled', false)) {
-                // if (this.isSelf) {
+                this.avatarDisplay.addClass('n3q-participant-avatar');
                 this.avatarDisplay.makeDroppable();
-                // }
             }
 
             this.nicknameDisplay = new Nickname(this.app, this, this.isSelf, this.getElem());
@@ -190,11 +194,28 @@ export class Participant extends Entity
                     nicknameElem.style.display = 'none';
                     $(this.getElem()).hover(function ()
                     {
-                        $(this).find(nicknameElem).stop().fadeIn('fast');
+                        if (nicknameElem) { $(nicknameElem).stop().fadeIn('fast'); }
                     }, function ()
                     {
-                        $(this).find(nicknameElem).stop().fadeOut();
+                        if (nicknameElem) { $(nicknameElem).stop().fadeOut(); }
                     });
+                }
+            }
+
+            if (Config.get('points.enabled', false) || Config.get('points.passiveEnabled', false)) {
+                this.pointsDisplay = new PointsBar(this.app, this, this.getElem());
+                if (!this.isSelf) {
+                    if (Config.get('room.pointsOnHover', true)) {
+                        let pointsElem = this.pointsDisplay.getElem();
+                        pointsElem.style.display = 'none';
+                        $(this.getElem()).hover(function ()
+                        {
+                            if (pointsElem) { $(pointsElem).stop().fadeIn('fast'); }
+                        }, function ()
+                        {
+                            if (pointsElem) { $(pointsElem).stop().fadeOut(); }
+                        });
+                    }
                 }
             }
 
@@ -208,7 +229,7 @@ export class Participant extends Entity
         let hasAvatar = false;
         if (this.avatarDisplay) {
             if (vpAvatarId != '') {
-                let animationsUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'https://webex.vulcan.weblin.com/avatars/gif/{id}/config.xml')).replace('{id}', vpAvatarId);
+                let animationsUrl = Utils.getAvatarUrlFromAvatarId(vpAvatarId);
                 let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://webex.vulcan.weblin.com/Avatar/InlineData?url={url}')).replace('{url}', encodeURIComponent(animationsUrl));
                 this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
                 hasAvatar = true;
@@ -243,6 +264,19 @@ export class Participant extends Entity
             }
         }
 
+        if (this.pointsDisplay) {
+            if (vpPoints != '') {
+                let newPoints = as.Int(vpPoints, 0);
+                if (newPoints != this.pointsDisplay.getPoints()) {
+                    this.pointsDisplay.setPoints(newPoints);
+                }
+            } else {
+                if (hasIdentityUrl && this.isFirstPresence) {
+                    this.app.getPropertyStorage().watch(this.userId, 'Points', this.pointsDisplay);
+                }
+            }
+        }
+
         if (hasCondition) {
             this.avatarDisplay?.setCondition(newCondition);
         }
@@ -272,12 +306,18 @@ export class Participant extends Entity
         if (this.isFirstPresence) {
             // if (this.isSelf && Environment.isDevelopment()) { this.showChatWindow(); }
             if (this.isSelf) {
-                this.room?.showChatMessage(this.roomNick, 'entered the room');
+                if (Config.get('room.chatlogEnteredTheRoomSelf', true)) {
+                    this.room?.showChatMessage(this.roomNick, 'entered the room');
+                }
             } else {
                 if (this.room?.iAmAlreadyHere()) {
-                    this.room?.showChatMessage(this.roomNick, 'entered the room');
+                    if (Config.get('room.chatlogEnteredTheRoom', true)) {
+                        this.room?.showChatMessage(this.roomNick, 'entered the room');
+                    }
                 } else {
-                    this.room?.showChatMessage(this.roomNick, 'was already there');
+                    if (Config.get('room.chatlogWasAlreadyThere', true)) {
+                        this.room?.showChatMessage(this.roomNick, 'was already there');
+                    }
                 }
             }
         }
@@ -295,7 +335,9 @@ export class Participant extends Entity
     {
         this.remove();
 
-        this.room?.showChatMessage(this.roomNick, 'left the room');
+        if (Config.get('room.chatlogLeftTheRoom', true)) {
+            this.room?.showChatMessage(this.roomNick, 'left the room');
+        }
     }
 
     fetchVcardImage(avatarDisplay: IObserver)
@@ -355,6 +397,18 @@ export class Participant extends Entity
             this.onReceivePoke(pokeNode);
         }
 
+        let vidconfNode = stanza.getChildren('x').find(child => (child.attrs == null) ? false : as.String(child.attrs.xmlns, '') == 'vp:vidconf');
+        if (vidconfNode) {
+            isChat = false;
+            this.onReceiveVidconf(vidconfNode);
+        }
+
+        let responseNode = stanza.getChildren('x').find(child => (child.attrs == null) ? false : as.String(child.attrs.xmlns, '') == 'vp:response');
+        if (responseNode) {
+            isChat = false;
+            this.onReceiveResponse(responseNode);
+        }
+
         let transferNode = stanza.getChildren('x').find(child => (child.attrs == null) ? false : as.String(child.attrs.xmlns, '') == 'vp:transfer');
         if (transferNode) {
             isChat = false;
@@ -385,8 +439,50 @@ export class Participant extends Entity
     onReceivePoke(node: any): void
     {
         try {
-            let type = node.attrs.type;
-            new SimpleToast(this.app, 'Poke-' + type, Config.get('room.pokeToastDurationSec', 10), 'greeting', this.getDisplayName(), type + 's').show();
+            let pokeType = node.attrs.type;
+            let toast = new SimpleToast(this.app, 'poke-' + pokeType, Config.get('room.pokeToastDurationSec', 10), 'greeting', this.getDisplayName(), pokeType + 's');
+            toast.actionButton(pokeType + ' back', () =>
+            {
+                this.sendPoke(pokeType);
+                toast.close();
+            })
+            toast.show();
+        } catch (error) {
+            //
+        }
+    }
+
+    onReceiveVidconf(node: any): void
+    {
+        try {
+            let url = node.attrs.url;
+            let toast = new SimpleToast(this.app, 'privatevidconf', Config.get('room.privateVidconfToastDurationSec', 60), 'privatevidconf', this.getDisplayName(), 'Wants to start a private videoconference');
+            toast.actionButton('Accept', () =>
+            {
+                this.openPrivateVidconf(this.getElem(), url);
+                toast.close();
+            })
+            toast.actionButton('Decline', () =>
+            {
+                this.room?.sendDeclinePrivateVidconfResponse(this.roomNick, '');
+                toast.close();
+            })
+            toast.show();
+        } catch (error) {
+            //
+        }
+    }
+
+    onReceiveResponse(node: any): void
+    {
+        try {
+            if (node.attrs.to == VpProtocol.PrivateVideoconfRequest.xmlns) {
+                if (node.attrs.type == VpProtocol.PrivateVideoconfResponse.type_decline) {
+                    let comment = node.attrs.comment;
+                    let toast = new SimpleToast(this.app, 'privatevidconfresponse', Config.get('room.privateVidconfToastDurationSec', 60), 'privatevidconf', this.getDisplayName(), 'Refuses to join the private videoconference');
+                    toast.show();
+                }
+            }
         } catch (error) {
             //
         }
@@ -406,6 +502,10 @@ export class Participant extends Entity
                                 let body = as.String(node.children[i], '');
                                 if (body != '') {
                                     let props = JSON.parse(body);
+
+                                    delete props[Pid.InventoryX];
+                                    delete props[Pid.InventoryX];
+
                                     await BackgroundMessage.addBackpackItem(itemId, props, {});
                                     await BackgroundMessage.derezBackpackItem(itemId, this.room.getJid(), -1, -1, {});
                                     await BackgroundMessage.modifyBackpackItemProperties(itemId, {}, [Pid.TransferState], { skipPresenceUpdate: true });
@@ -417,7 +517,7 @@ export class Participant extends Entity
                     case 'confirm':
                         let props = await BackgroundMessage.getBackpackItemProperties(itemId);
                         if (props[Pid.TransferState] == Pid.TransferState_Source) {
-                        await BackgroundMessage.deleteBackpackItem(itemId, {});
+                            await BackgroundMessage.deleteBackpackItem(itemId, {});
                         }
                         break;
 
@@ -617,6 +717,9 @@ export class Participant extends Entity
     do(what: string): void
     {
         this.room?.sendGroupChat('/do ' + what);
+        if (Config.get('points.enabled', false)) {
+            /* await */ BackgroundMessage.pointsActivity(Pid.PointsChannelEmote, 1);
+        }
     }
 
     toggleChatin(): void
@@ -639,14 +742,14 @@ export class Participant extends Entity
         this.room?.showChatWindow(this.getElem());
     }
 
-    showVideoConference(): void
+    showVidconfWindow(): void
     {
-        this.room?.showVideoConference(this.getElem(), this.nicknameDisplay ? this.nicknameDisplay.getNickname() : this.roomNick);
+        this.app.showVidconfWindow();
     }
 
     showBackpackWindow(): void
     {
-        this.app.showBackpackWindow(this.getElem());
+        this.app.showBackpackWindow();
     }
 
     sendPoke(type: string): void
@@ -660,14 +763,45 @@ export class Participant extends Entity
             this.privateChatWindow = new PrivateChatWindow(this.app, this);
             this.privateChatWindow.show({
                 'above': aboveElem,
-                onClose: () =>
-                {
-                    this.privateChatWindow = null;
-                },
+                onClose: () => { this.privateChatWindow = null; },
             });
         }
+    }
 
-        if (this.privateChatWindow == null) {
+    initiatePrivateVidconf(aboveElem: HTMLElement): void
+    {
+        let confId = 'secret-' + Utils.randomString(30);
+
+        let urlTemplate = Config.get('room.vidconfUrl', 'https://meet.jit.si/{room}#userInfo.displayName="{name}"');
+        let url = urlTemplate
+            .replace('{room}', confId)
+            ;
+
+        this.room?.sendPrivateVidconf(this.roomNick, url);
+        this.openPrivateVidconf(aboveElem, url);
+    }
+
+    openPrivateVidconf(aboveElem: HTMLElement, urlTemplate: string): void
+    {
+        if (this.privateVidconfWindow == null) {
+            let displayName = this.room.getParticipant(this.room.getMyNick()).getDisplayName();
+
+            let url = urlTemplate
+                .replace('{name}', displayName)
+                ;
+
+            this.app.setPrivateVidconfIsOpen(true);
+
+            this.privateVidconfWindow = new PrivateVidconfWindow(this.app, this);
+            this.privateVidconfWindow.show({
+                above: aboveElem,
+                url: url,
+                onClose: () =>
+                {
+                    this.privateVidconfWindow = null;
+                    this.app.setPrivateVidconfIsOpen(false);
+                },
+            });
         }
     }
 
@@ -680,7 +814,15 @@ export class Participant extends Entity
             await BackgroundMessage.derezBackpackItem(itemId, roomJid, -1, -1, {});
         } else {
             log.debug('Participant.applyItem', 'transfer', itemId, 'from', roomJid);
-            await this.room?.transferItem(itemId, this.roomNick);
+
+            if (!as.Bool(roomItem.getProperties()[Pid.IsTransferable], true)) {
+                let fact = ItemException.Fact[ItemException.Fact.NotTransferred];
+                let reason = ItemException.Reason[ItemException.Reason.ItemIsNotTransferable];
+                new SimpleErrorToast(this.app, 'Warning-' + fact + '-' + reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', fact, reason, '').show();
+            } else {
+                await this.room?.transferItem(itemId, this.roomNick);
+            }
+
         }
     }
 

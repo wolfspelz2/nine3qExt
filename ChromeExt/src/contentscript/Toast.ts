@@ -9,19 +9,31 @@ import { ContentApp } from './ContentApp';
 export class Toast
 {
     private elem: HTMLElement = null;
+    private dontShow = true;
 
-    constructor(protected app: ContentApp, protected messageType: string, protected durationSec: number, iconType: string, bodyElem: HTMLElement)
+    constructor(protected app: ContentApp, protected messageType: string, protected durationSec: number, protected iconType: string, protected bodyElem: HTMLElement)
     {
+    }
+
+    show(): void { this.showAsync(); }
+    private async showAsync(): Promise<void>
+    {
+        let skip = await this.app.isDontShowNoticeType(this.messageType);
+        if (skip) {
+            this.close();
+            return;
+        }
+
         var checkboxId = Utils.randomString(10);
 
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-toast n3q-shadow-small" data-translate="children" />').get(0);
         this.setVisibility(false);
 
-        let iconElem = <HTMLDivElement>$('<div class="n3q-base n3q-toast-icon n3q-toast-icon-' + iconType + '" />').get(0);
+        let iconElem = <HTMLDivElement>$('<div class="n3q-base n3q-toast-icon n3q-toast-icon-' + this.iconType + '" />').get(0);
         $(this.elem).append(iconElem);
 
         let bodyContainerElem = <HTMLDivElement>$('<div class="n3q-base toast-body-container" data-translate="children" />').get(0);
-        $(bodyContainerElem).append(bodyElem);
+        $(bodyContainerElem).append(this.bodyElem);
         $(this.elem).append(bodyContainerElem);
 
         let closeElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-overlay n3q-shadow-small" title="Close" data-translate="attr:title:Common"><div class="n3q-base n3q-button-symbol n3q-button-close-small" />').get(0);
@@ -33,15 +45,19 @@ export class Toast
         $(this.elem).append(closeElem);
 
         let footerElem = <HTMLDivElement>$('<div class="n3q-base n3q-toast-footer" data-translate="children" />').get(0);
-        let againElem = <HTMLElement>$('<input class="n3q-base" type="checkbox" name="checkbox" id="' + checkboxId + '" />').get(0);
-        let againLabelElem = <HTMLElement>$('<label class="n3q-base" for="' + checkboxId + '" data-translate="text:Toast">Do not show this message again</label>').get(0);
-        $(againElem).on('change', (ev) =>
-        {
-            var checkbox: HTMLInputElement = <HTMLInputElement>ev.target;
-            this.app.setDontShowNoticeType(messageType, checkbox.checked);
-        });
-        $(footerElem).append(againElem);
-        $(footerElem).append(againLabelElem);
+
+        if (this.dontShow) {
+            let dontShowElem = <HTMLElement>$('<input class="n3q-base" type="checkbox" name="checkbox" id="' + checkboxId + '" />').get(0);
+            let dontShowLabelElem = <HTMLElement>$('<label class="n3q-base" for="' + checkboxId + '" data-translate="text:Toast">Do not show this message again</label>').get(0);
+            $(dontShowElem).on('change', (ev) =>
+            {
+                var checkbox: HTMLInputElement = <HTMLInputElement>ev.target;
+                this.app.setDontShowNoticeType(this.messageType, checkbox.checked);
+            });
+            $(footerElem).append(dontShowElem);
+            $(footerElem).append(dontShowLabelElem);
+        }
+ 
         $(this.elem).append(footerElem);
 
         // let resizeElem = <HTMLElement>$('<div class="n3q-base n3q-window-resize n3q-window-resize-se"/>').get(0);
@@ -60,35 +76,30 @@ export class Toast
         });
 
         $(this.app.getDisplay()).append(this.elem);
+        this.setVisibility(true);
         this.app.translateElem(this.elem);
+        this.app.toFront(this.elem);
+
+        $(this.elem)
+            .css({ 'opacity': '0.0', 'bottom': '-20px' })
+            .animate({ 'opacity': '1.0', 'bottom': '10px' }, 'fast', 'linear')
+            .delay(this.durationSec * 1000)
+            .animate({ 'opacity': '0.0', 'bottom': '-20px' }, 'slow', () => this.close())
+            ;
     }
 
-    show(): void { this.showAsync(); }
-    private async showAsync(): Promise<void>
-    {
-        let skip = await this.app.isDontShowNoticeType(this.messageType);
-        if (!skip) {
-            this.setVisibility(true);
-            this.app.toFront(this.elem);
-
-            $(this.elem)
-                .css({ 'opacity': '0.0', 'bottom': '-20px' })
-                .animate({ 'opacity': '1.0', 'bottom': '10px' }, 'fast', 'linear')
-                .delay(this.durationSec * 1000)
-                .animate({ 'opacity': '0.0', 'bottom': '-20px' }, 'slow', () => this.close())
-                ;
-        } else {
-            this.close();
-        }
-    }
-
-    protected close(): void
+    close(): void
     {
         if (this.elem != null) {
             $(this.elem).stop();
             this.app.getDisplay().removeChild(this.elem);
             this.elem = null;
         }
+    }
+
+    setDontShow(state: boolean): void
+    {
+        this.dontShow = state;
     }
 
     // Visibility
@@ -107,14 +118,25 @@ export class SimpleToast extends Toast
 {
     constructor(app: ContentApp, type: string, durationSec: number, iconType: string, title: string, text: string)
     {
-        var bodyElem = $(''
+        let bodyElem = $(''
             + '<div class="n3q-base n3q-toast-body" data-translate="children">'
-            + (title != null ? '<div class="n3q-base n3q-title">' + as.Html(title) + '</div>' : '')
+            + (title != null ? '<div class="n3q-base n3q-title" data-translate="text:Toast">' + as.Html(title) + '</div>' : '')
             + (text != null ? '<div class="n3q-base n3q-text" data-translate="text:Toast">' + as.Html(text) + '</div>' : '')
             + '</div>'
         )[0];
 
         super(app, type, durationSec, iconType, bodyElem);
+    }
+
+    actionButton(text: string, action: () => void): void
+    {
+        let buttonElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-toast-button n3q-toast-button-action" data-translate="text:Toast">' + as.Html(text) + '</div>').get(0);
+        $(this.bodyElem).append(buttonElem);
+        this.app.translateElem(buttonElem);
+        $(buttonElem).on('click', () =>
+        {
+            if (action) { action(); }
+        });
     }
 }
 

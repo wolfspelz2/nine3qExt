@@ -52,6 +52,42 @@ export class IframeApi
             case WeblinClientApi.ItemActionRequest.type: {
                 /* await */ this.handle_ItemActionRequest(<WeblinClientApi.ItemActionRequest>request);
             } break;
+            case WeblinClientApi.PositionWindowRequest.type: {
+                this.handle_PositionWindowRequest(<WeblinClientApi.PositionWindowRequest>request);
+            } break;
+            case WeblinClientApi.ScreenContentMessageRequest.type: {
+                this.handle_ScreenContentMessageRequest(<WeblinClientApi.ScreenContentMessageRequest>request);
+            } break;
+            case WeblinClientApi.CloseWindowRequest.type: {
+                this.handle_CloseWindowRequest(<WeblinClientApi.CloseWindowRequest>request);
+            } break;
+        }
+    }
+
+    handle_CloseWindowRequest(request: WeblinClientApi.CloseWindowRequest)
+    {
+        try {
+            this.app.closeItemFrame(request.item);
+        } catch (ex) {
+            log.info(ex);
+        }
+    }
+
+    handle_PositionWindowRequest(request: WeblinClientApi.PositionWindowRequest)
+    {
+        try {
+            this.app.positionItemFrame(request.item, request.width, request.height, request.left, request.bottom);
+        } catch (ex) {
+            log.info(ex);
+        }
+    }
+
+    handle_ScreenContentMessageRequest(request: WeblinClientApi.ScreenContentMessageRequest)
+    {
+        try {
+            this.app.sendMessageToScreenItemFrame(request.item, request.message);
+        } catch (ex) {
+            log.info(ex);
         }
     }
 
@@ -68,13 +104,18 @@ export class IframeApi
             // } else {
             //     new SimpleErrorToast(this.app, 'Warning-' + ex.fact + '-' + ex.reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', ex.fact, ex.reason, ex.detail).show();
             // }
-            let fact = typeof ex.fact === 'number' ? ItemException.Fact[ex.fact]: ex.fact;
-            let reason = typeof ex.reason === 'number' ? ItemException.Reason[ex.reason]: ex.reason;
-            let detail = ex.detail;
-            new SimpleErrorToast(this.app, 'Warning-' + fact + '-' + reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', fact, reason, detail).show();
+            if (ex.fact) {
+                let fact = typeof ex.fact === 'number' ? ItemException.Fact[ex.fact] : ex.fact;
+                let reason = typeof ex.reason === 'number' ? ItemException.Reason[ex.reason] : ex.reason;
+                let detail = ex.detail;
+                new SimpleErrorToast(this.app, 'Warning-' + fact + '-' + reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', fact, reason, detail).show();
+            } else {
+                new SimpleErrorToast(this.app, 'Warning-UnknownError', Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', 'Error', 'UnknownReason', ex.message).show();
+            }
         }
     }
 }
+
 
 export class WeblinClientIframeApi
 {
@@ -113,6 +154,29 @@ export namespace WeblinClientApi
         fact: string;
         reason: string;
         detail: string;
+    }
+
+    export class CloseWindowRequest extends Request
+    {
+        static type = 'Window.Close';
+        item: string;
+    }
+
+    export class PositionWindowRequest extends Request
+    {
+        static type = 'Window.Position';
+        item: string;
+        width: number;
+        height: number;
+        left: number;
+        bottom: number;
+    }
+
+    export class ScreenContentMessageRequest extends Request
+    {
+        static type = 'Screen.ContentMessage';
+        item: string;
+        message: any;
     }
 
     export class ItemActionRequest extends Request

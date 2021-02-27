@@ -10,17 +10,23 @@ import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ContentApp } from './ContentApp';
 import { BackpackWindow } from './BackpackWindow';
+import { BackpackItemInfo } from './BackpackItemInfo';
 
 export class BackpackItem
 {
     private isFirstPresence: boolean = true;
     private elem: HTMLDivElement;
+    private imageElem: HTMLDivElement;
     private iconElem: HTMLImageElement;
     private x: number = 100;
     private y: number = 100;
     private w: number = 64;
     private h: number = 64;
     private inDrag: boolean = false;
+    private info: BackpackItemInfo = null;
+
+    getElem(): HTMLElement { return this.elem; }
+    getProperties(): ItemProperties { return this.properties; }
 
     constructor(protected app: ContentApp, private backpackWindow: BackpackWindow, private itemId: string, private properties: ItemProperties)
     {
@@ -31,7 +37,10 @@ export class BackpackItem
         let x = this.getPseudoRandomCoordinate(paneElem.offsetWidth, this.w, padding, itemId, 11345);
         let y = this.getPseudoRandomCoordinate(paneElem.offsetHeight, this.w, padding, itemId, 13532);
 
+        // this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item" data-id="' + this.itemId + '" />').get(0);
+        this.imageElem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item-image" />').get(0);
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item" data-id="' + this.itemId + '" />').get(0);
+        $(this.elem).append(this.imageElem);
 
         this.setImage(imgDefaultItem);
         this.setSize(50, 50);
@@ -44,15 +53,30 @@ export class BackpackItem
             this.onMouseClick(ev);
         });
 
+        $(this.elem).on({
+            click: async (ev) => 
+            {
+                // if (ev.target == this.elem || (this.info != null && ev.target == this.info.getElem())) {
+                if (this.info) {
+                    this.info.close();
+                } else {
+                    this.info = new BackpackItemInfo(this.app, this, () => { this.info = null; });
+                    this.info.show(ev.offsetX, ev.offsetY);
+                }
+                // }
+            }
+        });
+
         $(this.elem).draggable({
             scroll: false,
             stack: '.n3q-item-icon',
             distance: 4,
             //opacity: 0.5,
-            helper: function ()
+            helper: () =>
             {
+                if (this.info) { this.info.close(); }
                 let dragElem = $('<div class="n3q-base n3q-backpack-drag" />').get(0);
-                let itemElem = $(this).clone().get(0);
+                let itemElem = $(this.elem).clone().get(0);
                 $(itemElem).css({ 'left': '0', 'top': '0', 'width': this.w, 'height': this.h });
                 $(dragElem).append(itemElem);
                 $(app.getDisplay()).append(dragElem);
@@ -103,7 +127,7 @@ export class BackpackItem
 
     setImage(url: string): void
     {
-        $(this.elem).css({ 'background-image': 'url("' + url + '")' });
+        $(this.imageElem).css({ 'background-image': 'url("' + url + '")' });
     }
 
     setSize(w: number, h: number)
@@ -131,11 +155,20 @@ export class BackpackItem
     }
 
     private dragIsRezable: boolean = false;
+    private dragIsRezzed: boolean = false;
     private onDragStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
     {
-        this.dragIsRezable = as.Bool(this.properties['IsRezable'], true);
-        this.app.showDropzone();
+        this.dragIsRezable = as.Bool(this.properties[Pid.IsRezable], true);
+        this.dragIsRezzed = as.Bool(this.properties[Pid.IsRezzed], false);
+
+        if (this.dragIsRezable && !this.dragIsRezzed) {
+            this.app.showDropzone();
+        }
+
         this.app.toFront(ui.helper.get(0));
+
+        this.info?.close();
+
         return true;
     }
 
@@ -145,13 +178,16 @@ export class BackpackItem
             if (!this.isPositionInBackpack(ev, ui)) {
                 return false;
             }
-        } else {
+        }
+
+        if (!this.dragIsRezzed) {
             if (this.isPositionInDropzone(ev, ui)) {
                 this.app.hiliteDropzone(true);
             } else {
                 this.app.hiliteDropzone(false);
             }
         }
+
         return true;
     }
 
@@ -245,7 +281,12 @@ export class BackpackItem
 
     rezItem(x: number)
     {
-        this.backpackWindow.rezItem(this.itemId, this.app.getRoom().getJid(), Math.round(x), this.app.getRoom().getDestination());
+        this.backpackWindow.rezItemSync(this.itemId, this.app.getRoom().getJid(), Math.round(x), this.app.getRoom().getDestination());
+    }
+
+    derezItem()
+    {
+        this.backpackWindow.derezItem(this.itemId, this.properties[Pid.RezzedLocation], -1, -1);
     }
 
     getPseudoRandomCoordinate(space: number, size: number, padding: number, id: string, mod: number): number
@@ -290,15 +331,9 @@ export class BackpackItem
             }
         }
 
-        if (Config.get('backpack.itemPropertiesTooltip', false)) {
-            let propsText = '';
-            for (let key in properties) {
-                propsText += key + ': ' + properties[key] + '\r\n';
-            }
-            $(this.elem).prop('title', propsText);;
-        }
-
         this.properties = properties;
+
+        this.info?.update();
     }
 
     destroy()

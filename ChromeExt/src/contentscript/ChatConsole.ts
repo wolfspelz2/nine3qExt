@@ -1,6 +1,11 @@
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Client } from '../lib/Client';
+import { Config } from '../lib/Config';
+import { Translator } from '../lib/Translator';
 import { ContentApp } from './ContentApp';
 import { Room } from './Room';
+import { TestWindow } from './TestWindow';
+import { VpiResolver } from './VpiResolver';
 
 export interface ChatConsoleOut { (data: any): void }
 
@@ -29,37 +34,86 @@ export class ChatConsole
         if (parts.length < 1) { return; }
         var cmd: string = parts[0];
 
+        this.out(context, ['>', text]);
+
+        isHandled = true;
         switch (cmd) {
             case '/help':
             case '/?':
-                ChatConsole.out(context, [
+                this.out(context, ['>', text]);
+                this.out(context, [
                     ['help', '/xmpp'],
                     ['help', '/room'],
                     ['help', '/changes'],
                 ]);
-                isHandled = true;
                 break;
             case '/xmpp':
                 context.app?.showXmppWindow();
-                isHandled = true;
+                break;
+            case '/chat':
+                context.app?.showChatWindow();
+                break;
+            case '/items':
+            case '/backpack':
+            case '/stuff':
+            case '/things':
+                context.app?.showBackpackWindow();
+                break;
+            case '/video':
+            case '/vid':
+            case '/vidconf':
+            case '/conf':
+            case '/jitsi':
+                context.app?.showVidconfWindow();
+                break;
+            case '/test':
+                new TestWindow(context.app).show({});
                 break;
             case '/changes':
                 context.app?.showChangesWindow();
-                isHandled = true;
                 break;
             case '/info':
                 ChatConsole.out(context, [
                     ['info', Client.getDetails()]
                 ]);
-                isHandled = true;
                 break;
             case '/room':
                 context.room?.getInfo().forEach(line =>
                 {
                     ChatConsole.out(context, [line[0], line[1]]);
                 });
-                isHandled = true;
                 break;
+            case '/who':
+                context.room?.getParticipantIds().forEach(participantNick =>
+                {
+                    ChatConsole.out(context, [participantNick, context.room?.getParticipant(participantNick).getDisplayName()]);
+                });
+                break;
+            case '/what':
+                context.room?.getItemIds().forEach(itemId =>
+                {
+                    ChatConsole.out(context, [itemId, context.room?.getItem(itemId).getDisplayName()]);
+                });
+                break;
+            case '/map':
+                let vpi = new VpiResolver(BackgroundMessage, Config);
+                let language: string = Translator.mapLanguage(navigator.language, lang => { return Config.get('i18n.languageMapping', {})[lang]; }, Config.get('i18n.defaultLanguage', 'en-US'));
+                let translator = new Translator(Config.get('i18n.translations', {})[language], language, Config.get('i18n.serviceUrl', ''));
+                vpi.language = Translator.getShortLanguageCode(translator.getLanguage());
+                let lines = new Array<[string, string]>();
+                let url = parts[1];
+                lines.push(['URL', url]);
+                vpi.trace = (key, value) => { lines.push([key, value]); };
+                vpi.map(url).then(location =>
+                {
+                    lines.forEach(line =>
+                    {
+                        ChatConsole.out(context, [line[0], line[1]]);
+                    });
+                });
+                break;
+            default:
+                isHandled = false;
         }
 
         return isHandled;

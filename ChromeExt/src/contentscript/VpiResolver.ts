@@ -42,6 +42,7 @@ export class VpiResolverConfigInstance implements VpiResolverConfigProvider
 export class VpiResolver
 {
     language: string = '';
+    trace: (key: string, value: string) => void = () => { };
 
     constructor(private urlFetcher: VpiResolverUrlFetcher, private config: VpiResolverConfigProvider = new VpiResolverConfigInstance())
     {
@@ -61,20 +62,24 @@ export class VpiResolver
                 switch (result.status) {
 
                     case VpiResolverEvaluateResultType.Error: {
+                        this.trace(VpiResolverEvaluateResultType[result.error], '');
                         log.debug('VpiResolver', result.error);
                     } break;
 
                     case VpiResolverEvaluateResultType.Delegate: {
+                        this.trace(VpiResolverEvaluateResultType[result.status], result.delegate);
                         log.debug('VpiResolver', result.status, result.delegate);
                         vpiUrl = result.delegate;
                     } break;
 
                     case VpiResolverEvaluateResultType.Location: {
+                        this.trace(VpiResolverEvaluateResultType[result.status], result.location);
                         log.debug('VpiResolver', result.status, result.location);
                         locationUrl = result.location;
                     } break;
 
                     case VpiResolverEvaluateResultType.Ignore: {
+                        this.trace(VpiResolverEvaluateResultType[result.status], '');
                         log.debug('VpiResolver', result.status);
                         return '';
                     } break;
@@ -103,6 +108,7 @@ export class VpiResolver
                     matchExpr = matchAttr.value;
                 }
 
+                this.trace('try', matchExpr);
                 let regex = new RegExp(matchExpr);
                 let unsafeMatchResult = regex.exec(documentUrl);
 
@@ -128,6 +134,7 @@ export class VpiResolver
                     } else if (vpiChild.tagName == 'location') {
 
                         logData['regex'] = matchExpr;
+                        this.trace('match', matchExpr);
 
                         let protocol = 'xmpp';
                         let server = '';
@@ -146,6 +153,7 @@ export class VpiResolver
                                         let locationServiceText: string = locationChild.textContent;
                                         let colonIndex = locationServiceText.indexOf(':');
                                         server = locationServiceText.substr(colonIndex + 1);
+                                        this.trace('server', server);
                                     } break;
 
                                 case 'name': // The same: '<name hash="true">\5</name>' | '<name hash="SHA1">\5</name>' BUT: '<name>\5</name>' does not hash
@@ -154,17 +162,21 @@ export class VpiResolver
                                         if (hash == 'true') { hash = 'SHA1'; }
 
                                         let prefix = locationChild.attributes.prefix ? as.String(locationChild.attributes.prefix.value, '') : '';
+                                        if (prefix != '') { this.trace('prefix', prefix); }
 
                                         let nameExpr = locationChild.textContent;
+                                        this.trace('replace', nameExpr);
                                         let name = this.replaceMatch(nameExpr, matchResult);
+                                        this.trace('name', name);
 
                                         logData['replace'] = nameExpr;
                                         logData['name'] = name;
 
-                                        if (hash && hash != '') {
+                                        if (as.String(hash, '') != '') {
                                             let hasher = crypto.createHash(hash.toLowerCase());
                                             hasher.update(name);
                                             name = hasher.digest('hex');
+                                            this.trace('hashed', name);
                                         }
                                         room = prefix + name;
                                     } break;
@@ -187,8 +199,10 @@ export class VpiResolver
                                                     } break;
                                             }
                                         }
+                                        this.trace('options', JSON.stringify(options));
 
                                         let langTag = 'lang:' + language;
+                                        this.trace('language', langTag);
                                         let candidates = options.filter(option => { return option.tag == langTag; });
                                         if (candidates.length == 0) {
                                             candidates = options.filter(option => { return option.tag == defaultTag; });
@@ -197,6 +211,7 @@ export class VpiResolver
                                             let rndIndex = Utils.randomInt(0, candidates.length);
                                             suffix = candidates[rndIndex].suffix;
                                         }
+                                        this.trace('suffix', suffix);
 
                                     } break;
 

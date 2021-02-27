@@ -3,9 +3,9 @@ import { client, xml, jid } from '@xmpp/client';
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
-import { BackgroundErrorResponse, BackgroundItemExceptionResponse, BackgroundMessage, BackgroundResponse, BackgroundSuccessResponse, GetBackpackItemPropertiesResponse, GetBackpackStateResponse, IsBackpackItemResponse } from '../lib/BackgroundMessage';
+import { BackgroundEmptyResponse, BackgroundErrorResponse, BackgroundItemExceptionResponse, BackgroundMessage, BackgroundResponse, BackgroundSuccessResponse, FindBackpackItemPropertiesResponse, GetBackpackItemPropertiesResponse, GetBackpackStateResponse, IsBackpackItemResponse } from '../lib/BackgroundMessage';
 import { Client } from '../lib/Client';
-import { ItemProperties } from '../lib/ItemProperties';
+import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { ContentMessage } from '../lib/ContentMessage';
 import { ItemException } from '../lib/ItemExcption';
 import { ItemChangeOptions } from '../lib/ItemChangeOptions';
@@ -13,11 +13,18 @@ import { Memory } from '../lib/Memory';
 import { ConfigUpdater } from './ConfigUpdater';
 import { Backpack } from './Backpack';
 import { Translator } from '../lib/Translator';
+import { Environment } from '../lib/Environment';
 
 interface ILocationMapperResponse
 {
     //    sMessage: string;
     sLocationURL: string;
+}
+
+interface PointsActivity
+{
+    channel: string;
+    n: number;
 }
 
 export class BackgroundApp
@@ -53,6 +60,8 @@ export class BackgroundApp
             }
         }
 
+        Environment.NODE_ENV = Config.get('environment.NODE_ENV', null);
+
         {
             let uniqueId = await Memory.getSync(Utils.syncStorageKey_Id(), '');
             if (uniqueId == '') {
@@ -63,19 +72,21 @@ export class BackgroundApp
         let language: string = Translator.mapLanguage(navigator.language, lang => { return Config.get('i18n.languageMapping', {})[lang]; }, Config.get('i18n.defaultLanguage', 'en-US'));
         this.babelfish = new Translator(Config.get('i18n.translations', {})[language], language, Config.get('i18n.serviceUrl', ''));
 
-        if (chrome.runtime && chrome.runtime.onMessage) {
+        if (Environment.isExtension() && chrome.runtime.onMessage) {
             chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
             {
                 return this.onRuntimeMessage(message, sender, sendResponse);
             });
         }
 
-        if (chrome.browserAction && chrome.browserAction.onClicked) {
+        if (Environment.isExtension() && chrome.browserAction && chrome.browserAction.onClicked) {
             chrome.browserAction.onClicked.addListener(async tab =>
             {
                 await this.onBrowserActionClicked(tab.id);
             });
         }
+
+        this.lastPointsSubmissionTime = Date.now();
 
         this.configUpdater = new ConfigUpdater(this);
         await this.configUpdater.getUpdate(() => this.onConfigUpdated());
@@ -124,7 +135,7 @@ export class BackgroundApp
 
     // IPC
 
-    private async onBrowserActionClicked(tabId:number): Promise<void>
+    private async onBrowserActionClicked(tabId: number): Promise<void>
     {
         let state = !as.Bool(await Memory.getLocal(Utils.localStorageKey_Active(), false), false);
         await Memory.setLocal(Utils.localStorageKey_Active(), state);
@@ -174,6 +185,11 @@ export class BackgroundApp
                 return false;
             } break;
 
+            case BackgroundMessage.log.name: {
+                sendResponse(this.handle_log(message.pieces));
+                return false;
+            } break;
+
             case BackgroundMessage.userSettingsChanged.name: {
                 sendResponse(this.handle_userSettingsChanged());
                 return false;
@@ -215,8 +231,16 @@ export class BackgroundApp
                 return this.handle_getBackpackItemProperties(message.itemId, sendResponse);
             } break;
 
+            case BackgroundMessage.findBackpackItemProperties.name: {
+                return this.handle_findBackpackItemProperties(message.filterProperties, sendResponse);
+            } break;
+
             case BackgroundMessage.executeBackpackItemAction.name: {
                 return this.handle_executeBackpackItemAction(message.itemId, message.action, message.args, message.involvedIds, sendResponse);
+            } break;
+
+            case BackgroundMessage.pointsActivity.name: {
+                return this.handle_pointsActivity(message.channel, message.n, sendResponse);
             } break;
 
             default: {
@@ -365,7 +389,7 @@ export class BackgroundApp
         return false;
     }
 
-    handle_waitReady(sendResponse: (response?: any) => void)
+    handle_waitReady(sendResponse: (response?: any) => void): boolean
     {
         log.debug('BackgroundApp.handle_waitReady');
         let sendResponseIsAsync = false;
@@ -386,7 +410,7 @@ export class BackgroundApp
         return sendResponseIsAsync;
     }
 
-    handle_getConfigTree(name: any)
+    handle_getConfigTree(name: any): any
     {
         log.debug('BackgroundApp.handle_getConfigTree', name, this.isReady);
         switch (as.String(name, Config.onlineConfigName)) {
@@ -534,16 +558,66 @@ export class BackgroundApp
         return false;
     }
 
+    handle_findBackpackItemProperties(filterProperties: ItemProperties, sendResponse: (response?: any) => void): boolean
+    {
+        if (this.backpack) {
+            let items = this.backpack.findItems(props =>
+            {
+                let match = true;
+                for (let pid in filterProperties) {
+                    if (props[pid] != filterProperties[pid]) { match = false; }
+                }
+                as.Bool(props[Pid.PointsAspect], false);
+                return match;
+            });
+            let propertiesSet = {};
+            for (let i = 0; i < items.length; i++) {
+                let item = items[i];
+                let itemId = item.getProperties()[Pid.Id];
+                propertiesSet[itemId] = item.getProperties();
+            }
+            sendResponse(new FindBackpackItemPropertiesResponse(propertiesSet));
+        } else {
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemsNotAvailable)));
+        }
+        return false;
+    }
+
     handle_executeBackpackItemAction(itemId: string, action: string, args: any, involvedIds: Array<string>, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            this.backpack.executeItemAction(itemId, action, args, involvedIds)
+            this.backpack.executeItemAction(itemId, action, args, involvedIds, false)
                 .then(() => { sendResponse(new BackgroundSuccessResponse()); })
                 .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
             return true;
         } else {
             sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotChanged, ItemException.Reason.ItemsNotAvailable)));
         }
+        return false;
+    }
+
+    private lastPointsSubmissionTime: number = 0;
+    private pointsActivities: Array<PointsActivity> = [];
+    handle_pointsActivity(channel: string, n: number, sendResponse: (response?: any) => void): boolean
+    {
+        if (this.backpack) {
+            if (Config.get('points.enabled', false)) {
+                this.pointsActivities.push({ channel: channel, n: n });
+
+                let now = Date.now();
+                let submissionIntervalSec = Config.get('points.submissionIntervalSec', 300);
+                if (now - this.lastPointsSubmissionTime > submissionIntervalSec * 1000) {
+                    this.lastPointsSubmissionTime = now;
+                    this.submitPoints()
+                        .then(() => { sendResponse(new BackgroundSuccessResponse()); })
+                        .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
+                    return true;
+                }
+            }
+        } else {
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotChanged, ItemException.Reason.ItemsNotAvailable)));
+        }
+        sendResponse(new BackgroundSuccessResponse());
         return false;
     }
 
@@ -606,7 +680,7 @@ export class BackgroundApp
 
     // send/recv stanza
 
-    handle_sendStanza(stanza: any, tabId: number): void
+    handle_sendStanza(stanza: any, tabId: number): BackgroundResponse
     {
         // log.debug('BackgroundApp.handle_sendStanza', stanza, tabId);
 
@@ -851,7 +925,7 @@ export class BackgroundApp
     // Keep connection alive
 
     private lastPingTime: number = 0;
-    handle_pingBackground(): void
+    handle_pingBackground(): BackgroundResponse
     {
         log.debug('BackgroundApp.handle_pingBackground');
         try {
@@ -860,20 +934,57 @@ export class BackgroundApp
                 this.lastPingTime = now;
                 this.sendPresence();
             }
+            return new BackgroundSuccessResponse();
         } catch (error) {
-            //
+            return new BackgroundErrorResponse('error', error);
         }
     }
 
     // 
 
-    handle_userSettingsChanged(): void
+    handle_log(pieces: any): BackgroundResponse
+    {
+        log.debug(...pieces);
+        return new BackgroundSuccessResponse();
+    }
+
+    handle_userSettingsChanged(): BackgroundResponse
     {
         log.debug('BackgroundApp.handle_userSettingsChanged');
         this.sendToAllTabs(ContentMessage.type_userSettingsChanged, {});
+        return new BackgroundSuccessResponse();
     }
 
-    handle_test(): void
+    async submitPoints()
+    {
+        let consolidated: { [channel: string]: number } = {};
+
+        for (let i = 0; i < this.pointsActivities.length; i++) {
+            let activity = this.pointsActivities[i];
+            if (consolidated[activity.channel]) {
+                consolidated[activity.channel] = consolidated[activity.channel] + activity.n;
+            } else {
+                consolidated[activity.channel] = activity.n;
+            }
+        }
+
+        this.pointsActivities = [];
+
+        if (this.backpack) {
+            if (Config.get('points.enabled', false)) {
+                let points = await this.backpack.getOrCreatePointsItem();
+                if (points) {
+                    let itemId = as.String(points.getProperties()[Pid.Id], '');
+                    if (itemId != '') {
+                        this.backpack.executeItemAction(itemId, 'Points.ChannelValues', consolidated, [itemId], true)
+                    }
+                }
+            }
+        }
+    }
+
+    handle_test(): any
     {
     }
+
 }

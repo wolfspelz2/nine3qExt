@@ -6,6 +6,7 @@ import { Config } from '../lib/Config';
 import { Environment } from '../lib/Environment';
 import { ContentApp, ContentAppNotification } from './ContentApp';
 import { ContentMessage } from '../lib/ContentMessage';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
 
 let debug = Environment.isDevelopment();
 console.log('weblin.io Content', 'dev', debug);
@@ -35,7 +36,7 @@ try {
     function activate()
     {
         if (app == null) {
-            if (chrome.runtime && chrome.runtime.onMessage && runtimeMessageHandlerWhileDeactivated) {
+            if (Environment.isExtension() && chrome.runtime.onMessage && runtimeMessageHandlerWhileDeactivated) {
                 chrome.runtime.onMessage.removeListener(runtimeMessageHandlerWhileDeactivated);
             }
 
@@ -72,7 +73,7 @@ try {
             app.stop();
             app = null;
 
-            if (chrome.runtime && chrome.runtime.onMessage) {
+            if (Environment.isExtension() && chrome.runtime.onMessage) {
                 runtimeMessageHandlerWhileDeactivated = (message, sender, sendResponse) => onRuntimeMessage(message, sender, sendResponse);
                 chrome.runtime.onMessage.addListener(runtimeMessageHandlerWhileDeactivated);
             }
@@ -106,7 +107,10 @@ try {
 
     Panic.onNow(onUnload);
 
-    window.addEventListener('onbeforeunload', deactivate);
+    window.addEventListener('unload', function ()
+    {
+        deactivate();
+    });
 
     window.addEventListener('visibilitychange', function ()
     {

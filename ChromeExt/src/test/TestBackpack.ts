@@ -8,17 +8,17 @@ import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 
 export class TestBackpack
 {
-    Backpack_stanzaOutFilter()
+    async Backpack_stanzaOutFilter()
     {
         let ba = new BackgroundApp();
         let rep = new Backpack(ba);
 
-        rep.addItem('item1', { 'Test1': 'Value1', 'Test2': '41' , 'Test3': 'x' , 'Test4': 'y' }, { skipPersistentStorage: true });
-        rep.addItem('item2', { 'Test1': 'Value2', 'Test2': '42' }, { skipPersistentStorage: true });
-        rep.addItem('item3', { 'Test1': 'Value3', 'Test2': '43' }, { skipPersistentStorage: true });
+        await rep.addItem('item1', { 'Test1': 'Value1', 'Test2': '41' , 'Test3': 'x' , 'Test4': 'y' }, { skipPersistentStorage: true });
+        await rep.addItem('item2', { 'Test1': 'Value2', 'Test2': '42' }, { skipPersistentStorage: true });
+        await rep.addItem('item3', { 'Test1': 'Value3', 'Test2': '43' }, { skipPersistentStorage: true });
 
-        rep.rezItem('item1', 'room1@server', 41, 'Destination1', { skipPersistentStorage: true });
-        rep.rezItem('item2', 'room1@server', 42, 'Destination2', { skipPersistentStorage: true });
+        await rep.rezItem('item1', 'room1@server', 41, 'Destination1', { skipPersistentStorage: true });
+        await rep.rezItem('item2', 'room1@server', 42, 'Destination2', { skipPersistentStorage: true });
 
         expect(rep.getItems()['item1'][Pid.IsRezzed]).to.equal('true');
         expect(rep.getItems()['item2'][Pid.IsRezzed]).to.equal('true');
