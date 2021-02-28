@@ -126,9 +126,17 @@ export class Room
     {
         let vpProps = { xmlns: 'vp:props', 'Nickname': this.resource, 'AvatarId': this.avatar, 'nickname': this.resource, 'avatar': 'gif/' + this.avatar };
 
+        let nickname = await this.getBackpackItemNickname(this.resource);
+        if (nickname != '') {
+            vpProps['Nickname'] = nickname;
+            vpProps['nickname'] = nickname;
+        }
+
         let avatarUrl = await this.getBackpackItemAvatarUrl('');
         if (avatarUrl != '') {
             vpProps['AvatarUrl'] = avatarUrl;
+            delete vpProps['AvatarId'];
+            delete vpProps['avatar'];
         }
 
         let points = 0;
@@ -152,7 +160,7 @@ export class Room
             }
             identityDigest = as.String(Utils.hash(this.resource + avatarUrl));
             identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}&points={points}'))
-                .replace('{nickname}', encodeURIComponent(this.resource))
+                .replace('{nickname}', encodeURIComponent(nickname))
                 .replace('{avatarUrl}', encodeURIComponent(avatarUrl))
                 .replace('{digest}', encodeURIComponent(identityDigest))
                 .replace('{imageUrl}', encodeURIComponent(''))
@@ -175,10 +183,10 @@ export class Room
         this.app.sendStanza(presence);
     }
 
-    async getPointsItemPoints(defaultValue: number): Promise<number> { return as.Int(await this.getBackpackItemProperty({ [Pid.PointsAspect]: 'true' }, Pid.PointsTotal, defaultValue)); }
-    async getBackpackItemAvatarId(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.AvatarAspect]: 'true' }, Pid.AvatarAvatarId, defaultValue)); }
-    async getBackpackItemAvatarUrl(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.AvatarAspect]: 'true' }, Pid.AvatarAnimationsUrl, defaultValue)); }
-    async getBackpackItemNickname(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.NicknameAspect]: 'true', }, Pid.NicknameText, defaultValue)); }
+    async getPointsItemPoints(defaultValue: number): Promise<number> { return as.Int(await this.getBackpackItemProperty({ [Pid.PointsAspect]: 'true' , [Pid.DeactivatableIsInactive]: 'false' }, Pid.PointsTotal, defaultValue)); }
+    async getBackpackItemAvatarId(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.AvatarAspect]: 'true', [Pid.DeactivatableIsInactive]: 'false' }, Pid.AvatarAvatarId, defaultValue)); }
+    async getBackpackItemAvatarUrl(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.AvatarAspect]: 'true', [Pid.DeactivatableIsInactive]: 'false' }, Pid.AvatarAnimationsUrl, defaultValue)); }
+    async getBackpackItemNickname(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.NicknameAspect]: 'true', [Pid.DeactivatableIsInactive]: 'false' }, Pid.NicknameText, defaultValue)); }
 
     async getBackpackItemProperty(filterProperties: ItemProperties, propertyPid: string, defautValue: any): Promise<any>
     {
@@ -521,9 +529,9 @@ export class Room
         }
     }
 
-    showChatMessage(nick: string, text: string)
+    showChatMessage(name: string, text: string)
     {
-        this.chatWindow.addLine(nick + Date.now(), nick, text);
+        this.chatWindow.addLine(name + Date.now(), name, text);
     }
 
     showVideoConference(aboveElem: HTMLElement, displayName: string): void

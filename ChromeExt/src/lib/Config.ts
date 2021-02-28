@@ -289,7 +289,7 @@ export class Config
                     'ItemPid.Label': 'Label',
                     'ItemPid.Description': 'Description',
                     'ItemPid.ClaimStrength': 'Strength',
-                    'ItemPid.ClaimName': 'For',
+                    'ItemPid.ClaimUrl': 'For',
                     'ItemPid.OwnerName': 'Owner',
                     'ItemPid.DispenserAvailable': 'Remaining',
                     'ItemPid.DispenserCooldownSec': 'Cooldown',
@@ -303,6 +303,7 @@ export class Config
                     'ItemPid.IframeUrl': 'URL',
                     'ItemPid.IframeAuto': 'Autostart',
                     'ItemPid.DocumentTitle': 'Title',
+                    'ItemPid.DeactivatableIsInactive': 'Deactivated',
 
                     'ItemValue.true': 'Yes',
                     'ItemValue.false': 'No',
@@ -425,7 +426,7 @@ export class Config
                     'ItemPid.Label': 'Bezeichnung',
                     'ItemPid.Description': 'Beschreibung',
                     'ItemPid.ClaimStrength': 'Stärke',
-                    'ItemPid.ClaimName': 'Für',
+                    'ItemPid.ClaimUrl': 'Für',
                     'ItemPid.OwnerName': 'Besitzer',
                     'ItemPid.DispenserAvailable': 'Übrig',
                     'ItemPid.DispenserCooldownSec': 'Wartezeit',
@@ -439,6 +440,7 @@ export class Config
                     'ItemPid.IframeUrl': 'URL',
                     'ItemPid.IframeAuto': 'Automatisch',
                     'ItemPid.DocumentTitle': 'Titel',
+                    'ItemPid.DeactivatableIsInactive': 'Deaktiviert',
 
                     'ItemValue.true': 'Ja',
                     'ItemValue.false': 'Nein',

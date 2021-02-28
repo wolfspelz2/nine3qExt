@@ -243,6 +243,10 @@ export class BackgroundApp
                 return this.handle_pointsActivity(message.channel, message.n, sendResponse);
             } break;
 
+            case BackgroundMessage.createBackpackItemFromTemplate.name: {
+                return this.handle_createBackpackItemFromTemplate(message.template, message.args, sendResponse);
+            } break;
+
             default: {
                 log.debug('BackgroundApp.onRuntimeMessage unhandled', message);
                 sendResponse(new BackgroundErrorResponse('error', 'unhandled message type=' + message.type));
@@ -567,7 +571,6 @@ export class BackgroundApp
                 for (let pid in filterProperties) {
                     if (props[pid] != filterProperties[pid]) { match = false; }
                 }
-                as.Bool(props[Pid.PointsAspect], false);
                 return match;
             });
             let propertiesSet = {};
@@ -618,6 +621,19 @@ export class BackgroundApp
             sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotChanged, ItemException.Reason.ItemsNotAvailable)));
         }
         sendResponse(new BackgroundSuccessResponse());
+        return false;
+    }
+
+    handle_createBackpackItemFromTemplate(template: string, args: ItemProperties, sendResponse: (response?: any) => void): boolean
+    {
+        if (this.backpack) {
+            this.backpack.createItemByTemplate(template, args)
+                .then(() => { sendResponse(new BackgroundSuccessResponse()); })
+                .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
+            return true;
+        } else {
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotChanged, ItemException.Reason.ItemsNotAvailable)));
+        }
         return false;
     }
 

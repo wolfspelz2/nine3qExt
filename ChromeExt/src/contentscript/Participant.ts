@@ -54,7 +54,7 @@ export class Participant extends Entity
     {
         let name = this.roomNick;
         if (this.nicknameDisplay) {
-            this.nicknameDisplay.getNickname();
+            name = this.nicknameDisplay.getNickname();
         }
         return name;
     }
@@ -532,6 +532,7 @@ export class Participant extends Entity
     {
         let from = jid(stanza.attrs.from);
         let nick = from.getResource();
+        let name = this.getDisplayName();
         let now = Date.now();
         let timestamp = 0;
 
@@ -577,8 +578,6 @@ export class Participant extends Entity
         }
 
         if (text == '') { return; }
-
-        let name = this.getDisplayName();
 
         if (timestamp == 0) {
             timestamp = now;

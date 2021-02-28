@@ -12,8 +12,8 @@ import { Memory } from '../lib/Memory';
 import { Utils } from '../lib/Utils';
 import { BackgroundApp } from './BackgroundApp';
 import { Item } from './Item';
-const Web3 = require('web3');
-import { AbiItem } from 'web3-utils';
+//const Web3 = require('web3');
+//import { AbiItem } from 'web3-utils';
 import { Environment } from '../lib/Environment';
 
 export class Backpack
@@ -40,7 +40,7 @@ export class Backpack
     async init(): Promise<void>
     {
         await this.loadLocalItems();
-        await this.loadWeb3Items();
+        //await this.loadWeb3Items();
     }
 
     async loadLocalItems()
@@ -70,484 +70,494 @@ export class Backpack
         }
     }
 
-    async loadWeb3Items(): Promise<void>
-    {
-        const web3 = new Web3(new Web3.providers.HttpProvider('https://kovan.infura.io/v3/8f39aa5fb9fb402e8e65a9c810e6cdb1'));
-        const abi = <Array<AbiItem>>[
-            {
-                'inputs': [],
-                'stateMutability': 'nonpayable',
-                'type': 'constructor'
-            },
-            {
-                'anonymous': false,
-                'inputs': [
-                    {
-                        'indexed': true,
-                        'internalType': 'address',
-                        'name': '_owner',
-                        'type': 'address'
-                    },
-                    {
-                        'indexed': true,
-                        'internalType': 'address',
-                        'name': '_approved',
-                        'type': 'address'
-                    },
-                    {
-                        'indexed': true,
-                        'internalType': 'uint256',
-                        'name': '_tokenId',
-                        'type': 'uint256'
-                    }
-                ],
-                'name': 'Approval',
-                'type': 'event'
-            },
-            {
-                'anonymous': false,
-                'inputs': [
-                    {
-                        'indexed': true,
-                        'internalType': 'address',
-                        'name': '_owner',
-                        'type': 'address'
-                    },
-                    {
-                        'indexed': true,
-                        'internalType': 'address',
-                        'name': '_operator',
-                        'type': 'address'
-                    },
-                    {
-                        'indexed': false,
-                        'internalType': 'bool',
-                        'name': '_approved',
-                        'type': 'bool'
-                    }
-                ],
-                'name': 'ApprovalForAll',
-                'type': 'event'
-            },
-            {
-                'inputs': [
-                    {
-                        'internalType': 'address',
-                        'name': '_approved',
-                        'type': 'address'
-                    },
-                    {
-                        'internalType': 'uint256',
-                        'name': '_tokenId',
-                        'type': 'uint256'
-                    }
-                ],
-                'name': 'approve',
-                'outputs': [],
-                'stateMutability': 'nonpayable',
-                'type': 'function'
-            },
-            {
-                'inputs': [
-                    {
-                        'internalType': 'address',
-                        'name': '_to',
-                        'type': 'address'
-                    },
-                    {
-                        'internalType': 'uint256',
-                        'name': '_tokenId',
-                        'type': 'uint256'
-                    },
-                    {
-                        'internalType': 'string',
-                        'name': '_data',
-                        'type': 'string'
-                    }
-                ],
-                'name': 'mint',
-                'outputs': [],
-                'stateMutability': 'nonpayable',
-                'type': 'function'
-            },
-            {
-                'anonymous': false,
-                'inputs': [
-                    {
-                        'indexed': true,
-                        'internalType': 'address',
-                        'name': 'previousOwner',
-                        'type': 'address'
-                    },
-                    {
-                        'indexed': true,
-                        'internalType': 'address',
-                        'name': 'newOwner',
-                        'type': 'address'
-                    }
-                ],
-                'name': 'OwnershipTransferred',
-                'type': 'event'
-            },
-            {
-                'inputs': [
-                    {
-                        'internalType': 'address',
-                        'name': '_from',
-                        'type': 'address'
-                    },
-                    {
-                        'internalType': 'address',
-                        'name': '_to',
-                        'type': 'address'
-                    },
-                    {
-                        'internalType': 'uint256',
-                        'name': '_tokenId',
-                        'type': 'uint256'
-                    }
-                ],
-                'name': 'safeTransferFrom',
-                'outputs': [],
-                'stateMutability': 'nonpayable',
-                'type': 'function'
-            },
-            {
-                'inputs': [
-                    {
-                        'internalType': 'address',
-                        'name': '_from',
-                        'type': 'address'
-                    },
-                    {
-                        'internalType': 'address',
-                        'name': '_to',
-                        'type': 'address'
-                    },
-                    {
-                        'internalType': 'uint256',
-                        'name': '_tokenId',
-                        'type': 'uint256'
-                    },
-                    {
-                        'internalType': 'bytes',
-                        'name': '_data',
-                        'type': 'bytes'
-                    }
-                ],
-                'name': 'safeTransferFrom',
-                'outputs': [],
-                'stateMutability': 'nonpayable',
-                'type': 'function'
-            },
-            {
-                'inputs': [
-                    {
-                        'internalType': 'address',
-                        'name': '_operator',
-                        'type': 'address'
-                    },
-                    {
-                        'internalType': 'bool',
-                        'name': '_approved',
-                        'type': 'bool'
-                    }
-                ],
-                'name': 'setApprovalForAll',
-                'outputs': [],
-                'stateMutability': 'nonpayable',
-                'type': 'function'
-            },
-            {
-                'anonymous': false,
-                'inputs': [
-                    {
-                        'indexed': true,
-                        'internalType': 'address',
-                        'name': '_from',
-                        'type': 'address'
-                    },
-                    {
-                        'indexed': true,
-                        'internalType': 'address',
-                        'name': '_to',
-                        'type': 'address'
-                    },
-                    {
-                        'indexed': true,
-                        'internalType': 'uint256',
-                        'name': '_tokenId',
-                        'type': 'uint256'
-                    }
-                ],
-                'name': 'Transfer',
-                'type': 'event'
-            },
-            {
-                'inputs': [
-                    {
-                        'internalType': 'address',
-                        'name': '_from',
-                        'type': 'address'
-                    },
-                    {
-                        'internalType': 'address',
-                        'name': '_to',
-                        'type': 'address'
-                    },
-                    {
-                        'internalType': 'uint256',
-                        'name': '_tokenId',
-                        'type': 'uint256'
-                    }
-                ],
-                'name': 'transferFrom',
-                'outputs': [],
-                'stateMutability': 'nonpayable',
-                'type': 'function'
-            },
-            {
-                'inputs': [
-                    {
-                        'internalType': 'address',
-                        'name': '_newOwner',
-                        'type': 'address'
-                    }
-                ],
-                'name': 'transferOwnership',
-                'outputs': [],
-                'stateMutability': 'nonpayable',
-                'type': 'function'
-            },
-            {
-                'inputs': [
-                    {
-                        'internalType': 'address',
-                        'name': '_owner',
-                        'type': 'address'
-                    }
-                ],
-                'name': 'balanceOf',
-                'outputs': [
-                    {
-                        'internalType': 'uint256',
-                        'name': '',
-                        'type': 'uint256'
-                    }
-                ],
-                'stateMutability': 'view',
-                'type': 'function'
-            },
-            {
-                'inputs': [],
-                'name': 'CANNOT_TRANSFER_TO_ZERO_ADDRESS',
-                'outputs': [
-                    {
-                        'internalType': 'string',
-                        'name': '',
-                        'type': 'string'
-                    }
-                ],
-                'stateMutability': 'view',
-                'type': 'function'
-            },
-            {
-                'inputs': [
-                    {
-                        'internalType': 'uint256',
-                        'name': '_tokenId',
-                        'type': 'uint256'
-                    }
-                ],
-                'name': 'getApproved',
-                'outputs': [
-                    {
-                        'internalType': 'address',
-                        'name': '',
-                        'type': 'address'
-                    }
-                ],
-                'stateMutability': 'view',
-                'type': 'function'
-            },
-            {
-                'inputs': [
-                    {
-                        'internalType': 'uint256',
-                        'name': '_tokenId',
-                        'type': 'uint256'
-                    }
-                ],
-                'name': 'getTokenData',
-                'outputs': [
-                    {
-                        'internalType': 'string',
-                        'name': '',
-                        'type': 'string'
-                    }
-                ],
-                'stateMutability': 'view',
-                'type': 'function'
-            },
-            {
-                'inputs': [
-                    {
-                        'internalType': 'address',
-                        'name': '_owner',
-                        'type': 'address'
-                    },
-                    {
-                        'internalType': 'uint64',
-                        'name': '_index',
-                        'type': 'uint64'
-                    }
-                ],
-                'name': 'getTokenIdByOwnerAndIndex',
-                'outputs': [
-                    {
-                        'internalType': 'uint256',
-                        'name': '',
-                        'type': 'uint256'
-                    }
-                ],
-                'stateMutability': 'view',
-                'type': 'function'
-            },
-            {
-                'inputs': [
-                    {
-                        'internalType': 'address',
-                        'name': '_owner',
-                        'type': 'address'
-                    },
-                    {
-                        'internalType': 'address',
-                        'name': '_operator',
-                        'type': 'address'
-                    }
-                ],
-                'name': 'isApprovedForAll',
-                'outputs': [
-                    {
-                        'internalType': 'bool',
-                        'name': '',
-                        'type': 'bool'
-                    }
-                ],
-                'stateMutability': 'view',
-                'type': 'function'
-            },
-            {
-                'inputs': [],
-                'name': 'name',
-                'outputs': [
-                    {
-                        'internalType': 'string',
-                        'name': '_name',
-                        'type': 'string'
-                    }
-                ],
-                'stateMutability': 'view',
-                'type': 'function'
-            },
-            {
-                'inputs': [],
-                'name': 'NOT_CURRENT_OWNER',
-                'outputs': [
-                    {
-                        'internalType': 'string',
-                        'name': '',
-                        'type': 'string'
-                    }
-                ],
-                'stateMutability': 'view',
-                'type': 'function'
-            },
-            {
-                'inputs': [],
-                'name': 'owner',
-                'outputs': [
-                    {
-                        'internalType': 'address',
-                        'name': '',
-                        'type': 'address'
-                    }
-                ],
-                'stateMutability': 'view',
-                'type': 'function'
-            },
-            {
-                'inputs': [
-                    {
-                        'internalType': 'uint256',
-                        'name': '_tokenId',
-                        'type': 'uint256'
-                    }
-                ],
-                'name': 'ownerOf',
-                'outputs': [
-                    {
-                        'internalType': 'address',
-                        'name': '_owner',
-                        'type': 'address'
-                    }
-                ],
-                'stateMutability': 'view',
-                'type': 'function'
-            },
-            {
-                'inputs': [
-                    {
-                        'internalType': 'bytes4',
-                        'name': '_interfaceID',
-                        'type': 'bytes4'
-                    }
-                ],
-                'name': 'supportsInterface',
-                'outputs': [
-                    {
-                        'internalType': 'bool',
-                        'name': '',
-                        'type': 'bool'
-                    }
-                ],
-                'stateMutability': 'view',
-                'type': 'function'
-            },
-            {
-                'inputs': [],
-                'name': 'symbol',
-                'outputs': [
-                    {
-                        'internalType': 'string',
-                        'name': '_symbol',
-                        'type': 'string'
-                    }
-                ],
-                'stateMutability': 'view',
-                'type': 'function'
-            }
-        ];
-        const ownerAddress = '0xFE3aFc544D6098379061a8833c175E603c267fa4';
-        const contractAddress = '0x637f0918F39E4e82fa66512318096Dd1bab49177';
-        const contract = new web3.eth.Contract(abi, contractAddress);
-        let numberOfItems = await contract.methods.balanceOf(ownerAddress).call();
-        for (let i = 0; i < numberOfItems; i++) {
-            let tokenId = await contract.methods.getTokenIdByOwnerAndIndex(ownerAddress, i).call();
-            let tokenData = await contract.methods.getTokenData(tokenId).call();
-            let existingItems = this.findItems(props => as.Bool(props[Pid.ClaimAspect], false) && as.String(props[Pid.ClaimName], '') == tokenData);
-            if (existingItems.length == 0) {
-                let item = await this.createItemByTemplate('PirateFlag', { [Pid.ClaimName]: tokenData });
-            }
-        }
-    }
+    // async loadWeb3Items(): Promise<void>
+    // {
+    //     const web3 = new Web3(new Web3.providers.HttpProvider('https://kovan.infura.io/v3/8f39aa5fb9fb402e8e65a9c810e6cdb1'));
+    //     const abi = <Array<AbiItem>>[
+    //         {
+    //             'inputs': [],
+    //             'stateMutability': 'nonpayable',
+    //             'type': 'constructor'
+    //         },
+    //         {
+    //             'anonymous': false,
+    //             'inputs': [
+    //                 {
+    //                     'indexed': true,
+    //                     'internalType': 'address',
+    //                     'name': '_owner',
+    //                     'type': 'address'
+    //                 },
+    //                 {
+    //                     'indexed': true,
+    //                     'internalType': 'address',
+    //                     'name': '_approved',
+    //                     'type': 'address'
+    //                 },
+    //                 {
+    //                     'indexed': true,
+    //                     'internalType': 'uint256',
+    //                     'name': '_tokenId',
+    //                     'type': 'uint256'
+    //                 }
+    //             ],
+    //             'name': 'Approval',
+    //             'type': 'event'
+    //         },
+    //         {
+    //             'anonymous': false,
+    //             'inputs': [
+    //                 {
+    //                     'indexed': true,
+    //                     'internalType': 'address',
+    //                     'name': '_owner',
+    //                     'type': 'address'
+    //                 },
+    //                 {
+    //                     'indexed': true,
+    //                     'internalType': 'address',
+    //                     'name': '_operator',
+    //                     'type': 'address'
+    //                 },
+    //                 {
+    //                     'indexed': false,
+    //                     'internalType': 'bool',
+    //                     'name': '_approved',
+    //                     'type': 'bool'
+    //                 }
+    //             ],
+    //             'name': 'ApprovalForAll',
+    //             'type': 'event'
+    //         },
+    //         {
+    //             'inputs': [
+    //                 {
+    //                     'internalType': 'address',
+    //                     'name': '_approved',
+    //                     'type': 'address'
+    //                 },
+    //                 {
+    //                     'internalType': 'uint256',
+    //                     'name': '_tokenId',
+    //                     'type': 'uint256'
+    //                 }
+    //             ],
+    //             'name': 'approve',
+    //             'outputs': [],
+    //             'stateMutability': 'nonpayable',
+    //             'type': 'function'
+    //         },
+    //         {
+    //             'inputs': [
+    //                 {
+    //                     'internalType': 'address',
+    //                     'name': '_to',
+    //                     'type': 'address'
+    //                 },
+    //                 {
+    //                     'internalType': 'uint256',
+    //                     'name': '_tokenId',
+    //                     'type': 'uint256'
+    //                 },
+    //                 {
+    //                     'internalType': 'string',
+    //                     'name': '_data',
+    //                     'type': 'string'
+    //                 }
+    //             ],
+    //             'name': 'mint',
+    //             'outputs': [],
+    //             'stateMutability': 'nonpayable',
+    //             'type': 'function'
+    //         },
+    //         {
+    //             'anonymous': false,
+    //             'inputs': [
+    //                 {
+    //                     'indexed': true,
+    //                     'internalType': 'address',
+    //                     'name': 'previousOwner',
+    //                     'type': 'address'
+    //                 },
+    //                 {
+    //                     'indexed': true,
+    //                     'internalType': 'address',
+    //                     'name': 'newOwner',
+    //                     'type': 'address'
+    //                 }
+    //             ],
+    //             'name': 'OwnershipTransferred',
+    //             'type': 'event'
+    //         },
+    //         {
+    //             'inputs': [
+    //                 {
+    //                     'internalType': 'address',
+    //                     'name': '_from',
+    //                     'type': 'address'
+    //                 },
+    //                 {
+    //                     'internalType': 'address',
+    //                     'name': '_to',
+    //                     'type': 'address'
+    //                 },
+    //                 {
+    //                     'internalType': 'uint256',
+    //                     'name': '_tokenId',
+    //                     'type': 'uint256'
+    //                 }
+    //             ],
+    //             'name': 'safeTransferFrom',
+    //             'outputs': [],
+    //             'stateMutability': 'nonpayable',
+    //             'type': 'function'
+    //         },
+    //         {
+    //             'inputs': [
+    //                 {
+    //                     'internalType': 'address',
+    //                     'name': '_from',
+    //                     'type': 'address'
+    //                 },
+    //                 {
+    //                     'internalType': 'address',
+    //                     'name': '_to',
+    //                     'type': 'address'
+    //                 },
+    //                 {
+    //                     'internalType': 'uint256',
+    //                     'name': '_tokenId',
+    //                     'type': 'uint256'
+    //                 },
+    //                 {
+    //                     'internalType': 'bytes',
+    //                     'name': '_data',
+    //                     'type': 'bytes'
+    //                 }
+    //             ],
+    //             'name': 'safeTransferFrom',
+    //             'outputs': [],
+    //             'stateMutability': 'nonpayable',
+    //             'type': 'function'
+    //         },
+    //         {
+    //             'inputs': [
+    //                 {
+    //                     'internalType': 'address',
+    //                     'name': '_operator',
+    //                     'type': 'address'
+    //                 },
+    //                 {
+    //                     'internalType': 'bool',
+    //                     'name': '_approved',
+    //                     'type': 'bool'
+    //                 }
+    //             ],
+    //             'name': 'setApprovalForAll',
+    //             'outputs': [],
+    //             'stateMutability': 'nonpayable',
+    //             'type': 'function'
+    //         },
+    //         {
+    //             'anonymous': false,
+    //             'inputs': [
+    //                 {
+    //                     'indexed': true,
+    //                     'internalType': 'address',
+    //                     'name': '_from',
+    //                     'type': 'address'
+    //                 },
+    //                 {
+    //                     'indexed': true,
+    //                     'internalType': 'address',
+    //                     'name': '_to',
+    //                     'type': 'address'
+    //                 },
+    //                 {
+    //                     'indexed': true,
+    //                     'internalType': 'uint256',
+    //                     'name': '_tokenId',
+    //                     'type': 'uint256'
+    //                 }
+    //             ],
+    //             'name': 'Transfer',
+    //             'type': 'event'
+    //         },
+    //         {
+    //             'inputs': [
+    //                 {
+    //                     'internalType': 'address',
+    //                     'name': '_from',
+    //                     'type': 'address'
+    //                 },
+    //                 {
+    //                     'internalType': 'address',
+    //                     'name': '_to',
+    //                     'type': 'address'
+    //                 },
+    //                 {
+    //                     'internalType': 'uint256',
+    //                     'name': '_tokenId',
+    //                     'type': 'uint256'
+    //                 }
+    //             ],
+    //             'name': 'transferFrom',
+    //             'outputs': [],
+    //             'stateMutability': 'nonpayable',
+    //             'type': 'function'
+    //         },
+    //         {
+    //             'inputs': [
+    //                 {
+    //                     'internalType': 'address',
+    //                     'name': '_newOwner',
+    //                     'type': 'address'
+    //                 }
+    //             ],
+    //             'name': 'transferOwnership',
+    //             'outputs': [],
+    //             'stateMutability': 'nonpayable',
+    //             'type': 'function'
+    //         },
+    //         {
+    //             'inputs': [
+    //                 {
+    //                     'internalType': 'address',
+    //                     'name': '_owner',
+    //                     'type': 'address'
+    //                 }
+    //             ],
+    //             'name': 'balanceOf',
+    //             'outputs': [
+    //                 {
+    //                     'internalType': 'uint256',
+    //                     'name': '',
+    //                     'type': 'uint256'
+    //                 }
+    //             ],
+    //             'stateMutability': 'view',
+    //             'type': 'function'
+    //         },
+    //         {
+    //             'inputs': [],
+    //             'name': 'CANNOT_TRANSFER_TO_ZERO_ADDRESS',
+    //             'outputs': [
+    //                 {
+    //                     'internalType': 'string',
+    //                     'name': '',
+    //                     'type': 'string'
+    //                 }
+    //             ],
+    //             'stateMutability': 'view',
+    //             'type': 'function'
+    //         },
+    //         {
+    //             'inputs': [
+    //                 {
+    //                     'internalType': 'uint256',
+    //                     'name': '_tokenId',
+    //                     'type': 'uint256'
+    //                 }
+    //             ],
+    //             'name': 'getApproved',
+    //             'outputs': [
+    //                 {
+    //                     'internalType': 'address',
+    //                     'name': '',
+    //                     'type': 'address'
+    //                 }
+    //             ],
+    //             'stateMutability': 'view',
+    //             'type': 'function'
+    //         },
+    //         {
+    //             'inputs': [
+    //                 {
+    //                     'internalType': 'uint256',
+    //                     'name': '_tokenId',
+    //                     'type': 'uint256'
+    //                 }
+    //             ],
+    //             'name': 'getTokenData',
+    //             'outputs': [
+    //                 {
+    //                     'internalType': 'string',
+    //                     'name': '',
+    //                     'type': 'string'
+    //                 }
+    //             ],
+    //             'stateMutability': 'view',
+    //             'type': 'function'
+    //         },
+    //         {
+    //             'inputs': [
+    //                 {
+    //                     'internalType': 'address',
+    //                     'name': '_owner',
+    //                     'type': 'address'
+    //                 },
+    //                 {
+    //                     'internalType': 'uint64',
+    //                     'name': '_index',
+    //                     'type': 'uint64'
+    //                 }
+    //             ],
+    //             'name': 'getTokenIdByOwnerAndIndex',
+    //             'outputs': [
+    //                 {
+    //                     'internalType': 'uint256',
+    //                     'name': '',
+    //                     'type': 'uint256'
+    //                 }
+    //             ],
+    //             'stateMutability': 'view',
+    //             'type': 'function'
+    //         },
+    //         {
+    //             'inputs': [
+    //                 {
+    //                     'internalType': 'address',
+    //                     'name': '_owner',
+    //                     'type': 'address'
+    //                 },
+    //                 {
+    //                     'internalType': 'address',
+    //                     'name': '_operator',
+    //                     'type': 'address'
+    //                 }
+    //             ],
+    //             'name': 'isApprovedForAll',
+    //             'outputs': [
+    //                 {
+    //                     'internalType': 'bool',
+    //                     'name': '',
+    //                     'type': 'bool'
+    //                 }
+    //             ],
+    //             'stateMutability': 'view',
+    //             'type': 'function'
+    //         },
+    //         {
+    //             'inputs': [],
+    //             'name': 'name',
+    //             'outputs': [
+    //                 {
+    //                     'internalType': 'string',
+    //                     'name': '_name',
+    //                     'type': 'string'
+    //                 }
+    //             ],
+    //             'stateMutability': 'view',
+    //             'type': 'function'
+    //         },
+    //         {
+    //             'inputs': [],
+    //             'name': 'NOT_CURRENT_OWNER',
+    //             'outputs': [
+    //                 {
+    //                     'internalType': 'string',
+    //                     'name': '',
+    //                     'type': 'string'
+    //                 }
+    //             ],
+    //             'stateMutability': 'view',
+    //             'type': 'function'
+    //         },
+    //         {
+    //             'inputs': [],
+    //             'name': 'owner',
+    //             'outputs': [
+    //                 {
+    //                     'internalType': 'address',
+    //                     'name': '',
+    //                     'type': 'address'
+    //                 }
+    //             ],
+    //             'stateMutability': 'view',
+    //             'type': 'function'
+    //         },
+    //         {
+    //             'inputs': [
+    //                 {
+    //                     'internalType': 'uint256',
+    //                     'name': '_tokenId',
+    //                     'type': 'uint256'
+    //                 }
+    //             ],
+    //             'name': 'ownerOf',
+    //             'outputs': [
+    //                 {
+    //                     'internalType': 'address',
+    //                     'name': '_owner',
+    //                     'type': 'address'
+    //                 }
+    //             ],
+    //             'stateMutability': 'view',
+    //             'type': 'function'
+    //         },
+    //         {
+    //             'inputs': [
+    //                 {
+    //                     'internalType': 'bytes4',
+    //                     'name': '_interfaceID',
+    //                     'type': 'bytes4'
+    //                 }
+    //             ],
+    //             'name': 'supportsInterface',
+    //             'outputs': [
+    //                 {
+    //                     'internalType': 'bool',
+    //                     'name': '',
+    //                     'type': 'bool'
+    //                 }
+    //             ],
+    //             'stateMutability': 'view',
+    //             'type': 'function'
+    //         },
+    //         {
+    //             'inputs': [],
+    //             'name': 'symbol',
+    //             'outputs': [
+    //                 {
+    //                     'internalType': 'string',
+    //                     'name': '_symbol',
+    //                     'type': 'string'
+    //                 }
+    //             ],
+    //             'stateMutability': 'view',
+    //             'type': 'function'
+    //         }
+    //     ];
+    //     const ownerAddress = '0xFE3aFc544D6098379061a8833c175E603c267fa4';
+    //     const contractAddress = '0x637f0918F39E4e82fa66512318096Dd1bab49177';
+    //     const contract = new web3.eth.Contract(abi, contractAddress);
+    //     let numberOfItems = await contract.methods.balanceOf(ownerAddress).call();
+    //     for (let i = 0; i < numberOfItems; i++) {
+    //         let tokenId = await contract.methods.getTokenIdByOwnerAndIndex(ownerAddress, i).call();
+    //         let tokenData = await contract.methods.getTokenData(tokenId).call();
+    //         let existingItems = this.findItems(props => as.Bool(props[Pid.ClaimAspect], false) && as.String(props[Pid.ClaimUrl], '') == tokenData);
+    //         if (existingItems.length == 0) {
+    //             let item = await this.createItemByTemplate('PirateFlag', { [Pid.ClaimUrl]: tokenData });
+    //         }
+    //     }
+    // }
 
     async getOrCreatePointsItem(): Promise<Item>
     {
         let pointsItems = this.findItems(props => as.Bool(props[Pid.PointsAspect], false));
 
         if (pointsItems.length > 1) {
-            log.debug('Backpack.getOrCreatePointsItem', 'Too many points items: ' + pointsItems.length);
+            let maxPoints = -1;
+            let maxItem: Item;
+            for (let i = 0; i < pointsItems.length; i++) {
+                let item = pointsItems[i];
+                let points = as.Int(item.getProperties()[Pid.PointsTotal], 0);
+                if (points > maxPoints) {
+                    maxPoints = points;
+                    maxItem = item;
+                }
+            }
+            return maxItem;
         } else if (pointsItems.length == 0) {
             let item = await this.createItemByTemplate('Points', {});
             return item;

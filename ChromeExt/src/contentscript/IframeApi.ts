@@ -2,6 +2,7 @@ import log = require('loglevel');
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Config } from '../lib/Config';
 import { ItemException } from '../lib/ItemExcption';
+import { Pid } from '../lib/ItemProperties';
 import { ContentApp } from './ContentApp';
 import { SimpleErrorToast } from './Toast';
 
@@ -51,7 +52,7 @@ export class IframeApi
         if (request[Config.get('w2wMigration.messageMagic', 'hbv67u5rf_w2wMigrate')]) {
             let cid = (<any>request).cid;
             if (cid) {
-//hw
+                /* await */ this.handle_Migration(cid);
             }
             return;
         }
@@ -75,6 +76,19 @@ export class IframeApi
             } break;
         }
         // }
+    }
+
+    async handle_Migration(cid: string)
+    {
+        try {
+            await BackgroundMessage.createBackpackItemFromTemplate('Migration', { [Pid.MigrationCid]: cid });
+            let propSet = await BackgroundMessage.findBackpackItemProperties({ [Pid.MigrationAspect]: 'true' });
+            for (let id in propSet) {
+                await BackgroundMessage.rezBackpackItem(id, this.app.getRoom().getJid(), -1, this.app.getRoom().getDestination(), {});
+            }
+        } catch (ex) {
+            log.info(ex);
+        }
     }
 
     handle_CloseWindowRequest(request: WeblinClientApi.WindowCloseRequest)

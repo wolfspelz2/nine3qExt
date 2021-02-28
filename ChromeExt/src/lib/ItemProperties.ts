@@ -24,6 +24,10 @@ export class Pid
     static readonly IframeUrl = 'IframeUrl';
     static readonly DocumentOptions = 'DocumentOptions';
     static readonly DocumentUrl = 'DocumentUrl';
+    static readonly DocumentText = 'DocumentText';
+    static readonly DocumentTitle = 'DocumentTitle';
+    static readonly MigrationAspect = 'MigrationAspect';
+    static readonly MigrationCid = 'MigrationCid';
     static readonly IframeAuto = 'IframeAuto';
     static readonly TransferState = 'TransferState';
     static readonly ImageUrl = 'ImageUrl';
@@ -33,7 +37,7 @@ export class Pid
     static readonly ApplierAspect = 'ApplierAspect';
     static readonly ClaimAspect = 'ClaimAspect';
     static readonly ClaimStrength = 'ClaimStrength';
-    static readonly ClaimName = 'ClaimName';
+    static readonly ClaimUrl = 'ClaimUrl';
     static readonly PointsAspect = 'PointsAspect';
     static readonly SettingsAspect = 'SettingsAspect';
     static readonly AvatarAspect = 'AvatarAspect';
@@ -52,6 +56,7 @@ export class Pid
     static readonly ScreenAspect = 'ScreenAspect';
     static readonly ScreenOptions = 'ScreenOptions';
     static readonly ScreenUrl = 'ScreenUrl';
+    static readonly DeactivatableIsInactive = 'DeactivatableIsInactive';
 
     static readonly TransferState_Source = 'Source';
     static readonly TransferState_Destination = 'Destination';
@@ -78,17 +83,20 @@ export class Property
         [Pid.RezzedX]: { inPresence: true },
         [Pid.ClaimAspect]: { inPresence: true },
         [Pid.ClaimStrength]: { inPresence: true },
-        [Pid.ClaimName]: { inPresence: true },
+        [Pid.ClaimUrl]: { inPresence: true },
         [Pid.IframeAspect]: { inPresence: true },
         [Pid.IframeOptions]: { inPresence: true },
         [Pid.IframeUrl]: { inPresence: true },
         [Pid.IframeAuto]: { inPresence: true },
         [Pid.DocumentOptions]: { inPresence: true },
         [Pid.DocumentUrl]: { inPresence: true },
+        [Pid.DocumentTitle]: { inPresence: true },
+        [Pid.DocumentText]: { inPresence: true },
         [Pid.ScreenAspect]: { inPresence: true },
         [Pid.ScreenOptions]: { inPresence: true },
         [Pid.ScreenUrl]: { inPresence: true },
         [Pid.Stats]: { inPresence: true },
+        [Pid.DeactivatableIsInactive]: { inPresence: true },
 
         // For unit test
         ['Test1']: { inPresence: true },
