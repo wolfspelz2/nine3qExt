@@ -1,4 +1,5 @@
 import log = require('loglevel');
+import { as } from '../lib/as';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Config } from '../lib/Config';
 import { ItemException } from '../lib/ItemExcption';
@@ -52,7 +53,8 @@ export class IframeApi
         if (request[Config.get('w2wMigration.messageMagic', 'hbv67u5rf_w2wMigrate')]) {
             let cid = (<any>request).cid;
             if (cid) {
-                /* await */ this.handle_Migration(cid);
+                let nickname = as.String((<any>request).nickname, cid);
+                /* await */ this.handle_Migration(cid, nickname);
             }
             return;
         }
@@ -78,10 +80,10 @@ export class IframeApi
         // }
     }
 
-    async handle_Migration(cid: string)
+    async handle_Migration(cid: string, nickname: string)
     {
         try {
-            await BackgroundMessage.createBackpackItemFromTemplate('Migration', { [Pid.MigrationCid]: cid });
+            await BackgroundMessage.createBackpackItemFromTemplate('Migration', { [Pid.MigrationCid]: cid, [Pid.Description]: nickname });
             let propSet = await BackgroundMessage.findBackpackItemProperties({ [Pid.MigrationAspect]: 'true' });
             for (let id in propSet) {
                 await BackgroundMessage.rezBackpackItem(id, this.app.getRoom().getJid(), -1, this.app.getRoom().getDestination(), {});

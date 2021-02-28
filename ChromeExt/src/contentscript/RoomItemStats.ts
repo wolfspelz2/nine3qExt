@@ -65,6 +65,12 @@ export class RoomItemStats
             $(this.elem).append(labelElem);
         }
 
+        let description = as.String(props[Pid.Description], '');
+        if (description != '') {
+            let descriptionElem = <HTMLDivElement>$('<div class="n3q-base n3q-description">' + description + '</div>').get(0);
+            $(this.elem).append(descriptionElem);
+        }
+
         let stats = as.String(props[Pid.Stats], null);
         let statsPids = stats.split(' ');
 
@@ -90,6 +96,6 @@ export class RoomItemStats
 
         this.app.translateElem(this.elem);
 
-        return hasStats;
+        return hasStats || description != '';
     }
 }
