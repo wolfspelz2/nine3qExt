@@ -183,7 +183,7 @@ export class Room
         this.app.sendStanza(presence);
     }
 
-    async getPointsItemPoints(defaultValue: number): Promise<number> { return as.Int(await this.getBackpackItemProperty({ [Pid.PointsAspect]: 'true' , [Pid.DeactivatableIsInactive]: 'false' }, Pid.PointsTotal, defaultValue)); }
+    async getPointsItemPoints(defaultValue: number): Promise<number> { return as.Int(await this.getBackpackItemProperty({ [Pid.PointsAspect]: 'true' }, Pid.PointsTotal, defaultValue)); }
     async getBackpackItemAvatarId(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.AvatarAspect]: 'true', [Pid.DeactivatableIsInactive]: 'false' }, Pid.AvatarAvatarId, defaultValue)); }
     async getBackpackItemAvatarUrl(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.AvatarAspect]: 'true', [Pid.DeactivatableIsInactive]: 'false' }, Pid.AvatarAnimationsUrl, defaultValue)); }
     async getBackpackItemNickname(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.NicknameAspect]: 'true', [Pid.DeactivatableIsInactive]: 'false' }, Pid.NicknameText, defaultValue)); }
