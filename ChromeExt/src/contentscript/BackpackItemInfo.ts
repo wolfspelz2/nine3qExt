@@ -111,8 +111,9 @@ export class BackpackItemInfo
 
         if (as.Bool(props[Pid.IsRezzed], false)) {
             let derezElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-backpack-derez" data-translate="text:Backpack">Derez item</div>').get(0);
-            $(derezElem).on('click', () =>
+            $(derezElem).on('click', (ev) =>
             {
+                ev.stopPropagation();
                 this.backpackItem.derezItem();
                 this.close();
             });
@@ -121,8 +122,9 @@ export class BackpackItemInfo
             let destination = as.String(props[Pid.RezzedDestination], null);
             if (destination) {
                 let goElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-backpack-go" data-translate="text:Backpack">Go to item</div>').get(0);
-                $(goElem).on('click', () =>
+                $(goElem).on('click', (ev) =>
                 {
+                    ev.stopPropagation();
                     window.location.assign(destination);
                 });
                 $(this.elem).append(goElem);
@@ -130,8 +132,9 @@ export class BackpackItemInfo
         } else {
             if (as.Bool(props[Pid.IsRezable], true)) {
                 let rezElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-backpack-rez" data-translate="text:Backpack">Rez item</div>').get(0);
-                $(rezElem).on('click', () =>
+                $(rezElem).on('click', (ev) =>
                 {
+                    ev.stopPropagation();
                     this.backpackItem.rezItem(-1);
                     this.close();
                 });

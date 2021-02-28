@@ -54,6 +54,7 @@ export class ContentApp
     private itemRepository: ItemRepository;
     private propertyStorage: PropertyStorage = new PropertyStorage();
     private babelfish: Translator;
+    private vpi: VpiResolver;
     private xmppWindow: XmppWindow;
     private backpackWindow: BackpackWindow;
     private settingsWindow: SettingsWindow;
@@ -137,6 +138,9 @@ export class ContentApp
 
         let language: string = Translator.mapLanguage(navigator.language, lang => { return Config.get('i18n.languageMapping', {})[lang]; }, Config.get('i18n.defaultLanguage', 'en-US'));
         this.babelfish = new Translator(Config.get('i18n.translations', {})[language], language, Config.get('i18n.serviceUrl', ''));
+
+        this.vpi = new VpiResolver(BackgroundMessage, Config);
+        this.vpi.language = Translator.getShortLanguageCode(this.babelfish.getLanguage());
 
         await this.assertActive();
         if (Panic.isOn) { return; }
@@ -535,10 +539,7 @@ export class ContentApp
             log.debug('Page changed', this.pageUrl, ' => ', pageUrl);
             this.pageUrl = pageUrl;
 
-            let vpi = new VpiResolver(BackgroundMessage, Config);
-            vpi.language = Translator.getShortLanguageCode(this.babelfish.getLanguage());
-            let newLocation = await vpi.map(pageUrl);
-            let newRoomJid = ContentApp.getRoomJidFromLocationUrl(newLocation);
+            let newRoomJid = await this.vpiMap(pageUrl);
 
             if (newRoomJid == this.roomJid) {
                 log.debug('Same room', pageUrl, ' => ', this.roomJid);
@@ -566,6 +567,13 @@ export class ContentApp
     {
         let parsedUrl = new URL(url)
         return parsedUrl.host + parsedUrl.pathname + parsedUrl.search;
+    }
+
+    async vpiMap(url: string): Promise<string>
+    {
+        let locationUrl = await this.vpi.map(url);
+        let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);
+        return roomJid;
     }
 
     private checkPageUrlSec: number = Config.get('room.checkPageUrlSec', 5);

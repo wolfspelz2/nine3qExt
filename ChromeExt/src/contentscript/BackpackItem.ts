@@ -17,6 +17,7 @@ export class BackpackItem
     private isFirstPresence: boolean = true;
     private elem: HTMLDivElement;
     private imageElem: HTMLDivElement;
+    private textElem: HTMLDivElement;
     private iconElem: HTMLImageElement;
     private x: number = 100;
     private y: number = 100;
@@ -37,10 +38,11 @@ export class BackpackItem
         let x = this.getPseudoRandomCoordinate(paneElem.offsetWidth, this.w, padding, itemId, 11345);
         let y = this.getPseudoRandomCoordinate(paneElem.offsetHeight, this.w, padding, itemId, 13532);
 
-        // this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item" data-id="' + this.itemId + '" />').get(0);
-        this.imageElem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item-image" />').get(0);
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item" data-id="' + this.itemId + '" />').get(0);
+        this.imageElem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item-image" />').get(0);
         $(this.elem).append(this.imageElem);
+        this.textElem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item-label" />').get(0);
+        $(this.elem).append(this.textElem);
 
         this.setImage(imgDefaultItem);
         this.setSize(50, 50);
@@ -128,6 +130,11 @@ export class BackpackItem
     setImage(url: string): void
     {
         $(this.imageElem).css({ 'background-image': 'url("' + url + '")' });
+    }
+
+    setText(text: string): void
+    {
+        $(this.textElem).text(as.Html(text));
     }
 
     setSize(w: number, h: number)
@@ -310,6 +317,13 @@ export class BackpackItem
         if (properties[Pid.ImageUrl]) {
             this.setImage(properties[Pid.ImageUrl]);
         }
+
+        let text = as.String(properties[Pid.Label], '');
+        let description = as.String(properties[Pid.Description], '');
+        if (description != '') {
+            text += (text != '' ? ': ': '') + description;
+        }
+        this.setText(text);
 
         if (properties[Pid.Width] && properties[Pid.Height]) {
             var w = as.Int(properties[Pid.Width], -1);

@@ -57,6 +57,8 @@ export class Pid
     static readonly ScreenOptions = 'ScreenOptions';
     static readonly ScreenUrl = 'ScreenUrl';
     static readonly DeactivatableIsInactive = 'DeactivatableIsInactive';
+    static readonly Signed = 'Signed';
+    static readonly SignatureRsa = 'SignatureRsa';
 
     static readonly TransferState_Source = 'Source';
     static readonly TransferState_Destination = 'Destination';
@@ -96,6 +98,8 @@ export class Property
         [Pid.ScreenOptions]: { inPresence: true },
         [Pid.ScreenUrl]: { inPresence: true },
         [Pid.Stats]: { inPresence: true },
+        [Pid.Signed]: { inPresence: true },
+        [Pid.SignatureRsa]: { inPresence: true },
         [Pid.DeactivatableIsInactive]: { inPresence: true },
 
         // For unit test

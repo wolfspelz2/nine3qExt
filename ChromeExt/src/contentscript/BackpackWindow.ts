@@ -239,7 +239,7 @@ export class BackpackWindow extends Window
         try {
             let props = await BackgroundMessage.getBackpackItemProperties(itemId);
             if (as.Bool(props[Pid.ClaimAspect], false)) {
-                if (this.app.getRoom().claimDefersToExisting(props)) {
+                if (await this.app.getRoom().propsClaimDefersToExistingClaim(props)) {
                     throw new ItemException(ItemException.Fact.ClaimFailed, ItemException.Reason.ItemMustBeStronger, this.app.getRoom().getPageClaimItem()?.getDisplayName());
                 }
             }

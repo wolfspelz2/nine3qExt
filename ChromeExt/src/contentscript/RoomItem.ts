@@ -137,7 +137,7 @@ export class RoomItem extends Entity
                         // Should remove the lesser one of my 2 claim items
                     } else {
                         // The new item is a remote item
-                        if (!this.room.claimDefersToExisting(props)) {
+                        if (! await this.room.propsClaimDefersToExistingClaim(props)) {
                             // The new item is better
                             if (await BackgroundMessage.isBackpackItem(claimingRoomItem.getRoomNick())) {
                                 // The existing claim is mine

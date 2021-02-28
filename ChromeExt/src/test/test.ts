@@ -14,6 +14,7 @@ import { TestVpiResolver } from './TestVpiResolver'; s.addTestClass(TestVpiResol
 import { TestAs } from './TestAs'; s.addTestClass(TestAs);
 import { TestBackpack } from './TestBackpack'; s.addTestClass(TestBackpack);
 import { TestPointsGenerator } from './TestPointsGenerator'; s.addTestClass(TestPointsGenerator);
+import { TestRoom } from './TestRoom'; s.addTestClass(TestRoom);
 
 s.run().then(() =>
 {

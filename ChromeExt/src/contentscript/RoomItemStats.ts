@@ -33,7 +33,6 @@ export class RoomItemStats
 
     close(): void
     {
-        // $(this.elem).stop().fadeOut('fast');
         $(this.elem).remove();
         if (this.onClose) { this.onClose(); }
     }

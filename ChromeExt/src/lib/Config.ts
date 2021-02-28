@@ -126,6 +126,10 @@ export class Config
             chatlogItemAppeared: false,
             chatlogItemIsPresent: false,
             chatlogItemDisappeared: false,
+            verificationPublicKey: '-----BEGIN PUBLIC KEY-----\n' +
+                'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAL8cd14UE+Fy2QV6rtvbBA3UGo8TllmX\n' +
+                'hcFcpuzkK2SpAbbNgA7IilojcAXsFsDFdCTTTWfofAEZvbGqSAQ0VJ8CAwEAAQ==\n' +
+                '-----END PUBLIC KEY-----\n',
         },
         iframeApi: {
             messageMagic: 'a67igu67puz_iframeApi',
@@ -227,7 +231,7 @@ export class Config
 
                     'Vidconfwindow.Video Conference': 'Video Conference',
                     'Settingswindow.Settings': 'Settings',
-                    'BackpackWindow.Inventory': 'Your Stuff',
+                    'BackpackWindow.Inventory': 'Your Backpack',
 
                     'Backpack.Shredder': 'Shredder',
                     'Backpack.Go to item': 'Go there',
@@ -366,7 +370,7 @@ export class Config
 
                     'Vidconfwindow.Video Conference': 'Videokonferenz',
                     'Settingswindow.Settings': 'Einstellungen',
-                    'BackpackWindow.Inventory': 'Deine Gegenstände',
+                    'BackpackWindow.Inventory': 'Dein Rucksack',
 
                     'Backpack.Shredder': 'Schredder',
                     'Backpack.Go to item': 'Dort hingehen',
@@ -417,7 +421,7 @@ export class Config
                     'ErrorReason.ItemIsNotTransferable': 'Der Gegenstand ist nicht übertragbar.',
                     'ErrorReason.NoMatch': 'Gegenstände passen nicht.',
                     'ErrorReason.NoSuchAspect': 'Dem Gegenstand fehlt eine Eigenschaft.',
-                    
+
                     'ErrorDetail.Applier.Apply': 'Beim Anwenden eines Gegenstands auf einen anderen.',
                     'ErrorDetail.Pid.Id': 'Id',
                     'ErrorDetail.Pid.Actions': 'Aktionen',

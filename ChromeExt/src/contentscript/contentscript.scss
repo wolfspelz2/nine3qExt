@@ -643,6 +643,9 @@
         // bottom: 70px;
         width: 130px;
         opacity: 0.9;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 
     div.n3q-backpackiteminfo {
@@ -1001,6 +1004,19 @@
             background-position: center;
             background-color: #ffffff;
             box-shadow: #505050 1px 1px 3px;
+        }
+
+        .n3q-backpack-item-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 12px;
+            background-color: rgba(255, 255, 255, 0.8);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            padding: 2px 4px;
         }
     }
 

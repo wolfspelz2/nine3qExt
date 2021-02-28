@@ -86,10 +86,17 @@ export class IframeApi
             await BackgroundMessage.createBackpackItemFromTemplate('Migration', { [Pid.MigrationCid]: cid, [Pid.Description]: nickname });
             let propSet = await BackgroundMessage.findBackpackItemProperties({ [Pid.MigrationAspect]: 'true' });
             for (let id in propSet) {
-                await BackgroundMessage.rezBackpackItem(id, this.app.getRoom().getJid(), -1, this.app.getRoom().getDestination(), {});
+                let props = propSet[id];
+                if (!as.Bool(props[Pid.IsRezzed], false)) {
+                    try {
+                        await BackgroundMessage.rezBackpackItem(id, this.app.getRoom().getJid(), -1, this.app.getRoom().getDestination(), {});
+                    } catch (ex) {
+                        log.info('IframeApi.handle_Migration', ex);
+                    }
+                }
             }
         } catch (ex) {
-            log.info(ex);
+            log.info('IframeApi.handle_Migration', ex);
         }
     }
 
@@ -98,7 +105,7 @@ export class IframeApi
         try {
             this.app.closeItemFrame(request.item);
         } catch (ex) {
-            log.info(ex);
+            log.info('IframeApi.handle_CloseWindowRequest', ex);
         }
     }
 
@@ -107,7 +114,7 @@ export class IframeApi
         try {
             this.app.openDocumentUrl(request.item);
         } catch (ex) {
-            log.info(ex);
+            log.info('IframeApi.handle_WindowOpenDocumentUrlRequest', ex);
         }
     }
 
@@ -116,7 +123,7 @@ export class IframeApi
         try {
             this.app.positionItemFrame(request.item, request.width, request.height, request.left, request.bottom);
         } catch (ex) {
-            log.info(ex);
+            log.info('IframeApi.handle_PositionWindowRequest', ex);
         }
     }
 
@@ -125,7 +132,7 @@ export class IframeApi
         try {
             this.app.sendMessageToScreenItemFrame(request.item, request.message);
         } catch (ex) {
-            log.info(ex);
+            log.info('IframeApi.handle_ScreenContentMessageRequest', ex);
         }
     }
 
