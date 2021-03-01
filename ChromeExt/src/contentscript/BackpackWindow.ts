@@ -30,6 +30,7 @@ export class BackpackWindow extends Window
 
     getPane() { return this.paneElem; }
     getItem(itemId: string) { return this.items[itemId]; }
+    getItems(): { [id: string]: BackpackItem; } { return this.items; }
 
     async show(options: any)
     {

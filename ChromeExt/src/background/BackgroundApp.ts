@@ -3,7 +3,7 @@ import { client, xml, jid } from '@xmpp/client';
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
-import { BackgroundEmptyResponse, BackgroundErrorResponse, BackgroundItemExceptionResponse, BackgroundMessage, BackgroundResponse, BackgroundSuccessResponse, FindBackpackItemPropertiesResponse, GetBackpackItemPropertiesResponse, GetBackpackStateResponse, IsBackpackItemResponse } from '../lib/BackgroundMessage';
+import { BackgroundEmptyResponse, BackgroundErrorResponse, BackgroundItemExceptionResponse, BackgroundMessage, BackgroundResponse, BackgroundSuccessResponse, CreateBackpackItemFromTemplateResponse, FindBackpackItemPropertiesResponse, GetBackpackItemPropertiesResponse, GetBackpackStateResponse, IsBackpackItemResponse } from '../lib/BackgroundMessage';
 import { Client } from '../lib/Client';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { ContentMessage } from '../lib/ContentMessage';
@@ -628,7 +628,7 @@ export class BackgroundApp
     {
         if (this.backpack) {
             this.backpack.createItemByTemplate(template, args)
-                .then(() => { sendResponse(new BackgroundSuccessResponse()); })
+                .then(item => { sendResponse(new CreateBackpackItemFromTemplateResponse(item.getProperties())); })
                 .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
             return true;
         } else {

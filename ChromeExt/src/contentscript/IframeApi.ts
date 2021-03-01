@@ -4,6 +4,7 @@ import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Config } from '../lib/Config';
 import { ItemException } from '../lib/ItemExcption';
 import { Pid } from '../lib/ItemProperties';
+import { Utils } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { SimpleErrorToast } from './Toast';
 
@@ -83,18 +84,15 @@ export class IframeApi
     async handle_Migration(cid: string, nickname: string)
     {
         try {
-            await BackgroundMessage.createBackpackItemFromTemplate('Migration', { [Pid.MigrationCid]: cid, [Pid.Description]: nickname });
-            let propSet = await BackgroundMessage.findBackpackItemProperties({ [Pid.MigrationAspect]: 'true' });
-            for (let id in propSet) {
-                let props = propSet[id];
-                if (!as.Bool(props[Pid.IsRezzed], false)) {
-                    try {
-                        await BackgroundMessage.rezBackpackItem(id, this.app.getRoom().getJid(), -1, this.app.getRoom().getDestination(), {});
-                    } catch (ex) {
-                        log.info('IframeApi.handle_Migration', ex);
-                    }
-                }
-            }
+            let name = Utils.randomString(29);
+            let nick = this.app.getRoom().getMyNick();
+            let participant = this.app.getRoom().getParticipant(nick);
+            let x = participant.getPosition() + 120;
+            let props = await BackgroundMessage.createBackpackItemFromTemplate('Migration', { [Pid.MigrationCid]: cid });
+            let itemId = props[Pid.Id];
+            await BackgroundMessage.rezBackpackItem(itemId, this.app.getRoom().getJid(), x, this.app.getRoom().getDestination(), {});
+            await BackgroundMessage.executeBackpackItemAction(itemId, 'Migration.CreateItems', {}, [itemId]);
+            await BackgroundMessage.deleteBackpackItem(itemId, {});
         } catch (ex) {
             log.info('IframeApi.handle_Migration', ex);
         }

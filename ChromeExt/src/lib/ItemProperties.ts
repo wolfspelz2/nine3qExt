@@ -4,6 +4,7 @@ export class ItemPropertiesSet { [id: string]: ItemProperties }
 export class Pid
 {
     static readonly Id = 'Id';
+    static readonly Name = 'Name';
     static readonly Label = 'Label';
     static readonly Description = 'Description';
     static readonly Template: 'Template';

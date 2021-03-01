@@ -50,6 +50,11 @@ export class GetBackpackItemPropertiesResponse extends BackgroundResponse
     constructor(public properties: ItemProperties) { super(true); }
 }
 
+export class CreateBackpackItemFromTemplateResponse extends BackgroundResponse
+{
+    constructor(public properties: ItemProperties) { super(true); }
+}
+
 export class FindBackpackItemPropertiesResponse extends BackgroundResponse
 {
     constructor(public propertiesSet: ItemPropertiesSet) { super(true); }
@@ -166,11 +171,6 @@ export class BackgroundMessage
         return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.pointsActivity.name, 'channel': channel, 'n': n });
     }
 
-    static createBackpackItemFromTemplate(template: string, args: ItemProperties): Promise<void>
-    {
-        return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.createBackpackItemFromTemplate.name, 'template': template, 'args': args });
-    }
-
     static getBackpackState(): Promise<GetBackpackStateResponse>
     {
         return BackgroundMessage.sendMessage({ 'type': BackgroundMessage.getBackpackState.name });
@@ -226,6 +226,19 @@ export class BackgroundMessage
             try {
                 let response = await BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.getBackpackItemProperties.name, 'itemId': itemId });
                 resolve((<GetBackpackItemPropertiesResponse>response).properties);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    static createBackpackItemFromTemplate(template: string, args: ItemProperties): Promise<ItemProperties>
+    {
+        return new Promise(async (resolve, reject) =>
+        {
+            try {
+                let response = await BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.createBackpackItemFromTemplate.name, 'template': template, 'args': args });
+                resolve((<CreateBackpackItemFromTemplateResponse>response).properties);
             } catch (error) {
                 reject(error);
             }

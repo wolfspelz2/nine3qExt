@@ -35,6 +35,7 @@ export class BackpackItem
         let padding: number = Config.get('backpack.borderPadding', 4);
 
         let size = Config.get('inventory.itemSize', 64);
+
         let x = this.getPseudoRandomCoordinate(paneElem.offsetWidth, this.w, padding, itemId, 11345);
         let y = this.getPseudoRandomCoordinate(paneElem.offsetHeight, this.w, padding, itemId, 13532);
 
@@ -321,7 +322,7 @@ export class BackpackItem
         let text = as.String(properties[Pid.Label], '');
         let description = as.String(properties[Pid.Description], '');
         if (description != '') {
-            text += (text != '' ? ': ': '') + description;
+            text += (text != '' ? ': ' : '') + description;
         }
         this.setText(text);
 
@@ -345,6 +346,11 @@ export class BackpackItem
             if (x >= 0 && y >= 0 && (x != this.x || y != this.y)) {
                 this.setPosition(x, y);
             }
+        // } else {
+        //     let point = this.getFreeCoordinate(properties[Pid.Id]);
+        //     let x = point.x;
+        //     let y = point.y;
+        //     this.setPosition(x, y);
         }
 
         this.properties = properties;

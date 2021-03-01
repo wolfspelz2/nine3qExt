@@ -338,7 +338,7 @@ export class Config
                     'Menu.Menu': 'Menü',
                     'Menu.Settings': 'Einstellungen',
                     'Menu.Stay Here': 'Bleiben bei Tabwechsel',
-                    'Menu.Backpack': 'Gegenstände',
+                    'Menu.Backpack': 'Rucksack',
                     'Menu.Chat Window': 'Chatverlauf',
                     'Menu.Video Conference': 'Videokonferenz',
                     'Menu.Chat': 'Sprechblase',
