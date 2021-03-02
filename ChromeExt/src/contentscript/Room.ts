@@ -16,6 +16,7 @@ import { ChatWindow } from './ChatWindow'; // Wants to be after Participant and 
 import { VidconfWindow } from './VidconfWindow';
 import { VpiResolver } from './VpiResolver';
 const NodeRSA = require('node-rsa');
+import * as crypto from 'crypto';
 
 export interface IRoomInfoLine extends Array<string | string> { 0: string, 1: string }
 export interface IRoomInfo extends Array<IRoomInfoLine> { }
@@ -636,15 +637,19 @@ export class Room
         let signature = as.String(props[Pid.SignatureRsa], '');
         if (signed != '' && signature != '') {
             let pids = signed.split(' ');
-            let textToBeVerified = '';
+            let message = '';
             for (let i = 0; i < pids.length; i++) {
                 let pid = pids[i];
                 let value = as.String(props[pid], '');
-                textToBeVerified += (textToBeVerified != '' ? ' | ' : '') + pid + '=' + value;
+                message += (message != '' ? ' | ' : '') + pid + '=' + value;
 
+                let hasher = crypto.createHash('sha1');
+                hasher.update(message);
+                let messageHash = hasher.digest('hex');
+        
                 if (publicKey != '') {
                     let verifier = new NodeRSA(publicKey);
-                    if (verifier.verify(textToBeVerified, signature, 'utf8', 'base64')) {
+                    if (verifier.verify(messageHash, signature, 'utf8', 'base64')) {
                         return true;
                     }
                 }

@@ -2,7 +2,9 @@ import { expect } from 'chai';
 import { Room } from '../contentscript/Room';
 import { Config } from '../lib/Config';
 import { Pid } from '../lib/ItemProperties';
+import { Utils } from '../lib/Utils';
 const NodeRSA = require('node-rsa');
+import * as crypto from 'crypto';
 
 export class TestRoom
 {
@@ -21,15 +23,18 @@ export class TestRoom
             'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAL8cd14UE+Fy2QV6rtvbBA3UGo8TllmX\n' +
             'hcFcpuzkK2SpAbbNgA7IilojcAXsFsDFdCTTTWfofAEZvbGqSAQ0VJ8CAwEAAQ==\n' +
             '-----END PUBLIC KEY-----\n';
-        let toBeSigned = 'ClaimStrength=123 | ClaimUrl=https://www.example.com/';
+        let message = 'ClaimStrength=123 | ClaimUrl=https://example.com/';
 
-        const signer = new NodeRSA(privateKey);
-        let signature = signer.sign(toBeSigned, 'base64');
+        let signer = new NodeRSA(privateKey);
+        let hasher = crypto.createHash('sha1');
+        hasher.update(message);
+        let messageHash = hasher.digest('hex');
+        let signature = signer.sign(messageHash, 'base64');
 
         expect(Room.verifySignature({
             [Pid.Signed]: '' + Pid.ClaimStrength + ' ' + Pid.ClaimUrl,
             [Pid.ClaimStrength]: '123',
-            [Pid.ClaimUrl]: 'https://www.example.com/',
+            [Pid.ClaimUrl]: 'https://example.com/',
             [Pid.SignatureRsa]: signature
         }, publicKey)).to.equal(true);
     }

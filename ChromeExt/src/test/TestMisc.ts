@@ -1,9 +1,44 @@
 import { expect } from 'chai';
 import { SimpleRpc } from '../contentscript/SimpleRpc';
 // import markdown = require('markdown');
+const NodeRSA = require('node-rsa');
+import * as crypto from 'crypto';
 
 export class TestMisc
 {
+    sign()
+    {
+        let privateKey = '-----BEGIN RSA PRIVATE KEY-----\n' +
+            'MIIBOgIBAAJBAL8cd14UE+Fy2QV6rtvbBA3UGo8TllmXhcFcpuzkK2SpAbbNgA7I\n' +
+            'ilojcAXsFsDFdCTTTWfofAEZvbGqSAQ0VJ8CAwEAAQJASUi2MVpLoVk0BVjdMquS\n' +
+            'q2bZZGIjdmmXPeW0kQSR60AEYKRq9pNUHryYyhFg8yIQeCci31lU2SBWD1tqYSDx\n' +
+            'eQIhAP+e96vA9az6cs0AVNaobJ1266eXXE0WMwn9dDu+bxQDAiEAv2UC3k6tKC8F\n' +
+            'bMV0QldUrSLUuICMyt6/JToO+YinEDUCIQDTuszTCwVzvg8RFtEu7FrrIvGW45yk\n' +
+            'jVrBT5rTUa2YGQIge8sE2O9Adm47bwgj00kTHs0Zk6Cp8Am0zopH50Ro8kUCIDYg\n' +
+            'PAaSlrkLMMKw1fV3KJohxXOxM3mF2BFu5ydLtmxx\n' +
+            '-----END RSA PRIVATE KEY-----\n';
+        let publicKey = '-----BEGIN PUBLIC KEY-----\n' +
+            'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAL8cd14UE+Fy2QV6rtvbBA3UGo8TllmX\n' +
+            'hcFcpuzkK2SpAbbNgA7IilojcAXsFsDFdCTTTWfofAEZvbGqSAQ0VJ8CAwEAAQ==\n' +
+            '-----END PUBLIC KEY-----\n';
+        let message = 'ClaimStrength=123 | ClaimUrl=https://example.com/';
+        let mesageBytes = new TextEncoder().encode(message);
+
+        let hasher = crypto.createHash('sha1');
+        hasher.update(mesageBytes);
+        let messageHash = hasher.digest();
+
+        let signer = new NodeRSA(privateKey);
+        let signature = signer.sign(messageHash, 'base64');
+
+        let winSignature = 'WjBxzBbNbIDNss2IL/jh2CiQD1TDDxHPpV3y1KS5zWPenV0BBPcJLL9cuKiI7ILwld76KtiCWe4dYUXc52eqCQ==';
+        let nodeSignature = 'WvuxpQJKzRfvM9Ln4Ws0NxYsTP9JAf1G28C9mZ/Lc4aJ+d3b5ax0E/V+I1cKjm3TCm1LlTCJztF5Pky4gcDngQ==';
+
+        let verifier = new NodeRSA(publicKey);
+        expect(verifier.verify(messageHash, signature, 'utf8', 'base64')).to.equal(true);
+    }
+
+
     Map_delete()
     {
         let m: Map<string, number> = new Map<string, number>();

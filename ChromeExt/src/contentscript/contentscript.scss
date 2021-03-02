@@ -992,18 +992,18 @@
     div.n3q-backpack-item {
         display: block;
         position: absolute;
+        box-shadow: #505050 1px 1px 3px;
 
         .n3q-backpack-item-image {
             position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
+            left: 2px;
+            top: 2px;
+            right: 2px;
+            bottom: 2px;
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
             background-color: #ffffff;
-            box-shadow: #505050 1px 1px 3px;
         }
 
         .n3q-backpack-item-label {

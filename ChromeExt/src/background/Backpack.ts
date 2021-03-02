@@ -537,7 +537,7 @@ export class Backpack
     //         let tokenData = await contract.methods.getTokenData(tokenId).call();
     //         let existingItems = this.findItems(props => as.Bool(props[Pid.ClaimAspect], false) && as.String(props[Pid.ClaimUrl], '') == tokenData);
     //         if (existingItems.length == 0) {
-    //             let item = await this.createItemByTemplate('PirateFlag', { [Pid.ClaimUrl]: tokenData });
+    //             let item = await this.createItemByTemplate('Claim', { [Pid.ClaimUrl]: tokenData, [Pid.ClaimOwnerAddress]: ownerAddress });
     //         }
     //     }
     // }

@@ -39,6 +39,7 @@ export class Pid
     static readonly ClaimAspect = 'ClaimAspect';
     static readonly ClaimStrength = 'ClaimStrength';
     static readonly ClaimUrl = 'ClaimUrl';
+    static readonly ClaimOwnerAddress = 'ClaimOwnerAddress';
     static readonly PointsAspect = 'PointsAspect';
     static readonly SettingsAspect = 'SettingsAspect';
     static readonly AvatarAspect = 'AvatarAspect';
