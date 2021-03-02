@@ -6,12 +6,13 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
-        ['1.0.9', '?', [
+        ['1.0.9', 'WeblinMigration Web3Size RezButton', [
             ['Add', 'transparent iframe'],
             ['Add', 'Document window'],
             ['Add', 'Rez item by button'],
             ['Add', 'Weblin migration'],
-            ['Add', 'Labal to backpack item'],
+            ['Add', 'Label to backpack item'],
+            ['Add', 'Add web3 libs w/o functional use'],
             ['Add', 'Drop button to backpack item info'],
             ['Fix', 'Accidental backpack item info after drop/pickup from backpack'],
         ]],

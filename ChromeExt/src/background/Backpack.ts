@@ -12,9 +12,8 @@ import { Memory } from '../lib/Memory';
 import { Utils } from '../lib/Utils';
 import { BackgroundApp } from './BackgroundApp';
 import { Item } from './Item';
-//const Web3 = require('web3');
-//import { AbiItem } from 'web3-utils';
-import { Environment } from '../lib/Environment';
+const Web3 = require('web3');
+import { AbiItem } from 'web3-utils';
 
 export class Backpack
 {
