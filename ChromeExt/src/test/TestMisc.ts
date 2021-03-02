@@ -22,17 +22,16 @@ export class TestMisc
             'hcFcpuzkK2SpAbbNgA7IilojcAXsFsDFdCTTTWfofAEZvbGqSAQ0VJ8CAwEAAQ==\n' +
             '-----END PUBLIC KEY-----\n';
         let message = 'ClaimStrength=123 | ClaimUrl=https://example.com/';
-        let mesageBytes = new TextEncoder().encode(message);
 
         let hasher = crypto.createHash('sha1');
-        hasher.update(mesageBytes);
+        hasher.update(message);
         let messageHash = hasher.digest();
 
         let signer = new NodeRSA(privateKey);
         let signature = signer.sign(messageHash, 'base64');
 
         let winSignature = 'WjBxzBbNbIDNss2IL/jh2CiQD1TDDxHPpV3y1KS5zWPenV0BBPcJLL9cuKiI7ILwld76KtiCWe4dYUXc52eqCQ==';
-        let nodeSignature = 'WvuxpQJKzRfvM9Ln4Ws0NxYsTP9JAf1G28C9mZ/Lc4aJ+d3b5ax0E/V+I1cKjm3TCm1LlTCJztF5Pky4gcDngQ==';
+        // signature = winSignature;
 
         let verifier = new NodeRSA(publicKey);
         expect(verifier.verify(messageHash, signature, 'utf8', 'base64')).to.equal(true);

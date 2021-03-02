@@ -312,7 +312,7 @@ export class Config
                     'ItemValue.true': 'Yes',
                     'ItemValue.false': 'No',
 
-                    'ItemLabel.Dot1': '1-Point',
+                    'ItemLabel.Dot1': '1 Point',
                 },
                 'de-DE': {
                     'Extension.Disable': 'weblin.io ausschalten',
@@ -450,7 +450,8 @@ export class Config
                     'ItemValue.false': 'Nein',
 
                     'ItemLabel.Points': 'Punkte',
-                    'ItemLabel.Dot1': '1-Punkt',
+                    'ItemLabel.Dot1': '1 Punkt',
+                    'ItemLabel.PublicViewing': 'Public Viewing',
                 },
             },
             'serviceUrl': '',
