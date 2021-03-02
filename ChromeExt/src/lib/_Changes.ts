@@ -15,6 +15,7 @@ export class _Changes
             ['Add', 'Add web3 libs w/o functional use'],
             ['Add', 'Drop button to backpack item info'],
             ['Fix', 'Accidental backpack item info after drop/pickup from backpack'],
+            ['Fix', 'Created items disappear on next presence'],
         ]],
         ['1.0.8', 'Points PrivVidConf Screen Stats', [
             ['Add', 'Greet back'],

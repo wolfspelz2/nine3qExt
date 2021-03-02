@@ -570,6 +570,11 @@ export class Backpack
         let item = await this.createRepositoryItem(itemId, props);
 
         if (item.isRezzed()) {
+            let roomJid = item.getProperties()[Pid.RezzedLocation];
+            if (roomJid) {
+                this.addToRoom(itemId, roomJid);
+            }
+
             if (!options.skipPresenceUpdate) {
                 item.sendPresence();
             }

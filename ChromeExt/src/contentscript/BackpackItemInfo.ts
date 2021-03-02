@@ -9,6 +9,7 @@ import { ContentApp } from './ContentApp';
 export class BackpackItemInfo
 {
     private elem: HTMLElement = null;
+    private isExtended: boolean = false;
 
     getElem(): HTMLElement { return this.elem; }
 
@@ -143,34 +144,46 @@ export class BackpackItemInfo
         }
 
         if (Config.get('backpack.itemInfoExtended', false)) {
-            let moreElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-backpack-more" data-translate="text:Backpack">More</div>').get(0);
-            $(moreElem).on('click', (ev) =>
-            {
-                ev.stopPropagation();
-
-                let keys = [];
-                for (let pid in props) { keys.push(pid); }
-                keys = keys.sort();
-
-                let completeListElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops-list" data-translate="children" />').get(0);
-                for (let i in keys) {
-                    let pid = keys[i]
-                    let value = props[pid];
-                    let lineElem = <HTMLDivElement>$(''
-                        + '<div class="n3q-base n3q-itemprops-line">'
-                        + '<span class="n3q-base n3q-itemprops-key">' + pid + '</span>'
-                        + '<span class="n3q-base n3q-itemprops-value" title="' + as.Html(value) + '">' + as.Html(value) + '</span>'
-                        + '</div>')
-                        .get(0);
-                    $(completeListElem).append(lineElem);
-                    $(this.elem).css({ maxWidth: '400px', width: '400px' });
+            if (this.isExtended) {
+                this.extend();
+            } else {
+                let moreElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-backpack-more" data-translate="text:Backpack">More</div>').get(0);
+                $(moreElem).on('click', (ev) =>
+                {
+                    ev.stopPropagation();
+                    this.isExtended = true;
+                    this.extend();
                     $(moreElem).remove();
-                }
-                $(this.elem).append(completeListElem);
-            });
-            $(this.elem).append(moreElem);
+                });
+                $(this.elem).append(moreElem);
+            }
         }
 
         this.app.translateElem(this.elem);
+    }
+
+    extend(): void
+    {
+        let props = this.backpackItem.getProperties();
+
+        let keys = [];
+        for (let pid in props) { keys.push(pid); }
+        keys = keys.sort();
+
+        let completeListElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops-list" data-translate="children" />').get(0);
+        for (let i in keys) {
+            let pid = keys[i]
+            let value = props[pid];
+            let lineElem = <HTMLDivElement>$(''
+                + '<div class="n3q-base n3q-itemprops-line">'
+                + '<span class="n3q-base n3q-itemprops-key">' + pid + '</span>'
+                + '<span class="n3q-base n3q-itemprops-value" title="' + as.Html(value) + '">' + as.Html(value) + '</span>'
+                + '</div>')
+                .get(0);
+            $(completeListElem).append(lineElem);
+            $(this.elem).css({ maxWidth: '400px', width: '400px' });
+
+        }
+        $(this.elem).append(completeListElem);
     }
 }
