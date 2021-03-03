@@ -9,7 +9,6 @@ import { ContentApp } from './ContentApp';
 export class BackpackItemInfo
 {
     private elem: HTMLElement = null;
-    private isExtended: boolean = false;
 
     getElem(): HTMLElement { return this.elem; }
 
@@ -29,7 +28,7 @@ export class BackpackItemInfo
 
         $(this.elem).css({ left: x, top: y });
         this.app.toFront(this.elem, ContentApp.LayerWindowContent);
-        $(this.elem).stop().fadeIn('fast');
+        $(this.elem).stop().delay(Config.get('backpack.itemInfoDelay', 300)).fadeIn('fast');
     }
 
     close(): void
@@ -38,12 +37,30 @@ export class BackpackItemInfo
         if (this.onClose) { this.onClose(); }
     }
 
+    private pinned = false;
+    isPinned() { return this.pinned; }
+    pin()
+    {
+        this.pinned = true;
+        $(this.elem).css({ pointerEvents: '' });
+    }
+    unPin()
+    {
+        this.pinned = false;
+        $(this.elem).css({ pointerEvents: 'none' });
+    }
+
     setup(): void
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops n3q-backpackiteminfo n3q-shadow-small" data-translate="children" />').get(0);
-        $(this.elem).css({ display: 'none' });
+        $(this.elem).css({ display: 'none', pointerEvents: 'none' });
 
         this.update();
+
+        $(this.getElem()).click(ev =>
+        {
+            ev.stopPropagation();
+        });
 
         $(this.backpackItem.getElem()).append(this.elem);
     }
@@ -144,19 +161,7 @@ export class BackpackItemInfo
         }
 
         if (Config.get('backpack.itemInfoExtended', false)) {
-            if (this.isExtended) {
-                this.extend();
-            } else {
-                let moreElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-backpack-more" data-translate="text:Backpack">More</div>').get(0);
-                $(moreElem).on('click', (ev) =>
-                {
-                    ev.stopPropagation();
-                    this.isExtended = true;
-                    this.extend();
-                    $(moreElem).remove();
-                });
-                $(this.elem).append(moreElem);
-            }
+            this.extend();
         }
 
         this.app.translateElem(this.elem);

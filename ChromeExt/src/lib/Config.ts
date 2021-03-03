@@ -146,6 +146,7 @@ export class Config
             itemLabelHeight: 16,
             itemInfoOffset: { x: 2, y: 2 },
             itemInfoExtended: false,
+            itemInfoDelay: 300,
             deleteToastDurationSec: 100,
         },
         points: {
@@ -296,6 +297,7 @@ export class Config
                     'ItemPid.Description': 'Description',
                     'ItemPid.ClaimStrength': 'Strength',
                     'ItemPid.ClaimUrl': 'For',
+                    'ItemPid.CommodityConversionFactor': 'Effciency',
                     'ItemPid.OwnerName': 'Owner',
                     'ItemPid.DispenserAvailable': 'Remaining',
                     'ItemPid.DispenserCooldownSec': 'Cooldown',
@@ -433,6 +435,7 @@ export class Config
                     'ItemPid.Description': 'Beschreibung',
                     'ItemPid.ClaimStrength': 'Stärke',
                     'ItemPid.ClaimUrl': 'Für',
+                    'ItemPid.CommodityConversionFactor': 'Effzienz',
                     'ItemPid.OwnerName': 'Besitzer',
                     'ItemPid.DispenserAvailable': 'Übrig',
                     'ItemPid.DispenserCooldownSec': 'Wartezeit',

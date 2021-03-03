@@ -70,8 +70,8 @@ export class Toast
                 .draggable({
                     distance: 4,
                     containment: 'document',
-                    start: (ev: JQueryMouseEventObject, ui) => this.app.enableScreen(true),
-                    stop: (ev: JQueryMouseEventObject, ui) => this.app.enableScreen(false)
+                    start: (ev: JQueryMouseEventObject, ui) => {},
+                    stop: (ev: JQueryMouseEventObject, ui) => {}
                 });
         });
 

@@ -51,24 +51,51 @@ export class BackpackItem
 
         $(paneElem).append(this.elem);
 
-        $(this.elem).click(ev =>
+        $(this.getElem()).mouseenter(ev =>
         {
-            this.onMouseClick(ev);
-        });
-
-        $(this.elem).on({
-            click: async (ev) => 
-            {
-                // if (ev.target == this.elem || (this.info != null && ev.target == this.info.getElem())) {
-                if (this.info) {
-                    this.info.close();
-                } else {
-                    this.info = new BackpackItemInfo(this.app, this, () => { this.info = null; });
-                    this.info.show(ev.offsetX, ev.offsetY);
-                }
-                // }
+            if (this.info == null || !this.info.isPinned()) {
+                this.app.toFront(this.getElem(), ContentApp.LayerWindowContent);
+                this.info?.close();
+                this.info = new BackpackItemInfo(this.app, this, () => { this.info = null; });
+                this.info.show(ev.offsetX, ev.offsetY);
             }
         });
+        $(this.getElem()).mouseleave(ev =>
+        {
+            if (this.info && !this.info.isPinned()) {
+                this.info?.close();
+            }
+        });
+        $(this.getElem()).mousemove(ev =>
+        {
+            if (this.info && !this.info.isPinned()) {
+                this.info.show(ev.offsetX, ev.offsetY);
+            }
+        });
+        $(this.getElem()).click(ev =>
+        {
+            if (this.info) {
+                if (!this.info.isPinned()) {
+                    this.info.pin();
+                } else {
+                    this.info.unPin();
+                }
+            }
+        });
+
+        // $(this.elem).on({
+        //     click: async (ev) => 
+        //     {
+        //         // if (ev.target == this.elem || (this.info != null && ev.target == this.info.getElem())) {
+        //         if (this.info) {
+        //             this.info.close();
+        //         } else {
+        //             this.info = new BackpackItemInfo(this.app, this, () => { this.info = null; });
+        //             this.info.show(ev.offsetX, ev.offsetY);
+        //         }
+        //         // }
+        //     }
+        // });
 
         $(this.elem).draggable({
             scroll: false,
@@ -266,7 +293,7 @@ export class BackpackItem
     private isPositionInDropzone(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
     {
         let displayElem = this.app.getDisplay();
-        let dropZoneHeight: number = Config.get('inventory.dropZoneHeight', 100);
+        let dropZoneHeight: number = Config.get('backpack.dropZoneHeight', 100);
         let dragHelperElem = ui.helper.get(0);
         let dragItemElem = dragHelperElem.children[0];
 
@@ -276,10 +303,16 @@ export class BackpackItem
         let draggedHeight = $(dragItemElem).height();
         let dropzoneBottom = $(displayElem).height();
         let dropzoneTop = dropzoneBottom - dropZoneHeight;
-        let x = draggedLeft + draggedWidth / 2;
-        let y = draggedTop + draggedHeight;
+        let itemBottomX = draggedLeft + draggedWidth / 2;
+        let itemBottomY = draggedTop + draggedHeight;
 
-        let inDropzone = x > 0 && y > dropzoneTop && y < dropzoneBottom;
+        let mouseX = ev.clientX;
+        let mouseY = ev.clientY;
+
+        let itemBottomInDropzone = itemBottomX > 0 && itemBottomY > dropzoneTop && itemBottomY < dropzoneBottom;
+        let mouseInDropzone = mouseX > 0 && mouseY > dropzoneTop && mouseY < dropzoneBottom;
+
+        let inDropzone = itemBottomInDropzone || mouseInDropzone;
         return inDropzone;
     }
 

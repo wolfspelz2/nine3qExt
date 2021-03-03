@@ -301,7 +301,7 @@ export class BackgroundApp
         let isCached = version != '_nocache' && this.httpCacheData[key] != undefined;
 
         if (isCached) {
-            log.debug('BackgroundApp.handle_fetchUrl', 'cache-age', (now - this.httpCacheTime[key]) / 1000, url, 'version=', version);
+            // log.debug('BackgroundApp.handle_fetchUrl', 'cache-age', (now - this.httpCacheTime[key]) / 1000, url, 'version=', version);
         } else {
             log.debug('BackgroundApp.handle_fetchUrl', 'not-cached', url, 'version=', version);
         }

@@ -61,7 +61,7 @@ export class Avatar implements IObserver
         var url = entity.getDefaultAvatar();
         // this.elem.src = url;
         this.setImage(url);
-        this.setSize(38, 94);
+        this.setSize(38, 38);
         this.isDefault = true;
 
         $(this.imageElem).on('mousedown', (ev: JQueryMouseEventObject) =>
@@ -78,15 +78,11 @@ export class Avatar implements IObserver
 
             let elem = this.elemBelowTransparentImageAtMouse(ev);
             if (elem) {
-                // if (elem.parentElement) {
-                //     if ($(elem.parentElement).hasClass('n3q-avatar')) {
-                        let newEv = new jQuery.Event('click');
-                        newEv.clientX = ev.clientY;
-                        newEv.clientY = ev.clientY;
-                        $(elem).trigger('click', newEv);
-                        ev.stopPropagation();
-                //     }
-                // }
+                let newEv = new jQuery.Event('click');
+                newEv.clientX = ev.clientY;
+                newEv.clientY = ev.clientY;
+                $(elem).trigger('click', newEv);
+                ev.stopPropagation();
             }
         });
 
@@ -133,9 +129,11 @@ export class Avatar implements IObserver
                 let dragElem = $(this.elem).clone().get(0);
                 let nick = Avatar.getEntityIdByAvatarElem(this.elem);
                 $(dragElem).data('nick', nick);
+                $(dragElem).detach();
+                this.app.getDisplay().append(dragElem);
+                this.app.toFront(dragElem, ContentApp.LayerDrag);
                 return dragElem;
             },
-            // zIndex: 1100000000,
             containment: 'document',
             start: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
@@ -144,7 +142,6 @@ export class Avatar implements IObserver
                     return false;
                 }
 
-                this.app.enableScreen(true);
                 this.inDrag = true;
                 this.entity.onDragAvatarStart(ev, ui);
             },
@@ -166,8 +163,6 @@ export class Avatar implements IObserver
                 }
 
                 this.inDrag = false;
-                this.app.enableScreen(false);
-                $(this.elem).css('z-index', '');
 
                 this.hackSuppressNextClickOtherwiseDraggableClicks = true;
                 setTimeout(() => { this.hackSuppressNextClickOtherwiseDraggableClicks = false; }, 200);

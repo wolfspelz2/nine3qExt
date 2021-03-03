@@ -690,13 +690,13 @@ export class Participant extends Entity
 
         super.onMouseClickAvatar(ev)
 
-        if (wasFront) {
+        // if (wasFront) {
             if (this.isSelf) {
                 this.toggleChatin();
             } else {
                 this.toggleChatout();
             }
-        }
+        // }
     }
 
     onMouseDoubleClickAvatar(ev: JQuery.Event): void

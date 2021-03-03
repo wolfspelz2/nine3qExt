@@ -706,18 +706,20 @@ export class ContentApp
     public static LayerBelowEntities = 20;
     public static LayerEntity = 30;
     public static LayerEntityContent = 31;
+    public static LayerEntityTooltip = 32;
     public static LayerPopup = 40;
     public static LayerAboveEntities = 45;
     public static LayerWindow = 50;
     public static LayerWindowContent = 51;
+    public static LayerDrag = 99;
     private static layerSize = 10000000;
-    private frontIndex: { [layer: number]: number; ] } = {};
+    private frontIndex: { [layer: number]: number; } = {};
     toFront(elem: HTMLElement, layer: number)
     {
         this.incrementFrontIndex(layer);
         let absoluteIndex = this.getFrontIndex(layer);
         elem.style.zIndex = '' + absoluteIndex;
-        log.debug('ContentApp.toFront', absoluteIndex, elem.className);
+        //log.debug('ContentApp.toFront', absoluteIndex, elem.className);
     }
     incrementFrontIndex(layer: number)
     {
@@ -734,16 +736,6 @@ export class ContentApp
     isFront(elem: HTMLElement, layer: number)
     {
         return (as.Int(elem.style.zIndex, 0) == this.getFrontIndex(layer));
-    }
-
-    enableScreen(on: boolean): void
-    {
-        // if (on) {
-        //     this.originalScreenHeight = this.screenElem.style.height;
-        //     this.screenElem.style.height = '100%';
-        // } else {
-        //     this.screenElem.style.height = this.originalScreenHeight;
-        // }
     }
 
     private dropzoneELem: HTMLElement = null;

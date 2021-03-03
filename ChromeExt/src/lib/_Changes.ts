@@ -15,6 +15,7 @@ export class _Changes
             ['Add', 'Add web3 libs w/o functional use'],
             ['Add', 'Drop button to backpack item info'],
             ['Change', 'Click through transparent images'],
+            ['Change', 'Move backpack item info with mouse (click to pin)'],
             ['Fix', 'Accidental backpack item info after drop/pickup from backpack'],
             ['Fix', 'Created items disappear on next presence'],
         ]],
