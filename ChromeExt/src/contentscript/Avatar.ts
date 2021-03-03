@@ -26,7 +26,7 @@ class AvatarGetAnimationResult
 export class Avatar implements IObserver
 {
     private elem: HTMLDivElement;
-    private imageElem: HTMLDivElement;
+    private imageElem: HTMLImageElement;
     private hasAnimation = false;
     private animations: AnimationsXml.AnimationsDefinition;
     private defaultGroup: string;
@@ -47,9 +47,12 @@ export class Avatar implements IObserver
     isDefaultAvatar(): boolean { return this.isDefault; }
     getElem(): HTMLElement { return this.elem; }
 
+    private mousedownX: number;
+    private mousedownY: number;
+
     constructor(protected app: ContentApp, private entity: Entity, private isSelf: boolean)
     {
-        this.imageElem = <HTMLDivElement>$('<div class="n3q-base n3q-avatar-image" />').get(0);
+        this.imageElem = <HTMLImageElement>$('<img class="n3q-base n3q-avatar-image" />').get(0);
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-avatar" />').get(0);
         $(this.elem).append(this.imageElem);
 
@@ -60,6 +63,32 @@ export class Avatar implements IObserver
         this.setImage(url);
         this.setSize(38, 94);
         this.isDefault = true;
+
+        $(this.imageElem).on('mousedown', (ev: JQueryMouseEventObject) =>
+        {
+            this.mousedownX = ev.clientX;
+            this.mousedownY = ev.clientY;
+        });
+
+        $(this.imageElem).on('click', (ev: JQueryMouseEventObject) =>
+        {
+            if (Math.abs(this.mousedownX - ev.clientX) > 2 || Math.abs(this.mousedownY - ev.clientY) > 2) {
+                return;
+            }
+
+            let elem = this.elemBelowTransparentImageAtMouse(ev);
+            if (elem) {
+                // if (elem.parentElement) {
+                //     if ($(elem.parentElement).hasClass('n3q-avatar')) {
+                        let newEv = new jQuery.Event('click');
+                        newEv.clientX = ev.clientY;
+                        newEv.clientY = ev.clientY;
+                        $(elem).trigger('click', newEv);
+                        ev.stopPropagation();
+                //     }
+                // }
+            }
+        });
 
         $(this.elem).on('click', ev =>
         {
@@ -110,6 +139,11 @@ export class Avatar implements IObserver
             containment: 'document',
             start: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
+                let elem = this.elemBelowTransparentImageAtMouse(ev);
+                if (elem) {
+                    return false;
+                }
+
                 this.app.enableScreen(true);
                 this.inDrag = true;
                 this.entity.onDragAvatarStart(ev, ui);
@@ -139,6 +173,42 @@ export class Avatar implements IObserver
                 setTimeout(() => { this.hackSuppressNextClickOtherwiseDraggableClicks = false; }, 200);
             }
         });
+    }
+
+    elemBelowTransparentImageAtMouse(ev: JQueryMouseEventObject): Element
+    {
+        if (typeof ev.pageX === 'undefined') { return null; }
+
+        let elemBelow: Element = null;
+        let self = this.imageElem;
+        let canvasElem = document.createElement('canvas');
+        let ctx = canvasElem.getContext('2d');
+
+        // Get click coordinates
+        let x = ev.pageX - $(self).offset().left;
+        let y = ev.pageY - $(self).offset().top;
+        let w = ctx.canvas.width = $(self).width();
+        let h = ctx.canvas.height = $(self).height();
+
+        // Draw image to canvas
+        // and read Alpha channel value
+        ctx.drawImage(self, 0, 0, w, h);
+        let alpha = ctx.getImageData(x, y, 1, 1).data[3]; // [0]R [1]G [2]B [3]A
+
+        $(canvasElem).remove();
+
+        // If pixel is transparent, retrieve the element underneath
+        if (alpha === 0) {
+            let imagePointerEvents = self.style.pointerEvents;
+            let parentPointerEvents = self.parentElement.style.pointerEvents;
+            self.style.pointerEvents = 'none';
+            self.parentElement.style.pointerEvents = 'none';
+            elemBelow = document.elementFromPoint(ev.clientX, ev.clientY);
+            self.style.pointerEvents = imagePointerEvents;
+            self.parentElement.style.pointerEvents = parentPointerEvents;
+        }
+
+        return elemBelow;
     }
 
     addClass(className: string): void
@@ -295,15 +365,15 @@ export class Avatar implements IObserver
     setImage(url: string): void
     {
         if (url.startsWith('data:')) {
-            $(this.imageElem).css({ 'background-image': 'url("' + url + '")' });
+            $(this.imageElem).attr('src', url);
         } else {
             try {
                 this.getDataUrlImage(url).then(dataUrlImage =>
                 {
-                    $(this.imageElem).css({ 'background-image': 'url("' + dataUrlImage + '")' });
+                    $(this.imageElem).attr('src', dataUrlImage);
                 });
             } catch (error) {
-                $(this.imageElem).css({ 'background-image': 'url("' + url + '")' });
+                $(this.imageElem).attr('src', url);
             }
         }
     }
