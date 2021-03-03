@@ -28,7 +28,7 @@ export class BackpackItemInfo
         y = y + offset.y;
 
         $(this.elem).css({ left: x, top: y });
-        this.app.toFront(this.elem);
+        this.app.toFront(this.elem, ContentApp.LayerWindowContent);
         $(this.elem).stop().fadeIn('fast');
     }
 

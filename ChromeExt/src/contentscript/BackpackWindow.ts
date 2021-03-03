@@ -105,7 +105,7 @@ export class BackpackWindow extends Window
                 {
                     if ($(inElem).is(':hidden')) {
                         $(inElem).show();
-                        this.app.toFront(inElem);
+                        this.app.toFront(inElem, ContentApp.LayerWindowContent);
                     } else {
                         $(inElem).hide();
                     }
@@ -204,7 +204,7 @@ export class BackpackWindow extends Window
             this.items[itemId] = item;
         }
         item.create();
-        this.app.toFront(item.getElem());
+        this.app.toFront(item.getElem(), ContentApp.LayerWindowContent);
     }
 
     onSetItem(itemId: string, properties: ItemProperties)

@@ -591,7 +591,7 @@ export class Participant extends Entity
         if (delayMSec * 1000 < as.Float(Config.get('room.maxChatAgeSec', 60))) {
             if (!this.isChatCommand(text)) {
                 this.chatoutDisplay?.setText(text);
-                this.app.toFront(this.elem);
+                this.app.toFront(this.elem, ContentApp.LayerEntity);
             }
         }
 
@@ -686,12 +686,16 @@ export class Participant extends Entity
 
     onMouseClickAvatar(ev: JQuery.Event): void
     {
+        let wasFront = this.app.isFront(this.elem, ContentApp.LayerEntity);
+
         super.onMouseClickAvatar(ev)
 
-        if (this.isSelf) {
-            this.toggleChatin();
-        } else {
-            this.toggleChatout();
+        if (wasFront) {
+            if (this.isSelf) {
+                this.toggleChatin();
+            } else {
+                this.toggleChatout();
+            }
         }
     }
 

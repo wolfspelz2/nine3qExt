@@ -45,7 +45,7 @@ export class Popup
 
             $(windowElem).click(ev =>
             {
-                this.app.toFront(windowElem, ContentApp.DisplayLayer_Popup);
+                this.app.toFront(windowElem, ContentApp.LayerWindow);
             });
         }
     }

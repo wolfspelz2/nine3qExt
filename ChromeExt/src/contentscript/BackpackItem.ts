@@ -90,7 +90,7 @@ export class BackpackItem
             containment: '#n3q',
             start: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
-                this.app.toFront(this.elem);
+                this.app.toFront(this.elem, ContentApp.LayerWindowContent);
                 this.inDrag = true;
                 $(this.elem).hide();
                 return this.onDragStart(ev, ui);
@@ -157,7 +157,7 @@ export class BackpackItem
 
     onMouseClick(ev: JQuery.Event): void
     {
-        this.app.toFront(this.elem);
+        this.app.toFront(this.elem, ContentApp.LayerWindowContent);
 
         // let item = this.app.getItemRepository().getItem(this.itemId);
         // if (item) {
@@ -176,7 +176,7 @@ export class BackpackItem
             this.app.showDropzone();
         }
 
-        this.app.toFront(ui.helper.get(0));
+        this.app.toFront(ui.helper.get(0), ContentApp.LayerWindowContent);
 
         this.info?.close();
 

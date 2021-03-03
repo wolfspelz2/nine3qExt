@@ -703,14 +703,37 @@ export class ContentApp
 
     // Window management
 
-    public static DisplayLayer_Default = 0;
-    public static DisplayLayer_Popup = 1;
-
-    private toFrontCurrentIndex: number = 1;
-    toFront(elem: HTMLElement, layer = ContentApp.DisplayLayer_Default)
+    public static LayerBelowEntities = 20;
+    public static LayerEntity = 30;
+    public static LayerEntityContent = 31;
+    public static LayerPopup = 40;
+    public static LayerAboveEntities = 45;
+    public static LayerWindow = 50;
+    public static LayerWindowContent = 51;
+    private static layerSize = 10000000;
+    private frontIndex: { [layer: number]: number; ] } = {};
+    toFront(elem: HTMLElement, layer: number)
     {
-        this.toFrontCurrentIndex++;
-        elem.style.zIndex = '' + (this.toFrontCurrentIndex + layer * 1000000000);
+        this.incrementFrontIndex(layer);
+        let absoluteIndex = this.getFrontIndex(layer);
+        elem.style.zIndex = '' + absoluteIndex;
+        log.debug('ContentApp.toFront', absoluteIndex, elem.className);
+    }
+    incrementFrontIndex(layer: number)
+    {
+        if (this.frontIndex[layer]) {
+            this.frontIndex[layer]++;
+        } else {
+            this.frontIndex[layer] = 1;
+        }
+    }
+    getFrontIndex(layer: number)
+    {
+        return this.frontIndex[layer] + layer * ContentApp.layerSize;
+    }
+    isFront(elem: HTMLElement, layer: number)
+    {
+        return (as.Int(elem.style.zIndex, 0) == this.getFrontIndex(layer));
     }
 
     enableScreen(on: boolean): void
@@ -730,7 +753,7 @@ export class ContentApp
 
         this.dropzoneELem = <HTMLElement>$('<div class="n3q-base n3q-dropzone" />').get(0);
         $(this.display).append(this.dropzoneELem);
-        this.toFront(this.dropzoneELem);
+        this.toFront(this.dropzoneELem, ContentApp.LayerAboveEntities);
     }
 
     hideDropzone()

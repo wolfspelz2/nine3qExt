@@ -54,7 +54,7 @@ export class ItemFramePopup extends Popup
 
             this.position(options.width, options.height, options.left, options.bottom);
 
-            this.app.toFront(this.windowElem, ContentApp.DisplayLayer_Popup)
+            this.app.toFront(this.windowElem, ContentApp.LayerPopup)
 
         } catch (error) {
             log.info('ItemFramePopup', error);

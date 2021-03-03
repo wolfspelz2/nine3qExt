@@ -57,7 +57,7 @@ export class ItemFrameWindow extends Window
 
             this.position(options.width, options.height, options.left, options.bottom);
 
-            this.app.toFront(this.windowElem)
+            this.app.toFront(this.windowElem, ContentApp.LayerWindow)
 
         } catch (error) {
             log.info('ItemFrameWindow', error);

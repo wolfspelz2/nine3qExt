@@ -39,7 +39,7 @@ export class RepositoryItem
         }
     }
 
-    onClick(clickedElem: HTMLElement, clickPoint: Point2D)
+    onClick(clickedElem: HTMLElement, clickPoint: Point2D, wasInFront: boolean)
     {
         if (as.Bool(this.properties[Pid.IframeAspect], false)) {
             let frame = as.String(JSON.parse(as.String(this.properties[Pid.IframeOptions], '{}')).frame, 'Window');
@@ -47,7 +47,9 @@ export class RepositoryItem
                 if (this.framePopup) {
                     this.framePopup.close();
                 } else {
-                    this.openIframe(clickedElem);
+                    if (wasInFront) {
+                        this.openIframe(clickedElem);
+                    }
                 }
             } else {
                 this.openIframe(clickedElem);

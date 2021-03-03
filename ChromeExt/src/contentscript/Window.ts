@@ -66,7 +66,7 @@ export class Window
             this.windowElem = windowElem;
 
             $(this.app.getDisplay()).append(windowElem);
-            this.app.toFront(windowElem);
+            this.app.toFront(windowElem, ContentApp.LayerWindow);
 
             let maskId = Utils.randomString(15);
 
@@ -107,7 +107,7 @@ export class Window
 
             $(windowElem).click(ev =>
             {
-                this.app.toFront(windowElem);
+                this.app.toFront(windowElem, ContentApp.LayerWindow);
             });
 
             $(windowElem).draggable({
@@ -120,7 +120,7 @@ export class Window
                 containment: 'document',
                 start: (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) =>
                 {
-                    this.app.toFront(windowElem);
+                    this.app.toFront(windowElem, ContentApp.LayerWindow);
                     if (this.onDragStart) { this.onDragStart(ev, ui); }
                 },
                 drag: (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) =>
