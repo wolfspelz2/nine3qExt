@@ -993,17 +993,17 @@
         display: block;
         position: absolute;
         box-shadow: #505050 1px 1px 3px;
+        background-color: #ffffff;
 
         .n3q-backpack-item-image {
             position: absolute;
             left: 2px;
             top: 2px;
             right: 2px;
-            bottom: 2px;
+            bottom: 16px;
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            background-color: #ffffff;
         }
 
         .n3q-backpack-item-label {
@@ -1016,12 +1016,13 @@
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
-            padding: 2px 4px;
+            padding: 2px 2px;
         }
     }
 
-    div.n3q-backpack-item.n3q-backpack-item-rezzed .n3q-backpack-item-image{
-        filter: contrast(0.4) brightness(1.2);
+    div.n3q-backpack-item.n3q-backpack-item-rezzed .n3q-backpack-item-image {
+        filter: contrast(0.7);
+        background-color: #c0c0c0;
     }
 
     div.n3q-backpack-drag {

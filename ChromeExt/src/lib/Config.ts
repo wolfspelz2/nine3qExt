@@ -142,6 +142,8 @@ export class Config
             itemSize: 64,
             borderPadding: 4,
             dropZoneHeight: 100,
+            itemBorderWidth: 2,
+            itemLabelHeight: 16,
             itemInfoOffset: { x: 2, y: 2 },
             itemInfoExtended: false,
             deleteToastDurationSec: 100,

@@ -21,8 +21,8 @@ export class BackpackItem
     private iconElem: HTMLImageElement;
     private x: number = 100;
     private y: number = 100;
-    private w: number = 64;
-    private h: number = 64;
+    private imageWidth: number = 64;
+    private imageHeight: number = 64;
     private inDrag: boolean = false;
     private info: BackpackItemInfo = null;
 
@@ -36,8 +36,8 @@ export class BackpackItem
 
         let size = Config.get('inventory.itemSize', 64);
 
-        let x = this.getPseudoRandomCoordinate(paneElem.offsetWidth, this.w, padding, itemId, 11345);
-        let y = this.getPseudoRandomCoordinate(paneElem.offsetHeight, this.w, padding, itemId, 13532);
+        let x = this.getPseudoRandomCoordinate(paneElem.offsetWidth, this.imageWidth, padding, itemId, 11345);
+        let y = this.getPseudoRandomCoordinate(paneElem.offsetHeight, this.imageWidth, padding, itemId, 13532);
 
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item" data-id="' + this.itemId + '" />').get(0);
         this.imageElem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item-image" />').get(0);
@@ -80,10 +80,10 @@ export class BackpackItem
                 if (this.info) { this.info.close(); }
                 let dragElem = $('<div class="n3q-base n3q-backpack-drag" />').get(0);
                 let itemElem = $(this.elem).clone().get(0);
-                $(itemElem).css({ 'left': '0', 'top': '0', 'width': this.w, 'height': this.h });
+                $(itemElem).css({ 'left': '0', 'top': '0', 'width': this.getWidth() + 'px', 'height': this.getHeight() + 'px' });
                 $(dragElem).append(itemElem);
                 $(app.getDisplay()).append(dragElem);
-                app.toFront(itemElem);
+                // app.toFront(itemElem);
                 return dragElem;
             },
             // zIndex: 2000000000,
@@ -116,7 +116,7 @@ export class BackpackItem
 
     getX(): number { return this.x; }
     getY(): number { return this.y; }
-    geSize(): number { return this.w; }
+    geSize(): number { return this.imageWidth; }
 
     match(pid: string, value: any)
     {
@@ -138,18 +138,21 @@ export class BackpackItem
         $(this.textElem).text(as.Html(text));
     }
 
-    setSize(w: number, h: number)
+    getWidth(): number { return this.imageWidth + Config.get('backpack.itemBorderWidth', 2) * 2; }
+    getHeight(): number { return this.imageHeight + Config.get('backpack.itemBorderWidth', 2) * 2 + Config.get('backpack.itemLabelHeight', 12); }
+
+    setSize(imageWidth: number, imageHeight: number)
     {
-        this.w = w;
-        this.h = h;
-        $(this.elem).css({ 'width': w + 'px', 'height': h + 'px' });
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
+        $(this.elem).css({ 'width': this.getWidth() + 'px', 'height': this.getHeight() + 'px' });
     }
 
     setPosition(x: number, y: number)
     {
         this.x = x;
         this.y = y;
-        $(this.elem).css({ 'left': (x - this.w / 2) + 'px', 'top': (y - this.h / 2) + 'px' });
+        $(this.elem).css({ 'left': (x - this.getWidth() / 2) + 'px', 'top': (y - this.getHeight() / 2) + 'px' });
     }
 
     onMouseClick(ev: JQuery.Event): void
@@ -327,10 +330,10 @@ export class BackpackItem
         this.setText(text);
 
         if (properties[Pid.Width] && properties[Pid.Height]) {
-            var w = as.Int(properties[Pid.Width], -1);
-            var h = as.Int(properties[Pid.Height], -1);
-            if (w > 0 && h > 0 && (w != this.w || h != this.h)) {
-                this.setSize(w, h);
+            var imageWidth = as.Int(properties[Pid.Width], -1);
+            var imageHeight = as.Int(properties[Pid.Height], -1);
+            if (imageWidth > 0 && imageHeight > 0 && (imageWidth != this.imageWidth || imageHeight != this.imageHeight)) {
+                this.setSize(imageWidth, imageHeight);
             }
         }
 
@@ -346,11 +349,11 @@ export class BackpackItem
             if (x >= 0 && y >= 0 && (x != this.x || y != this.y)) {
                 this.setPosition(x, y);
             }
-        // } else {
-        //     let point = this.getFreeCoordinate(properties[Pid.Id]);
-        //     let x = point.x;
-        //     let y = point.y;
-        //     this.setPosition(x, y);
+            // } else {
+            //     let point = this.getFreeCoordinate(properties[Pid.Id]);
+            //     let x = point.x;
+            //     let y = point.y;
+            //     this.setPosition(x, y);
         }
 
         this.properties = properties;
