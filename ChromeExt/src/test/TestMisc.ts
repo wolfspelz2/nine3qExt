@@ -6,7 +6,7 @@ import * as crypto from 'crypto';
 
 export class TestMisc
 {
-    sign()
+    signAndVerify()
     {
         let privateKey = '-----BEGIN RSA PRIVATE KEY-----\n' +
             'MIIBOgIBAAJBAL8cd14UE+Fy2QV6rtvbBA3UGo8TllmXhcFcpuzkK2SpAbbNgA7I\n' +
@@ -23,18 +23,30 @@ export class TestMisc
             '-----END PUBLIC KEY-----\n';
         let message = 'ClaimStrength=123 | ClaimUrl=https://example.com/';
 
-        let hasher = crypto.createHash('sha1');
-        hasher.update(message);
-        let messageHash = hasher.digest();
-
         let signer = new NodeRSA(privateKey);
-        let signature = signer.sign(messageHash, 'base64');
+        signer.setOptions({ signingScheme: { hash: 'sha256' } });
+        let signature = signer.sign(message, 'base64');
 
-        let winSignature = 'WjBxzBbNbIDNss2IL/jh2CiQD1TDDxHPpV3y1KS5zWPenV0BBPcJLL9cuKiI7ILwld76KtiCWe4dYUXc52eqCQ==';
+        let winSignature = 'MJ98xzynI2rSP0NJaecpZKnOc54yPdzKmfj41T+4hi5zWviWdgaiVYmdlXospZ0CNUMHocYaGJhjVndFRS4FQA==';
         // signature = winSignature;
 
         let verifier = new NodeRSA(publicKey);
-        expect(verifier.verify(messageHash, signature, 'utf8', 'base64')).to.equal(true);
+        expect(verifier.verify(message, signature, 'utf8', 'base64')).to.equal(true);
+    }
+
+
+    verifyWindowsSignature()
+    {
+        let publicKey = '-----BEGIN PUBLIC KEY-----\n' +
+            'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAL8cd14UE+Fy2QV6rtvbBA3UGo8TllmX\n' +
+            'hcFcpuzkK2SpAbbNgA7IilojcAXsFsDFdCTTTWfofAEZvbGqSAQ0VJ8CAwEAAQ==\n' +
+            '-----END PUBLIC KEY-----\n';
+        let message = 'ClaimStrength=123 | ClaimUrl=https://example.com/';
+
+        let signature = 'MJ98xzynI2rSP0NJaecpZKnOc54yPdzKmfj41T+4hi5zWviWdgaiVYmdlXospZ0CNUMHocYaGJhjVndFRS4FQA==';
+
+        let verifier = new NodeRSA(publicKey);
+        expect(verifier.verify(message, signature, 'utf8', 'base64')).to.equal(true);
     }
 
 
