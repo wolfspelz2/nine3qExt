@@ -44,6 +44,8 @@ export class BackpackItem
         $(this.elem).append(this.imageElem);
         this.textElem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item-label" />').get(0);
         $(this.elem).append(this.textElem);
+        let coverElem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item-cover" />').get(0);
+        $(this.elem).append(coverElem);
 
         this.setImage(imgDefaultItem);
         this.setSize(50, 50);

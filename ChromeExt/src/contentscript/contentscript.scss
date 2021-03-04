@@ -1029,6 +1029,15 @@
             text-overflow: ellipsis;
             padding: 2px 2px;
         }
+
+        .n3q-backpack-item-cover {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            background-color: rgba(255, 255, 255, 0);
+        }
     }
 
     div.n3q-backpack-item.n3q-backpack-item-rezzed .n3q-backpack-item-image {
