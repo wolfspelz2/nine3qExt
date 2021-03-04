@@ -15,8 +15,6 @@ import { RoomItem } from './RoomItem';
 import { ChatWindow } from './ChatWindow'; // Wants to be after Participant and Item otherwise $().resizable does not work
 import { VidconfWindow } from './VidconfWindow';
 import { VpiResolver } from './VpiResolver';
-const NodeRSA = require('node-rsa');
-import * as crypto from 'crypto';
 
 export interface IRoomInfoLine extends Array<string | string> { 0: string, 1: string }
 export interface IRoomInfo extends Array<IRoomInfoLine> { }
@@ -622,39 +620,12 @@ export class Room
         let roomName = jid(this.getJid()).user().toString();
 
         if (mappedRoomName == roomName) {
-            let publicKey = Config.get('roomItem.verificationPublicKey', '');
-            if (Room.verifySignature(props, publicKey)) {
+            let publicKey = Config.get('room.verificationPublicKey', '');
+            if (ItemProperties.verifySignature(props, publicKey)) {
                 return true;
             }
         }
 
-        return false;
-    }
-
-    static verifySignature(props: ItemProperties, publicKey: string): boolean
-    {
-        let signed = as.String(props[Pid.Signed], '');
-        let signature = as.String(props[Pid.SignatureRsa], '');
-        if (signed != '' && signature != '') {
-            let pids = signed.split(' ');
-            let message = '';
-            for (let i = 0; i < pids.length; i++) {
-                let pid = pids[i];
-                let value = as.String(props[pid], '');
-                message += (message != '' ? ' | ' : '') + pid + '=' + value;
-
-                let hasher = crypto.createHash('sha1');
-                hasher.update(message);
-                let messageHash = hasher.digest('hex');
-        
-                if (publicKey != '') {
-                    let verifier = new NodeRSA(publicKey);
-                    if (verifier.verify(messageHash, signature, 'utf8', 'base64')) {
-                        return true;
-                    }
-                }
-            }
-        }
         return false;
     }
 }

@@ -665,6 +665,7 @@
         // top: 10px;
         min-width: 140px;
         max-width: 220px;
+        pointer-events: none;
 
         div.n3q-title {
             text-align: center;
@@ -679,6 +680,10 @@
         div.n3q-button.n3q-button-overlay {
             margin: 0;
         }
+    }
+
+    div.n3q-backpackiteminfo.n3q-pinned {
+        pointer-events: auto;
     }
 
     div.n3q-window {

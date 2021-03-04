@@ -28,7 +28,7 @@ export class BackpackItemInfo
 
         $(this.elem).css({ left: x, top: y });
         this.app.toFront(this.elem, ContentApp.LayerWindowContent);
-        $(this.elem).stop().delay(Config.get('backpack.itemInfoDelay', 300)).fadeIn('fast');
+        // $(this.elem).stop().delay(Config.get('backpack.itemInfoDelay', 300)).show();
     }
 
     close(): void
@@ -42,18 +42,18 @@ export class BackpackItemInfo
     pin()
     {
         this.pinned = true;
-        $(this.elem).css({ pointerEvents: '' });
+        $(this.elem).addClass('n3q-pinned');
     }
     unPin()
     {
         this.pinned = false;
-        $(this.elem).css({ pointerEvents: 'none' });
+        $(this.elem).removeClass('n3q-pinned');
     }
 
     setup(): void
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops n3q-backpackiteminfo n3q-shadow-small" data-translate="children" />').get(0);
-        $(this.elem).css({ display: 'none', pointerEvents: 'none' });
+        // $(this.elem).css({ display: 'none' });
 
         this.update();
 

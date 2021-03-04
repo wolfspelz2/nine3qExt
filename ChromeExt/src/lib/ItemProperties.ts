@@ -1,5 +1,6 @@
-export class ItemProperties { [pid: string]: string }
-export class ItemPropertiesSet { [id: string]: ItemProperties }
+import log = require('loglevel');
+import { as } from './as';
+const NodeRSA = require('node-rsa');
 
 export class Pid
 {
@@ -65,6 +66,38 @@ export class Pid
     static readonly TransferState_Source = 'Source';
     static readonly TransferState_Destination = 'Destination';
 }
+
+export class ItemProperties { [pid: string]: string 
+    static verifySignature(props: ItemProperties, publicKey: string): boolean
+    {
+        let signed = as.String(props[Pid.Signed], '');
+        let signature = as.String(props[Pid.SignatureRsa], '');
+        if (signed != '' && signature != '') {
+            let pids = signed.split(' ');
+            let message = '';
+            for (let i = 0; i < pids.length; i++) {
+                let pid = pids[i];
+                let value = as.String(props[pid], '');
+                message += (message != '' ? ' | ' : '') + pid + '=' + value;
+
+                if (publicKey != '') {
+                    try {
+                        let verifier = new NodeRSA(publicKey);
+                        if (verifier.verify(message, signature, 'utf8', 'base64')) {
+                            return true;
+                        }
+                    } catch (error) {
+                        log.info('ItemProperties.verifySignature', error);
+                    }
+
+                }
+            }
+        }
+        return false;
+    }
+}
+
+export class ItemPropertiesSet { [id: string]: ItemProperties }
 
 interface PropertyDefinition
 {

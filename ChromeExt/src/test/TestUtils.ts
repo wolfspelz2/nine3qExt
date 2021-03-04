@@ -2,6 +2,8 @@ import { expect } from 'chai';
 import { Utils } from '../lib/Utils';
 import { xml } from '@xmpp/client';
 import { Room } from '../contentscript/Room';
+const NodeRSA = require('node-rsa');
+import * as crypto from 'crypto';
 
 export class TestUtils
 {
@@ -73,4 +75,5 @@ export class TestUtils
         // console.log(Utils.hash('aa'));
         // console.log(Utils.hash('a'));
     }
+
 }

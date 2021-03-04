@@ -1,12 +1,8 @@
 import { expect } from 'chai';
-import { Room } from '../contentscript/Room';
-import { Config } from '../lib/Config';
-import { Pid } from '../lib/ItemProperties';
-import { Utils } from '../lib/Utils';
+import { ItemProperties, Pid } from '../lib/ItemProperties';
 const NodeRSA = require('node-rsa');
-import * as crypto from 'crypto';
 
-export class TestRoom
+export class TestItemProperties
 {
     verifySignature()
     {
@@ -26,12 +22,10 @@ export class TestRoom
         let message = 'ClaimStrength=123 | ClaimUrl=https://example.com/';
 
         let signer = new NodeRSA(privateKey);
-        let hasher = crypto.createHash('sha1');
-        hasher.update(message);
-        let messageHash = hasher.digest('hex');
-        let signature = signer.sign(messageHash, 'base64');
+        signer.setOptions({ signingScheme: { hash: 'sha256' } });
+        let signature = signer.sign(message, 'base64');
 
-        expect(Room.verifySignature({
+        expect(ItemProperties.verifySignature({
             [Pid.Signed]: '' + Pid.ClaimStrength + ' ' + Pid.ClaimUrl,
             [Pid.ClaimStrength]: '123',
             [Pid.ClaimUrl]: 'https://example.com/',

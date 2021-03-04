@@ -27,6 +27,10 @@ export class Config
             avatar: '',
             active: '',
         },
+        test: {
+            itemServiceRpcUrl: 'http://localhost:5000/rpc',
+            ownerAddressEthereum: '0xFE3aFc544D6098379061a8833c175E603c267fa4',
+        },
         client: {
             name: 'weblin.io',
             variant: '',
@@ -52,9 +56,6 @@ export class Config
         httpCache: {
             maxAgeSec: 3600,
             maintenanceIntervalSec: 60,
-        },
-        test: {
-            itemServiceRpcUrl: 'http://localhost:5000/rpc',
         },
         room: {
             fadeInSec: 0.3,
@@ -94,6 +95,10 @@ export class Config
             itemStatsTooltip: true,
             itemStatsTooltipDelay: 500,
             itemStatsTooltipOffset: { x: 3, y: 3 },
+            verificationPublicKey: '-----BEGIN PUBLIC KEY-----\n' +
+                'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAL8cd14UE+Fy2QV6rtvbBA3UGo8TllmX\n' +
+                'hcFcpuzkK2SpAbbNgA7IilojcAXsFsDFdCTTTWfofAEZvbGqSAQ0VJ8CAwEAAQ==\n' +
+                '-----END PUBLIC KEY-----\n',
         },
         xmpp: {
             service: 'wss://xmpp.vulcan.weblin.com/xmpp-websocket',
@@ -126,10 +131,6 @@ export class Config
             chatlogItemAppeared: false,
             chatlogItemIsPresent: false,
             chatlogItemDisappeared: false,
-            verificationPublicKey: '-----BEGIN PUBLIC KEY-----\n' +
-                'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAL8cd14UE+Fy2QV6rtvbBA3UGo8TllmX\n' +
-                'hcFcpuzkK2SpAbbNgA7IilojcAXsFsDFdCTTTWfofAEZvbGqSAQ0VJ8CAwEAAQ==\n' +
-                '-----END PUBLIC KEY-----\n',
         },
         iframeApi: {
             messageMagic: 'a67igu67puz_iframeApi',
@@ -148,6 +149,7 @@ export class Config
             itemInfoExtended: false,
             itemInfoDelay: 300,
             deleteToastDurationSec: 100,
+            loadWeb3Items: false,
         },
         points: {
             enabled: true,
@@ -171,6 +173,10 @@ export class Config
                     },
                 },
             }
+        },
+        web3: {
+            contractAddressEthereum: '0x637f0918F39E4e82fa66512318096Dd1bab49177',
+            httpProvider: 'https://kovan.infura.io/v3/8f39aa5fb9fb402e8e65a9c810e6cdb1',
         },
         i18n: {
             defaultLanguage: 'en-US',
