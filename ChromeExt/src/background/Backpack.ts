@@ -86,7 +86,12 @@ export class Backpack
                 for (let i = 0; i < numberOfItems; i++) {
                     let tokenId = await contract.methods.getTokenIdByOwnerAndIndex(ownerAddress, i).call();
                     let tokenData = await contract.methods.getTokenData(tokenId).call();
-                    let existingItems = this.findItems(props => as.Bool(props[Pid.ClaimAspect], false) && as.String(props[Pid.ClaimUrl], '') == tokenData);
+                    let existingItems = this.findItems(props =>
+                    {
+                        return (as.Bool(props[Pid.ClaimAspect], false) && as.String(props[Pid.ClaimUrl], '') == tokenData) 
+                        || as.Bool(props[Pid.Web3ClaimBox], false) && as.String(props[Pid.ClaimGeneratorPageUrl], '') == tokenData
+                        ;
+                    });
                     if (existingItems.length == 0) {
                         let item = await this.createItemByTemplate('Web3ClaimBox', { [Pid.ClaimUrl]: tokenData, [Pid.ClaimOwnerAddress]: ownerAddress });
                     }
