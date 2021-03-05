@@ -82,7 +82,7 @@ export class BackpackWindow extends Window
 
                             let props = await BackgroundMessage.getBackpackItemProperties(droppedId);
                             let itemName = props[Pid.Label] ?? props[Pid.Template];
-                            let toast = new SimpleToast(this.app, 'backpack-reallyDelete', Config.get('backpack.deleteToastDurationSec', 1000), 'greeting', 'Really delete?', this.app.translateText('ItemLabel.' + itemName) + '\n' + droppedId);
+                            let toast = new SimpleToast(this.app, 'backpack-reallyDelete', Config.get('backpack.deleteToastDurationSec', 1000), 'question', 'Really delete?', this.app.translateText('ItemLabel.' + itemName) + '\n' + droppedId);
                             toast.actionButton('Yes, delete item', () => { this.deleteItem(droppedId); toast.close(); })
                             toast.actionButton('No, keep it', () => { toast.close(); })
                             toast.setDontShow(false);

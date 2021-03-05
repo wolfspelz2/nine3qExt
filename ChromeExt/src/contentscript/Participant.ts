@@ -440,7 +440,9 @@ export class Participant extends Entity
     {
         try {
             let pokeType = node.attrs.type;
-            let toast = new SimpleToast(this.app, 'poke-' + pokeType, Config.get('room.pokeToastDurationSec', 10), 'greeting', this.getDisplayName(), pokeType + 's');
+            let iconType = 'greeting';
+            if (pokeType == 'bye') { iconType = 'bye'; }
+            let toast = new SimpleToast(this.app, 'poke-' + pokeType, Config.get('room.pokeToastDurationSec_' + pokeType, Config.get('room.pokeToastDurationSec', 10)), iconType, this.getDisplayName(), pokeType + 's');
             toast.actionButton(pokeType + ' back', () =>
             {
                 this.sendPoke(pokeType);
@@ -691,11 +693,11 @@ export class Participant extends Entity
         super.onMouseClickAvatar(ev)
 
         // if (wasFront) {
-            if (this.isSelf) {
-                this.toggleChatin();
-            } else {
-                this.toggleChatout();
-            }
+        if (this.isSelf) {
+            this.toggleChatin();
+        } else {
+            this.toggleChatout();
+        }
         // }
     }
 
