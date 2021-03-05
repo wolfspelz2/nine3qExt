@@ -76,8 +76,8 @@ export class BackpackItem
         });
         $(this.getElem()).click(ev =>
         {
-                this.app.toFront(this.getElem(), ContentApp.LayerWindowContent);
-                if (this.info) {
+            this.app.toFront(this.getElem(), ContentApp.LayerWindowContent);
+            if (this.info) {
                 if (!this.info.isPinned()) {
                     this.info.pin();
                 } else {
@@ -105,8 +105,14 @@ export class BackpackItem
             stack: '.n3q-item-icon',
             distance: 4,
             //opacity: 0.5,
-            helper: () =>
+            helper: (ev: JQueryMouseEventObject) =>
             {
+                if (ev.target) {
+                    if (!$(ev.target).hasClass('n3q-backpack-item-cover')) {
+                        return null;
+                    }
+                }
+                
                 if (this.info) { this.info.close(); }
                 let dragElem = $('<div class="n3q-base n3q-backpack-drag" />').get(0);
                 let itemElem = $(this.elem).clone().get(0);
