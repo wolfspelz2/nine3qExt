@@ -56,16 +56,10 @@ export class BackpackItem
         $(this.getElem()).mouseenter(ev =>
         {
             if (this.info == null || !this.info.isPinned()) {
-                this.app.toFront(this.getElem(), ContentApp.LayerWindowContent);
                 this.info?.close();
                 this.info = new BackpackItemInfo(this.app, this, () => { this.info = null; });
                 this.info.show(ev.offsetX, ev.offsetY);
-            }
-        });
-        $(this.getElem()).mouseleave(ev =>
-        {
-            if (this.info && !this.info.isPinned()) {
-                this.info?.close();
+                this.app.toFront(this.info.getElem(), ContentApp.LayerWindowContent);
             }
         });
         $(this.getElem()).mousemove(ev =>
@@ -74,9 +68,16 @@ export class BackpackItem
                 this.info.show(ev.offsetX, ev.offsetY);
             }
         });
-        $(this.getElem()).click(ev =>
+        $(this.getElem()).mouseleave(ev =>
         {
             if (this.info) {
+                this.info?.close();
+            }
+        });
+        $(this.getElem()).click(ev =>
+        {
+                this.app.toFront(this.getElem(), ContentApp.LayerWindowContent);
+                if (this.info) {
                 if (!this.info.isPinned()) {
                     this.info.pin();
                 } else {

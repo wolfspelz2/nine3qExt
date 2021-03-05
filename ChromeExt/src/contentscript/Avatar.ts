@@ -78,10 +78,19 @@ export class Avatar implements IObserver
 
             let elem = this.elemBelowTransparentImageAtMouse(ev);
             if (elem) {
-                let newEv = new jQuery.Event('click');
-                newEv.clientX = ev.clientY;
-                newEv.clientY = ev.clientY;
-                $(elem).trigger('click', newEv);
+                // let newEv = new jQuery.Event('click');
+                // newEv.clientX = ev.clientY;
+                // newEv.clientY = ev.clientY;
+                // $(elem).trigger('click', newEv);
+                if ($(elem).hasClass('n3q-avatar-image')) {
+                    let belowAvatarElem = elem.parentElement;
+                    if (belowAvatarElem) {
+                        let belowEntityElem = belowAvatarElem.parentElement;
+                        if (belowEntityElem) {
+                            this.app.toFront(belowEntityElem, ContentApp.LayerEntity);
+                        }
+                    }
+                }
                 ev.stopPropagation();
             }
         });

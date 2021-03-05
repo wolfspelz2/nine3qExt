@@ -688,17 +688,13 @@ export class Participant extends Entity
 
     onMouseClickAvatar(ev: JQuery.Event): void
     {
-        let wasFront = this.app.isFront(this.elem, ContentApp.LayerEntity);
-
         super.onMouseClickAvatar(ev)
 
-        // if (wasFront) {
         if (this.isSelf) {
             this.toggleChatin();
         } else {
             this.toggleChatout();
         }
-        // }
     }
 
     onMouseDoubleClickAvatar(ev: JQuery.Event): void

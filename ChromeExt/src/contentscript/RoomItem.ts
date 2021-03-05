@@ -255,13 +255,11 @@ export class RoomItem extends Entity
 
     onMouseClickAvatar(ev: JQuery.Event): void
     {
-        let wasInFront = this.app.isFront(this.elem, ContentApp.LayerEntity);
-
         super.onMouseClickAvatar(ev);
 
         let item = this.app.getItemRepository().getItem(this.roomNick);
         if (item) {
-            item.onClick(this.getElem(), new Point2D(ev.clientX, ev.clientY), wasInFront);
+            item.onClick(this.getElem(), new Point2D(ev.clientX, ev.clientY));
         }
 
         this.statsDisplay?.close();
