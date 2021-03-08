@@ -160,6 +160,11 @@ export class RepositoryItem
         this.framePopup?.position(width, height, left, bottom);
     }
 
+    // updateFrame()
+    // {
+    //     this.framePopup?.update();
+    // }
+
     closeFrame()
     {
         if (this.framePopup) {

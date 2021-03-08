@@ -55,6 +55,11 @@ export class BackpackItemInfo
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops n3q-backpackiteminfo n3q-shadow-small" data-translate="children" />').get(0);
         // $(this.elem).css({ display: 'none' });
 
+        $(this.elem).on('mousemove', ev =>
+        {
+            ev.stopPropagation();
+        });
+
         this.update();
 
         $(this.getElem()).click(ev =>

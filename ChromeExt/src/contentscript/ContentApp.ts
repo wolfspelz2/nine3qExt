@@ -13,7 +13,7 @@ import { Browser } from '../lib/Browser';
 import { ItemException } from '../lib/ItemExcption';
 import { BackpackShowItemData, BackpackSetItemData, BackpackRemoveItemData, ContentMessage } from '../lib/ContentMessage';
 import { Environment } from '../lib/Environment';
-import { Pid } from '../lib/ItemProperties';
+import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { HelloWorld } from './HelloWorld';
 import { PropertyStorage } from './PropertyStorage';
 import { Room } from './Room';
@@ -317,11 +317,19 @@ export class ContentApp
         }
     }
 
-    sendMessageToScreenItemFrame(itemId: string, message: any)
+    // updateItemFrame(itemId: string, props: ItemProperties)
+    // {
+    //     let roomItem = this.room.getItem(itemId);
+    //     if (roomItem) {
+    //         roomItem.updateItemFrame(itemId, props);
+    //     }
+    // }
+
+   sendMessageToScreenItemFrame(itemId: string, message: any)
     {
         let roomItem = this.room.getItem(itemId);
         if (roomItem) {
-            roomItem.sendsendMessageToScreenFrame(message);
+            roomItem.sendMessageToScreenItemFrame(message);
         }
     }
 

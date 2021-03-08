@@ -141,6 +141,8 @@ export class IframeApi
             let actionName = request.action;
             let args = request.args;
             await BackgroundMessage.executeBackpackItemAction(itemId, actionName, args, [itemId]);
+            // let props = await BackgroundMessage.getBackpackItemProperties(itemId);
+            // this.app.updateItemFrame(itemId, props);
         } catch (ex) {
             // if (ex instanceof ItemException) {
             //     new ItemExceptionToast(this.app, Config.get('room.applyItemErrorToastDurationSec', 5), ex).show();
