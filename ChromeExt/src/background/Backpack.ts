@@ -80,21 +80,58 @@ export class Backpack
         if (ownerAddress != '' && contractAddress != '' && httpProvider != '') {
 
             try {
+                let previousClaimItemIds = this.findItems(props => { return (as.Bool(props[Pid.ClaimAspect], false)); }).map(item => item.getProperties()[Pid.Id]);
+
                 let web3 = new Web3(new Web3.providers.HttpProvider(httpProvider));
                 let contract = new web3.eth.Contract(ClaimsContract.ABI, contractAddress);
                 let numberOfItems = await contract.methods.balanceOf(ownerAddress).call();
                 for (let i = 0; i < numberOfItems; i++) {
-                    let tokenId = await contract.methods.getTokenIdByOwnerAndIndex(ownerAddress, i).call();
-                    let tokenData = await contract.methods.getTokenData(tokenId).call();
-                    let existingItems = this.findItems(props =>
-                    {
-                        return (as.Bool(props[Pid.ClaimAspect], false) && as.String(props[Pid.ClaimUrl], '') == tokenData) 
-                        || as.Bool(props[Pid.Web3ClaimBox], false) && as.String(props[Pid.ClaimGeneratorPageUrl], '') == tokenData
-                        ;
-                    });
-                    if (existingItems.length == 0) {
-                        let item = await this.createItemByTemplate('Web3ClaimBox', { [Pid.ClaimUrl]: tokenData, [Pid.ClaimOwnerAddress]: ownerAddress });
+                    // let tokenId = await contract.methods.getTokenIdByOwnerAndIndex(ownerAddress, i).call();
+                    let tokenId = await contract.methods.tokenOfOwnerByIndex(ownerAddress, i).call();
+                    // let tokenData = await contract.methods.getTokenData(tokenId).call();
+                    let tokenUri = await contract.methods.tokenURI(tokenId).call();
+                    let response = await fetch(tokenUri);
+
+                    if (!response.ok) {
+                        log.info('backpack.loadWeb3Items', 'fetch failed', 'tokenId', tokenId, 'tokenUri',tokenUri, response);
+                    } else {
+                        const metadata = await response.json();
+
+                        let domain = '';
+                        let strength = 0;
+                        let imageUrl = '';
+                        let data = metadata.data;
+                        if (data) {
+                            domain = as.String(data[Pid.ClaimUrl], '');
+                            strength = as.Int(data[Pid.ClaimStrength], 0);
+                            imageUrl = as.String(data[Pid.ImageUrl], Config.get('backpack.defaultCryptoClaimImage', ''));
+                        }
+
+                        if (domain == '' || strength == 0) {
+                            log.info('Backpack.loadWeb3Items', 'no data for', 'tokenId', tokenId, 'tokenUri', tokenUri);
+                        } else {
+                            let claimUrlItems = this.findItems(props =>
+                            {
+                                return (as.Bool(props[Pid.ClaimAspect], false) && as.String(props[Pid.ClaimUrl], '') == domain);
+                            });
+                            if (claimUrlItems.length == 0) {
+                                let item = await this.createItemByTemplate('CryptoClaim', {
+                                    [Pid.ClaimUrl]: domain,
+                                    [Pid.ClaimStrength]: '' + strength,
+                                    [Pid.ImageUrl]: imageUrl,
+                                    [Pid.ClaimOwnerAddress]: ownerAddress
+                                });
+                            } else {
+                                let claimUrlItemId = claimUrlItems[0].getProperties()[Pid.Id];
+                                const index = previousClaimItemIds.indexOf(claimUrlItemId, 0);
+                                if (index > -1) { previousClaimItemIds.splice(index, 1); }
+                            }
+                        }
                     }
+                }
+
+                for (let i = 0; i < previousClaimItemIds.length; i++) {
+                    this.deleteItem(previousClaimItemIds[i], { skipContentNotification: true, skipPresenceUpdate: true });
                 }
             } catch (error) {
                 log.info(error);

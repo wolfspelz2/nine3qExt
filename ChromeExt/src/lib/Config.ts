@@ -29,7 +29,8 @@ export class Config
         },
         test: {
             itemServiceRpcUrl: 'http://localhost:5000/rpc',
-            ownerAddressEthereum: '0xFE3aFc544D6098379061a8833c175E603c267fa4',
+            // ownerAddressEthereum: '0xFE3aFc544D6098379061a8833c175E603c267fa4',
+            ownerAddressEthereum: '0x93fcECB9774Fc975ddB15Bb44C00d9dc280755ce',
         },
         client: {
             name: 'weblin.io',
@@ -151,6 +152,7 @@ export class Config
             itemInfoDelay: 300,
             deleteToastDurationSec: 100,
             loadWeb3Items: false,
+            defaultCryptoClaimImage: 'https://webit.vulcan.weblin.com/images/Items/Claim/CryptoClaim.png',
         },
         points: {
             enabled: true,
@@ -176,8 +178,9 @@ export class Config
             }
         },
         web3: {
-            contractAddressEthereum: '0x637f0918F39E4e82fa66512318096Dd1bab49177',
-            httpProvider: 'https://kovan.infura.io/v3/8f39aa5fb9fb402e8e65a9c810e6cdb1',
+            contractAddressEthereum: '0xAc482b20c016D0B5e44c03aD51d306e4d26939D9',
+            // httpProvider: 'https://kovan.infura.io/v3/8f39aa5fb9fb402e8e65a9c810e6cdb1',
+            httpProvider: 'https://eth-rinkeby.alchemyapi.io/v2/r2gUsunv9dqoULzKRpZsIwo2MgOIYkO9',
         },
         i18n: {
             defaultLanguage: 'en-US',

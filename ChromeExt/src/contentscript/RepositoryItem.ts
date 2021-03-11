@@ -93,18 +93,22 @@ export class RepositoryItem
             } else {
                 tokenOptions['properties'] = this.properties;
             }
-            let contextToken = await Payload.getContextToken(apiUrl, userId, this.id, 600, { 'room': roomJid }, tokenOptions);
-            iframeUrl = iframeUrl
-                .replace('{context}', encodeURIComponent(contextToken))
-                .replace('{room}', encodeURIComponent(roomJid))
-                .replace('{name}', encodeURIComponent(roomNick))
-                ;
+            try {
+                let contextToken = await Payload.getContextToken(apiUrl, userId, this.id, 600, { 'room': roomJid }, tokenOptions);
+                iframeUrl = iframeUrl
+                    .replace('{context}', encodeURIComponent(contextToken))
+                    .replace('{room}', encodeURIComponent(roomJid))
+                    .replace('{name}', encodeURIComponent(roomNick))
+                    ;
 
-            let iframeOptions = JSON.parse(as.String(this.properties[Pid.IframeOptions], '{}'));
-            if (as.String(iframeOptions.frame, 'Window') == 'Popup') {
-                this.openIframePopup(clickedElem, iframeUrl, iframeOptions);
-            } else {
-                this.openIframeWindow(clickedElem, iframeUrl, iframeOptions);
+                let iframeOptions = JSON.parse(as.String(this.properties[Pid.IframeOptions], '{}'));
+                if (as.String(iframeOptions.frame, 'Window') == 'Popup') {
+                    this.openIframePopup(clickedElem, iframeUrl, iframeOptions);
+                } else {
+                    this.openIframeWindow(clickedElem, iframeUrl, iframeOptions);
+                }
+            } catch (error) {
+                log.info('RepositoryItem.openIframe', error);
             }
         }
     }
