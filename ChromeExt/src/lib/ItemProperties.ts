@@ -62,8 +62,7 @@ export class Pid
     static readonly DeactivatableIsInactive = 'DeactivatableIsInactive';
     static readonly Signed = 'Signed';
     static readonly SignatureRsa = 'SignatureRsa';
-    static readonly Web3ClaimBox = 'Web3ClaimBox';
-    static readonly ClaimGeneratorPageUrl = 'ClaimGeneratorPageUrl';
+    static readonly Web3WalletAspect = 'Web3WalletAspect';
 
     static readonly TransferState_Source = 'Source';
     static readonly TransferState_Destination = 'Destination';

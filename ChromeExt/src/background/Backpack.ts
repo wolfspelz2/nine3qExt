@@ -74,6 +74,14 @@ export class Backpack
 
     async loadWeb3Items(): Promise<void>
     {
+        
+        let wallets = this.findItems(props => { return (as.Bool(props[Pid.Web3WalletAspect], false)); });
+        if (wallets.length == 0) {
+            log.info('backpack.loadWeb3Items', 'No wallet item');
+            return;
+        }
+        let wallet = wallets[0];
+
         let ownerAddress = Config.get('test.ownerAddressEthereum', '');
         let contractAddress = Config.get('web3.contractAddressEthereum', '');
         let httpProvider = Config.get('web3.httpProvider', '');
