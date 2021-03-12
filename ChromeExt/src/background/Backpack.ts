@@ -118,7 +118,7 @@ export class Backpack
                     let tokenId = await contract.methods.tokenOfOwnerByIndex(ownerAddress, i).call();
                     let tokenUri = await contract.methods.tokenURI(tokenId).call();
 
-                    if (Environment.isDevelopment()) {
+                    if (Config.get('config.clusterName', 'prod') == 'dev') {
                         tokenUri = tokenUri.replace('https://webit.vulcan.weblin.com/', 'http://localhost:5000/');
                         tokenUri = tokenUri.replace('https://item.weblin.com/', 'http://localhost:5000/');
                     }
