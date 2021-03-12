@@ -589,18 +589,20 @@ export class Room
             let otherId = as.String(otherProps[Pid.Id], null);
             if (myId != '' && myId != otherId) {
                 let otherStrength = as.Float(otherProps[Pid.ClaimStrength], 0.0);
-
-                // let otherUrl = as.String(otherProps[Pid.ClaimUrl], '');
-                // if (otherUrl != '') {
-                //     if (!this.claimIsValidAndOriginal(otherProps)) {
-                //         otherStrength = 0.0;
-                //     }
-                // }
-
                 let myStrength = as.Float(props[Pid.ClaimStrength], 0.0);
-
                 let myUrl = as.String(props[Pid.ClaimUrl], '');
+                let otherUrl = as.String(otherProps[Pid.ClaimUrl], '');
+
                 if (myUrl != '') {
+                    if (!await this.claimIsValidAndOriginal(props)) {
+                        myStrength = 0.0;
+                    }
+                }
+
+                if (otherUrl != '') {
+                    if (!await this.claimIsValidAndOriginal(otherProps)) {
+                        otherStrength = 0.0;
+                    }
                 }
 
                 if (myStrength <= otherStrength) {
@@ -613,19 +615,31 @@ export class Room
 
     async claimIsValidAndOriginal(props: ItemProperties): Promise<boolean>
     {
-        let url = props[Pid.ClaimUrl];
+        let url = this.normalizeClaimUrl(props[Pid.ClaimUrl]);
 
-        let mappedRoomJid = await this.app.vpiMap(url);
-        let mappedRoomName = jid(mappedRoomJid).user().toString();
-        let roomName = jid(this.getJid()).user().toString();
+        let mappedRoom = await this.app.vpiMap(url);
+        let mappedRoomJid = jid(mappedRoom);
+        let mappedRoomName = mappedRoomJid.local;
 
-        if (mappedRoomName == roomName) {
-            let publicKey = Config.get('room.verificationPublicKey', '');
+        let currentRoom = this.getJid();
+        let currentRoomJid = jid(currentRoom);
+        let currentRoomName = currentRoomJid.local;
+
+        if (mappedRoomName == currentRoomName) {
+            let publicKey = Config.get('backpack.signaturePublicKey', '');
             if (ItemProperties.verifySignature(props, publicKey)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    normalizeClaimUrl(url: string): string
+    {
+        if (url.startsWith('https://')) { return url; }
+        if (url.startsWith('http://')) { return url; }
+        if (url.startsWith('//')) { return 'https:' + url; }
+        return 'https://' + url;
     }
 }

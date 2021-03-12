@@ -74,21 +74,41 @@ export class Backpack
 
     async loadWeb3Items(): Promise<void>
     {
-        
+        let currentWeb3ItemIds = this.findItems(props => { return (as.Bool(props[Pid.Web3BasedAspect], false)); }).map(item => item.getProperties()[Pid.Id]);
+        let unverifiedWeb3ItemIds = currentWeb3ItemIds;
+
         let wallets = this.findItems(props => { return (as.Bool(props[Pid.Web3WalletAspect], false)); });
         if (wallets.length == 0) {
             log.info('backpack.loadWeb3Items', 'No wallet item');
-            return;
-        }
-        let wallet = wallets[0];
+        } else {
+            for (let walletsIdx = 0; walletsIdx < wallets.length; walletsIdx++) {
+                let wallet = wallets[walletsIdx];
+                let ownerAddress = wallet.getProperties()[Pid.Web3WalletAddress];
+                let httpProvider = wallet.getProperties()[Pid.Web3WalletProvider];
+                let claimItemIdsOfWallet = await this.loadWeb3ItemsFromWallet(ownerAddress, httpProvider);
 
-        let ownerAddress = Config.get('test.ownerAddressEthereum', '');
+                for (let claimItemIdsOfWalletIdx = 0; claimItemIdsOfWalletIdx < claimItemIdsOfWallet.length; claimItemIdsOfWalletIdx++) {
+                    let id = claimItemIdsOfWallet[claimItemIdsOfWalletIdx];
+                    const index = unverifiedWeb3ItemIds.indexOf(id, 0);
+                    if (index > -1) { unverifiedWeb3ItemIds.splice(index, 1); }
+                }
+            }
+        }
+
+        for (let previousClaimItemIdsIdx = 0; previousClaimItemIdsIdx < unverifiedWeb3ItemIds.length; previousClaimItemIdsIdx++) {
+            this.deleteItem(unverifiedWeb3ItemIds[previousClaimItemIdsIdx], { skipContentNotification: true, skipPresenceUpdate: true });
+        }
+    }
+
+    async loadWeb3ItemsFromWallet(ownerAddress: string, httpProvider: string): Promise<Array<string>>
+    {
+        let knownIds: Array<string> = [];
+
         let contractAddress = Config.get('web3.contractAddressEthereum', '');
-        let httpProvider = Config.get('web3.httpProvider', '');
+        // let httpProvider = Config.get('test.httpProvider', '');
         if (ownerAddress != '' && contractAddress != '' && httpProvider != '') {
 
             try {
-                let previousClaimItemIds = this.findItems(props => { return (as.Bool(props[Pid.ClaimAspect], false)); }).map(item => item.getProperties()[Pid.Id]);
 
                 let web3 = new Web3(new Web3.providers.HttpProvider(httpProvider));
                 let contract = new web3.eth.Contract(ClaimsContract.ABI, contractAddress);
@@ -101,7 +121,7 @@ export class Backpack
                     let response = await fetch(tokenUri);
 
                     if (!response.ok) {
-                        log.info('backpack.loadWeb3Items', 'fetch failed', 'tokenId', tokenId, 'tokenUri',tokenUri, response);
+                        log.info('backpack.loadWeb3Items', 'fetch failed', 'tokenId', tokenId, 'tokenUri', tokenUri, response);
                     } else {
                         const metadata = await response.json();
 
@@ -129,22 +149,21 @@ export class Backpack
                                     [Pid.ImageUrl]: imageUrl,
                                     [Pid.ClaimOwnerAddress]: ownerAddress
                                 });
+                                knownIds.push(item.getProperties()[Pid.Id]);
                             } else {
-                                let claimUrlItemId = claimUrlItems[0].getProperties()[Pid.Id];
-                                const index = previousClaimItemIds.indexOf(claimUrlItemId, 0);
-                                if (index > -1) { previousClaimItemIds.splice(index, 1); }
+                                for (let i = 0; i < claimUrlItems.length; i++) {
+                                    knownIds.push(claimUrlItems[i].getProperties()[Pid.Id]);
+                                }
                             }
                         }
                     }
-                }
-
-                for (let i = 0; i < previousClaimItemIds.length; i++) {
-                    this.deleteItem(previousClaimItemIds[i], { skipContentNotification: true, skipPresenceUpdate: true });
                 }
             } catch (error) {
                 log.info(error);
             }
         }
+
+        return knownIds;
     }
 
     async getOrCreatePointsItem(): Promise<Item>
@@ -448,7 +467,7 @@ export class Backpack
 
                 resolve();
             } catch (error) {
-                reject(error);
+                reject(new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.InternalError, as.String(error.message, as.String(error.status, ''))));
             }
         });
     }

@@ -22,6 +22,7 @@ export namespace ItemException
         NotTransferred
     }
 
+
     export enum Reason
     {
         UnknownReason,
@@ -33,7 +34,8 @@ export namespace ItemException
         SeeDetail,
         NotYourItem,
         ItemMustBeStronger,
-        ItemIsNotTransferable
+        ItemIsNotTransferable,
+        InternalError
     }
 }
 

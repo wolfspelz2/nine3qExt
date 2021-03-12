@@ -31,6 +31,7 @@ export class Config
             itemServiceRpcUrl: 'http://localhost:5000/rpc',
             // ownerAddressEthereum: '0xFE3aFc544D6098379061a8833c175E603c267fa4',
             ownerAddressEthereum: '0x93fcECB9774Fc975ddB15Bb44C00d9dc280755ce',
+            httpProvider: 'https://eth-rinkeby.alchemyapi.io/v2/r2gUsunv9dqoULzKRpZsIwo2MgOIYkO9',
         },
         client: {
             name: 'weblin.io',
@@ -97,10 +98,6 @@ export class Config
             itemStatsTooltip: true,
             itemStatsTooltipDelay: 500,
             itemStatsTooltipOffset: { x: 3, y: 3 },
-            verificationPublicKey: '-----BEGIN PUBLIC KEY-----\n' +
-                'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAL8cd14UE+Fy2QV6rtvbBA3UGo8TllmX\n' +
-                'hcFcpuzkK2SpAbbNgA7IilojcAXsFsDFdCTTTWfofAEZvbGqSAQ0VJ8CAwEAAQ==\n' +
-                '-----END PUBLIC KEY-----\n',
         },
         xmpp: {
             service: 'wss://xmpp.vulcan.weblin.com/xmpp-websocket',
@@ -152,6 +149,10 @@ export class Config
             itemInfoDelay: 300,
             deleteToastDurationSec: 100,
             loadWeb3Items: false,
+            signaturePublicKey: '-----BEGIN PUBLIC KEY-----\n' +
+                'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAL8cd14UE+Fy2QV6rtvbBA3UGo8TllmX\n' +
+                'hcFcpuzkK2SpAbbNgA7IilojcAXsFsDFdCTTTWfofAEZvbGqSAQ0VJ8CAwEAAQ==\n' +
+                '-----END PUBLIC KEY-----\n',
             defaultCryptoClaimImage: 'https://webit.vulcan.weblin.com/images/Items/Claim/CryptoClaim.png',
         },
         points: {
@@ -180,7 +181,6 @@ export class Config
         web3: {
             contractAddressEthereum: '0xAc482b20c016D0B5e44c03aD51d306e4d26939D9',
             // httpProvider: 'https://kovan.infura.io/v3/8f39aa5fb9fb402e8e65a9c810e6cdb1',
-            httpProvider: 'https://eth-rinkeby.alchemyapi.io/v2/r2gUsunv9dqoULzKRpZsIwo2MgOIYkO9',
         },
         i18n: {
             defaultLanguage: 'en-US',
@@ -311,7 +311,7 @@ export class Config
                     'ItemPid.Description': 'Description',
                     'ItemPid.ClaimStrength': 'Strength',
                     'ItemPid.ClaimUrl': 'For',
-                    'ItemPid.CommodityConversionFactor': 'Effciency',
+                    'ItemPid.CommodityConversionFactor': 'Efficiency',
                     'ItemPid.OwnerName': 'Owner',
                     'ItemPid.DispenserAvailable': 'Remaining',
                     'ItemPid.DispenserCooldownSec': 'Cooldown',
@@ -326,6 +326,8 @@ export class Config
                     'ItemPid.IframeAuto': 'Autostart',
                     'ItemPid.DocumentTitle': 'Title',
                     'ItemPid.DeactivatableIsInactive': 'Deactivated',
+                    'ItemPid.Web3WalletAddress': 'Wallet',
+                    'ItemPid.Web3WalletProvider': 'API',
 
                     'ItemValue.true': 'Yes',
                     'ItemValue.false': 'No',
@@ -468,6 +470,8 @@ export class Config
                     'ItemPid.IframeAuto': 'Automatisch',
                     'ItemPid.DocumentTitle': 'Titel',
                     'ItemPid.DeactivatableIsInactive': 'Deaktiviert',
+                    'ItemPid.Web3WalletAddress': 'Wallet',
+                    'ItemPid.Web3WalletProvider': 'API',
 
                     'ItemValue.true': 'Ja',
                     'ItemValue.false': 'Nein',

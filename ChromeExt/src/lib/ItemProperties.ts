@@ -62,39 +62,50 @@ export class Pid
     static readonly DeactivatableIsInactive = 'DeactivatableIsInactive';
     static readonly Signed = 'Signed';
     static readonly SignatureRsa = 'SignatureRsa';
+    static readonly Web3BasedAspect = 'Web3BasedAspect';
     static readonly Web3WalletAspect = 'Web3WalletAspect';
+    static readonly Web3WalletAddress = 'Web3WalletAddress';
+    static readonly Web3WalletProvider = 'Web3WalletProvider';
 
     static readonly TransferState_Source = 'Source';
     static readonly TransferState_Destination = 'Destination';
 }
 
-export class ItemProperties { [pid: string]: string 
+export class ItemProperties
+{
+    [pid: string]: string
+
     static verifySignature(props: ItemProperties, publicKey: string): boolean
     {
+        if (publicKey && publicKey != '') {
+            let message = ItemProperties.getSignatureData(props);
+            let signature = as.String(props[Pid.SignatureRsa], '');
+            try {
+                let verifier = new NodeRSA(publicKey);
+                if (verifier.verify(message, signature, 'utf8', 'base64')) {
+                    return true;
+                }
+            } catch (error) {
+                log.info('ItemProperties.verifySignature', error);
+            }
+        }
+        return false;
+    }
+
+    static getSignatureData(props: ItemProperties): string
+    {
         let signed = as.String(props[Pid.Signed], '');
-        let signature = as.String(props[Pid.SignatureRsa], '');
-        if (signed != '' && signature != '') {
+        if (signed != '') {
             let pids = signed.split(' ');
             let message = '';
             for (let i = 0; i < pids.length; i++) {
                 let pid = pids[i];
                 let value = as.String(props[pid], '');
                 message += (message != '' ? ' | ' : '') + pid + '=' + value;
-
-                if (publicKey != '') {
-                    try {
-                        let verifier = new NodeRSA(publicKey);
-                        if (verifier.verify(message, signature, 'utf8', 'base64')) {
-                            return true;
-                        }
-                    } catch (error) {
-                        log.info('ItemProperties.verifySignature', error);
-                    }
-
-                }
             }
+            return message;
         }
-        return false;
+        return '';
     }
 }
 
