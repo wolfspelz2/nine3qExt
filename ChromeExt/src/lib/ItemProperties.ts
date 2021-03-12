@@ -8,6 +8,7 @@ export class Pid
     static readonly Name = 'Name';
     static readonly Label = 'Label';
     static readonly Description = 'Description';
+    static readonly Reference = 'Reference';
     static readonly Template: 'Template';
     static readonly OwnerId = 'OwnerId';
     static readonly OwnerName = 'OwnerName';
@@ -40,7 +41,6 @@ export class Pid
     static readonly ClaimAspect = 'ClaimAspect';
     static readonly ClaimStrength = 'ClaimStrength';
     static readonly ClaimUrl = 'ClaimUrl';
-    static readonly ClaimOwnerAddress = 'ClaimOwnerAddress';
     static readonly PointsAspect = 'PointsAspect';
     static readonly SettingsAspect = 'SettingsAspect';
     static readonly AvatarAspect = 'AvatarAspect';
@@ -63,6 +63,7 @@ export class Pid
     static readonly Signed = 'Signed';
     static readonly SignatureRsa = 'SignatureRsa';
     static readonly Web3BasedAspect = 'Web3BasedAspect';
+    static readonly Web3BasedOwner = 'Web3BasedOwner';
     static readonly Web3WalletAspect = 'Web3WalletAspect';
     static readonly Web3WalletAddress = 'Web3WalletAddress';
     static readonly Web3WalletProvider = 'Web3WalletProvider';

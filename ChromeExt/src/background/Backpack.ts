@@ -13,6 +13,7 @@ import { Utils } from '../lib/Utils';
 import { ClaimsContract } from '../lib/ClaimsContract';
 import { BackgroundApp } from './BackgroundApp';
 import { Item } from './Item';
+import { Environment } from '../lib/Environment';
 const Web3 = require('web3');
 
 export class Backpack
@@ -114,48 +115,50 @@ export class Backpack
                 let contract = new web3.eth.Contract(ClaimsContract.ABI, contractAddress);
                 let numberOfItems = await contract.methods.balanceOf(ownerAddress).call();
                 for (let i = 0; i < numberOfItems; i++) {
-                    // let tokenId = await contract.methods.getTokenIdByOwnerAndIndex(ownerAddress, i).call();
                     let tokenId = await contract.methods.tokenOfOwnerByIndex(ownerAddress, i).call();
-                    // let tokenData = await contract.methods.getTokenData(tokenId).call();
                     let tokenUri = await contract.methods.tokenURI(tokenId).call();
+
+                    if (Environment.isDevelopment()) {
+                        tokenUri = tokenUri.replace('https://webit.vulcan.weblin.com/', 'http://localhost:5000/');
+                        tokenUri = tokenUri.replace('https://item.weblin.com/', 'http://localhost:5000/');
+                    }
+
                     let response = await fetch(tokenUri);
 
                     if (!response.ok) {
                         log.info('backpack.loadWeb3Items', 'fetch failed', 'tokenId', tokenId, 'tokenUri', tokenUri, response);
                     } else {
                         const metadata = await response.json();
-
-                        let domain = '';
-                        let strength = 0;
-                        let imageUrl = '';
                         let data = metadata.data;
                         if (data) {
-                            domain = as.String(data[Pid.ClaimUrl], '');
-                            strength = as.Int(data[Pid.ClaimStrength], 0);
-                            imageUrl = as.String(data[Pid.ImageUrl], Config.get('backpack.defaultCryptoClaimImage', ''));
+                            data[Pid.Web3BasedOwner] = ownerAddress;
+
+                            let template = as.String(data['Template'], '');
+                            switch (template) {
+                                case 'CryptoClaim': {
+                                    let domain = as.String(data[Pid.ClaimUrl], '');
+                                    let existingItems = this.findItems(props =>
+                                    {
+                                        return as.Bool(props[Pid.Web3BasedAspect], false) && as.Bool(props[Pid.ClaimAspect], false) && as.String(props[Pid.ClaimUrl], '') == domain;
+                                    });
+                                    if (existingItems.length == 0) {
+                                        let item = await this.createItemByTemplate(template, data);
+                                        knownIds.push(item.getProperties()[Pid.Id]);
+                                    } else {
+                                        for (let i = 0; i < existingItems.length; i++) {
+                                            knownIds.push(existingItems[i].getProperties()[Pid.Id]);
+                                        }
+                                    }
+                                } break;
+                                default:
+                                    log.info('Backpack.loadWeb3Items', 'Not supported', data);
+                                    break;
+                            }
+
+                        } else {
+                            log.info('Backpack.loadWeb3Items', 'no data for', 'tokenId', tokenId, 'tokenUri', tokenUri);
                         }
 
-                        if (domain == '' || strength == 0) {
-                            log.info('Backpack.loadWeb3Items', 'no data for', 'tokenId', tokenId, 'tokenUri', tokenUri);
-                        } else {
-                            let claimUrlItems = this.findItems(props =>
-                            {
-                                return (as.Bool(props[Pid.ClaimAspect], false) && as.String(props[Pid.ClaimUrl], '') == domain);
-                            });
-                            if (claimUrlItems.length == 0) {
-                                let item = await this.createItemByTemplate('CryptoClaim', {
-                                    [Pid.ClaimUrl]: domain,
-                                    [Pid.ClaimStrength]: '' + strength,
-                                    [Pid.ImageUrl]: imageUrl,
-                                    [Pid.ClaimOwnerAddress]: ownerAddress
-                                });
-                                knownIds.push(item.getProperties()[Pid.Id]);
-                            } else {
-                                for (let i = 0; i < claimUrlItems.length; i++) {
-                                    knownIds.push(claimUrlItems[i].getProperties()[Pid.Id]);
-                                }
-                            }
-                        }
                     }
                 }
             } catch (error) {
