@@ -51,7 +51,6 @@ export class Window
             ).get(0);
 
             let contentElem = <HTMLElement>$('<div class="n3q-base n3q-window-content" data-translate="children" />').get(0);
-            let resizeElem = resizable ? <HTMLElement>$('<div class="n3q-base n3q-window-resize n3q-window-resize-se"/>').get(0) : null;
 
             $(titleElem).append(titleTextElem);
             $(titleBarElem).append(titleElem);
@@ -60,6 +59,8 @@ export class Window
             $(windowElem).append(titleBarElem);
 
             $(windowElem).append(contentElem);
+
+            let resizeElem = resizable ? <HTMLElement>$('<div class="n3q-base n3q-window-resize n3q-window-resize-se"/>').get(0) : null;
             $(windowElem).append(resizeElem);
 
             this.contentElem = contentElem;

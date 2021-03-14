@@ -325,7 +325,7 @@ export class ContentApp
     //     }
     // }
 
-   sendMessageToScreenItemFrame(itemId: string, message: any)
+    sendMessageToScreenItemFrame(itemId: string, message: any)
     {
         let roomItem = this.room.getItem(itemId);
         if (roomItem) {
@@ -720,7 +720,7 @@ export class ContentApp
     public static LayerWindow = 50;
     public static LayerWindowContent = 51;
     public static LayerDrag = 99;
-    private static layerSize = 10000000;
+    private static layerSize = 10 * 1000 * 1000;
     private frontIndex: { [layer: number]: number; } = {};
     toFront(elem: HTMLElement, layer: number)
     {

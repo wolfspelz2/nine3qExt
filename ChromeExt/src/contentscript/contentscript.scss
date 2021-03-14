@@ -774,6 +774,7 @@
 
     div.n3q-window-resize {
         position: absolute;
+        z-index: 1000000000;
     }
 
     div.n3q-window-resize-se {
