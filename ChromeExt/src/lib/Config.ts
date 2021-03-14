@@ -132,9 +132,8 @@ export class Config
         },
         iframeApi: {
             messageMagic: 'a67igu67puz_iframeApi',
-        },
-        w2wMigration: {
-            messageMagic: 'hbv67u5rf_w2wMigrate',
+            messageMagicW2WMigration: 'hbv67u5rf_w2wMigrate',
+            messageMagicCreateCryptoWallet: 'tr67rftghg_CreateCryptoWallet',
         },
         backpack: {
             enabled: true,
@@ -182,8 +181,9 @@ export class Config
                 ETH: 'https://eth-mainnet.alchemyapi.io/v2/0_7o5JNttyfeUapKv8oI58Nslg5cwkDh',
                 rinkeby: 'https://eth-rinkeby.alchemyapi.io/v2/r2gUsunv9dqoULzKRpZsIwo2MgOIYkO9',
             },
-            contract: {
-                address: '0x40F9db7FB1C1Cd6562DB951389a477Bf0e54F0b3',
+            weblinItemContract: {
+                address: '0xed3efa74b416566c9716280e05bebee04f3fbf47', // mit properties
+                //address: '0x40F9db7FB1C1Cd6562DB951389a477Bf0e54F0b3',
                 abi: [
                     {
                         "name": "balanceOf",
@@ -212,7 +212,7 @@ export class Config
                     },
                 ],
             },
-            testContract: {
+            weblinItemContractTest: {
                 address: '0xAc482b20c016D0B5e44c03aD51d306e4d26939D9',
                 abi: [
                     {
@@ -334,6 +334,8 @@ export class Config
                     'Toast.Refuses to join the private videoconference': 'Refuses to join the videoconference',
                     'Toast.Accept': 'Accept',
                     'Toast.Decline': 'Decline',
+                    'Toast.Duplicate item': 'Duplicate item',
+                    'Toast.This would create an identical item': 'This would create an identical item',
 
                     // ['ErrorFact.' + ItemException.Fact[ItemException.Fact.Error]]: 'Error',
                     'ErrorFact.Error': 'Error',
@@ -480,6 +482,8 @@ export class Config
                     'Toast.Refuses to join the private videoconference': 'Lehnt die Videokonferenz ab',
                     'Toast.Accept': 'Annehmen',
                     'Toast.Decline': 'Ablehnen',
+                    'Toast.Duplicate item': 'Doppelter Gegenstand',
+                    'Toast.This would create an identical item': 'Das würde einen identischen Gegenstand nochmal erzeugen',
 
                     'ErrorFact.Error': 'Fehler',
                     'ErrorFact.NotRezzed': 'Ablegen fehlgeschlagen',

@@ -79,22 +79,23 @@ export class Backpack
         let wallets = this.findItems(props => { return (as.Bool(props[Pid.Web3WalletAspect], false)); });
         if (wallets.length == 0) {
             log.info('backpack.loadWeb3Items', 'No wallet item');
-        } else {
-            for (let walletsIdx = 0; walletsIdx < wallets.length; walletsIdx++) {
-                let wallet = wallets[walletsIdx];
-                let ownerAddress = wallet.getProperties()[Pid.Web3WalletAddress];
-                let network = wallet.getProperties()[Pid.Web3WalletNetwork];
-                let httpProvider = Config.get('web3.provider.' + network, '');
-                if (httpProvider == '') {
-                    log.info('backpack.loadWeb3Items', 'No httpProvider for network', network);
-                } else {
-                    let claimItemIdsOfWallet = await this.loadWeb3ItemsFromWallet(ownerAddress, httpProvider);
+            return;
+        }
 
-                    for (let claimItemIdsOfWalletIdx = 0; claimItemIdsOfWalletIdx < claimItemIdsOfWallet.length; claimItemIdsOfWalletIdx++) {
-                        let id = claimItemIdsOfWallet[claimItemIdsOfWalletIdx];
-                        const index = unverifiedWeb3ItemIds.indexOf(id, 0);
-                        if (index > -1) { unverifiedWeb3ItemIds.splice(index, 1); }
-                    }
+        for (let walletsIdx = 0; walletsIdx < wallets.length; walletsIdx++) {
+            let wallet = wallets[walletsIdx];
+            let ownerAddress = wallet.getProperties()[Pid.Web3WalletAddress];
+            let network = wallet.getProperties()[Pid.Web3WalletNetwork];
+            let httpProvider = Config.get('web3.provider.' + network, '');
+            if (httpProvider == '') {
+                log.info('backpack.loadWeb3Items', 'No httpProvider for network', network);
+            } else {
+                let claimItemIdsOfWallet = await this.loadWeb3ItemsFromWallet(ownerAddress, httpProvider);
+
+                for (let claimItemIdsOfWalletIdx = 0; claimItemIdsOfWalletIdx < claimItemIdsOfWallet.length; claimItemIdsOfWalletIdx++) {
+                    let id = claimItemIdsOfWallet[claimItemIdsOfWalletIdx];
+                    const index = unverifiedWeb3ItemIds.indexOf(id, 0);
+                    if (index > -1) { unverifiedWeb3ItemIds.splice(index, 1); }
                 }
             }
         }
@@ -106,78 +107,94 @@ export class Backpack
 
     async loadWeb3ItemsFromWallet(ownerAddress: string, httpProvider: string): Promise<Array<string>>
     {
+        if (ownerAddress == '' || httpProvider == '') {
+            log.info('backpack.loadWeb3ItemsFromWallet', 'Missing ownerAddress=', ownerAddress, 'httpProvider=', httpProvider);
+            return [];
+        }
+
         let knownIds: Array<string> = [];
+        try {
+            let web3 = new Web3(new Web3.providers.HttpProvider(httpProvider));
+            let contractConfig = Config.get('web3.weblinItemContract', {});
+            let contractAddress = contractConfig.address;
+            let contractABI = contractConfig.abi;
+            if (contractAddress == null || contractABI == null) {
+                log.info('backpack.loadWeb3ItemsFromWallet', 'Missing contract config');
+            } else {
+                let contract = new web3.eth.Contract(contractABI, contractAddress);
+                let numberOfItems = await contract.methods.balanceOf(ownerAddress).call();
+                for (let i = 0; i < numberOfItems; i++) {
+                    let tokenId = await contract.methods.tokenOfOwnerByIndex(ownerAddress, i).call();
+                    let tokenUri = await contract.methods.tokenURI(tokenId).call();
 
-        // let httpProvider = Config.get('test.httpProvider', '');
-        if (ownerAddress != '' && httpProvider != '') {
+                    if (Config.get('config.clusterName', 'prod') == 'dev') {
+                        tokenUri = tokenUri.replace('https://webit.vulcan.weblin.com/', 'http://localhost:5000/');
+                        tokenUri = tokenUri.replace('https://item.weblin.com/', 'http://localhost:5000/');
+                    }
 
-            try {
+                    let response = await fetch(tokenUri);
 
-                let web3 = new Web3(new Web3.providers.HttpProvider(httpProvider));
-                let contractConfig = Config.get('web3.contract', {});
-                let contractAddress = contractConfig.address;
-                let contractABI = contractConfig.abi;
-                if (contractAddress == null || contractABI == null) {
-                    log.info('backpack.loadWeb3Items', 'Missing contract config');
-                } else {
-                    let contract = new web3.eth.Contract(contractABI, contractAddress);
-                    let numberOfItems = await contract.methods.balanceOf(ownerAddress).call();
-                    for (let i = 0; i < numberOfItems; i++) {
-                        let tokenId = await contract.methods.tokenOfOwnerByIndex(ownerAddress, i).call();
-                        let tokenUri = await contract.methods.tokenURI(tokenId).call();
+                    if (!response.ok) {
+                        log.info('backpack.loadWeb3ItemsFromWallet', 'fetch failed', 'tokenId', tokenId, 'tokenUri', tokenUri, response);
+                    } else {
+                        const metadata = await response.json();
 
-                        if (Config.get('config.clusterName', 'prod') == 'dev') {
-                            tokenUri = tokenUri.replace('https://webit.vulcan.weblin.com/', 'http://localhost:5000/');
-                            tokenUri = tokenUri.replace('https://item.weblin.com/', 'http://localhost:5000/');
+                        let ids = await this.getOrCreateWeb3ItemFromMetadata(ownerAddress, metadata);
+                        for (let i = 0; i < ids.length; i++) {
+                            knownIds.push(ids[i]);
                         }
 
-                        let response = await fetch(tokenUri);
-
-                        if (!response.ok) {
-                            log.info('backpack.loadWeb3Items', 'fetch failed', 'tokenId', tokenId, 'tokenUri', tokenUri, response);
-                        } else {
-                            const metadata = await response.json();
-                            let data = metadata.data;
-                            if (data) {
-                                data[Pid.Web3BasedOwner] = ownerAddress;
-
-                                let template = as.String(data[Pid.Template], '');
-                                switch (template) {
-                                    case 'CryptoClaim': {
-                                        let domain = as.String(data[Pid.ClaimUrl], '');
-                                        let existingItems = this.findItems(props =>
-                                        {
-                                            return as.Bool(props[Pid.Web3BasedAspect], false) && as.Bool(props[Pid.ClaimAspect], false) && as.String(props[Pid.ClaimUrl], '') == domain;
-                                        });
-                                        if (existingItems.length == 0) {
-                                            let item = await this.createItemByTemplate(template, data);
-                                            let itemId = item.getProperties()[Pid.Id];
-                                            log.info('Backpack.loadWeb3Items', 'Creating', template, itemId);
-                                            knownIds.push(itemId);
-                                        } else {
-                                            for (let i = 0; i < existingItems.length; i++) {
-                                                let item = existingItems[i];
-                                                knownIds.push(item.getProperties()[Pid.Id]);
-                                                let template = item.getProperties()[Pid.Template];
-                                                let itemId = item.getProperties()[Pid.Id];
-                                                log.info('Backpack.loadWeb3Items', 'Confirming', template, itemId);
-                                            }
-                                        }
-                                    } break;
-                                    default:
-                                        log.info('Backpack.loadWeb3Items', 'Not supported', data);
-                                        break;
-                                }
-
-                            } else {
-                                log.info('Backpack.loadWeb3Items', 'no data for', 'tokenId', tokenId, 'tokenUri', tokenUri);
-                            }
-                        }
                     }
                 }
-            } catch (error) {
-                log.info(error);
             }
+        } catch (error) {
+            log.info(error);
+        }
+
+        return knownIds;
+    }
+
+    async getOrCreateWeb3ItemFromMetadata(ownerAddress: string, metadata: any): Promise<Array<string>>
+    {
+        let data = metadata.data;
+        if (data == null) {
+            log.info('backpack.getOrCreateWeb3ItemFromMetadata', 'No item creation data in', metadata);
+            return [];
+        }
+
+        let knownIds: Array<string> = [];
+
+        data[Pid.Web3BasedOwner] = ownerAddress;
+
+        let template = as.String(data[Pid.Template], '');
+        switch (template) {
+
+            case 'CryptoClaim': {
+                let domain = as.String(data[Pid.ClaimUrl], '');
+                let existingItems = this.findItems(props =>
+                {
+                    return as.Bool(props[Pid.Web3BasedAspect], false) && as.Bool(props[Pid.ClaimAspect], false) && as.String(props[Pid.ClaimUrl], '') == domain;
+                });
+                if (existingItems.length == 0) {
+                    try {
+                        let item = await this.createItemByTemplate(template, data);
+                        knownIds.push(item.getId());
+                        log.debug('Backpack.getOrCreateWeb3ItemFromMetadata', 'Creating', template, item.getId());
+                    } catch (error) {
+                        log.info(error);
+                    }
+                } else {
+                    for (let i = 0; i < existingItems.length; i++) {
+                        let item = existingItems[i];
+                        knownIds.push(item.getId());
+                        log.debug('Backpack.getOrCreateWeb3ItemFromMetadata', 'Confirming', template, item.getId());
+                    }
+                }
+            } break;
+
+            default:
+                log.info('Backpack.getOrCreateWeb3ItemFromMetadata', 'Not supported', data);
+                break;
         }
 
         return knownIds;

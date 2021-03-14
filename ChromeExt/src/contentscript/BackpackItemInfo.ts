@@ -41,6 +41,11 @@ export class BackpackItemInfo
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops n3q-backpackiteminfo n3q-shadow-small" data-translate="children" />').get(0);
 
+        // Fix (jquery?) bug: 
+        // Uncaught TypeError: Cannot read property 'ownerDocument' of undefined
+        // at jQuery.fn.init.$.fn.scrollParent (scroll-parent.js:41)
+        $(this.elem).on('mousemove', ev => { ev.stopPropagation(); });
+
         this.update();
 
         $(this.getElem()).on({

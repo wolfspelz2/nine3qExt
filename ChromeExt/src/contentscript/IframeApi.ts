@@ -6,7 +6,7 @@ import { ItemException } from '../lib/ItemExcption';
 import { Pid } from '../lib/ItemProperties';
 import { Utils } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
-import { SimpleErrorToast } from './Toast';
+import { SimpleErrorToast, SimpleToast } from './Toast';
 
 export class IframeApi
 {
@@ -51,11 +51,20 @@ export class IframeApi
 
         let request = <WeblinClientApi.Request>ev.data;
 
-        if (request[Config.get('w2wMigration.messageMagic', 'hbv67u5rf_w2wMigrate')]) {
+        if (request[Config.get('iframeApi.messageMagicW2WMigration', 'hbv67u5rf_w2wMigrate')]) {
             let cid = (<any>request).cid;
             if (cid) {
                 let nickname = as.String((<any>request).nickname, cid);
-                /* await */ this.handle_Migration(cid, nickname);
+                /* await */ this.handle_W2WMigration(cid, nickname);
+            }
+            return;
+        }
+
+        if (request[Config.get('iframeApi.messageMagicCreateCryptoWallet', 'tr67rftghg_CreateCryptoWallet')]) {
+            let address = (<any>request).address;
+            let network = (<any>request).network;
+            if (address != null && network != null) {
+                /* await */ this.handle_CreateCryptoWallet(address, network);
             }
             return;
         }
@@ -81,7 +90,7 @@ export class IframeApi
         // }
     }
 
-    async handle_Migration(cid: string, nickname: string)
+    async handle_W2WMigration(cid: string, nickname: string)
     {
         try {
             let name = Utils.randomString(29);
@@ -94,7 +103,29 @@ export class IframeApi
             await BackgroundMessage.executeBackpackItemAction(itemId, 'Migration.CreateItems', {}, [itemId]);
             await BackgroundMessage.deleteBackpackItem(itemId, {});
         } catch (ex) {
-            log.info('IframeApi.handle_Migration', ex);
+            log.info('IframeApi.handle_W2WMigration', ex);
+        }
+    }
+
+    async handle_CreateCryptoWallet(address: string, network: string)
+    {
+        try {
+
+            let propSet = await BackgroundMessage.findBackpackItemProperties({ [Pid.Web3WalletAspect]: 'true', [Pid.Web3WalletAddress]: address, [Pid.Web3WalletNetwork]: network });
+            for (let id in propSet) {
+                let toast = new SimpleToast(this.app, 'backpack-duplicateWalletItem', Config.get('room.errorToastDurationSec', 8), 'warning', 'Duplicate item', this.app.translateText('Toast.This would create an identical item')).show();
+                return;
+            }
+
+            let nick = this.app.getRoom().getMyNick();
+            let participant = this.app.getRoom().getParticipant(nick);
+            let x = participant.getPosition() + 120;
+            let props = await BackgroundMessage.createBackpackItemFromTemplate('CryptoWallet', { [Pid.Web3WalletAddress]: address, [Pid.Web3WalletNetwork]: network });
+            let itemId = props[Pid.Id];
+            await BackgroundMessage.rezBackpackItem(itemId, this.app.getRoom().getJid(), x, this.app.getRoom().getDestination(), {});
+            await BackgroundMessage.loadWeb3BackpackItems();
+        } catch (ex) {
+            log.info('IframeApi.handle_CreateCryptoWallet', ex);
         }
     }
 

@@ -191,6 +191,11 @@ export class BackgroundMessage
         return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.modifyBackpackItemProperties.name, 'itemId': itemId, 'changed': changed, 'deleted': deleted, 'options': options });
     }
 
+    static loadWeb3BackpackItems(): Promise<void>
+    {
+        return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.loadWeb3BackpackItems.name });
+    }
+
     static rezBackpackItem(itemId: string, roomJid: string, x: number, destination: string, options: ItemChangeOptions): Promise<void>
     {
         return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.rezBackpackItem.name, 'itemId': itemId, 'roomJid': roomJid, 'x': x, 'destination': destination, 'options': options });

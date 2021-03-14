@@ -211,6 +211,10 @@ export class BackgroundApp
                 return this.handle_modifyBackpackItemProperties(message.itemId, message.changed, message.deleted, message.options, sendResponse);
             } break;
 
+            case BackgroundMessage.loadWeb3BackpackItems.name: {
+                return this.loadWeb3BackpackItems(sendResponse);
+            } break;
+
             case BackgroundMessage.rezBackpackItem.name: {
                 return this.handle_rezBackpackItem(message.itemId, message.roomJid, message.x, message.destination, message.options, sendResponse);
             } break;
@@ -492,6 +496,19 @@ export class BackgroundApp
     {
         if (this.backpack) {
             this.backpack.modifyItemProperties(itemId, changed, deleted, options)
+                .then(() => { sendResponse(new BackgroundSuccessResponse()); })
+                .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
+            return true;
+        } else {
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotChanged, ItemException.Reason.ItemsNotAvailable)));
+        }
+        return false;
+    }
+
+    loadWeb3BackpackItems(sendResponse: (response?: any) => void): boolean
+    {
+        if (this.backpack) {
+            this.backpack.loadWeb3Items()
                 .then(() => { sendResponse(new BackgroundSuccessResponse()); })
                 .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
             return true;
