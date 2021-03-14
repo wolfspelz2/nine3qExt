@@ -37,34 +37,17 @@ export class BackpackItemInfo
         if (this.onClose) { this.onClose(); }
     }
 
-    private pinned = false;
-    isPinned() { return this.pinned; }
-    pin()
-    {
-        this.pinned = true;
-        $(this.elem).addClass('n3q-pinned');
-    }
-    unPin()
-    {
-        this.pinned = false;
-        $(this.elem).removeClass('n3q-pinned');
-    }
-
     setup(): void
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops n3q-backpackiteminfo n3q-shadow-small" data-translate="children" />').get(0);
-        // $(this.elem).css({ display: 'none' });
-
-        $(this.elem).on('mousemove', ev =>
-        {
-            ev.stopPropagation();
-        });
 
         this.update();
 
-        $(this.getElem()).click(ev =>
-        {
-            ev.stopPropagation();
+        $(this.getElem()).on({
+            click: (ev) => 
+            {
+                ev.stopPropagation();
+            }
         });
 
         $(this.backpackItem.getElem()).append(this.elem);

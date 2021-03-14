@@ -26,6 +26,9 @@ export class BackpackItem
     private inDrag: boolean = false;
     private info: BackpackItemInfo = null;
 
+    private mousedownX: number;
+    private mousedownY: number;
+
     getElem(): HTMLElement { return this.elem; }
     getProperties(): ItemProperties { return this.properties; }
 
@@ -53,52 +56,28 @@ export class BackpackItem
 
         $(paneElem).append(this.elem);
 
-        $(this.getElem()).mouseenter(ev =>
-        {
-            if (this.info == null || !this.info.isPinned()) {
-                this.info?.close();
-                this.info = new BackpackItemInfo(this.app, this, () => { this.info = null; });
-                this.info.show(ev.offsetX, ev.offsetY);
-                this.app.toFront(this.info.getElem(), ContentApp.LayerWindowContent);
-            }
-        });
-        $(this.getElem()).mousemove(ev =>
-        {
-            if (this.info && !this.info.isPinned()) {
-                this.info.show(ev.offsetX, ev.offsetY);
-            }
-        });
-        $(this.getElem()).mouseleave(ev =>
-        {
-            if (this.info) {
-                this.info?.close();
-            }
-        });
-        $(this.getElem()).click(ev =>
-        {
-            this.app.toFront(this.getElem(), ContentApp.LayerWindowContent);
-            if (this.info) {
-                if (!this.info.isPinned()) {
-                    this.info.pin();
+        $(this.elem).on({
+            mousedown: (ev) =>
+            {
+                this.mousedownX = ev.clientX;
+                this.mousedownY = ev.clientY;
+            },
+            click: (ev) => 
+            {
+                if (Math.abs(this.mousedownX - ev.clientX) > 2 || Math.abs(this.mousedownY - ev.clientY) > 2) {
+                    return;
+                }
+
+                this.app.toFront(this.getElem(), ContentApp.LayerWindowContent);
+                if (this.info) {
+                    this.info?.close();
                 } else {
-                    this.info.unPin();
+                    this.info = new BackpackItemInfo(this.app, this, () => { this.info = null; });
+                    this.info.show(ev.offsetX, ev.offsetY);
+                    this.app.toFront(this.info.getElem(), ContentApp.LayerWindowContent);
                 }
             }
         });
-
-        // $(this.elem).on({
-        //     click: async (ev) => 
-        //     {
-        //         // if (ev.target == this.elem || (this.info != null && ev.target == this.info.getElem())) {
-        //         if (this.info) {
-        //             this.info.close();
-        //         } else {
-        //             this.info = new BackpackItemInfo(this.app, this, () => { this.info = null; });
-        //             this.info.show(ev.offsetX, ev.offsetY);
-        //         }
-        //         // }
-        //     }
-        // });
 
         $(this.elem).draggable({
             scroll: false,
@@ -112,7 +91,7 @@ export class BackpackItem
                         return null;
                     }
                 }
-                
+
                 if (this.info) { this.info.close(); }
                 let dragElem = $('<div class="n3q-base n3q-backpack-drag" />').get(0);
                 let itemElem = $(this.elem).clone().get(0);
