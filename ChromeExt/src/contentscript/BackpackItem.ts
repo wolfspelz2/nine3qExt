@@ -39,8 +39,9 @@ export class BackpackItem
 
         let size = Config.get('inventory.itemSize', 64);
 
-        let x = this.getPseudoRandomCoordinate(paneElem.offsetWidth, this.imageWidth, padding, itemId, 11345);
-        let y = this.getPseudoRandomCoordinate(paneElem.offsetHeight, this.imageWidth, padding, itemId, 13532);
+        let pos = this.backpackWindow.getFreeCoordinate();
+        let x = pos.x; //this.getPseudoRandomCoordinate(paneElem.offsetWidth, this.imageWidth, padding, itemId, 11345);
+        let y = pos.y; //this.getPseudoRandomCoordinate(paneElem.offsetHeight, this.imageWidth, padding, itemId, 13532);
 
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item" data-id="' + this.itemId + '" />').get(0);
         this.imageElem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item-image" />').get(0);
@@ -367,14 +368,16 @@ export class BackpackItem
         if (properties[Pid.InventoryX] && properties[Pid.InventoryY]) {
             var x = as.Int(properties[Pid.InventoryX], -1);
             var y = as.Int(properties[Pid.InventoryY], -1);
-            if (x >= 0 && y >= 0 && (x != this.x || y != this.y)) {
+
+            if (x < 0 || y < 0) {
+                let pos = this.backpackWindow.getFreeCoordinate();
+                x = pos.x;
+                y = pos.y;
+            }
+
+            if (x != this.x || y != this.y) {
                 this.setPosition(x, y);
             }
-            // } else {
-            //     let point = this.getFreeCoordinate(properties[Pid.Id]);
-            //     let x = point.x;
-            //     let y = point.y;
-            //     this.setPosition(x, y);
         }
 
         this.properties = properties;

@@ -17,6 +17,7 @@ import { ItemException } from '../lib/ItemExcption';
 import { ItemExceptionToast, SimpleErrorToast, SimpleToast } from './Toast';
 import { RoomItem } from './RoomItem';
 import { Avatar } from './Avatar';
+import { FreeSpace } from './FreeSpace';
 
 export class BackpackWindow extends Window
 {
@@ -172,12 +173,32 @@ export class BackpackWindow extends Window
                 if (response && response.ok) {
                     this.populate(response.items);
                 }
+
+                // let pos = this.getFreeCoordinate();
+
             } catch (ex) {
 
             }
         }
     }
 
+    getFreeCoordinate(): { x: number, y: number }
+    {
+        let width = $(this.paneElem).width();
+        let height = $(this.paneElem).height();
+
+        let rects: Array<{ left: number, top: number, right: number, bottom: number }> = [];
+        for (let id in this.items) {
+            let itemElem = this.items[id].getElem();
+            rects.push({ left: $(itemElem).position().left, top: $(itemElem).position().top, right: $(itemElem).position().left + $(itemElem).width(), bottom: $(itemElem).position().top + $(itemElem).height() });
+        }
+
+        rects.push({ left: width - 50, top: 0, right: width, bottom: 50 });
+
+        let f = new FreeSpace(Math.max(10, Math.floor((width + height) / 2 / 64)), width, height, rects);
+        return f.getFreeCoordinate(null);
+        // return f.getFreeCoordinate(this.paneElem);
+    }
 
     populate(items: { [id: string]: ItemProperties; })
     {
