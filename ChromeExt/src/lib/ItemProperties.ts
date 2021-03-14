@@ -9,7 +9,7 @@ export class Pid
     static readonly Label = 'Label';
     static readonly Description = 'Description';
     static readonly Reference = 'Reference';
-    static readonly Template: 'Template';
+    static readonly Template = 'Template';
     static readonly OwnerId = 'OwnerId';
     static readonly OwnerName = 'OwnerName';
     static readonly IsRezable = 'IsRezable';
@@ -66,7 +66,7 @@ export class Pid
     static readonly Web3BasedOwner = 'Web3BasedOwner';
     static readonly Web3WalletAspect = 'Web3WalletAspect';
     static readonly Web3WalletAddress = 'Web3WalletAddress';
-    static readonly Web3WalletProvider = 'Web3WalletProvider';
+    static readonly Web3WalletNetwork = 'Web3WalletNetwork';
 
     static readonly TransferState_Source = 'Source';
     static readonly TransferState_Destination = 'Destination';

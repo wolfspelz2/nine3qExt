@@ -6,6 +6,8 @@ import { Utils } from './Utils';
 interface ConfigGetCallback { (value: any): void }
 interface ConfigSetCallback { (): void }
 
+// tslint:disable: quotemark
+
 export class Config
 {
     public static devConfigName = 'dev';
@@ -29,9 +31,6 @@ export class Config
         },
         test: {
             itemServiceRpcUrl: 'http://localhost:5000/rpc',
-            // ownerAddressEthereum: '0xFE3aFc544D6098379061a8833c175E603c267fa4',
-            ownerAddressEthereum: '0x93fcECB9774Fc975ddB15Bb44C00d9dc280755ce',
-            httpProvider: 'https://eth-rinkeby.alchemyapi.io/v2/r2gUsunv9dqoULzKRpZsIwo2MgOIYkO9',
         },
         client: {
             name: 'weblin.io',
@@ -179,8 +178,72 @@ export class Config
             }
         },
         web3: {
-            contractAddressEthereum: '0xAc482b20c016D0B5e44c03aD51d306e4d26939D9',
-            // httpProvider: 'https://kovan.infura.io/v3/8f39aa5fb9fb402e8e65a9c810e6cdb1',
+            provider: {
+                ETH: 'https://eth-mainnet.alchemyapi.io/v2/0_7o5JNttyfeUapKv8oI58Nslg5cwkDh',
+                rinkeby: 'https://eth-rinkeby.alchemyapi.io/v2/r2gUsunv9dqoULzKRpZsIwo2MgOIYkO9',
+            },
+            contract: {
+                address: '0x40F9db7FB1C1Cd6562DB951389a477Bf0e54F0b3',
+                abi: [
+                    {
+                        "name": "balanceOf",
+                        "constant": true,
+                        "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }],
+                        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "payable": false,
+                        "stateMutability": "view",
+                        "type": "function"
+                    },
+                    {
+                        "name": "tokenOfOwnerByIndex",
+                        "constant": true,
+                        "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "uint256", "name": "index", "type": "uint256" }],
+                        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "payable": false,
+                        "stateMutability": "view",
+                        "type": "function"
+                    },
+                    {
+                        "name": "tokenURI",
+                        "constant": true,
+                        "inputs": [{ "internalType": "uint256", "name": "_tokenId", "type": "uint256" }],
+                        "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+                        "payable": false,
+                        "stateMutability": "view",
+                        "type": "function"
+                    },
+                ],
+            },
+            testContract: {
+                address: '0xAc482b20c016D0B5e44c03aD51d306e4d26939D9',
+                abi: [
+                    {
+                        "name": "balanceOf",
+                        "constant": true,
+                        "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }],
+                        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                        "payable": false,
+                        "stateMutability": "view",
+                        "type": "function"
+                    },
+                    {
+                        "name": "tokenOfOwnerByIndex",
+                        "constant": true,
+                        "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "uint256", "name": "index", "type": "uint256" }],
+                        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                        "payable": false,
+                        "stateMutability": "view",
+                        "type": "function"
+                    },
+                    {
+                        "name": "tokenURI",
+                        "constant": true,
+                        "inputs": [{ "internalType": "uint256", "name": "_tokenId", "type": "uint256" }],
+                        "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+                        "payable": false,
+                        "stateMutability": "view",
+                        "type": "function"
+                    },
+                ],
+            },
         },
         i18n: {
             defaultLanguage: 'en-US',
@@ -327,7 +390,7 @@ export class Config
                     'ItemPid.DocumentTitle': 'Title',
                     'ItemPid.DeactivatableIsInactive': 'Deactivated',
                     'ItemPid.Web3WalletAddress': 'Wallet',
-                    'ItemPid.Web3WalletProvider': 'API',
+                    'ItemPid.Web3WalletNetwork': 'Network',
 
                     'ItemValue.true': 'Yes',
                     'ItemValue.false': 'No',
@@ -471,7 +534,7 @@ export class Config
                     'ItemPid.DocumentTitle': 'Titel',
                     'ItemPid.DeactivatableIsInactive': 'Deaktiviert',
                     'ItemPid.Web3WalletAddress': 'Wallet',
-                    'ItemPid.Web3WalletProvider': 'API',
+                    'ItemPid.Web3WalletNetwork': 'Netzwerk',
 
                     'ItemValue.true': 'Ja',
                     'ItemValue.false': 'Nein',
