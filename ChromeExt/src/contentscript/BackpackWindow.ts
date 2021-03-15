@@ -85,9 +85,10 @@ export class BackpackWindow extends Window
                             let itemName = props[Pid.Label] ?? props[Pid.Template];
                             let toast = new SimpleToast(this.app, 'backpack-reallyDelete', Config.get('backpack.deleteToastDurationSec', 1000), 'question', 'Really delete?', this.app.translateText('ItemLabel.' + itemName) + '\n' + droppedId);
                             toast.actionButton('Yes, delete item', () => { this.deleteItem(droppedId); toast.close(); })
-                            toast.actionButton('No, keep it', () => { toast.close(); })
+                            toast.actionButton('No, keep it', () => { this.itemVisibility(droppedId, true); toast.close(); })
                             toast.setDontShow(false);
-                            toast.show();
+                            toast.show(() => { this.itemVisibility(droppedId, true); });
+                            this.itemVisibility(droppedId, false);
 
                             ev.stopPropagation();
                         }
@@ -292,6 +293,16 @@ export class BackpackWindow extends Window
             await BackgroundMessage.deleteBackpackItem(itemId, {});
         } catch (ex) {
             new ItemExceptionToast(this.app, Config.get('room.errorToastDurationSec', 8), ex).show();
+        }
+    }
+
+    itemVisibility(itemId: string, state: boolean)
+    {
+        log.debug('BackpackWindow.hideItem', itemId);
+
+        let item = this.items[itemId];
+        if (item) {
+            item.setVisibility(state);
         }
     }
 }

@@ -8,16 +8,19 @@ import { ContentApp } from './ContentApp';
 
 export class Toast
 {
-    private elem: HTMLElement = null;
-    private dontShow = true;
+    protected elem: HTMLElement = null;
+    protected dontShow = true;
+    protected onClose: () => void;
 
     constructor(protected app: ContentApp, protected messageType: string, protected durationSec: number, protected iconType: string, protected bodyElem: HTMLElement)
     {
     }
 
-    show(): void { this.showAsync(); }
-    private async showAsync(): Promise<void>
+    show(onClose: () => void = null): void { this.showAsync(onClose); }
+    private async showAsync(onClose: () => void): Promise<void>
     {
+        this.onClose = onClose;
+
         let skip = await this.app.isDontShowNoticeType(this.messageType);
         if (skip) {
             this.close();
@@ -57,7 +60,7 @@ export class Toast
             $(footerElem).append(dontShowElem);
             $(footerElem).append(dontShowLabelElem);
         }
- 
+
         $(this.elem).append(footerElem);
 
         // let resizeElem = <HTMLElement>$('<div class="n3q-base n3q-window-resize n3q-window-resize-se"/>').get(0);
@@ -70,8 +73,8 @@ export class Toast
                 .draggable({
                     distance: 4,
                     containment: 'document',
-                    start: (ev: JQueryMouseEventObject, ui) => {},
-                    stop: (ev: JQueryMouseEventObject, ui) => {}
+                    start: (ev: JQueryMouseEventObject, ui) => { },
+                    stop: (ev: JQueryMouseEventObject, ui) => { }
                 });
         });
 
@@ -91,6 +94,7 @@ export class Toast
     close(): void
     {
         if (this.elem != null) {
+            if (this.onClose) { this.onClose(); }
             $(this.elem).stop();
             this.app.getDisplay().removeChild(this.elem);
             this.elem = null;

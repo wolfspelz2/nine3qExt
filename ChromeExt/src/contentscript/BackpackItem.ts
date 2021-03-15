@@ -171,6 +171,15 @@ export class BackpackItem
         $(this.elem).css({ 'left': (x - this.getWidth() / 2) + 'px', 'top': (y - this.getHeight() / 2) + 'px' });
     }
 
+    setVisibility(state: boolean)
+    {
+        if (state) {
+            $(this.elem).stop().fadeIn('fast');
+        } else {
+            $(this.elem).hide();
+        }
+    }
+
     onMouseClick(ev: JQuery.Event): void
     {
         this.app.toFront(this.elem, ContentApp.LayerWindowContent);
