@@ -87,10 +87,11 @@ export class Backpack
             let ownerAddress = wallet.getProperties()[Pid.Web3WalletAddress];
             let network = wallet.getProperties()[Pid.Web3WalletNetwork];
             let httpProvider = Config.get('web3.provider.' + network, '');
-            if (httpProvider == '') {
-                log.info('backpack.loadWeb3Items', 'No httpProvider for network', network);
+            let contractAddress = Config.get('web3.weblinItemContractAddess.' + network, '');
+            if (httpProvider == '' || contractAddress == '') {
+                log.info('backpack.loadWeb3Items', 'No httpProvider or contractAddress for network', network, 'httpProvider=', httpProvider, 'contractAddress=', contractAddress);
             } else {
-                let claimItemIdsOfWallet = await this.loadWeb3ItemsFromWallet(ownerAddress, httpProvider);
+                let claimItemIdsOfWallet = await this.loadWeb3ItemsFromWallet(ownerAddress, httpProvider, contractAddress);
 
                 for (let claimItemIdsOfWalletIdx = 0; claimItemIdsOfWalletIdx < claimItemIdsOfWallet.length; claimItemIdsOfWalletIdx++) {
                     let id = claimItemIdsOfWallet[claimItemIdsOfWalletIdx];
@@ -105,7 +106,7 @@ export class Backpack
         }
     }
 
-    async loadWeb3ItemsFromWallet(ownerAddress: string, httpProvider: string): Promise<Array<string>>
+    async loadWeb3ItemsFromWallet(ownerAddress: string, httpProvider: string, contractAddress: string): Promise<Array<string>>
     {
         if (ownerAddress == '' || httpProvider == '') {
             log.info('backpack.loadWeb3ItemsFromWallet', 'Missing ownerAddress=', ownerAddress, 'httpProvider=', httpProvider);
@@ -115,9 +116,7 @@ export class Backpack
         let knownIds: Array<string> = [];
         try {
             let web3 = new Web3(new Web3.providers.HttpProvider(httpProvider));
-            let contractConfig = Config.get('web3.weblinItemContract', {});
-            let contractAddress = contractConfig.address;
-            let contractABI = contractConfig.abi;
+            let contractABI = Config.get('web3.weblinItemContractAbi', []);
             if (contractAddress == null || contractABI == null) {
                 log.info('backpack.loadWeb3ItemsFromWallet', 'Missing contract config');
             } else {

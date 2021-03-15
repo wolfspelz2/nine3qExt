@@ -181,69 +181,37 @@ export class Config
                 ETH: 'https://eth-mainnet.alchemyapi.io/v2/0_7o5JNttyfeUapKv8oI58Nslg5cwkDh',
                 rinkeby: 'https://eth-rinkeby.alchemyapi.io/v2/r2gUsunv9dqoULzKRpZsIwo2MgOIYkO9',
             },
-            weblinItemContract: {
-                address: '0xed3efa74b416566c9716280e05bebee04f3fbf47', // mit properties
-                //address: '0x40F9db7FB1C1Cd6562DB951389a477Bf0e54F0b3',
-                abi: [
-                    {
-                        "name": "balanceOf",
-                        "constant": true,
-                        "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }],
-                        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "payable": false,
-                        "stateMutability": "view",
-                        "type": "function"
-                    },
-                    {
-                        "name": "tokenOfOwnerByIndex",
-                        "constant": true,
-                        "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "uint256", "name": "index", "type": "uint256" }],
-                        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "payable": false,
-                        "stateMutability": "view",
-                        "type": "function"
-                    },
-                    {
-                        "name": "tokenURI",
-                        "constant": true,
-                        "inputs": [{ "internalType": "uint256", "name": "_tokenId", "type": "uint256" }],
-                        "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
-                        "payable": false,
-                        "stateMutability": "view",
-                        "type": "function"
-                    },
-                ],
+            weblinItemContractAddess: {
+                ETH: '0x5792558410B253b96025f5C9dC412c4EDe5b5671',
+                rinkeby: '0xed3efa74b416566c9716280e05bebee04f3fbf47',
             },
-            weblinItemContractTest: {
-                address: '0xAc482b20c016D0B5e44c03aD51d306e4d26939D9',
-                abi: [
-                    {
-                        "name": "balanceOf",
-                        "constant": true,
-                        "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }],
-                        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-                        "payable": false,
-                        "stateMutability": "view",
-                        "type": "function"
-                    },
-                    {
-                        "name": "tokenOfOwnerByIndex",
-                        "constant": true,
-                        "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "uint256", "name": "index", "type": "uint256" }],
-                        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-                        "payable": false,
-                        "stateMutability": "view",
-                        "type": "function"
-                    },
-                    {
-                        "name": "tokenURI",
-                        "constant": true,
-                        "inputs": [{ "internalType": "uint256", "name": "_tokenId", "type": "uint256" }],
-                        "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
-                        "payable": false,
-                        "stateMutability": "view",
-                        "type": "function"
-                    },
-                ],
-            },
+            weblinItemContractAbi: [
+                {
+                    "name": "balanceOf",
+                    "constant": true,
+                    "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }],
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "payable": false,
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "name": "tokenOfOwnerByIndex",
+                    "constant": true,
+                    "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "uint256", "name": "index", "type": "uint256" }],
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "payable": false,
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "name": "tokenURI",
+                    "constant": true,
+                    "inputs": [{ "internalType": "uint256", "name": "_tokenId", "type": "uint256" }],
+                    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+                    "payable": false,
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+            ],
         },
         i18n: {
             defaultLanguage: 'en-US',
