@@ -116,9 +116,9 @@ export class Backpack
         let knownIds: Array<string> = [];
         try {
             let web3 = new Web3(new Web3.providers.HttpProvider(httpProvider));
-            let contractABI = Config.get('web3.weblinItemContractAbi', []);
-            if (contractAddress == null || contractABI == null) {
-                log.info('backpack.loadWeb3ItemsFromWallet', 'Missing contract config');
+            let contractABI = Config.get('web3.weblinItemContractAbi', null);
+            if (contractAddress == null || contractAddress == '' || contractABI == null) {
+                log.info('backpack.loadWeb3ItemsFromWallet', 'Missing contract config', 'contractAddress=', contractAddress, 'contractABI=', contractABI);
             } else {
                 let contract = new web3.eth.Contract(contractABI, contractAddress);
                 let numberOfItems = await contract.methods.balanceOf(ownerAddress).call();
