@@ -6,6 +6,9 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
+        ['1.1.0', 'hilite', [
+            ['Add', 'feature'],
+        ]],
         ['1.0.9', 'WeblinMigration Web3 RezButton', [
             ['Add', 'transparent iframe'],
             ['Add', 'Document window'],
