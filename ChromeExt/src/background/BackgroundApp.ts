@@ -31,6 +31,7 @@ export class BackgroundApp
 {
     private xmpp: any;
     private xmppConnected = false;
+    private xmppJid: string;
     private configUpdater: ConfigUpdater;
     private resource: string;
     private isReady: boolean = false;
@@ -42,6 +43,7 @@ export class BackgroundApp
     private readonly stanzaQ: Array<xml> = [];
     private readonly roomJid2tabId: Map<string, Array<number>> = new Map<string, Array<number>>();
     private readonly fullJid2TabWhichSentUnavailable: Map<string, number> = new Map<string, number>();
+    // private readonly fullJid2TabDeferredSentUnavailable: Map<string, number> = new Map<string, number>();
     private readonly iqStanzaTabId: Map<string, number> = new Map<string, number>();
     private readonly httpCacheData: Map<string, string> = new Map<string, string>();
     private readonly httpCacheTime: Map<string, number> = new Map<string, number>();
@@ -741,6 +743,7 @@ export class BackgroundApp
                     if (tabIds) {
                         if (tabIds.includes(tabId) && tabIds.length > 1) {
                             send = false;
+                            this.simulateUnavailableToTab(to, tabId);
                             this.removeRoomJid2TabId(room, tabId);
                         }
                     }
@@ -767,6 +770,15 @@ export class BackgroundApp
         } catch (error) {
             log.debug('BackgroundApp.handle_sendStanza', error);
         }
+    }
+
+    simulateUnavailableToTab(from: string, unavailableTabId: number)
+    {
+        let stanza = xml('presence', { type: 'unavailable', 'from': from, 'to': this.xmppJid });
+        window.setTimeout(() =>
+        {
+            ContentMessage.sendMessage(unavailableTabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
+        }, 100);
     }
 
     public sendStanza(stanza: xml): void
@@ -912,6 +924,8 @@ export class BackgroundApp
             this.xmpp.on('online', (address: any) =>
             {
                 log.info('BackgroundApp xmpp.on.online', address);
+
+                this.xmppJid = address;
 
                 this.sendPresence();
 
