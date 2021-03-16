@@ -12,7 +12,8 @@ import { Memory } from '../lib/Memory';
 import { Utils } from '../lib/Utils';
 import { BackgroundApp } from './BackgroundApp';
 import { Item } from './Item';
-const Web3 = require('web3');
+//const Web3 = require('web3');
+const Web3Eth = require('web3-eth');
 
 export class Backpack
 {
@@ -115,12 +116,12 @@ export class Backpack
 
         let knownIds: Array<string> = [];
         try {
-            let web3 = new Web3(new Web3.providers.HttpProvider(httpProvider));
+            let web3eth = new Web3Eth(new Web3Eth.providers.HttpProvider(httpProvider));
             let contractABI = Config.get('web3.weblinItemContractAbi', null);
             if (contractAddress == null || contractAddress == '' || contractABI == null) {
                 log.info('backpack.loadWeb3ItemsFromWallet', 'Missing contract config', 'contractAddress=', contractAddress, 'contractABI=', contractABI);
             } else {
-                let contract = new web3.eth.Contract(contractABI, contractAddress);
+                let contract = new web3eth.Contract(contractABI, contractAddress);
                 let numberOfItems = await contract.methods.balanceOf(ownerAddress).call();
                 for (let i = 0; i < numberOfItems; i++) {
                     let tokenId = await contract.methods.tokenOfOwnerByIndex(ownerAddress, i).call();
