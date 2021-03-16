@@ -146,12 +146,11 @@ export class Config
             itemInfoExtended: false,
             itemInfoDelay: 300,
             deleteToastDurationSec: 100,
-            loadWeb3Items: false,
+            loadWeb3Items: true,
             signaturePublicKey: '-----BEGIN PUBLIC KEY-----\n' +
                 'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAL8cd14UE+Fy2QV6rtvbBA3UGo8TllmX\n' +
                 'hcFcpuzkK2SpAbbNgA7IilojcAXsFsDFdCTTTWfofAEZvbGqSAQ0VJ8CAwEAAQ==\n' +
                 '-----END PUBLIC KEY-----\n',
-            defaultCryptoClaimImage: 'https://webit.vulcan.weblin.com/images/Items/Claim/CryptoClaim.png',
         },
         points: {
             enabled: true,
