@@ -719,6 +719,7 @@ export class BackgroundApp
 
         try {
             let xmlStanza: xml = Utils.jsObject2xmlObject(stanza);
+            let send = true;
 
             if (this.backpack) {
                 xmlStanza = this.backpack.stanzaOutFilter(xmlStanza);
@@ -736,7 +737,16 @@ export class BackgroundApp
                         log.debug('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId);
                     }
                 } else {
-                    this.fullJid2TabWhichSentUnavailable[to] = tabId;
+                    let tabIds = this.getRoomJid2TabIds(room);
+                    if (tabIds) {
+                        if (tabIds.includes(tabId) && tabIds.length > 1) {
+                            send = false;
+                            this.removeRoomJid2TabId(room, tabId);
+                        }
+                    }
+                    if (send) {
+                        this.fullJid2TabWhichSentUnavailable[to] = tabId;
+                    }
                 }
             }
 
@@ -750,7 +760,9 @@ export class BackgroundApp
                 }
             }
 
-            this.sendStanza(xmlStanza);
+            if (send) {
+                this.sendStanza(xmlStanza);
+            }
 
         } catch (error) {
             log.debug('BackgroundApp.handle_sendStanza', error);
