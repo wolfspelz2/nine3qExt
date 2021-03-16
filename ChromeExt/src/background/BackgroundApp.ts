@@ -43,7 +43,7 @@ export class BackgroundApp
     private readonly stanzaQ: Array<xml> = [];
     private readonly roomJid2tabId: Map<string, Array<number>> = new Map<string, Array<number>>();
     private readonly fullJid2TabWhichSentUnavailable: Map<string, number> = new Map<string, number>();
-    // private readonly fullJid2TabDeferredSentUnavailable: Map<string, number> = new Map<string, number>();
+    private readonly fullJid2TimerDeferredUnavailable: Map<string, number> = new Map<string, number>();
     private readonly iqStanzaTabId: Map<string, number> = new Map<string, number>();
     private readonly httpCacheData: Map<string, string> = new Map<string, string>();
     private readonly httpCacheTime: Map<string, number> = new Map<string, number>();
@@ -734,6 +734,12 @@ export class BackgroundApp
                 let nick = to.getResource();
 
                 if (as.String(stanza.attrs['type'], 'available') == 'available') {
+                    if (this.isDeferredUnavailable(to)) {
+                        log.debug('BackgroundApp.handle_sendStanza', 'cancel deferred unavailable and replay presence to tab', tabId);
+                        this.cancelDeferredUnavailable(to);
+                        this.replayPresenceToTab(tabId);
+                        send = false;
+                    }
                     if (!this.hasRoomJid2TabId(room, tabId)) {
                         this.addRoomJid2TabId(room, tabId);
                         log.debug('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId);
@@ -748,7 +754,12 @@ export class BackgroundApp
                         }
                     }
                     if (send) {
-                        this.fullJid2TabWhichSentUnavailable[to] = tabId;
+                        if (Config.get('xmpp.deferUnavailableSec', 0) > 0) {
+                            this.defereUnavailable(to);
+                            send = false;
+                        } else {
+                            this.fullJid2TabWhichSentUnavailable[to] = tabId;
+                        }
                     }
                 }
             }
@@ -771,6 +782,10 @@ export class BackgroundApp
             log.debug('BackgroundApp.handle_sendStanza', error);
         }
     }
+    
+    replayPresenceToTab(tabId: number)
+    {
+    }
 
     simulateUnavailableToTab(from: string, unavailableTabId: number)
     {
@@ -779,6 +794,36 @@ export class BackgroundApp
         {
             ContentMessage.sendMessage(unavailableTabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
         }, 100);
+    }
+
+    defereUnavailable(to: string)
+    {
+        if (this.fullJid2TimerDeferredUnavailable[to]) {
+            // wait for it
+        } else {
+            this.fullJid2TimerDeferredUnavailable[to] = window.setTimeout(() =>
+            {
+                delete this.fullJid2TimerDeferredUnavailable[to];
+                this.sendStanza(xml('presence', { type: 'unavailable', 'to': to }));
+            }, Config.get('xmpp.deferUnavailableSec', 0) * 1000);
+        }
+    }
+
+    isDeferredUnavailable(to: string)
+    {
+        if (this.fullJid2TimerDeferredUnavailable[to]) {
+            return true;
+        }
+        return false;
+    }
+
+    cancelDeferredUnavailable(to: string)
+    {
+        let timer = this.fullJid2TimerDeferredUnavailable[to];
+        if (timer) {
+            window.clearTimeout(timer);
+            delete this.fullJid2TimerDeferredUnavailable[to];
+        }
     }
 
     public sendStanza(stanza: xml): void
