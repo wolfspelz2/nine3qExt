@@ -17,13 +17,17 @@ export class BackpackItem
     private isFirstPresence: boolean = true;
     private elem: HTMLDivElement;
     private imageElem: HTMLDivElement;
+    private textElem: HTMLDivElement;
     private iconElem: HTMLImageElement;
     private x: number = 100;
     private y: number = 100;
-    private w: number = 64;
-    private h: number = 64;
+    private imageWidth: number = 64;
+    private imageHeight: number = 64;
     private inDrag: boolean = false;
     private info: BackpackItemInfo = null;
+
+    private mousedownX: number;
+    private mousedownY: number;
 
     getElem(): HTMLElement { return this.elem; }
     getProperties(): ItemProperties { return this.properties; }
@@ -34,13 +38,18 @@ export class BackpackItem
         let padding: number = Config.get('backpack.borderPadding', 4);
 
         let size = Config.get('inventory.itemSize', 64);
-        let x = this.getPseudoRandomCoordinate(paneElem.offsetWidth, this.w, padding, itemId, 11345);
-        let y = this.getPseudoRandomCoordinate(paneElem.offsetHeight, this.w, padding, itemId, 13532);
 
-        // this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item" data-id="' + this.itemId + '" />').get(0);
-        this.imageElem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item-image" />').get(0);
+        let pos = this.backpackWindow.getFreeCoordinate();
+        let x = pos.x; //this.getPseudoRandomCoordinate(paneElem.offsetWidth, this.imageWidth, padding, itemId, 11345);
+        let y = pos.y; //this.getPseudoRandomCoordinate(paneElem.offsetHeight, this.imageWidth, padding, itemId, 13532);
+
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item" data-id="' + this.itemId + '" />').get(0);
+        this.imageElem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item-image" />').get(0);
         $(this.elem).append(this.imageElem);
+        this.textElem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item-label" />').get(0);
+        $(this.elem).append(this.textElem);
+        let coverElem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item-cover" />').get(0);
+        $(this.elem).append(coverElem);
 
         this.setImage(imgDefaultItem);
         this.setSize(50, 50);
@@ -48,22 +57,26 @@ export class BackpackItem
 
         $(paneElem).append(this.elem);
 
-        $(this.elem).click(ev =>
-        {
-            this.onMouseClick(ev);
-        });
-
         $(this.elem).on({
-            click: async (ev) => 
+            mousedown: (ev) =>
             {
-                // if (ev.target == this.elem || (this.info != null && ev.target == this.info.getElem())) {
+                this.mousedownX = ev.clientX;
+                this.mousedownY = ev.clientY;
+            },
+            click: (ev) => 
+            {
+                if (Math.abs(this.mousedownX - ev.clientX) > 2 || Math.abs(this.mousedownY - ev.clientY) > 2) {
+                    return;
+                }
+
+                this.app.toFront(this.getElem(), ContentApp.LayerWindowContent);
                 if (this.info) {
-                    this.info.close();
+                    this.info?.close();
                 } else {
                     this.info = new BackpackItemInfo(this.app, this, () => { this.info = null; });
                     this.info.show(ev.offsetX, ev.offsetY);
+                    this.app.toFront(this.info.getElem(), ContentApp.LayerWindowContent);
                 }
-                // }
             }
         });
 
@@ -72,22 +85,28 @@ export class BackpackItem
             stack: '.n3q-item-icon',
             distance: 4,
             //opacity: 0.5,
-            helper: () =>
+            helper: (ev: JQueryMouseEventObject) =>
             {
+                if (ev.target) {
+                    if (!$(ev.target).hasClass('n3q-backpack-item-cover')) {
+                        return null;
+                    }
+                }
+
                 if (this.info) { this.info.close(); }
                 let dragElem = $('<div class="n3q-base n3q-backpack-drag" />').get(0);
                 let itemElem = $(this.elem).clone().get(0);
-                $(itemElem).css({ 'left': '0', 'top': '0', 'width': this.w, 'height': this.h });
+                $(itemElem).css({ 'left': '0', 'top': '0', 'width': this.getWidth() + 'px', 'height': this.getHeight() + 'px' });
                 $(dragElem).append(itemElem);
                 $(app.getDisplay()).append(dragElem);
-                app.toFront(itemElem);
+                // app.toFront(itemElem);
                 return dragElem;
             },
             // zIndex: 2000000000,
             containment: '#n3q',
             start: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
-                this.app.toFront(this.elem);
+                this.app.toFront(this.elem, ContentApp.LayerWindowContent);
                 this.inDrag = true;
                 $(this.elem).hide();
                 return this.onDragStart(ev, ui);
@@ -113,7 +132,7 @@ export class BackpackItem
 
     getX(): number { return this.x; }
     getY(): number { return this.y; }
-    geSize(): number { return this.w; }
+    geSize(): number { return this.imageWidth; }
 
     match(pid: string, value: any)
     {
@@ -130,23 +149,40 @@ export class BackpackItem
         $(this.imageElem).css({ 'background-image': 'url("' + url + '")' });
     }
 
-    setSize(w: number, h: number)
+    setText(text: string): void
     {
-        this.w = w;
-        this.h = h;
-        $(this.elem).css({ 'width': w + 'px', 'height': h + 'px' });
+        $(this.textElem).text(as.Html(text));
+    }
+
+    getWidth(): number { return this.imageWidth + Config.get('backpack.itemBorderWidth', 2) * 2; }
+    getHeight(): number { return this.imageHeight + Config.get('backpack.itemBorderWidth', 2) * 2 + Config.get('backpack.itemLabelHeight', 12); }
+
+    setSize(imageWidth: number, imageHeight: number)
+    {
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
+        $(this.elem).css({ 'width': this.getWidth() + 'px', 'height': this.getHeight() + 'px' });
     }
 
     setPosition(x: number, y: number)
     {
         this.x = x;
         this.y = y;
-        $(this.elem).css({ 'left': (x - this.w / 2) + 'px', 'top': (y - this.h / 2) + 'px' });
+        $(this.elem).css({ 'left': (x - this.getWidth() / 2) + 'px', 'top': (y - this.getHeight() / 2) + 'px' });
+    }
+
+    setVisibility(state: boolean)
+    {
+        if (state) {
+            $(this.elem).stop().fadeIn('fast');
+        } else {
+            $(this.elem).hide();
+        }
     }
 
     onMouseClick(ev: JQuery.Event): void
     {
-        this.app.toFront(this.elem);
+        this.app.toFront(this.elem, ContentApp.LayerWindowContent);
 
         // let item = this.app.getItemRepository().getItem(this.itemId);
         // if (item) {
@@ -165,7 +201,7 @@ export class BackpackItem
             this.app.showDropzone();
         }
 
-        this.app.toFront(ui.helper.get(0));
+        this.app.toFront(ui.helper.get(0), ContentApp.LayerWindowContent);
 
         this.info?.close();
 
@@ -253,7 +289,7 @@ export class BackpackItem
     private isPositionInDropzone(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): boolean
     {
         let displayElem = this.app.getDisplay();
-        let dropZoneHeight: number = Config.get('inventory.dropZoneHeight', 100);
+        let dropZoneHeight: number = Config.get('backpack.dropZoneHeight', 100);
         let dragHelperElem = ui.helper.get(0);
         let dragItemElem = dragHelperElem.children[0];
 
@@ -263,10 +299,16 @@ export class BackpackItem
         let draggedHeight = $(dragItemElem).height();
         let dropzoneBottom = $(displayElem).height();
         let dropzoneTop = dropzoneBottom - dropZoneHeight;
-        let x = draggedLeft + draggedWidth / 2;
-        let y = draggedTop + draggedHeight;
+        let itemBottomX = draggedLeft + draggedWidth / 2;
+        let itemBottomY = draggedTop + draggedHeight;
 
-        let inDropzone = x > 0 && y > dropzoneTop && y < dropzoneBottom;
+        let mouseX = ev.clientX;
+        let mouseY = ev.clientY;
+
+        let itemBottomInDropzone = itemBottomX > 0 && itemBottomY > dropzoneTop && itemBottomY < dropzoneBottom;
+        let mouseInDropzone = mouseX > 0 && mouseY > dropzoneTop && mouseY < dropzoneBottom;
+
+        let inDropzone = itemBottomInDropzone || mouseInDropzone;
         return inDropzone;
     }
 
@@ -309,11 +351,18 @@ export class BackpackItem
             this.setImage(properties[Pid.ImageUrl]);
         }
 
+        let text = as.String(properties[Pid.Label], '');
+        let description = as.String(properties[Pid.Description], '');
+        if (description != '') {
+            text += (text != '' ? ': ' : '') + description;
+        }
+        this.setText(text);
+
         if (properties[Pid.Width] && properties[Pid.Height]) {
-            var w = as.Int(properties[Pid.Width], -1);
-            var h = as.Int(properties[Pid.Height], -1);
-            if (w > 0 && h > 0 && (w != this.w || h != this.h)) {
-                this.setSize(w, h);
+            var imageWidth = as.Int(properties[Pid.Width], -1);
+            var imageHeight = as.Int(properties[Pid.Height], -1);
+            if (imageWidth > 0 && imageHeight > 0 && (imageWidth != this.imageWidth || imageHeight != this.imageHeight)) {
+                this.setSize(imageWidth, imageHeight);
             }
         }
 
@@ -326,7 +375,14 @@ export class BackpackItem
         if (properties[Pid.InventoryX] && properties[Pid.InventoryY]) {
             var x = as.Int(properties[Pid.InventoryX], -1);
             var y = as.Int(properties[Pid.InventoryY], -1);
-            if (x >= 0 && y >= 0 && (x != this.x || y != this.y)) {
+
+            if (x < 0 || y < 0) {
+                let pos = this.backpackWindow.getFreeCoordinate();
+                x = pos.x;
+                y = pos.y;
+            }
+
+            if (x != this.x || y != this.y) {
                 this.setPosition(x, y);
             }
         }

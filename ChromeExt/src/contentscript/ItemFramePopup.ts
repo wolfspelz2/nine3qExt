@@ -8,6 +8,7 @@ import { Popup } from './Popup';
 import { RepositoryItem } from './RepositoryItem';
 import { Pid } from '../lib/ItemProperties';
 import { Config } from '../lib/Config';
+import { threadId } from 'worker_threads';
 
 type PopupOptions = any;
 
@@ -21,6 +22,8 @@ interface ItemFramePopupOptions extends PopupOptions
 
 export class ItemFramePopup extends Popup
 {
+    private iframeElem: HTMLIFrameElement;
+
     constructor(app: ContentApp)
     {
         super(app);
@@ -40,20 +43,21 @@ export class ItemFramePopup extends Popup
             options.left = as.Int(iframeOptions.left, -options.width / 2);
             options.bottom = as.Int(iframeOptions.bottom, 50);
             options.closeButton = as.Bool(iframeOptions.closeButton, true);
+            options.transparent = as.Bool(iframeOptions.transparent, false);
 
             log.debug('ItemFramePopup', url);
             super.show(options);
 
             $(this.windowElem).addClass('n3q-itemframepopup');
 
-            let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-itemframepopup-content" src="' + url + ' " frameborder="0"></iframe>').get(0);
+            this.iframeElem = <HTMLIFrameElement>$('<iframe class="n3q-base n3q-itemframepopup-content" src="' + url + ' " frameborder="0"></iframe>').get(0);
 
-            $(this.windowElem).append(iframeElem);
+            $(this.windowElem).append(this.iframeElem);
             this.app.translateElem(this.windowElem);
 
             this.position(options.width, options.height, options.left, options.bottom);
 
-            this.app.toFront(this.windowElem, ContentApp.DisplayLayer_Popup)
+            this.app.toFront(this.windowElem, ContentApp.LayerPopup)
 
         } catch (error) {
             log.info('ItemFramePopup', error);
@@ -69,5 +73,12 @@ export class ItemFramePopup extends Popup
     position(width: number, height: number, left: number, bottom: number): void
     {
         $(this.windowElem).css({ width: width + 'px', height: height + 'px', left: left + 'px', bottom: bottom + 'px' });
+    }
+
+    update(): void
+    {
+        if (this.iframeElem) {
+            let src = this.iframeElem.src;
+        }
     }
 }

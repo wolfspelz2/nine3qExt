@@ -13,7 +13,7 @@ import { Browser } from '../lib/Browser';
 import { ItemException } from '../lib/ItemExcption';
 import { BackpackShowItemData, BackpackSetItemData, BackpackRemoveItemData, ContentMessage } from '../lib/ContentMessage';
 import { Environment } from '../lib/Environment';
-import { Pid } from '../lib/ItemProperties';
+import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { HelloWorld } from './HelloWorld';
 import { PropertyStorage } from './PropertyStorage';
 import { Room } from './Room';
@@ -54,6 +54,7 @@ export class ContentApp
     private itemRepository: ItemRepository;
     private propertyStorage: PropertyStorage = new PropertyStorage();
     private babelfish: Translator;
+    private vpi: VpiResolver;
     private xmppWindow: XmppWindow;
     private backpackWindow: BackpackWindow;
     private settingsWindow: SettingsWindow;
@@ -137,6 +138,9 @@ export class ContentApp
 
         let language: string = Translator.mapLanguage(navigator.language, lang => { return Config.get('i18n.languageMapping', {})[lang]; }, Config.get('i18n.defaultLanguage', 'en-US'));
         this.babelfish = new Translator(Config.get('i18n.translations', {})[language], language, Config.get('i18n.serviceUrl', ''));
+
+        this.vpi = new VpiResolver(BackgroundMessage, Config);
+        this.vpi.language = Translator.getShortLanguageCode(this.babelfish.getLanguage());
 
         await this.assertActive();
         if (Panic.isOn) { return; }
@@ -294,6 +298,17 @@ export class ContentApp
         }
     }
 
+    openDocumentUrl(itemId: string)
+    {
+        let roomItem = this.room.getItem(itemId);
+        if (roomItem) {
+            let item = this.getItemRepository().getItem(itemId);
+            if (item) {
+                item.openDocumentUrl(roomItem.getElem());
+            }
+        }
+    }
+
     positionItemFrame(itemId: string, width: number, height: number, left: number, bottom: number)
     {
         let item = this.getItemRepository().getItem(itemId);
@@ -302,11 +317,19 @@ export class ContentApp
         }
     }
 
+    // updateItemFrame(itemId: string, props: ItemProperties)
+    // {
+    //     let roomItem = this.room.getItem(itemId);
+    //     if (roomItem) {
+    //         roomItem.updateItemFrame(itemId, props);
+    //     }
+    // }
+
     sendMessageToScreenItemFrame(itemId: string, message: any)
     {
         let roomItem = this.room.getItem(itemId);
         if (roomItem) {
-            roomItem.sendsendMessageToScreenFrame(message);
+            roomItem.sendMessageToScreenItemFrame(message);
         }
     }
 
@@ -524,10 +547,7 @@ export class ContentApp
             log.debug('Page changed', this.pageUrl, ' => ', pageUrl);
             this.pageUrl = pageUrl;
 
-            let vpi = new VpiResolver(BackgroundMessage, Config);
-            vpi.language = Translator.getShortLanguageCode(this.babelfish.getLanguage());
-            let newLocation = await vpi.map(pageUrl);
-            let newRoomJid = ContentApp.getRoomJidFromLocationUrl(newLocation);
+            let newRoomJid = await this.vpiMap(pageUrl);
 
             if (newRoomJid == this.roomJid) {
                 log.debug('Same room', pageUrl, ' => ', this.roomJid);
@@ -555,6 +575,13 @@ export class ContentApp
     {
         let parsedUrl = new URL(url)
         return parsedUrl.host + parsedUrl.pathname + parsedUrl.search;
+    }
+
+    async vpiMap(url: string): Promise<string>
+    {
+        let locationUrl = await this.vpi.map(url);
+        let roomJid = ContentApp.getRoomJidFromLocationUrl(locationUrl);
+        return roomJid;
     }
 
     private checkPageUrlSec: number = Config.get('room.checkPageUrlSec', 5);
@@ -684,24 +711,39 @@ export class ContentApp
 
     // Window management
 
-    public static DisplayLayer_Default = 0;
-    public static DisplayLayer_Popup = 1;
-
-    private toFrontCurrentIndex: number = 1;
-    toFront(elem: HTMLElement, layer = ContentApp.DisplayLayer_Default)
+    public static LayerBelowEntities = 20;
+    public static LayerEntity = 30;
+    public static LayerEntityContent = 31;
+    public static LayerEntityTooltip = 32;
+    public static LayerPopup = 40;
+    public static LayerAboveEntities = 45;
+    public static LayerWindow = 50;
+    public static LayerWindowContent = 51;
+    public static LayerDrag = 99;
+    private static layerSize = 10 * 1000 * 1000;
+    private frontIndex: { [layer: number]: number; } = {};
+    toFront(elem: HTMLElement, layer: number)
     {
-        this.toFrontCurrentIndex++;
-        elem.style.zIndex = '' + (this.toFrontCurrentIndex + layer * 1000000000);
+        this.incrementFrontIndex(layer);
+        let absoluteIndex = this.getFrontIndex(layer);
+        elem.style.zIndex = '' + absoluteIndex;
+        //log.debug('ContentApp.toFront', absoluteIndex, elem.className);
     }
-
-    enableScreen(on: boolean): void
+    incrementFrontIndex(layer: number)
     {
-        // if (on) {
-        //     this.originalScreenHeight = this.screenElem.style.height;
-        //     this.screenElem.style.height = '100%';
-        // } else {
-        //     this.screenElem.style.height = this.originalScreenHeight;
-        // }
+        if (this.frontIndex[layer]) {
+            this.frontIndex[layer]++;
+        } else {
+            this.frontIndex[layer] = 1;
+        }
+    }
+    getFrontIndex(layer: number)
+    {
+        return this.frontIndex[layer] + layer * ContentApp.layerSize;
+    }
+    isFront(elem: HTMLElement, layer: number)
+    {
+        return (as.Int(elem.style.zIndex, 0) == this.getFrontIndex(layer));
     }
 
     private dropzoneELem: HTMLElement = null;
@@ -711,7 +753,7 @@ export class ContentApp
 
         this.dropzoneELem = <HTMLElement>$('<div class="n3q-base n3q-dropzone" />').get(0);
         $(this.display).append(this.dropzoneELem);
-        this.toFront(this.dropzoneELem);
+        this.toFront(this.dropzoneELem, ContentApp.LayerAboveEntities);
     }
 
     hideDropzone()

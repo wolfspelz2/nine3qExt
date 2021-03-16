@@ -17,6 +17,7 @@ import { ItemException } from '../lib/ItemExcption';
 import { ItemExceptionToast, SimpleErrorToast, SimpleToast } from './Toast';
 import { RoomItem } from './RoomItem';
 import { Avatar } from './Avatar';
+import { FreeSpace } from './FreeSpace';
 
 export class BackpackWindow extends Window
 {
@@ -30,6 +31,7 @@ export class BackpackWindow extends Window
 
     getPane() { return this.paneElem; }
     getItem(itemId: string) { return this.items[itemId]; }
+    getItems(): { [id: string]: BackpackItem; } { return this.items; }
 
     async show(options: any)
     {
@@ -81,11 +83,12 @@ export class BackpackWindow extends Window
 
                             let props = await BackgroundMessage.getBackpackItemProperties(droppedId);
                             let itemName = props[Pid.Label] ?? props[Pid.Template];
-                            let toast = new SimpleToast(this.app, 'backpack-reallyDelete', Config.get('backpack.deleteToastDurationSec', 1000), 'greeting', 'Really delete?', this.app.translateText('ItemLabel.' + itemName) + '\n' + droppedId);
+                            let toast = new SimpleToast(this.app, 'backpack-reallyDelete', Config.get('backpack.deleteToastDurationSec', 1000), 'question', 'Really delete?', this.app.translateText('ItemLabel.' + itemName) + '\n' + droppedId);
                             toast.actionButton('Yes, delete item', () => { this.deleteItem(droppedId); toast.close(); })
-                            toast.actionButton('No, keep it', () => { toast.close(); })
+                            toast.actionButton('No, keep it', () => { this.itemVisibility(droppedId, true); toast.close(); })
                             toast.setDontShow(false);
-                            toast.show();
+                            toast.show(() => { this.itemVisibility(droppedId, true); });
+                            this.itemVisibility(droppedId, false);
 
                             ev.stopPropagation();
                         }
@@ -104,7 +107,7 @@ export class BackpackWindow extends Window
                 {
                     if ($(inElem).is(':hidden')) {
                         $(inElem).show();
-                        this.app.toFront(inElem);
+                        this.app.toFront(inElem, ContentApp.LayerWindowContent);
                     } else {
                         $(inElem).hide();
                     }
@@ -171,12 +174,32 @@ export class BackpackWindow extends Window
                 if (response && response.ok) {
                     this.populate(response.items);
                 }
+
+                // let pos = this.getFreeCoordinate();
+
             } catch (ex) {
 
             }
         }
     }
 
+    getFreeCoordinate(): { x: number, y: number }
+    {
+        let width = $(this.paneElem).width();
+        let height = $(this.paneElem).height();
+
+        let rects: Array<{ left: number, top: number, right: number, bottom: number }> = [];
+        for (let id in this.items) {
+            let itemElem = this.items[id].getElem();
+            rects.push({ left: $(itemElem).position().left, top: $(itemElem).position().top, right: $(itemElem).position().left + $(itemElem).width(), bottom: $(itemElem).position().top + $(itemElem).height() });
+        }
+
+        rects.push({ left: width - 50, top: 0, right: width, bottom: 50 });
+
+        let f = new FreeSpace(Math.max(10, Math.floor((width + height) / 2 / 64)), width, height, rects);
+        return f.getFreeCoordinate(null);
+        // return f.getFreeCoordinate(this.paneElem);
+    }
 
     populate(items: { [id: string]: ItemProperties; })
     {
@@ -203,7 +226,7 @@ export class BackpackWindow extends Window
             this.items[itemId] = item;
         }
         item.create();
-        this.app.toFront(item.getElem());
+        this.app.toFront(item.getElem(), ContentApp.LayerWindowContent);
     }
 
     onSetItem(itemId: string, properties: ItemProperties)
@@ -239,7 +262,7 @@ export class BackpackWindow extends Window
         try {
             let props = await BackgroundMessage.getBackpackItemProperties(itemId);
             if (as.Bool(props[Pid.ClaimAspect], false)) {
-                if (this.app.getRoom().claimDefersToExisting(props)) {
+                if (await this.app.getRoom().propsClaimDefersToExistingClaim(props)) {
                     throw new ItemException(ItemException.Fact.ClaimFailed, ItemException.Reason.ItemMustBeStronger, this.app.getRoom().getPageClaimItem()?.getDisplayName());
                 }
             }
@@ -270,6 +293,16 @@ export class BackpackWindow extends Window
             await BackgroundMessage.deleteBackpackItem(itemId, {});
         } catch (ex) {
             new ItemExceptionToast(this.app, Config.get('room.errorToastDurationSec', 8), ex).show();
+        }
+    }
+
+    itemVisibility(itemId: string, state: boolean)
+    {
+        log.debug('BackpackWindow.hideItem', itemId);
+
+        let item = this.items[itemId];
+        if (item) {
+            item.setVisibility(state);
         }
     }
 }

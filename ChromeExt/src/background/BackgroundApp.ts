@@ -3,7 +3,7 @@ import { client, xml, jid } from '@xmpp/client';
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
-import { BackgroundEmptyResponse, BackgroundErrorResponse, BackgroundItemExceptionResponse, BackgroundMessage, BackgroundResponse, BackgroundSuccessResponse, FindBackpackItemPropertiesResponse, GetBackpackItemPropertiesResponse, GetBackpackStateResponse, IsBackpackItemResponse } from '../lib/BackgroundMessage';
+import { BackgroundEmptyResponse, BackgroundErrorResponse, BackgroundItemExceptionResponse, BackgroundMessage, BackgroundResponse, BackgroundSuccessResponse, CreateBackpackItemFromTemplateResponse, FindBackpackItemPropertiesResponse, GetBackpackItemPropertiesResponse, GetBackpackStateResponse, IsBackpackItemResponse } from '../lib/BackgroundMessage';
 import { Client } from '../lib/Client';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { ContentMessage } from '../lib/ContentMessage';
@@ -211,6 +211,10 @@ export class BackgroundApp
                 return this.handle_modifyBackpackItemProperties(message.itemId, message.changed, message.deleted, message.options, sendResponse);
             } break;
 
+            case BackgroundMessage.loadWeb3BackpackItems.name: {
+                return this.loadWeb3BackpackItems(sendResponse);
+            } break;
+
             case BackgroundMessage.rezBackpackItem.name: {
                 return this.handle_rezBackpackItem(message.itemId, message.roomJid, message.x, message.destination, message.options, sendResponse);
             } break;
@@ -241,6 +245,10 @@ export class BackgroundApp
 
             case BackgroundMessage.pointsActivity.name: {
                 return this.handle_pointsActivity(message.channel, message.n, sendResponse);
+            } break;
+
+            case BackgroundMessage.createBackpackItemFromTemplate.name: {
+                return this.handle_createBackpackItemFromTemplate(message.template, message.args, sendResponse);
             } break;
 
             default: {
@@ -297,7 +305,7 @@ export class BackgroundApp
         let isCached = version != '_nocache' && this.httpCacheData[key] != undefined;
 
         if (isCached) {
-            log.debug('BackgroundApp.handle_fetchUrl', 'cache-age', (now - this.httpCacheTime[key]) / 1000, url, 'version=', version);
+            // log.debug('BackgroundApp.handle_fetchUrl', 'cache-age', (now - this.httpCacheTime[key]) / 1000, url, 'version=', version);
         } else {
             log.debug('BackgroundApp.handle_fetchUrl', 'not-cached', url, 'version=', version);
         }
@@ -497,6 +505,19 @@ export class BackgroundApp
         return false;
     }
 
+    loadWeb3BackpackItems(sendResponse: (response?: any) => void): boolean
+    {
+        if (this.backpack) {
+            this.backpack.loadWeb3Items()
+                .then(() => { sendResponse(new BackgroundSuccessResponse()); })
+                .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
+            return true;
+        } else {
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotChanged, ItemException.Reason.ItemsNotAvailable)));
+        }
+        return false;
+    }
+
     handle_rezBackpackItem(itemId: string, room: string, x: number, destination: string, options: ItemChangeOptions, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
@@ -567,7 +588,6 @@ export class BackgroundApp
                 for (let pid in filterProperties) {
                     if (props[pid] != filterProperties[pid]) { match = false; }
                 }
-                as.Bool(props[Pid.PointsAspect], false);
                 return match;
             });
             let propertiesSet = {};
@@ -618,6 +638,19 @@ export class BackgroundApp
             sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotChanged, ItemException.Reason.ItemsNotAvailable)));
         }
         sendResponse(new BackgroundSuccessResponse());
+        return false;
+    }
+
+    handle_createBackpackItemFromTemplate(template: string, args: ItemProperties, sendResponse: (response?: any) => void): boolean
+    {
+        if (this.backpack) {
+            this.backpack.createItemByTemplate(template, args)
+                .then(item => { sendResponse(new CreateBackpackItemFromTemplateResponse(item.getProperties())); })
+                .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
+            return true;
+        } else {
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotChanged, ItemException.Reason.ItemsNotAvailable)));
+        }
         return false;
     }
 

@@ -6,7 +6,21 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
-        ['1.0.8', 'Points PrivVidConf Screen stats', [
+        ['1.0.9', 'WeblinMigration Web3 RezButton', [
+            ['Add', 'transparent iframe'],
+            ['Add', 'Document window'],
+            ['Add', 'Rez item by button'],
+            ['Add', 'Weblin migration'],
+            ['Add', 'Label to backpack item'],
+            ['Add', 'Web3 based items'],
+            ['Add', 'Drop button to backpack item info'],
+            ['Add', 'Menu option: send goodbye'],
+            ['Change', 'Click through transparent images'],
+            ['Change', 'Spawn new item in backpack to free space'],
+            ['Fix', 'Accidental backpack item info after drop/pickup from backpack'],
+            ['Fix', 'Created items disappear on next presence'],
+        ]],
+        ['1.0.8', 'Points PrivVidConf Screen Stats', [
             ['Add', 'Greet back'],
             ['Add', 'Chat console opens windows'],
             ['Add', 'Save window state'],

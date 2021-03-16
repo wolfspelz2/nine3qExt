@@ -54,7 +54,7 @@ export class Participant extends Entity
     {
         let name = this.roomNick;
         if (this.nicknameDisplay) {
-            this.nicknameDisplay.getNickname();
+            name = this.nicknameDisplay.getNickname();
         }
         return name;
     }
@@ -440,7 +440,9 @@ export class Participant extends Entity
     {
         try {
             let pokeType = node.attrs.type;
-            let toast = new SimpleToast(this.app, 'poke-' + pokeType, Config.get('room.pokeToastDurationSec', 10), 'greeting', this.getDisplayName(), pokeType + 's');
+            let iconType = 'greeting';
+            if (pokeType == 'bye') { iconType = 'bye'; }
+            let toast = new SimpleToast(this.app, 'poke-' + pokeType, Config.get('room.pokeToastDurationSec_' + pokeType, Config.get('room.pokeToastDurationSec', 10)), iconType, this.getDisplayName(), pokeType + 's');
             toast.actionButton(pokeType + ' back', () =>
             {
                 this.sendPoke(pokeType);
@@ -532,6 +534,7 @@ export class Participant extends Entity
     {
         let from = jid(stanza.attrs.from);
         let nick = from.getResource();
+        let name = this.getDisplayName();
         let now = Date.now();
         let timestamp = 0;
 
@@ -578,8 +581,6 @@ export class Participant extends Entity
 
         if (text == '') { return; }
 
-        let name = this.getDisplayName();
-
         if (timestamp == 0) {
             timestamp = now;
         }
@@ -592,7 +593,7 @@ export class Participant extends Entity
         if (delayMSec * 1000 < as.Float(Config.get('room.maxChatAgeSec', 60))) {
             if (!this.isChatCommand(text)) {
                 this.chatoutDisplay?.setText(text);
-                this.app.toFront(this.elem);
+                this.app.toFront(this.elem, ContentApp.LayerEntity);
             }
         }
 

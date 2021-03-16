@@ -12,7 +12,7 @@ import { Memory } from '../lib/Memory';
 import { Utils } from '../lib/Utils';
 import { BackgroundApp } from './BackgroundApp';
 import { Item } from './Item';
-import { Environment } from '../lib/Environment';
+const Web3 = require('web3');
 
 export class Backpack
 {
@@ -37,10 +37,14 @@ export class Backpack
 
     async init(): Promise<void>
     {
-        await this.loadItems();
+        await this.loadLocalItems();
+
+        if (Config.get('backpack.loadWeb3Items', false)) {
+            await this.loadWeb3Items();
+        }
     }
 
-    async loadItems()
+    async loadLocalItems()
     {
         let itemIds = await Memory.getLocal(this.getBackpackIdsKey(), []);
         if (itemIds == null || !Array.isArray(itemIds)) {
@@ -67,14 +71,152 @@ export class Backpack
         }
     }
 
+    async loadWeb3Items(): Promise<void>
+    {
+        let currentWeb3ItemIds = this.findItems(props => { return (as.Bool(props[Pid.Web3BasedAspect], false)); }).map(item => item.getProperties()[Pid.Id]);
+        let unverifiedWeb3ItemIds = currentWeb3ItemIds;
+
+        let wallets = this.findItems(props => { return (as.Bool(props[Pid.Web3WalletAspect], false)); });
+        if (wallets.length == 0) {
+            log.info('backpack.loadWeb3Items', 'No wallet item');
+            return;
+        }
+
+        for (let walletsIdx = 0; walletsIdx < wallets.length; walletsIdx++) {
+            let wallet = wallets[walletsIdx];
+            let ownerAddress = wallet.getProperties()[Pid.Web3WalletAddress];
+            let network = wallet.getProperties()[Pid.Web3WalletNetwork];
+            let httpProvider = Config.get('web3.provider.' + network, '');
+            let contractAddress = Config.get('web3.weblinItemContractAddess.' + network, '');
+            if (httpProvider == '' || contractAddress == '') {
+                log.info('backpack.loadWeb3Items', 'No httpProvider or contractAddress for network', network, 'httpProvider=', httpProvider, 'contractAddress=', contractAddress);
+            } else {
+                let claimItemIdsOfWallet = await this.loadWeb3ItemsFromWallet(ownerAddress, httpProvider, contractAddress);
+
+                for (let claimItemIdsOfWalletIdx = 0; claimItemIdsOfWalletIdx < claimItemIdsOfWallet.length; claimItemIdsOfWalletIdx++) {
+                    let id = claimItemIdsOfWallet[claimItemIdsOfWalletIdx];
+                    const index = unverifiedWeb3ItemIds.indexOf(id, 0);
+                    if (index > -1) { unverifiedWeb3ItemIds.splice(index, 1); }
+                }
+            }
+        }
+
+        for (let previousClaimItemIdsIdx = 0; previousClaimItemIdsIdx < unverifiedWeb3ItemIds.length; previousClaimItemIdsIdx++) {
+            this.deleteItem(unverifiedWeb3ItemIds[previousClaimItemIdsIdx], { skipContentNotification: true, skipPresenceUpdate: true });
+        }
+    }
+
+    async loadWeb3ItemsFromWallet(ownerAddress: string, httpProvider: string, contractAddress: string): Promise<Array<string>>
+    {
+        if (ownerAddress == '' || httpProvider == '') {
+            log.info('backpack.loadWeb3ItemsFromWallet', 'Missing ownerAddress=', ownerAddress, 'httpProvider=', httpProvider);
+            return [];
+        }
+
+        let knownIds: Array<string> = [];
+        try {
+            let web3 = new Web3(new Web3.providers.HttpProvider(httpProvider));
+            let contractABI = Config.get('web3.weblinItemContractAbi', null);
+            if (contractAddress == null || contractAddress == '' || contractABI == null) {
+                log.info('backpack.loadWeb3ItemsFromWallet', 'Missing contract config', 'contractAddress=', contractAddress, 'contractABI=', contractABI);
+            } else {
+                let contract = new web3.eth.Contract(contractABI, contractAddress);
+                let numberOfItems = await contract.methods.balanceOf(ownerAddress).call();
+                for (let i = 0; i < numberOfItems; i++) {
+                    let tokenId = await contract.methods.tokenOfOwnerByIndex(ownerAddress, i).call();
+                    let tokenUri = await contract.methods.tokenURI(tokenId).call();
+
+                    if (Config.get('config.clusterName', 'prod') == 'dev') {
+                        tokenUri = tokenUri.replace('https://webit.vulcan.weblin.com/', 'http://localhost:5000/');
+                        tokenUri = tokenUri.replace('https://item.weblin.com/', 'http://localhost:5000/');
+                    }
+
+                    let response = await fetch(tokenUri);
+
+                    if (!response.ok) {
+                        log.info('backpack.loadWeb3ItemsFromWallet', 'fetch failed', 'tokenId', tokenId, 'tokenUri', tokenUri, response);
+                    } else {
+                        const metadata = await response.json();
+
+                        let ids = await this.getOrCreateWeb3ItemFromMetadata(ownerAddress, metadata);
+                        for (let i = 0; i < ids.length; i++) {
+                            knownIds.push(ids[i]);
+                        }
+
+                    }
+                }
+            }
+        } catch (error) {
+            log.info(error);
+        }
+
+        return knownIds;
+    }
+
+    async getOrCreateWeb3ItemFromMetadata(ownerAddress: string, metadata: any): Promise<Array<string>>
+    {
+        let data = metadata.data;
+        if (data == null) {
+            log.info('backpack.getOrCreateWeb3ItemFromMetadata', 'No item creation data in', metadata);
+            return [];
+        }
+
+        let knownIds: Array<string> = [];
+
+        data[Pid.Web3BasedOwner] = ownerAddress;
+
+        let template = as.String(data[Pid.Template], '');
+        switch (template) {
+
+            case 'CryptoClaim': {
+                let domain = as.String(data[Pid.ClaimUrl], '');
+                let existingItems = this.findItems(props =>
+                {
+                    return as.Bool(props[Pid.Web3BasedAspect], false) && as.Bool(props[Pid.ClaimAspect], false) && as.String(props[Pid.ClaimUrl], '') == domain;
+                });
+                if (existingItems.length == 0) {
+                    try {
+                        let item = await this.createItemByTemplate(template, data);
+                        knownIds.push(item.getId());
+                        log.debug('Backpack.getOrCreateWeb3ItemFromMetadata', 'Creating', template, item.getId());
+                    } catch (error) {
+                        log.info(error);
+                    }
+                } else {
+                    for (let i = 0; i < existingItems.length; i++) {
+                        let item = existingItems[i];
+                        knownIds.push(item.getId());
+                        log.debug('Backpack.getOrCreateWeb3ItemFromMetadata', 'Confirming', template, item.getId());
+                    }
+                }
+            } break;
+
+            default:
+                log.info('Backpack.getOrCreateWeb3ItemFromMetadata', 'Not supported', data);
+                break;
+        }
+
+        return knownIds;
+    }
+
     async getOrCreatePointsItem(): Promise<Item>
     {
         let pointsItems = this.findItems(props => as.Bool(props[Pid.PointsAspect], false));
 
         if (pointsItems.length > 1) {
-            log.debug('Backpack.getOrCreatePointsItem', 'Too many points items: ' + pointsItems.length);
+            let maxPoints = -1;
+            let maxItem: Item;
+            for (let i = 0; i < pointsItems.length; i++) {
+                let item = pointsItems[i];
+                let points = as.Int(item.getProperties()[Pid.PointsTotal], 0);
+                if (points > maxPoints) {
+                    maxPoints = points;
+                    maxItem = item;
+                }
+            }
+            return maxItem;
         } else if (pointsItems.length == 0) {
-            let item = await this.createItemByTemplate('Points');
+            let item = await this.createItemByTemplate('Points', {});
             return item;
         } else if (pointsItems.length == 1) {
             return pointsItems[0]
@@ -86,6 +228,11 @@ export class Backpack
         let item = await this.createRepositoryItem(itemId, props);
 
         if (item.isRezzed()) {
+            let roomJid = item.getProperties()[Pid.RezzedLocation];
+            if (roomJid) {
+                this.addToRoom(itemId, roomJid);
+            }
+
             if (!options.skipPresenceUpdate) {
                 item.sendPresence();
             }
@@ -259,7 +406,7 @@ export class Backpack
         await this.persistentSaveItem(itemId);
     }
 
-    createItemByTemplate(templateName: string): Promise<Item>
+    createItemByTemplate(templateName: string, args: ItemProperties): Promise<Item>
     {
         return new Promise(async (resolve, reject) =>
         {
@@ -276,6 +423,7 @@ export class Backpack
                 request.method = RpcProtocol.BackpackCreateRequest.method;
                 request.user = userId;
                 request.template = templateName;
+                request.args = args;
 
                 let response = <RpcProtocol.BackpackCreateResponse>await this.rpcClient.call(apiUrl, request);
 
@@ -352,7 +500,7 @@ export class Backpack
 
                 resolve();
             } catch (error) {
-                reject(error);
+                reject(new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.InternalError, as.String(error.message, as.String(error.status, ''))));
             }
         });
     }
@@ -376,8 +524,14 @@ export class Backpack
         this.addToRoom(itemId, roomJid);
 
         let props = item.getProperties();
+
         props[Pid.IsRezzed] = 'true';
-        props[Pid.RezzedX] = '' + rezzedX;
+        if (rezzedX >= 0) {
+            props[Pid.RezzedX] = '' + rezzedX;
+        }
+        if (as.Int(props[Pid.RezzedX], -1) < 0) {
+            props[Pid.RezzedX] = '' + Utils.randomInt(100, 400);
+        }
         props[Pid.RezzedDestination] = destinationUrl;
         props[Pid.RezzedLocation] = roomJid;
         props[Pid.OwnerName] = await Memory.getSync(Utils.syncStorageKey_Nickname(), as.String(props[Pid.OwnerName]));
@@ -403,7 +557,7 @@ export class Backpack
             props[Pid.InventoryX] = '' + inventoryX;
             props[Pid.InventoryY] = '' + inventoryY;
         }
-        delete props[Pid.RezzedX];
+        // delete props[Pid.RezzedX]; // preserve for rez by button
         delete props[Pid.RezzedDestination];
         delete props[Pid.RezzedLocation];
 

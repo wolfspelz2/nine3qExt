@@ -6,6 +6,8 @@ import { Utils } from './Utils';
 interface ConfigGetCallback { (value: any): void }
 interface ConfigSetCallback { (): void }
 
+// tslint:disable: quotemark
+
 export class Config
 {
     public static devConfigName = 'dev';
@@ -26,6 +28,9 @@ export class Config
             nickname: '',//'新しいアバター',//'new-avatar',
             avatar: '',
             active: '',
+        },
+        test: {
+            itemServiceRpcUrl: 'http://localhost:5000/rpc',
         },
         client: {
             name: 'weblin.io',
@@ -52,9 +57,6 @@ export class Config
         httpCache: {
             maxAgeSec: 3600,
             maintenanceIntervalSec: 60,
-        },
-        test: {
-            itemServiceRpcUrl: 'http://localhost:5000/rpc',
         },
         room: {
             fadeInSec: 0.3,
@@ -86,6 +88,7 @@ export class Config
             vidconfWidth: 600,
             vidconfHeight: 400,
             pokeToastDurationSec: 10,
+            pokeToastDurationSec_bye: 60,
             privateVidconfToastDurationSec: 60,
             privateChatToastDurationSec: 60,
             errorToastDurationSec: 8,
@@ -127,14 +130,27 @@ export class Config
             chatlogItemIsPresent: false,
             chatlogItemDisappeared: false,
         },
+        iframeApi: {
+            messageMagic: 'a67igu67puz_iframeApi',
+            messageMagicW2WMigration: 'hbv67u5rf_w2wMigrate',
+            messageMagicCreateCryptoWallet: 'tr67rftghg_CreateCryptoWallet',
+        },
         backpack: {
             enabled: true,
             itemSize: 64,
             borderPadding: 4,
             dropZoneHeight: 100,
+            itemBorderWidth: 2,
+            itemLabelHeight: 16,
             itemInfoOffset: { x: 2, y: 2 },
             itemInfoExtended: false,
+            itemInfoDelay: 300,
             deleteToastDurationSec: 100,
+            loadWeb3Items: true,
+            signaturePublicKey: '-----BEGIN PUBLIC KEY-----\n' +
+                'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAL8cd14UE+Fy2QV6rtvbBA3UGo8TllmX\n' +
+                'hcFcpuzkK2SpAbbNgA7IilojcAXsFsDFdCTTTWfofAEZvbGqSAQ0VJ8CAwEAAQ==\n' +
+                '-----END PUBLIC KEY-----\n',
         },
         points: {
             enabled: true,
@@ -158,6 +174,43 @@ export class Config
                     },
                 },
             }
+        },
+        web3: {
+            provider: {
+                ETH: 'https://eth-mainnet.alchemyapi.io/v2/0_7o5JNttyfeUapKv8oI58Nslg5cwkDh',
+                rinkeby: 'https://eth-rinkeby.alchemyapi.io/v2/r2gUsunv9dqoULzKRpZsIwo2MgOIYkO9',
+            },
+            weblinItemContractAddess: {
+                ETH: '0x5792558410B253b96025f5C9dC412c4EDe5b5671',
+                rinkeby: '0xed3efa74b416566c9716280e05bebee04f3fbf47',
+            },
+            weblinItemContractAbi: [
+                {
+                    "name": "balanceOf",
+                    "constant": true,
+                    "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }],
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "payable": false,
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "name": "tokenOfOwnerByIndex",
+                    "constant": true,
+                    "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "uint256", "name": "index", "type": "uint256" }],
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "payable": false,
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "name": "tokenURI",
+                    "constant": true,
+                    "inputs": [{ "internalType": "uint256", "name": "_tokenId", "type": "uint256" }],
+                    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+                    "payable": false,
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+            ],
         },
         i18n: {
             defaultLanguage: 'en-US',
@@ -204,7 +257,9 @@ export class Config
                     'Menu.deny': 'Deny',
                     'Menu.yawn': 'Yawn',
                     'Menu.Greet': 'Greet',
+                    'Menu.Bye': 'Wave Goodbye',
                     'Menu.Private Chat': 'Private Chat',
+                    'Menu.Private Videoconf': 'Private Videoconference',
 
                     'Chatwindow.Chat History': 'Chat',
                     'Chatwindow.entered the room': '**entered the room**',
@@ -221,19 +276,22 @@ export class Config
 
                     'Vidconfwindow.Video Conference': 'Video Conference',
                     'Settingswindow.Settings': 'Settings',
-                    'BackpackWindow.Inventory': 'Your Stuff',
+                    'BackpackWindow.Inventory': 'Your Backpack',
 
                     'Backpack.Shredder': 'Shredder',
                     'Backpack.Go to item': 'Go there',
                     'Backpack.Derez item': 'Pick up',
+                    'Backpack.Rez item': 'Drop',
 
                     'Toast.Do not show this message again': 'Do not show this message again',
                     'Toast.greets': '...greeted you',
+                    'Toast.byes': '...sent a goodbye',
                     'Toast.tousles': '...tousled you',
                     'Toast.nudges': '...nudged you',
                     'Toast.Your claim has been removed': 'Your claim has been removed',
                     'Toast.A stronger A stronger item just appeared': 'A stronger item just appeared.',
                     'Toast.greet back': 'Greet back',
+                    'Toast.bye back': 'Send a goodbye back',
                     'Toast.tousle back': 'Tousle back',
                     'Toast.nudge back': 'Nudge back',
                     'Toast.Really delete?': 'Really delete?',
@@ -243,6 +301,8 @@ export class Config
                     'Toast.Refuses to join the private videoconference': 'Refuses to join the videoconference',
                     'Toast.Accept': 'Accept',
                     'Toast.Decline': 'Decline',
+                    'Toast.Duplicate item': 'Duplicate item',
+                    'Toast.This would create an identical item': 'This would create an identical item',
 
                     // ['ErrorFact.' + ItemException.Fact[ItemException.Fact.Error]]: 'Error',
                     'ErrorFact.Error': 'Error',
@@ -272,15 +332,18 @@ export class Config
                     'ErrorReason.ItemMustBeStronger': 'Your item is not stronger than the other.',
                     'ErrorReason.ItemIsNotTransferable': 'Item not transferable.',
                     'ErrorReason.NoMatch': 'Item do not match.',
+                    'ErrorReason.NoSuchAspect': 'Dem Gegenstand fehlt eine Eigenschaft.',
 
                     'ErrorDetail.Applier.Apply': 'Applying an item to another',
                     'ErrorDetail.Pid.Id': 'Id',
                     'ErrorDetail.Pid.Actions': 'Actions',
+                    'ErrorDetail.Pid.DocumentAspect': 'Dokument',
 
                     'ItemPid.Label': 'Label',
-                    'ItemPid.Comment': 'Comment',
+                    'ItemPid.Description': 'Description',
                     'ItemPid.ClaimStrength': 'Strength',
-                    'ItemPid.ClaimName': 'For',
+                    'ItemPid.ClaimUrl': 'For',
+                    'ItemPid.CommodityConversionFactor': 'Efficiency',
                     'ItemPid.OwnerName': 'Owner',
                     'ItemPid.DispenserAvailable': 'Remaining',
                     'ItemPid.DispenserCooldownSec': 'Cooldown',
@@ -293,11 +356,15 @@ export class Config
                     'ItemPid.CoinAmount': 'Amount',
                     'ItemPid.IframeUrl': 'URL',
                     'ItemPid.IframeAuto': 'Autostart',
+                    'ItemPid.DocumentTitle': 'Title',
+                    'ItemPid.DeactivatableIsInactive': 'Deactivated',
+                    'ItemPid.Web3WalletAddress': 'Wallet',
+                    'ItemPid.Web3WalletNetwork': 'Network',
 
                     'ItemValue.true': 'Yes',
                     'ItemValue.false': 'No',
 
-                    'ItemLabel.Dot1': '1-Point',
+                    'ItemLabel.Dot1': '1 Point',
                 },
                 'de-DE': {
                     'Extension.Disable': 'weblin.io ausschalten',
@@ -323,7 +390,7 @@ export class Config
                     'Menu.Menu': 'Menü',
                     'Menu.Settings': 'Einstellungen',
                     'Menu.Stay Here': 'Bleiben bei Tabwechsel',
-                    'Menu.Backpack': 'Gegenstände',
+                    'Menu.Backpack': 'Rucksack',
                     'Menu.Chat Window': 'Chatverlauf',
                     'Menu.Video Conference': 'Videokonferenz',
                     'Menu.Chat': 'Sprechblase',
@@ -338,7 +405,9 @@ export class Config
                     'Menu.deny': 'Ablehnen',
                     'Menu.yawn': 'Gähnen',
                     'Menu.Greet': 'Grüßen',
+                    'Menu.Bye': 'Verabschieden',
                     'Menu.Private Chat': 'Privater Chat',
+                    'Menu.Private Videoconf': 'Private Videokonferenz',
 
                     'Chatwindow.Chat History': 'Chat',
                     'Chatwindow.entered the room': '**hat den Raum betreten**',
@@ -355,19 +424,22 @@ export class Config
 
                     'Vidconfwindow.Video Conference': 'Videokonferenz',
                     'Settingswindow.Settings': 'Einstellungen',
-                    'BackpackWindow.Inventory': 'Deine Gegenstände',
+                    'BackpackWindow.Inventory': 'Dein Rucksack',
 
                     'Backpack.Shredder': 'Schredder',
                     'Backpack.Go to item': 'Dort hingehen',
                     'Backpack.Derez item': 'Einsammeln',
+                    'Backpack.Rez item': 'Ablegen',
 
                     'Toast.Do not show this message again': 'Diese Nachricht nicht mehr anzeigen',
                     'Toast.greets': '...hat dich gegrüßt',
+                    'Toast.byes': '...hat zum Abschied gegrüßt',
                     'Toast.tousles': '...hat dich gewuschelt',
                     'Toast.nudges': '...hat dich angestupst',
                     'Toast.Your claim has been removed': 'Der Anspruch wurde zurückgenommen',
                     'Toast.A stronger item just appeared': 'Ein stärkerer Gegenstand wurde gerade installiert.',
                     'Toast.greet back': 'Zurück grüßen',
+                    'Toast.bye back': 'Auch verabschieden',
                     'Toast.tousle back': 'Zurück wuscheln',
                     'Toast.nudge back': 'Zurück stupsen',
                     'Toast.Really delete?': 'Wirklich löschen?',
@@ -377,6 +449,8 @@ export class Config
                     'Toast.Refuses to join the private videoconference': 'Lehnt die Videokonferenz ab',
                     'Toast.Accept': 'Annehmen',
                     'Toast.Decline': 'Ablehnen',
+                    'Toast.Duplicate item': 'Doppelter Gegenstand',
+                    'Toast.This would create an identical item': 'Das würde einen identischen Gegenstand nochmal erzeugen',
 
                     'ErrorFact.Error': 'Fehler',
                     'ErrorFact.NotRezzed': 'Ablegen fehlgeschlagen',
@@ -404,15 +478,18 @@ export class Config
                     'ErrorReason.ItemMustBeStronger': 'Der Gegenstand ist nicht stärker als der andere.',
                     'ErrorReason.ItemIsNotTransferable': 'Der Gegenstand ist nicht übertragbar.',
                     'ErrorReason.NoMatch': 'Gegenstände passen nicht.',
+                    'ErrorReason.NoSuchAspect': 'Dem Gegenstand fehlt eine Eigenschaft.',
 
                     'ErrorDetail.Applier.Apply': 'Beim Anwenden eines Gegenstands auf einen anderen.',
                     'ErrorDetail.Pid.Id': 'Id',
                     'ErrorDetail.Pid.Actions': 'Aktionen',
+                    'ErrorDetail.Pid.DocumentAspect': 'Dokument',
 
                     'ItemPid.Label': 'Bezeichnung',
-                    'ItemPid.Comment': 'Kommentar',
+                    'ItemPid.Description': 'Beschreibung',
                     'ItemPid.ClaimStrength': 'Stärke',
-                    'ItemPid.ClaimName': 'Für',
+                    'ItemPid.ClaimUrl': 'Für',
+                    'ItemPid.CommodityConversionFactor': 'Effzienz',
                     'ItemPid.OwnerName': 'Besitzer',
                     'ItemPid.DispenserAvailable': 'Übrig',
                     'ItemPid.DispenserCooldownSec': 'Wartezeit',
@@ -425,12 +502,17 @@ export class Config
                     'ItemPid.CoinAmount': 'Betrag',
                     'ItemPid.IframeUrl': 'URL',
                     'ItemPid.IframeAuto': 'Automatisch',
+                    'ItemPid.DocumentTitle': 'Titel',
+                    'ItemPid.DeactivatableIsInactive': 'Deaktiviert',
+                    'ItemPid.Web3WalletAddress': 'Wallet',
+                    'ItemPid.Web3WalletNetwork': 'Netzwerk',
 
                     'ItemValue.true': 'Ja',
                     'ItemValue.false': 'Nein',
 
                     'ItemLabel.Points': 'Punkte',
-                    'ItemLabel.Dot1': '1-Punkt',
+                    'ItemLabel.Dot1': '1 Punkt',
+                    'ItemLabel.PublicViewing': 'Public Viewing',
                 },
             },
             'serviceUrl': '',

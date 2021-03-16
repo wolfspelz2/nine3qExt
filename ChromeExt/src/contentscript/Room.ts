@@ -5,14 +5,16 @@ import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { Panic } from '../lib/Panic';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { Translator } from '../lib/Translator';
+import { VpProtocol } from '../lib/VpProtocol';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Participant } from './Participant';
 import { RoomItem } from './RoomItem';
 import { ChatWindow } from './ChatWindow'; // Wants to be after Participant and Item otherwise $().resizable does not work
 import { VidconfWindow } from './VidconfWindow';
-import { BackgroundMessage } from '../lib/BackgroundMessage';
-import { VpProtocol } from '../lib/VpProtocol';
+import { VpiResolver } from './VpiResolver';
 
 export interface IRoomInfoLine extends Array<string | string> { 0: string, 1: string }
 export interface IRoomInfo extends Array<IRoomInfoLine> { }
@@ -126,9 +128,17 @@ export class Room
     {
         let vpProps = { xmlns: 'vp:props', 'Nickname': this.resource, 'AvatarId': this.avatar, 'nickname': this.resource, 'avatar': 'gif/' + this.avatar };
 
+        let nickname = await this.getBackpackItemNickname(this.resource);
+        if (nickname != '') {
+            vpProps['Nickname'] = nickname;
+            vpProps['nickname'] = nickname;
+        }
+
         let avatarUrl = await this.getBackpackItemAvatarUrl('');
         if (avatarUrl != '') {
             vpProps['AvatarUrl'] = avatarUrl;
+            delete vpProps['AvatarId'];
+            delete vpProps['avatar'];
         }
 
         let points = 0;
@@ -152,7 +162,7 @@ export class Room
             }
             identityDigest = as.String(Utils.hash(this.resource + avatarUrl));
             identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}&points={points}'))
-                .replace('{nickname}', encodeURIComponent(this.resource))
+                .replace('{nickname}', encodeURIComponent(nickname))
                 .replace('{avatarUrl}', encodeURIComponent(avatarUrl))
                 .replace('{digest}', encodeURIComponent(identityDigest))
                 .replace('{imageUrl}', encodeURIComponent(''))
@@ -176,9 +186,9 @@ export class Room
     }
 
     async getPointsItemPoints(defaultValue: number): Promise<number> { return as.Int(await this.getBackpackItemProperty({ [Pid.PointsAspect]: 'true' }, Pid.PointsTotal, defaultValue)); }
-    async getBackpackItemAvatarId(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.AvatarAspect]: 'true' }, Pid.AvatarAvatarId, defaultValue)); }
-    async getBackpackItemAvatarUrl(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.AvatarAspect]: 'true' }, Pid.AvatarAnimationsUrl, defaultValue)); }
-    async getBackpackItemNickname(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.NicknameAspect]: 'true', }, Pid.NicknameText, defaultValue)); }
+    async getBackpackItemAvatarId(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.AvatarAspect]: 'true', [Pid.DeactivatableIsInactive]: 'false' }, Pid.AvatarAvatarId, defaultValue)); }
+    async getBackpackItemAvatarUrl(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.AvatarAspect]: 'true', [Pid.DeactivatableIsInactive]: 'false' }, Pid.AvatarAnimationsUrl, defaultValue)); }
+    async getBackpackItemNickname(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.NicknameAspect]: 'true', [Pid.DeactivatableIsInactive]: 'false' }, Pid.NicknameText, defaultValue)); }
 
     async getBackpackItemProperty(filterProperties: ItemProperties, propertyPid: string, defautValue: any): Promise<any>
     {
@@ -521,9 +531,9 @@ export class Room
         }
     }
 
-    showChatMessage(nick: string, text: string)
+    showChatMessage(name: string, text: string)
     {
-        this.chatWindow.addLine(nick + Date.now(), nick, text);
+        this.chatWindow.addLine(name + Date.now(), name, text);
     }
 
     showVideoConference(aboveElem: HTMLElement, displayName: string): void
@@ -570,17 +580,32 @@ export class Room
         participant.applyItem(passiveItem);
     }
 
-    claimDefersToExisting(props: ItemProperties): boolean
+    async propsClaimDefersToExistingClaim(props: ItemProperties): Promise<boolean>
     {
-        var competingRoomItem = this.getPageClaimItem();
-        if (competingRoomItem) {
-            let competingProps = competingRoomItem.getProperties();
+        var roomItem = this.getPageClaimItem();
+        if (roomItem) {
+            let otherProps = roomItem.getProperties();
             let myId = as.String(props[Pid.Id], null);
-            let competingId = as.String(competingProps[Pid.Id], null);
-            if (myId != '' && myId != competingId) {
-                let competingStrength = as.Float(competingProps[Pid.ClaimStrength], 0.0);
+            let otherId = as.String(otherProps[Pid.Id], null);
+            if (myId != '' && myId != otherId) {
+                let otherStrength = as.Float(otherProps[Pid.ClaimStrength], 0.0);
                 let myStrength = as.Float(props[Pid.ClaimStrength], 0.0);
-                if (myStrength <= competingStrength) {
+                let myUrl = as.String(props[Pid.ClaimUrl], '');
+                let otherUrl = as.String(otherProps[Pid.ClaimUrl], '');
+
+                if (myUrl != '') {
+                    if (!await this.claimIsValidAndOriginal(props)) {
+                        myStrength = 0.0;
+                    }
+                }
+
+                if (otherUrl != '') {
+                    if (!await this.claimIsValidAndOriginal(otherProps)) {
+                        otherStrength = 0.0;
+                    }
+                }
+
+                if (myStrength <= otherStrength) {
                     return true;
                 }
             }
@@ -588,4 +613,33 @@ export class Room
         return false;
     }
 
+    async claimIsValidAndOriginal(props: ItemProperties): Promise<boolean>
+    {
+        let url = this.normalizeClaimUrl(props[Pid.ClaimUrl]);
+
+        let mappedRoom = await this.app.vpiMap(url);
+        let mappedRoomJid = jid(mappedRoom);
+        let mappedRoomName = mappedRoomJid.local;
+
+        let currentRoom = this.getJid();
+        let currentRoomJid = jid(currentRoom);
+        let currentRoomName = currentRoomJid.local;
+
+        if (mappedRoomName == currentRoomName) {
+            let publicKey = Config.get('backpack.signaturePublicKey', '');
+            if (ItemProperties.verifySignature(props, publicKey)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    normalizeClaimUrl(url: string): string
+    {
+        if (url.startsWith('https://')) { return url; }
+        if (url.startsWith('http://')) { return url; }
+        if (url.startsWith('//')) { return 'https:' + url; }
+        return 'https://' + url;
+    }
 }

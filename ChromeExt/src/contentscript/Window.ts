@@ -32,7 +32,7 @@ export class Window
             let windowId = Utils.randomString(15);
             let resizable = as.Bool(options.resizable, false);
             let undockable = as.Bool(options.undockable, false);
-
+            
             let windowElem = <HTMLElement>$('<div id="' + windowId + '" class="n3q-base n3q-window n3q-shadow-medium" data-translate="children" />').get(0);
             let titleBarElem = <HTMLElement>$('<div class="n3q-base n3q-window-title-bar" data-translate="children" />').get(0);
             let titleElem = <HTMLElement>$('<div class="n3q-base n3q-window-title" data-translate="children" />').get(0);
@@ -51,7 +51,6 @@ export class Window
             ).get(0);
 
             let contentElem = <HTMLElement>$('<div class="n3q-base n3q-window-content" data-translate="children" />').get(0);
-            let resizeElem = resizable ? <HTMLElement>$('<div class="n3q-base n3q-window-resize n3q-window-resize-se"/>').get(0) : null;
 
             $(titleElem).append(titleTextElem);
             $(titleBarElem).append(titleElem);
@@ -60,13 +59,15 @@ export class Window
             $(windowElem).append(titleBarElem);
 
             $(windowElem).append(contentElem);
+
+            let resizeElem = resizable ? <HTMLElement>$('<div class="n3q-base n3q-window-resize n3q-window-resize-se"/>').get(0) : null;
             $(windowElem).append(resizeElem);
 
             this.contentElem = contentElem;
             this.windowElem = windowElem;
 
             $(this.app.getDisplay()).append(windowElem);
-            this.app.toFront(windowElem);
+            this.app.toFront(windowElem, ContentApp.LayerWindow);
 
             let maskId = Utils.randomString(15);
 
@@ -107,7 +108,7 @@ export class Window
 
             $(windowElem).click(ev =>
             {
-                this.app.toFront(windowElem);
+                this.app.toFront(windowElem, ContentApp.LayerWindow);
             });
 
             $(windowElem).draggable({
@@ -120,7 +121,7 @@ export class Window
                 containment: 'document',
                 start: (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) =>
                 {
-                    this.app.toFront(windowElem);
+                    this.app.toFront(windowElem, ContentApp.LayerWindow);
                     if (this.onDragStart) { this.onDragStart(ev, ui); }
                 },
                 drag: (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) =>

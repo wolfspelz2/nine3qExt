@@ -14,6 +14,7 @@ export class Item
     {
     }
 
+    getId(): string { return this.itemId; }
     getProperties(): ItemProperties { return this.properties; }
 
     setProperties(props: ItemProperties, options: ItemChangeOptions)

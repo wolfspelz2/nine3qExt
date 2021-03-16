@@ -137,7 +137,7 @@ export class RoomItem extends Entity
                         // Should remove the lesser one of my 2 claim items
                     } else {
                         // The new item is a remote item
-                        if (!this.room.claimDefersToExisting(props)) {
+                        if (! await this.room.propsClaimDefersToExistingClaim(props)) {
                             // The new item is better
                             if (await BackgroundMessage.isBackpackItem(claimingRoomItem.getRoomNick())) {
                                 // The existing claim is mine
@@ -374,8 +374,24 @@ export class RoomItem extends Entity
         this.isDerezzing = false;
     }
 
-    sendsendMessageToScreenFrame(message: any)
+    positionItemFrame(itemId: string, width: number, height: number, left: number, bottom: number)
+    {
+        let item = this.app.getItemRepository().getItem(itemId);
+        if (item) {
+            item.positionFrame(width, height, left, bottom);
+        }
+    }
+    
+    sendMessageToScreenItemFrame(message: any)
     {
         this.screenUnderlay?.sendMessage(message);
     }
+    
+    // updateItemFrame(itemId: string, prop: ItemProperties)
+    // {
+    //     let item = this.app.getItemRepository().getItem(itemId);
+    //     if (item) {
+    //         item.updateFrame();
+    //     }
+    // }
 }

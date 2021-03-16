@@ -15,5 +15,6 @@ npm run watch
 ## Build
 
 ```sh
-npm run build
+npm run release-extension
+npm run release-embedded
 ```

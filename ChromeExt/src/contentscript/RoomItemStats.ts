@@ -27,13 +27,12 @@ export class RoomItemStats
             $(this.elem).css({ bottom: bottom + 'px' });
         }
 
-        this.app.toFront(this.elem);
+        this.app.toFront(this.elem, ContentApp.LayerEntityTooltip);
         $(this.elem).stop().delay(Config.get('room.itemStatsTooltipDelay', 500)).fadeIn('fast');
     }
 
     close(): void
     {
-        // $(this.elem).stop().fadeOut('fast');
         $(this.elem).remove();
         if (this.onClose) { this.onClose(); }
     }
@@ -61,8 +60,14 @@ export class RoomItemStats
             let label = as.String(props[Pid.Template], null);
         }
         if (label) {
-            let labelElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops-title" data-translate="text:ItemLabel">' + label + '</div>').get(0);
+            let labelElem = <HTMLDivElement>$('<div class="n3q-base n3q-title" data-translate="text:ItemLabel">' + label + '</div>').get(0);
             $(this.elem).append(labelElem);
+        }
+
+        let description = as.String(props[Pid.Description], '');
+        if (description != '') {
+            let descriptionElem = <HTMLDivElement>$('<div class="n3q-base n3q-description">' + description + '</div>').get(0);
+            $(this.elem).append(descriptionElem);
         }
 
         let stats = as.String(props[Pid.Stats], null);
@@ -90,6 +95,6 @@ export class RoomItemStats
 
         this.app.translateElem(this.elem);
 
-        return hasStats;
+        return hasStats || description != '';
     }
 }

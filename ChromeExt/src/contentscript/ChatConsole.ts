@@ -45,6 +45,12 @@ export class ChatConsole
                     ['help', '/xmpp'],
                     ['help', '/room'],
                     ['help', '/changes'],
+                    ['help', '/items /stuff /backpack /things'],
+                    ['help', '/video /vid /vidconf /conf /jitsi'],
+                    ['help', '/info'],
+                    ['help', '/who'],
+                    ['help', '/what'],
+                    ['help', '/map <URL>'],
                 ]);
                 break;
             case '/xmpp':
