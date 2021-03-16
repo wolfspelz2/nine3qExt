@@ -16,7 +16,6 @@ export class _Changes
             ['Add', 'Drop button to backpack item info'],
             ['Add', 'Menu option: send goodbye'],
             ['Change', 'Click through transparent images'],
-            ['Change', 'Move backpack item info with mouse (click to pin)'],
             ['Change', 'Spawn new item in backpack to free space'],
             ['Fix', 'Accidental backpack item info after drop/pickup from backpack'],
             ['Fix', 'Created items disappear on next presence'],
