@@ -23,7 +23,6 @@ export class BackpackItem
     private y: number = 100;
     private imageWidth: number = 64;
     private imageHeight: number = 64;
-    private inDrag: boolean = false;
     private info: BackpackItemInfo = null;
 
     private mousedownX: number;
@@ -107,7 +106,6 @@ export class BackpackItem
             start: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
                 this.app.toFront(this.elem, ContentApp.LayerWindowContent);
-                this.inDrag = true;
                 $(this.elem).hide();
                 return this.onDragStart(ev, ui);
             },
@@ -119,12 +117,6 @@ export class BackpackItem
             {
                 $(this.elem).show(0);
                 var itemUnchanged = this.onDragStop(ev, ui);
-                // if (itemUnchanged) {
-                //     $(this.elem).show(0);
-                // } else {
-                //     $(this.elem).delay(1000).show(0);
-                // }
-                this.inDrag = false;
                 return true;
             }
         });

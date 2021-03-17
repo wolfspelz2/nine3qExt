@@ -8,6 +8,7 @@ export class _Changes
     static data: IHistory = [
         ['1.1.0', 'hilite', [
             ['Add', 'feature'],
+            ['Change', 'Quick slide items without defined avatar speed'],
             ['Fix', 'Avatar position resets when draged while already moving'],
         ]],
         ['1.0.9', 'WeblinMigration Web3 RezButton', [

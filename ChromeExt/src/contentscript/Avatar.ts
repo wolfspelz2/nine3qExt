@@ -33,9 +33,8 @@ export class Avatar implements IObserver
     private currentCondition: string = '';
     private currentState: string = '';
     private currentAction: string = '';
-    private inDrag: boolean = false;
     private isDefault: boolean = true;
-    private currentSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
+    private speedPixelPerSec: number = 0;
     private defaultSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
 
     private clickDblClickSeparationTimer: number;
@@ -151,7 +150,6 @@ export class Avatar implements IObserver
                     return false;
                 }
 
-                this.inDrag = true;
                 this.entity.onDragAvatarStart(ev, ui);
             },
             drag: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
@@ -170,8 +168,6 @@ export class Avatar implements IObserver
                 } else {
                     this.entity.onDragAvatarStop(ev, ui);
                 }
-
-                this.inDrag = false;
 
                 this.hackSuppressNextClickOtherwiseDraggableClicks = true;
                 setTimeout(() => { this.hackSuppressNextClickOtherwiseDraggableClicks = false; }, 200);
@@ -437,8 +433,6 @@ export class Avatar implements IObserver
     private animationTimer: number = undefined;
     startNextAnimation(): void
     {
-        this.currentSpeedPixelPerSec = this.defaultSpeedPixelPerSec;
-
         let once = true;
         let group = this.currentAction;
         this.currentAction = '';
@@ -462,10 +456,7 @@ export class Avatar implements IObserver
 
         // this.currentSpeedPixelPerSec = Math.abs(animation.dx) / durationSec;
         // dx means pixels per sec, not pixels per duration
-        let newSpeedPixelPerSec = Math.abs(animation.dx) / 1.0;
-        if (newSpeedPixelPerSec > 0) {
-            this.currentSpeedPixelPerSec = Math.abs(animation.dx) / 1.0;
-        }
+        this.setSpeed(Math.abs(animation.dx) / 1.0);
 
         this.setImage(animation.url);
 
@@ -476,9 +467,19 @@ export class Avatar implements IObserver
         this.animationTimer = <number><unknown>setTimeout(() => { this.startNextAnimation(); }, durationSec * 1000);
     }
 
+    hasSpeed(): boolean
+    {
+        return this.speedPixelPerSec != 0;
+    }
+
     getSpeedPixelPerSec(): Number
     {
-        return this.currentSpeedPixelPerSec;
+        return this.speedPixelPerSec;
+    }
+
+    setSpeed(pixelPerSec: number): void
+    {
+        this.speedPixelPerSec = pixelPerSec;
     }
 
     getAnimationByGroup(group: string): AvatarGetAnimationResult
