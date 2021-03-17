@@ -84,6 +84,13 @@ export class Entity
             }
         }
 
+        if (this.avatarDisplay) {
+            if (!this.avatarDisplay.hasSpeed()) {
+                this.quickSlide(newX);
+                return;
+            }
+        }
+
         let speedPixelPerSec = as.Float(this.avatarDisplay.getSpeedPixelPerSec(), this.defaultSpeedPixelPerSec);
         var durationSec = absDiffX / speedPixelPerSec;
 
@@ -91,9 +98,12 @@ export class Entity
             .stop(true)
             .animate(
                 { left: newX + 'px' },
-                durationSec * 1000,
-                'linear',
-                () => this.onMoveDestinationReached(newX)
+                {
+                    duration: durationSec * 1000,
+                    step: (x) => { this.positionX = x; },
+                    easing: 'linear',
+                    complete: () => this.onMoveDestinationReached(newX)
+                }
             );
     }
 
@@ -117,9 +127,12 @@ export class Entity
             .stop(true)
             .animate(
                 { left: newX + 'px' },
-                100,
-                'linear',
-                () => this.onQuickSlideReached(newX)
+                {
+                    duration: Config.get('room.quickSlideSec', 0.1) * 1000,
+                    step: (x) => { this.positionX = x; },
+                    easing: 'linear',
+                    complete: () => this.onQuickSlideReached(newX)
+                }
             );
     }
 
@@ -183,8 +196,8 @@ export class Entity
 
     onDraggedTo(newX: number): void
     {
-        if (this.getPosition() != newX) {
-            this.quickSlide(newX);
-        }
+        // if (this.getPosition() != newX) {
+        //     this.quickSlide(newX);
+        // }
     }
 }

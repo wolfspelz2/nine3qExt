@@ -60,6 +60,7 @@ export class Config
         },
         room: {
             fadeInSec: 0.3,
+            quickSlideSec: 0.1,
             checkPageUrlSec: 3.0,
             defaultAvatarSpeedPixelPerSec: 100,
             randomEnterPosXMin: 300,

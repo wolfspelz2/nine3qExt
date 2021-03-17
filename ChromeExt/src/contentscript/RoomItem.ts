@@ -285,6 +285,13 @@ export class RoomItem extends Entity
         }
     }
 
+    onDraggedTo(newX: number): void
+    {
+        if (this.getPosition() != newX) {
+            this.sendMoveMessage(newX);
+        }
+    }
+
     onQuickSlideReached(newX: number): void
     {
         super.onQuickSlideReached(newX);
@@ -381,12 +388,12 @@ export class RoomItem extends Entity
             item.positionFrame(width, height, left, bottom);
         }
     }
-    
+
     sendMessageToScreenItemFrame(message: any)
     {
         this.screenUnderlay?.sendMessage(message);
     }
-    
+
     // updateItemFrame(itemId: string, prop: ItemProperties)
     // {
     //     let item = this.app.getItemRepository().getItem(itemId);
