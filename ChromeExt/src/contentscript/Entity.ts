@@ -91,9 +91,12 @@ export class Entity
             .stop(true)
             .animate(
                 { left: newX + 'px' },
-                durationSec * 1000,
-                'linear',
-                () => this.onMoveDestinationReached(newX)
+                {
+                    duration: durationSec * 1000,
+                    step: (x) => { this.positionX = x; },
+                    easing: 'linear',
+                    complete: () => this.onMoveDestinationReached(newX)
+                }
             );
     }
 
