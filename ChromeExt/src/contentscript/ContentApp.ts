@@ -519,9 +519,9 @@ export class ContentApp
         }
     }
 
-    leavePage()
+    async leavePage()
     {
-        this.leaveRoom();
+        await this.leaveRoom();
     }
 
     async checkPageUrlChanged()
@@ -631,18 +631,18 @@ export class ContentApp
 
     async enterRoom(roomJid: string, roomDestination: string): Promise<void>
     {
-        this.leaveRoom();
+        await this.leaveRoom();
 
         this.room = new Room(this, roomJid, roomDestination, await this.getSavedPosition());
         log.debug('ContentApp.enterRoom', roomJid);
         this.room.enter();
     }
 
-    leaveRoom(): void
+    async leaveRoom(): Promise<void>
     {
         if (this.room) {
             log.debug('ContentApp.leaveRoom', this.room.getJid());
-            this.room.leave();
+            await this.room.leave();
             this.room = null;
         }
     }

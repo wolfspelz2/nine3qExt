@@ -112,8 +112,33 @@ export class Room
         this.sendPresence();
     }
 
-    leave(): void
+    async rezRezactiveItems(): Promise<void>
     {
+        // let propSet = await BackgroundMessage.findBackpackItemProperties({ [Pid.RezactiveAspect]: 'true', [Pid.RezactiveIsRezzed]: 'true' });
+        // for (let id in propSet) {
+        //     try {
+        //         await BackgroundMessage.rezBackpackItem(id, this.getJid(), -1, this.getDestination(), {});
+        //     } catch (error) {
+        //         log.info(error);
+        //     }
+        // }
+    }
+
+    async derezRezactiveItems(): Promise<void>
+    {
+        let propSet = await BackgroundMessage.findBackpackItemProperties({ [Pid.RezactiveAspect]: 'true', [Pid.RezactiveIsRezzed]: 'true', [Pid.IsRezzed]: 'true' });
+        for (let id in propSet) {
+            try {
+                await BackgroundMessage.derezBackpackItem(id, this.getJid(), -1, -1, {});
+            } catch (error) {
+                log.info(error);
+            }
+        }
+    }
+
+    async leave(): Promise<void>
+    {
+        await this.derezRezactiveItems();
         this.sendPresenceUnavailable();
         this.removeAllParticipants();
         this.onUnload();

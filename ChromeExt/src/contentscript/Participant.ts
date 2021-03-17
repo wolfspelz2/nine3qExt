@@ -224,6 +224,10 @@ export class Participant extends Entity
             if (this.isSelf) {
                 this.chatinDisplay = new Chatin(this.app, this, this.getElem());
             }
+
+            if (this.isSelf) {
+                await this.room.rezRezactiveItems();
+            }
         }
 
         let hasAvatar = false;
