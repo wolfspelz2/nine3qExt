@@ -21,6 +21,7 @@ export interface ItemFrameWindowOptions extends WindowOptions
 
 export class ItemFrameWindow extends Window
 {
+    protected iframeElem: HTMLIFrameElement;
     protected refElem: HTMLElement;
     private url: string;
     private title: string;
@@ -31,6 +32,8 @@ export class ItemFrameWindow extends Window
     {
         super(app);
     }
+
+    getIframeElem(): HTMLIFrameElement { return this.iframeElem; }
 
     async show(options: ItemFrameWindowOptions)
     {
@@ -50,9 +53,9 @@ export class ItemFrameWindow extends Window
             this.width = options.width; // member for undock
             this.height = options.height; // member for undock
 
-            let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-itemframewindow-content" src="' + this.url + ' " frameborder="0" allow="camera; microphone; fullscreen; display-capture"></iframe>').get(0);
+            this.iframeElem = <HTMLIFrameElement>$('<iframe class="n3q-base n3q-itemframewindow-content" src="' + this.url + ' " frameborder="0" allow="camera; microphone; fullscreen; display-capture"></iframe>').get(0);
 
-            $(this.contentElem).append(iframeElem);
+            $(this.contentElem).append(this.iframeElem);
             this.app.translateElem(this.windowElem);
 
             this.position(options.width, options.height, options.left, options.bottom);

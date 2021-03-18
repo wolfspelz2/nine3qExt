@@ -263,7 +263,7 @@ export class BackgroundApp
 
     maintainHttpCache(): void
     {
-        if (Config.get('log.fetchUrlCache', false)) {
+        if (Config.get('log.backgroundFetchUrlCache', false)) {
             log.debug('BackgroundApp.maintainHttpCache');
         }
         let cacheTimeout = Config.get('httpCache.maxAgeSec', 3600);
@@ -277,7 +277,7 @@ export class BackgroundApp
 
         deleteKeys.forEach(key =>
         {
-            if (Config.get('log.fetchUrlCache', false)) {
+            if (Config.get('log.backgroundFetchUrlCache', false)) {
                 log.debug('BackgroundApp.maintainHttpCache', (now - this.httpCacheTime[key]) / 1000, 'sec', 'delete', key);
             }
             delete this.httpCacheData[key];
@@ -313,7 +313,7 @@ export class BackgroundApp
         if (isCached) {
             // log.debug('BackgroundApp.handle_fetchUrl', 'cache-age', (now - this.httpCacheTime[key]) / 1000, url, 'version=', version);
         } else {
-            if (Config.get('log.fetchUrlCache', false)) {
+            if (Config.get('log.backgroundFetchUrlCache', false)) {
                 log.debug('BackgroundApp.handle_fetchUrl', 'not-cached', url, 'version=', version);
             }
         }
@@ -344,7 +344,7 @@ export class BackgroundApp
                             this.httpCacheTime[key] = now;
                         }
                         let response = { 'ok': true, 'data': text };
-                        if (Config.get('log.fetchUrl', false)) {
+                        if (Config.get('log.backgroundFetchUrl', false)) {
                             log.debug('BackgroundApp.handle_fetchUrl', 'response', url, text.length, response);
                         }
                         sendResponse(response);
@@ -375,7 +375,7 @@ export class BackgroundApp
             })
                 .then(httpResponse =>
                 {
-                    log.debug('BackgroundApp.handle_jsonRpc', 'httpResponse', url, postBody, httpResponse);
+                    // log.debug('BackgroundApp.handle_jsonRpc', 'httpResponse', url, postBody, httpResponse);
                     if (httpResponse.ok) {
                         return httpResponse.text();
                     } else {
@@ -385,7 +385,9 @@ export class BackgroundApp
                 .then(text =>
                 {
                     let response = { 'ok': true, 'data': text };
-                    log.debug('BackgroundApp.handle_jsonRpc', 'response', url, text.length, response);
+                    if (Config.get('log.backgroundJsonRpc', false)) {
+                        log.debug('BackgroundApp.handle_jsonRpc', 'response', url, postBody, text.length, response);
+                    }
                     sendResponse(response);
                 })
                 .catch(ex =>
@@ -847,7 +849,8 @@ export class BackgroundApp
     replayPresenceToTab(roomJid: string, tabId: number)
     {
         let roomPresences = this.getPresenceStateOfRoom(roomJid);
-        roomPresences.forEach((stanza, key) => {
+        roomPresences.forEach((stanza, key) =>
+        {
             window.setTimeout(() =>
             {
                 ContentMessage.sendMessage(tabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });

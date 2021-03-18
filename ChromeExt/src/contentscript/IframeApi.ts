@@ -47,7 +47,9 @@ export class IframeApi
 
     onMessage(ev: any): any
     {
-        log.debug('IframeApi.onMessage', ev);
+        if (Config.get('log.iframeApi', false)) {
+            log.debug('IframeApi.onMessage', ev);
+        }
 
         let request = <WeblinClientApi.Request>ev.data;
 

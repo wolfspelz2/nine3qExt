@@ -42,11 +42,13 @@ export class Config
             backgroundTraffic: false,
             contentTraffic: false,
             rpcClient: false,
-            fetchUrl: false,
-            fetchUrlCache: false,
+            backgroundFetchUrl: false,
+            backgroundFetchUrlCache: false,
+            backgroundJsonRpc: false,
             pingBackground: false,
             contentStart: false,
             urlMapping: false,
+            iframeApi: false,
         },
         client: {
             name: 'weblin.io',
@@ -135,7 +137,6 @@ export class Config
         },
         roomItem: {
             statsPopupOffset: 10,
-            messageMagic: 'uzv65b76t_weblin2screen',
             frameUndockedLeft: 100,
             frameUndockedTop: 100,
             chatlogItemAppeared: false,
@@ -144,6 +145,8 @@ export class Config
         },
         iframeApi: {
             messageMagic: 'a67igu67puz_iframeApi',
+            messageMagicRezactive: 'tr67rftghg_Rezactive',
+            messageMagic2Screen: 'uzv65b76t_weblin2screen',
             messageMagicW2WMigration: 'hbv67u5rf_w2wMigrate',
             messageMagicCreateCryptoWallet: 'tr67rftghg_CreateCryptoWallet',
         },

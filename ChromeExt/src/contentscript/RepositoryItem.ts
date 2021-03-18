@@ -156,6 +156,9 @@ export class RepositoryItem
             }
 
             this.frameWindow.show(options);
+        } else {
+            let iframeWindow = this.frameWindow.getIframeElem().contentWindow;
+            if (iframeWindow) { iframeWindow.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Item.Properties', properties: this.properties }, '*'); }
         }
     }
 

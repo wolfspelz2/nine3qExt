@@ -54,7 +54,7 @@ export class ItemFrameUnderlay
         let iframeElem = <HTMLIFrameElement>$('#' + this.iframeId).get(0);
         let iframeWindow = iframeElem.contentWindow;
 
-        message[Config.get('roomItem.messageMagic', 'uzv65b76t_weblin2screen')] = true;
+        message[Config.get('iframeApi.messageMagic2Screen', 'uzv65b76t_weblin2screen')] = true;
         iframeWindow.postMessage(message, '*');
     }
 }
