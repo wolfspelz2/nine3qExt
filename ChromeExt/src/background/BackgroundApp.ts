@@ -780,7 +780,6 @@ export class BackgroundApp
 
                 if (as.String(stanza.attrs['type'], 'available') == 'available') {
                     if (this.isDeferredUnavailable(to)) {
-                        log.debug('BackgroundApp.handle_sendStanza', 'cancel deferred unavailable');
                         this.cancelDeferredUnavailable(to);
                         send = false;
                     }
@@ -856,8 +855,10 @@ export class BackgroundApp
         if (this.fullJid2TimerDeferredUnavailable[to]) {
             // wait for it
         } else {
+            log.debug('BackgroundApp.defereUnavailable');
             this.fullJid2TimerDeferredUnavailable[to] = window.setTimeout(() =>
             {
+                log.debug('BackgroundApp.defereUnavailable', 'execute deferred');
                 delete this.fullJid2TimerDeferredUnavailable[to];
                 this.sendStanza(xml('presence', { type: 'unavailable', 'to': to }));
                 let roomJid = jid(to);
@@ -879,6 +880,7 @@ export class BackgroundApp
     {
         let timer = this.fullJid2TimerDeferredUnavailable[to];
         if (timer) {
+            log.debug('BackgroundApp.cancelDeferredUnavailable');
             window.clearTimeout(timer);
             delete this.fullJid2TimerDeferredUnavailable[to];
         }
