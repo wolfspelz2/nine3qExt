@@ -32,6 +32,16 @@ export class Config
         test: {
             itemServiceRpcUrl: 'http://localhost:5000/rpc',
         },
+        log: {
+            backgroundTraffic: false,
+            contentTraffic: false,
+            rpcClient: false,
+            fetchUrl: false,
+            fetchUrlCache: false,
+            pingBackground: false,
+            contentStart: false,
+            urlMapping: false,
+        },
         client: {
             name: 'weblin.io',
             variant: '',

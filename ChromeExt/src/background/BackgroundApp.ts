@@ -261,7 +261,9 @@ export class BackgroundApp
 
     maintainHttpCache(): void
     {
-        log.debug('BackgroundApp.maintainHttpCache');
+        if (Config.get('log.fetchUrlCache', false)) {
+            log.debug('BackgroundApp.maintainHttpCache');
+        }
         let cacheTimeout = Config.get('httpCache.maxAgeSec', 3600);
         let now = Date.now();
         let deleteKeys = new Array<string>();
@@ -273,7 +275,9 @@ export class BackgroundApp
 
         deleteKeys.forEach(key =>
         {
-            log.debug('BackgroundApp.maintainHttpCache', (now - this.httpCacheTime[key]) / 1000, 'sec', 'delete', key);
+            if (Config.get('log.fetchUrlCache', false)) {
+                log.debug('BackgroundApp.maintainHttpCache', (now - this.httpCacheTime[key]) / 1000, 'sec', 'delete', key);
+            }
             delete this.httpCacheData[key];
             delete this.httpCacheTime[key];
         });
@@ -307,7 +311,9 @@ export class BackgroundApp
         if (isCached) {
             // log.debug('BackgroundApp.handle_fetchUrl', 'cache-age', (now - this.httpCacheTime[key]) / 1000, url, 'version=', version);
         } else {
-            log.debug('BackgroundApp.handle_fetchUrl', 'not-cached', url, 'version=', version);
+            if (Config.get('log.fetchUrlCache', false)) {
+                log.debug('BackgroundApp.handle_fetchUrl', 'not-cached', url, 'version=', version);
+            }
         }
 
         if (isCached) {
@@ -336,7 +342,9 @@ export class BackgroundApp
                             this.httpCacheTime[key] = now;
                         }
                         let response = { 'ok': true, 'data': text };
-                        log.debug('BackgroundApp.handle_fetchUrl', 'response', url, text.length, response);
+                        if (Config.get('log.fetchUrl', false)) {
+                            log.debug('BackgroundApp.handle_fetchUrl', 'response', url, text.length, response);
+                        }
                         sendResponse(response);
                     })
                     .catch(ex =>
@@ -399,7 +407,9 @@ export class BackgroundApp
 
     handle_waitReady(sendResponse: (response?: any) => void): boolean
     {
-        log.debug('BackgroundApp.handle_waitReady');
+        if (Config.get('log.contentStart', false)) {
+            log.debug('BackgroundApp.handle_waitReady');
+        }
         let sendResponseIsAsync = false;
 
         if (this.isReady) {
@@ -420,7 +430,9 @@ export class BackgroundApp
 
     handle_getConfigTree(name: any): any
     {
-        log.debug('BackgroundApp.handle_getConfigTree', name, this.isReady);
+        if (Config.get('log.contentStart', false)) {
+            log.debug('BackgroundApp.handle_getConfigTree', name, this.isReady);
+        }
         switch (as.String(name, Config.onlineConfigName)) {
             case Config.devConfigName: return Config.getDevTree();
             case Config.onlineConfigName: return Config.getOnlineTree();
@@ -733,7 +745,9 @@ export class BackgroundApp
                 if (as.String(stanza.attrs['type'], 'available') == 'available') {
                     if (!this.hasRoomJid2TabId(room, tabId)) {
                         this.addRoomJid2TabId(room, tabId);
-                        log.debug('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId);
+                        if (Config.get('log.room2tab', false)) {
+                            log.debug('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId);
+                        }
                     }
                 } else {
                     this.fullJid2TabWhichSentUnavailable[to] = tabId;
@@ -784,7 +798,9 @@ export class BackgroundApp
             isConnectionPresence = (!stanza.attrs || !stanza.attrs.to || jid(stanza.attrs.to).getResource() == this.resource);
         }
         if (!isConnectionPresence) {
-            log.debug('BackgroundApp.sendStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to);
+            if (Config.get('log.backgroundTraffic', false)) {
+                log.debug('BackgroundApp.sendStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to);
+            }
         }
     }
 
@@ -801,7 +817,9 @@ export class BackgroundApp
                 isConnectionPresence = stanza.attrs.from && (jid(stanza.attrs.from).getResource() == this.resource);
             }
             if (!isConnectionPresence) {
-                log.debug('BackgroundApp.recvStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to, 'from=', stanza.attrs.from);
+                if (Config.get('log.backgroundTraffic', false)) {
+                    log.debug('BackgroundApp.recvStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to, 'from=', stanza.attrs.from);
+                }
             }
         }
 
@@ -848,7 +866,9 @@ export class BackgroundApp
             if (unavailableTabId >= 0) {
                 ContentMessage.sendMessage(unavailableTabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
                 this.removeRoomJid2TabId(room, unavailableTabId);
-                log.debug('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', unavailableTabId, 'now:', this.roomJid2tabId);
+                if (Config.get('log.room2tab', false)) {
+                    log.debug('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', unavailableTabId, 'now:', this.roomJid2tabId);
+                }
             } else {
                 let tabIds = this.getRoomJid2TabIds(room);
                 if (tabIds) {
@@ -960,7 +980,9 @@ export class BackgroundApp
     private lastPingTime: number = 0;
     handle_pingBackground(): BackgroundResponse
     {
-        log.debug('BackgroundApp.handle_pingBackground');
+        if (Config.get('log.pingBackground', false)) {
+            log.debug('BackgroundApp.handle_pingBackground');
+        }
         try {
             let now = Date.now();
             if (now - this.lastPingTime > 10000) {

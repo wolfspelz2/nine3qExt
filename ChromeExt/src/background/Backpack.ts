@@ -373,6 +373,13 @@ export class Backpack
         return false;
     }
 
+    getItem(itemId: string): Item
+    {
+        let item = this.items[itemId];
+        if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
+        return item;
+    }
+
     async setItemProperties(itemId: string, props: ItemProperties, options: ItemChangeOptions): Promise<void>
     {
         let item = this.items[itemId];
@@ -386,7 +393,6 @@ export class Backpack
     {
         let item = this.items[itemId];
         if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
-
         return item.getProperties();
     }
 
@@ -509,20 +515,14 @@ export class Backpack
 
     handleRezactiveAspect(itemId: string)
     {
-        let props = this.getItemProperties(itemId);
+        let item = this.getItem(itemId);
+        let props = item.getProperties();
         if (as.Bool(props[Pid.RezactiveAspect], false)) {
             let nextHeartbeatSec = as.Float(props[Pid.RezactiveNextHeartbeatSec], 0);
             if (nextHeartbeatSec > 0) {
                 props[Pid.RezactiveNextHeartbeatSec] = '0';
                 this.setItemProperties(itemId, props, {});
-                window.setTimeout(async () =>
-                {
-                    try {
-                        await this.executeItemAction(itemId, 'Rezactive.OnHeartbeat', {}, [itemId], false);
-                    } catch (error) {
-                        log.info(error);
-                    }
-                }, nextHeartbeatSec * 1000);
+                item.setRezactiveHeartbeat(nextHeartbeatSec);
             }
         }
     }
@@ -575,6 +575,7 @@ export class Backpack
         if (!item.isRezzed()) { return; }
         if (!item.isRezzedTo(roomJid)) { throw new ItemException(ItemException.Fact.NotDerezzed, ItemException.Reason.ItemNotRezzedHere); }
 
+        item.cancelRezactiveHeartbeat();
         let props = item.getProperties();
 
         if (as.Bool(props[Pid.RezactiveAspect], false)) {

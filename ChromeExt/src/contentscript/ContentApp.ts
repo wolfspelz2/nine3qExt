@@ -482,7 +482,9 @@ export class ContentApp
     handle_recvStanza(jsStanza: any): any
     {
         let stanza: xml = Utils.jsObject2xmlObject(jsStanza);
-        log.debug('ContentApp.recvStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to, 'from=', stanza.attrs.from);
+        if (Config.get('log.contentTraffic', false)) {
+            log.debug('ContentApp.recvStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to, 'from=', stanza.attrs.from);
+        }
 
         if (this.xmppWindow) {
             let stanzaText = stanza.toString();
@@ -519,9 +521,9 @@ export class ContentApp
         }
     }
 
-    async leavePage()
+    leavePage()
     {
-        await this.leaveRoom();
+        this.leaveRoom();
     }
 
     async checkPageUrlChanged()
@@ -631,18 +633,18 @@ export class ContentApp
 
     async enterRoom(roomJid: string, roomDestination: string): Promise<void>
     {
-        await this.leaveRoom();
+        this.leaveRoom();
 
         this.room = new Room(this, roomJid, roomDestination, await this.getSavedPosition());
         log.debug('ContentApp.enterRoom', roomJid);
         this.room.enter();
     }
 
-    async leaveRoom(): Promise<void>
+    leaveRoom(): void
     {
         if (this.room) {
             log.debug('ContentApp.leaveRoom', this.room.getJid());
-            await this.room.leave();
+            this.room.leave();
             this.room = null;
         }
     }
@@ -691,7 +693,9 @@ export class ContentApp
 
     async sendStanza(stanza: xml, stanzaId: string = null, responseHandler: StanzaResponseHandler = null): Promise<void>
     {
-        log.debug('ContentApp.sendStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to);
+        if (Config.get('log.contentTraffic', false)) {
+            log.debug('ContentApp.sendStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to);
+        }
         try {
             if (this.xmppWindow) {
                 let stanzaText = stanza.toString();
