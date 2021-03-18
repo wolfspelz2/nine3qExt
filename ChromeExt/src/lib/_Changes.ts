@@ -9,7 +9,7 @@ export class _Changes
         ['1.1.0', 'hilite', [
             ['Add', 'feature'],
             ['Change', 'Quick slide items without defined avatar speed'],
-            ['Fix', 'Avatar position resets when draged while already moving'],
+            ['Fix', 'Avatar position resets when dragged while already moving'],
         ]],
         ['1.0.9', 'WeblinMigration Web3 RezButton', [
             ['Add', 'transparent iframe'],
