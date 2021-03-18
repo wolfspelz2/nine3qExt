@@ -29,6 +29,12 @@ export class Config
             avatar: '',
             active: '',
         },
+        config: {
+            serviceUrl: 'https://webex.vulcan.weblin.com/Config',
+            updateIntervalSec: 83567,
+            checkUpdateIntervalSec: 123,
+            clusterName: 'prod',
+        },
         test: {
             itemServiceRpcUrl: 'http://localhost:5000/rpc',
         },
@@ -57,12 +63,6 @@ export class Config
             ignoredDomainSuffixes: ['vulcan.weblin.com'],
             strippedUrlPrefixes: ['https://cdn.weblin.io/?', 'https://cdn.weblin.io/'],
             notStrippedUrlPrefixes: ['https://cdn.weblin.io/v1/', 'https://cdn.weblin.io/sso/'],
-        },
-        config: {
-            serviceUrl: 'https://webex.vulcan.weblin.com/Config',
-            updateIntervalSec: 83567,
-            checkUpdateIntervalSec: 123,
-            clusterName: 'prod',
         },
         httpCache: {
             maxAgeSec: 3600,
@@ -114,6 +114,7 @@ export class Config
             domain: 'xmpp.vulcan.weblin.com',
             maxMucEnterRetries: 4,
             pingBackgroundToKeepConnectionAliveSec: 12,
+            deferUnavailableSec: 2.0,
         },
         avatars: {
             animationsProxyUrlTemplate: 'https://webex.vulcan.weblin.com/Avatar/InlineData?url={url}',

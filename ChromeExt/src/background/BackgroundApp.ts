@@ -31,6 +31,7 @@ export class BackgroundApp
 {
     private xmpp: any;
     private xmppConnected = false;
+    private xmppJid: string;
     private configUpdater: ConfigUpdater;
     private resource: string;
     private isReady: boolean = false;
@@ -42,6 +43,7 @@ export class BackgroundApp
     private readonly stanzaQ: Array<xml> = [];
     private readonly roomJid2tabId: Map<string, Array<number>> = new Map<string, Array<number>>();
     private readonly fullJid2TabWhichSentUnavailable: Map<string, number> = new Map<string, number>();
+    private readonly fullJid2TimerDeferredUnavailable: Map<string, number> = new Map<string, number>();
     private readonly iqStanzaTabId: Map<string, number> = new Map<string, number>();
     private readonly httpCacheData: Map<string, string> = new Map<string, string>();
     private readonly httpCacheTime: Map<string, number> = new Map<string, number>();
@@ -723,6 +725,50 @@ export class BackgroundApp
         return tabIds;
     }
 
+    // keep room state
+
+    private readonly fullJid2PresenceList: Map<string, Map<string, any>> = new Map<string, Map<string, any>>();
+
+    presenceStateAddPresence(roomJid: string, participantNick: string, stanza: any): void
+    {
+        let roomPresences = this.fullJid2PresenceList.get(roomJid);
+        if (roomPresences) { } else {
+            roomPresences = new Map<string, any>();
+            this.fullJid2PresenceList.set(roomJid, roomPresences);
+        }
+        roomPresences.set(participantNick, stanza);
+    }
+
+    presenceStateRemovePresence(roomJid: string, participantNick: string): void
+    {
+        let roomPresences = this.fullJid2PresenceList.get(roomJid);
+        if (roomPresences) {
+            if (roomPresences.has(participantNick)) {
+                roomPresences.delete(participantNick);
+            }
+
+            if (roomPresences.size == 0) {
+                this.fullJid2PresenceList.delete(roomJid);
+            }
+        }
+    }
+
+    presenceStateRemoveRoom(roomJid: string): void
+    {
+        if (this.fullJid2PresenceList.has(roomJid)) {
+            this.fullJid2PresenceList.delete(roomJid);
+        }
+    }
+
+    getPresenceStateOfRoom(roomJid: string): Map<string, any>
+    {
+        let roomPresences = this.fullJid2PresenceList.get(roomJid);
+        if (roomPresences) {
+            return roomPresences;
+        }
+        return new Map<string, any>();
+    }
+
     // send/recv stanza
 
     handle_sendStanza(stanza: any, tabId: number): BackgroundResponse
@@ -731,6 +777,7 @@ export class BackgroundApp
 
         try {
             let xmlStanza: xml = Utils.jsObject2xmlObject(stanza);
+            let send = true;
 
             if (this.backpack) {
                 xmlStanza = this.backpack.stanzaOutFilter(xmlStanza);
@@ -738,11 +785,17 @@ export class BackgroundApp
             }
 
             if (stanza.name == 'presence') {
-                let to = jid(stanza.attrs.to);
-                let room = to.bare().toString();
-                let nick = to.getResource();
+                let to = stanza.attrs.to;
+                let toJid = jid(to);
+                let room = toJid.bare().toString();
+                let nick = toJid.getResource();
 
                 if (as.String(stanza.attrs['type'], 'available') == 'available') {
+                    if (this.isDeferredUnavailable(to)) {
+                        this.cancelDeferredUnavailable(to);
+                        send = false;
+                    }
+                    this.replayPresenceToTab(room, tabId);
                     if (!this.hasRoomJid2TabId(room, tabId)) {
                         this.addRoomJid2TabId(room, tabId);
                         if (Config.get('log.room2tab', false)) {
@@ -750,7 +803,25 @@ export class BackgroundApp
                         }
                     }
                 } else {
-                    this.fullJid2TabWhichSentUnavailable[to] = tabId;
+                    let tabIds = this.getRoomJid2TabIds(room);
+                    if (tabIds) {
+                        if (tabIds.includes(tabId) && tabIds.length > 1) {
+                            send = false;
+                            this.simulateUnavailableToTab(to, tabId);
+                            this.removeRoomJid2TabId(room, tabId);
+                        }
+                    }
+                    if (send) {
+                        if (Config.get('xmpp.deferUnavailableSec', 0) > 0) {
+                            this.defereUnavailable(to);
+                            send = false;
+                        } else {
+                            this.fullJid2TabWhichSentUnavailable[to] = tabId;
+                        }
+                    }
+                    if (send) {
+                        this.presenceStateRemoveRoom(room);
+                    }
                 }
             }
 
@@ -764,10 +835,68 @@ export class BackgroundApp
                 }
             }
 
-            this.sendStanza(xmlStanza);
+            if (send) {
+                this.sendStanza(xmlStanza);
+            }
 
         } catch (error) {
             log.debug('BackgroundApp.handle_sendStanza', error);
+        }
+    }
+
+    replayPresenceToTab(roomJid: string, tabId: number)
+    {
+        let roomPresences = this.getPresenceStateOfRoom(roomJid);
+        roomPresences.forEach((stanza, key) => {
+            window.setTimeout(() =>
+            {
+                ContentMessage.sendMessage(tabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
+            }, 1);
+        });
+    }
+
+    simulateUnavailableToTab(from: string, unavailableTabId: number)
+    {
+        let stanza = xml('presence', { type: 'unavailable', 'from': from, 'to': this.xmppJid });
+        window.setTimeout(() =>
+        {
+            ContentMessage.sendMessage(unavailableTabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
+        }, 100);
+    }
+
+    defereUnavailable(to: string)
+    {
+        if (this.fullJid2TimerDeferredUnavailable[to]) {
+            // wait for it
+        } else {
+            log.debug('BackgroundApp.defereUnavailable');
+            this.fullJid2TimerDeferredUnavailable[to] = window.setTimeout(() =>
+            {
+                log.debug('BackgroundApp.defereUnavailable', 'execute deferred');
+                delete this.fullJid2TimerDeferredUnavailable[to];
+                this.sendStanza(xml('presence', { type: 'unavailable', 'to': to }));
+                let roomJid = jid(to);
+                let room = roomJid.bare().toString();
+                this.presenceStateRemoveRoom(room);
+            }, Config.get('xmpp.deferUnavailableSec', 0) * 1000);
+        }
+    }
+
+    isDeferredUnavailable(to: string)
+    {
+        if (this.fullJid2TimerDeferredUnavailable[to]) {
+            return true;
+        }
+        return false;
+    }
+
+    cancelDeferredUnavailable(to: string)
+    {
+        let timer = this.fullJid2TimerDeferredUnavailable[to];
+        if (timer) {
+            log.debug('BackgroundApp.cancelDeferredUnavailable');
+            window.clearTimeout(timer);
+            delete this.fullJid2TimerDeferredUnavailable[to];
         }
     }
 
@@ -811,8 +940,8 @@ export class BackgroundApp
 
     private recvStanza(stanza: any)
     {
+        let isConnectionPresence = false;
         {
-            let isConnectionPresence = false;
             if (stanza.name == 'presence') {
                 isConnectionPresence = stanza.attrs.from && (jid(stanza.attrs.from).getResource() == this.resource);
             }
@@ -854,6 +983,14 @@ export class BackgroundApp
             let from = jid(stanza.attrs.from);
             let room = from.bare().toString();
             let nick = from.getResource();
+
+            if (as.String(stanza.attrs['type'], 'available') == 'available') {
+                if (!isConnectionPresence) {
+                    this.presenceStateAddPresence(room, nick, stanza);
+                }
+            } else {
+                this.presenceStateRemovePresence(room, nick);
+            }
 
             let unavailableTabId: number = -1;
             if (stanza.attrs && stanza.attrs['type'] == 'unavailable') {
@@ -920,6 +1057,8 @@ export class BackgroundApp
             this.xmpp.on('online', (address: any) =>
             {
                 log.info('BackgroundApp xmpp.on.online', address);
+
+                this.xmppJid = address;
 
                 this.sendPresence();
 

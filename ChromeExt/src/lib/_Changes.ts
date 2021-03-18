@@ -7,9 +7,10 @@ export class _Changes
 {
     static data: IHistory = [
         ['1.1.0', 'hilite', [
-            ['Add', 'feature'],
             ['Change', 'Quick slide items without defined avatar speed'],
             ['Fix', 'Avatar position resets when dragged while already moving'],
+            ['Fix', 'Leave room on any leave from several tabs with same room'],
+            ['Fix', 'Avatars and items flicker when other user navigates'],
         ]],
         ['1.0.9', 'WeblinMigration Web3 RezButton', [
             ['Add', 'transparent iframe'],
