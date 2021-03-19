@@ -10,8 +10,6 @@ import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 
 export class Item
 {
-    private heartbeatTimer: number = null;
-
     constructor(private app: BackgroundApp, private backpack: Backpack, private itemId: string, private properties: ItemProperties)
     {
     }
@@ -62,29 +60,5 @@ export class Item
         // let attrs = Object.assign(protocolAttrs, this.properties);
         presence.append(xml('x', attrs));
         return presence;
-    }
-
-    cancelRezactiveHeartbeat()
-    {
-        if (this.heartbeatTimer != null) {
-            log.debug('Item.cancelRezactiveHeartbeat', '#### Cancel heartbeat');
-            window.clearTimeout(this.heartbeatTimer);
-        }
-    }
-
-    setRezactiveHeartbeat(heartbeatSec: number)
-    {
-        this.cancelRezactiveHeartbeat();
-        log.debug('Item.setRezactiveHeartbeat', '#### Schedule next heartbeat in', heartbeatSec);
-        this.heartbeatTimer = window.setTimeout(async () =>
-        {
-            try {
-                log.debug('Item.setRezactiveHeartbeat', '#### Execute heartbeat after', heartbeatSec);
-                this.heartbeatTimer = null;
-                await this.backpack.executeItemAction(this.itemId, 'Rezactive.OnHeartbeat', {}, [this.itemId], false);
-            } catch (error) {
-                log.info(error);
-            }
-        }, heartbeatSec * 1000);
     }
 }

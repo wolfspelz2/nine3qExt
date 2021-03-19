@@ -25,7 +25,7 @@ import { ItemRepository } from './ItemRepository';
 import { TestWindow } from './TestWindow';
 import { BackpackWindow } from './BackpackWindow';
 import { SimpleErrorToast, SimpleToast } from './Toast';
-import { IframeApi } from './IframeApi';
+import { IframeApi, WeblinClientApi } from './IframeApi';
 
 interface ILocationMapperResponse
 {
@@ -330,6 +330,44 @@ export class ContentApp
         let roomItem = this.room.getItem(itemId);
         if (roomItem) {
             roomItem.sendMessageToScreenItemFrame(message);
+        }
+    }
+
+    sendPropertiesToFrame(itemId: string)
+    {
+        let item = this.getItemRepository().getItem(itemId);
+        if (item) {
+            item.sendPropertiesToScriptFrame();
+        }
+    }
+
+    setRoomItemProperty(itemId: string, pid: string, value: any)
+    {
+        let roomItem = this.room.getItem(itemId);
+        if (roomItem) {
+            roomItem.setItemProperty(pid, value);
+        }
+    }
+
+    sendParticipantsToFrame(itemId: string, roomJid: string)
+    {
+        let data = new Array<WeblinClientApi.ParticipantData>();
+
+        let participantIds = this.room.getParticipantIds();
+        for (let i  = 0; i < participantIds.length; i++) {
+            let participant = this.room.getParticipant(participantIds[i]);
+            let participantData = {
+                id: participant.getRoomNick(),
+                nickname: participant.getDisplayName(),
+                x: participant.getPosition(),
+                isSelf: participant.getIsSelf(),
+            };
+            data.push(participantData);
+        }
+
+        let item = this.getItemRepository().getItem(itemId);
+        if (item) {
+            item.sendParticipantsToScriptFrame(data);
         }
     }
 

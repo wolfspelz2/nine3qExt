@@ -39,8 +39,8 @@ export class BackpackItem
         let size = Config.get('inventory.itemSize', 64);
 
         let pos = this.backpackWindow.getFreeCoordinate();
-        let x = pos.x; //this.getPseudoRandomCoordinate(paneElem.offsetWidth, this.imageWidth, padding, itemId, 11345);
-        let y = pos.y; //this.getPseudoRandomCoordinate(paneElem.offsetHeight, this.imageWidth, padding, itemId, 13532);
+        let x = pos.x;
+        let y = pos.y;
 
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item" data-id="' + this.itemId + '" />').get(0);
         this.imageElem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item-image" />').get(0);
@@ -175,11 +175,6 @@ export class BackpackItem
     onMouseClick(ev: JQuery.Event): void
     {
         this.app.toFront(this.elem, ContentApp.LayerWindowContent);
-
-        // let item = this.app.getItemRepository().getItem(this.itemId);
-        // if (item) {
-        //     item.onClick(this.elem, new Point2D(ev.clientX, ev.clientY));
-        // }
     }
 
     private dragIsRezable: boolean = false;

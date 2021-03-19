@@ -32,6 +32,7 @@ export class Entity
     getElem(): HTMLElement { return this.elem; }
     getDefaultAvatar(): string { return imgDefaultAvatar; }
     getAvatar() { return this.avatarDisplay; }
+    getIsSelf(): boolean { return this.isSelf; }
 
     show(visible: boolean, durationSec: number = 0.0): void
     {

@@ -76,6 +76,15 @@ export class IframeApi
             case WeblinClientApi.ItemActionRequest.type: {
                 /* await */ this.handle_ItemActionRequest(<WeblinClientApi.ItemActionRequest>request);
             } break;
+            case WeblinClientApi.ItemGetPropertiesRequest.type: {
+                this.handle_ItemGetPropertiesRequest(<WeblinClientApi.ItemGetPropertiesRequest>request);
+            } break;
+            case WeblinClientApi.ItemSetPropertyRequest.type: {
+                this.handle_ItemSetPropertyRequest(<WeblinClientApi.ItemSetPropertyRequest>request);
+            } break;
+            case WeblinClientApi.RoomGetParticipantsRequest.type: {
+                this.handle_RoomGetParticipantsRequest(<WeblinClientApi.RoomGetParticipantsRequest>request);
+            } break;
             case WeblinClientApi.WindowPositionRequest.type: {
                 this.handle_PositionWindowRequest(<WeblinClientApi.WindowPositionRequest>request);
             } break;
@@ -137,6 +146,33 @@ export class IframeApi
             this.app.closeItemFrame(request.item);
         } catch (ex) {
             log.info('IframeApi.handle_CloseWindowRequest', ex);
+        }
+    }
+
+    handle_ItemGetPropertiesRequest(request: WeblinClientApi.ItemGetPropertiesRequest)
+    {
+        try {
+            this.app.sendPropertiesToFrame(request.item);
+        } catch (ex) {
+            log.info('IframeApi.handle_ItemGetPropertiesRequest', ex);
+        }
+    }
+
+    handle_ItemSetPropertyRequest(request: WeblinClientApi.ItemSetPropertyRequest)
+    {
+        try {
+            this.app.setRoomItemProperty(request.item, request.pid, request.value);
+        } catch (ex) {
+            log.info('IframeApi.handle_ItemSetPropertyRequest', ex);
+        }
+    }
+
+    handle_RoomGetParticipantsRequest(request: WeblinClientApi.RoomGetParticipantsRequest)
+    {
+        try {
+            this.app.sendParticipantsToFrame(request.item, request.room);
+        } catch (ex) {
+            log.info('IframeApi.handle_RoomGetParticipantsRequest', ex);
         }
     }
 
@@ -263,6 +299,20 @@ export namespace WeblinClientApi
         message: any;
     }
 
+    export class ItemGetPropertiesRequest extends Request
+    {
+        static type = 'Item.GetProperties';
+        item: string;
+    }
+
+    export class ItemSetPropertyRequest extends Request
+    {
+        static type = 'Item.SetProperty';
+        item: string;
+        pid: string;
+        value: any;
+    }
+
     export class ItemActionRequest extends Request
     {
         static type = 'ItemAction';
@@ -277,5 +327,20 @@ export namespace WeblinClientApi
         created: { [id: string]: { [pid: string]: string } };
         changed: { [id: string]: { [pid: string]: string } };
         deleted: string[];
+    }
+
+    export class RoomGetParticipantsRequest extends Request
+    {
+        static type = 'Room.GetParticipants';
+        item: string;
+        room: string;
+    }
+
+    export class ParticipantData 
+    {
+        id: string;
+        nickname: string;
+        x: number;
+        isSelf: boolean;
     }
 }

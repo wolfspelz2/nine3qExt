@@ -12,6 +12,7 @@ import { ItemFramePopup } from './ItemFramePopup';
 import { Pid } from '../lib/ItemProperties';
 import { Memory } from '../lib/Memory';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { WeblinClientApi } from './IframeApi';
 
 export class RepositoryItem
 {
@@ -19,6 +20,7 @@ export class RepositoryItem
     private properties: { [pid: string]: string } = {};
     private frameWindow: ItemFrameWindow;
     private framePopup: ItemFramePopup;
+    private scriptWindow: ItemFrameWindow;
 
     constructor(protected app: ContentApp, private id: string)
     {
@@ -29,8 +31,15 @@ export class RepositoryItem
     setProviderId(providerId: string) { this.providerId = providerId; }
     getProviderId(): string { return this.providerId; }
 
-    setProperties(properties: { [pid: string]: string; }) { this.properties = properties; }
     getProperties(): any { return this.properties; }
+
+    setProperties(properties: { [pid: string]: string; })
+    {
+        this.properties = properties;
+        if (as.Bool(this.properties[Pid.ScriptFrameAspect])) {
+            this.sendPropertiesToScriptFrame();
+        }
+    }
 
     onDragStart(clickedElem: HTMLElement, clickPoint: Point2D)
     {
@@ -76,6 +85,7 @@ export class RepositoryItem
             this.openIframeWindow(aboveElem, url, documentOptions);
         }
     }
+
     async openIframe(clickedElem: HTMLElement)
     {
         let iframeUrl = as.String(this.properties[Pid.IframeUrl], null);
@@ -156,21 +166,80 @@ export class RepositoryItem
             }
 
             this.frameWindow.show(options);
-        } else {
-            let iframeWindow = this.frameWindow.getIframeElem().contentWindow;
-            if (iframeWindow) { iframeWindow.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Item.Properties', properties: this.properties }, '*'); }
         }
+    }
+
+    async openScriptWindow(itemElem: HTMLElement)
+    {
+        if (this.scriptWindow != null) { return; }
+
+        this.scriptWindow = new ItemFrameWindow(this.app);
+
+        let iframeUrl = as.String(this.properties[Pid.ScriptFrameUrl], null);
+        let room = this.app.getRoom();
+        let apiUrl = Config.get('itemProviders.' + this.providerId + '.config.' + 'apiUrl', '');
+        let userId = await Memory.getSync(Utils.syncStorageKey_Id(), '');
+
+        if (iframeUrl != '' && room && apiUrl != '' && userId != '') {
+            let roomJid = room.getJid();
+            let roomNick = room.getMyNick();
+            let tokenOptions = {};
+            try {
+                let contextToken = await Payload.getContextToken(apiUrl, userId, this.id, 600, { 'room': roomJid }, tokenOptions);
+                iframeUrl = iframeUrl.replace('{context}', encodeURIComponent(contextToken));
+
+                let options: ItemFrameWindowOptions = {
+                    item: this,
+                    elem: itemElem,
+                    url: iframeUrl,
+                    width: 400,
+                    height: 300,
+                    left: -200,
+                    bottom: 200,
+                    resizable: true,
+                    undockable: false,
+                    transparent: false,
+                    titleText: as.String(this.properties[Pid.Label], 'Item'),
+                    onClose: () => { this.scriptWindow = null; },
+                }
+
+                this.scriptWindow.show(options);
+
+            } catch (error) {
+                log.info('RepositoryItem.openScriptFrame', error);
+            }
+        }
+    }
+
+    async closeScriptWindow()
+    {
+        this.scriptWindow?.close();
+    }
+
+    sendPropertiesToScriptFrame()
+    {
+        this.scriptWindow?.getIframeElem().contentWindow?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Item.Properties', properties: this.properties }, '*');
+    }
+
+    sendParticipantsToScriptFrame(participants: Array<WeblinClientApi.ParticipantData>)
+    {
+        this.scriptWindow?.getIframeElem().contentWindow?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Room.Participants', participants: participants }, '*');
+    }
+
+    sendParticipantMovedToScriptFrame(participant: WeblinClientApi.ParticipantData)
+    {
+        this.scriptWindow?.getIframeElem().contentWindow?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Participant.Moved', participant: participant }, '*');
+    }
+
+    sendItemMovedToScriptFrame(newX: number)
+    {
+        this.scriptWindow?.getIframeElem().contentWindow?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Item.Moved', x: newX }, '*');
     }
 
     positionFrame(width: number, height: number, left: number, bottom: number)
     {
         this.framePopup?.position(width, height, left, bottom);
     }
-
-    // updateFrame()
-    // {
-    //     this.framePopup?.update();
-    // }
 
     closeFrame()
     {

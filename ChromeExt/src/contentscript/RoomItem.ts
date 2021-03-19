@@ -232,6 +232,15 @@ export class RoomItem extends Entity
         }
 
         if (this.isFirstPresence) {
+            if (as.Bool(this.getProperties()[Pid.ScriptFrameAspect], false)) {
+                let item = this.app.getItemRepository().getItem(this.roomNick);
+                if (item) {
+                    item.openScriptWindow(this.getElem());
+                }
+            }
+        }
+
+        if (this.isFirstPresence) {
             if (this.room?.iAmAlreadyHere()) {
                 if (Config.get('roomItem.chatlogItemAppeared', true)) {
                     this.room?.showChatMessage(this.getDisplayName(), 'appeared');
@@ -248,9 +257,17 @@ export class RoomItem extends Entity
 
     onPresenceUnavailable(stanza: any): void
     {
+        if (as.Bool(this.getProperties()[Pid.ScriptFrameAspect], false)) {
+            let item = this.app.getItemRepository().getItem(this.roomNick);
+            if (item) {
+                item.closeScriptWindow();
+            }
+        }
+
         if (Config.get('roomItem.chatlogItemDisappeared', true)) {
             this.room?.showChatMessage(this.getDisplayName(), 'disappeared');
-        } this.remove();
+        }
+        this.remove();
     }
 
     onMouseClickAvatar(ev: JQuery.Event): void
@@ -298,6 +315,22 @@ export class RoomItem extends Entity
 
         if (!this.isDerezzing) {
             this.sendMoveMessage(newX);
+        }
+    }
+
+    async onMoveDestinationReached(newX: number): Promise<void>
+    {
+        super.onMoveDestinationReached(newX);
+
+        let itemId = this.roomNick;
+        if (await BackgroundMessage.isBackpackItem(itemId)) {
+            let props = await BackgroundMessage.getBackpackItemProperties(itemId);
+            if (as.Bool(props[Pid.ScriptFrameAspect], false)) {
+                let item = this.app.getItemRepository().getItem(itemId);
+                if (item) {
+                    item.sendItemMovedToScriptFrame(newX);
+                }
+            }
         }
     }
 
@@ -392,6 +425,13 @@ export class RoomItem extends Entity
     sendMessageToScreenItemFrame(message: any)
     {
         this.screenUnderlay?.sendMessage(message);
+    }
+
+    async setItemProperty(pid: string, value: any)
+    {
+        if (await BackgroundMessage.isBackpackItem(this.roomNick)) {
+            BackgroundMessage.modifyBackpackItemProperties(this.roomNick, { [pid]: value }, [], {});
+        }
     }
 
     // updateItemFrame(itemId: string, prop: ItemProperties)

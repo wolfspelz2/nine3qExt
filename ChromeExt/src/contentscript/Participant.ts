@@ -224,13 +224,6 @@ export class Participant extends Entity
             if (this.isSelf) {
                 this.chatinDisplay = new Chatin(this.app, this, this.getElem());
             }
-
-            // if (this.isSelf) {
-            //     window.setTimeout(async () =>
-            //     {
-            //         await this.room.rezRezactiveItems();
-            //     }, 1);
-            // }
         }
 
         let hasAvatar = false;
@@ -718,6 +711,33 @@ export class Participant extends Entity
                 this.room?.sendMoveMessage(newX);
             } else {
                 this.quickSlide(newX);
+            }
+        }
+    }
+
+    async onMoveDestinationReached(newX: number): Promise<void>
+    {
+        super.onMoveDestinationReached(newX);
+        this.sendParticipantMovedToAllScriptFrames();
+    }
+
+    async sendParticipantMovedToAllScriptFrames(): Promise<void>
+    {
+        let itemIds = this.room.getItemIds();
+        for (let i = 0; i < itemIds.length; i++) {
+            let itemId = itemIds[i];
+            let props = await BackgroundMessage.getBackpackItemProperties(itemId);
+            if (as.Bool(props[Pid.ScriptFrameAspect], false)) {
+                let item = this.app.getItemRepository().getItem(itemId);
+                if (item) {
+                    let participantData = {
+                        id: this.getRoomNick(),
+                        nickname: this.getDisplayName(),
+                        x: this.getPosition(),
+                        isSelf: this.getIsSelf(),
+                    };
+                    item.sendParticipantMovedToScriptFrame(participantData);
+                }
             }
         }
     }

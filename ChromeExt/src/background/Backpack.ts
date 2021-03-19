@@ -488,7 +488,6 @@ export class Backpack
                     for (let id in response.changed) {
                         let props = response.changed[id];
                         await this.setItemProperties(id, props, {});
-                        this.handleRezactiveAspect(id);
                     }
                 }
 
@@ -496,7 +495,6 @@ export class Backpack
                     for (let id in response.created) {
                         let props = response.created[id];
                         await this.addItem(id, props, {});
-                        this.handleRezactiveAspect(id);
                     }
                 }
 
@@ -512,20 +510,6 @@ export class Backpack
                 reject(new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.InternalError, as.String(error.message, as.String(error.status, ''))));
             }
         });
-    }
-
-    handleRezactiveAspect(itemId: string)
-    {
-        let item = this.getItem(itemId);
-        let props = item.getProperties();
-        if (as.Bool(props[Pid.RezactiveAspect], false)) {
-            let nextHeartbeatSec = as.Float(props[Pid.RezactiveNextHeartbeatSec], 0);
-            if (nextHeartbeatSec > 0) {
-                props[Pid.RezactiveNextHeartbeatSec] = '0';
-                this.setItemProperties(itemId, props, {});
-                item.setRezactiveHeartbeat(nextHeartbeatSec);
-            }
-        }
     }
 
     getItems(): { [id: string]: ItemProperties; }
@@ -558,14 +542,11 @@ export class Backpack
         props[Pid.RezzedDestination] = destinationUrl;
         props[Pid.RezzedLocation] = roomJid;
         props[Pid.OwnerName] = await Memory.getSync(Utils.syncStorageKey_Nickname(), as.String(props[Pid.OwnerName]));
+
         item.setProperties(props, options);
 
         if (!options.skipPersistentStorage) {
             await this.persistentSaveItem(itemId);
-        }
-
-        if (as.Bool(props[Pid.RezactiveAspect], false)) {
-            await this.executeItemAction(itemId, 'Rezactive.OnRez', {}, [itemId], false);
         }
     }
 
@@ -576,12 +557,7 @@ export class Backpack
         if (!item.isRezzed()) { return; }
         if (!item.isRezzedTo(roomJid)) { throw new ItemException(ItemException.Fact.NotDerezzed, ItemException.Reason.ItemNotRezzedHere); }
 
-        item.cancelRezactiveHeartbeat();
         let props = item.getProperties();
-
-        if (as.Bool(props[Pid.RezactiveAspect], false)) {
-            await this.executeItemAction(itemId, 'Rezactive.OnDerez', {}, [itemId], false);
-        }
 
         this.removeFromRoom(itemId, roomJid);
 
