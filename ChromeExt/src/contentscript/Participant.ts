@@ -589,6 +589,8 @@ export class Participant extends Entity
         // always
         this.room?.showChatMessage(name, text);
 
+        this.sendParticipantChatToAllScriptFrames(text);
+
         // recent
         if (delayMSec * 1000 < as.Float(Config.get('room.maxChatAgeSec', 60))) {
             if (!this.isChatCommand(text)) {
@@ -723,23 +725,48 @@ export class Participant extends Entity
 
     async sendParticipantMovedToAllScriptFrames(): Promise<void>
     {
+        let participantData = {
+            id: this.getRoomNick(),
+            nickname: this.getDisplayName(),
+            x: this.getPosition(),
+            isSelf: this.getIsSelf(),
+        };
+
+        let itemIds = await this.getAllScriptedItems();
+        for (let i = 0; i < itemIds.length; i++) {
+            this.app.getItemRepository().getItem(itemIds[i])?.sendParticipantMovedToScriptFrame(participantData);
+        }
+    }
+
+    async sendParticipantChatToAllScriptFrames(text: string): Promise<void>
+    {
+        let participantData = {
+            id: this.getRoomNick(),
+            nickname: this.getDisplayName(),
+            x: this.getPosition(),
+            isSelf: this.getIsSelf(),
+        };
+
+        let itemIds = await this.getAllScriptedItems();
+        for (let i = 0; i < itemIds.length; i++) {
+            this.app.getItemRepository().getItem(itemIds[i])?.sendParticipantChatToScriptFrame(participantData, text);
+        }
+    }
+
+    async getAllScriptedItems(): Promise<Array<string>>
+    {
+        let scriptItemIds = new Array<string>();
+
         let itemIds = this.room.getItemIds();
         for (let i = 0; i < itemIds.length; i++) {
             let itemId = itemIds[i];
             let props = await BackgroundMessage.getBackpackItemProperties(itemId);
             if (as.Bool(props[Pid.ScriptFrameAspect], false)) {
-                let item = this.app.getItemRepository().getItem(itemId);
-                if (item) {
-                    let participantData = {
-                        id: this.getRoomNick(),
-                        nickname: this.getDisplayName(),
-                        x: this.getPosition(),
-                        isSelf: this.getIsSelf(),
-                    };
-                    item.sendParticipantMovedToScriptFrame(participantData);
-                }
+                scriptItemIds.push(itemId);
             }
         }
+
+        return scriptItemIds;
     }
 
     do(what: string): void

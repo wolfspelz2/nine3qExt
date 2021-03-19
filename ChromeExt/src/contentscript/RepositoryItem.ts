@@ -231,6 +231,11 @@ export class RepositoryItem
         this.scriptWindow?.getIframeElem().contentWindow?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Participant.Moved', participant: participant }, '*');
     }
 
+    sendParticipantChatToScriptFrame(participant: WeblinClientApi.ParticipantData, text: string)
+    {
+        this.scriptWindow?.getIframeElem().contentWindow?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Participant.Chat', participant: participant, text: text }, '*');
+    }
+
     sendItemMovedToScriptFrame(newX: number)
     {
         this.scriptWindow?.getIframeElem().contentWindow?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Item.Moved', x: newX }, '*');
