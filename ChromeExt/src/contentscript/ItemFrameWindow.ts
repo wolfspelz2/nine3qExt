@@ -5,7 +5,6 @@ import { as } from '../lib/as';
 import { Point2D, Utils } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { Window } from './Window';
-import { RepositoryItem } from './RepositoryItem';
 import { Pid } from '../lib/ItemProperties';
 import { Config } from '../lib/Config';
 
@@ -13,7 +12,6 @@ type WindowOptions = any;
 
 export interface ItemFrameWindowOptions extends WindowOptions
 {
-    item: RepositoryItem;
     elem: HTMLElement;
     url: string;
     onClose: { (): void };

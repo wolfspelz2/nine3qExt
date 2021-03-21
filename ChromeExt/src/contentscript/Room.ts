@@ -642,4 +642,21 @@ export class Room
         if (url.startsWith('//')) { return 'https:' + url; }
         return 'https://' + url;
     }
+
+    async getAllScriptedItems(): Promise<Array<string>>
+    {
+        let scriptItemIds = new Array<string>();
+
+        let itemIds = this.getItemIds();
+        for (let i = 0; i < itemIds.length; i++) {
+            let itemId = itemIds[i];
+            let props = await BackgroundMessage.getBackpackItemProperties(itemId);
+            if (as.Bool(props[Pid.ScriptFrameAspect], false)) {
+                scriptItemIds.push(itemId);
+            }
+        }
+
+        return scriptItemIds;
+    }
+
 }

@@ -33,9 +33,9 @@ export class Participant extends Entity
     private privateChatWindow: PrivateChatWindow;
     private privateVidconfWindow: PrivateVidconfWindow;
 
-    constructor(app: ContentApp, room: Room, private roomNick: string, isSelf: boolean)
+    constructor(app: ContentApp, room: Room, roomNick: string, isSelf: boolean)
     {
-        super(app, room, isSelf);
+        super(app, room, roomNick, isSelf);
 
         $(this.getElem()).addClass('n3q-participant');
         $(this.getElem()).attr('data-nick', roomNick);
@@ -732,9 +732,9 @@ export class Participant extends Entity
             isSelf: this.getIsSelf(),
         };
 
-        let itemIds = await this.getAllScriptedItems();
+        let itemIds = await this.room.getAllScriptedItems();
         for (let i = 0; i < itemIds.length; i++) {
-            this.app.getItemRepository().getItem(itemIds[i])?.sendParticipantMovedToScriptFrame(participantData);
+            this.room.getItem(itemIds[i])?.sendParticipantMovedToScriptFrame(participantData);
         }
     }
 
@@ -747,26 +747,10 @@ export class Participant extends Entity
             isSelf: this.getIsSelf(),
         };
 
-        let itemIds = await this.getAllScriptedItems();
+        let itemIds = await this.room.getAllScriptedItems();
         for (let i = 0; i < itemIds.length; i++) {
-            this.app.getItemRepository().getItem(itemIds[i])?.sendParticipantChatToScriptFrame(participantData, text);
+            this.room.getItem(itemIds[i])?.sendParticipantChatToScriptFrame(participantData, text);
         }
-    }
-
-    async getAllScriptedItems(): Promise<Array<string>>
-    {
-        let scriptItemIds = new Array<string>();
-
-        let itemIds = this.room.getItemIds();
-        for (let i = 0; i < itemIds.length; i++) {
-            let itemId = itemIds[i];
-            let props = await BackgroundMessage.getBackpackItemProperties(itemId);
-            if (as.Bool(props[Pid.ScriptFrameAspect], false)) {
-                scriptItemIds.push(itemId);
-            }
-        }
-
-        return scriptItemIds;
     }
 
     do(what: string): void

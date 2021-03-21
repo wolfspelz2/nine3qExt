@@ -47,6 +47,7 @@ export class Config
             backgroundJsonRpc: false,
             pingBackground: false,
             contentStart: false,
+            backpackWindow: false,
             urlMapping: false,
             iframeApi: false,
         },

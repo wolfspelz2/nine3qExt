@@ -21,7 +21,6 @@ import { VpiResolver } from './VpiResolver';
 import { SettingsWindow } from './SettingsWindow';
 import { XmppWindow } from './XmppWindow';
 import { ChangesWindow } from './ChangesWindow';
-import { ItemRepository } from './ItemRepository';
 import { TestWindow } from './TestWindow';
 import { BackpackWindow } from './BackpackWindow';
 import { SimpleErrorToast, SimpleToast } from './Toast';
@@ -51,7 +50,6 @@ export class ContentApp
     private presetPageUrl: string;
     private roomJid: string;
     private room: Room;
-    private itemRepository: ItemRepository;
     private propertyStorage: PropertyStorage = new PropertyStorage();
     private babelfish: Translator;
     private vpi: VpiResolver;
@@ -72,13 +70,11 @@ export class ContentApp
 
     getPropertyStorage(): PropertyStorage { return this.propertyStorage; }
     getDisplay(): HTMLElement { return this.display; }
-    getItemRepository() { return this.itemRepository; }
     getRoom(): Room { return this.room; }
     getBackpackWindow(): BackpackWindow { return this.backpackWindow; }
 
     constructor(protected appendToMe: HTMLElement, private messageHandler: ContentAppNotificationCallback)
     {
-        this.itemRepository = new ItemRepository(this);
     }
 
     async start(params: any)
@@ -292,7 +288,7 @@ export class ContentApp
 
     closeItemFrame(itemId: string)
     {
-        let item = this.getItemRepository().getItem(itemId);
+        let item = this.room.getItem(itemId);
         if (item) {
             item.closeFrame();
         }
@@ -302,28 +298,17 @@ export class ContentApp
     {
         let roomItem = this.room.getItem(itemId);
         if (roomItem) {
-            let item = this.getItemRepository().getItem(itemId);
-            if (item) {
-                item.openDocumentUrl(roomItem.getElem());
-            }
+            roomItem.openDocumentUrl(roomItem.getElem());
         }
     }
 
     positionItemFrame(itemId: string, width: number, height: number, left: number, bottom: number)
     {
-        let item = this.getItemRepository().getItem(itemId);
-        if (item) {
-            item.positionFrame(width, height, left, bottom);
+        let roomItem = this.room.getItem(itemId);
+        if (roomItem) {
+            roomItem.positionFrame(width, height, left, bottom);
         }
     }
-
-    // updateItemFrame(itemId: string, props: ItemProperties)
-    // {
-    //     let roomItem = this.room.getItem(itemId);
-    //     if (roomItem) {
-    //         roomItem.updateItemFrame(itemId, props);
-    //     }
-    // }
 
     sendMessageToScreenItemFrame(itemId: string, message: any)
     {
@@ -335,9 +320,9 @@ export class ContentApp
 
     sendPropertiesToFrame(itemId: string)
     {
-        let item = this.getItemRepository().getItem(itemId);
-        if (item) {
-            item.sendPropertiesToScriptFrame();
+        let roomItem = this.room.getItem(itemId);
+        if (roomItem) {
+            roomItem.sendPropertiesToScriptFrame();
         }
     }
 
@@ -354,7 +339,7 @@ export class ContentApp
         let data = new Array<WeblinClientApi.ParticipantData>();
 
         let participantIds = this.room.getParticipantIds();
-        for (let i  = 0; i < participantIds.length; i++) {
+        for (let i = 0; i < participantIds.length; i++) {
             let participant = this.room.getParticipant(participantIds[i]);
             let participantData = {
                 id: participant.getRoomNick(),
@@ -365,9 +350,9 @@ export class ContentApp
             data.push(participantData);
         }
 
-        let item = this.getItemRepository().getItem(itemId);
-        if (item) {
-            item.sendParticipantsToScriptFrame(data);
+        let roomItem = this.room.getItem(itemId);
+        if (roomItem) {
+            roomItem.sendParticipantsToScriptFrame(data);
         }
     }
 

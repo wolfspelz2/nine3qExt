@@ -18,7 +18,7 @@ export class Entity
     protected defaultSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
     protected inMove: boolean = false;
 
-    constructor(protected app: ContentApp, protected room: Room, protected isSelf: boolean)
+    constructor(protected app: ContentApp, protected room: Room, protected roomNick: string, protected isSelf: boolean)
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-entity" />').get(0);
         this.elem.style.display = 'none';

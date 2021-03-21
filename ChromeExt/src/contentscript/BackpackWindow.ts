@@ -257,8 +257,7 @@ export class BackpackWindow extends Window
     rezItemSync(itemId: string, room: string, x: number, destination: string) { this.rezItem(itemId, room, x, destination); }
     async rezItem(itemId: string, room: string, x: number, destination: string)
     {
-        log.debug('BackpackWindow.rezItem', itemId, 'to', room);
-
+        if (Config.get('log.backpackWindow', false)) { log.debug('BackpackWindow.rezItem', itemId, 'to', room); }
         try {
             let props = await BackgroundMessage.getBackpackItemProperties(itemId);
             if (as.Bool(props[Pid.ClaimAspect], false)) {
@@ -276,8 +275,7 @@ export class BackpackWindow extends Window
     derezItemSync(itemId: string, room: string, x: number, y: number) { this.derezItem(itemId, room, x, y); }
     async derezItem(itemId: string, room: string, x: number, y: number)
     {
-        log.debug('BackpackWindow.derezItem', itemId, 'from', room);
-
+        if (Config.get('log.backpackWindow', false)) { log.debug('BackpackWindow.derezItem', itemId, 'from', room); }
         try {
             await BackgroundMessage.derezBackpackItem(itemId, room, -1, -1, {});
         } catch (ex) {
@@ -287,8 +285,7 @@ export class BackpackWindow extends Window
 
     async deleteItem(itemId: string)
     {
-        log.debug('BackpackWindow.deleteItem', itemId);
-
+        if (Config.get('log.backpackWindow', false)) { log.debug('BackpackWindow.deleteItem', itemId); }
         try {
             await BackgroundMessage.deleteBackpackItem(itemId, {});
         } catch (ex) {
@@ -298,8 +295,7 @@ export class BackpackWindow extends Window
 
     itemVisibility(itemId: string, state: boolean)
     {
-        log.debug('BackpackWindow.hideItem', itemId);
-
+        if (Config.get('log.backpackWindow', false)) { log.debug('BackpackWindow.hideItem', itemId); }
         let item = this.items[itemId];
         if (item) {
             item.setVisibility(state);
