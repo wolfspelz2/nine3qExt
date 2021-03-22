@@ -27,6 +27,8 @@ export class ItemFramePopup extends Popup
         super(app);
     }
 
+    getIframeElem(): HTMLIFrameElement { return this.iframeElem; }
+
     async show(options: ItemFramePopupOptions)
     {
         try {

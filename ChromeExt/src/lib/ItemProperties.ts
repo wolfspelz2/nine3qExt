@@ -32,6 +32,7 @@ export class Pid
     static readonly MigrationAspect = 'MigrationAspect';
     static readonly MigrationCid = 'MigrationCid';
     static readonly IframeAuto = 'IframeAuto';
+    static readonly IframeLive = 'IframeLive';
     static readonly TransferState = 'TransferState';
     static readonly ImageUrl = 'ImageUrl';
     static readonly AnimationsUrl = 'AnimationsUrl';
@@ -42,10 +43,6 @@ export class Pid
     static readonly ClaimStrength = 'ClaimStrength';
     static readonly ClaimUrl = 'ClaimUrl';
     static readonly PointsAspect = 'PointsAspect';
-    static readonly ScriptFrameAspect = 'ScriptFrameAspect';
-    static readonly ScriptFrameUrl= 'ScriptFrameUrl';
-    static readonly AutorezAspect = 'AutorezAspect';
-    static readonly AutorezIsRezzed = 'AutorezIsRezzed';
     static readonly SettingsAspect = 'SettingsAspect';
     static readonly AvatarAspect = 'AvatarAspect';
     static readonly NicknameAspect = 'NicknameAspect';

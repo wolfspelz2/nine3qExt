@@ -1,17 +1,16 @@
 import imgDefaultItem from '../assets/DefaultItem.png';
 
 import * as $ from 'jquery';
-import { xml, jid } from '@xmpp/client';
 import log = require('loglevel');
 import { as } from '../lib/as';
-import { Point2D, Utils } from '../lib/Utils';
+import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { Memory } from '../lib/Memory';
 import { ItemException } from '../lib/ItemExcption';
 import { Payload } from '../lib/Payload';
-import { ItemExceptionToast, SimpleErrorToast, SimpleToast } from './Toast';
+import { SimpleErrorToast, SimpleToast } from './Toast';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
@@ -28,7 +27,6 @@ export class RoomItem extends Entity
     private providerId: string;
     private frameWindow: ItemFrameWindow;
     private framePopup: ItemFramePopup;
-    private scriptWindow: ItemFrameWindow;
     private isFirstPresence: boolean = true;
     protected statsDisplay: RoomItemStats;
     protected screenUnderlay: ItemFrameUnderlay;
@@ -60,9 +58,22 @@ export class RoomItem extends Entity
     setProperties(properties: { [pid: string]: string; })
     {
         this.properties = properties;
-        if (as.Bool(this.properties[Pid.ScriptFrameAspect])) {
+        if (as.Bool(this.properties[Pid.IframeAspect])) {
             this.sendPropertiesToScriptFrame(null);
         }
+    }
+
+    getScriptWindow(): Window { 
+        let frameElem = null;
+        if (this.framePopup) {
+            frameElem = this.framePopup.getIframeElem();
+        } else if (this.frameWindow) {
+            frameElem = this.frameWindow.getIframeElem();
+        }
+        if (frameElem) {
+            return frameElem.contentWindow;
+        }
+        return null;
     }
 
     remove(): void
@@ -234,15 +245,9 @@ export class RoomItem extends Entity
 
         if (this.isFirstPresence) {
             if (as.Bool(this.getProperties()[Pid.IframeAspect], false)) {
-                if (as.Bool(this.getProperties()[Pid.IframeAuto], false)) {
-                    this.openIframe(this.getElem());
+                if (as.Bool(this.getProperties()[Pid.IframeAuto], false) || as.Bool(this.getProperties()[Pid.IframeLive], false)) {
+                    this.openFrame(this.getElem());
                 }
-            }
-        }
-
-        if (this.isFirstPresence) {
-            if (as.Bool(this.getProperties()[Pid.ScriptFrameAspect], false)) {
-                this.openScriptWindow(this.getElem());
             }
         }
 
@@ -263,8 +268,10 @@ export class RoomItem extends Entity
 
     onPresenceUnavailable(stanza: any): void
     {
-        if (as.Bool(this.getProperties()[Pid.ScriptFrameAspect], false)) {
-            this.closeScriptWindow();
+        if (as.Bool(this.getProperties()[Pid.IframeAspect], false)) {
+            if (as.Bool(this.getProperties()[Pid.IframeLive], false)) {
+                this.closeFrame();
+            }
         }
 
         if (Config.get('roomItem.chatlogItemDisappeared', true)) {
@@ -283,10 +290,10 @@ export class RoomItem extends Entity
                 if (this.framePopup) {
                     this.framePopup.close();
                 } else {
-                    this.openIframe(this.getElem());
+                    this.openFrame(this.getElem());
                 }
             } else {
-                this.openIframe(this.getElem());
+                this.openFrame(this.getElem());
             }
         }
 
@@ -335,7 +342,7 @@ export class RoomItem extends Entity
         let itemId = this.roomNick;
         if (await BackgroundMessage.isBackpackItem(itemId)) {
             let props = await BackgroundMessage.getBackpackItemProperties(itemId);
-            if (as.Bool(props[Pid.ScriptFrameAspect], false)) {
+            if (as.Bool(props[Pid.IframeAspect], false)) {
                 this.sendItemMovedToScriptFrame(newX);
             }
         }
@@ -401,13 +408,6 @@ export class RoomItem extends Entity
         this.screenUnderlay?.sendMessage(message);
     }
 
-    async setItemProperty(pid: string, value: any)
-    {
-        if (await BackgroundMessage.isBackpackItem(this.roomNick)) {
-            BackgroundMessage.modifyBackpackItemProperties(this.roomNick, { [pid]: value }, [], {});
-        }
-    }
-
     async openDocumentUrl(aboveElem: HTMLElement)
     {
         let url = as.String(this.properties[Pid.DocumentUrl], null);
@@ -426,11 +426,11 @@ export class RoomItem extends Entity
             url = url.replace('{context}', encodeURIComponent(contextToken));
 
             let documentOptions = JSON.parse(as.String(this.properties[Pid.DocumentOptions], '{}'));
-            this.openIframeWindow(aboveElem, url, documentOptions);
+            this.openIframeAsWindow(aboveElem, url, documentOptions);
         }
     }
 
-    async openIframe(clickedElem: HTMLElement)
+    async openFrame(clickedElem: HTMLElement)
     {
         let iframeUrl = as.String(this.properties[Pid.IframeUrl], null);
         let room = this.app.getRoom();
@@ -456,9 +456,9 @@ export class RoomItem extends Entity
 
                 let iframeOptions = JSON.parse(as.String(this.properties[Pid.IframeOptions], '{}'));
                 if (as.String(iframeOptions.frame, 'Window') == 'Popup') {
-                    this.openIframePopup(clickedElem, iframeUrl, iframeOptions);
+                    this.openIframeAsPopup(clickedElem, iframeUrl, iframeOptions);
                 } else {
-                    this.openIframeWindow(clickedElem, iframeUrl, iframeOptions);
+                    this.openIframeAsWindow(clickedElem, iframeUrl, iframeOptions);
                 }
             } catch (error) {
                 log.info('RepositoryItem.openIframe', error);
@@ -466,7 +466,18 @@ export class RoomItem extends Entity
         }
     }
 
-    openIframePopup(clickedElem: HTMLElement, iframeUrl: string, frameOptions: any)
+    closeFrame()
+    {
+        if (this.framePopup) {
+            this.framePopup.close();
+            this.framePopup = null;
+        } else if (this.frameWindow) {
+            this.frameWindow.close();
+            this.frameWindow = null;
+        }
+    }
+
+    openIframeAsPopup(clickedElem: HTMLElement, iframeUrl: string, frameOptions: any)
     {
         if (this.framePopup == null) {
             this.framePopup = new ItemFramePopup(this.app);
@@ -488,7 +499,7 @@ export class RoomItem extends Entity
         }
     }
 
-    openIframeWindow(clickedElem: HTMLElement, iframeUrl: string, windowOptions: any)
+    openIframeAsWindow(clickedElem: HTMLElement, iframeUrl: string, windowOptions: any)
     {
         if (this.frameWindow == null) {
             this.frameWindow = new ItemFrameWindow(this.app);
@@ -512,89 +523,40 @@ export class RoomItem extends Entity
         }
     }
 
-    async openScriptWindow(itemElem: HTMLElement)
+    async setItemProperty(pid: string, value: any)
     {
-        if (this.scriptWindow != null) { return; }
-
-        this.scriptWindow = new ItemFrameWindow(this.app);
-
-        let iframeUrl = as.String(this.properties[Pid.ScriptFrameUrl], null);
-        let room = this.app.getRoom();
-        let apiUrl = Config.get('itemProviders.' + this.providerId + '.config.' + 'apiUrl', '');
-        let userId = await Memory.getSync(Utils.syncStorageKey_Id(), '');
-
-        if (iframeUrl != '' && room && apiUrl != '' && userId != '') {
-            let tokenOptions = {};
-            try {
-                let contextToken = await Payload.getContextToken(apiUrl, userId, this.roomNick, 600, { 'room': room.getJid() }, tokenOptions);
-                iframeUrl = iframeUrl.replace('{context}', encodeURIComponent(contextToken));
-
-                let options: ItemFrameWindowOptions = {
-                    item: this,
-                    elem: itemElem,
-                    url: iframeUrl,
-                    width: 400,
-                    height: 300,
-                    left: -200,
-                    bottom: 200,
-                    resizable: true,
-                    undockable: false,
-                    transparent: false,
-                    titleText: as.String(this.properties[Pid.Label], 'Item'),
-                    onClose: () => { this.scriptWindow = null; },
-                }
-
-                this.scriptWindow.show(options);
-
-            } catch (error) {
-                log.info('RepositoryItem.openScriptFrame', error);
-            }
+        if (await BackgroundMessage.isBackpackItem(this.roomNick)) {
+            BackgroundMessage.modifyBackpackItemProperties(this.roomNick, { [pid]: value }, [], {});
         }
-    }
-
-    async closeScriptWindow()
-    {
-        this.scriptWindow?.close();
     }
 
     sendPropertiesToScriptFrame(requestId: string)
     {
-        this.scriptWindow?.getIframeElem()?.contentWindow?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Item.Properties', id: requestId, properties: this.properties }, '*');
+        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Item.Properties', id: requestId, properties: this.properties }, '*');
     }
 
     sendParticipantsToScriptFrame(requestId: string, participants: Array<WeblinClientApi.ParticipantData>)
     {
-        this.scriptWindow?.getIframeElem()?.contentWindow?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Room.Participants', id: requestId, participants: participants }, '*');
+        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Room.Participants', id: requestId, participants: participants }, '*');
     }
 
     sendParticipantMovedToScriptFrame(participant: WeblinClientApi.ParticipantData)
     {
-        this.scriptWindow?.getIframeElem()?.contentWindow?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Participant.Moved', participant: participant }, '*');
+        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Participant.Moved', participant: participant }, '*');
     }
 
     sendParticipantChatToScriptFrame(participant: WeblinClientApi.ParticipantData, text: string)
     {
-        this.scriptWindow?.getIframeElem()?.contentWindow?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Participant.Chat', participant: participant, text: text }, '*');
+        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Participant.Chat', participant: participant, text: text }, '*');
     }
 
     sendItemMovedToScriptFrame(newX: number)
     {
-        this.scriptWindow?.getIframeElem()?.contentWindow?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Item.Moved', x: newX }, '*');
+        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Item.Moved', x: newX }, '*');
     }
 
     positionFrame(width: number, height: number, left: number, bottom: number)
     {
         this.framePopup?.position(width, height, left, bottom);
-    }
-
-    closeFrame()
-    {
-        if (this.framePopup) {
-            this.framePopup.close();
-            this.framePopup = null;
-        } else if (this.frameWindow) {
-            this.frameWindow.close();
-            this.frameWindow = null;
-        }
     }
 }

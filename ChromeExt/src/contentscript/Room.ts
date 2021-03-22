@@ -651,7 +651,7 @@ export class Room
         for (let i = 0; i < itemIds.length; i++) {
             let itemId = itemIds[i];
             let props = this.getItem(itemId).getProperties();
-            if (as.Bool(props[Pid.ScriptFrameAspect], false)) {
+            if (as.Bool(props[Pid.IframeLive], false)) {
                 scriptItemIds.push(itemId);
             }
         }
