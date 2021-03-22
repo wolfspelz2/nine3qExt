@@ -643,14 +643,14 @@ export class Room
         return 'https://' + url;
     }
 
-    async getAllScriptedItems(): Promise<Array<string>>
+    getAllScriptedItems(): Array<string>
     {
         let scriptItemIds = new Array<string>();
 
         let itemIds = this.getItemIds();
         for (let i = 0; i < itemIds.length; i++) {
             let itemId = itemIds[i];
-            let props = await BackgroundMessage.getBackpackItemProperties(itemId);
+            let props = this.getItem(itemId).getProperties();
             if (as.Bool(props[Pid.ScriptFrameAspect], false)) {
                 scriptItemIds.push(itemId);
             }

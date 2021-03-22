@@ -717,13 +717,13 @@ export class Participant extends Entity
         }
     }
 
-    async onMoveDestinationReached(newX: number): Promise<void>
+    onMoveDestinationReached(newX: number): void
     {
         super.onMoveDestinationReached(newX);
         this.sendParticipantMovedToAllScriptFrames();
     }
 
-    async sendParticipantMovedToAllScriptFrames(): Promise<void>
+    sendParticipantMovedToAllScriptFrames(): void
     {
         let participantData = {
             id: this.getRoomNick(),
@@ -732,13 +732,13 @@ export class Participant extends Entity
             isSelf: this.getIsSelf(),
         };
 
-        let itemIds = await this.room.getAllScriptedItems();
+        let itemIds = this.room.getAllScriptedItems();
         for (let i = 0; i < itemIds.length; i++) {
             this.room.getItem(itemIds[i])?.sendParticipantMovedToScriptFrame(participantData);
         }
     }
 
-    async sendParticipantChatToAllScriptFrames(text: string): Promise<void>
+    sendParticipantChatToAllScriptFrames(text: string): void
     {
         let participantData = {
             id: this.getRoomNick(),
@@ -747,7 +747,7 @@ export class Participant extends Entity
             isSelf: this.getIsSelf(),
         };
 
-        let itemIds = await this.room.getAllScriptedItems();
+        let itemIds = this.room.getAllScriptedItems();
         for (let i = 0; i < itemIds.length; i++) {
             this.room.getItem(itemIds[i])?.sendParticipantChatToScriptFrame(participantData, text);
         }

@@ -160,7 +160,7 @@ export class IframeApi
         try {
             let roomItem = this.app.getRoom().getItem(request.item);
             if (roomItem) {
-                roomItem.sendPropertiesToScriptFrame();
+                roomItem.sendPropertiesToScriptFrame(request.id);
             }
         } catch (ex) {
             log.info('IframeApi.handle_ItemGetPropertiesRequest', ex);
@@ -210,7 +210,7 @@ export class IframeApi
     
             let roomItem = room.getItem(itemId);
             if (roomItem) {
-                roomItem.sendParticipantsToScriptFrame(data);
+                roomItem.sendParticipantsToScriptFrame(request.id, data);
             }
         } catch (ex) {
             log.info('IframeApi.handle_RoomGetParticipantsRequest', ex);
@@ -299,7 +299,7 @@ export namespace WeblinClientApi
 
     export class Request extends Message
     {
-        id?: string;
+        id?: string; // request Id
     }
 
     export class Response extends Message

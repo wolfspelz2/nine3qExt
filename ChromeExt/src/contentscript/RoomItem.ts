@@ -61,7 +61,7 @@ export class RoomItem extends Entity
     {
         this.properties = properties;
         if (as.Bool(this.properties[Pid.ScriptFrameAspect])) {
-            this.sendPropertiesToScriptFrame();
+            this.sendPropertiesToScriptFrame(null);
         }
     }
 
@@ -557,14 +557,14 @@ export class RoomItem extends Entity
         this.scriptWindow?.close();
     }
 
-    sendPropertiesToScriptFrame()
+    sendPropertiesToScriptFrame(requestId: string)
     {
-        this.scriptWindow?.getIframeElem()?.contentWindow?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Item.Properties', properties: this.properties }, '*');
+        this.scriptWindow?.getIframeElem()?.contentWindow?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Item.Properties', id: requestId, properties: this.properties }, '*');
     }
 
-    sendParticipantsToScriptFrame(participants: Array<WeblinClientApi.ParticipantData>)
+    sendParticipantsToScriptFrame(requestId: string, participants: Array<WeblinClientApi.ParticipantData>)
     {
-        this.scriptWindow?.getIframeElem()?.contentWindow?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Room.Participants', participants: participants }, '*');
+        this.scriptWindow?.getIframeElem()?.contentWindow?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Room.Participants', id: requestId, participants: participants }, '*');
     }
 
     sendParticipantMovedToScriptFrame(participant: WeblinClientApi.ParticipantData)
