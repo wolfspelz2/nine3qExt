@@ -79,6 +79,9 @@ export class IframeApi
             case WeblinClientApi.ItemGetPropertiesRequest.type: {
                 this.handle_ItemGetPropertiesRequest(<WeblinClientApi.ItemGetPropertiesRequest>request);
             } break;
+            case WeblinClientApi.ItemSendChatRequest.type: {
+                this.handle_ItemSendChatRequest(<WeblinClientApi.ItemSendChatRequest>request);
+            } break;
             case WeblinClientApi.ItemSetPropertyRequest.type: {
                 this.handle_ItemSetPropertyRequest(<WeblinClientApi.ItemSetPropertyRequest>request);
             } break;
@@ -143,7 +146,10 @@ export class IframeApi
     handle_CloseWindowRequest(request: WeblinClientApi.WindowCloseRequest)
     {
         try {
-            this.app.closeItemFrame(request.item);
+            let item = this.app.getRoom().getItem(request.item);
+            if (item) {
+                item.closeFrame();
+            }
         } catch (ex) {
             log.info('IframeApi.handle_CloseWindowRequest', ex);
         }
@@ -152,16 +158,32 @@ export class IframeApi
     handle_ItemGetPropertiesRequest(request: WeblinClientApi.ItemGetPropertiesRequest)
     {
         try {
-            this.app.sendPropertiesToFrame(request.item);
+            let roomItem = this.app.getRoom().getItem(request.item);
+            if (roomItem) {
+                roomItem.sendPropertiesToScriptFrame();
+            }
         } catch (ex) {
             log.info('IframeApi.handle_ItemGetPropertiesRequest', ex);
+        }
+    }
+
+    handle_ItemSendChatRequest(request: WeblinClientApi.ItemSendChatRequest)
+    {
+        try {
+            this.app.getRoom().sendGroupChat(request.text);
+        } catch (ex) {
+            log.info('IframeApi.handle_ItemSendChatRequest', ex);
         }
     }
 
     handle_ItemSetPropertyRequest(request: WeblinClientApi.ItemSetPropertyRequest)
     {
         try {
-            this.app.setRoomItemProperty(request.item, request.pid, request.value);
+            let roomItem = this.app.getRoom().getItem(request.item);
+            if (roomItem) {
+                roomItem.setItemProperty(request.pid, request.value);
+            }
+    
         } catch (ex) {
             log.info('IframeApi.handle_ItemSetPropertyRequest', ex);
         }
@@ -170,7 +192,26 @@ export class IframeApi
     handle_RoomGetParticipantsRequest(request: WeblinClientApi.RoomGetParticipantsRequest)
     {
         try {
-            this.app.sendParticipantsToFrame(request.item, request.room);
+            let data = new Array<WeblinClientApi.ParticipantData>();
+            let room = this.app.getRoom();
+            let itemId = request.item;
+
+            let participantIds = room.getParticipantIds();
+            for (let i = 0; i < participantIds.length; i++) {
+                let participant = room.getParticipant(participantIds[i]);
+                let participantData = {
+                    id: participant.getRoomNick(),
+                    nickname: participant.getDisplayName(),
+                    x: participant.getPosition(),
+                    isSelf: participant.getIsSelf(),
+                };
+                data.push(participantData);
+            }
+    
+            let roomItem = room.getItem(itemId);
+            if (roomItem) {
+                roomItem.sendParticipantsToScriptFrame(data);
+            }
         } catch (ex) {
             log.info('IframeApi.handle_RoomGetParticipantsRequest', ex);
         }
@@ -179,7 +220,10 @@ export class IframeApi
     handle_WindowOpenDocumentUrlRequest(request: WeblinClientApi.WindowOpenDocumentUrlRequest)
     {
         try {
-            this.app.openDocumentUrl(request.item);
+            let roomItem = this.app.getRoom().getItem(request.item);
+            if (roomItem) {
+                roomItem.openDocumentUrl(roomItem.getElem());
+            }
         } catch (ex) {
             log.info('IframeApi.handle_WindowOpenDocumentUrlRequest', ex);
         }
@@ -188,7 +232,10 @@ export class IframeApi
     handle_PositionWindowRequest(request: WeblinClientApi.WindowPositionRequest)
     {
         try {
-            this.app.positionItemFrame(request.item, request.width, request.height, request.left, request.bottom);
+            let roomItem = this.app.getRoom().getItem(request.item);
+            if (roomItem) {
+                roomItem.positionFrame(request.width, request.height, request.left, request.bottom);
+            }
         } catch (ex) {
             log.info('IframeApi.handle_PositionWindowRequest', ex);
         }
@@ -197,7 +244,10 @@ export class IframeApi
     handle_ScreenContentMessageRequest(request: WeblinClientApi.ScreenContentMessageRequest)
     {
         try {
-            this.app.sendMessageToScreenItemFrame(request.item, request.message);
+            let roomItem = this.app.getRoom().getItem(request.item);
+            if (roomItem) {
+                roomItem.sendMessageToScreenItemFrame(request.message);
+            }
         } catch (ex) {
             log.info('IframeApi.handle_ScreenContentMessageRequest', ex);
         }
@@ -303,6 +353,13 @@ export namespace WeblinClientApi
     {
         static type = 'Item.GetProperties';
         item: string;
+    }
+
+    export class ItemSendChatRequest extends Request
+    {
+        static type = 'Item.SendChat';
+        item: string;
+        text: string;
     }
 
     export class ItemSetPropertyRequest extends Request
