@@ -53,6 +53,8 @@ export class ItemFrameWindow extends Window
 
             this.iframeElem = <HTMLIFrameElement>$('<iframe class="n3q-base n3q-itemframewindow-content" src="' + this.url + ' " frameborder="0" allow="camera; microphone; fullscreen; display-capture"></iframe>').get(0);
 
+            if (options.hidden) { this.setVisibility(false); }
+
             $(this.contentElem).append(this.iframeElem);
             this.app.translateElem(this.windowElem);
 

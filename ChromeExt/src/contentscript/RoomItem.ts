@@ -63,7 +63,8 @@ export class RoomItem extends Entity
         }
     }
 
-    getScriptWindow(): Window { 
+    getScriptWindow(): Window
+    {
         let frameElem = null;
         if (this.framePopup) {
             frameElem = this.framePopup.getIframeElem();
@@ -300,6 +301,21 @@ export class RoomItem extends Entity
         this.statsDisplay?.close();
     }
 
+    onMouseDoubleClickAvatar(ev: JQuery.Event): void
+    {
+        super.onMouseDoubleClickAvatar(ev);
+
+        if (as.Bool(this.properties[Pid.IframeAspect], false)) {
+            if (this.framePopup) {
+                let visible = this.framePopup.getVisibility();
+                this.framePopup.setVisibility(!visible);
+            } else if (this.frameWindow) {
+                let visible = this.frameWindow.getVisibility();
+                this.frameWindow.setVisibility(!visible);
+            }
+        }
+    }
+
     onDragAvatarStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
     {
         super.onDragAvatarStart(ev, ui);
@@ -492,7 +508,8 @@ export class RoomItem extends Entity
                 left: as.Int(frameOptions.left, -frameOptions.width / 2),
                 bottom: as.Int(frameOptions.bottom, 50),
                 resizable: as.Bool(frameOptions.rezizable, true),
-                transparent: as.Bool(frameOptions.transparent, true)
+                transparent: as.Bool(frameOptions.transparent, false),
+                hidden: as.Bool(frameOptions.hidden, false),
             }
 
             this.framePopup.show(options);
@@ -514,8 +531,9 @@ export class RoomItem extends Entity
                 left: as.Int(windowOptions.left, -windowOptions.width / 2),
                 bottom: as.Int(windowOptions.bottom, 50),
                 resizable: as.Bool(windowOptions.rezizable, true),
-                undockable: as.Bool(windowOptions.undockable, true),
-                transparent: as.Bool(windowOptions.transparent, true),
+                undockable: as.Bool(windowOptions.undockable, false),
+                transparent: as.Bool(windowOptions.transparent, false),
+                hidden: as.Bool(windowOptions.hidden, false),
                 titleText: as.String(this.properties[Pid.Label], 'Item'),
             }
 

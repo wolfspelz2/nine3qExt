@@ -52,6 +52,8 @@ export class ItemFramePopup extends Popup
 
             this.iframeElem = <HTMLIFrameElement>$('<iframe class="n3q-base n3q-itemframepopup-content" src="' + url + ' " frameborder="0"></iframe>').get(0);
 
+            if (options.hidden) { this.setVisibility(false); }
+
             $(this.windowElem).append(this.iframeElem);
             this.app.translateElem(this.windowElem);
 
