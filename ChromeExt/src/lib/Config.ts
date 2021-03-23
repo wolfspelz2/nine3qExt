@@ -117,7 +117,7 @@ export class Config
             domain: 'xmpp.vulcan.weblin.com',
             maxMucEnterRetries: 4,
             pingBackgroundToKeepConnectionAliveSec: 12,
-            deferUnavailableSec: 2.0,
+            deferUnavailableSec: 3.0,
         },
         avatars: {
             animationsProxyUrlTemplate: 'https://webex.vulcan.weblin.com/Avatar/InlineData?url={url}',

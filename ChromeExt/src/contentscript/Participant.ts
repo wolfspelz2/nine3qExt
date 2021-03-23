@@ -304,6 +304,19 @@ export class Participant extends Entity
         }
 
         if (this.isFirstPresence) {
+            if (this.isSelf) {
+                let propSet = await BackgroundMessage.findBackpackItemProperties({ [Pid.AutorezAspect]: 'true', [Pid.AutorezIsActive]: 'true' });
+                for (const itemId in propSet) {
+                    let props = propSet[itemId];
+                    if (props[Pid.IsRezzed]) {
+                        await BackgroundMessage.derezBackpackItem(itemId, props[Pid.RezzedLocation], -1, -1, { skipContentNotification: true, skipPresenceUpdate: true });
+                    }
+                    await BackgroundMessage.rezBackpackItem(itemId, this.room.getJid(), -1, this.room.getDestination(), {});
+                }
+            }
+        }
+
+        if (this.isFirstPresence) {
             // if (this.isSelf && Environment.isDevelopment()) { this.showChatWindow(); }
             if (this.isSelf) {
                 if (Config.get('room.chatlogEnteredTheRoomSelf', true)) {
@@ -327,6 +340,7 @@ export class Participant extends Entity
                 this.fetchVcardImage(this.avatarDisplay);
             }
         }
+
 
         this.isFirstPresence = false;
     }

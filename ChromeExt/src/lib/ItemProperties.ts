@@ -32,6 +32,7 @@ export class Pid
     static readonly MigrationAspect = 'MigrationAspect';
     static readonly MigrationCid = 'MigrationCid';
     static readonly AutorezAspect = 'AutorezAspect';
+    static readonly AutorezIsActive = 'AutorezIsActive';
     static readonly IframeAuto = 'IframeAuto';
     static readonly IframeLive = 'IframeLive';
     static readonly TransferState = 'TransferState';

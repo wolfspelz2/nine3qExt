@@ -704,6 +704,15 @@ export class BackgroundApp
         return false;
     }
 
+    // hasRoomJid2(room: string): boolean
+    // {
+    //     var tabIds = this.getRoomJid2TabIds(room);
+    //     if (tabIds) {
+    //         return true;
+    //     }
+    //     return false;
+    // }
+
     getAllTabIds(): Array<number>
     {
         let tabIds = [];
@@ -772,6 +781,16 @@ export class BackgroundApp
         try {
             let xmlStanza: xml = Utils.jsObject2xmlObject(stanza);
             let send = true;
+
+            // if (stanza.name == 'presence') {
+            //     let room = jid(stanza.attrs.to).bare().toString();
+            //     if (as.String(stanza.attrs['type'], 'available') == 'available') {
+            //         if (!this.hasRoomJid2(room)) {
+            //             this.backpack.rezAutorezItems(room);
+            //         }
+            //     } else {
+            //     }
+            // }
 
             if (this.backpack) {
                 xmlStanza = this.backpack.stanzaOutFilter(xmlStanza);

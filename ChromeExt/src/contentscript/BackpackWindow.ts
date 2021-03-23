@@ -260,10 +260,15 @@ export class BackpackWindow extends Window
         if (Config.get('log.backpackWindow', false)) { log.debug('BackpackWindow.rezItem', itemId, 'to', room); }
         try {
             let props = await BackgroundMessage.getBackpackItemProperties(itemId);
+
             if (as.Bool(props[Pid.ClaimAspect], false)) {
                 if (await this.app.getRoom().propsClaimDefersToExistingClaim(props)) {
                     throw new ItemException(ItemException.Fact.ClaimFailed, ItemException.Reason.ItemMustBeStronger, this.app.getRoom().getPageClaimItem()?.getDisplayName());
                 }
+            }
+
+            if (as.Bool(props[Pid.AutorezAspect], false)) {
+                await BackgroundMessage.modifyBackpackItemProperties(itemId, { [Pid.AutorezIsActive]: 'true' }, [], { skipPresenceUpdate: true });
             }
 
             await BackgroundMessage.rezBackpackItem(itemId, room, x, destination, {});
@@ -278,6 +283,8 @@ export class BackpackWindow extends Window
         if (Config.get('log.backpackWindow', false)) { log.debug('BackpackWindow.derezItem', itemId, 'from', room); }
         try {
             await BackgroundMessage.derezBackpackItem(itemId, room, -1, -1, {});
+            await BackgroundMessage.modifyBackpackItemProperties(itemId, {}, [Pid.AutorezIsActive], { skipPresenceUpdate: true });
+
         } catch (ex) {
             new ItemExceptionToast(this.app, Config.get('room.errorToastDurationSec', 8), ex).show();
         }
