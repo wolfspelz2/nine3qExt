@@ -282,8 +282,7 @@ export class BackpackWindow extends Window
     {
         if (Config.get('log.backpackWindow', false)) { log.debug('BackpackWindow.derezItem', itemId, 'from', room); }
         try {
-            await BackgroundMessage.derezBackpackItem(itemId, room, -1, -1, {});
-            await BackgroundMessage.modifyBackpackItemProperties(itemId, {}, [Pid.AutorezIsActive], { skipPresenceUpdate: true });
+            await BackgroundMessage.derezBackpackItem(itemId, room, -1, -1, {}, [Pid.AutorezIsActive], {});
 
         } catch (ex) {
             new ItemExceptionToast(this.app, Config.get('room.errorToastDurationSec', 8), ex).show();

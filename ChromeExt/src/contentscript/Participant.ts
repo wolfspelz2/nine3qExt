@@ -309,7 +309,7 @@ export class Participant extends Entity
                 for (const itemId in propSet) {
                     let props = propSet[itemId];
                     if (props[Pid.IsRezzed]) {
-                        await BackgroundMessage.derezBackpackItem(itemId, props[Pid.RezzedLocation], -1, -1, { skipContentNotification: true, skipPresenceUpdate: true });
+                        await BackgroundMessage.derezBackpackItem(itemId, props[Pid.RezzedLocation], -1, -1, {}, [], { skipContentNotification: true, skipPresenceUpdate: true });
                     }
                     await BackgroundMessage.rezBackpackItem(itemId, this.room.getJid(), -1, this.room.getDestination(), {});
                 }
@@ -523,8 +523,7 @@ export class Participant extends Entity
                                     delete props[Pid.InventoryX];
 
                                     await BackgroundMessage.addBackpackItem(itemId, props, {});
-                                    await BackgroundMessage.derezBackpackItem(itemId, this.room.getJid(), -1, -1, {});
-                                    await BackgroundMessage.modifyBackpackItemProperties(itemId, {}, [Pid.TransferState], { skipPresenceUpdate: true });
+                                    await BackgroundMessage.derezBackpackItem(itemId, this.room.getJid(), -1, -1, {}, [Pid.AutorezIsActive, Pid.TransferState], {});
                                     this.room.confirmItemTransfer(itemId, this.roomNick);
                                 }
                             }
@@ -864,7 +863,7 @@ export class Participant extends Entity
         let roomJid = this.getRoom().getJid();
         if (this.isSelf) {
             log.debug('Participant.applyItem', 'derez', itemId, 'from', roomJid);
-            await BackgroundMessage.derezBackpackItem(itemId, roomJid, -1, -1, {});
+            await BackgroundMessage.derezBackpackItem(itemId, roomJid, -1, -1, {}, [Pid.AutorezIsActive], {});
         } else {
             log.debug('Participant.applyItem', 'transfer', itemId, 'from', roomJid);
 

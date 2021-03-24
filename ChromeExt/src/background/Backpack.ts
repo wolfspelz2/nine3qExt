@@ -256,7 +256,7 @@ export class Backpack
             if (item.isRezzed()) {
                 let roomJid = item.getProperties()[Pid.RezzedLocation];
                 if (roomJid) {
-                    await this.derezItem(itemId, roomJid, -1, -1, options);
+                    await this.derezItem(itemId, roomJid, -1, -1, {}, [], options);
                 }
             }
 
@@ -563,7 +563,7 @@ export class Backpack
         }
     }
 
-    async derezItem(itemId: string, roomJid: string, inventoryX: number, inventoryY: number, options: ItemChangeOptions): Promise<void>
+    async derezItem(itemId: string, roomJid: string, inventoryX: number, inventoryY: number, changed: ItemProperties, deleted: Array<string>, options: ItemChangeOptions): Promise<void>
     {
         let item = this.items[itemId];
         if (item == null) { throw new ItemException(ItemException.Fact.NotDerezzed, ItemException.Reason.ItemDoesNotExist, itemId); }
@@ -582,6 +582,13 @@ export class Backpack
         // delete props[Pid.RezzedX]; // preserve for rez by button
         delete props[Pid.RezzedDestination];
         delete props[Pid.RezzedLocation];
+
+        for (let pid in changed) {
+            props[pid] = changed[pid];
+        }
+        for (let i = 0; i < deleted.length; i++) {
+            delete props[deleted[i]];
+        }
 
         options.skipPresenceUpdate = true;
         item.setProperties(props, options);

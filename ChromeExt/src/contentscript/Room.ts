@@ -478,8 +478,7 @@ export class Room
     async transferItem(itemId: string, nick: string)
     {
         try {
-            await BackgroundMessage.derezBackpackItem(itemId, this.getJid(), -1, -1, {});
-            await BackgroundMessage.modifyBackpackItemProperties(itemId, { [Pid.TransferState]: Pid.TransferState_Source }, [], { skipPresenceUpdate: true });
+            await BackgroundMessage.derezBackpackItem(itemId, this.getJid(), -1, -1, { [Pid.TransferState]: Pid.TransferState_Source }, [], {});
             let props = await BackgroundMessage.getBackpackItemProperties(itemId);
             let message = xml('message', { type: 'chat', to: this.jid + '/' + nick, from: this.jid + '/' + this.myNick })
                 .append(xml('x', { 'xmlns': 'vp:transfer', 'type': 'request', 'item': itemId }, JSON.stringify(props)))

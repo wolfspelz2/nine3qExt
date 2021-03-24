@@ -222,7 +222,7 @@ export class BackgroundApp
             } break;
 
             case BackgroundMessage.derezBackpackItem.name: {
-                return this.handle_derezBackpackItem(message.itemId, message.roomJid, message.x, message.y, message.options, sendResponse);
+                return this.handle_derezBackpackItem(message.itemId, message.roomJid, message.x, message.y, message.changed, message.deleted, message.options, sendResponse);
             } break;
 
             case BackgroundMessage.deleteBackpackItem.name: {
@@ -539,10 +539,10 @@ export class BackgroundApp
         return false;
     }
 
-    handle_derezBackpackItem(itemId: string, roomJid: string, x: number, y: number, options: ItemChangeOptions, sendResponse: (response?: any) => void): boolean
+    handle_derezBackpackItem(itemId: string, roomJid: string, x: number, y: number, changed: ItemProperties, deleted: Array<string>, options: ItemChangeOptions, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            this.backpack.derezItem(itemId, roomJid, x, y, options)
+            this.backpack.derezItem(itemId, roomJid, x, y, changed, deleted, options)
                 .then(() => { sendResponse(new BackgroundSuccessResponse()); })
                 .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
             return true;

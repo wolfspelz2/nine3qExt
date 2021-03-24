@@ -165,7 +165,7 @@ export class RoomItem extends Entity
                             // The new item is better
                             if (await BackgroundMessage.isBackpackItem(claimingRoomItem.getRoomNick())) {
                                 // The existing claim is mine
-                                await BackgroundMessage.derezBackpackItem(claimingRoomItem.getRoomNick(), this.room.getJid(), -1, -1, {});
+                                await BackgroundMessage.derezBackpackItem(claimingRoomItem.getRoomNick(), this.room.getJid(), -1, -1, {}, [Pid.AutorezIsActive], {});
                                 new SimpleToast(this.app, 'ClaimDerezzed', Config.get('room.claimToastDurationSec', 15), 'notice', this.app.translateText('Toast.Your claim has been removed'), 'A stronger item just appeared').show();
                             }
                         }
