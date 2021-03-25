@@ -70,6 +70,7 @@ export class Participant extends Entity
 
     // presence
 
+    private cntSelf = 0;
     async onPresenceAvailable(stanza: any): Promise<void>
     {
         let hasPosition: boolean = false;
@@ -87,6 +88,9 @@ export class Participant extends Entity
         let vpPoints = '';
 
         let hasIdentityUrl = false;
+
+        let isFirstPresence = this.isFirstPresence;
+        this.isFirstPresence = false;
 
         {
             let from = stanza.attrs.from
@@ -180,7 +184,7 @@ export class Participant extends Entity
         // vpImageUrl = 'https://weblin-avatar.dev.sui.li/items/baum/idle.png';
         // vpImageUrl = '';
 
-        if (this.isFirstPresence) {
+        if (isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, this.isSelf);
             if (Config.get('backpack.enabled', false)) {
                 this.avatarDisplay.addClass('n3q-participant-avatar');
@@ -258,7 +262,7 @@ export class Participant extends Entity
                 if (xmppNickname != this.nicknameDisplay.getNickname()) {
                     this.nicknameDisplay.setNickname(xmppNickname);
                 }
-                if (hasIdentityUrl && this.isFirstPresence) {
+                if (hasIdentityUrl && isFirstPresence) {
                     this.app.getPropertyStorage().watch(this.userId, 'Nickname', this.nicknameDisplay);
                 }
             }
@@ -271,7 +275,7 @@ export class Participant extends Entity
                     this.pointsDisplay.setPoints(newPoints);
                 }
             } else {
-                if (hasIdentityUrl && this.isFirstPresence) {
+                if (hasIdentityUrl && isFirstPresence) {
                     this.app.getPropertyStorage().watch(this.userId, 'Points', this.pointsDisplay);
                 }
             }
@@ -281,7 +285,7 @@ export class Participant extends Entity
             this.avatarDisplay?.setCondition(newCondition);
         }
 
-        if (this.isFirstPresence) {
+        if (isFirstPresence) {
             if (!hasPosition) {
                 newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition(this.roomNick);
             }
@@ -295,7 +299,7 @@ export class Participant extends Entity
             }
         }
 
-        if (this.isFirstPresence) {
+        if (isFirstPresence) {
             if (this.isSelf) {
                 this.show(true, Config.get('room.fadeInSec', 0.3));
             } else {
@@ -303,8 +307,12 @@ export class Participant extends Entity
             }
         }
 
-        if (this.isFirstPresence) {
+        if (isFirstPresence) {
             if (this.isSelf) {
+                this.cntSelf++;
+                if (this.cntSelf == 2) {
+                    let x = 1;
+                }
                 let propSet = await BackgroundMessage.findBackpackItemProperties({ [Pid.AutorezAspect]: 'true', [Pid.AutorezIsActive]: 'true' });
                 for (const itemId in propSet) {
                     let props = propSet[itemId];
@@ -316,7 +324,7 @@ export class Participant extends Entity
             }
         }
 
-        if (this.isFirstPresence) {
+        if (isFirstPresence) {
             // if (this.isSelf && Environment.isDevelopment()) { this.showChatWindow(); }
             if (this.isSelf) {
                 if (Config.get('room.chatlogEnteredTheRoomSelf', true)) {
@@ -335,14 +343,11 @@ export class Participant extends Entity
             }
         }
 
-        if (this.isFirstPresence) {
+        if (isFirstPresence) {
             if (!hasAvatar && Config.get('room.vCardAvatarFallback', false)) {
                 this.fetchVcardImage(this.avatarDisplay);
             }
         }
-
-
-        this.isFirstPresence = false;
     }
 
     onPresenceUnavailable(stanza: any): void

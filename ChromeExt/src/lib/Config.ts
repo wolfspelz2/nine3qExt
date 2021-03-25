@@ -40,6 +40,7 @@ export class Config
         },
         log: {
             backgroundTraffic: false,
+            backgroundPresenceManagement: false,
             contentTraffic: false,
             rpcClient: false,
             backgroundFetchUrl: false,

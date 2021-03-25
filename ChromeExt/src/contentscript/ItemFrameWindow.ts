@@ -41,7 +41,7 @@ export class ItemFrameWindow extends Window
 
             this.refElem = options.elem;
 
-            log.debug('ItemFrameWindow', url);
+            if (Config.get('log.iframeApi', true)) { log.debug('ItemFrameWindow.show', url); }
             super.show(options);
 
             $(this.windowElem).addClass('n3q-itemframewindow');

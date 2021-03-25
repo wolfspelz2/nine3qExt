@@ -522,19 +522,6 @@ export class Backpack
         return itemProperties
     }
 
-//     async rezAutorezItems(roomJid: string): Promise<void>
-//     {
-//         let autorezItems = this.findItems(props => { return (as.Bool(props[Pid.AutorezAspect], false) && as.Bool(props[Pid.AutorezIsActive], false)); });
-//         autorezItems.forEach(item => {
-//             let itemId = item.getId();
-//             if (item.isRezzed()) {
-//                 let currentRoom = item.getProperties()[Pid.RezzedLocation];
-//                 this.derezItem(itemId, currentRoom, -1, -1, {});
-//             }
-// this.rezItem(itemId, roomJid, -1, '',  
-//         });
-//     }
-
     async rezItem(itemId: string, roomJid: string, rezzedX: number, destinationUrl: string, options: ItemChangeOptions): Promise<void>
     {
         let item = this.items[itemId];
