@@ -543,10 +543,16 @@ export class Backpack
         props[Pid.RezzedLocation] = roomJid;
         props[Pid.OwnerName] = await Memory.getSync(Utils.syncStorageKey_Nickname(), as.String(props[Pid.OwnerName]));
 
-        item.setProperties(props, options);
+        let setPropertiesOption = { skipPresenceUpdate: true, skipContentNotification: true };
+        Object.assign(setPropertiesOption, options);
+        item.setProperties(props, setPropertiesOption);
 
         if (!options.skipPersistentStorage) {
             await this.persistentSaveItem(itemId);
+        }
+
+        if (!options.skipPresenceUpdate) {
+            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
         }
     }
 
@@ -577,14 +583,19 @@ export class Backpack
             delete props[deleted[i]];
         }
 
-        options.skipPresenceUpdate = true;
-        item.setProperties(props, options);
+        let setPropertiesOption = { skipPresenceUpdate: true, skipContentNotification: true };
+        Object.assign(setPropertiesOption, options);
+        item.setProperties(props, setPropertiesOption);
 
         if (!options.skipPersistentStorage) {
             await this.persistentSaveItem(itemId);
         }
 
         if (!options.skipContentNotification) {
+            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
+        }
+
+        if (!options.skipPresenceUpdate) {
             this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
         }
     }

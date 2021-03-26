@@ -80,6 +80,7 @@ export class RoomItem extends Entity
     remove(): void
     {
         this.avatarDisplay?.stop();
+        this.closeFrame();
         super.remove();
     }
 
@@ -99,6 +100,9 @@ export class RoomItem extends Entity
 
         let newProviderId: string = '';
         let newProperties: ItemProperties = {};
+
+        let isFirstPresence = this.isFirstPresence;
+        this.isFirstPresence = false;
 
         // Collect info
 
@@ -149,7 +153,7 @@ export class RoomItem extends Entity
 
         // Do someting with the data
 
-        if (this.isFirstPresence) {
+        if (isFirstPresence) {
             let props = newProperties;
             if (as.Bool(props[Pid.ClaimAspect], false)) {
                 // The new item has a claim
@@ -174,7 +178,7 @@ export class RoomItem extends Entity
             }
         }
 
-        if (this.isFirstPresence) {
+        if (isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, false);
             if (Config.get('backpack.enabled', false)) {
                 this.avatarDisplay.addClass('n3q-item-avatar');
@@ -199,7 +203,7 @@ export class RoomItem extends Entity
             this.statsDisplay.update();
         }
 
-        if (this.isFirstPresence) {
+        if (isFirstPresence) {
             if (as.Bool(this.getProperties()[Pid.ScreenAspect], false)) {
                 this.screenUnderlay = new ItemFrameUnderlay(this.app, this);
                 this.screenUnderlay.show();
@@ -226,7 +230,7 @@ export class RoomItem extends Entity
             newX = vpRezzedX;
         }
 
-        if (this.isFirstPresence) {
+        if (isFirstPresence) {
             if (!presenceHasPosition && vpRezzedX < 0) {
                 newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition(this.roomNick);
             }
@@ -240,11 +244,11 @@ export class RoomItem extends Entity
             }
         }
 
-        if (this.isFirstPresence) {
+        if (isFirstPresence) {
             this.show(true, Config.get('room.fadeInSec', 0.3));
         }
 
-        if (this.isFirstPresence) {
+        if (isFirstPresence) {
             if (as.Bool(this.getProperties()[Pid.IframeAspect], false)) {
                 if (as.Bool(this.getProperties()[Pid.IframeAuto], false) || as.Bool(this.getProperties()[Pid.IframeLive], false)) {
                     this.openFrame(this.getElem());
@@ -252,7 +256,7 @@ export class RoomItem extends Entity
             }
         }
 
-        if (this.isFirstPresence) {
+        if (isFirstPresence) {
             if (this.room?.iAmAlreadyHere()) {
                 if (Config.get('roomItem.chatlogItemAppeared', true)) {
                     this.room?.showChatMessage(this.getDisplayName(), 'appeared');
@@ -263,8 +267,6 @@ export class RoomItem extends Entity
                 }
             }
         }
-
-        this.isFirstPresence = false;
     }
 
     onPresenceUnavailable(stanza: any): void

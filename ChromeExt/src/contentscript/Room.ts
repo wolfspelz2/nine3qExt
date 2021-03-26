@@ -116,6 +116,7 @@ export class Room
     {
         this.sendPresenceUnavailable();
         this.removeAllParticipants();
+        this.removeAllItems();
         this.onUnload();
     }
 
@@ -357,13 +358,19 @@ export class Room
 
     private removeAllParticipants()
     {
-        let nicks = Array<string>();
-        for (let nick in this.participants) {
-            nicks.push(nick);
-        }
+        let nicks =this.getParticipantIds();
         nicks.forEach(nick =>
         {
             this.participants[nick].remove();
+        });
+    }
+
+    private removeAllItems()
+    {
+        let itemIds = this.getItemIds();
+        itemIds.forEach(itemId =>
+        {
+            this.items[itemId].remove();
         });
     }
 

@@ -317,7 +317,7 @@ export class Participant extends Entity
                 for (const itemId in propSet) {
                     let props = propSet[itemId];
                     if (props[Pid.IsRezzed]) {
-                        await BackgroundMessage.derezBackpackItem(itemId, props[Pid.RezzedLocation], -1, -1, {}, [], { skipContentNotification: true, skipPresenceUpdate: true });
+                        await BackgroundMessage.derezBackpackItem(itemId, props[Pid.RezzedLocation], -1, -1, {}, [], {});
                     }
                     await BackgroundMessage.rezBackpackItem(itemId, this.room.getJid(), -1, this.room.getDestination(), {});
                 }
