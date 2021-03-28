@@ -570,6 +570,11 @@ export class RoomItem extends Entity
         this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Participant.Chat', participant: participant, text: text }, '*');
     }
 
+    sendParticipantEventToAllScriptFrames(participant: WeblinClientApi.ParticipantData, data: any)
+    {
+        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Participant.Event', participant: participant, data: data}, '*');
+    }
+
     sendItemMovedToScriptFrame(newX: number)
     {
         this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Item.Moved', x: newX }, '*');

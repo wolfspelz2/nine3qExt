@@ -6,7 +6,7 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
-        ['1.1.0', 'hilite', [
+        ['1.1.0', 'Benji', [
             ['Add', 'Scripting to iframe API & Autorez (Benji)'],
             ['Change', 'Quick slide items without defined avatar speed'],
             ['Change', 'Nickname excluded from copy all text (not selectable)'],

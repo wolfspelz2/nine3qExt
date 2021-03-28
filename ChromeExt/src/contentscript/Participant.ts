@@ -325,6 +325,10 @@ export class Participant extends Entity
         }
 
         if (isFirstPresence) {
+            this.sendParticipantEventToAllScriptFrames({ event: 'enter' });
+        }
+
+        if (isFirstPresence) {
             // if (this.isSelf && Environment.isDevelopment()) { this.showChatWindow(); }
             if (this.isSelf) {
                 if (Config.get('room.chatlogEnteredTheRoomSelf', true)) {
@@ -357,6 +361,8 @@ export class Participant extends Entity
         if (Config.get('room.chatlogLeftTheRoom', true)) {
             this.room?.showChatMessage(this.roomNick, 'left the room');
         }
+
+        this.sendParticipantEventToAllScriptFrames({ event: 'leave' });
     }
 
     fetchVcardImage(avatarDisplay: IObserver)
@@ -768,6 +774,21 @@ export class Participant extends Entity
         let itemIds = this.room.getAllScriptedItems();
         for (let i = 0; i < itemIds.length; i++) {
             this.room.getItem(itemIds[i])?.sendParticipantChatToScriptFrame(participantData, text);
+        }
+    }
+
+    sendParticipantEventToAllScriptFrames(data: any): void
+    {
+        let participantData = {
+            id: this.getRoomNick(),
+            nickname: this.getDisplayName(),
+            x: this.getPosition(),
+            isSelf: this.getIsSelf(),
+        };
+
+        let itemIds = this.room.getAllScriptedItems();
+        for (let i = 0; i < itemIds.length; i++) {
+            this.room.getItem(itemIds[i])?.sendParticipantEventToAllScriptFrames(participantData, data);
         }
     }
 
