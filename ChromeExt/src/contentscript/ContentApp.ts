@@ -79,8 +79,8 @@ export class ContentApp
 
     async start(params: any)
     {
-        if (params && params.nickname) { await Memory.setSync(Utils.syncStorageKey_Nickname(), params.nickname); }
-        if (params && params.avatar) { await Memory.setSync(Utils.syncStorageKey_Avatar(), params.avatar); }
+        if (params && params.nickname) { await Memory.setLocal(Utils.localStorageKey_Nickname(), params.nickname); }
+        if (params && params.avatar) { await Memory.setLocal(Utils.localStorageKey_Avatar(), params.avatar); }
         if (params && params.pageUrl) { this.presetPageUrl = params.pageUrl; }
         if (params && params.x) { await Memory.setLocal(Utils.localStorageKey_X(), params.x); }
 
@@ -789,9 +789,9 @@ export class ContentApp
     async assertUserNickname()
     {
         try {
-            let nickname = await Memory.getSync(Utils.syncStorageKey_Nickname(), '');
+            let nickname = await Memory.getLocal(Utils.localStorageKey_Nickname(), '');
             if (nickname == '') {
-                await Memory.setSync(Utils.syncStorageKey_Nickname(), 'Your name');
+                await Memory.setLocal(Utils.localStorageKey_Nickname(), 'Your name');
             }
         } catch (error) {
             log.info(error);
@@ -802,7 +802,7 @@ export class ContentApp
     async getUserNickname(): Promise<string>
     {
         try {
-            return await Memory.getSync(Utils.syncStorageKey_Nickname(), 'no name');
+            return await Memory.getLocal(Utils.localStorageKey_Nickname(), 'no name');
         } catch (error) {
             log.info(error);
             return 'no name';
@@ -814,10 +814,10 @@ export class ContentApp
     async assertUserAvatar()
     {
         try {
-            let avatar = await Memory.getSync(Utils.syncStorageKey_Avatar(), '');
+            let avatar = await Memory.getLocal(Utils.localStorageKey_Avatar(), '');
             if (avatar == '') {
                 avatar = AvatarGallery.getRandomAvatar();
-                await Memory.setSync(Utils.syncStorageKey_Avatar(), avatar);
+                await Memory.setLocal(Utils.localStorageKey_Avatar(), avatar);
             }
         } catch (error) {
             log.info(error);
@@ -828,7 +828,7 @@ export class ContentApp
     async getUserAvatar(): Promise<string>
     {
         try {
-            return await Memory.getSync(Utils.syncStorageKey_Avatar(), '004/pinguin');
+            return await Memory.getLocal(Utils.localStorageKey_Avatar(), '004/pinguin');
         } catch (error) {
             log.info(error);
             return '004/pinguin';

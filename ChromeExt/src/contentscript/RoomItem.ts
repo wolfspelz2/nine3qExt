@@ -431,7 +431,7 @@ export class RoomItem extends Entity
         let url = as.String(this.properties[Pid.DocumentUrl], null);
         let room = this.app.getRoom();
         let apiUrl = Config.get('itemProviders.' + this.providerId + '.config.' + 'apiUrl', '');
-        let userId = await Memory.getSync(Utils.syncStorageKey_Id(), '');
+        let userId = await Memory.getLocal(Utils.localStorageKey_Id(), '');
 
         if (url != '' && room && apiUrl != '' && userId != '') {
             let tokenOptions = {};
@@ -453,7 +453,7 @@ export class RoomItem extends Entity
         let iframeUrl = as.String(this.properties[Pid.IframeUrl], null);
         let room = this.app.getRoom();
         let apiUrl = Config.get('itemProviders.' + this.providerId + '.config.' + 'apiUrl', '');
-        let userId = await Memory.getSync(Utils.syncStorageKey_Id(), '');
+        let userId = await Memory.getLocal(Utils.localStorageKey_Id(), '');
 
         if (iframeUrl != '' && room && apiUrl != '' && userId != '') {
             // iframeUrl = 'https://jitsi.vulcan.weblin.com/{room}#userInfo.displayName="{name}"';

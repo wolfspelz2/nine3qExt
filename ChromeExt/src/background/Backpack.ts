@@ -292,7 +292,7 @@ export class Backpack
     private async createRepositoryItem(itemId: string, props: ItemProperties): Promise<Item>
     {
         if (props[Pid.OwnerId] == null) {
-            props[Pid.OwnerId] = await Memory.getSync(Utils.syncStorageKey_Id(), '');
+            props[Pid.OwnerId] = await Memory.getLocal(Utils.localStorageKey_Id(), '');
         }
 
         let item = this.items[itemId];
@@ -419,7 +419,7 @@ export class Backpack
         {
             try {
 
-                let userId = await Memory.getSync(Utils.syncStorageKey_Id(), '');
+                let userId = await Memory.getLocal(Utils.localStorageKey_Id(), '');
                 if (userId == null || userId == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.NoUserId); }
 
                 let providerId = 'nine3q';
@@ -455,7 +455,7 @@ export class Backpack
                 let item = this.items[itemId];
                 if (item == null) { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.ItemDoesNotExist, itemId); }
 
-                let userId = await Memory.getSync(Utils.syncStorageKey_Id(), '');
+                let userId = await Memory.getLocal(Utils.localStorageKey_Id(), '');
                 if (userId == null || userId == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.NoUserId); }
 
                 let providerId = 'nine3q';
@@ -541,7 +541,7 @@ export class Backpack
         }
         props[Pid.RezzedDestination] = destinationUrl;
         props[Pid.RezzedLocation] = roomJid;
-        props[Pid.OwnerName] = await Memory.getSync(Utils.syncStorageKey_Nickname(), as.String(props[Pid.OwnerName]));
+        props[Pid.OwnerName] = await Memory.getLocal(Utils.localStorageKey_Nickname(), as.String(props[Pid.OwnerName]));
 
         let setPropertiesOption = { skipPresenceUpdate: true, skipContentNotification: true };
         Object.assign(setPropertiesOption, options);

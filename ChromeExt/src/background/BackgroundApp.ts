@@ -65,9 +65,39 @@ export class BackgroundApp
         Environment.NODE_ENV = Config.get('environment.NODE_ENV', null);
 
         {
-            let uniqueId = await Memory.getSync(Utils.syncStorageKey_Id(), '');
+            let uniqueId = await Memory.getLocal(Utils.localStorageKey_Id(), '');
             if (uniqueId == '') {
-                await Memory.setSync(Utils.syncStorageKey_Id(), 'mid' + Utils.randomString(30).toLowerCase());
+                // migrate to local
+                uniqueId = await Memory.getSync(Utils.localStorageKey_Id(), '');
+                if (uniqueId != '') {
+                    await Memory.setLocal(Utils.localStorageKey_Id(), uniqueId);
+                    await Memory.deleteSync(Utils.localStorageKey_Id());
+                }
+            }
+            if (uniqueId == '') {
+                await Memory.setLocal(Utils.localStorageKey_Id(), 'mid' + Utils.randomString(30).toLowerCase());
+            }
+        }
+        {
+            let nickname = await Memory.getLocal(Utils.localStorageKey_Nickname(), '');
+            if (nickname == '') {
+                // migrate to local
+                nickname = await Memory.getSync(Utils.localStorageKey_Nickname(), '');
+                if (nickname != '') {
+                    await Memory.setLocal(Utils.localStorageKey_Nickname(), nickname);
+                    await Memory.deleteSync(Utils.localStorageKey_Nickname());
+                }
+            }
+        }
+        {
+            let avatar = await Memory.getLocal(Utils.localStorageKey_Avatar(), '');
+            if (avatar == '') {
+                // migrate to local
+                avatar = await Memory.getSync(Utils.localStorageKey_Avatar(), '');
+                if (avatar != '') {
+                    await Memory.setLocal(Utils.localStorageKey_Avatar(), avatar);
+                    await Memory.deleteSync(Utils.localStorageKey_Avatar());
+                }
             }
         }
 

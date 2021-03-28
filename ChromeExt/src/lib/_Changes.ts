@@ -10,6 +10,7 @@ export class _Changes
             ['Add', 'Scripting to iframe API & Autorez (Benji)'],
             ['Change', 'Quick slide items without defined avatar speed'],
             ['Change', 'Nickname excluded from copy all text (not selectable)'],
+            ['Change', 'Migrate id/nickname/avatar from sync to local storage'],
             ['Fix', 'Avatar position resets when dragged while already moving'],
             ['Fix', 'Leave room on any leave from several tabs with the same room'],
             ['Fix', 'Avatars and items flicker when other user navigates'],
