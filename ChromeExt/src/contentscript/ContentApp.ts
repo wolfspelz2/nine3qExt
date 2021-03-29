@@ -407,6 +407,10 @@ export class ContentApp
                 this.handle_userSettingsChanged();
             } break;
 
+            case ContentMessage.type_clientNotification: {
+                this.handle_clientNotification(message.data);
+            } break;
+
             case ContentMessage.type_extensionActiveChanged: {
                 this.handle_extensionActiveChanged(message.data.state);
             } break;
@@ -456,6 +460,22 @@ export class ContentApp
     handle_userSettingsChanged(): any
     {
         this.messageHandler({ 'type': ContentAppNotification.type_restart });
+    }
+
+    handle_clientNotification(request: WeblinClientApi.ClientNotificationRequest): any
+    {
+        let title = as.String(request.title, '');
+        let text = as.String(request.text, '');
+        let iconType = as.String(request.iconType, WeblinClientApi.ClientNotificationRequest.defaultIcon);
+        let links = request.links;
+        let toast = new SimpleToast(this, 'itemframe-' + iconType, Config.get('client.notificationToastDurationSec', 30), iconType, title, text);
+        if (links) {
+            links.forEach(link =>
+            {
+                toast.actionButton(link.text, () => { document.location.href = link.href; });
+            });
+        }
+        toast.show(() => { });
     }
 
     handle_extensionActiveChanged(state: boolean): any

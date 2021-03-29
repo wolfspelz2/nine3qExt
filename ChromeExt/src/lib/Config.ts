@@ -55,6 +55,7 @@ export class Config
         client: {
             name: 'weblin.io',
             variant: '',
+            notificationToastDurationSec: 30,
         },
         design: {
             name: 'basic',

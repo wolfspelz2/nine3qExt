@@ -64,42 +64,8 @@ export class BackgroundApp
 
         Environment.NODE_ENV = Config.get('environment.NODE_ENV', null);
 
-        {
-            let uniqueId = await Memory.getLocal(Utils.localStorageKey_Id(), '');
-            if (uniqueId == '') {
-                // migrate to local
-                uniqueId = await Memory.getSync(Utils.localStorageKey_Id(), '');
-                if (uniqueId != '') {
-                    await Memory.setLocal(Utils.localStorageKey_Id(), uniqueId);
-                    await Memory.deleteSync(Utils.localStorageKey_Id());
-                }
-            }
-            if (uniqueId == '') {
-                await Memory.setLocal(Utils.localStorageKey_Id(), 'mid' + Utils.randomString(30).toLowerCase());
-            }
-        }
-        {
-            let nickname = await Memory.getLocal(Utils.localStorageKey_Nickname(), '');
-            if (nickname == '') {
-                // migrate to local
-                nickname = await Memory.getSync(Utils.localStorageKey_Nickname(), '');
-                if (nickname != '') {
-                    await Memory.setLocal(Utils.localStorageKey_Nickname(), nickname);
-                    await Memory.deleteSync(Utils.localStorageKey_Nickname());
-                }
-            }
-        }
-        {
-            let avatar = await Memory.getLocal(Utils.localStorageKey_Avatar(), '');
-            if (avatar == '') {
-                // migrate to local
-                avatar = await Memory.getSync(Utils.localStorageKey_Avatar(), '');
-                if (avatar != '') {
-                    await Memory.setLocal(Utils.localStorageKey_Avatar(), avatar);
-                    await Memory.deleteSync(Utils.localStorageKey_Avatar());
-                }
-            }
-        }
+        await this.migrateSyncToLocalBecauseItsConfusingConsideredThatItemsAreLocal();
+        await this.assertThatThereIsAUserId();
 
         let language: string = Translator.mapLanguage(navigator.language, lang => { return Config.get('i18n.languageMapping', {})[lang]; }, Config.get('i18n.defaultLanguage', 'en-US'));
         this.babelfish = new Translator(Config.get('i18n.translations', {})[language], language, Config.get('i18n.serviceUrl', ''));
@@ -123,6 +89,49 @@ export class BackgroundApp
         this.configUpdater = new ConfigUpdater(this);
         await this.configUpdater.getUpdate(() => this.onConfigUpdated());
         await this.configUpdater.startUpdateTimer(() => this.onConfigUpdated());
+    }
+    
+    async assertThatThereIsAUserId()
+    {
+        let uniqueId = await Memory.getLocal(Utils.localStorageKey_Id(), '');
+        if (uniqueId == '') {
+            uniqueId = 'mid' + Utils.randomString(30).toLowerCase();
+            await Memory.setLocal(Utils.localStorageKey_Id(), uniqueId);
+        }
+    }
+
+    async migrateSyncToLocalBecauseItsConfusingConsideredThatItemsAreLocal()
+    {
+        {
+            let uniqueId = await Memory.getLocal(Utils.localStorageKey_Id(), '');
+            if (uniqueId == '') {
+                uniqueId = await Memory.getSync(Utils.localStorageKey_Id(), '');
+                if (uniqueId != '') {
+                    await Memory.setLocal(Utils.localStorageKey_Id(), uniqueId);
+                    await Memory.deleteSync(Utils.localStorageKey_Id());
+                }
+            }
+        }
+        {
+            let nickname = await Memory.getLocal(Utils.localStorageKey_Nickname(), '');
+            if (nickname == '') {
+                nickname = await Memory.getSync(Utils.localStorageKey_Nickname(), '');
+                if (nickname != '') {
+                    await Memory.setLocal(Utils.localStorageKey_Nickname(), nickname);
+                    await Memory.deleteSync(Utils.localStorageKey_Nickname());
+                }
+            }
+        }
+        {
+            let avatar = await Memory.getLocal(Utils.localStorageKey_Avatar(), '');
+            if (avatar == '') {
+                avatar = await Memory.getSync(Utils.localStorageKey_Avatar(), '');
+                if (avatar != '') {
+                    await Memory.setLocal(Utils.localStorageKey_Avatar(), avatar);
+                    await Memory.deleteSync(Utils.localStorageKey_Avatar());
+                }
+            }
+        }
     }
 
     async onConfigUpdated()
@@ -224,6 +233,11 @@ export class BackgroundApp
 
             case BackgroundMessage.userSettingsChanged.name: {
                 sendResponse(this.handle_userSettingsChanged());
+                return false;
+            } break;
+
+            case BackgroundMessage.clientNotification.name: {
+                sendResponse(this.handle_clientNotification(sender.tab.id, message.target, message.data));
                 return false;
             } break;
 
@@ -1125,6 +1139,15 @@ export class BackgroundApp
         }
     }
 
+    sendToTab(tabId: number, type: string, data: any)
+    {
+        try {
+            ContentMessage.sendMessage(tabId, { 'type': type, 'data': data });
+        } catch (error) {
+            //
+        }
+    }
+
     sendToTabsForRoom(room: string, type: string)
     {
         try {
@@ -1170,6 +1193,17 @@ export class BackgroundApp
     {
         log.debug('BackgroundApp.handle_userSettingsChanged');
         this.sendToAllTabs(ContentMessage.type_userSettingsChanged, {});
+        return new BackgroundSuccessResponse();
+    }
+
+    handle_clientNotification(tabId: number, target: string, data: any): BackgroundResponse
+    {
+        if (target == 'currentTab') {
+            this.sendToTab(tabId, ContentMessage.type_clientNotification, data);
+        // } else if (target == 'activeTab') {
+        } else {
+            this.sendToAllTabs(ContentMessage.type_clientNotification, data);
+        }
         return new BackgroundSuccessResponse();
     }
 

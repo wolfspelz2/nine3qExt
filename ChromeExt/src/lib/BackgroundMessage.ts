@@ -4,6 +4,7 @@ import { ItemException } from './ItemExcption';
 import { ItemProperties, ItemPropertiesSet } from './ItemProperties';
 import { BackgroundApp } from '../background/BackgroundApp';
 import { Environment } from './Environment';
+import { WeblinClientApi } from '../contentscript/IframeApi';
 
 export class BackgroundResponse
 {
@@ -159,6 +160,11 @@ export class BackgroundMessage
     static userSettingsChanged(): Promise<void>
     {
         return BackgroundMessage.sendMessage({ 'type': BackgroundMessage.userSettingsChanged.name });
+    }
+
+    static clientNotification(target: string, data: any): Promise<void>
+    {
+        return BackgroundMessage.sendMessage({ 'type': BackgroundMessage.clientNotification.name, 'target': target, 'data': data });
     }
 
     static log(...pieces: any): Promise<void>
