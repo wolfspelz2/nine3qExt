@@ -176,6 +176,18 @@ export class ContentApp
         this.iframeApi = new IframeApi(this).start();
     }
 
+    sleep(statusMessage: string)
+    {
+        log.debug('sleep');
+        this.room.sleep(statusMessage);
+    }
+
+    wakeup()
+    {
+        log.debug('wakeup');
+        this.room.wakeup();
+    }
+
     stop()
     {
         this.iframeApi?.stop();

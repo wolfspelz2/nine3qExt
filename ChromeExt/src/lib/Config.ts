@@ -120,6 +120,7 @@ export class Config
             maxMucEnterRetries: 4,
             pingBackgroundToKeepConnectionAliveSec: 12,
             deferUnavailableSec: 3.0,
+            deferAwaySec: 0.2,
         },
         avatars: {
             animationsProxyUrlTemplate: 'https://webex.vulcan.weblin.com/Avatar/InlineData?url={url}',
@@ -239,6 +240,8 @@ export class Config
                 'en-US': {
                     'Extension.Disable': 'Disable weblin.io',
                     'Extension.Enable': 'Enable weblin.io',
+
+                    'StatusMessage.TabInvisible': 'Browser tab inactive',
 
                     'Common.Close': 'Close',
                     'Common.Undock': 'Open in separate window',
@@ -389,6 +392,8 @@ export class Config
                 'de-DE': {
                     'Extension.Disable': 'weblin.io ausschalten',
                     'Extension.Enable': 'weblin.io einschalten',
+
+                    'StatusMessage.TabInvisible': 'Browser Tab inaktiv',
 
                     'Common.Close': 'Schließen',
                     'Common.Undock': 'Im eigenen Fenster öffnen',

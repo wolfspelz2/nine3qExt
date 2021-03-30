@@ -44,6 +44,7 @@ export class BackgroundApp
     private readonly roomJid2tabId: Map<string, Array<number>> = new Map<string, Array<number>>();
     private readonly fullJid2TabWhichSentUnavailable: Map<string, number> = new Map<string, number>();
     private readonly fullJid2TimerDeferredUnavailable: Map<string, number> = new Map<string, number>();
+    private readonly fullJid2TimerDeferredAway: Map<string, { timer: number, awayStanza?: xml, availableStanza?: xml }> = new Map<string, { timer: number, awayStanza?: any, availableStanza?: any }>();
     private readonly iqStanzaTabId: Map<string, number> = new Map<string, number>();
     private readonly httpCacheData: Map<string, string> = new Map<string, string>();
     private readonly httpCacheTime: Map<string, number> = new Map<string, number>();
@@ -831,13 +832,13 @@ export class BackgroundApp
                 if (xmlStanza == null) { return; }
             }
 
-            if (stanza.name == 'presence') {
-                let to = stanza.attrs.to;
+            if (xmlStanza.name == 'presence') {
+                let to = xmlStanza.attrs.to;
                 let toJid = jid(to);
                 let room = toJid.bare().toString();
                 let nick = toJid.getResource();
 
-                if (as.String(stanza.attrs['type'], 'available') == 'available') {
+                if (as.String(xmlStanza.attrs['type'], 'available') == 'available') {
                     if (this.isDeferredUnavailable(to)) {
                         this.cancelDeferredUnavailable(to);
                         send = false;
@@ -847,7 +848,10 @@ export class BackgroundApp
                         this.addRoomJid2TabId(room, tabId);
                         if (Config.get('log.room2tab', true)) { log.debug('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId); }
                     }
-                } else {
+                    if (send) {
+                        send = this.deferPresenceToPreferShowAvailableOverAwayBecauseQuickSuccessionIsProbablyTabSwitch(to, xmlStanza);
+                    }
+                } else { // unavailable
                     let tabIds = this.getRoomJid2TabIds(room);
                     if (tabIds) {
                         if (tabIds.includes(tabId) && tabIds.length > 1) {
@@ -858,7 +862,7 @@ export class BackgroundApp
                     }
                     if (send) {
                         if (Config.get('xmpp.deferUnavailableSec', 0) > 0) {
-                            this.defereUnavailable(to);
+                            this.deferUnavailable(to);
                             send = false;
                         } else {
                             this.fullJid2TabWhichSentUnavailable[to] = tabId;
@@ -870,10 +874,10 @@ export class BackgroundApp
                 }
             }
 
-            if (stanza.name == 'iq') {
-                if (stanza.attrs) {
-                    let stanzaType = stanza.attrs.type;
-                    let stanzaId = stanza.attrs.id;
+            if (xmlStanza.name == 'iq') {
+                if (xmlStanza.attrs) {
+                    let stanzaType = xmlStanza.attrs.type;
+                    let stanzaId = xmlStanza.attrs.id;
                     if ((stanzaType == 'get' || stanzaType == 'set') && stanzaId) {
                         this.iqStanzaTabId[stanzaId] = tabId;
                     }
@@ -887,6 +891,22 @@ export class BackgroundApp
         } catch (error) {
             log.debug('BackgroundApp.handle_sendStanza', error);
         }
+    }
+
+    presenceIndicatesAway(stanza: xml)
+    {
+        let showNode = stanza.getChild('show');
+        if (showNode) {
+            let show = showNode.getText();
+            switch (show) {
+                case 'away':
+                case 'xa':
+                case 'dnd':
+                    return true;
+                    break;
+            }
+        }
+        return false;
     }
 
     replayPresenceToTab(roomJid: string, tabId: number)
@@ -910,21 +930,22 @@ export class BackgroundApp
         }, 100);
     }
 
-    defereUnavailable(to: string)
+    deferUnavailable(to: string)
     {
         if (this.fullJid2TimerDeferredUnavailable[to]) {
             // wait for it
         } else {
-            if (Config.get('log.backgroundPresenceManagement', true)) { log.debug('BackgroundApp.defereUnavailable'); }
+            if (Config.get('log.backgroundPresenceManagement', true)) { log.debug('BackgroundApp.deferUnavailable'); }
             this.fullJid2TimerDeferredUnavailable[to] = window.setTimeout(() =>
             {
-                if (Config.get('log.backgroundPresenceManagement', true)) { log.debug('BackgroundApp.defereUnavailable', 'execute deferred'); }
+                if (Config.get('log.backgroundPresenceManagement', true)) { log.debug('BackgroundApp.deferUnavailable', 'execute deferred'); }
                 delete this.fullJid2TimerDeferredUnavailable[to];
-                this.sendStanza(xml('presence', { type: 'unavailable', 'to': to }));
+                let stanza = xml('presence', { type: 'unavailable', 'to': to });
+                this.sendStanza(stanza);
                 let roomJid = jid(to);
                 let room = roomJid.bare().toString();
                 this.presenceStateRemoveRoom(room);
-            }, Config.get('xmpp.deferUnavailableSec', 0) * 1000);
+            }, Config.get('xmpp.deferUnavailableSec', 2.0) * 1000);
         }
     }
 
@@ -944,6 +965,53 @@ export class BackgroundApp
             window.clearTimeout(timer);
             delete this.fullJid2TimerDeferredUnavailable[to];
         }
+    }
+
+    deferPresenceToPreferShowAvailableOverAwayBecauseQuickSuccessionIsProbablyTabSwitch(to: string, stanza: xml): boolean
+    {
+        let deferred = true;
+
+        let deferRecord = this.fullJid2TimerDeferredAway[to];
+        if (deferRecord) {
+            // 
+        } else {
+            deferRecord = {};
+            this.fullJid2TimerDeferredAway[to] = deferRecord;
+        }
+
+        if (this.presenceIndicatesAway(stanza)) {
+            if (Config.get('log.backgroundPresenceManagement', true)) { log.debug('BackgroundApp.deferAway', 'record', 'away'); }
+            deferRecord.awayStanza = stanza;
+        } else {
+            if (Config.get('log.backgroundPresenceManagement', true)) { log.debug('BackgroundApp.deferAway', 'record', 'available'); }
+            deferRecord.availableStanza = stanza;
+        }
+
+        if (deferRecord.timer == null) {
+            deferRecord.timer = window.setTimeout(() =>
+            {
+                let logWhich = 'none';
+                let logTotal = 0;
+                let stanza: xml = null;
+                if (deferRecord.awayStanza) {
+                    logTotal++;
+                    logWhich = 'away';
+                    stanza = deferRecord.awayStanza;
+                }
+                if (deferRecord.availableStanza) {
+                    logTotal++;
+                    logWhich = 'available';
+                    stanza = deferRecord.availableStanza;
+                }
+                if (Config.get('log.backgroundPresenceManagement', true)) { log.debug('BackgroundApp.deferAway', 'execute deferred', logWhich, 'of', logTotal); }
+                delete this.fullJid2TimerDeferredAway[to];
+                if (stanza) {
+                    this.sendStanza(stanza);
+                }
+            }, Config.get('xmpp.deferAwaySec', 0.2) * 1000);
+        }
+
+        return !deferred;
     }
 
     public sendStanza(stanza: xml): void

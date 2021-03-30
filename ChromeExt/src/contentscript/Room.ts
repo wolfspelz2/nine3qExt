@@ -33,6 +33,8 @@ export class Room
     private chatWindow: ChatWindow;
     private vidconfWindow: VidconfWindow;
     private myNick: string;
+    private showAvailability = '';
+    private statusMessage = '';
 
     constructor(protected app: ContentApp, private jid: string, private destination: string, private posX: number) 
     {
@@ -112,6 +114,19 @@ export class Room
         this.sendPresence();
     }
 
+    sleep(statusMessage: string)
+    {
+        this.showAvailability = 'away';
+        this.statusMessage = statusMessage;
+        this.sendPresence();
+    }
+
+    wakeup()
+    {
+        this.showAvailability = '';
+        this.sendPresence();
+    }
+
     leave(): void
     {
         this.sendPresenceUnavailable();
@@ -153,6 +168,14 @@ export class Room
         let presence = xml('presence', { to: this.jid + '/' + this.resource });
 
         presence.append(xml('x', { xmlns: 'firebat:avatar:state', }).append(xml('position', { x: as.Int(this.posX) })));
+
+        if (this.showAvailability != '') {
+            presence.append(xml('show', {}, this.showAvailability));
+        }
+        if (this.statusMessage != '') {
+            presence.append(xml('status', {}, this.statusMessage));
+        }
+
         presence.append(xml('x', vpProps));
 
         let identityUrl = Config.get('identity.url', '');
@@ -358,7 +381,7 @@ export class Room
 
     private removeAllParticipants()
     {
-        let nicks =this.getParticipantIds();
+        let nicks = this.getParticipantIds();
         nicks.forEach(nick =>
         {
             this.participants[nick].remove();

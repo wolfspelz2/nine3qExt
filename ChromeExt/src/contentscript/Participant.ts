@@ -79,6 +79,9 @@ export class Participant extends Entity
         let hasCondition: boolean = false;
         let newCondition: string = '';
 
+        let newAvailability: string = '';
+        let newStatusMessage: string = '';
+
         let xmppNickname = '';
 
         let vpNickname = '';
@@ -153,11 +156,10 @@ export class Participant extends Entity
         }
 
         { // <show>: dnd, away, xa
-            let showAvailability: string = 'available';
             let showNode = stanza.getChild('show');
-            if (showNode != null) {
-                showAvailability = showNode.getText();
-                switch (showAvailability) {
+            if (showNode) {
+                newAvailability = showNode.getText();
+                switch (newAvailability) {
                     case 'chat': newCondition = ''; hasCondition = true; break;
                     case 'available': newCondition = ''; hasCondition = true; break;
                     case 'away': newCondition = 'sleep'; hasCondition = true; break;
@@ -169,10 +171,9 @@ export class Participant extends Entity
         }
 
         { // <status>: Status message (text)
-            let statusMessage: string = '';
             let statusNode = stanza.getChild('status');
-            if (statusNode != undefined) {
-                statusMessage = statusNode.getText();
+            if (statusNode) {
+                newStatusMessage = statusNode.getText();
             }
         }
 
@@ -285,6 +286,8 @@ export class Participant extends Entity
             this.avatarDisplay?.setCondition(newCondition);
         }
 
+        this.setAvailability(newAvailability, newStatusMessage);
+
         if (isFirstPresence) {
             if (!hasPosition) {
                 newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition(this.roomNick);
@@ -363,6 +366,22 @@ export class Participant extends Entity
         }
 
         this.sendParticipantEventToAllScriptFrames({ event: 'leave' });
+    }
+
+    setAvailability(show: string, status: string): void
+    {
+        switch (show) {
+            case 'away':
+            case 'xa':
+            case 'dnd':
+                $(this.elem).attr('title', this.app.translateText('StatusMessage.' + status));
+                $(this.elem).addClass('n3q-ghost');
+                break;
+            default:
+                $(this.elem).removeAttr('title');
+                $(this.elem).removeClass('n3q-ghost');
+                break;
+        }
     }
 
     fetchVcardImage(avatarDisplay: IObserver)
