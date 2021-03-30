@@ -9,12 +9,13 @@ export class _Changes
         ['1.1.0', 'Benji', [
             ['Add', 'Scripting to iframe API & Autorez (Benji, Meerkat)'],
             ['Add', 'Clear chat window /clear'],
+            ['Add', 'Inactive mode (xmpp: presence-show away) and multi-tab presence-show management'],
             ['Change', 'Quick slide items without defined avatar speed'],
             ['Change', 'Nickname excluded from copy all text (not selectable)'],
             ['Change', 'Migrate id/nickname/avatar from sync to local storage'],
             ['Fix', 'Avatar position resets when dragged while already moving'],
             ['Fix', 'Leave room on any leave from several tabs with the same room'],
-            ['Fix', 'Avatars and items flicker when other user navigates'],
+            ['Fix', 'Avatars and items flicker when other users navigate'],
         ]],
         ['1.0.9', 'WeblinMigration Web3 RezButton', [
             ['Add', 'transparent iframe'],
