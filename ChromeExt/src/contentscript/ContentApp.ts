@@ -468,7 +468,12 @@ export class ContentApp
         let text = as.String(request.text, '');
         let iconType = as.String(request.iconType, WeblinClientApi.ClientNotificationRequest.defaultIcon);
         let links = request.links;
-        let toast = new SimpleToast(this, 'itemframe-' + iconType, Config.get('client.notificationToastDurationSec', 30), iconType, title, text);
+        let what = '';
+        let detail = request.detail;
+        if (detail) {
+            what = as.String(detail.what, '');
+        }
+        let toast = new SimpleToast(this, 'itemframe-' + iconType + what, Config.get('client.notificationToastDurationSec', 30), iconType, title, text);
         if (links) {
             links.forEach(link =>
             {

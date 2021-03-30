@@ -369,13 +369,14 @@ export namespace WeblinClientApi
         title: string;
         text: string;
 
-        target?: string; // ['currentTab'|'notCurrentTab'|'activeTab']
+        target?: string; // ['currentTab'|'notCurrentTab'|'activeTab'|'allTabs']
         static defaultTarget = 'notCurrentTab';
 
         iconType?: string; // ['warning'|'notice'|'question']
         static defaultIcon = 'notice';
 
         links?: Array<any>;
+        detail?: any;
 
         // handle(): void
         // {
