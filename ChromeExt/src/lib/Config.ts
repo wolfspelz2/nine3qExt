@@ -41,6 +41,7 @@ export class Config
         log: {
             backgroundTraffic: false,
             backgroundPresenceManagement: false,
+            room2tab: false,
             contentTraffic: false,
             rpcClient: false,
             backgroundFetchUrl: false,

@@ -60,7 +60,7 @@ export class ContentApp
     private onRuntimeMessageClosure: (message: any, sender: any, sendResponse: any) => any;
     private iframeApi: IframeApi;
 
-    private stayHereIsChecked: boolean = false;
+    // private stayHereIsChecked: boolean = false;
     private backpackIsOpen: boolean = false;
     private vidconfIsOpen: boolean = false;
     private chatIsOpen: boolean = false;
@@ -162,7 +162,7 @@ export class ContentApp
         await this.checkPageUrlChanged();
 
         if (this.roomJid != '') {
-            this.stayHereIsChecked = await Memory.getLocal(Utils.localStorageKey_StayOnTabChange(this.roomJid), false);
+            // this.stayHereIsChecked = await Memory.getLocal(Utils.localStorageKey_StayOnTabChange(this.roomJid), false);
             this.backpackIsOpen = await Memory.getLocal(Utils.localStorageKey_BackpackIsOpen(this.roomJid), false);
             this.chatIsOpen = await Memory.getLocal(Utils.localStorageKey_ChatIsOpen(this.roomJid), false);
             this.vidconfIsOpen = await Memory.getLocal(Utils.localStorageKey_VidconfIsOpen(this.roomJid), false);
@@ -339,23 +339,23 @@ export class ContentApp
         }
     }
 
-    getStayHereIsChecked(): boolean
-    {
-        return this.stayHereIsChecked;
-    }
+    // getStayHereIsChecked(): boolean
+    // {
+    //     return this.stayHereIsChecked;
+    // }
 
-    toggleStayHereIsChecked(): void
-    {
-        this.stayHereIsChecked = !this.stayHereIsChecked;
+    // toggleStayHereIsChecked(): void
+    // {
+    //     this.stayHereIsChecked = !this.stayHereIsChecked;
 
-        if (this.stayHereIsChecked) {
-            /* await */ Memory.setLocal(Utils.localStorageKey_StayOnTabChange(this.roomJid), this.stayHereIsChecked);
-        } else {
-            /* await */ Memory.deleteLocal(Utils.localStorageKey_StayOnTabChange(this.roomJid));
-        }
+    //     if (this.stayHereIsChecked) {
+    //         /* await */ Memory.setLocal(Utils.localStorageKey_StayOnTabChange(this.roomJid), this.stayHereIsChecked);
+    //     } else {
+    //         /* await */ Memory.deleteLocal(Utils.localStorageKey_StayOnTabChange(this.roomJid));
+    //     }
 
-        this.evaluateStayOnTabChange();
-    }
+    //     this.evaluateStayOnTabChange();
+    // }
 
     incrementRezzedItems(): void
     {
@@ -371,7 +371,7 @@ export class ContentApp
 
     evaluateStayOnTabChange(): void
     {
-        let stay = this.backpackIsOpen || this.vidconfIsOpen || this.chatIsOpen || this.stayHereIsChecked || this.privateVidconfIsOpen || this.countRezzedItems > 0;
+        let stay = this.backpackIsOpen || this.vidconfIsOpen || this.chatIsOpen /*|| this.stayHereIsChecked*/ || this.privateVidconfIsOpen || this.countRezzedItems > 0;
         if (stay) {
             this.messageHandler({ 'type': ContentAppNotification.type_onTabChangeStay });
         } else {
