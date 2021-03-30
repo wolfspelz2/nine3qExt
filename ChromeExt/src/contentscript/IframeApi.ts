@@ -248,7 +248,7 @@ export class IframeApi
     handle_ClientNotificationRequest(request: WeblinClientApi.ClientNotificationRequest)
     {
         try {
-            BackgroundMessage.clientNotification(as.String(request.target, 'currentTab'), request);
+            BackgroundMessage.clientNotification(as.String(request.target, 'notCurrentTab'), request);
         } catch (ex) {
             log.info('IframeApi.handle_ClientNotificationRequest', ex);
         }
@@ -369,8 +369,8 @@ export namespace WeblinClientApi
         title: string;
         text: string;
 
-        target?: string; // ['currentTab'|'activeTab']
-        static defaultTarget = 'currentTab';
+        target?: string; // ['currentTab'|'notCurrentTab'|'activeTab']
+        static defaultTarget = 'notCurrentTab';
 
         iconType?: string; // ['warning'|'notice'|'question']
         static defaultIcon = 'notice';

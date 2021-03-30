@@ -120,20 +120,22 @@ export class Toast
 
 export class SimpleToast extends Toast
 {
-    constructor(app: ContentApp, type: string, durationSec: number, iconType: string, title: string, text: string)
+    protected buttonTexts = new Array<string>();
+
+    constructor(app: ContentApp, protected type: string, protected durationSec: number, protected iconType: string, protected title: string, protected text: string)
     {
-        let bodyElem = $(''
+        super(app, type, durationSec, iconType, $(''
             + '<div class="n3q-base n3q-toast-body" data-translate="children">'
             + (title != null ? '<div class="n3q-base n3q-title" data-translate="text:Toast">' + as.Html(title) + '</div>' : '')
             + (text != null ? '<div class="n3q-base n3q-text" data-translate="text:Toast">' + as.Html(text) + '</div>' : '')
             + '</div>'
-        )[0];
-
-        super(app, type, durationSec, iconType, bodyElem);
+        )[0]);
     }
 
     actionButton(text: string, action: () => void): void
     {
+        this.buttonTexts.push(text);
+
         let buttonElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-toast-button n3q-toast-button-action" data-translate="text:Toast">' + as.Html(text) + '</div>').get(0);
         $(this.bodyElem).append(buttonElem);
         this.app.translateElem(buttonElem);
@@ -141,6 +143,18 @@ export class SimpleToast extends Toast
         {
             if (action) { action(); }
         });
+    }
+
+    show(onClose: () => void = null): void
+    {
+        super.show(onClose);
+
+        let chatlogName = this.app.translateText('Chatwindow.Toast.' + this.iconType, this.iconType);
+        let chatlogText = this.title + ': ' + this.text;
+        this.buttonTexts.forEach(buttonText => {
+            chatlogText += ' [' + buttonText + ']';
+        });
+        this.app.getRoom()?.showChatMessage(chatlogName, chatlogText);
     }
 }
 

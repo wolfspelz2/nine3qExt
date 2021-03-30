@@ -287,6 +287,9 @@ export class Config
                     'Chatwindow.is present': '*is present*',
                     'Chatwindow.disappeared': '*disappeared*',
                     'Chatwindow.:': ':',
+                    'Chatwindow.Toast.warning': '*Warning',
+                    'Chatwindow.Toast.notice': '*Notice',
+                    'Chatwindow.Toast.question': '*Question',
 
                     'PrivateChat.Private Chat with': 'Private Chat with',
 
@@ -321,7 +324,6 @@ export class Config
                     'Toast.Decline': 'Decline',
                     'Toast.Duplicate item': 'Duplicate item',
                     'Toast.This would create an identical item': 'This would create an identical item',
-
                     // ['ErrorFact.' + ItemException.Fact[ItemException.Fact.Error]]: 'Error',
                     'ErrorFact.Error': 'Error',
 
@@ -435,6 +437,9 @@ export class Config
                     'Chatwindow.is present': '*ist da*',
                     'Chatwindow.disappeared': '*verschwunden*',
                     'Chatwindow.:': ':',
+                    'Chatwindow.Toast.warning': '*Warnung',
+                    'Chatwindow.Toast.notice': '*Hinweis',
+                    'Chatwindow.Toast.question': '*Frage',
 
                     'PrivateChat.Private Chat with': 'Privater Chat mit',
 

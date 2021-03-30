@@ -90,7 +90,7 @@ export class BackgroundApp
         await this.configUpdater.getUpdate(() => this.onConfigUpdated());
         await this.configUpdater.startUpdateTimer(() => this.onConfigUpdated());
     }
-    
+
     async assertThatThereIsAUserId()
     {
         let uniqueId = await Memory.getLocal(Utils.localStorageKey_Id(), '');
@@ -1139,6 +1139,23 @@ export class BackgroundApp
         }
     }
 
+    sendToAllTabsExcept(exceptTabId: number, type: string, data: any)
+    {
+        try {
+            let tabIds = this.getAllTabIds();
+            if (tabIds) {
+                for (let i = 0; i < tabIds.length; i++) {
+                    let tabId = tabIds[i];
+                    if (tabId != exceptTabId) {
+                        ContentMessage.sendMessage(tabId, { 'type': type, 'data': data });
+                    }
+                }
+            }
+        } catch (error) {
+            //
+        }
+    }
+
     sendToTab(tabId: number, type: string, data: any)
     {
         try {
@@ -1200,7 +1217,9 @@ export class BackgroundApp
     {
         if (target == 'currentTab') {
             this.sendToTab(tabId, ContentMessage.type_clientNotification, data);
-        // } else if (target == 'activeTab') {
+        } else if (target == 'notCurrentTab') {
+            this.sendToAllTabsExcept(tabId, ContentMessage.type_clientNotification, data);
+            // } else if (target == 'activeTab') {
         } else {
             this.sendToAllTabs(ContentMessage.type_clientNotification, data);
         }
