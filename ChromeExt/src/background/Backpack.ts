@@ -543,7 +543,7 @@ export class Backpack
         props[Pid.RezzedLocation] = roomJid;
         props[Pid.OwnerName] = await Memory.getLocal(Utils.localStorageKey_Nickname(), as.String(props[Pid.OwnerName]));
 
-        let setPropertiesOption = { skipPresenceUpdate: true, skipContentNotification: true };
+        let setPropertiesOption = { skipPresenceUpdate: true };
         Object.assign(setPropertiesOption, options);
         item.setProperties(props, setPropertiesOption);
 
@@ -583,7 +583,7 @@ export class Backpack
             delete props[deleted[i]];
         }
 
-        let setPropertiesOption = { skipPresenceUpdate: true, skipContentNotification: true };
+        let setPropertiesOption = { skipPresenceUpdate: true };
         Object.assign(setPropertiesOption, options);
         item.setProperties(props, setPropertiesOption);
 
