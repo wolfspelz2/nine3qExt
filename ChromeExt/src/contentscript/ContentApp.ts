@@ -65,6 +65,7 @@ export class ContentApp
     private vidconfIsOpen: boolean = false;
     private chatIsOpen: boolean = false;
     private privateVidconfIsOpen: boolean = false;
+    private countRezzedItems: number = 0;
 
     // Getter
 
@@ -356,9 +357,21 @@ export class ContentApp
         this.evaluateStayOnTabChange();
     }
 
+    incrementRezzedItems(): void
+    {
+        this.countRezzedItems++;
+        this.evaluateStayOnTabChange();
+    }
+    decrementRezzedItems(): void
+    {
+        this.countRezzedItems--;
+        if (this.countRezzedItems < 0) { this.countRezzedItems = 0; }
+        this.evaluateStayOnTabChange();
+    }
+
     evaluateStayOnTabChange(): void
     {
-        let stay = this.backpackIsOpen || this.vidconfIsOpen || this.chatIsOpen || this.stayHereIsChecked || this.privateVidconfIsOpen;
+        let stay = this.backpackIsOpen || this.vidconfIsOpen || this.chatIsOpen || this.stayHereIsChecked || this.privateVidconfIsOpen || this.countRezzedItems > 0;
         if (stay) {
             this.messageHandler({ 'type': ContentAppNotification.type_onTabChangeStay });
         } else {

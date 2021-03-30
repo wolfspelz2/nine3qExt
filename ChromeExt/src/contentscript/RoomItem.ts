@@ -104,6 +104,8 @@ export class RoomItem extends Entity
         let isFirstPresence = this.isFirstPresence;
         this.isFirstPresence = false;
 
+        let isMyItem = await BackgroundMessage.isBackpackItem(this.roomNick);
+
         // Collect info
 
         {
@@ -124,7 +126,7 @@ export class RoomItem extends Entity
             }
         }
 
-        if (await BackgroundMessage.isBackpackItem(this.roomNick)) {
+        if (isMyItem) {
             newProperties = await BackgroundMessage.getBackpackItemProperties(this.roomNick);
             newProviderId = as.String(newProperties[Pid.Provider], '');
         } else {
@@ -154,13 +156,19 @@ export class RoomItem extends Entity
         // Do someting with the data
 
         if (isFirstPresence) {
+            if (isMyItem) {
+                this.app.incrementRezzedItems();
+            }
+        }
+
+        if (isFirstPresence) {
             let props = newProperties;
             if (as.Bool(props[Pid.ClaimAspect], false)) {
                 // The new item has a claim
                 let claimingRoomItem = this.room.getPageClaimItem();
                 if (claimingRoomItem) {
                     // There already is a claim
-                    if (await BackgroundMessage.isBackpackItem(this.roomNick)) {
+                    if (isMyItem) {
                         // The new item is my own item
                         // Should remove the lesser one of my 2 claim items
                     } else {
@@ -269,8 +277,14 @@ export class RoomItem extends Entity
         }
     }
 
-    onPresenceUnavailable(stanza: any): void
+    async onPresenceUnavailable(stanza: any): Promise<void>
     {
+        let isMyItem = await BackgroundMessage.isBackpackItem(this.roomNick);
+
+        if (isMyItem) {
+            this.app.decrementRezzedItems();
+        }
+
         if (as.Bool(this.getProperties()[Pid.IframeAspect], false)) {
             if (as.Bool(this.getProperties()[Pid.IframeLive], false)) {
                 this.closeFrame();
@@ -562,7 +576,7 @@ export class RoomItem extends Entity
 
     sendRoomInfoToScriptFrame(requestId: string, info: WeblinClientApi.RoomInfo)
     {
-        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Room.Info', id: requestId, info: info}, '*');
+        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Room.Info', id: requestId, info: info }, '*');
     }
 
     sendParticipantMovedToScriptFrame(participant: WeblinClientApi.ParticipantData)
@@ -577,7 +591,7 @@ export class RoomItem extends Entity
 
     sendParticipantEventToAllScriptFrames(participant: WeblinClientApi.ParticipantData, data: any)
     {
-        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Participant.Event', participant: participant, data: data}, '*');
+        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Participant.Event', participant: participant, data: data }, '*');
     }
 
     sendItemMovedToScriptFrame(newX: number)
