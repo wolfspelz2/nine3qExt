@@ -8,6 +8,7 @@ export class _Changes
     static data: IHistory = [
         ['1.1.0', 'Benji', [
             ['Add', 'Scripting to iframe API & Autorez (Benji, Meerkat)'],
+            ['Add', 'Clear chat window /clear'],
             ['Change', 'Quick slide items without defined avatar speed'],
             ['Change', 'Nickname excluded from copy all text (not selectable)'],
             ['Change', 'Migrate id/nickname/avatar from sync to local storage'],

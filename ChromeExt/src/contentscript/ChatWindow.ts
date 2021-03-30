@@ -188,6 +188,13 @@ export class ChatWindow extends Window
         }
     }
 
+    clear()
+    {
+        if (this.chatoutElem) {
+            $(this.chatoutElem).empty();
+        }
+    }
+
     private onChatinKeydown(ev: JQuery.Event): boolean
     {
         var keycode = (ev.keyCode ? ev.keyCode : (ev.which ? ev.which : ev.charCode));

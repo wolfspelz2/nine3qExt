@@ -40,18 +40,22 @@ export class ChatConsole
         switch (cmd) {
             case '/help':
             case '/?':
-                this.out(context, ['>', text]);
                 this.out(context, [
-                    ['help', '/xmpp'],
-                    ['help', '/room'],
-                    ['help', '/changes'],
-                    ['help', '/items /stuff /backpack /things'],
-                    ['help', '/video /vid /vidconf /conf /jitsi'],
-                    ['help', '/info'],
-                    ['help', '/who'],
-                    ['help', '/what'],
-                    ['help', '/map <URL>'],
+                    ['help', '/clear # empty chat window'],
+                    ['help', '/xmpp # show xmpp console'],
+                    ['help', '/room # show room info'],
+                    ['help', '/changes # show versions and changes'],
+                    ['help', '/items /stuff /backpack /things # toggle backpack window'],
+                    ['help', '/video /vid /vidconf /conf /jitsi # toggle video conf window'],
+                    ['help', '/chat # toggle chat window'],
+                    ['help', '/info # show client info'],
+                    ['help', '/who # show participants'],
+                    ['help', '/what # show items'],
+                    ['help', '/map <URL> # show URL mapping for url'],
                 ]);
+                break;
+            case '/clear':
+                context.app?.getRoom().clearChatWindow();
                 break;
             case '/xmpp':
                 context.app?.showXmppWindow();

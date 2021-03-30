@@ -542,6 +542,11 @@ export class Room
         this.chatWindow.addLine(name + Date.now(), name, text);
     }
 
+    clearChatWindow()
+    {
+        this.chatWindow.clear();
+    }
+
     showVideoConference(aboveElem: HTMLElement, displayName: string): void
     {
         if (this.vidconfWindow) {
