@@ -10,7 +10,7 @@ export class _Changes
             ['Add', 'Scripting to iframe API & Autorez (Benji, Meerkat)'],
             ['Add', 'Clear chat window /clear'],
             ['Add', 'Inactive mode (xmpp: presence-show away) and multi-tab presence-show management'],
-            ['Change', 'Stay on page if item dropped (which makes Benji a bit unhappy/laggy)'],
+            ['Change', 'Stay on page if item dropped (which makes Benji a bit unwilling to follow when switching tabs)'],
             ['Change', 'Removed stay-on-tab-change menu entry (there are enough ways to stay)'],
             ['Change', 'Quick slide items without defined avatar speed'],
             ['Change', 'Nickname excluded from copy all text (not selectable)'],
