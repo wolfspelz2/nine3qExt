@@ -20,6 +20,7 @@ export class Config
     public static staticConfig: any = {
         environment: {
             // NODE_ENV: 'production',
+            reloadPageOnPanic: false,
         },
         extension: {
             id: 'cgfkfhdinajjhfeghebnljbanpcjdlkm',

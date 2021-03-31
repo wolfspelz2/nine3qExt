@@ -34,7 +34,7 @@ export class ChatConsole
         if (parts.length < 1) { return; }
         var cmd: string = parts[0];
 
-        this.out(context, ['>', text]);
+        this.out(context, ['', text]);
 
         isHandled = true;
         switch (cmd) {
@@ -45,8 +45,8 @@ export class ChatConsole
                     ['help', '/xmpp # show xmpp console'],
                     ['help', '/room # show room info'],
                     ['help', '/changes # show versions and changes'],
-                    ['help', '/items /stuff /backpack /things # toggle backpack window'],
-                    ['help', '/video /vid /vidconf /conf /jitsi # toggle video conf window'],
+                    ['help', '/i /items /stuff /backpack /things # toggle backpack window'],
+                    ['help', '/v /video /vid /vidconf /conf /jitsi # toggle video conf window'],
                     ['help', '/chat # toggle chat window'],
                     ['help', '/info # show client info'],
                     ['help', '/who # show participants'],
@@ -63,13 +63,14 @@ export class ChatConsole
             case '/chat':
                 context.app?.showChatWindow();
                 break;
+            case '/i':
             case '/items':
             case '/backpack':
             case '/stuff':
             case '/things':
                 context.app?.showBackpackWindow();
                 break;
-            case '/video':
+            case '/v':
             case '/vid':
             case '/vidconf':
             case '/conf':

@@ -142,71 +142,76 @@ export class Room
 
     async sendPresence(): Promise<void>
     {
-        let vpProps = { xmlns: 'vp:props', 'Nickname': this.resource, 'AvatarId': this.avatar, 'nickname': this.resource, 'avatar': 'gif/' + this.avatar };
+        try {
+            let vpProps = { xmlns: 'vp:props', 'Nickname': this.resource, 'AvatarId': this.avatar, 'nickname': this.resource, 'avatar': 'gif/' + this.avatar };
 
-        let nickname = await this.getBackpackItemNickname(this.resource);
-        if (nickname != '') {
-            vpProps['Nickname'] = nickname;
-            vpProps['nickname'] = nickname;
-        }
-
-        let avatarUrl = await this.getBackpackItemAvatarUrl('');
-        if (avatarUrl != '') {
-            vpProps['AvatarUrl'] = avatarUrl;
-            delete vpProps['AvatarId'];
-            delete vpProps['avatar'];
-        }
-
-        let points = 0;
-        if (Config.get('points.enabled', false)) {
-            points = await this.getPointsItemPoints(0);
-            if (points > 0) {
-                vpProps['Points'] = points;
+            let nickname = await this.getBackpackItemNickname(this.resource);
+            if (nickname != '') {
+                vpProps['Nickname'] = nickname;
+                vpProps['nickname'] = nickname;
             }
-        }
 
-        let presence = xml('presence', { to: this.jid + '/' + this.resource });
-
-        presence.append(xml('x', { xmlns: 'firebat:avatar:state', }).append(xml('position', { x: as.Int(this.posX) })));
-
-        if (this.showAvailability != '') {
-            presence.append(xml('show', {}, this.showAvailability));
-        }
-        if (this.statusMessage != '') {
-            presence.append(xml('status', {}, this.statusMessage));
-        }
-
-        presence.append(xml('x', vpProps));
-
-        let identityUrl = Config.get('identity.url', '');
-        let identityDigest = Config.get('identity.digest', '1');
-        if (identityUrl == '') {
-            if (avatarUrl == '') {
-                avatarUrl = Utils.getAvatarUrlFromAvatarId(this.avatar);
+            let avatarUrl = await this.getBackpackItemAvatarUrl('');
+            if (avatarUrl != '') {
+                vpProps['AvatarUrl'] = avatarUrl;
+                delete vpProps['AvatarId'];
+                delete vpProps['avatar'];
             }
-            identityDigest = as.String(Utils.hash(this.resource + avatarUrl));
-            identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}&points={points}'))
-                .replace('{nickname}', encodeURIComponent(nickname))
-                .replace('{avatarUrl}', encodeURIComponent(avatarUrl))
-                .replace('{digest}', encodeURIComponent(identityDigest))
-                .replace('{imageUrl}', encodeURIComponent(''))
-                ;
-            if (points > 0) { identityUrl = identityUrl.replace('{points}', encodeURIComponent('' + points)); }
-        }
-        if (identityUrl != '') {
-            presence.append(
-                xml('x', { xmlns: 'firebat:user:identity', 'jid': this.userJid, 'src': identityUrl, 'digest': identityDigest })
-            );
-        }
 
-        if (!this.isEntered) {
-            presence.append(
-                xml('x', { xmlns: 'http://jabber.org/protocol/muc' })
-                    .append(xml('history', { seconds: '180', maxchars: '3000', maxstanzas: '10' }))
-            );
-        }
+            let points = 0;
+            if (Config.get('points.enabled', false)) {
+                points = await this.getPointsItemPoints(0);
+                if (points > 0) {
+                    vpProps['Points'] = points;
+                }
+            }
 
-        this.app.sendStanza(presence);
+            let presence = xml('presence', { to: this.jid + '/' + this.resource });
+
+            presence.append(xml('x', { xmlns: 'firebat:avatar:state', }).append(xml('position', { x: as.Int(this.posX) })));
+
+            if (this.showAvailability != '') {
+                presence.append(xml('show', {}, this.showAvailability));
+            }
+            if (this.statusMessage != '') {
+                presence.append(xml('status', {}, this.statusMessage));
+            }
+
+            presence.append(xml('x', vpProps));
+
+            let identityUrl = Config.get('identity.url', '');
+            let identityDigest = Config.get('identity.digest', '1');
+            if (identityUrl == '') {
+                if (avatarUrl == '') {
+                    avatarUrl = Utils.getAvatarUrlFromAvatarId(this.avatar);
+                }
+                identityDigest = as.String(Utils.hash(this.resource + avatarUrl));
+                identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}&points={points}'))
+                    .replace('{nickname}', encodeURIComponent(nickname))
+                    .replace('{avatarUrl}', encodeURIComponent(avatarUrl))
+                    .replace('{digest}', encodeURIComponent(identityDigest))
+                    .replace('{imageUrl}', encodeURIComponent(''))
+                    ;
+                if (points > 0) { identityUrl = identityUrl.replace('{points}', encodeURIComponent('' + points)); }
+            }
+            if (identityUrl != '') {
+                presence.append(
+                    xml('x', { xmlns: 'firebat:user:identity', 'jid': this.userJid, 'src': identityUrl, 'digest': identityDigest })
+                );
+            }
+
+            if (!this.isEntered) {
+                presence.append(
+                    xml('x', { xmlns: 'http://jabber.org/protocol/muc' })
+                        .append(xml('history', { seconds: '180', maxchars: '3000', maxstanzas: '10' }))
+                );
+            }
+
+            this.app.sendStanza(presence);
+        } catch (error) {
+            log.info(error);
+            Panic.now();
+        }
     }
 
     async getPointsItemPoints(defaultValue: number): Promise<number> { return as.Int(await this.getBackpackItemProperty({ [Pid.PointsAspect]: 'true' }, Pid.PointsTotal, defaultValue)); }

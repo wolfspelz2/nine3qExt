@@ -108,16 +108,18 @@ $(function ()
             activate();
         }
 
-        function onUnload()
+        Panic.onNow(() =>
         {
             if (app != null) {
-                log.debug('Contentscript.onUnload');
-                app.onUnload();
-                app = null;
+                if (Config.get('environment.reloadPageOnPanic', false)) { 
+                    document.location.reload();
+                } else {
+                    log.debug('Contentscript.onUnload');
+                    app.onUnload();
+                    app = null;
+                }
             }
-        }
-
-        Panic.onNow(onUnload);
+        });
 
         window.addEventListener('unload', function ()
         {
