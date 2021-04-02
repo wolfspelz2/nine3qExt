@@ -106,6 +106,9 @@ export class IframeApi
             case WeblinClientApi.WindowCloseRequest.type: {
                 this.handle_CloseWindowRequest(<WeblinClientApi.WindowCloseRequest>request);
             } break;
+            case WeblinClientApi.WindowSetVisibilityRequest.type: {
+                this.handle_WindowSetVisibilityRequest(<WeblinClientApi.WindowSetVisibilityRequest>request);
+            } break;
         }
         // }
     }
@@ -158,6 +161,18 @@ export class IframeApi
             }
         } catch (ex) {
             log.info('IframeApi.handle_CloseWindowRequest', ex);
+        }
+    }
+
+    handle_WindowSetVisibilityRequest(request: WeblinClientApi.WindowSetVisibilityRequest)
+    {
+        try {
+            let item = this.app.getRoom().getItem(request.item);
+            if (item) {
+                item.setFrameVisibility(request.visible);
+            }
+        } catch (ex) {
+            log.info('IframeApi.handle_WindowSetVisibilityRequest', ex);
         }
     }
 
@@ -387,6 +402,13 @@ export namespace WeblinClientApi
     {
         static type = 'Window.Close';
         item: string;
+    }
+
+    export class WindowSetVisibilityRequest extends Request
+    {
+        static type = 'Window.SetVisibility';
+        item: string;
+        visible: boolean;
     }
 
     export class WindowPositionRequest extends Request

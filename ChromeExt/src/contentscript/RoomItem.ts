@@ -509,6 +509,15 @@ export class RoomItem extends Entity
         }
     }
 
+    setFrameVisibility(state: boolean)
+    {
+        if (this.framePopup) {
+            this.framePopup.setVisibility(state);
+        } else if (this.frameWindow) {
+            this.frameWindow.setVisibility(state);
+        }
+    }
+
     openIframeAsPopup(clickedElem: HTMLElement, iframeUrl: string, frameOptions: any)
     {
         if (this.framePopup == null) {
