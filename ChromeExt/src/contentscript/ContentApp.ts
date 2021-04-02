@@ -357,21 +357,29 @@ export class ContentApp
     //     this.evaluateStayOnTabChange();
     // }
 
-    incrementRezzedItems(): void
+    incrementRezzedItems(name: string): void
     {
         this.countRezzedItems++;
+        log.debug('ContentApp.incrementRezzedItems', name, this.countRezzedItems);
         this.evaluateStayOnTabChange();
     }
-    decrementRezzedItems(): void
+    decrementRezzedItems(name: string): void
     {
         this.countRezzedItems--;
+        log.debug('ContentApp.decrementRezzedItems', name, this.countRezzedItems);
         if (this.countRezzedItems < 0) { this.countRezzedItems = 0; }
         this.evaluateStayOnTabChange();
     }
 
     evaluateStayOnTabChange(): void
     {
-        let stay = this.backpackIsOpen || this.vidconfIsOpen || this.chatIsOpen /*|| this.stayHereIsChecked*/ || this.privateVidconfIsOpen || this.countRezzedItems > 0;
+        let stay = this.backpackIsOpen
+            || this.vidconfIsOpen
+            || this.chatIsOpen
+            // || this.stayHereIsChecked
+            || this.privateVidconfIsOpen
+            || this.countRezzedItems > 0
+            ;
         if (stay) {
             this.messageHandler({ 'type': ContentAppNotification.type_onTabChangeStay });
         } else {
@@ -612,9 +620,15 @@ export class ContentApp
 
     static getRoomJidFromLocationUrl(locationUrl: string): string
     {
-        let jid = '';
-        let url = new URL(locationUrl);
-        return url.pathname;
+        try {
+            if (locationUrl != '') {
+                let url = new URL(locationUrl);
+                return url.pathname;
+            }
+        } catch (error) {
+            log.debug('ContentApp.getRoomJidFromLocationUrl', error, 'locationUrl', locationUrl);
+        }
+        return '';
     }
 
     // async enterRoomByPageUrl(pageUrl: string): Promise<void>

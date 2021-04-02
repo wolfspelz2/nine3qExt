@@ -157,7 +157,7 @@ export class RoomItem extends Entity
 
         if (isFirstPresence) {
             if (isMyItem) {
-                this.app.incrementRezzedItems();
+                this.app.incrementRezzedItems(newProperties[Pid.Label] + ' ' + newProperties[Pid.Id]);
             }
         }
 
@@ -282,7 +282,7 @@ export class RoomItem extends Entity
         let isMyItem = await BackgroundMessage.isBackpackItem(this.roomNick);
 
         if (isMyItem) {
-            this.app.decrementRezzedItems();
+            this.app.decrementRezzedItems(this.getProperties()[Pid.Label] + ' ' + this.getProperties()[Pid.Id]);
         }
 
         if (as.Bool(this.getProperties()[Pid.IframeAspect], false)) {

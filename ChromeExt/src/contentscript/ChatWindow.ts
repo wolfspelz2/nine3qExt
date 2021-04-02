@@ -224,7 +224,7 @@ export class ChatWindow extends Window
                     out: (data) =>
                     {
                         if (typeof data == typeof '') {
-                            this.showLine('', data[0]);
+                            this.showLine('', data);
                         } else if (Array.isArray(data)) {
                             if (Array.isArray(data[0])) {
                                 let text = '';
