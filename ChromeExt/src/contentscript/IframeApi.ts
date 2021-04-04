@@ -109,6 +109,10 @@ export class IframeApi
             case WeblinClientApi.WindowSetVisibilityRequest.type: {
                 this.handle_WindowSetVisibilityRequest(<WeblinClientApi.WindowSetVisibilityRequest>request);
             } break;
+
+            case WeblinClientApi.BackpackSetVisibilityRequest.type: {
+                this.handle_BackpackSetVisibilityRequest(<WeblinClientApi.BackpackSetVisibilityRequest>request);
+            } break;
         }
         // }
     }
@@ -173,6 +177,19 @@ export class IframeApi
             }
         } catch (ex) {
             log.info('IframeApi.handle_WindowSetVisibilityRequest', ex);
+        }
+    }
+
+    handle_BackpackSetVisibilityRequest(request: WeblinClientApi.BackpackSetVisibilityRequest)
+    {
+        try {
+            let nick = this.app.getRoom().getMyNick();
+            let participant = this.app.getRoom().getParticipant(nick);
+            if (participant) {
+                this.app.showBackpackWindow(participant.getElem());
+            }
+        } catch (ex) {
+            log.info('IframeApi.handle_BackpackSetVisibilityRequest', ex);
         }
     }
 
@@ -419,6 +436,12 @@ export namespace WeblinClientApi
         height: number;
         left: number;
         bottom: number;
+    }
+
+    export class BackpackSetVisibilityRequest extends Request
+    {
+        static type = 'Backpack.SetVisibility';
+        visible: boolean;
     }
 
     export class ScreenContentMessageRequest extends Request
