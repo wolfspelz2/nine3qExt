@@ -428,7 +428,7 @@ export class Participant extends Entity
 
     // message
 
-    onMessagePrivateChat(stanza: any): Promise<void>
+    async onMessagePrivateChat(stanza: any): Promise<void>
     {
         let from = jid(stanza.attrs.from);
         let nick = from.getResource();
@@ -470,9 +470,21 @@ export class Participant extends Entity
         if (text == '') { return; }
 
         if (this.privateChatWindow == null) {
-            this.openPrivateChat(this.elem);
+            await this.openPrivateChat(this.elem);
         }
         this.privateChatWindow?.addLine(nick + Date.now(), name, text);
+
+        if (this.room) {
+            if (nick != this.room.getMyNick()) {
+                let chatWindow = this.privateChatWindow;
+                if (chatWindow) {
+                    if (chatWindow.isSoundEnabled()) {
+                        chatWindow.playSound();
+                    }
+                }
+            }
+        }
+
         // if (this.privateChatWindow == null) {
         //     new SimpleToast(this.app, 'PrivateChat', Config.get('room.privateChatToastDurationSec', 60), 'privatechat', name, text).show();
         // } else {
@@ -648,6 +660,18 @@ export class Participant extends Entity
             if (this.isChatCommand(text)) {
                 return this.onChatCommand(text);
             }
+            
+            if (this.room) {
+                if (nick != this.room.getMyNick()) {
+                    let chatWindow = this.room.getChatWindow();
+                    if (chatWindow) {
+                        if (chatWindow.isSoundEnabled()) {
+                            chatWindow.playSound();
+                        }
+                    }
+                }
+            }
+
         }
     }
 
@@ -854,11 +878,11 @@ export class Participant extends Entity
         this.room?.sendPoke(this.roomNick, type);
     }
 
-    openPrivateChat(aboveElem: HTMLElement): void
+    async openPrivateChat(aboveElem: HTMLElement): Promise<void>
     {
         if (this.privateChatWindow == null) {
             this.privateChatWindow = new PrivateChatWindow(this.app, this);
-            this.privateChatWindow.show({
+            await this.privateChatWindow.show({
                 'above': aboveElem,
                 onClose: () => { this.privateChatWindow = null; },
             });

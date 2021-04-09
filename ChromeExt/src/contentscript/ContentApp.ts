@@ -219,9 +219,14 @@ export class ContentApp
 
     test(): void
     {
+        // this.sndChat.play();
         // new SimpleToast(this, 'test', 4, 'warning', 'Heiner (dev)', 'greets').show();
 
         // this.showBackpackWindow(null);
+    }
+
+    playSound(fluteSound: any)
+    {
     }
 
     getMyParticipantELem(): HTMLElement

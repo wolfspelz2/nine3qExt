@@ -8,8 +8,9 @@ export class _Changes
     static data: IHistory = [
         ['1.1.0', 'Benji', [
             ['Add', 'Scripting to iframe API & Autorez (Benji, Meerkat)'],
-            ['Add', 'Clear chat window /clear'],
             ['Add', 'Inactive mode (xmpp: presence-show away) and multi-tab presence-show management'],
+            ['Add', 'Chat window clear button'],
+            ['Add', 'Chat sound controlled by checkbox in chat window (other participants only)'],
             ['Change', 'Stay on page if item dropped (which makes Benji a bit unwilling to follow when switching tabs)'],
             ['Change', 'Removed stay-on-tab-change menu entry (there are enough ways to stay)'],
             ['Change', 'Quick slide items without defined avatar speed'],

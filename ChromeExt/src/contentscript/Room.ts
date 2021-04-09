@@ -56,6 +56,7 @@ export class Room
         ];
     }
 
+    getChatWindow(): ChatWindow { return this.chatWindow; }
     getMyNick(): string { return this.myNick; }
     getJid(): string { return this.jid; }
     getDestination(): string { return this.destination; }

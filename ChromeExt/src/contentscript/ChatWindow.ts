@@ -1,3 +1,6 @@
+import KeyboardSound from '../assets/keyboard.mp3';
+import { Sound } from './Sound';
+
 import * as $ from 'jquery';
 import 'webpack-jquery-ui';
 import log = require('loglevel');
@@ -22,10 +25,14 @@ export class ChatWindow extends Window
     protected chatoutElem: HTMLElement;
     protected chatinInputElem: HTMLElement;
     protected lines: Record<string, ChatLine> = {};
+    protected sndChat: Sound;
+    protected soundEnabled = false;
 
     constructor(app: ContentApp, protected room: Room)
     {
         super(app);
+
+        this.sndChat = new Sound(this.app, KeyboardSound);
 
         if (Environment.isDevelopment()) {
             this.addLine('1', 'Nickname', 'Lorem');
@@ -34,6 +41,8 @@ export class ChatWindow extends Window
             this.addLine('4', 'Long text no spaces', 'mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm');
         }
     }
+
+    isSoundEnabled(): boolean { return this.soundEnabled; }
 
     async show(options: any)
     {
@@ -49,6 +58,7 @@ export class ChatWindow extends Window
         let width = as.Int(options.width, 400);
         let height = as.Int(options.height, 300);
         let onClose = options.onClose;
+        this.soundEnabled = as.Bool(options.soundEnabled, false);
 
         if (this.windowElem) {
             let windowElem = this.windowElem;
@@ -75,11 +85,19 @@ export class ChatWindow extends Window
             let chatinTextElem = <HTMLElement>$('<input type="text" class="n3q-base n3q-chatwindow-chatin-input n3q-input n3q-text" rows="1" placeholder="Enter chat here..." data-translate="attr:placeholder:Chatin" />').get(0);
             let chatinSendElem = <HTMLElement>$('<div class="n3q-base n3q-button-inline" title="SendChat" data-translate="attr:title:Chatin"><div class="n3q-base n3q-button-symbol n3q-button-sendchat" /></div>').get(0);
 
+            let clearElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-chatwindow-clear" title="Clear" data-translate="attr:title:Chatwindow text:Chatwindow">Clear</div>').get(0);
+            let soundCheckboxElem = <HTMLElement>$('<input type="checkbox" class="n3q-base n3q-chatwindow-soundcheckbox" />').get(0);
+            let soundcheckElem = <HTMLElement>$('<div class="n3q-base n3q-chatwindow-soundcheck" title="Enable Sound" data-translate="attr:title:Chatwindow text:Chatwindow">Sound:</div>').get(0);
+
+            $(soundcheckElem).append(soundCheckboxElem);
+
             $(chatinElem).append(chatinTextElem);
             $(chatinElem).append(chatinSendElem);
 
             $(contentElem).append(chatoutElem);
             $(contentElem).append(chatinElem);
+            $(contentElem).append(clearElem);
+            $(contentElem).append(soundcheckElem);
 
             this.app.translateElem(windowElem);
 
@@ -122,6 +140,21 @@ export class ChatWindow extends Window
                 ev.stopPropagation();
             });
 
+            $(clearElem).on('click', ev =>
+            {
+                this.clear();
+                // this.playSound();
+            });
+
+            $(soundCheckboxElem).prop('checked', this.soundEnabled);
+            $(soundCheckboxElem).on('change', async ev =>
+            {
+                this.soundEnabled = $(soundCheckboxElem).is(':checked');
+                let options = await this.getSavedOptions('Chat', {});
+                options['soundEnabled'] = this.soundEnabled;
+                await this.saveOptions('Chat', options);
+            });
+
             this.onClose = () =>
             {
                 this.chatoutElem = null;
@@ -140,7 +173,12 @@ export class ChatWindow extends Window
 
     async saveCoordinates(left: number, bottom: number, width: number, height: number)
     {
-        await this.saveOptions('Chat', { 'left': left, 'bottom': bottom, 'width': width, 'height': height });
+        let options = this.getSavedOptions('Chat', {});
+        options['left'] = left;
+        options['bottom'] = bottom;
+        options['width'] = width;
+        options['height'] = height;
+        await this.saveOptions('Chat', options);
     }
 
     isOpen(): boolean
@@ -193,6 +231,11 @@ export class ChatWindow extends Window
         if (this.chatoutElem) {
             $(this.chatoutElem).empty();
         }
+    }
+
+    public playSound(): void
+    {
+        this.sndChat.play();
     }
 
     private onChatinKeydown(ev: JQuery.Event): boolean

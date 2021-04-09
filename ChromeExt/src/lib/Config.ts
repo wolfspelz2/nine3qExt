@@ -295,6 +295,9 @@ export class Config
                     'Chatwindow.Toast.warning': '*Warning',
                     'Chatwindow.Toast.notice': '*Notice',
                     'Chatwindow.Toast.question': '*Question',
+                    'Chatwindow.Clear': 'Leeren',
+                    'Chatwindow.Enable sound': 'Enable sound',
+                    'Chatwindow.Sound:': 'Sound:',
 
                     'PrivateChat.Private Chat with': 'Private Chat with',
 
@@ -447,6 +450,9 @@ export class Config
                     'Chatwindow.Toast.warning': '*Warnung',
                     'Chatwindow.Toast.notice': '*Hinweis',
                     'Chatwindow.Toast.question': '*Frage',
+                    'Chatwindow.Clear': 'Leeren',
+                    'Chatwindow.Enable sound': 'Ton an',
+                    'Chatwindow.Sound:': 'Ton:',
 
                     'PrivateChat.Private Chat with': 'Privater Chat mit',
 
