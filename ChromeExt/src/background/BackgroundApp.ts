@@ -854,10 +854,16 @@ export class BackgroundApp
                 } else { // unavailable
                     let tabIds = this.getRoomJid2TabIds(room);
                     if (tabIds) {
-                        if (tabIds.includes(tabId) && tabIds.length > 1) {
-                            send = false;
-                            this.simulateUnavailableToTab(to, tabId);
+                        let simulateLeave = false;
+                        if (tabIds.includes(tabId)) {
+                            if (tabIds.length > 1) {
+                                simulateLeave = true;
+                            }
                             this.removeRoomJid2TabId(room, tabId);
+                            if (simulateLeave) {
+                                send = false;
+                                this.simulateUnavailableToTab(to, tabId);
+                            }
                         }
                     }
                     if (send) {
