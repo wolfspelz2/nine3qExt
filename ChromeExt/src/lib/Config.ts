@@ -296,8 +296,8 @@ export class Config
                     'Chatwindow.Toast.notice': '*Notice',
                     'Chatwindow.Toast.question': '*Question',
                     'Chatwindow.Clear': 'Leeren',
-                    'Chatwindow.Enable sound': 'Enable sound',
-                    'Chatwindow.Sound:': 'Sound:',
+                    'Chatwindow.Enable Sound': 'Enable sound',
+                    'Chatwindow.Sound': 'Sound',
 
                     'PrivateChat.Private Chat with': 'Private Chat with',
 
@@ -451,8 +451,8 @@ export class Config
                     'Chatwindow.Toast.notice': '*Hinweis',
                     'Chatwindow.Toast.question': '*Frage',
                     'Chatwindow.Clear': 'Leeren',
-                    'Chatwindow.Enable sound': 'Ton an',
-                    'Chatwindow.Sound:': 'Ton:',
+                    'Chatwindow.Enable Sound': 'Ton an',
+                    'Chatwindow.Sound': 'Ton',
 
                     'PrivateChat.Private Chat with': 'Privater Chat mit',
 
