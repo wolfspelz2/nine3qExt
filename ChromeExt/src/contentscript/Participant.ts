@@ -21,6 +21,7 @@ import { PrivateChatWindow } from './PrivateChatWindow';
 import { PrivateVidconfWindow } from './PrivateVidconfWindow';
 import { PointsBar } from './PointsBar';
 import { VpProtocol } from '../lib/VpProtocol';
+import { BackpackItem } from './BackpackItem';
 
 export class Participant extends Entity
 {
@@ -940,10 +941,10 @@ export class Participant extends Entity
         let itemId = roomItem.getRoomNick();
         let roomJid = this.getRoom().getJid();
         if (this.isSelf) {
-            log.debug('Participant.applyItem', 'derez', itemId, 'from', roomJid);
+            log.debug('Participant.applyItem', 'derez', itemId, 'room', roomJid);
             await BackgroundMessage.derezBackpackItem(itemId, roomJid, -1, -1, {}, [Pid.AutorezIsActive], {});
         } else {
-            log.debug('Participant.applyItem', 'transfer', itemId, 'from', roomJid);
+            log.debug('Participant.applyItem', 'transfer', itemId, 'room', roomJid);
 
             if (!as.Bool(roomItem.getProperties()[Pid.IsTransferable], true)) {
                 let fact = ItemException.Fact[ItemException.Fact.NotTransferred];
@@ -954,6 +955,11 @@ export class Participant extends Entity
             }
 
         }
+    }
+
+    async applyBackpackItem(backpackItem: BackpackItem)
+    {
+        log.debug('Participant.applyBackpackItem', '### NOT YET IMPLEMENTED');
     }
 
 }

@@ -222,9 +222,16 @@ export class Avatar implements IObserver
             hoverClass: 'n3q-avatar-drophilite',
             accept: (draggable) =>
             {
-                if (draggable[0]) { draggable = draggable[0]; }
+                if (draggable[0]) { draggable = draggable[0]; } // wtf
+
                 if ($(draggable).hasClass('n3q-avatar-image')) {
                     if (Avatar.getEntityIdByAvatarElem(draggable) != Avatar.getEntityIdByAvatarElem(this.getElem())) {
+                        return true;
+                    }
+                }
+                
+                if ($(draggable).hasClass('n3q-backpack-item')) {
+                    if (!this.isSelf) {
                         return true;
                     }
                 }
@@ -247,11 +254,20 @@ export class Avatar implements IObserver
                         let itemId = droppedRoomItem.getRoomNick();
                         if (await BackgroundMessage.isBackpackItem(itemId)) {
                             let thisParticipant = this.getParticipantByAvatarElem(this.elem);
-                            this.app.getRoom().applyItemToParticipant(thisParticipant, droppedRoomItem);
+                            if (thisParticipant) {
+                                this.app.getRoom().applyItemToParticipant(thisParticipant, droppedRoomItem);
+                            }
                         }
                     }
                 } else {
                     let droppedBackpackItem = this.getBackpackItemByDomElem(droppedElem);
+
+                    if (droppedBackpackItem) {
+                        let thisParticipant = this.getParticipantByAvatarElem(this.elem);
+                        if (thisParticipant) {
+                            this.app.getRoom().applyBackpackItemToParticipant(thisParticipant, droppedBackpackItem);
+                        }
+                    }
                 }
             }
         });

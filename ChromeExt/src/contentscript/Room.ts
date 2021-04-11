@@ -15,6 +15,7 @@ import { RoomItem } from './RoomItem';
 import { ChatWindow } from './ChatWindow'; // Wants to be after Participant and Item otherwise $().resizable does not work
 import { VidconfWindow } from './VidconfWindow';
 import { VpiResolver } from './VpiResolver';
+import { BackpackItem } from './BackpackItem';
 
 export interface IRoomInfoLine extends Array<string | string> { 0: string, 1: string }
 export interface IRoomInfo extends Array<IRoomInfoLine> { }
@@ -615,9 +616,14 @@ export class Room
         activeItem.applyItem(passiveItem);
     }
 
-    applyItemToParticipant(participant: Participant, passiveItem: RoomItem)
+    applyBackpackItemToParticipant(participant: Participant, backpackItem: BackpackItem)
     {
-        participant.applyItem(passiveItem);
+        participant.applyBackpackItem(backpackItem);
+    }
+
+    applyItemToParticipant(participant: Participant, roomItem: RoomItem)
+    {
+        participant.applyItem(roomItem);
     }
 
     async propsClaimDefersToExistingClaim(props: ItemProperties): Promise<boolean>

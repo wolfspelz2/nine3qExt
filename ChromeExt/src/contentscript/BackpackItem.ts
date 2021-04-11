@@ -30,6 +30,7 @@ export class BackpackItem
 
     getElem(): HTMLElement { return this.elem; }
     getProperties(): ItemProperties { return this.properties; }
+    getItemId(): string { return this.properties[Pid.Id]; }
 
     constructor(protected app: ContentApp, private backpackWindow: BackpackWindow, private itemId: string, private properties: ItemProperties)
     {
