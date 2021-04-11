@@ -611,5 +611,6 @@ export class RoomItem extends Entity
     positionFrame(width: number, height: number, left: number, bottom: number)
     {
         this.framePopup?.position(width, height, left, bottom);
+        this.frameWindow?.position(width, height, left, bottom);
     }
 }
