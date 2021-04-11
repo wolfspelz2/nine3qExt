@@ -554,6 +554,15 @@ export class Participant extends Entity
             if (type != '' && itemId != '') {
                 switch (type) {
 
+                    case 'propose':
+
+                        let transferId: string = null;
+                        let propSet = await BackgroundMessage.findBackpackItemProperties({ [Pid.Id]: itemId, [Pid.IsTakeable]: 'true', [Pid.IsRezzed]: 'true', [Pid.RezzedLocation]: this.room.getJid() });
+                        if (propSet[itemId]) {
+                            this.room.transferItem(itemId, this.roomNick);
+                        }
+                        break;
+
                     case 'request':
                         if (node.children && node.children.length > 0)
                             for (let i = 0; i < node.children.length; i++) {
@@ -562,7 +571,7 @@ export class Participant extends Entity
                                     let props = JSON.parse(body);
 
                                     delete props[Pid.InventoryX];
-                                    delete props[Pid.InventoryX];
+                                    delete props[Pid.InventoryY];
 
                                     await BackgroundMessage.addBackpackItem(itemId, props, {});
                                     await BackgroundMessage.derezBackpackItem(itemId, this.room.getJid(), -1, -1, {}, [Pid.AutorezIsActive, Pid.TransferState], {});
@@ -660,7 +669,7 @@ export class Participant extends Entity
             if (this.isChatCommand(text)) {
                 return this.onChatCommand(text);
             }
-            
+
             if (this.room) {
                 if (nick != this.room.getMyNick()) {
                     let chatWindow = this.room.getChatWindow();

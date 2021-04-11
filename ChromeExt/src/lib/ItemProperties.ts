@@ -13,6 +13,7 @@ export class Pid
     static readonly OwnerId = 'OwnerId';
     static readonly OwnerName = 'OwnerName';
     static readonly IsRezable = 'IsRezable';
+    static readonly IsTakeable = 'IsTakeable';
     static readonly IsTransferable = 'IsTransferable';
     static readonly IsRezzed = 'IsRezzed';
     static readonly RezzedX = 'RezzedX';
