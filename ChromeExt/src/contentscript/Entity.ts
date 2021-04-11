@@ -197,8 +197,5 @@ export class Entity
 
     onDraggedTo(newX: number): void
     {
-        // if (this.getPosition() != newX) {
-        //     this.quickSlide(newX);
-        // }
     }
 }

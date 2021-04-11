@@ -30,6 +30,7 @@ export class RoomItem extends Entity
     private isFirstPresence: boolean = true;
     protected statsDisplay: RoomItemStats;
     protected screenUnderlay: ItemFrameUnderlay;
+    protected myItem: boolean = false;
 
     constructor(app: ContentApp, room: Room, roomNick: string, isSelf: boolean)
     {
@@ -51,10 +52,12 @@ export class RoomItem extends Entity
         }
     }
 
+    isMyItem(): boolean { return this.myItem; }
     getDefaultAvatar(): string { return imgDefaultItem; }
     getRoomNick(): string { return this.roomNick; }
     getDisplayName(): string { return as.String(this.getProperties()[Pid.Label], this.roomNick); }
     getProperties(): any { return this.properties; }
+
     setProperties(properties: { [pid: string]: string; })
     {
         this.properties = properties;
@@ -104,8 +107,6 @@ export class RoomItem extends Entity
         let isFirstPresence = this.isFirstPresence;
         this.isFirstPresence = false;
 
-        let isMyItem = await BackgroundMessage.isBackpackItem(this.roomNick);
-
         // Collect info
 
         {
@@ -126,7 +127,11 @@ export class RoomItem extends Entity
             }
         }
 
-        if (isMyItem) {
+        if (isFirstPresence) {
+            this.myItem = await BackgroundMessage.isBackpackItem(this.roomNick);
+        }
+
+        if (this.myItem) {
             newProperties = await BackgroundMessage.getBackpackItemProperties(this.roomNick);
             newProviderId = as.String(newProperties[Pid.Provider], '');
         } else {
@@ -156,7 +161,7 @@ export class RoomItem extends Entity
         // Do someting with the data
 
         if (isFirstPresence) {
-            if (isMyItem) {
+            if (this.myItem) {
                 this.app.incrementRezzedItems(newProperties[Pid.Label] + ' ' + newProperties[Pid.Id]);
             }
         }
@@ -168,7 +173,7 @@ export class RoomItem extends Entity
                 let claimingRoomItem = this.room.getPageClaimItem();
                 if (claimingRoomItem) {
                     // There already is a claim
-                    if (isMyItem) {
+                    if (this.myItem) {
                         // The new item is my own item
                         // Should remove the lesser one of my 2 claim items
                     } else {
@@ -279,9 +284,7 @@ export class RoomItem extends Entity
 
     async onPresenceUnavailable(stanza: any): Promise<void>
     {
-        let isMyItem = await BackgroundMessage.isBackpackItem(this.roomNick);
-
-        if (isMyItem) {
+        if (this.myItem) {
             this.app.decrementRezzedItems(this.getProperties()[Pid.Label] + ' ' + this.getProperties()[Pid.Id]);
         }
 
@@ -351,20 +354,25 @@ export class RoomItem extends Entity
         }
     }
 
-    onDraggedTo(newX: number): void
+    async onDraggedTo(newX: number): Promise<void>
     {
         if (this.getPosition() != newX) {
-            this.sendMoveMessage(newX);
+            let itemId = this.roomNick;
+            if (this.myItem) {
+                BackgroundMessage.modifyBackpackItemProperties(itemId, { [Pid.RezzedX]: '' + newX }, [], {});
+            } else {
+                this.quickSlide(newX);
+            }
         }
     }
 
     onQuickSlideReached(newX: number): void
     {
         super.onQuickSlideReached(newX);
+    }
 
-        if (!this.isDerezzing) {
-            this.sendMoveMessage(newX);
-        }
+    sendMoveMessage(newX: number): void
+    {
     }
 
     async onMoveDestinationReached(newX: number): Promise<void>
@@ -372,19 +380,11 @@ export class RoomItem extends Entity
         super.onMoveDestinationReached(newX);
 
         let itemId = this.roomNick;
-        if (await BackgroundMessage.isBackpackItem(itemId)) {
+        if (this.myItem) {
             let props = await BackgroundMessage.getBackpackItemProperties(itemId);
             if (as.Bool(props[Pid.IframeAspect], false)) {
                 this.sendItemMovedToScriptFrame(newX);
             }
-        }
-    }
-
-    async sendMoveMessage(newX: number): Promise<void>
-    {
-        let itemId = this.roomNick;
-        if (await BackgroundMessage.isBackpackItem(itemId)) {
-            BackgroundMessage.modifyBackpackItemProperties(itemId, { [Pid.RezzedX]: '' + newX }, [], {});
         }
     }
 
@@ -401,7 +401,7 @@ export class RoomItem extends Entity
             return;
         }
 
-        if (await BackgroundMessage.isBackpackItem(itemId)) {
+        if (this.myItem) {
 
             try {
                 await BackgroundMessage.executeBackpackItemAction(itemId, 'Applier.Apply', { 'passive': passiveItemId }, [itemId, passiveItemId]);
@@ -449,7 +449,7 @@ export class RoomItem extends Entity
 
         if (url != '' && room && apiUrl != '' && userId != '') {
             let tokenOptions = {};
-            if (await BackgroundMessage.isBackpackItem(this.roomNick)) {
+            if (this.myItem) {
                 tokenOptions['properties'] = await BackgroundMessage.getBackpackItemProperties(this.roomNick);
             } else {
                 tokenOptions['properties'] = this.properties;
@@ -473,11 +473,7 @@ export class RoomItem extends Entity
             // iframeUrl = 'https://jitsi.vulcan.weblin.com/{room}#userInfo.displayName="{name}"';
             let roomJid = room.getJid();
             let tokenOptions = {};
-            if (await BackgroundMessage.isBackpackItem(this.roomNick)) {
-                tokenOptions['properties'] = await BackgroundMessage.getBackpackItemProperties(this.roomNick);
-            } else {
-                tokenOptions['properties'] = this.properties;
-            }
+            tokenOptions['properties'] = this.properties;
             try {
                 let contextToken = await Payload.getContextToken(apiUrl, userId, this.roomNick, 600, { 'room': roomJid }, tokenOptions);
                 iframeUrl = iframeUrl
