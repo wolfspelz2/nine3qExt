@@ -47,6 +47,8 @@ export class Backpack
 
     async loadLocalItems()
     {
+        let isFirstLoad = await this.checkIsFirstLoad();
+
         let itemIds = await Memory.getLocal(this.getBackpackIdsKey(), []);
         if (itemIds == null || !Array.isArray(itemIds)) {
             log.warn('Local storage', this.getBackpackIdsKey(), 'not an array');
@@ -69,6 +71,32 @@ export class Backpack
                     this.addToRoom(itemId, roomJid);
                 }
             }
+        }
+
+        if (isFirstLoad) {
+            this.createInitialItems();
+        }
+    }
+
+    async checkIsFirstLoad(): Promise<boolean>
+    {
+        let itemIds = await Memory.getLocal(this.getBackpackIdsKey(), null);
+        if (itemIds == null) {
+            await Memory.setLocal(this.getBackpackIdsKey(), []);
+            return true;
+        }
+        return false;
+    }
+
+    async createInitialItems(): Promise<void>
+    {
+        let template: string;
+        let item: Item;
+        try {
+            template = 'PirateFlag'; item = await this.createItemByTemplate(template, {});
+            template = 'Points'; item = await this.createItemByTemplate(template, {});
+        } catch (error) {
+            log.info('Backpack.loadLocalItems', 'failed to create starter items', template, error);
         }
     }
 
