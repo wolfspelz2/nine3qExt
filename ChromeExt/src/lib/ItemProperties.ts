@@ -81,6 +81,28 @@ export class ItemProperties
 {
     [pid: string]: string
 
+    static getDisplay(props: ItemProperties): ItemProperties
+    {
+        let display: ItemProperties = {};
+
+        let displayJson = as.String(props[Pid.Display], null);
+        if (as.String(displayJson, '') != '') {
+            display = JSON.parse(displayJson);
+        } else {
+            let stats = as.String(props[Pid.Stats], null);
+            let statsPids = stats.split(' ');
+            for (let i = 0; i < statsPids.length; i++) {
+                let pid = statsPids[i];
+                let value = props[pid];
+                if (value) {
+                    display[pid] = value;
+                }
+            }
+        }
+
+        return display;
+    }
+
     static verifySignature(props: ItemProperties, publicKey: string): boolean
     {
         if (publicKey && publicKey != '') {
