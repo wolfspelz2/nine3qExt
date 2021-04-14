@@ -319,9 +319,7 @@ export class Backpack
 
     private async createRepositoryItem(itemId: string, props: ItemProperties): Promise<Item>
     {
-        if (props[Pid.OwnerId] == null) {
-            props[Pid.OwnerId] = await Memory.getLocal(Utils.localStorageKey_Id(), '');
-        }
+        props[Pid.OwnerId] = await Memory.getLocal(Utils.localStorageKey_Id(), '');
 
         let item = this.items[itemId];
         if (item == null) {
