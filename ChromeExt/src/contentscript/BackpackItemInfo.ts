@@ -87,16 +87,31 @@ export class BackpackItemInfo
             $(this.elem).append(descriptionElem);
         }
 
-        let stats = as.String(props[Pid.Stats], null);
-        let statsPids = stats.split(' ');
-        statsPids.push(Pid.IsRezzed);
-        statsPids.push(Pid.RezzedDestination);
+        let display = {};
+        let displayJson = as.String(props[Pid.Display], null);
+        if (as.String(displayJson, '') != '') {
+            display = JSON.parse(displayJson);
+        } else {
+            let stats = as.String(props[Pid.Stats], null);
+            let statsPids = stats.split(' ');
+            for (let i = 0; i < statsPids.length; i++) {
+                let pid = statsPids[i];
+                let value = props[pid];
+                if (value) {
+                    display[pid] = value;
+                }
+            }
+        }
+
+        if (as.Bool(props[Pid.IsRezzed], false)) {
+            display[Pid.IsRezzed] = props[Pid.IsRezzed];
+            display[Pid.RezzedDestination] = props[Pid.RezzedDestination];
+        }
 
         let listElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops-list" data-translate="children" />').get(0);
         let hasStats = false;
-        for (let i = 0; i < statsPids.length; i++) {
-            let pid = statsPids[i];
-            let value = props[pid];
+        for (let pid in display) {
+            let value = display[pid];
             if (value) {
                 hasStats = true;
 

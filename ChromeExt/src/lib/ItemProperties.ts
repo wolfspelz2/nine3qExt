@@ -23,6 +23,7 @@ export class Pid
     static readonly InventoryY = 'InventoryY';
     static readonly Provider = 'Provider';
     static readonly Stats = 'Stats';
+    static readonly Display = 'Display';
     static readonly IframeAspect = 'IframeAspect';
     static readonly IframeOptions = 'IframeOptions';
     static readonly IframeUrl = 'IframeUrl';
@@ -149,7 +150,7 @@ export class Property
         [Pid.ScreenAspect]: { inPresence: true },
         [Pid.ScreenOptions]: { inPresence: true },
         [Pid.ScreenUrl]: { inPresence: true },
-        [Pid.Stats]: { inPresence: true },
+        [Pid.Display]: { inPresence: true },
         [Pid.Signed]: { inPresence: true },
         [Pid.SignatureRsa]: { inPresence: true },
         [Pid.DeactivatableIsInactive]: { inPresence: true },
