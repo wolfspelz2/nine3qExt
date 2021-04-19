@@ -107,7 +107,7 @@ export class Backpack
 
         let wallets = this.findItems(props => { return (as.Bool(props[Pid.Web3WalletAspect], false)); });
         if (wallets.length == 0) {
-            log.info('backpack.loadWeb3Items', 'No wallet item');
+            if (Config.get('log.web3', true)) { log.info('backpack.loadWeb3Items', 'No wallet item'); }
             return;
         }
 
@@ -207,7 +207,7 @@ export class Backpack
                     try {
                         let item = await this.createItemByTemplate(template, data);
                         knownIds.push(item.getId());
-                        log.debug('Backpack.getOrCreateWeb3ItemFromMetadata', 'Creating', template, item.getId());
+                        if (Config.get('log.web3', true)) { log.info('Backpack.getOrCreateWeb3ItemFromMetadata', 'Creating', template, item.getId()); }
                     } catch (error) {
                         log.info(error);
                     }
@@ -215,7 +215,7 @@ export class Backpack
                     for (let i = 0; i < existingItems.length; i++) {
                         let item = existingItems[i];
                         knownIds.push(item.getId());
-                        log.debug('Backpack.getOrCreateWeb3ItemFromMetadata', 'Confirming', template, item.getId());
+                        if (Config.get('log.web3', true)) { log.info('Backpack.getOrCreateWeb3ItemFromMetadata', 'Confirming', template, item.getId()); }
                     }
                 }
             } break;

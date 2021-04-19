@@ -179,13 +179,13 @@ export class ContentApp
 
     sleep(statusMessage: string)
     {
-        log.debug('sleep');
+        log.debug('ContentApp.sleep');
         this.room.sleep(statusMessage);
     }
 
     wakeup()
     {
-        log.debug('wakeup');
+        log.debug('ContentApp.wakeup');
         this.room.wakeup();
     }
 
@@ -562,20 +562,20 @@ export class ContentApp
             let oldSignificatParts = this.pageUrl ? this.getSignificantUrlParts(this.pageUrl) : '';
             if (newSignificatParts == oldSignificatParts) { return }
 
-            log.debug('Page changed', this.pageUrl, ' => ', pageUrl);
+            if (Config.get('log.urlMapping', false)) { log.info('Page changed', this.pageUrl, ' => ', pageUrl); }
             this.pageUrl = pageUrl;
 
             let newRoomJid = await this.vpiMap(pageUrl);
 
             if (newRoomJid == this.roomJid) {
-                log.debug('Same room', pageUrl, ' => ', this.roomJid);
+                log.debug('ContentApp.checkPageUrlChanged', 'Same room', pageUrl, ' => ', this.roomJid);
                 return;
             }
 
             this.leavePage();
 
             this.roomJid = newRoomJid;
-            log.debug('Mapped', pageUrl, ' => ', this.roomJid);
+            if (Config.get('log.urlMapping', false)) { log.info('Mapped', pageUrl, ' => ', this.roomJid); }
 
             if (this.roomJid != '') {
                 this.enterRoom(this.roomJid, pageUrl);
@@ -658,14 +658,16 @@ export class ContentApp
         this.leaveRoom();
 
         this.room = new Room(this, roomJid, roomDestination, await this.getSavedPosition());
-        log.debug('ContentApp.enterRoom', roomJid);
+        if (Config.get('log.urlMapping', false)) { log.info('ContentApp.enterRoom', roomJid); }
+
         this.room.enter();
     }
 
     leaveRoom(): void
     {
         if (this.room) {
-            log.debug('ContentApp.leaveRoom', this.room.getJid());
+            if (Config.get('log.urlMapping', false)) { log.info('ContentApp.leaveRoom', this.room.getJid()); }
+
             this.room.leave();
             this.room = null;
         }

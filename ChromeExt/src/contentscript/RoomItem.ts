@@ -569,6 +569,16 @@ export class RoomItem extends Entity
         }
     }
 
+    async setItemState(state: string)
+    {
+        this.avatarDisplay?.setState(state);
+    }
+
+    async setItemCondition(condition: string)
+    {
+        this.avatarDisplay?.setCondition(condition);
+    }
+
     sendPropertiesToScriptFrame(requestId: string)
     {
         this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Item.Properties', id: requestId, properties: this.properties }, '*');

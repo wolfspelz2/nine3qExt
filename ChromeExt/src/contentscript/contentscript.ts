@@ -12,7 +12,7 @@ import { SingleEntryPlugin } from 'webpack';
 $(function ()
 {
     let debug = Environment.isDevelopment();
-    console.log('weblin.io Content', 'dev', debug);
+    console.debug('weblin.io Content', 'dev', debug);
 
     log.setLevel(log.levels.INFO);
 

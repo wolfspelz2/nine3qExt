@@ -257,7 +257,7 @@ export class BackpackWindow extends Window
     rezItemSync(itemId: string, room: string, x: number, destination: string) { this.rezItem(itemId, room, x, destination); }
     async rezItem(itemId: string, room: string, x: number, destination: string)
     {
-        if (Config.get('log.backpackWindow', true)) { log.debug('BackpackWindow.rezItem', itemId, 'to', room); }
+        if (Config.get('log.backpackWindow', true)) { log.info('BackpackWindow.rezItem', itemId, 'to', room); }
         try {
             let props = await BackgroundMessage.getBackpackItemProperties(itemId);
 
@@ -280,7 +280,7 @@ export class BackpackWindow extends Window
     derezItemSync(itemId: string, room: string, x: number, y: number) { this.derezItem(itemId, room, x, y); }
     async derezItem(itemId: string, room: string, x: number, y: number)
     {
-        if (Config.get('log.backpackWindow', true)) { log.debug('BackpackWindow.derezItem', itemId, 'from', room); }
+        if (Config.get('log.backpackWindow', true)) { log.info('BackpackWindow.derezItem', itemId, 'from', room); }
         try {
             await BackgroundMessage.derezBackpackItem(itemId, room, -1, -1, {}, [Pid.AutorezIsActive], {});
 
@@ -291,7 +291,7 @@ export class BackpackWindow extends Window
 
     async deleteItem(itemId: string)
     {
-        if (Config.get('log.backpackWindow', true)) { log.debug('BackpackWindow.deleteItem', itemId); }
+        if (Config.get('log.backpackWindow', true)) { log.info('BackpackWindow.deleteItem', itemId); }
         try {
             await BackgroundMessage.deleteBackpackItem(itemId, {});
         } catch (ex) {
@@ -301,7 +301,7 @@ export class BackpackWindow extends Window
 
     itemVisibility(itemId: string, state: boolean)
     {
-        if (Config.get('log.backpackWindow', true)) { log.debug('BackpackWindow.hideItem', itemId); }
+        if (Config.get('log.backpackWindow', true)) { log.info('BackpackWindow.hideItem', itemId); }
         let item = this.items[itemId];
         if (item) {
             item.setVisibility(state);

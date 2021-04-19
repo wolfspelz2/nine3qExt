@@ -82,6 +82,12 @@ export class IframeApi
             case WeblinClientApi.ItemSetPropertyRequest.type: {
                 this.handle_ItemSetPropertyRequest(<WeblinClientApi.ItemSetPropertyRequest>request);
             } break;
+            case WeblinClientApi.ItemSetStateRequest.type: {
+                this.handle_ItemSetStateRequest(<WeblinClientApi.ItemSetStateRequest>request);
+            } break;
+            case WeblinClientApi.ItemSetConditionRequest.type: {
+                this.handle_ItemSetConditionRequest(<WeblinClientApi.ItemSetConditionRequest>request);
+            } break;
             case WeblinClientApi.RoomGetParticipantsRequest.type: {
                 this.handle_RoomGetParticipantsRequest(<WeblinClientApi.RoomGetParticipantsRequest>request);
             } break;
@@ -215,6 +221,32 @@ export class IframeApi
 
         } catch (ex) {
             log.info('IframeApi.handle_ItemSetPropertyRequest', ex);
+        }
+    }
+
+    handle_ItemSetStateRequest(request: WeblinClientApi.ItemSetStateRequest)
+    {
+        try {
+            let roomItem = this.app.getRoom().getItem(request.item);
+            if (roomItem) {
+                roomItem.setItemState(request.state);
+            }
+
+        } catch (ex) {
+            log.info('IframeApi.handle_ItemSetStateRequest', ex);
+        }
+    }
+
+    handle_ItemSetConditionRequest(request: WeblinClientApi.ItemSetConditionRequest)
+    {
+        try {
+            let roomItem = this.app.getRoom().getItem(request.item);
+            if (roomItem) {
+                roomItem.setItemCondition(request.condition);
+            }
+
+        } catch (ex) {
+            log.info('IframeApi.handle_ItemSetConditionRequest', ex);
         }
     }
 
@@ -463,6 +495,20 @@ export namespace WeblinClientApi
         item: string;
         pid: string;
         value: any;
+    }
+
+    export class ItemSetStateRequest extends Request
+    {
+        static type = 'Item.SetState';
+        item: string;
+        state: string;
+    }
+
+    export class ItemSetConditionRequest extends Request
+    {
+        static type = 'Item.SetCondition';
+        item: string;
+        condition: string;
     }
 
     export class ItemActionRequest extends Request
