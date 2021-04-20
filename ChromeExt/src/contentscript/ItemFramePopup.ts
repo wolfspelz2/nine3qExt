@@ -5,7 +5,6 @@ import { as } from '../lib/as';
 import { Point2D, Utils } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { Popup } from './Popup';
-import { RepositoryItem } from './RepositoryItem';
 import { Pid } from '../lib/ItemProperties';
 import { Config } from '../lib/Config';
 import { threadId } from 'worker_threads';
@@ -14,7 +13,6 @@ type PopupOptions = any;
 
 interface ItemFramePopupOptions extends PopupOptions
 {
-    item: RepositoryItem;
     elem: HTMLElement;
     url: string;
     onClose: { (): void };
@@ -28,6 +26,8 @@ export class ItemFramePopup extends Popup
     {
         super(app);
     }
+
+    getIframeElem(): HTMLIFrameElement { return this.iframeElem; }
 
     async show(options: ItemFramePopupOptions)
     {
@@ -51,6 +51,8 @@ export class ItemFramePopup extends Popup
             $(this.windowElem).addClass('n3q-itemframepopup');
 
             this.iframeElem = <HTMLIFrameElement>$('<iframe class="n3q-base n3q-itemframepopup-content" src="' + url + ' " frameborder="0"></iframe>').get(0);
+
+            if (options.hidden) { this.setVisibility(false); }
 
             $(this.windowElem).append(this.iframeElem);
             this.app.translateElem(this.windowElem);

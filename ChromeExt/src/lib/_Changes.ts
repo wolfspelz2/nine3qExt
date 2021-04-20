@@ -6,6 +6,23 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
+        ['1.1.0', 'Benji', [
+            ['Add', 'Scripting to iframe API & Autorez (Benji, Meerkat)'],
+            ['Add', 'Inactive mode (xmpp: presence-show away) and multi-tab presence-show management'],
+            ['Add', 'Chat window clear button'],
+            ['Add', 'Chat sound controlled by checkbox in chat window (other participants only)'],
+            ['Add', 'Initial items'],
+            ['Add', 'Effect for miner'],
+            ['Change', 'Stay on page if item dropped (which makes Benji a bit unwilling to follow when switching tabs)'],
+            ['Change', 'Removed stay-on-tab-change menu entry (there are enough ways to stay)'],
+            ['Change', 'Quick slide items without defined avatar speed'],
+            ['Change', 'Nickname excluded from copy all text (not selectable)'],
+            ['Change', 'Migrate id/nickname/avatar from sync to local storage'],
+            ['Change', 'Configure log channels for release version'],
+            ['Fix', 'Avatar position resets when dragged while already moving'],
+            ['Fix', 'Leave room on any leave from several tabs with the same room'],
+            ['Fix', 'Avatars and items flicker when other users navigate'],
+        ]],
         ['1.0.9', 'WeblinMigration Web3 RezButton', [
             ['Add', 'transparent iframe'],
             ['Add', 'Document window'],

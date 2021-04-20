@@ -21,11 +21,10 @@ import { VpiResolver } from './VpiResolver';
 import { SettingsWindow } from './SettingsWindow';
 import { XmppWindow } from './XmppWindow';
 import { ChangesWindow } from './ChangesWindow';
-import { ItemRepository } from './ItemRepository';
 import { TestWindow } from './TestWindow';
 import { BackpackWindow } from './BackpackWindow';
 import { SimpleErrorToast, SimpleToast } from './Toast';
-import { IframeApi } from './IframeApi';
+import { IframeApi, WeblinClientApi } from './IframeApi';
 
 interface ILocationMapperResponse
 {
@@ -51,7 +50,6 @@ export class ContentApp
     private presetPageUrl: string;
     private roomJid: string;
     private room: Room;
-    private itemRepository: ItemRepository;
     private propertyStorage: PropertyStorage = new PropertyStorage();
     private babelfish: Translator;
     private vpi: VpiResolver;
@@ -62,29 +60,28 @@ export class ContentApp
     private onRuntimeMessageClosure: (message: any, sender: any, sendResponse: any) => any;
     private iframeApi: IframeApi;
 
-    private stayHereIsChecked: boolean = false;
+    // private stayHereIsChecked: boolean = false;
     private backpackIsOpen: boolean = false;
     private vidconfIsOpen: boolean = false;
     private chatIsOpen: boolean = false;
     private privateVidconfIsOpen: boolean = false;
+    private countRezzedItems: number = 0;
 
     // Getter
 
     getPropertyStorage(): PropertyStorage { return this.propertyStorage; }
     getDisplay(): HTMLElement { return this.display; }
-    getItemRepository() { return this.itemRepository; }
     getRoom(): Room { return this.room; }
     getBackpackWindow(): BackpackWindow { return this.backpackWindow; }
 
     constructor(protected appendToMe: HTMLElement, private messageHandler: ContentAppNotificationCallback)
     {
-        this.itemRepository = new ItemRepository(this);
     }
 
     async start(params: any)
     {
-        if (params && params.nickname) { await Memory.setSync(Utils.syncStorageKey_Nickname(), params.nickname); }
-        if (params && params.avatar) { await Memory.setSync(Utils.syncStorageKey_Avatar(), params.avatar); }
+        if (params && params.nickname) { await Memory.setLocal(Utils.localStorageKey_Nickname(), params.nickname); }
+        if (params && params.avatar) { await Memory.setLocal(Utils.localStorageKey_Avatar(), params.avatar); }
         if (params && params.pageUrl) { this.presetPageUrl = params.pageUrl; }
         if (params && params.x) { await Memory.setLocal(Utils.localStorageKey_X(), params.x); }
 
@@ -165,7 +162,7 @@ export class ContentApp
         await this.checkPageUrlChanged();
 
         if (this.roomJid != '') {
-            this.stayHereIsChecked = await Memory.getLocal(Utils.localStorageKey_StayOnTabChange(this.roomJid), false);
+            // this.stayHereIsChecked = await Memory.getLocal(Utils.localStorageKey_StayOnTabChange(this.roomJid), false);
             this.backpackIsOpen = await Memory.getLocal(Utils.localStorageKey_BackpackIsOpen(this.roomJid), false);
             this.chatIsOpen = await Memory.getLocal(Utils.localStorageKey_ChatIsOpen(this.roomJid), false);
             this.vidconfIsOpen = await Memory.getLocal(Utils.localStorageKey_VidconfIsOpen(this.roomJid), false);
@@ -178,6 +175,18 @@ export class ContentApp
         this.startCheckPageUrl();
         this.pingBackgroundToKeepConnectionAlive();
         this.iframeApi = new IframeApi(this).start();
+    }
+
+    sleep(statusMessage: string)
+    {
+        log.debug('ContentApp.sleep');
+        this.room.sleep(statusMessage);
+    }
+
+    wakeup()
+    {
+        log.debug('ContentApp.wakeup');
+        this.room.wakeup();
     }
 
     stop()
@@ -210,9 +219,14 @@ export class ContentApp
 
     test(): void
     {
+        // this.sndChat.play();
         // new SimpleToast(this, 'test', 4, 'warning', 'Heiner (dev)', 'greets').show();
 
         // this.showBackpackWindow(null);
+    }
+
+    playSound(fluteSound: any)
+    {
     }
 
     getMyParticipantELem(): HTMLElement
@@ -290,49 +304,6 @@ export class ContentApp
         }
     }
 
-    closeItemFrame(itemId: string)
-    {
-        let item = this.getItemRepository().getItem(itemId);
-        if (item) {
-            item.closeFrame();
-        }
-    }
-
-    openDocumentUrl(itemId: string)
-    {
-        let roomItem = this.room.getItem(itemId);
-        if (roomItem) {
-            let item = this.getItemRepository().getItem(itemId);
-            if (item) {
-                item.openDocumentUrl(roomItem.getElem());
-            }
-        }
-    }
-
-    positionItemFrame(itemId: string, width: number, height: number, left: number, bottom: number)
-    {
-        let item = this.getItemRepository().getItem(itemId);
-        if (item) {
-            item.positionFrame(width, height, left, bottom);
-        }
-    }
-
-    // updateItemFrame(itemId: string, props: ItemProperties)
-    // {
-    //     let roomItem = this.room.getItem(itemId);
-    //     if (roomItem) {
-    //         roomItem.updateItemFrame(itemId, props);
-    //     }
-    // }
-
-    sendMessageToScreenItemFrame(itemId: string, message: any)
-    {
-        let roomItem = this.room.getItem(itemId);
-        if (roomItem) {
-            roomItem.sendMessageToScreenItemFrame(message);
-        }
-    }
-
     // Stay on tab change
 
     setBackpackIsOpen(value: boolean): void
@@ -373,27 +344,47 @@ export class ContentApp
         }
     }
 
-    getStayHereIsChecked(): boolean
+    // getStayHereIsChecked(): boolean
+    // {
+    //     return this.stayHereIsChecked;
+    // }
+
+    // toggleStayHereIsChecked(): void
+    // {
+    //     this.stayHereIsChecked = !this.stayHereIsChecked;
+
+    //     if (this.stayHereIsChecked) {
+    //         /* await */ Memory.setLocal(Utils.localStorageKey_StayOnTabChange(this.roomJid), this.stayHereIsChecked);
+    //     } else {
+    //         /* await */ Memory.deleteLocal(Utils.localStorageKey_StayOnTabChange(this.roomJid));
+    //     }
+
+    //     this.evaluateStayOnTabChange();
+    // }
+
+    incrementRezzedItems(name: string): void
     {
-        return this.stayHereIsChecked;
+        this.countRezzedItems++;
+        log.debug('ContentApp.incrementRezzedItems', name, this.countRezzedItems);
+        this.evaluateStayOnTabChange();
     }
-
-    toggleStayHereIsChecked(): void
+    decrementRezzedItems(name: string): void
     {
-        this.stayHereIsChecked = !this.stayHereIsChecked;
-
-        if (this.stayHereIsChecked) {
-            /* await */ Memory.setLocal(Utils.localStorageKey_StayOnTabChange(this.roomJid), this.stayHereIsChecked);
-        } else {
-            /* await */ Memory.deleteLocal(Utils.localStorageKey_StayOnTabChange(this.roomJid));
-        }
-
+        this.countRezzedItems--;
+        log.debug('ContentApp.decrementRezzedItems', name, this.countRezzedItems);
+        if (this.countRezzedItems < 0) { this.countRezzedItems = 0; }
         this.evaluateStayOnTabChange();
     }
 
     evaluateStayOnTabChange(): void
     {
-        let stay = this.backpackIsOpen || this.vidconfIsOpen || this.chatIsOpen || this.stayHereIsChecked || this.privateVidconfIsOpen;
+        let stay = this.backpackIsOpen
+            || this.vidconfIsOpen
+            || this.chatIsOpen
+            // || this.stayHereIsChecked
+            || this.privateVidconfIsOpen
+            || this.countRezzedItems > 0
+            ;
         if (stay) {
             this.messageHandler({ 'type': ContentAppNotification.type_onTabChangeStay });
         } else {
@@ -454,6 +445,10 @@ export class ContentApp
                 this.handle_userSettingsChanged();
             } break;
 
+            case ContentMessage.type_clientNotification: {
+                this.handle_clientNotification(message.data);
+            } break;
+
             case ContentMessage.type_extensionActiveChanged: {
                 this.handle_extensionActiveChanged(message.data.state);
             } break;
@@ -482,7 +477,9 @@ export class ContentApp
     handle_recvStanza(jsStanza: any): any
     {
         let stanza: xml = Utils.jsObject2xmlObject(jsStanza);
-        log.debug('ContentApp.recvStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to, 'from=', stanza.attrs.from);
+        if (Config.get('log.contentTraffic', false)) {
+            log.debug('ContentApp.recvStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to, 'from=', stanza.attrs.from);
+        }
 
         if (this.xmppWindow) {
             let stanzaText = stanza.toString();
@@ -500,7 +497,31 @@ export class ContentApp
 
     handle_userSettingsChanged(): any
     {
-        this.messageHandler({ 'type': ContentAppNotification.type_restart });
+        // this.messageHandler({ 'type': ContentAppNotification.type_restart });
+        if (this.room) {
+            this.room.onUserSettingsChanged();
+        }
+    }
+
+    handle_clientNotification(request: WeblinClientApi.ClientNotificationRequest): any
+    {
+        let title = as.String(request.title, '');
+        let text = as.String(request.text, '');
+        let iconType = as.String(request.iconType, WeblinClientApi.ClientNotificationRequest.defaultIcon);
+        let links = request.links;
+        let what = '';
+        let detail = request.detail;
+        if (detail) {
+            what = as.String(detail.what, '');
+        }
+        let toast = new SimpleToast(this, 'itemframe-' + iconType + what, Config.get('client.notificationToastDurationSec', 30), iconType, title, text);
+        if (links) {
+            links.forEach(link =>
+            {
+                toast.actionButton(link.text, () => { document.location.href = link.href; });
+            });
+        }
+        toast.show(() => { });
     }
 
     handle_extensionActiveChanged(state: boolean): any
@@ -544,20 +565,20 @@ export class ContentApp
             let oldSignificatParts = this.pageUrl ? this.getSignificantUrlParts(this.pageUrl) : '';
             if (newSignificatParts == oldSignificatParts) { return }
 
-            log.debug('Page changed', this.pageUrl, ' => ', pageUrl);
+            if (Config.get('log.urlMapping', false)) { log.info('Page changed', this.pageUrl, ' => ', pageUrl); }
             this.pageUrl = pageUrl;
 
             let newRoomJid = await this.vpiMap(pageUrl);
 
             if (newRoomJid == this.roomJid) {
-                log.debug('Same room', pageUrl, ' => ', this.roomJid);
+                log.debug('ContentApp.checkPageUrlChanged', 'Same room', pageUrl, ' => ', this.roomJid);
                 return;
             }
 
             this.leavePage();
 
             this.roomJid = newRoomJid;
-            log.debug('Mapped', pageUrl, ' => ', this.roomJid);
+            if (Config.get('log.urlMapping', false)) { log.info('Mapped', pageUrl, ' => ', this.roomJid); }
 
             if (this.roomJid != '') {
                 this.enterRoom(this.roomJid, pageUrl);
@@ -607,9 +628,15 @@ export class ContentApp
 
     static getRoomJidFromLocationUrl(locationUrl: string): string
     {
-        let jid = '';
-        let url = new URL(locationUrl);
-        return url.pathname;
+        try {
+            if (locationUrl != '') {
+                let url = new URL(locationUrl);
+                return url.pathname;
+            }
+        } catch (error) {
+            log.debug('ContentApp.getRoomJidFromLocationUrl', error, 'locationUrl', locationUrl);
+        }
+        return '';
     }
 
     // async enterRoomByPageUrl(pageUrl: string): Promise<void>
@@ -634,14 +661,16 @@ export class ContentApp
         this.leaveRoom();
 
         this.room = new Room(this, roomJid, roomDestination, await this.getSavedPosition());
-        log.debug('ContentApp.enterRoom', roomJid);
+        if (Config.get('log.urlMapping', false)) { log.info('ContentApp.enterRoom', roomJid); }
+
         this.room.enter();
     }
 
     leaveRoom(): void
     {
         if (this.room) {
-            log.debug('ContentApp.leaveRoom', this.room.getJid());
+            if (Config.get('log.urlMapping', false)) { log.info('ContentApp.leaveRoom', this.room.getJid()); }
+
             this.room.leave();
             this.room = null;
         }
@@ -691,7 +720,9 @@ export class ContentApp
 
     async sendStanza(stanza: xml, stanzaId: string = null, responseHandler: StanzaResponseHandler = null): Promise<void>
     {
-        log.debug('ContentApp.sendStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to);
+        if (Config.get('log.contentTraffic', false)) {
+            log.debug('ContentApp.sendStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to);
+        }
         try {
             if (this.xmppWindow) {
                 let stanzaText = stanza.toString();
@@ -832,9 +863,9 @@ export class ContentApp
     async assertUserNickname()
     {
         try {
-            let nickname = await Memory.getSync(Utils.syncStorageKey_Nickname(), '');
+            let nickname = await Memory.getLocal(Utils.localStorageKey_Nickname(), '');
             if (nickname == '') {
-                await Memory.setSync(Utils.syncStorageKey_Nickname(), 'Your name');
+                await Memory.setLocal(Utils.localStorageKey_Nickname(), 'Your name');
             }
         } catch (error) {
             log.info(error);
@@ -845,7 +876,7 @@ export class ContentApp
     async getUserNickname(): Promise<string>
     {
         try {
-            return await Memory.getSync(Utils.syncStorageKey_Nickname(), 'no name');
+            return await Memory.getLocal(Utils.localStorageKey_Nickname(), 'no name');
         } catch (error) {
             log.info(error);
             return 'no name';
@@ -857,10 +888,10 @@ export class ContentApp
     async assertUserAvatar()
     {
         try {
-            let avatar = await Memory.getSync(Utils.syncStorageKey_Avatar(), '');
+            let avatar = await Memory.getLocal(Utils.localStorageKey_Avatar(), '');
             if (avatar == '') {
                 avatar = AvatarGallery.getRandomAvatar();
-                await Memory.setSync(Utils.syncStorageKey_Avatar(), avatar);
+                await Memory.setLocal(Utils.localStorageKey_Avatar(), avatar);
             }
         } catch (error) {
             log.info(error);
@@ -871,7 +902,7 @@ export class ContentApp
     async getUserAvatar(): Promise<string>
     {
         try {
-            return await Memory.getSync(Utils.syncStorageKey_Avatar(), '004/pinguin');
+            return await Memory.getLocal(Utils.localStorageKey_Avatar(), '004/pinguin');
         } catch (error) {
             log.info(error);
             return '004/pinguin';

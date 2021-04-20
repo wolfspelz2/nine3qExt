@@ -2,6 +2,7 @@ import log = require('loglevel');
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Utils } from '../lib/Utils';
 import { parseJSON } from 'jquery';
+import { as } from '../lib/as';
 
 export class SimpleRpcResponse
 {
@@ -40,7 +41,7 @@ export class SimpleRpc
                     return new SimpleRpcResponse(false, {}, data.message);
                 }
             } else {
-                return new SimpleRpcResponse(false, {}, response.status + ': ' + response.statusText);
+                return new SimpleRpcResponse(false, {}, as.String(response.status, 'no-status') + ': ' + as.String(response.statusText, 'no-status-text'));
             }
         } catch (error) {
             return new SimpleRpcResponse(false, {}, JSON.stringify(error));

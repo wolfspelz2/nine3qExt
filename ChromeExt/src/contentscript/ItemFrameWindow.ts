@@ -5,7 +5,6 @@ import { as } from '../lib/as';
 import { Point2D, Utils } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { Window } from './Window';
-import { RepositoryItem } from './RepositoryItem';
 import { Pid } from '../lib/ItemProperties';
 import { Config } from '../lib/Config';
 
@@ -13,7 +12,6 @@ type WindowOptions = any;
 
 export interface ItemFrameWindowOptions extends WindowOptions
 {
-    item: RepositoryItem;
     elem: HTMLElement;
     url: string;
     onClose: { (): void };
@@ -21,6 +19,7 @@ export interface ItemFrameWindowOptions extends WindowOptions
 
 export class ItemFrameWindow extends Window
 {
+    protected iframeElem: HTMLIFrameElement;
     protected refElem: HTMLElement;
     private url: string;
     private title: string;
@@ -32,6 +31,8 @@ export class ItemFrameWindow extends Window
         super(app);
     }
 
+    getIframeElem(): HTMLIFrameElement { return this.iframeElem; }
+
     async show(options: ItemFrameWindowOptions)
     {
         try {
@@ -40,7 +41,7 @@ export class ItemFrameWindow extends Window
 
             this.refElem = options.elem;
 
-            log.debug('ItemFrameWindow', url);
+            if (Config.get('log.iframeApi', true)) { log.info('ItemFrameWindow.show', url); }
             super.show(options);
 
             $(this.windowElem).addClass('n3q-itemframewindow');
@@ -50,9 +51,11 @@ export class ItemFrameWindow extends Window
             this.width = options.width; // member for undock
             this.height = options.height; // member for undock
 
-            let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-itemframewindow-content" src="' + this.url + ' " frameborder="0" allow="camera; microphone; fullscreen; display-capture"></iframe>').get(0);
+            this.iframeElem = <HTMLIFrameElement>$('<iframe class="n3q-base n3q-itemframewindow-content" src="' + this.url + ' " frameborder="0" allow="camera; microphone; fullscreen; display-capture"></iframe>').get(0);
 
-            $(this.contentElem).append(iframeElem);
+            if (options.hidden) { this.setVisibility(false); }
+
+            $(this.contentElem).append(this.iframeElem);
             this.app.translateElem(this.windowElem);
 
             this.position(options.width, options.height, options.left, options.bottom);

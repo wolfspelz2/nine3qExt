@@ -70,14 +70,17 @@ export class RoomItemStats
             $(this.elem).append(descriptionElem);
         }
 
-        let stats = as.String(props[Pid.Stats], null);
-        let statsPids = stats.split(' ');
+        let display = ItemProperties.getDisplay(props);
+
+        // if (as.Bool(props[Pid.IsRezzed], false)) {
+        //     display[Pid.IsRezzed] = props[Pid.IsRezzed];
+        //     display[Pid.RezzedDestination] = props[Pid.RezzedDestination];
+        // }
 
         let listElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops-list" data-translate="children" />').get(0);
         let hasStats = false;
-        for (let i = 0; i < statsPids.length; i++) {
-            let pid = statsPids[i];
-            let value = props[pid];
+        for (let pid in display) {
+            let value = display[pid];
             if (value) {
                 hasStats = true;
                 let lineElem = <HTMLDivElement>$('<div class="n3q-base n3q-itemprops-line" data-translate="children">'

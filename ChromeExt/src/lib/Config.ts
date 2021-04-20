@@ -20,6 +20,7 @@ export class Config
     public static staticConfig: any = {
         environment: {
             // NODE_ENV: 'production',
+            reloadPageOnPanic: false,
         },
         extension: {
             id: 'cgfkfhdinajjhfeghebnljbanpcjdlkm',
@@ -29,12 +30,36 @@ export class Config
             avatar: '',
             active: '',
         },
+        config: {
+            serviceUrl: 'https://webex.vulcan.weblin.com/Config',
+            updateIntervalSec: 83567,
+            checkUpdateIntervalSec: 123,
+            clusterName: 'prod',
+        },
         test: {
             itemServiceRpcUrl: 'http://localhost:5000/rpc',
+        },
+        log: {
+            startup: false,
+            backgroundTraffic: false,
+            backgroundPresenceManagement: false,
+            room2tab: false,
+            contentTraffic: false,
+            rpcClient: false,
+            backgroundFetchUrl: false,
+            backgroundFetchUrlCache: false,
+            backgroundJsonRpc: false,
+            pingBackground: false,
+            contentStart: false,
+            backpackWindow: false,
+            urlMapping: false,
+            web3: false,
+            iframeApi: false,
         },
         client: {
             name: 'weblin.io',
             variant: '',
+            notificationToastDurationSec: 30,
         },
         design: {
             name: 'basic',
@@ -48,18 +73,13 @@ export class Config
             strippedUrlPrefixes: ['https://cdn.weblin.io/?', 'https://cdn.weblin.io/'],
             notStrippedUrlPrefixes: ['https://cdn.weblin.io/v1/', 'https://cdn.weblin.io/sso/'],
         },
-        config: {
-            serviceUrl: 'https://webex.vulcan.weblin.com/Config',
-            updateIntervalSec: 83567,
-            checkUpdateIntervalSec: 123,
-            clusterName: 'prod',
-        },
         httpCache: {
             maxAgeSec: 3600,
             maintenanceIntervalSec: 60,
         },
         room: {
             fadeInSec: 0.3,
+            quickSlideSec: 0.1,
             checkPageUrlSec: 3.0,
             defaultAvatarSpeedPixelPerSec: 100,
             randomEnterPosXMin: 300,
@@ -103,6 +123,9 @@ export class Config
             domain: 'xmpp.vulcan.weblin.com',
             maxMucEnterRetries: 4,
             pingBackgroundToKeepConnectionAliveSec: 12,
+            deferUnavailableSec: 3.0,
+            deferAwaySec: 0.2,
+            resendPresenceAfterResourceChangeBecauseServerSendsOldPresenceDataWithNewResourceToForceNewDataDelaySec: 1.0,
         },
         avatars: {
             animationsProxyUrlTemplate: 'https://webex.vulcan.weblin.com/Avatar/InlineData?url={url}',
@@ -123,7 +146,6 @@ export class Config
         },
         roomItem: {
             statsPopupOffset: 10,
-            messageMagic: 'uzv65b76t_weblin2screen',
             frameUndockedLeft: 100,
             frameUndockedTop: 100,
             chatlogItemAppeared: false,
@@ -132,6 +154,8 @@ export class Config
         },
         iframeApi: {
             messageMagic: 'a67igu67puz_iframeApi',
+            messageMagicRezactive: 'tr67rftghg_Rezactive',
+            messageMagic2Screen: 'uzv65b76t_weblin2screen',
             messageMagicW2WMigration: 'hbv67u5rf_w2wMigrate',
             messageMagicCreateCryptoWallet: 'tr67rftghg_CreateCryptoWallet',
         },
@@ -222,6 +246,8 @@ export class Config
                     'Extension.Disable': 'Disable weblin.io',
                     'Extension.Enable': 'Enable weblin.io',
 
+                    'StatusMessage.TabInvisible': 'Browser tab inactive',
+
                     'Common.Close': 'Close',
                     'Common.Undock': 'Open in separate window',
 
@@ -269,6 +295,12 @@ export class Config
                     'Chatwindow.is present': '*is present*',
                     'Chatwindow.disappeared': '*disappeared*',
                     'Chatwindow.:': ':',
+                    'Chatwindow.Toast.warning': '*Warning',
+                    'Chatwindow.Toast.notice': '*Notice',
+                    'Chatwindow.Toast.question': '*Question',
+                    'Chatwindow.Clear': 'Leeren',
+                    'Chatwindow.Enable Sound': 'Enable sound',
+                    'Chatwindow.Sound': 'Sound',
 
                     'PrivateChat.Private Chat with': 'Private Chat with',
 
@@ -303,7 +335,6 @@ export class Config
                     'Toast.Decline': 'Decline',
                     'Toast.Duplicate item': 'Duplicate item',
                     'Toast.This would create an identical item': 'This would create an identical item',
-
                     // ['ErrorFact.' + ItemException.Fact[ItemException.Fact.Error]]: 'Error',
                     'ErrorFact.Error': 'Error',
 
@@ -360,6 +391,9 @@ export class Config
                     'ItemPid.DeactivatableIsInactive': 'Deactivated',
                     'ItemPid.Web3WalletAddress': 'Wallet',
                     'ItemPid.Web3WalletNetwork': 'Network',
+                    'ItemPid.MinerDurationSec': 'Duration',
+                    'ItemPid.ResourceLevel': 'Quantity',
+                    'ItemPid.ResourceUnit': 'Unit',
 
                     'ItemValue.true': 'Yes',
                     'ItemValue.false': 'No',
@@ -369,6 +403,8 @@ export class Config
                 'de-DE': {
                     'Extension.Disable': 'weblin.io ausschalten',
                     'Extension.Enable': 'weblin.io einschalten',
+
+                    'StatusMessage.TabInvisible': 'Browser Tab inaktiv',
 
                     'Common.Close': 'Schließen',
                     'Common.Undock': 'Im eigenen Fenster öffnen',
@@ -417,6 +453,12 @@ export class Config
                     'Chatwindow.is present': '*ist da*',
                     'Chatwindow.disappeared': '*verschwunden*',
                     'Chatwindow.:': ':',
+                    'Chatwindow.Toast.warning': '*Warnung',
+                    'Chatwindow.Toast.notice': '*Hinweis',
+                    'Chatwindow.Toast.question': '*Frage',
+                    'Chatwindow.Clear': 'Leeren',
+                    'Chatwindow.Enable Sound': 'Ton an',
+                    'Chatwindow.Sound': 'Ton',
 
                     'PrivateChat.Private Chat with': 'Privater Chat mit',
 
@@ -492,7 +534,7 @@ export class Config
                     'ItemPid.CommodityConversionFactor': 'Effzienz',
                     'ItemPid.OwnerName': 'Besitzer',
                     'ItemPid.DispenserAvailable': 'Übrig',
-                    'ItemPid.DispenserCooldownSec': 'Wartezeit',
+                    'ItemPid.DispenserCooldownSec': 'Erholungszeit',
                     'ItemPid.NicknameText': 'Name',
                     'ItemPid.PointsTotal': 'Gesammelt',
                     'ItemPid.PointsCurrent': 'Verfügbar',
@@ -506,6 +548,9 @@ export class Config
                     'ItemPid.DeactivatableIsInactive': 'Deaktiviert',
                     'ItemPid.Web3WalletAddress': 'Wallet',
                     'ItemPid.Web3WalletNetwork': 'Netzwerk',
+                    'ItemPid.MinerDurationSec': 'Dauer',
+                    'ItemPid.ResourceLevel': 'Menge',
+                    'ItemPid.ResourceUnit': 'Einheit',
 
                     'ItemValue.true': 'Ja',
                     'ItemValue.false': 'Nein',
@@ -590,19 +635,19 @@ export class Config
 
     static setDevTree(tree: any)
     {
-        log.debug('Config.setDevTree');
+        if (Config.get('log.startup', true)) { log.info('Config.setDevTree'); }                            
         this.devConfig = tree;
     }
 
     static setOnlineTree(tree: any): void
     {
-        log.debug('Config.setOnlineTree');
+        if (Config.get('log.startup', true)) { log.info('Config.setOnlineTree'); }
         this.onlineConfig = tree;
     }
 
     static setStaticTree(tree: any): void
     {
-        log.debug('Config.setStaticTree');
+        if (Config.get('log.startup', true)) { log.info('Config.setStaticTree'); }
         this.staticConfig = tree;
     }
 

@@ -68,19 +68,25 @@ export class VpiResolver
 
                     case VpiResolverEvaluateResultType.Delegate: {
                         this.trace(VpiResolverEvaluateResultType[result.status], result.delegate);
-                        log.debug('VpiResolver', result.status, result.delegate);
+                        if (Config.get('log.urlMapping', false)) {
+                            log.debug('VpiResolver', result.status, result.delegate);
+                        }
                         vpiUrl = result.delegate;
                     } break;
 
                     case VpiResolverEvaluateResultType.Location: {
                         this.trace(VpiResolverEvaluateResultType[result.status], result.location);
-                        log.debug('VpiResolver', result.status, result.location);
+                        if (Config.get('log.urlMapping', false)) {
+                            log.debug('VpiResolver', result.status, result.location);
+                        }
                         locationUrl = result.location;
                     } break;
 
                     case VpiResolverEvaluateResultType.Ignore: {
                         this.trace(VpiResolverEvaluateResultType[result.status], '');
-                        log.debug('VpiResolver', result.status);
+                        if (Config.get('log.urlMapping', false)) {
+                            log.debug('VpiResolver', result.status);
+                        }
                         return '';
                     } break;
 
@@ -218,7 +224,9 @@ export class VpiResolver
                             }
                         }
                         location = protocol + ':' + room + suffix + '@' + server;
-                        log.debug('VpiResolver', logData);
+                        if (Config.get('log.urlMapping', false)) {
+                            log.debug('VpiResolver', logData);
+                        }
                         resultType = VpiResolverEvaluateResultType.Location;
                         break;
                     }

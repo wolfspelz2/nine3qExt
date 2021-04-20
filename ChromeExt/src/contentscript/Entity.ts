@@ -18,7 +18,7 @@ export class Entity
     protected defaultSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
     protected inMove: boolean = false;
 
-    constructor(protected app: ContentApp, protected room: Room, protected isSelf: boolean)
+    constructor(protected app: ContentApp, protected room: Room, protected roomNick: string, protected isSelf: boolean)
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-entity" />').get(0);
         this.elem.style.display = 'none';
@@ -32,6 +32,7 @@ export class Entity
     getElem(): HTMLElement { return this.elem; }
     getDefaultAvatar(): string { return imgDefaultAvatar; }
     getAvatar() { return this.avatarDisplay; }
+    getIsSelf(): boolean { return this.isSelf; }
 
     show(visible: boolean, durationSec: number = 0.0): void
     {
@@ -84,6 +85,13 @@ export class Entity
             }
         }
 
+        if (this.avatarDisplay) {
+            if (!this.avatarDisplay.hasSpeed()) {
+                this.quickSlide(newX);
+                return;
+            }
+        }
+
         let speedPixelPerSec = as.Float(this.avatarDisplay.getSpeedPixelPerSec(), this.defaultSpeedPixelPerSec);
         var durationSec = absDiffX / speedPixelPerSec;
 
@@ -91,9 +99,12 @@ export class Entity
             .stop(true)
             .animate(
                 { left: newX + 'px' },
-                durationSec * 1000,
-                'linear',
-                () => this.onMoveDestinationReached(newX)
+                {
+                    duration: durationSec * 1000,
+                    step: (x) => { this.positionX = x; },
+                    easing: 'linear',
+                    complete: () => this.onMoveDestinationReached(newX)
+                }
             );
     }
 
@@ -117,9 +128,12 @@ export class Entity
             .stop(true)
             .animate(
                 { left: newX + 'px' },
-                100,
-                'linear',
-                () => this.onQuickSlideReached(newX)
+                {
+                    duration: Config.get('room.quickSlideSec', 0.1) * 1000,
+                    step: (x) => { this.positionX = x; },
+                    easing: 'linear',
+                    complete: () => this.onQuickSlideReached(newX)
+                }
             );
     }
 
@@ -183,8 +197,5 @@ export class Entity
 
     onDraggedTo(newX: number): void
     {
-        if (this.getPosition() != newX) {
-            this.quickSlide(newX);
-        }
     }
 }

@@ -31,6 +31,7 @@ export class BackgroundApp
 {
     private xmpp: any;
     private xmppConnected = false;
+    private xmppJid: string;
     private configUpdater: ConfigUpdater;
     private resource: string;
     private isReady: boolean = false;
@@ -42,6 +43,8 @@ export class BackgroundApp
     private readonly stanzaQ: Array<xml> = [];
     private readonly roomJid2tabId: Map<string, Array<number>> = new Map<string, Array<number>>();
     private readonly fullJid2TabWhichSentUnavailable: Map<string, number> = new Map<string, number>();
+    private readonly fullJid2TimerDeferredUnavailable: Map<string, number> = new Map<string, number>();
+    private readonly fullJid2TimerDeferredAway: Map<string, { timer: number, awayStanza?: xml, availableStanza?: xml }> = new Map<string, { timer: number, awayStanza?: any, availableStanza?: any }>();
     private readonly iqStanzaTabId: Map<string, number> = new Map<string, number>();
     private readonly httpCacheData: Map<string, string> = new Map<string, string>();
     private readonly httpCacheTime: Map<string, number> = new Map<string, number>();
@@ -62,12 +65,8 @@ export class BackgroundApp
 
         Environment.NODE_ENV = Config.get('environment.NODE_ENV', null);
 
-        {
-            let uniqueId = await Memory.getSync(Utils.syncStorageKey_Id(), '');
-            if (uniqueId == '') {
-                await Memory.setSync(Utils.syncStorageKey_Id(), 'mid' + Utils.randomString(30).toLowerCase());
-            }
-        }
+        await this.migrateSyncToLocalBecauseItsConfusingConsideredThatItemsAreLocal();
+        await this.assertThatThereIsAUserId();
 
         let language: string = Translator.mapLanguage(navigator.language, lang => { return Config.get('i18n.languageMapping', {})[lang]; }, Config.get('i18n.defaultLanguage', 'en-US'));
         this.babelfish = new Translator(Config.get('i18n.translations', {})[language], language, Config.get('i18n.serviceUrl', ''));
@@ -93,6 +92,49 @@ export class BackgroundApp
         await this.configUpdater.startUpdateTimer(() => this.onConfigUpdated());
     }
 
+    async assertThatThereIsAUserId()
+    {
+        let uniqueId = await Memory.getLocal(Utils.localStorageKey_Id(), '');
+        if (uniqueId == '') {
+            uniqueId = 'mid' + Utils.randomString(30).toLowerCase();
+            await Memory.setLocal(Utils.localStorageKey_Id(), uniqueId);
+        }
+    }
+
+    async migrateSyncToLocalBecauseItsConfusingConsideredThatItemsAreLocal()
+    {
+        {
+            let uniqueId = await Memory.getLocal(Utils.localStorageKey_Id(), '');
+            if (uniqueId == '') {
+                uniqueId = await Memory.getSync(Utils.localStorageKey_Id(), '');
+                if (uniqueId != '') {
+                    await Memory.setLocal(Utils.localStorageKey_Id(), uniqueId);
+                    await Memory.deleteSync(Utils.localStorageKey_Id());
+                }
+            }
+        }
+        {
+            let nickname = await Memory.getLocal(Utils.localStorageKey_Nickname(), '');
+            if (nickname == '') {
+                nickname = await Memory.getSync(Utils.localStorageKey_Nickname(), '');
+                if (nickname != '') {
+                    await Memory.setLocal(Utils.localStorageKey_Nickname(), nickname);
+                    await Memory.deleteSync(Utils.localStorageKey_Nickname());
+                }
+            }
+        }
+        {
+            let avatar = await Memory.getLocal(Utils.localStorageKey_Avatar(), '');
+            if (avatar == '') {
+                avatar = await Memory.getSync(Utils.localStorageKey_Avatar(), '');
+                if (avatar != '') {
+                    await Memory.setLocal(Utils.localStorageKey_Avatar(), avatar);
+                    await Memory.deleteSync(Utils.localStorageKey_Avatar());
+                }
+            }
+        }
+    }
+
     async onConfigUpdated()
     {
         if (this.backpack == null) {
@@ -113,7 +155,7 @@ export class BackgroundApp
 
         if (!this.isReady) {
             this.isReady = true;
-            log.info('BackgroundApp', 'isReady');
+            if (Config.get('log.startup', true)) { log.info('BackgroundApp', 'isReady'); }
         }
     }
 
@@ -195,6 +237,11 @@ export class BackgroundApp
                 return false;
             } break;
 
+            case BackgroundMessage.clientNotification.name: {
+                sendResponse(this.handle_clientNotification(sender.tab.id, message.target, message.data));
+                return false;
+            } break;
+
             case BackgroundMessage.getBackpackState.name: {
                 return this.handle_getBackpackState(sendResponse);
             } break;
@@ -220,7 +267,7 @@ export class BackgroundApp
             } break;
 
             case BackgroundMessage.derezBackpackItem.name: {
-                return this.handle_derezBackpackItem(message.itemId, message.roomJid, message.x, message.y, message.options, sendResponse);
+                return this.handle_derezBackpackItem(message.itemId, message.roomJid, message.x, message.y, message.changed, message.deleted, message.options, sendResponse);
             } break;
 
             case BackgroundMessage.deleteBackpackItem.name: {
@@ -261,7 +308,7 @@ export class BackgroundApp
 
     maintainHttpCache(): void
     {
-        log.debug('BackgroundApp.maintainHttpCache');
+        if (Config.get('log.backgroundFetchUrlCache', true)) { log.info('BackgroundApp.maintainHttpCache'); }
         let cacheTimeout = Config.get('httpCache.maxAgeSec', 3600);
         let now = Date.now();
         let deleteKeys = new Array<string>();
@@ -273,7 +320,7 @@ export class BackgroundApp
 
         deleteKeys.forEach(key =>
         {
-            log.debug('BackgroundApp.maintainHttpCache', (now - this.httpCacheTime[key]) / 1000, 'sec', 'delete', key);
+            if (Config.get('log.backgroundFetchUrlCache', true)) { log.info('BackgroundApp.maintainHttpCache', (now - this.httpCacheTime[key]) / 1000, 'sec', 'delete', key); }
             delete this.httpCacheData[key];
             delete this.httpCacheTime[key];
         });
@@ -281,7 +328,7 @@ export class BackgroundApp
 
     private async fetchJSON(url: string): Promise<any>
     {
-        log.debug('BackgroundApp.fetchJSON', url);
+        if (Config.get('log.backgroundFetchUrl', true)) { log.info('BackgroundApp.fetchJSON', url); }
 
         return new Promise((resolve, reject) =>
         {
@@ -307,7 +354,7 @@ export class BackgroundApp
         if (isCached) {
             // log.debug('BackgroundApp.handle_fetchUrl', 'cache-age', (now - this.httpCacheTime[key]) / 1000, url, 'version=', version);
         } else {
-            log.debug('BackgroundApp.handle_fetchUrl', 'not-cached', url, 'version=', version);
+            if (Config.get('log.backgroundFetchUrlCache', true)) { log.info('BackgroundApp.handle_fetchUrl', 'not-cached', url, 'version=', version); }
         }
 
         if (isCached) {
@@ -336,13 +383,19 @@ export class BackgroundApp
                             this.httpCacheTime[key] = now;
                         }
                         let response = { 'ok': true, 'data': text };
-                        log.debug('BackgroundApp.handle_fetchUrl', 'response', url, text.length, response);
+                        if (Config.get('log.backgroundFetchUrl', true)) { log.info('BackgroundApp.handle_fetchUrl', 'response', url, text.length, response); }
                         sendResponse(response);
                     })
                     .catch(ex =>
                     {
                         log.debug('BackgroundApp.handle_fetchUrl', 'catch', url, ex);
-                        sendResponse({ 'ok': false, 'status': ex.name, 'statusText': ex.message });
+                        let status = ex.status;
+                        if (!status) { status = ex.name; }
+                        if (!status) { status = 'Error'; }
+                        let statusText = ex.statusText;
+                        if (!statusText) { statusText = ex.message + ' ' + url; }
+                        if (!statusText) { if (ex.toString) { statusText = ex.toString() + ' ' + url; } }
+                        sendResponse({ 'ok': false, 'status': status, 'statusText': statusText });
                     });
                 return true;
             } catch (error) {
@@ -365,7 +418,7 @@ export class BackgroundApp
             })
                 .then(httpResponse =>
                 {
-                    log.debug('BackgroundApp.handle_jsonRpc', 'httpResponse', url, postBody, httpResponse);
+                    // log.debug('BackgroundApp.handle_jsonRpc', 'httpResponse', url, postBody, httpResponse);
                     if (httpResponse.ok) {
                         return httpResponse.text();
                     } else {
@@ -375,7 +428,7 @@ export class BackgroundApp
                 .then(text =>
                 {
                     let response = { 'ok': true, 'data': text };
-                    log.debug('BackgroundApp.handle_jsonRpc', 'response', url, text.length, response);
+                    if (Config.get('log.backgroundJsonRpc', true)) { log.info('BackgroundApp.handle_jsonRpc', 'response', url, postBody, text.length, response); }
                     sendResponse(response);
                 })
                 .catch(ex =>
@@ -385,8 +438,8 @@ export class BackgroundApp
                     if (!status) { status = ex.name; }
                     if (!status) { status = 'Error'; }
                     let statusText = ex.statusText;
-                    if (!statusText) { status = ex.message; }
-                    if (!statusText) { status = ex; }
+                    if (!statusText) { statusText = ex.message + ' ' + url; }
+                    if (!statusText) { if (ex.toString) { statusText = ex.toString() + ' ' + url; } }
                     sendResponse({ 'ok': false, 'status': status, 'statusText': statusText });
                 });
             return true;
@@ -399,7 +452,7 @@ export class BackgroundApp
 
     handle_waitReady(sendResponse: (response?: any) => void): boolean
     {
-        log.debug('BackgroundApp.handle_waitReady');
+        if (Config.get('log.contentStart', true)) { log.info('BackgroundApp.handle_waitReady'); }
         let sendResponseIsAsync = false;
 
         if (this.isReady) {
@@ -420,7 +473,7 @@ export class BackgroundApp
 
     handle_getConfigTree(name: any): any
     {
-        log.debug('BackgroundApp.handle_getConfigTree', name, this.isReady);
+        if (Config.get('log.contentStart', true)) { log.info('BackgroundApp.handle_getConfigTree', name, this.isReady); }
         switch (as.String(name, Config.onlineConfigName)) {
             case Config.devConfigName: return Config.getDevTree();
             case Config.onlineConfigName: return Config.getOnlineTree();
@@ -531,10 +584,10 @@ export class BackgroundApp
         return false;
     }
 
-    handle_derezBackpackItem(itemId: string, roomJid: string, x: number, y: number, options: ItemChangeOptions, sendResponse: (response?: any) => void): boolean
+    handle_derezBackpackItem(itemId: string, roomJid: string, x: number, y: number, changed: ItemProperties, deleted: Array<string>, options: ItemChangeOptions, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            this.backpack.derezItem(itemId, roomJid, x, y, options)
+            this.backpack.derezItem(itemId, roomJid, x, y, changed, deleted, options)
                 .then(() => { sendResponse(new BackgroundSuccessResponse()); })
                 .catch(ex => { sendResponse(new BackgroundItemExceptionResponse(ex)); });
             return true;
@@ -696,6 +749,15 @@ export class BackgroundApp
         return false;
     }
 
+    // hasRoomJid2(room: string): boolean
+    // {
+    //     var tabIds = this.getRoomJid2TabIds(room);
+    //     if (tabIds) {
+    //         return true;
+    //     }
+    //     return false;
+    // }
+
     getAllTabIds(): Array<number>
     {
         let tabIds = [];
@@ -711,6 +773,50 @@ export class BackgroundApp
         return tabIds;
     }
 
+    // keep room state
+
+    private readonly fullJid2PresenceList: Map<string, Map<string, any>> = new Map<string, Map<string, any>>();
+
+    presenceStateAddPresence(roomJid: string, participantNick: string, stanza: any): void
+    {
+        let roomPresences = this.fullJid2PresenceList.get(roomJid);
+        if (roomPresences) { } else {
+            roomPresences = new Map<string, any>();
+            this.fullJid2PresenceList.set(roomJid, roomPresences);
+        }
+        roomPresences.set(participantNick, stanza);
+    }
+
+    presenceStateRemovePresence(roomJid: string, participantNick: string): void
+    {
+        let roomPresences = this.fullJid2PresenceList.get(roomJid);
+        if (roomPresences) {
+            if (roomPresences.has(participantNick)) {
+                roomPresences.delete(participantNick);
+            }
+
+            if (roomPresences.size == 0) {
+                this.fullJid2PresenceList.delete(roomJid);
+            }
+        }
+    }
+
+    presenceStateRemoveRoom(roomJid: string): void
+    {
+        if (this.fullJid2PresenceList.has(roomJid)) {
+            this.fullJid2PresenceList.delete(roomJid);
+        }
+    }
+
+    getPresenceStateOfRoom(roomJid: string): Map<string, any>
+    {
+        let roomPresences = this.fullJid2PresenceList.get(roomJid);
+        if (roomPresences) {
+            return roomPresences;
+        }
+        return new Map<string, any>();
+    }
+
     // send/recv stanza
 
     handle_sendStanza(stanza: any, tabId: number): BackgroundResponse
@@ -719,42 +825,199 @@ export class BackgroundApp
 
         try {
             let xmlStanza: xml = Utils.jsObject2xmlObject(stanza);
+            let send = true;
 
             if (this.backpack) {
                 xmlStanza = this.backpack.stanzaOutFilter(xmlStanza);
                 if (xmlStanza == null) { return; }
             }
 
-            if (stanza.name == 'presence') {
-                let to = jid(stanza.attrs.to);
-                let room = to.bare().toString();
-                let nick = to.getResource();
+            if (xmlStanza.name == 'presence') {
+                let to = xmlStanza.attrs.to;
+                let toJid = jid(to);
+                let room = toJid.bare().toString();
+                let nick = toJid.getResource();
 
-                if (as.String(stanza.attrs['type'], 'available') == 'available') {
+                if (as.String(xmlStanza.attrs['type'], 'available') == 'available') {
+                    if (this.isDeferredUnavailable(to)) {
+                        this.cancelDeferredUnavailable(to);
+                        send = false;
+                    }
+                    this.replayPresenceToTab(room, tabId);
                     if (!this.hasRoomJid2TabId(room, tabId)) {
                         this.addRoomJid2TabId(room, tabId);
-                        log.debug('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId);
+                        if (Config.get('log.room2tab', true)) { log.info('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId); }
                     }
-                } else {
-                    this.fullJid2TabWhichSentUnavailable[to] = tabId;
+                    if (send) {
+                        send = this.deferPresenceToPreferShowAvailableOverAwayBecauseQuickSuccessionIsProbablyTabSwitch(to, xmlStanza);
+                    }
+                } else { // unavailable
+                    let tabIds = this.getRoomJid2TabIds(room);
+                    if (tabIds) {
+                        let simulateLeave = false;
+                        if (tabIds.includes(tabId)) {
+                            if (tabIds.length > 1) {
+                                simulateLeave = true;
+                            }
+                            this.removeRoomJid2TabId(room, tabId);
+                            if (simulateLeave) {
+                                send = false;
+                                this.simulateUnavailableToTab(to, tabId);
+                            }
+                        }
+                    }
+                    if (send) {
+                        if (Config.get('xmpp.deferUnavailableSec', 0) > 0) {
+                            this.deferUnavailable(to);
+                            send = false;
+                        } else {
+                            this.fullJid2TabWhichSentUnavailable[to] = tabId;
+                        }
+                    }
+                    if (send) {
+                        this.presenceStateRemoveRoom(room);
+                    }
                 }
             }
 
-            if (stanza.name == 'iq') {
-                if (stanza.attrs) {
-                    let stanzaType = stanza.attrs.type;
-                    let stanzaId = stanza.attrs.id;
+            if (xmlStanza.name == 'iq') {
+                if (xmlStanza.attrs) {
+                    let stanzaType = xmlStanza.attrs.type;
+                    let stanzaId = xmlStanza.attrs.id;
                     if ((stanzaType == 'get' || stanzaType == 'set') && stanzaId) {
                         this.iqStanzaTabId[stanzaId] = tabId;
                     }
                 }
             }
 
-            this.sendStanza(xmlStanza);
+            if (send) {
+                this.sendStanza(xmlStanza);
+            }
 
         } catch (error) {
             log.debug('BackgroundApp.handle_sendStanza', error);
         }
+    }
+
+    presenceIndicatesAway(stanza: xml)
+    {
+        let showNode = stanza.getChild('show');
+        if (showNode) {
+            let show = showNode.getText();
+            switch (show) {
+                case 'away':
+                case 'xa':
+                case 'dnd':
+                    return true;
+                    break;
+            }
+        }
+        return false;
+    }
+
+    replayPresenceToTab(roomJid: string, tabId: number)
+    {
+        let roomPresences = this.getPresenceStateOfRoom(roomJid);
+        roomPresences.forEach((stanza, key) =>
+        {
+            window.setTimeout(() =>
+            {
+                ContentMessage.sendMessage(tabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
+            }, 1);
+        });
+    }
+
+    simulateUnavailableToTab(from: string, unavailableTabId: number)
+    {
+        let stanza = xml('presence', { type: 'unavailable', 'from': from, 'to': this.xmppJid });
+        window.setTimeout(() =>
+        {
+            ContentMessage.sendMessage(unavailableTabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
+        }, 100);
+    }
+
+    deferUnavailable(to: string)
+    {
+        if (this.fullJid2TimerDeferredUnavailable[to]) {
+            // wait for it
+        } else {
+            if (Config.get('log.backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferUnavailable'); }
+            this.fullJid2TimerDeferredUnavailable[to] = window.setTimeout(() =>
+            {
+                if (Config.get('log.backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferUnavailable', 'execute deferred'); }
+                delete this.fullJid2TimerDeferredUnavailable[to];
+                let stanza = xml('presence', { type: 'unavailable', 'to': to });
+                this.sendStanza(stanza);
+                let roomJid = jid(to);
+                let room = roomJid.bare().toString();
+                this.presenceStateRemoveRoom(room);
+            }, Config.get('xmpp.deferUnavailableSec', 2.0) * 1000);
+        }
+    }
+
+    isDeferredUnavailable(to: string)
+    {
+        if (this.fullJid2TimerDeferredUnavailable[to]) {
+            return true;
+        }
+        return false;
+    }
+
+    cancelDeferredUnavailable(to: string)
+    {
+        let timer = this.fullJid2TimerDeferredUnavailable[to];
+        if (timer) {
+            if (Config.get('log.backgroundPresenceManagement', true)) { log.info('BackgroundApp.cancelDeferredUnavailable'); }
+            window.clearTimeout(timer);
+            delete this.fullJid2TimerDeferredUnavailable[to];
+        }
+    }
+
+    deferPresenceToPreferShowAvailableOverAwayBecauseQuickSuccessionIsProbablyTabSwitch(to: string, stanza: xml): boolean
+    {
+        let deferred = true;
+
+        let deferRecord = this.fullJid2TimerDeferredAway[to];
+        if (deferRecord) {
+            // 
+        } else {
+            deferRecord = {};
+            this.fullJid2TimerDeferredAway[to] = deferRecord;
+        }
+
+        if (this.presenceIndicatesAway(stanza)) {
+            if (Config.get('log.backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferAway', 'record', 'away'); }
+            deferRecord.awayStanza = stanza;
+        } else {
+            if (Config.get('log.backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferAway', 'record', 'available'); }
+            deferRecord.availableStanza = stanza;
+        }
+
+        if (deferRecord.timer == null) {
+            deferRecord.timer = window.setTimeout(() =>
+            {
+                let logWhich = 'none';
+                let logTotal = 0;
+                let stanza: xml = null;
+                if (deferRecord.awayStanza) {
+                    logTotal++;
+                    logWhich = 'away';
+                    stanza = deferRecord.awayStanza;
+                }
+                if (deferRecord.availableStanza) {
+                    logTotal++;
+                    logWhich = 'available';
+                    stanza = deferRecord.availableStanza;
+                }
+                if (Config.get('log.backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferAway', 'execute deferred', logWhich, 'of', logTotal); }
+                delete this.fullJid2TimerDeferredAway[to];
+                if (stanza) {
+                    this.sendStanza(stanza);
+                }
+            }, Config.get('xmpp.deferAwaySec', 0.2) * 1000);
+        }
+
+        return !deferred;
     }
 
     public sendStanza(stanza: xml): void
@@ -784,7 +1047,19 @@ export class BackgroundApp
             isConnectionPresence = (!stanza.attrs || !stanza.attrs.to || jid(stanza.attrs.to).getResource() == this.resource);
         }
         if (!isConnectionPresence) {
-            log.debug('BackgroundApp.sendStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to);
+            if (Config.get('log.backgroundTraffic', true)) { log.info('BackgroundApp.sendStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to); }
+
+            // if (stanza.name == 'presence' && as.String(stanza.type, 'available') == 'available') {
+            //     let vpNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
+            //     if (vpNode) {
+            //         let xmppNickname = jid(stanza.attrs.to).getResource();
+            //         let vpNickname = as.String(vpNode.attrs.Nickname, '');
+            //         log.debug('send ########', xmppNickname, vpNickname);
+            //         if (xmppNickname != vpNickname) {
+            //             log.debug('send ########', xmppNickname, '-x-', vpNickname);
+            //         }
+            //     }
+            // }
         }
     }
 
@@ -795,13 +1070,25 @@ export class BackgroundApp
 
     private recvStanza(stanza: any)
     {
+        let isConnectionPresence = false;
         {
-            let isConnectionPresence = false;
             if (stanza.name == 'presence') {
                 isConnectionPresence = stanza.attrs.from && (jid(stanza.attrs.from).getResource() == this.resource);
             }
             if (!isConnectionPresence) {
-                log.debug('BackgroundApp.recvStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to, 'from=', stanza.attrs.from);
+                if (Config.get('log.backgroundTraffic', true)) { log.info('BackgroundApp.recvStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to, 'from=', stanza.attrs.from); }
+
+                // if (stanza.name == 'presence' && as.String(stanza.type, 'available') == 'available') {
+                //     let vpNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
+                //     if (vpNode) {
+                //         let xmppNickname = jid(stanza.attrs.from).getResource();
+                //         let vpNickname = as.String(vpNode.attrs.Nickname, '');
+                //         log.debug('recv ########', xmppNickname, vpNickname);
+                //         if (xmppNickname != vpNickname) {
+                //             log.debug('recv ########', xmppNickname, '-x-', vpNickname);
+                //         }
+                //     }
+                // }
             }
         }
 
@@ -837,6 +1124,14 @@ export class BackgroundApp
             let room = from.bare().toString();
             let nick = from.getResource();
 
+            if (as.String(stanza.attrs['type'], 'available') == 'available') {
+                if (!isConnectionPresence) {
+                    this.presenceStateAddPresence(room, nick, stanza);
+                }
+            } else {
+                this.presenceStateRemovePresence(room, nick);
+            }
+
             let unavailableTabId: number = -1;
             if (stanza.attrs && stanza.attrs['type'] == 'unavailable') {
                 unavailableTabId = this.fullJid2TabWhichSentUnavailable[from];
@@ -848,7 +1143,7 @@ export class BackgroundApp
             if (unavailableTabId >= 0) {
                 ContentMessage.sendMessage(unavailableTabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
                 this.removeRoomJid2TabId(room, unavailableTabId);
-                log.debug('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', unavailableTabId, 'now:', this.roomJid2tabId);
+                if (Config.get('log.room2tab', true)) { log.info('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', unavailableTabId, 'now:', this.roomJid2tabId); }
             } else {
                 let tabIds = this.getRoomJid2TabIds(room);
                 if (tabIds) {
@@ -899,7 +1194,9 @@ export class BackgroundApp
 
             this.xmpp.on('online', (address: any) =>
             {
-                log.info('BackgroundApp xmpp.on.online', address);
+                if (Config.get('log.startup', true)) { log.info('BackgroundApp xmpp.on.online', address); }
+
+                this.xmppJid = address;
 
                 this.sendPresence();
 
@@ -940,6 +1237,32 @@ export class BackgroundApp
         }
     }
 
+    sendToAllTabsExcept(exceptTabId: number, type: string, data: any)
+    {
+        try {
+            let tabIds = this.getAllTabIds();
+            if (tabIds) {
+                for (let i = 0; i < tabIds.length; i++) {
+                    let tabId = tabIds[i];
+                    if (tabId != exceptTabId) {
+                        ContentMessage.sendMessage(tabId, { 'type': type, 'data': data });
+                    }
+                }
+            }
+        } catch (error) {
+            //
+        }
+    }
+
+    sendToTab(tabId: number, type: string, data: any)
+    {
+        try {
+            ContentMessage.sendMessage(tabId, { 'type': type, 'data': data });
+        } catch (error) {
+            //
+        }
+    }
+
     sendToTabsForRoom(room: string, type: string)
     {
         try {
@@ -960,7 +1283,7 @@ export class BackgroundApp
     private lastPingTime: number = 0;
     handle_pingBackground(): BackgroundResponse
     {
-        log.debug('BackgroundApp.handle_pingBackground');
+        if (Config.get('log.pingBackground', true)) { log.info('BackgroundApp.handle_pingBackground'); }
         try {
             let now = Date.now();
             if (now - this.lastPingTime > 10000) {
@@ -985,6 +1308,19 @@ export class BackgroundApp
     {
         log.debug('BackgroundApp.handle_userSettingsChanged');
         this.sendToAllTabs(ContentMessage.type_userSettingsChanged, {});
+        return new BackgroundSuccessResponse();
+    }
+
+    handle_clientNotification(tabId: number, target: string, data: any): BackgroundResponse
+    {
+        if (target == 'currentTab') {
+            this.sendToTab(tabId, ContentMessage.type_clientNotification, data);
+        } else if (target == 'notCurrentTab') {
+            this.sendToAllTabsExcept(tabId, ContentMessage.type_clientNotification, data);
+            // } else if (target == 'activeTab') {
+        } else {
+            this.sendToAllTabs(ContentMessage.type_clientNotification, data);
+        }
         return new BackgroundSuccessResponse();
     }
 

@@ -23,7 +23,6 @@ export class BackpackItem
     private y: number = 100;
     private imageWidth: number = 64;
     private imageHeight: number = 64;
-    private inDrag: boolean = false;
     private info: BackpackItemInfo = null;
 
     private mousedownX: number;
@@ -31,6 +30,7 @@ export class BackpackItem
 
     getElem(): HTMLElement { return this.elem; }
     getProperties(): ItemProperties { return this.properties; }
+    getItemId(): string { return this.properties[Pid.Id]; }
 
     constructor(protected app: ContentApp, private backpackWindow: BackpackWindow, private itemId: string, private properties: ItemProperties)
     {
@@ -40,8 +40,8 @@ export class BackpackItem
         let size = Config.get('inventory.itemSize', 64);
 
         let pos = this.backpackWindow.getFreeCoordinate();
-        let x = pos.x; //this.getPseudoRandomCoordinate(paneElem.offsetWidth, this.imageWidth, padding, itemId, 11345);
-        let y = pos.y; //this.getPseudoRandomCoordinate(paneElem.offsetHeight, this.imageWidth, padding, itemId, 13532);
+        let x = pos.x;
+        let y = pos.y;
 
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item" data-id="' + this.itemId + '" />').get(0);
         this.imageElem = <HTMLDivElement>$('<div class="n3q-base n3q-backpack-item-image" />').get(0);
@@ -107,7 +107,6 @@ export class BackpackItem
             start: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
                 this.app.toFront(this.elem, ContentApp.LayerWindowContent);
-                this.inDrag = true;
                 $(this.elem).hide();
                 return this.onDragStart(ev, ui);
             },
@@ -119,12 +118,6 @@ export class BackpackItem
             {
                 $(this.elem).show(0);
                 var itemUnchanged = this.onDragStop(ev, ui);
-                // if (itemUnchanged) {
-                //     $(this.elem).show(0);
-                // } else {
-                //     $(this.elem).delay(1000).show(0);
-                // }
-                this.inDrag = false;
                 return true;
             }
         });
@@ -183,11 +176,6 @@ export class BackpackItem
     onMouseClick(ev: JQuery.Event): void
     {
         this.app.toFront(this.elem, ContentApp.LayerWindowContent);
-
-        // let item = this.app.getItemRepository().getItem(this.itemId);
-        // if (item) {
-        //     item.onClick(this.elem, new Point2D(ev.clientX, ev.clientY));
-        // }
     }
 
     private dragIsRezable: boolean = false;

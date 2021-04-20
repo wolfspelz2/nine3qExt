@@ -13,6 +13,7 @@ export class Pid
     static readonly OwnerId = 'OwnerId';
     static readonly OwnerName = 'OwnerName';
     static readonly IsRezable = 'IsRezable';
+    static readonly IsTakeable = 'IsTakeable';
     static readonly IsTransferable = 'IsTransferable';
     static readonly IsRezzed = 'IsRezzed';
     static readonly RezzedX = 'RezzedX';
@@ -22,6 +23,7 @@ export class Pid
     static readonly InventoryY = 'InventoryY';
     static readonly Provider = 'Provider';
     static readonly Stats = 'Stats';
+    static readonly Display = 'Display';
     static readonly IframeAspect = 'IframeAspect';
     static readonly IframeOptions = 'IframeOptions';
     static readonly IframeUrl = 'IframeUrl';
@@ -31,7 +33,10 @@ export class Pid
     static readonly DocumentTitle = 'DocumentTitle';
     static readonly MigrationAspect = 'MigrationAspect';
     static readonly MigrationCid = 'MigrationCid';
+    static readonly AutorezAspect = 'AutorezAspect';
+    static readonly AutorezIsActive = 'AutorezIsActive';
     static readonly IframeAuto = 'IframeAuto';
+    static readonly IframeLive = 'IframeLive';
     static readonly TransferState = 'TransferState';
     static readonly ImageUrl = 'ImageUrl';
     static readonly AnimationsUrl = 'AnimationsUrl';
@@ -75,6 +80,28 @@ export class Pid
 export class ItemProperties
 {
     [pid: string]: string
+
+    static getDisplay(props: ItemProperties): ItemProperties
+    {
+        let display: ItemProperties = {};
+
+        let displayJson = as.String(props[Pid.Display], null);
+        if (as.String(displayJson, '') != '') {
+            display = JSON.parse(displayJson);
+        } else {
+            let stats = as.String(props[Pid.Stats], null);
+            let statsPids = stats.split(' ');
+            for (let i = 0; i < statsPids.length; i++) {
+                let pid = statsPids[i];
+                let value = props[pid];
+                if (value) {
+                    display[pid] = value;
+                }
+            }
+        }
+
+        return display;
+    }
 
     static verifySignature(props: ItemProperties, publicKey: string): boolean
     {
@@ -145,7 +172,7 @@ export class Property
         [Pid.ScreenAspect]: { inPresence: true },
         [Pid.ScreenOptions]: { inPresence: true },
         [Pid.ScreenUrl]: { inPresence: true },
-        [Pid.Stats]: { inPresence: true },
+        [Pid.Display]: { inPresence: true },
         [Pid.Signed]: { inPresence: true },
         [Pid.SignatureRsa]: { inPresence: true },
         [Pid.DeactivatableIsInactive]: { inPresence: true },

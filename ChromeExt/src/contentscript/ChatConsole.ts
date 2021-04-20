@@ -34,38 +34,44 @@ export class ChatConsole
         if (parts.length < 1) { return; }
         var cmd: string = parts[0];
 
-        this.out(context, ['>', text]);
+        this.out(context, text);
 
         isHandled = true;
         switch (cmd) {
             case '/help':
             case '/?':
-                this.out(context, ['>', text]);
                 this.out(context, [
-                    ['help', '/xmpp'],
-                    ['help', '/room'],
-                    ['help', '/changes'],
-                    ['help', '/items /stuff /backpack /things'],
-                    ['help', '/video /vid /vidconf /conf /jitsi'],
-                    ['help', '/info'],
-                    ['help', '/who'],
-                    ['help', '/what'],
-                    ['help', '/map <URL>'],
+                    ['help', '/clear # empty chat window'],
+                    ['help', '/xmpp # show xmpp console'],
+                    ['help', '/room # show room info'],
+                    ['help', '/changes # show versions and changes'],
+                    ['help', '/i /items /stuff /backpack /things # toggle backpack window'],
+                    ['help', '/v /video /vid /vidconf /conf /jitsi # toggle video conf window'],
+                    ['help', '/c /chat # toggle chat window'],
+                    ['help', '/info # show client info'],
+                    ['help', '/who # show participants'],
+                    ['help', '/what # show items'],
+                    ['help', '/map <URL> # show URL mapping for url'],
                 ]);
+                break;
+            case '/clear':
+                context.app?.getRoom().clearChatWindow();
                 break;
             case '/xmpp':
                 context.app?.showXmppWindow();
                 break;
+            case '/c':
             case '/chat':
                 context.app?.showChatWindow();
                 break;
+            case '/i':
             case '/items':
             case '/backpack':
             case '/stuff':
             case '/things':
                 context.app?.showBackpackWindow();
                 break;
-            case '/video':
+            case '/v':
             case '/vid':
             case '/vidconf':
             case '/conf':

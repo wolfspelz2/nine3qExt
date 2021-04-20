@@ -65,4 +65,19 @@ export class Popup
             if (this.onClose) { this.onClose(); }
         }
     }
+
+    getVisibility(): boolean
+    {
+        return !$(this.windowElem).hasClass('n3q-hidden');
+    }
+    setVisibility(visible: boolean): void
+    {
+        if (visible != this.getVisibility()) {
+            if (visible) {
+                $(this.windowElem).removeClass('n3q-hidden');
+            } else {
+                $(this.windowElem).addClass('n3q-hidden');
+            }
+        }
+    }
 }

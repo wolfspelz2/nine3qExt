@@ -4,7 +4,7 @@ import { BackgroundApp } from './BackgroundApp';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 
 let debug = Environment.isDevelopment();
-console.log('weblin.io Background', 'dev', debug);
+console.debug('weblin.io Background', 'dev', debug);
 
 log.setLevel(log.levels.INFO);
 

@@ -47,7 +47,9 @@ export class IframeApi
 
     onMessage(ev: any): any
     {
-        log.debug('IframeApi.onMessage', ev);
+        if (Config.get('log.iframeApi', false)) {
+            log.debug('IframeApi.onMessage', ev);
+        }
 
         let request = <WeblinClientApi.Request>ev.data;
 
@@ -74,6 +76,27 @@ export class IframeApi
             case WeblinClientApi.ItemActionRequest.type: {
                 /* await */ this.handle_ItemActionRequest(<WeblinClientApi.ItemActionRequest>request);
             } break;
+            case WeblinClientApi.ItemGetPropertiesRequest.type: {
+                this.handle_ItemGetPropertiesRequest(<WeblinClientApi.ItemGetPropertiesRequest>request);
+            } break;
+            case WeblinClientApi.ItemSetPropertyRequest.type: {
+                this.handle_ItemSetPropertyRequest(<WeblinClientApi.ItemSetPropertyRequest>request);
+            } break;
+            case WeblinClientApi.ItemSetStateRequest.type: {
+                this.handle_ItemSetStateRequest(<WeblinClientApi.ItemSetStateRequest>request);
+            } break;
+            case WeblinClientApi.ItemSetConditionRequest.type: {
+                this.handle_ItemSetConditionRequest(<WeblinClientApi.ItemSetConditionRequest>request);
+            } break;
+            case WeblinClientApi.ItemEffectRequest.type: {
+                this.handle_ItemEffectRequest(<WeblinClientApi.ItemEffectRequest>request);
+            } break;
+            case WeblinClientApi.RoomGetParticipantsRequest.type: {
+                this.handle_RoomGetParticipantsRequest(<WeblinClientApi.RoomGetParticipantsRequest>request);
+            } break;
+            case WeblinClientApi.RoomGetInfoRequest.type: {
+                this.handle_RoomGetInfoRequest(<WeblinClientApi.RoomGetInfoRequest>request);
+            } break;
             case WeblinClientApi.WindowPositionRequest.type: {
                 this.handle_PositionWindowRequest(<WeblinClientApi.WindowPositionRequest>request);
             } break;
@@ -83,8 +106,21 @@ export class IframeApi
             case WeblinClientApi.WindowOpenDocumentUrlRequest.type: {
                 this.handle_WindowOpenDocumentUrlRequest(<WeblinClientApi.WindowOpenDocumentUrlRequest>request);
             } break;
+
+            // case WeblinClientApi.ClientNotificationRequest.type: new WeblinClientApi.ClientNotificationRequest(request).handle(); break;
+            case WeblinClientApi.ClientNotificationRequest.type: {
+                this.handle_ClientNotificationRequest(<WeblinClientApi.ClientNotificationRequest>request);
+            } break;
+
             case WeblinClientApi.WindowCloseRequest.type: {
                 this.handle_CloseWindowRequest(<WeblinClientApi.WindowCloseRequest>request);
+            } break;
+            case WeblinClientApi.WindowSetVisibilityRequest.type: {
+                this.handle_WindowSetVisibilityRequest(<WeblinClientApi.WindowSetVisibilityRequest>request);
+            } break;
+
+            case WeblinClientApi.BackpackSetVisibilityRequest.type: {
+                this.handle_BackpackSetVisibilityRequest(<WeblinClientApi.BackpackSetVisibilityRequest>request);
             } break;
         }
         // }
@@ -132,25 +168,179 @@ export class IframeApi
     handle_CloseWindowRequest(request: WeblinClientApi.WindowCloseRequest)
     {
         try {
-            this.app.closeItemFrame(request.item);
+            let item = this.app.getRoom().getItem(request.item);
+            if (item) {
+                item.closeFrame();
+            }
         } catch (ex) {
             log.info('IframeApi.handle_CloseWindowRequest', ex);
+        }
+    }
+
+    handle_WindowSetVisibilityRequest(request: WeblinClientApi.WindowSetVisibilityRequest)
+    {
+        try {
+            let item = this.app.getRoom().getItem(request.item);
+            if (item) {
+                item.setFrameVisibility(request.visible);
+            }
+        } catch (ex) {
+            log.info('IframeApi.handle_WindowSetVisibilityRequest', ex);
+        }
+    }
+
+    handle_BackpackSetVisibilityRequest(request: WeblinClientApi.BackpackSetVisibilityRequest)
+    {
+        try {
+            let nick = this.app.getRoom().getMyNick();
+            let participant = this.app.getRoom().getParticipant(nick);
+            if (participant) {
+                this.app.showBackpackWindow(participant.getElem());
+            }
+        } catch (ex) {
+            log.info('IframeApi.handle_BackpackSetVisibilityRequest', ex);
+        }
+    }
+
+    handle_ItemGetPropertiesRequest(request: WeblinClientApi.ItemGetPropertiesRequest)
+    {
+        try {
+            let roomItem = this.app.getRoom().getItem(request.item);
+            if (roomItem) {
+                roomItem.sendPropertiesToScriptFrame(request.id);
+            }
+        } catch (ex) {
+            log.info('IframeApi.handle_ItemGetPropertiesRequest', ex);
+        }
+    }
+
+    handle_ItemSetPropertyRequest(request: WeblinClientApi.ItemSetPropertyRequest)
+    {
+        try {
+            let roomItem = this.app.getRoom().getItem(request.item);
+            if (roomItem) {
+                roomItem.setItemProperty(request.pid, request.value);
+            }
+
+        } catch (ex) {
+            log.info('IframeApi.handle_ItemSetPropertyRequest', ex);
+        }
+    }
+
+    handle_ItemSetStateRequest(request: WeblinClientApi.ItemSetStateRequest)
+    {
+        try {
+            let roomItem = this.app.getRoom().getItem(request.item);
+            if (roomItem) {
+                roomItem.setItemState(request.state);
+            }
+
+        } catch (ex) {
+            log.info('IframeApi.handle_ItemSetStateRequest', ex);
+        }
+    }
+
+    handle_ItemSetConditionRequest(request: WeblinClientApi.ItemSetConditionRequest)
+    {
+        try {
+            let roomItem = this.app.getRoom().getItem(request.item);
+            if (roomItem) {
+                roomItem.setItemCondition(request.condition);
+            }
+
+        } catch (ex) {
+            log.info('IframeApi.handle_ItemSetConditionRequest', ex);
+        }
+    }
+
+    handle_ItemEffectRequest(request: WeblinClientApi.ItemEffectRequest)
+    {
+        try {
+            let roomItem = this.app.getRoom().getItem(request.item);
+            if (roomItem) {
+                roomItem.showItemEffect(request.effect);
+            }
+
+        } catch (ex) {
+            log.info('IframeApi.handle_ItemSetStateRequest', ex);
+        }
+    }
+
+    handle_RoomGetParticipantsRequest(request: WeblinClientApi.RoomGetParticipantsRequest)
+    {
+        try {
+            let data = new Array<WeblinClientApi.ParticipantData>();
+            let room = this.app.getRoom();
+            let itemId = request.item;
+
+            let participantIds = room.getParticipantIds();
+            for (let i = 0; i < participantIds.length; i++) {
+                let participant = room.getParticipant(participantIds[i]);
+                let participantData = {
+                    id: participant.getRoomNick(),
+                    nickname: participant.getDisplayName(),
+                    x: participant.getPosition(),
+                    isSelf: participant.getIsSelf(),
+                };
+                data.push(participantData);
+            }
+
+            let roomItem = room.getItem(itemId);
+            if (roomItem) {
+                roomItem.sendParticipantsToScriptFrame(request.id, data);
+            }
+        } catch (ex) {
+            log.info('IframeApi.handle_RoomGetParticipantsRequest', ex);
+        }
+    }
+
+    handle_RoomGetInfoRequest(request: WeblinClientApi.RoomGetInfoRequest)
+    {
+        try {
+            let data = new WeblinClientApi.RoomInfo();
+            let room = this.app.getRoom();
+            let itemId = request.item;
+
+            data.destination = room.getDestination();
+            data.jid = room.getJid();
+
+            let roomItem = room.getItem(itemId);
+            if (roomItem) {
+                roomItem.sendRoomInfoToScriptFrame(request.id, data);
+            }
+        } catch (ex) {
+            log.info('IframeApi.handle_RoomGetParticipantsRequest', ex);
         }
     }
 
     handle_WindowOpenDocumentUrlRequest(request: WeblinClientApi.WindowOpenDocumentUrlRequest)
     {
         try {
-            this.app.openDocumentUrl(request.item);
+            let roomItem = this.app.getRoom().getItem(request.item);
+            if (roomItem) {
+                roomItem.openDocumentUrl(roomItem.getElem());
+            }
         } catch (ex) {
             log.info('IframeApi.handle_WindowOpenDocumentUrlRequest', ex);
+        }
+    }
+
+    handle_ClientNotificationRequest(request: WeblinClientApi.ClientNotificationRequest)
+    {
+        try {
+            BackgroundMessage.clientNotification(as.String(request.target, 'notCurrentTab'), request);
+        } catch (ex) {
+            log.info('IframeApi.handle_ClientNotificationRequest', ex);
         }
     }
 
     handle_PositionWindowRequest(request: WeblinClientApi.WindowPositionRequest)
     {
         try {
-            this.app.positionItemFrame(request.item, request.width, request.height, request.left, request.bottom);
+            let roomItem = this.app.getRoom().getItem(request.item);
+            if (roomItem) {
+                roomItem.positionFrame(request.width, request.height, request.left, request.bottom);
+            }
         } catch (ex) {
             log.info('IframeApi.handle_PositionWindowRequest', ex);
         }
@@ -159,7 +349,10 @@ export class IframeApi
     handle_ScreenContentMessageRequest(request: WeblinClientApi.ScreenContentMessageRequest)
     {
         try {
-            this.app.sendMessageToScreenItemFrame(request.item, request.message);
+            let roomItem = this.app.getRoom().getItem(request.item);
+            if (roomItem) {
+                roomItem.sendMessageToScreenItemFrame(request.message);
+            }
         } catch (ex) {
             log.info('IframeApi.handle_ScreenContentMessageRequest', ex);
         }
@@ -211,7 +404,18 @@ export namespace WeblinClientApi
 
     export class Request extends Message
     {
-        id?: string;
+        id?: string; // request Id
+
+        constructor(data: any)
+        {
+            super();
+            Object.assign(this, data);
+        }
+
+        handle(): void
+        {
+            throw new Error('Method not implemented.');
+        }
     }
 
     export class Response extends Message
@@ -238,10 +442,38 @@ export namespace WeblinClientApi
         item: string;
     }
 
+    export class ClientNotificationRequest extends Request
+    {
+        static type = 'Client.Notification';
+
+        title: string;
+        text: string;
+
+        target?: string; // ['currentTab'|'notCurrentTab'|'activeTab'|'allTabs']
+        static defaultTarget = 'notCurrentTab';
+
+        iconType?: string; // ['warning'|'notice'|'question']
+        static defaultIcon = 'notice';
+
+        links?: Array<any>;
+        detail?: any;
+
+        // handle(): void
+        // {
+        // }
+    }
+
     export class WindowCloseRequest extends Request
     {
         static type = 'Window.Close';
         item: string;
+    }
+
+    export class WindowSetVisibilityRequest extends Request
+    {
+        static type = 'Window.SetVisibility';
+        item: string;
+        visible: boolean;
     }
 
     export class WindowPositionRequest extends Request
@@ -254,11 +486,52 @@ export namespace WeblinClientApi
         bottom: number;
     }
 
+    export class BackpackSetVisibilityRequest extends Request
+    {
+        static type = 'Backpack.SetVisibility';
+        visible: boolean;
+    }
+
     export class ScreenContentMessageRequest extends Request
     {
         static type = 'Screen.ContentMessage';
         item: string;
         message: any;
+    }
+
+    export class ItemGetPropertiesRequest extends Request
+    {
+        static type = 'Item.GetProperties';
+        item: string;
+    }
+
+    export class ItemSetPropertyRequest extends Request
+    {
+        static type = 'Item.SetProperty';
+        item: string;
+        pid: string;
+        value: any;
+    }
+
+    export class ItemSetStateRequest extends Request
+    {
+        static type = 'Item.SetState';
+        item: string;
+        state: string;
+    }
+
+    export class ItemSetConditionRequest extends Request
+    {
+        static type = 'Item.SetCondition';
+        item: string;
+        condition: string;
+    }
+
+    export class ItemEffectRequest extends Request
+    {
+        static type = 'Item.Effect';
+        item: string;
+        effect: any;
     }
 
     export class ItemActionRequest extends Request
@@ -275,5 +548,33 @@ export namespace WeblinClientApi
         created: { [id: string]: { [pid: string]: string } };
         changed: { [id: string]: { [pid: string]: string } };
         deleted: string[];
+    }
+
+    export class RoomGetParticipantsRequest extends Request
+    {
+        static type = 'Room.GetParticipants';
+        item: string;
+        room: string;
+    }
+
+    export class RoomGetInfoRequest extends Request
+    {
+        static type = 'Room.GetInfo';
+        item: string;
+        room: string;
+    }
+
+    export class ParticipantData 
+    {
+        id: string;
+        nickname: string;
+        x: number;
+        isSelf: boolean;
+    }
+
+    export class RoomInfo 
+    {
+        jid: string;
+        destination: string;
     }
 }

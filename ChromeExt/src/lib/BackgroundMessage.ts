@@ -4,6 +4,7 @@ import { ItemException } from './ItemExcption';
 import { ItemProperties, ItemPropertiesSet } from './ItemProperties';
 import { BackgroundApp } from '../background/BackgroundApp';
 import { Environment } from './Environment';
+import { WeblinClientApi } from '../contentscript/IframeApi';
 
 export class BackgroundResponse
 {
@@ -161,6 +162,11 @@ export class BackgroundMessage
         return BackgroundMessage.sendMessage({ 'type': BackgroundMessage.userSettingsChanged.name });
     }
 
+    static clientNotification(target: string, data: any): Promise<void>
+    {
+        return BackgroundMessage.sendMessage({ 'type': BackgroundMessage.clientNotification.name, 'target': target, 'data': data });
+    }
+
     static log(...pieces: any): Promise<void>
     {
         return BackgroundMessage.sendMessage({ 'type': BackgroundMessage.log.name, 'pieces': pieces });
@@ -201,9 +207,9 @@ export class BackgroundMessage
         return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.rezBackpackItem.name, 'itemId': itemId, 'roomJid': roomJid, 'x': x, 'destination': destination, 'options': options });
     }
 
-    static derezBackpackItem(itemId: string, roomJid: string, x: number, y: number, options: ItemChangeOptions): Promise<void>
+    static derezBackpackItem(itemId: string, roomJid: string, x: number, y: number, changed: ItemProperties, deleted: Array<string>, options: ItemChangeOptions): Promise<void>
     {
-        return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.derezBackpackItem.name, 'itemId': itemId, 'roomJid': roomJid, 'x': x, 'y': y, 'options': options });
+        return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.derezBackpackItem.name, 'itemId': itemId, 'roomJid': roomJid, 'x': x, 'y': y, 'changed': changed, 'deleted': deleted, 'options': options });
     }
 
     static deleteBackpackItem(itemId: string, options: ItemChangeOptions): Promise<void>

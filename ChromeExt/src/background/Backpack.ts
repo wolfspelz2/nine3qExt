@@ -12,7 +12,8 @@ import { Memory } from '../lib/Memory';
 import { Utils } from '../lib/Utils';
 import { BackgroundApp } from './BackgroundApp';
 import { Item } from './Item';
-const Web3 = require('web3');
+//const Web3 = require('web3');
+const Web3Eth = require('web3-eth');
 
 export class Backpack
 {
@@ -46,6 +47,8 @@ export class Backpack
 
     async loadLocalItems()
     {
+        let isFirstLoad = await this.checkIsFirstLoad();
+
         let itemIds = await Memory.getLocal(this.getBackpackIdsKey(), []);
         if (itemIds == null || !Array.isArray(itemIds)) {
             log.warn('Local storage', this.getBackpackIdsKey(), 'not an array');
@@ -69,6 +72,32 @@ export class Backpack
                 }
             }
         }
+
+        if (isFirstLoad) {
+            this.createInitialItems();
+        }
+    }
+
+    async checkIsFirstLoad(): Promise<boolean>
+    {
+        let itemIds = await Memory.getLocal(this.getBackpackIdsKey(), null);
+        if (itemIds == null) {
+            await Memory.setLocal(this.getBackpackIdsKey(), []);
+            return true;
+        }
+        return false;
+    }
+
+    async createInitialItems(): Promise<void>
+    {
+        let template: string;
+        let item: Item;
+        try {
+            template = 'PirateFlag'; item = await this.createItemByTemplate(template, {});
+            template = 'Points'; item = await this.createItemByTemplate(template, {});
+        } catch (error) {
+            log.info('Backpack.loadLocalItems', 'failed to create starter items', template, error);
+        }
     }
 
     async loadWeb3Items(): Promise<void>
@@ -78,7 +107,7 @@ export class Backpack
 
         let wallets = this.findItems(props => { return (as.Bool(props[Pid.Web3WalletAspect], false)); });
         if (wallets.length == 0) {
-            log.info('backpack.loadWeb3Items', 'No wallet item');
+            if (Config.get('log.web3', true)) { log.info('backpack.loadWeb3Items', 'No wallet item'); }
             return;
         }
 
@@ -115,12 +144,12 @@ export class Backpack
 
         let knownIds: Array<string> = [];
         try {
-            let web3 = new Web3(new Web3.providers.HttpProvider(httpProvider));
+            let web3eth = new Web3Eth(new Web3Eth.providers.HttpProvider(httpProvider));
             let contractABI = Config.get('web3.weblinItemContractAbi', null);
             if (contractAddress == null || contractAddress == '' || contractABI == null) {
                 log.info('backpack.loadWeb3ItemsFromWallet', 'Missing contract config', 'contractAddress=', contractAddress, 'contractABI=', contractABI);
             } else {
-                let contract = new web3.eth.Contract(contractABI, contractAddress);
+                let contract = new web3eth.Contract(contractABI, contractAddress);
                 let numberOfItems = await contract.methods.balanceOf(ownerAddress).call();
                 for (let i = 0; i < numberOfItems; i++) {
                     let tokenId = await contract.methods.tokenOfOwnerByIndex(ownerAddress, i).call();
@@ -178,7 +207,7 @@ export class Backpack
                     try {
                         let item = await this.createItemByTemplate(template, data);
                         knownIds.push(item.getId());
-                        log.debug('Backpack.getOrCreateWeb3ItemFromMetadata', 'Creating', template, item.getId());
+                        if (Config.get('log.web3', true)) { log.info('Backpack.getOrCreateWeb3ItemFromMetadata', 'Creating', template, item.getId()); }
                     } catch (error) {
                         log.info(error);
                     }
@@ -186,7 +215,7 @@ export class Backpack
                     for (let i = 0; i < existingItems.length; i++) {
                         let item = existingItems[i];
                         knownIds.push(item.getId());
-                        log.debug('Backpack.getOrCreateWeb3ItemFromMetadata', 'Confirming', template, item.getId());
+                        if (Config.get('log.web3', true)) { log.info('Backpack.getOrCreateWeb3ItemFromMetadata', 'Confirming', template, item.getId()); }
                     }
                 }
             } break;
@@ -255,7 +284,7 @@ export class Backpack
             if (item.isRezzed()) {
                 let roomJid = item.getProperties()[Pid.RezzedLocation];
                 if (roomJid) {
-                    await this.derezItem(itemId, roomJid, -1, -1, options);
+                    await this.derezItem(itemId, roomJid, -1, -1, {}, [], options);
                 }
             }
 
@@ -290,9 +319,7 @@ export class Backpack
 
     private async createRepositoryItem(itemId: string, props: ItemProperties): Promise<Item>
     {
-        if (props[Pid.OwnerId] == null) {
-            props[Pid.OwnerId] = await Memory.getSync(Utils.syncStorageKey_Id(), '');
-        }
+        props[Pid.OwnerId] = await Memory.getLocal(Utils.localStorageKey_Id(), '');
 
         let item = this.items[itemId];
         if (item == null) {
@@ -373,6 +400,13 @@ export class Backpack
         return false;
     }
 
+    getItem(itemId: string): Item
+    {
+        let item = this.items[itemId];
+        if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
+        return item;
+    }
+
     async setItemProperties(itemId: string, props: ItemProperties, options: ItemChangeOptions): Promise<void>
     {
         let item = this.items[itemId];
@@ -386,7 +420,6 @@ export class Backpack
     {
         let item = this.items[itemId];
         if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
-
         return item.getProperties();
     }
 
@@ -412,7 +445,7 @@ export class Backpack
         {
             try {
 
-                let userId = await Memory.getSync(Utils.syncStorageKey_Id(), '');
+                let userId = await Memory.getLocal(Utils.localStorageKey_Id(), '');
                 if (userId == null || userId == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.NoUserId); }
 
                 let providerId = 'nine3q';
@@ -448,7 +481,7 @@ export class Backpack
                 let item = this.items[itemId];
                 if (item == null) { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.ItemDoesNotExist, itemId); }
 
-                let userId = await Memory.getSync(Utils.syncStorageKey_Id(), '');
+                let userId = await Memory.getLocal(Utils.localStorageKey_Id(), '');
                 if (userId == null || userId == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.NoUserId); }
 
                 let providerId = 'nine3q';
@@ -534,24 +567,32 @@ export class Backpack
         }
         props[Pid.RezzedDestination] = destinationUrl;
         props[Pid.RezzedLocation] = roomJid;
-        props[Pid.OwnerName] = await Memory.getSync(Utils.syncStorageKey_Nickname(), as.String(props[Pid.OwnerName]));
-        item.setProperties(props, options);
+        props[Pid.OwnerName] = await Memory.getLocal(Utils.localStorageKey_Nickname(), as.String(props[Pid.OwnerName]));
+
+        let setPropertiesOption = { skipPresenceUpdate: true };
+        Object.assign(setPropertiesOption, options);
+        item.setProperties(props, setPropertiesOption);
 
         if (!options.skipPersistentStorage) {
             await this.persistentSaveItem(itemId);
         }
+
+        if (!options.skipPresenceUpdate) {
+            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
+        }
     }
 
-    async derezItem(itemId: string, roomJid: string, inventoryX: number, inventoryY: number, options: ItemChangeOptions): Promise<void>
+    async derezItem(itemId: string, roomJid: string, inventoryX: number, inventoryY: number, changed: ItemProperties, deleted: Array<string>, options: ItemChangeOptions): Promise<void>
     {
         let item = this.items[itemId];
         if (item == null) { throw new ItemException(ItemException.Fact.NotDerezzed, ItemException.Reason.ItemDoesNotExist, itemId); }
         if (!item.isRezzed()) { return; }
         if (!item.isRezzedTo(roomJid)) { throw new ItemException(ItemException.Fact.NotDerezzed, ItemException.Reason.ItemNotRezzedHere); }
 
+        let props = item.getProperties();
+
         this.removeFromRoom(itemId, roomJid);
 
-        let props = item.getProperties();
         delete props[Pid.IsRezzed];
         if (inventoryX > 0 && inventoryY > 0) {
             props[Pid.InventoryX] = '' + inventoryX;
@@ -561,14 +602,26 @@ export class Backpack
         delete props[Pid.RezzedDestination];
         delete props[Pid.RezzedLocation];
 
-        options.skipPresenceUpdate = true;
-        item.setProperties(props, options);
+        for (let pid in changed) {
+            props[pid] = changed[pid];
+        }
+        for (let i = 0; i < deleted.length; i++) {
+            delete props[deleted[i]];
+        }
+
+        let setPropertiesOption = { skipPresenceUpdate: true };
+        Object.assign(setPropertiesOption, options);
+        item.setProperties(props, setPropertiesOption);
 
         if (!options.skipPersistentStorage) {
             await this.persistentSaveItem(itemId);
         }
 
         if (!options.skipContentNotification) {
+            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
+        }
+
+        if (!options.skipPresenceUpdate) {
             this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
         }
     }
