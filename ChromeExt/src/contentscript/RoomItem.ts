@@ -579,6 +579,11 @@ export class RoomItem extends Entity
         this.avatarDisplay?.setCondition(condition);
     }
 
+    async showItemEffect(effect: any)
+    {
+        this.avatarDisplay?.showEffect(effect);
+    }
+
     sendPropertiesToScriptFrame(requestId: string)
     {
         this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Item.Properties', id: requestId, properties: this.properties }, '*');

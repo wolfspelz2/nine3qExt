@@ -229,7 +229,7 @@ export class Avatar implements IObserver
                         return true;
                     }
                 }
-                
+
                 if ($(draggable).hasClass('n3q-backpack-item')) {
                     if (!this.isSelf) {
                         return true;
@@ -397,6 +397,12 @@ export class Avatar implements IObserver
     setSize(width: number, height: number)
     {
         $(this.elem).css({ 'width': width + 'px', 'height': height + 'px', 'left': -(width / 2) });
+    }
+
+    showEffect(effect: any): void
+    {
+        $(this.imageElem).addClass('n3q-pulse')
+        window.setTimeout(() => { $(this.imageElem).removeClass('n3q-pulse'); }, 1000);
     }
 
     setCondition(condition: string): void

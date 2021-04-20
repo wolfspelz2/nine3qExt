@@ -88,6 +88,9 @@ export class IframeApi
             case WeblinClientApi.ItemSetConditionRequest.type: {
                 this.handle_ItemSetConditionRequest(<WeblinClientApi.ItemSetConditionRequest>request);
             } break;
+            case WeblinClientApi.ItemEffectRequest.type: {
+                this.handle_ItemEffectRequest(<WeblinClientApi.ItemEffectRequest>request);
+            } break;
             case WeblinClientApi.RoomGetParticipantsRequest.type: {
                 this.handle_RoomGetParticipantsRequest(<WeblinClientApi.RoomGetParticipantsRequest>request);
             } break;
@@ -247,6 +250,19 @@ export class IframeApi
 
         } catch (ex) {
             log.info('IframeApi.handle_ItemSetConditionRequest', ex);
+        }
+    }
+
+    handle_ItemEffectRequest(request: WeblinClientApi.ItemEffectRequest)
+    {
+        try {
+            let roomItem = this.app.getRoom().getItem(request.item);
+            if (roomItem) {
+                roomItem.showItemEffect(request.effect);
+            }
+
+        } catch (ex) {
+            log.info('IframeApi.handle_ItemSetStateRequest', ex);
         }
     }
 
@@ -509,6 +525,13 @@ export namespace WeblinClientApi
         static type = 'Item.SetCondition';
         item: string;
         condition: string;
+    }
+
+    export class ItemEffectRequest extends Request
+    {
+        static type = 'Item.Effect';
+        item: string;
+        effect: any;
     }
 
     export class ItemActionRequest extends Request
