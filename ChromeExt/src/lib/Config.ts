@@ -533,7 +533,7 @@ export class Config
                     'ItemPid.CommodityConversionFactor': 'Effzienz',
                     'ItemPid.OwnerName': 'Besitzer',
                     'ItemPid.DispenserAvailable': 'Übrig',
-                    'ItemPid.DispenserCooldownSec': 'Wartezeit',
+                    'ItemPid.DispenserCooldownSec': 'Erholungszeit',
                     'ItemPid.NicknameText': 'Name',
                     'ItemPid.PointsTotal': 'Gesammelt',
                     'ItemPid.PointsCurrent': 'Verfügbar',
