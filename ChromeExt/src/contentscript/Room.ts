@@ -103,7 +103,6 @@ export class Room
         try {
             let nickname = await this.app.getUserNickname();
             let avatar = await this.app.getUserAvatar();
-
             this.resource = await this.getBackpackItemNickname(nickname);
             this.avatar = await this.getBackpackItemAvatarId(avatar);
         } catch (error) {
@@ -142,10 +141,16 @@ export class Room
         this.stopKeepAlive();
     }
 
+    async onUserSettingsChanged(): Promise<void>
+    {
+        await this.enter();
+        window.setTimeout(async () => { await this.sendPresence(); }, Config.get('xmpp.resendPresenceAfterResourceChangeBecauseServerSendsOldPresenceDataWithNewResourceToForceNewDataDelaySec', 1.0) * 1000);
+    }
+
     async sendPresence(): Promise<void>
     {
         try {
-            let vpProps = { xmlns: 'vp:props', 'Nickname': this.resource, 'AvatarId': this.avatar, 'nickname': this.resource, 'avatar': 'gif/' + this.avatar };
+            let vpProps = { xmlns: 'vp:props', 'timestamp': Date.now(), 'Nickname': this.resource, 'AvatarId': this.avatar, 'nickname': this.resource, 'avatar': 'gif/' + this.avatar };
 
             let nickname = await this.getBackpackItemNickname(this.resource);
             if (nickname != '') {

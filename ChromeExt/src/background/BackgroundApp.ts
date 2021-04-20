@@ -155,7 +155,7 @@ export class BackgroundApp
 
         if (!this.isReady) {
             this.isReady = true;
-            if (Config.get('log.startup', true)) { log.info('BackgroundApp', 'isReady'); }            
+            if (Config.get('log.startup', true)) { log.info('BackgroundApp', 'isReady'); }
         }
     }
 
@@ -1048,6 +1048,18 @@ export class BackgroundApp
         }
         if (!isConnectionPresence) {
             if (Config.get('log.backgroundTraffic', true)) { log.info('BackgroundApp.sendStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to); }
+
+            // if (stanza.name == 'presence' && as.String(stanza.type, 'available') == 'available') {
+            //     let vpNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
+            //     if (vpNode) {
+            //         let xmppNickname = jid(stanza.attrs.to).getResource();
+            //         let vpNickname = as.String(vpNode.attrs.Nickname, '');
+            //         log.debug('send ########', xmppNickname, vpNickname);
+            //         if (xmppNickname != vpNickname) {
+            //             log.debug('send ########', xmppNickname, '-x-', vpNickname);
+            //         }
+            //     }
+            // }
         }
     }
 
@@ -1065,6 +1077,18 @@ export class BackgroundApp
             }
             if (!isConnectionPresence) {
                 if (Config.get('log.backgroundTraffic', true)) { log.info('BackgroundApp.recvStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to, 'from=', stanza.attrs.from); }
+
+                // if (stanza.name == 'presence' && as.String(stanza.type, 'available') == 'available') {
+                //     let vpNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
+                //     if (vpNode) {
+                //         let xmppNickname = jid(stanza.attrs.from).getResource();
+                //         let vpNickname = as.String(vpNode.attrs.Nickname, '');
+                //         log.debug('recv ########', xmppNickname, vpNickname);
+                //         if (xmppNickname != vpNickname) {
+                //             log.debug('recv ########', xmppNickname, '-x-', vpNickname);
+                //         }
+                //     }
+                // }
             }
         }
 
@@ -1170,7 +1194,7 @@ export class BackgroundApp
 
             this.xmpp.on('online', (address: any) =>
             {
-                if (Config.get('log.startup', true)) { log.info('BackgroundApp xmpp.on.online', address); }                            
+                if (Config.get('log.startup', true)) { log.info('BackgroundApp xmpp.on.online', address); }
 
                 this.xmppJid = address;
 

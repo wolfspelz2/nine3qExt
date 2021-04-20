@@ -125,6 +125,7 @@ export class Config
             pingBackgroundToKeepConnectionAliveSec: 12,
             deferUnavailableSec: 3.0,
             deferAwaySec: 0.2,
+            resendPresenceAfterResourceChangeBecauseServerSendsOldPresenceDataWithNewResourceToForceNewDataDelaySec: 1.0,
         },
         avatars: {
             animationsProxyUrlTemplate: 'https://webex.vulcan.weblin.com/Avatar/InlineData?url={url}',

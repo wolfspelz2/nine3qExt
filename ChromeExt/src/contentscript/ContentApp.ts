@@ -497,7 +497,10 @@ export class ContentApp
 
     handle_userSettingsChanged(): any
     {
-        this.messageHandler({ 'type': ContentAppNotification.type_restart });
+        // this.messageHandler({ 'type': ContentAppNotification.type_restart });
+        if (this.room) {
+            this.room.onUserSettingsChanged();
+        }
     }
 
     handle_clientNotification(request: WeblinClientApi.ClientNotificationRequest): any
