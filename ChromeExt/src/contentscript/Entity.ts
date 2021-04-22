@@ -12,6 +12,7 @@ import { ContentApp } from './ContentApp';
 export class Entity
 {
     protected elem: HTMLElement;
+    protected rangeElem: HTMLElement;
     protected visible: boolean = false;
     protected avatarDisplay: Avatar;
     protected positionX: number = -1;
@@ -22,8 +23,6 @@ export class Entity
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-entity" />').get(0);
         this.elem.style.display = 'none';
-
-        $(this.elem).append(this.elem);
 
         $(app.getDisplay()).append(this.elem);
     }
@@ -55,6 +54,19 @@ export class Entity
         this.show(false);
         $(this.elem).remove();
         delete this.elem;
+    }
+
+    setRange(left: number, right: number): void
+    {
+        this.removeRange();
+        this.rangeElem = <HTMLDivElement>$('<div class="n3q-base n3q-range" />').get(0);
+        $(this.rangeElem).css({ left: left, width: right - left });
+        $(this.elem).prepend(this.rangeElem);
+    }
+
+    removeRange(): void
+    {
+        if (this.rangeElem) { $(this.rangeElem).remove(); }
     }
 
     setPosition(x: number): void

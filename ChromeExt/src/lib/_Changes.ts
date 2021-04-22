@@ -6,6 +6,9 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
+        ['1.1.1', '?', [
+            ['Add', 'somthing'],
+        ]],
         ['1.1.0', 'Benji', [
             ['Add', 'Scripting to iframe API & Autorez (Benji, Meerkat)'],
             ['Add', 'Inactive mode (xmpp: presence-show away) and multi-tab presence-show management'],
