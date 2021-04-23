@@ -7,6 +7,7 @@ export class _Changes
 {
     static data: IHistory = [
         ['1.1.1', 'Production', [
+            ['Change', 'Default item to quite transparent pyramid to remove space used'],
             ['Fix', 'Item state is not visible remotely'],
             ['Fix', 'Claim certificate not visible remotely'],
         ]],
