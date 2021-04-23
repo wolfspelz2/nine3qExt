@@ -219,7 +219,7 @@ export class ContentApp
 
     test(): void
     {
-        this.room.getParticipant(this.room.getMyNick()).setRange(-200, 100);
+        this.room.getParticipant(this.room.getMyNick()).setRange(-250, 50);
 
         // this.sndChat.play();
         // new SimpleToast(this, 'test', 4, 'warning', 'Heiner (dev)', 'greets').show();

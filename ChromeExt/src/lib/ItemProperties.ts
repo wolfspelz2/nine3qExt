@@ -72,6 +72,7 @@ export class Pid
     static readonly Web3WalletAspect = 'Web3WalletAspect';
     static readonly Web3WalletAddress = 'Web3WalletAddress';
     static readonly Web3WalletNetwork = 'Web3WalletNetwork';
+    static readonly ShopImageUrl = 'ShopImageUrl';
 
     static readonly TransferState_Source = 'Source';
     static readonly TransferState_Destination = 'Destination';
@@ -176,6 +177,7 @@ export class Property
         [Pid.Signed]: { inPresence: true },
         [Pid.SignatureRsa]: { inPresence: true },
         [Pid.DeactivatableIsInactive]: { inPresence: true },
+        [Pid.ShopImageUrl]: { inPresence: true },
 
         // For unit test
         ['Test1']: { inPresence: true },
