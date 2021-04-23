@@ -557,22 +557,22 @@ export class Backpack
 
         this.addToRoom(itemId, roomJid);
 
-        let props = item.getProperties();
+        let clonedProps = Utils.cloneObject(item.getProperties());
 
-        props[Pid.IsRezzed] = 'true';
+        clonedProps[Pid.IsRezzed] = 'true';
         if (rezzedX >= 0) {
-            props[Pid.RezzedX] = '' + rezzedX;
+            clonedProps[Pid.RezzedX] = '' + rezzedX;
         }
-        if (as.Int(props[Pid.RezzedX], -1) < 0) {
-            props[Pid.RezzedX] = '' + Utils.randomInt(100, 400);
+        if (as.Int(clonedProps[Pid.RezzedX], -1) < 0) {
+            clonedProps[Pid.RezzedX] = '' + Utils.randomInt(100, 400);
         }
-        props[Pid.RezzedDestination] = destinationUrl;
-        props[Pid.RezzedLocation] = roomJid;
-        props[Pid.OwnerName] = await Memory.getLocal(Utils.localStorageKey_Nickname(), as.String(props[Pid.OwnerName]));
+        clonedProps[Pid.RezzedDestination] = destinationUrl;
+        clonedProps[Pid.RezzedLocation] = roomJid;
+        clonedProps[Pid.OwnerName] = await Memory.getLocal(Utils.localStorageKey_Nickname(), as.String(clonedProps[Pid.OwnerName]));
 
         let setPropertiesOption = { skipPresenceUpdate: true };
         Object.assign(setPropertiesOption, options);
-        item.setProperties(props, setPropertiesOption);
+        item.setProperties(clonedProps, setPropertiesOption);
 
         if (!options.skipPersistentStorage) {
             await this.persistentSaveItem(itemId);
@@ -590,29 +590,29 @@ export class Backpack
         if (!item.isRezzed()) { return; }
         if (!item.isRezzedTo(roomJid)) { throw new ItemException(ItemException.Fact.NotDerezzed, ItemException.Reason.ItemNotRezzedHere); }
 
-        let props = item.getProperties();
+        let clonedProps = Utils.cloneObject(item.getProperties());
 
         this.removeFromRoom(itemId, roomJid);
 
-        delete props[Pid.IsRezzed];
+        delete clonedProps[Pid.IsRezzed];
         if (inventoryX > 0 && inventoryY > 0) {
-            props[Pid.InventoryX] = '' + inventoryX;
-            props[Pid.InventoryY] = '' + inventoryY;
+            clonedProps[Pid.InventoryX] = '' + inventoryX;
+            clonedProps[Pid.InventoryY] = '' + inventoryY;
         }
         // delete props[Pid.RezzedX]; // preserve for rez by button
-        delete props[Pid.RezzedDestination];
-        delete props[Pid.RezzedLocation];
+        delete clonedProps[Pid.RezzedDestination];
+        delete clonedProps[Pid.RezzedLocation];
 
         for (let pid in changed) {
-            props[pid] = changed[pid];
+            clonedProps[pid] = changed[pid];
         }
         for (let i = 0; i < deleted.length; i++) {
-            delete props[deleted[i]];
+            delete clonedProps[deleted[i]];
         }
 
         let setPropertiesOption = { skipPresenceUpdate: true };
         Object.assign(setPropertiesOption, options);
-        item.setProperties(props, setPropertiesOption);
+        item.setProperties(clonedProps, setPropertiesOption);
 
         if (!options.skipPersistentStorage) {
             await this.persistentSaveItem(itemId);
