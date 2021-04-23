@@ -428,14 +428,15 @@ export class Backpack
         let item = this.items[itemId];
         if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
 
-        let props = item.getProperties();
+        let clonedProps = Utils.cloneObject(item.getProperties());
+
         for (let key in changed) {
-            props[key] = changed[key];
+            clonedProps[key] = changed[key];
         }
         for (let i = 0; i < deleted.length; i++) {
-            delete props[deleted[i]];
+            delete clonedProps[deleted[i]];
         }
-        item.setProperties(props, options);
+        item.setProperties(clonedProps, options);
         await this.persistentSaveItem(itemId);
     }
 

@@ -7,6 +7,7 @@ import { BackpackShowItemData, BackpackRemoveItemData, BackpackSetItemData, Cont
 import { BackgroundApp } from './BackgroundApp';
 import { Backpack } from './Backpack';
 import { ItemChangeOptions } from '../lib/ItemChangeOptions';
+import { Utils } from '../lib/Utils';
 
 export class Item
 {
@@ -19,14 +20,20 @@ export class Item
 
     setProperties(props: ItemProperties, options: ItemChangeOptions)
     {
+        let oldSorted = Utils.sortObjectByKey(this.properties);
+        let newSorted = Utils.sortObjectByKey(props);
+        let changed = JSON.stringify(oldSorted) != JSON.stringify(newSorted);
+
         this.properties = props;
 
-        if (!options.skipContentNotification) {
-            this.app.sendToAllTabs(ContentMessage.type_onBackpackSetItem, new BackpackSetItemData(this.itemId, props));
-        }
+        if (changed) {
+            if (!options.skipContentNotification) {
+                this.app.sendToAllTabs(ContentMessage.type_onBackpackSetItem, new BackpackSetItemData(this.itemId, props));
+            }
 
-        if (!options.skipPresenceUpdate) {
-            this.sendPresence();
+            if (!options.skipPresenceUpdate) {
+                this.sendPresence();
+            }
         }
     }
 

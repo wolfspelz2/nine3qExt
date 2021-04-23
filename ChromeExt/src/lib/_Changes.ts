@@ -6,8 +6,9 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
-        ['1.1.1', '?', [
-            ['Add', 'somthing'],
+        ['1.1.1', 'Production', [
+            ['Fix', 'Item state is not visible remotely'],
+            ['Fix', 'Claim certificate not visible remotely'],
         ]],
         ['1.1.0', 'Benji', [
             ['Add', 'Scripting to iframe API & Autorez (Benji, Meerkat)'],

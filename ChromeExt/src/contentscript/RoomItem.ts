@@ -31,6 +31,7 @@ export class RoomItem extends Entity
     protected statsDisplay: RoomItemStats;
     protected screenUnderlay: ItemFrameUnderlay;
     protected myItem: boolean = false;
+    protected state = '';
 
     constructor(app: ContentApp, room: Room, roomNick: string, isSelf: boolean)
     {
@@ -91,11 +92,8 @@ export class RoomItem extends Entity
 
     async onPresenceAvailable(stanza: any): Promise<void>
     {
-        let presenceHasPosition: boolean = false;
+        let hasPosition: boolean = false;
         let newX: number = 123;
-
-        let presenceHasCondition: boolean = false;
-        let newCondition: string = '';
 
         let vpAnimationsUrl = '';
         let vpImageUrl = '';
@@ -116,13 +114,8 @@ export class RoomItem extends Entity
                 if (positionNode) {
                     newX = as.Int(positionNode.attrs.x, -1);
                     if (newX != -1) {
-                        presenceHasPosition = true;
+                        hasPosition = true;
                     }
-                }
-                presenceHasCondition = true;
-                let conditionNode = stateNode.getChild('condition');
-                if (conditionNode) {
-                    newCondition = as.String(conditionNode.attrs.status, '');
                 }
             }
         }
@@ -235,8 +228,10 @@ export class RoomItem extends Entity
             }
         }
 
-        if (presenceHasCondition) {
-            this.avatarDisplay?.setCondition(newCondition);
+        let newState = as.String(newProperties[Pid.State], '');
+        if (newState != this.state) {
+            this.avatarDisplay.setState(newState);
+            this.state = newState;
         }
 
         if (vpRezzedX >= 0) {
@@ -244,13 +239,13 @@ export class RoomItem extends Entity
         }
 
         if (isFirstPresence) {
-            if (!presenceHasPosition && vpRezzedX < 0) {
+            if (!hasPosition && vpRezzedX < 0) {
                 newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition(this.roomNick);
             }
             if (newX < 0) { newX = 100; }
             this.setPosition(newX);
         } else {
-            if (presenceHasPosition || vpRezzedX >= 0) {
+            if (hasPosition || vpRezzedX >= 0) {
                 if (this.getPosition() != newX) {
                     this.move(newX);
                 }
@@ -565,13 +560,16 @@ export class RoomItem extends Entity
     async setItemProperty(pid: string, value: any)
     {
         if (await BackgroundMessage.isBackpackItem(this.roomNick)) {
-            BackgroundMessage.modifyBackpackItemProperties(this.roomNick, { [pid]: value }, [], {});
+            await BackgroundMessage.modifyBackpackItemProperties(this.roomNick, { [pid]: value }, [], {});
         }
     }
 
     async setItemState(state: string)
     {
-        this.avatarDisplay?.setState(state);
+        // this.avatarDisplay?.setState(state);
+        if (await BackgroundMessage.isBackpackItem(this.roomNick)) {
+            await BackgroundMessage.modifyBackpackItemProperties(this.roomNick, { [Pid.State]: state }, [], {});
+        }
     }
 
     async setItemCondition(condition: string)

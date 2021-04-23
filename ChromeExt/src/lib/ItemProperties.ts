@@ -21,6 +21,7 @@ export class Pid
     static readonly RezzedDestination = 'RezzedDestination';
     static readonly InventoryX = 'InventoryX';
     static readonly InventoryY = 'InventoryY';
+    static readonly State = 'State';
     static readonly Provider = 'Provider';
     static readonly Stats = 'Stats';
     static readonly Display = 'Display';
@@ -153,6 +154,7 @@ export class Property
         [Pid.Description]: { inPresence: true },
         [Pid.OwnerId]: { inPresence: true },
         [Pid.OwnerName]: { inPresence: true },
+        [Pid.State]: { inPresence: true },
         [Pid.Provider]: { inPresence: true },
         [Pid.ImageUrl]: { inPresence: true },
         [Pid.AnimationsUrl]: { inPresence: true },
