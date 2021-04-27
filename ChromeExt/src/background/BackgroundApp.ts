@@ -7,7 +7,7 @@ import { BackgroundEmptyResponse, BackgroundErrorResponse, BackgroundItemExcepti
 import { Client } from '../lib/Client';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { ContentMessage } from '../lib/ContentMessage';
-import { ItemException } from '../lib/ItemExcption';
+import { ItemException } from '../lib/ItemException';
 import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 import { Memory } from '../lib/Memory';
 import { ConfigUpdater } from './ConfigUpdater';

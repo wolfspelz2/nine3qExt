@@ -4,7 +4,7 @@ import { xml, jid } from '@xmpp/client';
 import { Config } from '../lib/Config';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { BackpackShowItemData, BackpackRemoveItemData, BackpackSetItemData, ContentMessage } from '../lib/ContentMessage';
-import { ItemException } from '../lib/ItemExcption';
+import { ItemException } from '../lib/ItemException';
 import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 import { RpcProtocol } from '../lib/RpcProtocol';
 import { RpcClient } from '../lib/RpcClient';
@@ -419,7 +419,7 @@ export class Backpack
     getItemProperties(itemId: string): ItemProperties
     {
         let item = this.items[itemId];
-        if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
+        if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); } // throw unhandled, maybe return null?
         return item.getProperties();
     }
 

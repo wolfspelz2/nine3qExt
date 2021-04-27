@@ -8,7 +8,7 @@ import { Config } from '../lib/Config';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { Memory } from '../lib/Memory';
-import { ItemException } from '../lib/ItemExcption';
+import { ItemException } from '../lib/ItemException';
 import { Payload } from '../lib/Payload';
 import { SimpleErrorToast, SimpleToast } from './Toast';
 import { ContentApp } from './ContentApp';

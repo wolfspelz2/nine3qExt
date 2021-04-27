@@ -13,7 +13,7 @@ import { ContentApp } from './ContentApp';
 import { Window } from './Window';
 import { BackpackItem as BackpackItem } from './BackpackItem';
 import { Environment } from '../lib/Environment';
-import { ItemException } from '../lib/ItemExcption';
+import { ItemException } from '../lib/ItemException';
 import { ItemExceptionToast, SimpleErrorToast, SimpleToast } from './Toast';
 import { RoomItem } from './RoomItem';
 import { Avatar } from './Avatar';

@@ -2,7 +2,7 @@ import log = require('loglevel');
 import { as } from '../lib/as';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Config } from '../lib/Config';
-import { ItemException } from '../lib/ItemExcption';
+import { ItemException } from '../lib/ItemException';
 import { Pid } from '../lib/ItemProperties';
 import { Utils } from '../lib/Utils';
 import { ContentApp } from './ContentApp';

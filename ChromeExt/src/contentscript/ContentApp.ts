@@ -10,7 +10,7 @@ import { Memory } from '../lib/Memory';
 import { AvatarGallery } from '../lib/AvatarGallery';
 import { Translator } from '../lib/Translator';
 import { Browser } from '../lib/Browser';
-import { ItemException } from '../lib/ItemExcption';
+import { ItemException } from '../lib/ItemException';
 import { BackpackShowItemData, BackpackSetItemData, BackpackRemoveItemData, ContentMessage } from '../lib/ContentMessage';
 import { Environment } from '../lib/Environment';
 import { ItemProperties, Pid } from '../lib/ItemProperties';

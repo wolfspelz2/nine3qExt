@@ -1,6 +1,6 @@
 import log = require('loglevel');
 import { ItemChangeOptions } from './ItemChangeOptions';
-import { ItemException } from './ItemExcption';
+import { ItemException } from './ItemException';
 import { ItemProperties, ItemPropertiesSet } from './ItemProperties';
 import { BackgroundApp } from '../background/BackgroundApp';
 import { Environment } from './Environment';

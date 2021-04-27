@@ -7,7 +7,7 @@ import { Utils } from '../lib/Utils';
 import { IObserver } from '../lib/ObservableProperty';
 import { Pid } from '../lib/ItemProperties';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
-import { ItemException } from '../lib/ItemExcption';
+import { ItemException } from '../lib/ItemException';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
