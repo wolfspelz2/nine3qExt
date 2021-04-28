@@ -394,6 +394,7 @@ export class Config
                     'ItemPid.MinerDurationSec': 'Duration',
                     'ItemPid.ResourceLevel': 'Quantity',
                     'ItemPid.ResourceUnit': 'Unit',
+                    'ItemPid.FiniteUseRemaining': 'Usages left',
 
                     'ItemValue.true': 'Yes',
                     'ItemValue.false': 'No',
@@ -551,6 +552,7 @@ export class Config
                     'ItemPid.MinerDurationSec': 'Dauer',
                     'ItemPid.ResourceLevel': 'Menge',
                     'ItemPid.ResourceUnit': 'Einheit',
+                    'ItemPid.FiniteUseRemaining': 'Nutzbar noch',
 
                     'ItemValue.true': 'Ja',
                     'ItemValue.false': 'Nein',
