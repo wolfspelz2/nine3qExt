@@ -395,6 +395,9 @@ export class Config
                     'ItemPid.ResourceLevel': 'Quantity',
                     'ItemPid.ResourceUnit': 'Unit',
                     'ItemPid.FiniteUseRemaining': 'Usages left',
+                    'ItemPid.ProducerDurationSec': 'Duration',
+                    'ItemPid.BlueprintDurationSec': 'Duration',
+                    'ItemPid.ProducerEfficiency': 'Efficiency',
 
                     'ItemValue.true': 'Yes',
                     'ItemValue.false': 'No',
@@ -553,6 +556,9 @@ export class Config
                     'ItemPid.ResourceLevel': 'Menge',
                     'ItemPid.ResourceUnit': 'Einheit',
                     'ItemPid.FiniteUseRemaining': 'Nutzbar noch',
+                    'ItemPid.ProducerDurationSec': 'Dauer',
+                    'ItemPid.BlueprintDurationSec': 'Dauer',
+                    'ItemPid.ProducerEfficiency': 'Effizienz',
 
                     'ItemValue.true': 'Ja',
                     'ItemValue.false': 'Nein',

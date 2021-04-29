@@ -62,7 +62,7 @@ export class Room
     getJid(): string { return this.jid; }
     getDestination(): string { return this.destination; }
     getParticipant(nick: string): Participant { return this.participants[nick]; }
-    getItem(nick: string) { return this.items[nick]; }
+    getItem(nick: string): RoomItem { return this.items[nick]; }
     getParticipantIds(): Array<string>
     {
         let ids = [];

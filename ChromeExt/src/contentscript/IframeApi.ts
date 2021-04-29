@@ -73,8 +73,9 @@ export class IframeApi
 
         // if (request[Config.get('iframeApi.messageMagic', 'a67igu67puz_iframeApi')]) {
         switch (request.type) {
+            case WeblinClientApi.ItemActionRequest.legacyType:
             case WeblinClientApi.ItemActionRequest.type: {
-                /* await */ this.handle_ItemActionRequest(<WeblinClientApi.ItemActionRequest>request);
+                    /* await */ this.handle_ItemActionRequest(<WeblinClientApi.ItemActionRequest>request);
             } break;
             case WeblinClientApi.ItemGetPropertiesRequest.type: {
                 this.handle_ItemGetPropertiesRequest(<WeblinClientApi.ItemGetPropertiesRequest>request);
@@ -93,6 +94,9 @@ export class IframeApi
             } break;
             case WeblinClientApi.RoomGetParticipantsRequest.type: {
                 this.handle_RoomGetParticipantsRequest(<WeblinClientApi.RoomGetParticipantsRequest>request);
+            } break;
+            case WeblinClientApi.RoomGetItemsRequest.type: {
+                this.handle_RoomGetItemsRequest(<WeblinClientApi.RoomGetItemsRequest>request);
             } break;
             case WeblinClientApi.RoomGetInfoRequest.type: {
                 this.handle_RoomGetInfoRequest(<WeblinClientApi.RoomGetInfoRequest>request);
@@ -294,6 +298,33 @@ export class IframeApi
         }
     }
 
+    handle_RoomGetItemsRequest(request: WeblinClientApi.RoomGetItemsRequest)
+    {
+        try {
+            let data = new Array<WeblinClientApi.ItemData>();
+            let room = this.app.getRoom();
+            let itemId = request.item;
+
+            let itemIds = room.getItemIds();
+            for (let i = 0; i < itemIds.length; i++) {
+                let item = room.getItem(itemIds[i]);
+                let itemData = {
+                    id: item.getRoomNick(),
+                    x: item.getPosition(),
+                    isOwn: item.isMyItem(),
+                };
+                data.push(itemData);
+            }
+
+            let roomItem = room.getItem(itemId);
+            if (roomItem) {
+                roomItem.sendItemsToScriptFrame(request.id, data);
+            }
+        } catch (ex) {
+            log.info('IframeApi.handle_RoomGetItemsRequest', ex);
+        }
+    }
+
     handle_RoomGetInfoRequest(request: WeblinClientApi.RoomGetInfoRequest)
     {
         try {
@@ -364,9 +395,17 @@ export class IframeApi
             let itemId = request.item;
             let actionName = request.action;
             let args = request.args;
-            await BackgroundMessage.executeBackpackItemAction(itemId, actionName, args, [itemId]);
-            // let props = await BackgroundMessage.getBackpackItemProperties(itemId);
-            // this.app.updateItemFrame(itemId, props);
+            let involvedIds = [itemId];
+            if (request.items) {
+                for (let i = 0; i < request.items.length; i++) {
+                    let id = request.items[i];
+                    involvedIds.push(id);
+                    if (!(id in involvedIds)) {
+                        involvedIds.push(id);
+                    }
+                }
+            }
+            await BackgroundMessage.executeBackpackItemAction(itemId, actionName, args, involvedIds);
         } catch (ex) {
             // if (ex instanceof ItemException) {
             //     new ItemExceptionToast(this.app, Config.get('room.applyItemErrorToastDurationSec', 5), ex).show();
@@ -536,11 +575,13 @@ export namespace WeblinClientApi
 
     export class ItemActionRequest extends Request
     {
+        static legacyType = 'Item.Action';
         static type = 'ItemAction';
         item: string;
         room: string;
         action: string;
         args: any;
+        items: string[];
     }
 
     export class ItemActionResponse extends Response
@@ -550,16 +591,23 @@ export namespace WeblinClientApi
         deleted: string[];
     }
 
-    export class RoomGetParticipantsRequest extends Request
+    export class RoomGetItemsRequest extends Request
     {
-        static type = 'Room.GetParticipants';
+        static type = 'Room.GetItems';
         item: string;
         room: string;
     }
 
-    export class RoomGetInfoRequest extends Request
+    export class ItemData 
     {
-        static type = 'Room.GetInfo';
+        id: string;
+        x: number;
+        isOwn: boolean;
+    }
+
+    export class RoomGetParticipantsRequest extends Request
+    {
+        static type = 'Room.GetParticipants';
         item: string;
         room: string;
     }
@@ -570,6 +618,13 @@ export namespace WeblinClientApi
         nickname: string;
         x: number;
         isSelf: boolean;
+    }
+
+    export class RoomGetInfoRequest extends Request
+    {
+        static type = 'Room.GetInfo';
+        item: string;
+        room: string;
     }
 
     export class RoomInfo 

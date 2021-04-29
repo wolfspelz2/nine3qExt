@@ -584,37 +584,42 @@ export class RoomItem extends Entity
 
     sendPropertiesToScriptFrame(requestId: string)
     {
-        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Item.Properties', id: requestId, properties: this.properties }, '*');
+        this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Item.Properties', id: requestId, properties: this.properties }, '*');
     }
 
     sendParticipantsToScriptFrame(requestId: string, participants: Array<WeblinClientApi.ParticipantData>)
     {
-        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Room.Participants', id: requestId, participants: participants }, '*');
+        this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Room.Participants', id: requestId, participants: participants }, '*');
+    }
+
+    sendItemsToScriptFrame(requestId: string, items: Array<WeblinClientApi.ItemData>)
+    {
+        this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Room.Items', id: requestId, items: items }, '*');
     }
 
     sendRoomInfoToScriptFrame(requestId: string, info: WeblinClientApi.RoomInfo)
     {
-        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Room.Info', id: requestId, info: info }, '*');
+        this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Room.Info', id: requestId, info: info }, '*');
     }
 
     sendParticipantMovedToScriptFrame(participant: WeblinClientApi.ParticipantData)
     {
-        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Participant.Moved', participant: participant }, '*');
+        this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Participant.Moved', participant: participant }, '*');
     }
 
     sendParticipantChatToScriptFrame(participant: WeblinClientApi.ParticipantData, text: string)
     {
-        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Participant.Chat', participant: participant, text: text }, '*');
+        this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Participant.Chat', participant: participant, text: text }, '*');
     }
 
     sendParticipantEventToAllScriptFrames(participant: WeblinClientApi.ParticipantData, data: any)
     {
-        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Participant.Event', participant: participant, data: data }, '*');
+        this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Participant.Event', participant: participant, data: data }, '*');
     }
 
     sendItemMovedToScriptFrame(newX: number)
     {
-        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Item.Moved', x: newX }, '*');
+        this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Item.Moved', x: newX }, '*');
     }
 
     positionFrame(width: number, height: number, left: number, bottom: number)
