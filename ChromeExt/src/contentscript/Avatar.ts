@@ -399,12 +399,6 @@ export class Avatar implements IObserver
         $(this.elem).css({ 'width': width + 'px', 'height': height + 'px', 'left': -(width / 2) });
     }
 
-    showEffect(effect: any): void
-    {
-        $(this.imageElem).addClass('n3q-pulse')
-        window.setTimeout(() => { $(this.imageElem).removeClass('n3q-pulse'); }, 1000);
-    }
-
     setCondition(condition: string): void
     {
         this.currentCondition = condition;

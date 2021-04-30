@@ -30,7 +30,7 @@ export class Entity
     getRoom(): Room { return this.room; }
     getElem(): HTMLElement { return this.elem; }
     getDefaultAvatar(): string { return imgDefaultAvatar; }
-    getAvatar() { return this.avatarDisplay; }
+    getAvatar(): Avatar { return this.avatarDisplay; }
     getIsSelf(): boolean { return this.isSelf; }
 
     show(visible: boolean, durationSec: number = 0.0): void
@@ -54,6 +54,13 @@ export class Entity
         this.show(false);
         $(this.elem).remove();
         delete this.elem;
+    }
+
+    showEffect(effect: any): void
+    {
+        let pulseElem = <HTMLDivElement>$('<div class="n3q-base n3q-pulse" />').get(0);
+        $(this.elem).append(pulseElem)
+        window.setTimeout(() => { $(pulseElem).remove(); }, 1000);
     }
 
     setRange(left: number, right: number): void

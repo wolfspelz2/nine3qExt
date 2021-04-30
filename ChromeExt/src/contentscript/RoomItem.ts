@@ -57,7 +57,20 @@ export class RoomItem extends Entity
     getDefaultAvatar(): string { return imgDefaultItem; }
     getRoomNick(): string { return this.roomNick; }
     getDisplayName(): string { return as.String(this.getProperties()[Pid.Label], this.roomNick); }
-    getProperties(): any { return this.properties; }
+
+    getProperties(pids: Array<string> = null): any
+    {
+        if (pids == null) {
+            return this.properties;
+        }
+        let filteredProperties = new ItemProperties();
+        for (let pid in this.properties) {
+            if (pids.includes(pid)) {
+                filteredProperties[pid] = this.properties[pid];
+            }
+        }
+        return filteredProperties;
+    }
 
     setProperties(properties: { [pid: string]: string; })
     {
@@ -303,7 +316,8 @@ export class RoomItem extends Entity
             let frame = as.String(JSON.parse(as.String(this.properties[Pid.IframeOptions], '{}')).frame, 'Window');
             if (frame == 'Popup') {
                 if (this.framePopup) {
-                    this.framePopup.close();
+                    this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Window.Close' }, '*');
+                    window.setTimeout(() => { this.framePopup.close(); }, 100);
                 } else {
                     this.openFrame(this.getElem());
                 }
@@ -500,12 +514,12 @@ export class RoomItem extends Entity
         }
     }
 
-    setFrameVisibility(state: boolean)
+    setFrameVisibility(visible: boolean)
     {
         if (this.framePopup) {
-            this.framePopup.setVisibility(state);
+            this.framePopup.setVisibility(visible);
         } else if (this.frameWindow) {
-            this.frameWindow.setVisibility(state);
+            this.frameWindow.setVisibility(visible);
         }
     }
 
@@ -577,9 +591,13 @@ export class RoomItem extends Entity
         this.avatarDisplay?.setCondition(condition);
     }
 
-    async showItemEffect(effect: any)
+    async showItemRange(visible: boolean, range: any)
     {
-        this.avatarDisplay?.showEffect(effect);
+        if (visible) {
+            this.setRange(range.left, range.right);
+        } else {
+            this.removeRange();
+        }
     }
 
     sendPropertiesToScriptFrame(requestId: string)

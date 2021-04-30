@@ -219,11 +219,12 @@ export class ContentApp
 
     test(): void
     {
-        this.room.getParticipant(this.room.getMyNick()).setRange(-250, 50);
+        this.room.getParticipant(this.room.getMyNick()).showEffect('pulse');
 
-        // this.sndChat.play();
-        // new SimpleToast(this, 'test', 4, 'warning', 'Heiner (dev)', 'greets').show();
-        // this.showBackpackWindow(null);
+        //this.room.getParticipant(this.room.getMyNick()).setRange(-250, 50);
+        //this.sndChat.play();
+        //new SimpleToast(this, 'test', 4, 'warning', 'Heiner (dev)', 'greets').show();
+        //this.showBackpackWindow(null);
     }
 
     playSound(fluteSound: any)

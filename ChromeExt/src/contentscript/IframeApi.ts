@@ -3,7 +3,7 @@ import { as } from '../lib/as';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Config } from '../lib/Config';
 import { ItemException } from '../lib/ItemException';
-import { Pid } from '../lib/ItemProperties';
+import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { Utils } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { SimpleErrorToast, SimpleToast } from './Toast';
@@ -91,6 +91,9 @@ export class IframeApi
             } break;
             case WeblinClientApi.ItemEffectRequest.type: {
                 this.handle_ItemEffectRequest(<WeblinClientApi.ItemEffectRequest>request);
+            } break;
+            case WeblinClientApi.ItemRangeRequest.type: {
+                this.handle_ItemRangeRequest(<WeblinClientApi.ItemRangeRequest>request);
             } break;
             case WeblinClientApi.RoomGetParticipantsRequest.type: {
                 this.handle_RoomGetParticipantsRequest(<WeblinClientApi.RoomGetParticipantsRequest>request);
@@ -262,11 +265,24 @@ export class IframeApi
         try {
             let roomItem = this.app.getRoom().getItem(request.item);
             if (roomItem) {
-                roomItem.showItemEffect(request.effect);
+                roomItem.showEffect(request.effect);
             }
 
         } catch (ex) {
-            log.info('IframeApi.handle_ItemSetStateRequest', ex);
+            log.info('IframeApi.handle_ItemEffectRequest', ex);
+        }
+    }
+
+    handle_ItemRangeRequest(request: WeblinClientApi.ItemRangeRequest)
+    {
+        try {
+            let roomItem = this.app.getRoom().getItem(request.item);
+            if (roomItem) {
+                roomItem.showItemRange(request.visible, request.range);
+            }
+
+        } catch (ex) {
+            log.info('IframeApi.handle_ItemRangeRequest', ex);
         }
     }
 
@@ -304,6 +320,7 @@ export class IframeApi
             let data = new Array<WeblinClientApi.ItemData>();
             let room = this.app.getRoom();
             let itemId = request.item;
+            let pids = request.pids;
 
             let itemIds = room.getItemIds();
             for (let i = 0; i < itemIds.length; i++) {
@@ -312,6 +329,7 @@ export class IframeApi
                     id: item.getRoomNick(),
                     x: item.getPosition(),
                     isOwn: item.isMyItem(),
+                    properties: item.getProperties(pids),
                 };
                 data.push(itemData);
             }
@@ -400,7 +418,7 @@ export class IframeApi
                 for (let i = 0; i < request.items.length; i++) {
                     let id = request.items[i];
                     involvedIds.push(id);
-                    if (!(id in involvedIds)) {
+                    if (!involvedIds.includes(id)) {
                         involvedIds.push(id);
                     }
                 }
@@ -573,6 +591,14 @@ export namespace WeblinClientApi
         effect: any;
     }
 
+    export class ItemRangeRequest extends Request
+    {
+        static type = 'Item.Range';
+        item: string;
+        visible: boolean;
+        range: any;
+    }
+
     export class ItemActionRequest extends Request
     {
         static legacyType = 'Item.Action';
@@ -596,6 +622,7 @@ export namespace WeblinClientApi
         static type = 'Room.GetItems';
         item: string;
         room: string;
+        pids: string[];
     }
 
     export class ItemData 
@@ -603,6 +630,7 @@ export namespace WeblinClientApi
         id: string;
         x: number;
         isOwn: boolean;
+        properties: ItemProperties;
     }
 
     export class RoomGetParticipantsRequest extends Request
