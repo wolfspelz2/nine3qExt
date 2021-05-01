@@ -72,9 +72,13 @@ export class ItemFramePopup extends Popup
         return this.windowElem != null;
     }
 
-    position(width: number, height: number, left: number, bottom: number): void
+    position(width: number, height: number, left: number, bottom: number, options: any = null): void
     {
-        $(this.windowElem).css({ width: width + 'px', height: height + 'px', left: left + 'px', bottom: bottom + 'px' });
+        if (options != null && as.Bool(options.animate, false)) {
+            $(this.windowElem).animate({ width: width + 'px', height: height + 'px', left: left + 'px', bottom: bottom + 'px' }, as.Int(options.duration, 200));
+        } else {
+            $(this.windowElem).css({ width: width + 'px', height: height + 'px', left: left + 'px', bottom: bottom + 'px' });
+        }
     }
 
     update(): void

@@ -4,18 +4,54 @@ export class ItemException
     {
     }
 
-    static factFromString(s: string): ItemException.Fact
+    static fact2String(fact: ItemException.Fact): string
     {
-        let o: object = ItemException.Fact;
-        if (o[s]) { return o[s]; }
-        return ItemException.Fact.Error;
+        if (typeof fact === 'string') {
+            return fact;
+        } else if (typeof fact === 'number') {
+            let o: object = ItemException.Fact;
+            if (o[fact]) { return o[fact]; }
+        }
+        return 'UnknownError';
     }
 
-    static reasonFromString(s: string): ItemException.Reason
+    static reason2String(reason: ItemException.Reason): string
     {
-        let o: object = ItemException.Reason;
-        if (o[s]) { return o[s]; }
-        return ItemException.Reason.UnknownReason;
+        if (typeof reason === 'string') {
+            return reason;
+        } else if (typeof reason === 'number') {
+            let o: object = ItemException.Reason;
+            if (o[reason]) { return o[reason]; }
+        }
+        return 'UnknownReason';
+    }
+
+    static factFrom(fact: any): ItemException.Fact
+    {
+        if (typeof fact === 'string') {
+            let o: object = ItemException.Fact;
+            if (o[fact]) { return o[fact]; }
+            return ItemException.Fact.UnknownError;
+        } else if (typeof fact === 'number') {
+            let o: object = ItemException.Fact;
+            if (o[fact]) { return fact; }
+            return ItemException.Fact.UnknownError;
+        }
+        return fact;
+    }
+
+    static reasonFrom(reason: any): ItemException.Reason
+    {
+        if (typeof reason === 'string') {
+            let o: object = ItemException.Reason;
+            if (o[reason]) { return o[reason]; }
+            return ItemException.Reason.UnknownReason;
+        } else if (typeof reason === 'number') {
+            let o: object = ItemException.Reason;
+            if (o[reason]) { return reason; }
+            return ItemException.Reason.UnknownReason;
+        }
+        return reason;
     }
 }
 
@@ -23,7 +59,8 @@ export namespace ItemException
 {
     export enum Fact
     {
-        Error,
+        UnknownError,
+        InternalError,
         NotRezzed,
         NotDerezzed,
         NotAdded,
@@ -32,10 +69,13 @@ export namespace ItemException
         NoItemsReceived,
         NotExecuted,
         NotApplied,
+        NotTransferred,
+        NotMoved,
+        NotCreated,
+        NotStacked,
         ClaimFailed,
-        NotTransferred
+        SubmissionIgnored,
     }
-
 
     export enum Reason
     {

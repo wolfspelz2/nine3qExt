@@ -627,7 +627,7 @@ export class BackgroundApp
             let props = this.backpack.getItemProperties(itemId);
             sendResponse(new GetBackpackItemPropertiesResponse(props));
         } else {
-            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemsNotAvailable)));
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.UnknownError, ItemException.Reason.ItemsNotAvailable)));
         }
         return false;
     }
@@ -651,7 +651,7 @@ export class BackgroundApp
             }
             sendResponse(new FindBackpackItemPropertiesResponse(propertiesSet));
         } else {
-            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemsNotAvailable)));
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.UnknownError, ItemException.Reason.ItemsNotAvailable)));
         }
         return false;
     }

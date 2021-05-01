@@ -8,7 +8,7 @@ import { Utils } from '../lib/Utils';
 import { WeblinClientApi } from '../lib/WeblinClientApi';
 import { WeblinClientIframeApi } from '../lib/WeblinClientIframeApi';
 import { ContentApp } from './ContentApp';
-import { SimpleErrorToast, SimpleToast } from './Toast';
+import { ItemExceptionToast, SimpleErrorToast, SimpleToast } from './Toast';
 
 export class IframeApi
 {
@@ -423,7 +423,7 @@ export class IframeApi
         try {
             let roomItem = this.app.getRoom().getItem(request.item);
             if (roomItem) {
-                roomItem.positionFrame(request.width, request.height, request.left, request.bottom);
+                roomItem.positionFrame(request.width, request.height, request.left, request.bottom, request.options);
             }
             return new WeblinClientApi.SuccessResponse();
         } catch (ex) {
@@ -464,22 +464,13 @@ export class IframeApi
             }
             await BackgroundMessage.executeBackpackItemAction(itemId, actionName, args, involvedIds);
             return new WeblinClientApi.SuccessResponse();
-        } catch (ex) {
-            // if (ex instanceof ItemException) {
-            //     new ItemExceptionToast(this.app, Config.get('room.applyItemErrorToastDurationSec', 5), ex).show();
-            // } else {
-            //     new SimpleErrorToast(this.app, 'Warning-' + ex.fact + '-' + ex.reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', ex.fact, ex.reason, ex.detail).show();
-            // }
-            if (ex.fact) {
-                let fact = typeof ex.fact === 'number' ? ItemException.Fact[ex.fact] : ex.fact;
-                let reason = typeof ex.reason === 'number' ? ItemException.Reason[ex.reason] : ex.reason;
-                let detail = ex.detail;
-                new SimpleErrorToast(this.app, 'Warning-' + fact + '-' + reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', fact, reason, detail).show();
-                return new WeblinClientIframeApi.ItemErrorResponse(fact, reason, detail);
-            } else {
-                new SimpleErrorToast(this.app, 'Warning-UnknownError', Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', 'Error', 'UnknownReason', ex.message).show();
-                return new WeblinClientApi.ErrorResponse(ex);
-            }
+        } catch (error) {
+            let fact = ItemException.factFrom(error.fact);
+            let reason = ItemException.reasonFrom(error.reason);
+            let detail = as.String(error.detail, error.message);
+            let ex = new ItemException(fact, reason, detail);
+            new ItemExceptionToast(this.app, Config.get('room.errorToastDurationSec', 8), ex).show();
+            return new WeblinClientIframeApi.ItemErrorResponse(ItemException.fact2String(fact), ItemException.reason2String(reason), detail);
         }
     }
 }

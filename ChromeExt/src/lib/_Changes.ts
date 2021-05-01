@@ -10,6 +10,7 @@ export class _Changes
             ['Add', 'Crafting'],
             ['Add', 'Iframe API library'],
             ['Add', 'Toast when receiving an item'],
+            ['Add', 'Popup can adjust height automatically'],
             ['Change', 'Default item to quite transparent pyramid to remove visible space used'],
             ['Fix', 'Item state is not visible remotely'],
             ['Fix', 'Claim certificate not visible remotely'],

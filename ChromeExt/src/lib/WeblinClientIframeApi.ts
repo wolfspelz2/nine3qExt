@@ -51,6 +51,7 @@ export namespace WeblinClientIframeApi
         height: number;
         left: number;
         bottom: number;
+        options: any;
     }
 
     export class BackpackSetVisibilityRequest extends Request

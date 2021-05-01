@@ -339,9 +339,9 @@ export class Config
                     'Toast.This would create an identical item': 'This would create an identical item',
                     'Toast.NotExecuted': 'Not executed',
                     'Toast.NoBlueprint': 'No blueprint',
-                    // ['ErrorFact.' + ItemException.Fact[ItemException.Fact.Error]]: 'Error',
-                    'ErrorFact.Error': 'Error',
+                    'Toast.TooManyBlueprints': 'Too many blueprints',
 
+                    'ErrorFact.UnknownError': 'UnknownError',
                     'ErrorFact.NotRezzed': 'Item not dropped',
                     'ErrorFact.NotDerezzed': 'Failed to pick up item',
                     'ErrorFact.NotAdded': 'Item not added',
@@ -372,6 +372,7 @@ export class Config
                     'ErrorReason.Insufficient': 'Insufficient',
                     'ErrorReason.StillInProgress': 'Still in progress',
                     'ErrorReason.MissingResource': 'Missing resource',
+                    'ErrorReason.InvalidCommandArgument': 'Invalid command argument',
 
                     'ErrorDetail.Applier.Apply': 'Applying an item to another',
                     'ErrorDetail.Pid.Id': 'Id',
@@ -509,8 +510,9 @@ export class Config
                     'Toast.This would create an identical item': 'Das würde einen identischen Gegenstand nochmal erzeugen',
                     'Toast.NotExecuted': 'Nicht ausgeführt',
                     'Toast.NoBlueprint': 'Kein Bauplan',
+                    'Toast.TooManyBlueprints': 'Mehr als ein Bauplan',
 
-                    'ErrorFact.Error': 'Fehler',
+                    'ErrorFact.UnknownError': 'Unbekannter Fehler',
                     'ErrorFact.NotRezzed': 'Ablegen fehlgeschlagen',
                     'ErrorFact.NotDerezzed': 'Von der Seite nehmen fehlgeschlagen',
                     'ErrorFact.NotAdded': 'Gegenstand nicht hinzugefügt',
@@ -541,6 +543,7 @@ export class Config
                     'ErrorReason.Insufficient': 'Ungenügend',
                     'ErrorReason.StillInProgress': 'Dauert noch an',
                     'ErrorReason.MissingResource': 'Zutat fehlt',
+                    'ErrorReason.InvalidCommandArgument': 'Falsches Befehlsargument',
 
                     'ErrorDetail.Applier.Apply': 'Beim Anwenden eines Gegenstands auf einen anderen.',
                     'ErrorDetail.Pid.Id': 'Id',

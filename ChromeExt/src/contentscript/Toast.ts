@@ -180,8 +180,8 @@ export class ItemExceptionToast extends SimpleErrorToast
 {
     constructor(app: ContentApp, durationSec: number, ex: ItemException)
     {
-        let fact = ItemException.Fact[ex.fact];
-        let reason = ItemException.Reason[ex.reason];
+        let fact = ItemException.fact2String(ex.fact);
+        let reason = ItemException.reason2String(ex.reason);
         let type = 'Warning-' + fact + '-' + reason;
         let detail = ex.detail;
         let iconType = 'warning';

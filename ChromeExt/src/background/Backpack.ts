@@ -403,14 +403,14 @@ export class Backpack
     getItem(itemId: string): Item
     {
         let item = this.items[itemId];
-        if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
+        if (item == null) { throw new ItemException(ItemException.Fact.UnknownError, ItemException.Reason.ItemDoesNotExist, itemId); }
         return item;
     }
 
     async setItemProperties(itemId: string, props: ItemProperties, options: ItemChangeOptions): Promise<void>
     {
         let item = this.items[itemId];
-        if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
+        if (item == null) { throw new ItemException(ItemException.Fact.UnknownError, ItemException.Reason.ItemDoesNotExist, itemId); }
 
         item.setProperties(props, options);
         await this.persistentSaveItem(itemId);
@@ -419,14 +419,14 @@ export class Backpack
     getItemProperties(itemId: string): ItemProperties
     {
         let item = this.items[itemId];
-        if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); } // throw unhandled, maybe return null?
+        if (item == null) { throw new ItemException(ItemException.Fact.UnknownError, ItemException.Reason.ItemDoesNotExist, itemId); } // throw unhandled, maybe return null?
         return item.getProperties();
     }
 
     async modifyItemProperties(itemId: string, changed: ItemProperties, deleted: Array<string>, options: ItemChangeOptions): Promise<void>
     {
         let item = this.items[itemId];
-        if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
+        if (item == null) { throw new ItemException(ItemException.Fact.UnknownError, ItemException.Reason.ItemDoesNotExist, itemId); }
 
         let clonedProps = Utils.cloneObject(item.getProperties());
 
@@ -533,11 +533,11 @@ export class Backpack
                 }
 
                 resolve();
-            } catch (error) {
-                if (error.fact) { 
-                    reject(new ItemException(ItemException.factFromString(error.fact), ItemException.reasonFromString(error.reason), error.detail));
+            } catch (ex) {
+                if (ex.fact) { 
+                    reject(new ItemException(ItemException.factFrom(ex.fact), ItemException.reasonFrom(ex.reason), ex.detail));
                 } else {
-                    reject(new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.InternalError, as.String(error.message, as.String(error.status, ''))));
+                    reject(new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.UnknownReason, as.String(ex.message, as.String(ex.status, ''))));
                 }
             }
         });

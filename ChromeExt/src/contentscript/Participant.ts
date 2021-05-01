@@ -948,8 +948,8 @@ export class Participant extends Entity
             log.debug('Participant.applyItem', 'transfer', itemId, 'room', roomJid);
 
             if (!as.Bool(roomItem.getProperties()[Pid.IsTransferable], true)) {
-                let fact = ItemException.Fact[ItemException.Fact.NotTransferred];
-                let reason = ItemException.Reason[ItemException.Reason.ItemIsNotTransferable];
+                let fact = ItemException.fact2String(ItemException.Fact.NotTransferred);
+                let reason = ItemException.reason2String(ItemException.Reason.ItemIsNotTransferable);
                 new SimpleErrorToast(this.app, 'Warning-' + fact + '-' + reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', fact, reason, '').show();
             } else {
                 await this.room?.transferItem(itemId, this.roomNick);

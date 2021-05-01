@@ -411,15 +411,14 @@ export class RoomItem extends Entity
         let passiveItemId = passiveItem.getRoomNick();
 
         if (!await BackgroundMessage.isBackpackItem(passiveItemId)) {
-            let fact = ItemException.Fact[ItemException.Fact.NotApplied];
-            let reason = ItemException.Reason[ItemException.Reason.NotYourItem];
+            let fact = ItemException.fact2String(ItemException.Fact.NotApplied);
+            let reason = ItemException.reason2String(ItemException.Reason.NotYourItem);
             let detail = passiveItemId;
             new SimpleErrorToast(this.app, 'Warning-' + fact + '-' + reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', fact, reason, detail).show();
             return;
         }
 
         if (this.myItem) {
-
             try {
                 await BackgroundMessage.executeBackpackItemAction(itemId, 'Applier.Apply', { 'passive': passiveItemId }, [itemId, passiveItemId]);
                 if (Config.get('points.enabled', false)) {
@@ -427,10 +426,10 @@ export class RoomItem extends Entity
                 }
             } catch (ex) {
                 // new SimpleErrorToast(this.app, 'Warning-' + error.fact + '-' + error.reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', error.fact, error.reason, error.detail).show();
-                let fact = typeof ex.fact === 'number' ? ItemException.Fact[ex.fact] : ex.fact;
-                let reason = typeof ex.reason === 'number' ? ItemException.Reason[ex.reason] : ex.reason;
+                let fact = ItemException.factFrom(ex.fact);
+                let reason = ItemException.reasonFrom(ex.reason);
                 let detail = ex.detail;
-                new SimpleErrorToast(this.app, 'Warning-' + fact + '-' + reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', fact, reason, detail).show();
+                new SimpleErrorToast(this.app, 'Warning-' + fact + '-' + reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', ItemException.fact2String(fact), ItemException.reason2String(reason), detail).show();
             }
         }
     }
@@ -579,9 +578,9 @@ export class RoomItem extends Entity
         }
     }
 
-    positionFrame(width: number, height: number, left: number, bottom: number)
+    positionFrame(width: number, height: number, left: number, bottom: number, options: any = null)
     {
-        this.framePopup?.position(width, height, left, bottom);
+        this.framePopup?.position(width, height, left, bottom, options);
         this.frameWindow?.position(width, height, left, bottom);
     }
 
