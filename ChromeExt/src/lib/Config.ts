@@ -367,7 +367,7 @@ export class Config
                     'ErrorReason.ItemMustBeStronger': 'Your item is not stronger than the other.',
                     'ErrorReason.ItemIsNotTransferable': 'Item not transferable.',
                     'ErrorReason.NoMatch': 'Item do not match.',
-                    'ErrorReason.NoSuchAspect': 'Dem Gegenstand fehlt eine Eigenschaft.',
+                    'ErrorReason.NoSuchAspect': 'The item is missing a feature.',
                     'ErrorReason.Ambiguous': 'Ambiguous',
                     'ErrorReason.Insufficient': 'Insufficient',
                     'ErrorReason.StillInProgress': 'Still in progress',
