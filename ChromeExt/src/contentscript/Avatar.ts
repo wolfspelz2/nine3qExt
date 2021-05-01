@@ -401,14 +401,18 @@ export class Avatar implements IObserver
 
     setCondition(condition: string): void
     {
-        this.currentCondition = condition;
-        this.startNextAnimation();
+        if (this.currentCondition != condition) {
+            this.currentCondition = condition;
+            this.startNextAnimation();
+        }
     }
 
     setState(state: string): void
     {
-        this.currentState = state;
-        this.startNextAnimation();
+        if (this.currentState != state) {
+            this.currentState = state;
+            this.startNextAnimation();
+        }
     }
 
     setAction(action: string): void

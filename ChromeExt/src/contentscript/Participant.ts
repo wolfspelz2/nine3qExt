@@ -22,6 +22,7 @@ import { PrivateVidconfWindow } from './PrivateVidconfWindow';
 import { PointsBar } from './PointsBar';
 import { VpProtocol } from '../lib/VpProtocol';
 import { BackpackItem } from './BackpackItem';
+import { WeblinClientIframeApi } from '../lib/WeblinClientIframeApi';
 
 export class Participant extends Entity
 {
@@ -811,7 +812,7 @@ export class Participant extends Entity
 
         let itemIds = this.room.getAllScriptedItems();
         for (let i = 0; i < itemIds.length; i++) {
-            this.room.getItem(itemIds[i])?.sendParticipantMovedToScriptFrame(participantData);
+            this.room.getItem(itemIds[i])?.sendMessageToScriptFrame(new WeblinClientIframeApi.ParticipantMovedNotification(participantData));
         }
     }
 
@@ -826,7 +827,7 @@ export class Participant extends Entity
 
         let itemIds = this.room.getAllScriptedItems();
         for (let i = 0; i < itemIds.length; i++) {
-            this.room.getItem(itemIds[i])?.sendParticipantChatToScriptFrame(participantData, text);
+            this.room.getItem(itemIds[i])?.sendMessageToScriptFrame(new WeblinClientIframeApi.ParticipantChatNotification(participantData, text));
         }
     }
 
@@ -841,7 +842,7 @@ export class Participant extends Entity
 
         let itemIds = this.room.getAllScriptedItems();
         for (let i = 0; i < itemIds.length; i++) {
-            this.room.getItem(itemIds[i])?.sendParticipantEventToAllScriptFrames(participantData, data);
+            this.room.getItem(itemIds[i])?.sendMessageToScriptFrame(new WeblinClientIframeApi.ParticipantEventNotification(participantData, data));
         }
     }
 

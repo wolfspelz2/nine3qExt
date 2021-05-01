@@ -335,6 +335,8 @@ export class Config
                     'Toast.Decline': 'Decline',
                     'Toast.Duplicate item': 'Duplicate item',
                     'Toast.This would create an identical item': 'This would create an identical item',
+                    'Toast.NotExecuted': 'Not executed',
+                    'Toast.NoBlueprint': 'No blueprint',
                     // ['ErrorFact.' + ItemException.Fact[ItemException.Fact.Error]]: 'Error',
                     'ErrorFact.Error': 'Error',
 
@@ -364,6 +366,10 @@ export class Config
                     'ErrorReason.ItemIsNotTransferable': 'Item not transferable.',
                     'ErrorReason.NoMatch': 'Item do not match.',
                     'ErrorReason.NoSuchAspect': 'Dem Gegenstand fehlt eine Eigenschaft.',
+                    'ErrorReason.Ambiguous': 'Ambiguous',
+                    'ErrorReason.Insufficient': 'Insufficient',
+                    'ErrorReason.StillInProgress': 'Still in progress',
+                    'ErrorReason.MissingResource': 'Missing resource',
 
                     'ErrorDetail.Applier.Apply': 'Applying an item to another',
                     'ErrorDetail.Pid.Id': 'Id',
@@ -498,6 +504,8 @@ export class Config
                     'Toast.Decline': 'Ablehnen',
                     'Toast.Duplicate item': 'Doppelter Gegenstand',
                     'Toast.This would create an identical item': 'Das würde einen identischen Gegenstand nochmal erzeugen',
+                    'Toast.NotExecuted': 'Nicht ausgeführt',
+                    'Toast.NoBlueprint': 'Kein Bauplan',
 
                     'ErrorFact.Error': 'Fehler',
                     'ErrorFact.NotRezzed': 'Ablegen fehlgeschlagen',
@@ -526,6 +534,10 @@ export class Config
                     'ErrorReason.ItemIsNotTransferable': 'Der Gegenstand ist nicht übertragbar.',
                     'ErrorReason.NoMatch': 'Gegenstände passen nicht.',
                     'ErrorReason.NoSuchAspect': 'Dem Gegenstand fehlt eine Eigenschaft.',
+                    'ErrorReason.Ambiguous': 'Mehrdeutig',
+                    'ErrorReason.Insufficient': 'Ungenügend',
+                    'ErrorReason.StillInProgress': 'Dauert noch an',
+                    'ErrorReason.MissingResource': 'Zutat fehlt',
 
                     'ErrorDetail.Applier.Apply': 'Beim Anwenden eines Gegenstands auf einen anderen.',
                     'ErrorDetail.Pid.Id': 'Id',

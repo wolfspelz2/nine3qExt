@@ -534,7 +534,11 @@ export class Backpack
 
                 resolve();
             } catch (error) {
-                reject(new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.InternalError, as.String(error.message, as.String(error.status, ''))));
+                if (error.fact) { 
+                    reject(new ItemException(ItemException.factFromString(error.fact), ItemException.reasonFromString(error.reason), error.detail));
+                } else {
+                    reject(new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.InternalError, as.String(error.message, as.String(error.status, ''))));
+                }
             }
         });
     }

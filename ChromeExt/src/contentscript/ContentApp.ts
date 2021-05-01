@@ -10,10 +10,10 @@ import { Memory } from '../lib/Memory';
 import { AvatarGallery } from '../lib/AvatarGallery';
 import { Translator } from '../lib/Translator';
 import { Browser } from '../lib/Browser';
-import { ItemException } from '../lib/ItemException';
-import { BackpackShowItemData, BackpackSetItemData, BackpackRemoveItemData, ContentMessage } from '../lib/ContentMessage';
+import { ContentMessage } from '../lib/ContentMessage';
 import { Environment } from '../lib/Environment';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
+import { WeblinClientApi } from '../lib/WeblinClientApi';
 import { HelloWorld } from './HelloWorld';
 import { PropertyStorage } from './PropertyStorage';
 import { Room } from './Room';
@@ -23,8 +23,8 @@ import { XmppWindow } from './XmppWindow';
 import { ChangesWindow } from './ChangesWindow';
 import { TestWindow } from './TestWindow';
 import { BackpackWindow } from './BackpackWindow';
-import { SimpleErrorToast, SimpleToast } from './Toast';
-import { IframeApi, WeblinClientApi } from './IframeApi';
+import { SimpleToast } from './Toast';
+import { IframeApi } from './IframeApi';
 
 interface ILocationMapperResponse
 {

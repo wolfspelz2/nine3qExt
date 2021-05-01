@@ -4,7 +4,6 @@ import { ItemException } from './ItemException';
 import { ItemProperties, ItemPropertiesSet } from './ItemProperties';
 import { BackgroundApp } from '../background/BackgroundApp';
 import { Environment } from './Environment';
-import { WeblinClientApi } from '../contentscript/IframeApi';
 
 export class BackgroundResponse
 {

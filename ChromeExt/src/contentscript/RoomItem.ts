@@ -10,6 +10,7 @@ import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { Memory } from '../lib/Memory';
 import { ItemException } from '../lib/ItemException';
 import { Payload } from '../lib/Payload';
+import { WeblinClientIframeApi } from '../lib/WeblinClientIframeApi';
 import { SimpleErrorToast, SimpleToast } from './Toast';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
@@ -19,7 +20,6 @@ import { RoomItemStats } from './RoomItemStats';
 import { ItemFrameUnderlay } from './ItemFrameUnderlay';
 import { ItemFrameWindow, ItemFrameWindowOptions } from './ItemFrameWindow';
 import { ItemFramePopup } from './ItemFramePopup';
-import { WeblinClientApi } from './IframeApi';
 
 export class RoomItem extends Entity
 {
@@ -75,8 +75,8 @@ export class RoomItem extends Entity
     setProperties(properties: { [pid: string]: string; })
     {
         this.properties = properties;
-        if (as.Bool(this.properties[Pid.IframeAspect])) {
-            this.sendPropertiesToScriptFrame(null);
+        if (as.Bool(this.properties[Pid.IframeLive], false)) {
+            this.sendMessageToScriptFrame(new WeblinClientIframeApi.ItemGetPropertiesResponse(this.properties));
         }
     }
 
@@ -391,8 +391,16 @@ export class RoomItem extends Entity
         let itemId = this.roomNick;
         if (this.myItem) {
             let props = await BackgroundMessage.getBackpackItemProperties(itemId);
-            if (as.Bool(props[Pid.IframeAspect], false)) {
-                this.sendItemMovedToScriptFrame(newX);
+            if (as.Bool(props[Pid.IframeLive], false)) {
+
+                let itemData = {
+                    id: itemId,
+                    x: newX,
+                    isOwn: this.myItem,
+                    properties: this.properties,
+                };
+
+                this.sendMessageToScriptFrame(new WeblinClientIframeApi.ItemMovedNotification(itemData, newX));
             }
         }
     }
@@ -571,6 +579,12 @@ export class RoomItem extends Entity
         }
     }
 
+    positionFrame(width: number, height: number, left: number, bottom: number)
+    {
+        this.framePopup?.position(width, height, left, bottom);
+        this.frameWindow?.position(width, height, left, bottom);
+    }
+
     async setItemProperty(pid: string, value: any)
     {
         if (await BackgroundMessage.isBackpackItem(this.roomNick)) {
@@ -600,49 +614,39 @@ export class RoomItem extends Entity
         }
     }
 
-    sendPropertiesToScriptFrame(requestId: string)
+    sendMessageToScriptFrame(message: any)
     {
-        this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Item.Properties', id: requestId, properties: this.properties }, '*');
+        message[Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]= true;
+        this.getScriptWindow()?.postMessage(message, '*');
     }
 
-    sendParticipantsToScriptFrame(requestId: string, participants: Array<WeblinClientApi.ParticipantData>)
-    {
-        this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Room.Participants', id: requestId, participants: participants }, '*');
-    }
 
-    sendItemsToScriptFrame(requestId: string, items: Array<WeblinClientApi.ItemData>)
-    {
-        this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Room.Items', id: requestId, items: items }, '*');
-    }
 
-    sendRoomInfoToScriptFrame(requestId: string, info: WeblinClientApi.RoomInfo)
-    {
-        this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Room.Info', id: requestId, info: info }, '*');
-    }
 
-    sendParticipantMovedToScriptFrame(participant: WeblinClientApi.ParticipantData)
-    {
-        this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Participant.Moved', participant: participant }, '*');
-    }
 
-    sendParticipantChatToScriptFrame(participant: WeblinClientApi.ParticipantData, text: string)
-    {
-        this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Participant.Chat', participant: participant, text: text }, '*');
-    }
+    // sendParticipantMovedToScriptFrame(participant: WeblinClientIframeApi.ParticipantData)
+    // {
+    //     this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Participant.Moved', participant: participant }, '*');
+    // }
 
-    sendParticipantEventToAllScriptFrames(participant: WeblinClientApi.ParticipantData, data: any)
-    {
-        this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Participant.Event', participant: participant, data: data }, '*');
-    }
+    // sendParticipantChatToScriptFrame(participant: WeblinClientIframeApi.ParticipantData, text: string)
+    // {
+    //     this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Participant.Chat', participant: participant, text: text }, '*');
+    // }
 
-    sendItemMovedToScriptFrame(newX: number)
-    {
-        this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Item.Moved', x: newX }, '*');
-    }
+    // sendParticipantEventToScriptFrame(participant: WeblinClientIframeApi.ParticipantData, data: any)
+    // {
+    //     this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Participant.Event', participant: participant, data: data }, '*');
+    // }
 
-    positionFrame(width: number, height: number, left: number, bottom: number)
-    {
-        this.framePopup?.position(width, height, left, bottom);
-        this.frameWindow?.position(width, height, left, bottom);
-    }
+    // sendItemMovedToScriptFrame(newX: number)
+    // {
+    //     this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Item.Moved', x: newX }, '*');
+    // }
+
+    // sendPropertiesToScriptFrame(requestId: string)
+    // {
+    //     this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Item.Properties', id: requestId, properties: this.properties }, '*');
+    // }
+
 }
