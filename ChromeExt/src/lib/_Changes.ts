@@ -6,8 +6,11 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
-        ['1.1.1', 'Production', [
-            ['Change', 'Default item to quite transparent pyramid to remove space used'],
+        ['1.1.1', 'Crafting', [
+            ['Add', 'Crafting'],
+            ['Add', 'Iframe API library'],
+            ['Add', 'Toast when receiving an item'],
+            ['Change', 'Default item to quite transparent pyramid to remove visible space used'],
             ['Fix', 'Item state is not visible remotely'],
             ['Fix', 'Claim certificate not visible remotely'],
         ]],

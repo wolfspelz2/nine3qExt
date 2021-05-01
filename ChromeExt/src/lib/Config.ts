@@ -170,6 +170,7 @@ export class Config
             itemInfoExtended: false,
             itemInfoDelay: 300,
             deleteToastDurationSec: 100,
+            receiveToastDurationSec: 10,
             loadWeb3Items: true,
             signaturePublicKey: '-----BEGIN PUBLIC KEY-----\n' +
                 'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAL8cd14UE+Fy2QV6rtvbBA3UGo8TllmX\n' +
@@ -333,6 +334,7 @@ export class Config
                     'Toast.Refuses to join the private videoconference': 'Refuses to join the videoconference',
                     'Toast.Accept': 'Accept',
                     'Toast.Decline': 'Decline',
+                    'Toast.ItemTransferred': '...sent you an item',
                     'Toast.Duplicate item': 'Duplicate item',
                     'Toast.This would create an identical item': 'This would create an identical item',
                     'Toast.NotExecuted': 'Not executed',
@@ -502,6 +504,7 @@ export class Config
                     'Toast.Refuses to join the private videoconference': 'Lehnt die Videokonferenz ab',
                     'Toast.Accept': 'Annehmen',
                     'Toast.Decline': 'Ablehnen',
+                    'Toast.ItemTransferred': '...hat dir einen Gegenstand geschickt',
                     'Toast.Duplicate item': 'Doppelter Gegenstand',
                     'Toast.This would create an identical item': 'Das würde einen identischen Gegenstand nochmal erzeugen',
                     'Toast.NotExecuted': 'Nicht ausgeführt',

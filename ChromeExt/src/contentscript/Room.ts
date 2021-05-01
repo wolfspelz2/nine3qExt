@@ -16,6 +16,7 @@ import { ChatWindow } from './ChatWindow'; // Wants to be after Participant and 
 import { VidconfWindow } from './VidconfWindow';
 import { VpiResolver } from './VpiResolver';
 import { BackpackItem } from './BackpackItem';
+import { SimpleToast } from './Toast';
 
 export interface IRoomInfoLine extends Array<string | string> { 0: string, 1: string }
 export interface IRoomInfo extends Array<IRoomInfoLine> { }
@@ -531,13 +532,19 @@ export class Room
         }
     }
 
-    confirmItemTransfer(itemId: string, nick: string)
+    async confirmItemTransfer(itemId: string, nick: string)
     {
         try {
             let message = xml('message', { type: 'chat', to: this.jid + '/' + nick, from: this.jid + '/' + this.myNick })
                 .append(xml('x', { 'xmlns': 'vp:transfer', 'type': 'confirm', 'item': itemId }))
                 ;
             this.app.sendStanza(message);
+
+            let props = await BackgroundMessage.getBackpackItemProperties(itemId);
+            let senderName = this.getParticipant(nick).getDisplayName();
+            let toast = new SimpleToast(this.app, 'itemtransfer-afterthefact', Config.get('backpack.receiveToastDurationSec', 20), 'notice', senderName, this.app.translateText('Toast.ItemTransferred') + ': ' + this.app.translateText('ItemLabel.' + props[Pid.Label]));
+            toast.show(() => { });
+
         } catch (error) {
 
         }

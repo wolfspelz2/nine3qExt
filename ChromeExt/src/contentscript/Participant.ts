@@ -577,7 +577,7 @@ export class Participant extends Entity
 
                                     await BackgroundMessage.addBackpackItem(itemId, props, {});
                                     await BackgroundMessage.derezBackpackItem(itemId, this.room.getJid(), -1, -1, {}, [Pid.AutorezIsActive, Pid.TransferState], {});
-                                    this.room.confirmItemTransfer(itemId, this.roomNick);
+                                    await this.room.confirmItemTransfer(itemId, this.roomNick);
                                 }
                             }
                         break;
