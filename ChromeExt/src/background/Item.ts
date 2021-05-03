@@ -59,11 +59,12 @@ export class Item
     {
         var presence = xml('presence', { 'from': roomJid + '/' + this.itemId });
         let attrs = { 'xmlns': 'vp:props', 'type': 'item', 'provider': 'nine3q' };
+        let signed = as.String(this.properties[Pid.Signed] , '').split(' ');
         for (let pid in this.properties) {
-            if (Property.inPresence(pid)) {
+            if (Property.inPresence(pid) || (signed.length > 0 && signed.includes(pid))) {
                 attrs[pid] = this.properties[pid];
             }
-        }
+        }attrs
         // let attrs = Object.assign(protocolAttrs, this.properties);
         presence.append(xml('x', attrs));
         return presence;
