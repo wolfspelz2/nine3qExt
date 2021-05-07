@@ -267,8 +267,13 @@ export class Backpack
             }
             return maxItem;
         } else if (pointsItems.length == 0) {
-            let item = await this.createItemByTemplate('Points', {});
-            return item;
+            let template = 'Points';
+            try {
+                return await this.createItemByTemplate(template, {});
+            } catch (error) {
+                log.info('Backpack.getOrCreatePointsItem', 'failed to create item', template, error);
+            }
+            return null;
         } else if (pointsItems.length == 1) {
             return pointsItems[0]
         }

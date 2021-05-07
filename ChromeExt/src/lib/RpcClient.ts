@@ -40,7 +40,7 @@ export class RpcClient
                     })
                     .catch(ex =>
                     {
-                        log.debug('RpcClient.call', 'catch', url, ex);
+                        log.debug('RpcClient.call', 'catch', url, ex, request);
                         reject(ex);
                     });
             } catch (ex) {
