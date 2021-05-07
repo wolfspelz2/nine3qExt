@@ -97,22 +97,24 @@ export class Backpack
         let currentPhase = as.Int(await Memory.getLocal(Utils.localStorageKey_BackpackPhase(), 0));
         if (currentPhase < nextPhase) {
             if (true
-                && await this.createInitialItem('PirateFlag')
-                && await this.createInitialItem('BlueprintLibrary')
-                && await this.createInitialItem('MiningDrill')
-                && await this.createInitialItem('WaterPump')
-                && await this.createInitialItem('SolarPanel')
-                && await this.createInitialItem('CoffeeBeans')
+                && await this.createInitialItem('BlueprintLibrary', 68, 58)
+                && await this.createInitialItem('Maker', 167, 54)
+                && await this.createInitialItem('Recycler', 238, 54)
+                && await this.createInitialItem('MiningDrill', 310, 54)
+                && await this.createInitialItem('WaterPump', 78, 188)
+                && await this.createInitialItem('SolarPanel', 250, 188)
+                && await this.createInitialItem('CoffeeBeans', 382, 143)
+                && await this.createInitialItem('PirateFlag', 371, 45)
             ) {
                 await Memory.setLocal(Utils.localStorageKey_BackpackPhase(), nextPhase);
             }
         }
     }
 
-    async createInitialItem(template: string): Promise<boolean>
+    async createInitialItem(template: string, x: number = -1, y: number = -1): Promise<boolean>
     {
         try {
-            let item = await this.createItemByTemplate(template, {});
+            let item = await this.createItemByTemplate(template, { [Pid.InventoryX]: as.String(x), [Pid.InventoryY]: as.String(y), });
             return true;
         } catch (error) {
             log.info('Backpack.createInitialItem', 'failed to create starter item', template, error);
