@@ -116,6 +116,7 @@ export namespace ItemException
         Insufficient,
         StillInProgress,
         MissingResource,
+        CapacityLimit,
     }
 }
 

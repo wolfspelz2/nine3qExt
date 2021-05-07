@@ -81,6 +81,11 @@ export class ItemFramePopup extends Popup
         }
     }
 
+    toFront(): void
+    {
+        this.app.toFront(this.windowElem, ContentApp.LayerPopup);
+    }
+
     update(): void
     {
         if (this.iframeElem) {

@@ -81,6 +81,11 @@ export class ItemFrameWindow extends Window
         $(this.windowElem).css({ width: width + 'px', height: height + 'px', left: absLeft + 'px', bottom: absBottom + 'px' });
     }
 
+    toFront(): void
+    {
+        this.app.toFront(this.windowElem, ContentApp.LayerWindow);
+    }
+
     undock(): void
     {
         let left = Config.get('roomItem.frameUndockedLeft', 100);

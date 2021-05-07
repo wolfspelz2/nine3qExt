@@ -54,6 +54,12 @@ export namespace WeblinClientIframeApi
         options: any;
     }
 
+    export class WindowToFrontRequest extends Request
+    {
+        static type = 'Window.ToFront';
+        item: string;
+    }
+
     export class BackpackSetVisibilityRequest extends Request
     {
         static type = 'Backpack.SetVisibility';

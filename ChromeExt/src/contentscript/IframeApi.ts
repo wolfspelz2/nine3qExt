@@ -175,7 +175,10 @@ export class IframeApi
                     response = this.handle_WindowSetVisibilityRequest(<WeblinClientIframeApi.WindowSetVisibilityRequest>request);
                 } break;
                 case WeblinClientIframeApi.WindowPositionRequest.type: {
-                    response = this.handle_PositionWindowRequest(<WeblinClientIframeApi.WindowPositionRequest>request);
+                    response = this.handle_WindowPositionRequest(<WeblinClientIframeApi.WindowPositionRequest>request);
+                } break;
+                case WeblinClientIframeApi.WindowToFrontRequest.type: {
+                    response = this.handle_WindowToFrontRequest(<WeblinClientIframeApi.WindowToFrontRequest>request);
                 } break;
 
                 case WeblinClientIframeApi.BackpackSetVisibilityRequest.type: {
@@ -418,7 +421,7 @@ export class IframeApi
         }
     }
 
-    handle_PositionWindowRequest(request: WeblinClientIframeApi.WindowPositionRequest): WeblinClientApi.Response
+    handle_WindowPositionRequest(request: WeblinClientIframeApi.WindowPositionRequest): WeblinClientApi.Response
     {
         try {
             let roomItem = this.app.getRoom().getItem(request.item);
@@ -428,6 +431,20 @@ export class IframeApi
             return new WeblinClientApi.SuccessResponse();
         } catch (ex) {
             log.info('IframeApi.handle_PositionWindowRequest', ex);
+            return new WeblinClientApi.ErrorResponse(ex);
+        }
+    }
+
+    handle_WindowToFrontRequest(request: WeblinClientIframeApi.WindowToFrontRequest): WeblinClientApi.Response
+    {
+        try {
+            let roomItem = this.app.getRoom().getItem(request.item);
+            if (roomItem) {
+                roomItem.toFrontFrame();
+            }
+            return new WeblinClientApi.SuccessResponse();
+        } catch (ex) {
+            log.info('IframeApi.handle_WindowToFrontRequest', ex);
             return new WeblinClientApi.ErrorResponse(ex);
         }
     }

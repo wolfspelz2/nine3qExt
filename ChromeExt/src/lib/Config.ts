@@ -409,6 +409,7 @@ export class Config
                     'ItemPid.ProducerDurationSec': 'Duration',
                     'ItemPid.BlueprintDurationSec': 'Duration',
                     'ItemPid.ProducerEfficiency': 'Efficiency',
+                    'ItemPid.MinerEfficiency': 'Efficiency',
 
                     'ItemValue.true': 'Yes',
                     'ItemValue.false': 'No',
@@ -581,6 +582,7 @@ export class Config
                     'ItemPid.ProducerDurationSec': 'Dauer',
                     'ItemPid.BlueprintDurationSec': 'Dauer',
                     'ItemPid.ProducerEfficiency': 'Effizienz',
+                    'ItemPid.MinerEfficiency': 'Effizienz',
 
                     'ItemValue.true': 'Ja',
                     'ItemValue.false': 'Nein',
