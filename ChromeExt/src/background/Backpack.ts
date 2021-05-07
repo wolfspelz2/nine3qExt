@@ -40,7 +40,7 @@ export class Backpack
     {
         await this.loadLocalItems();
 
-        if (Config.get('backpack.loadWeb3Items', false)) {
+        if (Config.get('Backpack.loadWeb3Items', false)) {
             await this.loadWeb3Items();
         }
     }
@@ -51,7 +51,7 @@ export class Backpack
 
         let itemIds = await Memory.getLocal(this.getBackpackIdsKey(), []);
         if (itemIds == null || !Array.isArray(itemIds)) {
-            log.warn('Local storage', this.getBackpackIdsKey(), 'not an array');
+            log.warn('Backpack.loadLocalItems', this.getBackpackIdsKey(), 'not an array');
             return;
         }
 
@@ -60,7 +60,7 @@ export class Backpack
 
             let props = await Memory.getLocal(Backpack.BackpackPropsPrefix + itemId, null);
             if (props == null || typeof props != 'object') {
-                log.warn('Local storage', Backpack.BackpackPropsPrefix + itemId, 'not an object, skipping');
+                log.info('Backpack.loadLocalItems', Backpack.BackpackPropsPrefix + itemId, 'not an object, skipping');
                 continue;
             }
 
@@ -73,9 +73,7 @@ export class Backpack
             }
         }
 
-        if (isFirstLoad) {
-            this.createInitialItems();
-        }
+        this.createInitialItems();
     }
 
     async checkIsFirstLoad(): Promise<boolean>
@@ -90,13 +88,35 @@ export class Backpack
 
     async createInitialItems(): Promise<void>
     {
-        let template: string;
-        let item: Item;
+        await this.createInitialItemsPhase1();
+    }
+
+    async createInitialItemsPhase1(): Promise<void>
+    {
+        let nextPhase = 1;
+        let currentPhase = as.Int(await Memory.getLocal(Utils.localStorageKey_BackpackPhase(), 0));
+        if (currentPhase < nextPhase) {
+            if (true
+                && await this.createInitialItem('PirateFlag')
+                && await this.createInitialItem('BlueprintLibrary')
+                && await this.createInitialItem('MiningDrill')
+                && await this.createInitialItem('WaterPump')
+                && await this.createInitialItem('SolarPanel')
+                && await this.createInitialItem('CoffeeBeans')
+            ) {
+                await Memory.setLocal(Utils.localStorageKey_BackpackPhase(), nextPhase);
+            }
+        }
+    }
+
+    async createInitialItem(template: string): Promise<boolean>
+    {
         try {
-            template = 'PirateFlag'; item = await this.createItemByTemplate(template, {});
-            template = 'Points'; item = await this.createItemByTemplate(template, {});
+            let item = await this.createItemByTemplate(template, {});
+            return true;
         } catch (error) {
-            log.info('Backpack.loadLocalItems', 'failed to create starter items', template, error);
+            log.info('Backpack.createInitialItem', 'failed to create starter item', template, error);
+            return false;
         }
     }
 
@@ -534,7 +554,7 @@ export class Backpack
 
                 resolve();
             } catch (ex) {
-                if (ex.fact) { 
+                if (ex.fact) {
                     reject(new ItemException(ItemException.factFrom(ex.fact), ItemException.reasonFrom(ex.reason), ex.detail));
                 } else {
                     reject(new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.UnknownReason, as.String(ex.message, as.String(ex.status, ''))));
