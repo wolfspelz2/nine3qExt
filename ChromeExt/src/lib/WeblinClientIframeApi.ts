@@ -175,7 +175,8 @@ export namespace WeblinClientIframeApi
     export class ItemGetPropertiesRequest extends Request
     {
         static type = 'Item.GetProperties';
-        item: string;
+        itemId: string;
+        pids: string[];
     }
     export class ItemGetPropertiesResponse extends WeblinClientApi.ContentResponse { constructor(public properties: ItemProperties) { super('Item.Properties'); } }
 
@@ -187,4 +188,13 @@ export namespace WeblinClientIframeApi
 
     export class ItemMovedNotification extends WeblinClientApi.Message { constructor(public item: ItemData, public x: number) { super('Item.Moved'); } }
 
+    export class ItemEventNotification extends WeblinClientApi.Message { constructor(public item: ItemData, public data: any) { super('Item.Event'); } }
+
+    export class ClientNavigateRequest extends Request
+    {
+        static type = 'Client.Navigate';
+
+        url: string;
+        target: string;
+    }
 }

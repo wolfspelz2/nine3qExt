@@ -227,6 +227,11 @@ export class ContentApp
         //this.showBackpackWindow(null);
     }
 
+    navigate(url: string, target: string)
+    {
+        document.location.replace(url);
+    }
+
     playSound(fluteSound: any)
     {
     }

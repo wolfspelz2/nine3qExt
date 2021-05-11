@@ -271,10 +271,14 @@ export class RoomItem extends Entity
 
         if (isFirstPresence) {
             if (as.Bool(this.getProperties()[Pid.IframeAspect], false)) {
-                if (as.Bool(this.getProperties()[Pid.IframeAuto], false) || as.Bool(this.getProperties()[Pid.IframeLive], false)) {
+                if (as.Bool(this.getProperties()[Pid.IframeAuto], false)) {
                     this.openFrame(this.getElem());
                 }
             }
+        }
+
+        if (isFirstPresence) {
+            this.sendItemEventToAllScriptFrames({ event: 'rez' });
         }
 
         if (isFirstPresence) {
@@ -305,6 +309,9 @@ export class RoomItem extends Entity
         if (Config.get('roomItem.chatlogItemDisappeared', true)) {
             this.room?.showChatMessage(this.getDisplayName(), 'disappeared');
         }
+
+        this.sendItemEventToAllScriptFrames({ event: 'derez' });
+
         this.remove();
     }
 
@@ -627,6 +634,21 @@ export class RoomItem extends Entity
             this.setRange(range.left, range.right);
         } else {
             this.removeRange();
+        }
+    }
+
+    sendItemEventToAllScriptFrames(data: any): void
+    {
+        let itemData = {
+            id: this.getRoomNick(),
+            x: this.getPosition(),
+            isOwn: this.isMyItem(),
+            properties: this.getProperties([ Pid.Template, Pid.OwnerId ]),
+        };
+
+        let itemIds = this.room.getAllScriptedItems();
+        for (let i = 0; i < itemIds.length; i++) {
+            this.room.getItem(itemIds[i])?.sendMessageToScriptFrame(new WeblinClientIframeApi.ItemEventNotification(itemData, data));
         }
     }
 

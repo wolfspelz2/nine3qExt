@@ -184,6 +184,10 @@ export class IframeApi
                 case WeblinClientIframeApi.BackpackSetVisibilityRequest.type: {
                     response = this.handle_BackpackSetVisibilityRequest(<WeblinClientIframeApi.BackpackSetVisibilityRequest>request);
                 } break;
+                
+                case WeblinClientIframeApi.ClientNavigateRequest.type: {
+                    response = this.handle_ClientNavigateRequest(<WeblinClientIframeApi.ClientNavigateRequest>request);
+                } break;
             }
         } catch (error) {
             response = new WeblinClientApi.ErrorResponse(error);
@@ -298,6 +302,17 @@ export class IframeApi
         }
     }
 
+    handle_ClientNavigateRequest(request: WeblinClientIframeApi.ClientNavigateRequest): WeblinClientApi.Response
+    {
+        try {
+            this.app.navigate(as.String(request.url, ''), as.String(request.target, '_top'));
+            return new WeblinClientApi.SuccessResponse();
+        } catch (ex) {
+            log.info('IframeApi.handle_ClientNavigateRequest', ex);
+            return new WeblinClientApi.ErrorResponse(ex);
+        }
+    }
+
     handle_ItemRangeRequest(request: WeblinClientIframeApi.ItemRangeRequest): WeblinClientApi.Response
     {
         try {
@@ -315,9 +330,10 @@ export class IframeApi
     handle_ItemGetPropertiesRequest(request: WeblinClientIframeApi.ItemGetPropertiesRequest): WeblinClientApi.Response
     {
         try {
-            let roomItem = this.app.getRoom().getItem(request.item);
+            let itemId = as.String(request.itemId, request.item);
+            let roomItem = this.app.getRoom().getItem(itemId);
             if (roomItem) {
-                return new WeblinClientIframeApi.ItemGetPropertiesResponse(roomItem.getProperties());
+                return new WeblinClientIframeApi.ItemGetPropertiesResponse(roomItem.getProperties(request.pids));
             } else {
                 return new WeblinClientApi.ErrorResponse('No such item');
             }
