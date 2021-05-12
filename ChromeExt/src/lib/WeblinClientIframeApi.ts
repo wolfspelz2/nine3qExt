@@ -190,6 +190,8 @@ export namespace WeblinClientIframeApi
 
     export class ItemEventNotification extends WeblinClientApi.Message { constructor(public item: ItemData, public data: any) { super('Item.Event'); } }
 
+    export class ItemPropertiesChangedNotification extends WeblinClientApi.Message { constructor(public itemId: string, public properties: ItemProperties) { super('Item.Properties'); } }
+
     export class ClientNavigateRequest extends Request
     {
         static type = 'Client.Navigate';

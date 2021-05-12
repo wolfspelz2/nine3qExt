@@ -20,9 +20,7 @@ export class Item
 
     setProperties(props: ItemProperties, options: ItemChangeOptions)
     {
-        let oldSorted = Utils.sortObjectByKey(this.properties);
-        let newSorted = Utils.sortObjectByKey(props);
-        let changed = JSON.stringify(oldSorted) != JSON.stringify(newSorted);
+        let changed = !ItemProperties.areEqual(this.properties, props)
 
         this.properties = props;
 

@@ -72,11 +72,16 @@ export class RoomItem extends Entity
         return filteredProperties;
     }
 
-    setProperties(properties: { [pid: string]: string; })
+    setProperties(props: ItemProperties)
     {
-        this.properties = properties;
-        if (as.Bool(this.properties[Pid.IframeLive], false)) {
-            this.sendMessageToScriptFrame(new WeblinClientIframeApi.ItemGetPropertiesResponse(this.properties));
+        let changed = !ItemProperties.areEqual(this.properties, props)
+        if (changed) {
+            this.properties = props;
+
+            // if (as.Bool(this.properties[Pid.IframeLive], false)) {
+            //     this.sendMessageToScriptFrame(new WeblinClientIframeApi.ItemGetPropertiesResponse(this.properties));
+            // }
+            this.sendItemPropertiesToAllScriptFrames();
         }
     }
 
@@ -644,12 +649,20 @@ export class RoomItem extends Entity
             id: this.getRoomNick(),
             x: this.getPosition(),
             isOwn: this.isMyItem(),
-            properties: this.getProperties([ Pid.Template, Pid.OwnerId ]),
+            properties: this.getProperties([Pid.Template, Pid.OwnerId]),
         };
 
         let itemIds = this.room.getAllScriptedItems();
         for (let i = 0; i < itemIds.length; i++) {
             this.room.getItem(itemIds[i])?.sendMessageToScriptFrame(new WeblinClientIframeApi.ItemEventNotification(itemData, data));
+        }
+    }
+
+    sendItemPropertiesToAllScriptFrames(): void
+    {
+        let itemIds = this.room.getAllScriptedItems();
+        for (let i = 0; i < itemIds.length; i++) {
+            this.room.getItem(itemIds[i])?.sendMessageToScriptFrame(new WeblinClientIframeApi.ItemPropertiesChangedNotification(this.roomNick, this.properties));
         }
     }
 

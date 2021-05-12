@@ -1,5 +1,6 @@
 import log = require('loglevel');
 import { as } from './as';
+import { Utils } from './Utils';
 const NodeRSA = require('node-rsa');
 
 export class Pid
@@ -136,6 +137,13 @@ export class ItemProperties
             return message;
         }
         return '';
+    }
+
+    static areEqual(left: ItemProperties, right: ItemProperties)
+    {
+        let leftSorted = Utils.sortObjectByKey(left);
+        let rightSorted = Utils.sortObjectByKey(right);
+        return JSON.stringify(leftSorted) == JSON.stringify(rightSorted);
     }
 }
 
