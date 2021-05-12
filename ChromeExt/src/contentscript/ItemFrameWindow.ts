@@ -41,6 +41,10 @@ export class ItemFrameWindow extends Window
 
             this.refElem = options.elem;
 
+            let json = as.String(options.item.getProperties()[Pid.IframeOptions], '{}');
+            let iframeOptions = JSON.parse(json);
+            options.closeIsHide = as.Bool(iframeOptions.closeIsHide, false);
+
             if (Config.get('log.iframeApi', true)) { log.info('ItemFrameWindow.show', url); }
             super.show(options);
 

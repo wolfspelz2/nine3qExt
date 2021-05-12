@@ -331,6 +331,7 @@ export class RoomItem extends Entity
             } else {
                 if (this.frameWindow) {
                     if (this.frameWindow.isOpen()) {
+                        this.frameWindow.setVisibility(true);
                         this.frameWindow.toFront();
                     }
                 } else {
