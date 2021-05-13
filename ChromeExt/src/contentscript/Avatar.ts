@@ -354,7 +354,6 @@ export class Avatar implements IObserver
                 }
             } break;
             case 'AnimationsUrl': {
-                this.hasAnimation = true;
                 let defaultSize = Config.get('room.defaultAnimationSize', 100);
                 this.setSize(defaultSize, defaultSize);
                 this.setAnimations(value);
@@ -417,8 +416,10 @@ export class Avatar implements IObserver
 
     setAction(action: string): void
     {
-        this.currentAction = action;
-        this.startNextAnimation();
+        if (this.currentAction != action) {
+            this.currentAction = action;
+            this.startNextAnimation();
+        }
     }
 
     async setAnimations(url: string): Promise<void>
@@ -426,30 +427,28 @@ export class Avatar implements IObserver
         let response = await BackgroundMessage.fetchUrl(url, '');
         if (response.ok) {
             try {
+                
                 let parsed = AnimationsXml.AnimationsXml.parseXml(url, response.data);
                 let width = as.Int(parsed.params['width'], -1);
                 let height = as.Int(parsed.params['height'], -1);
                 if (width > 0 && height > 0) {
                     this.setSize(width, height);
                 }
-                this.onAnimations(parsed);
+
+                if (!this.hasAnimation) {
+                    this.animations = parsed;
+                    this.defaultGroup = this.getDefaultGroup();
+                    this.startNextAnimation();
+                    this.hasAnimation = true;
+                }
+
             } catch (error) {
                 log.info(error);
             }
         }
     }
 
-    onAnimations(data: AnimationsXml.AnimationsDefinition): void
-    {
-        this.animations = data;
-        this.defaultGroup = this.getDefaultGroup();
-
-        //this.currentAction = 'wave';
-        //this.currentState = 'moveleft';
-
-        this.startNextAnimation();
-    }
-
+    private moveCnt = 0;
     private animationTimer: number = undefined;
     startNextAnimation(): void
     {
@@ -466,6 +465,14 @@ export class Avatar implements IObserver
             animation = this.getAnimationByGroup(group);
             if (!animation) {
                 return;
+            }
+        }
+
+        if (group.startsWith('move')) {
+            this.moveCnt++;
+            log.debug('##### startNextAnimation', group, this.moveCnt, Date.now() / 1000);
+            if (this.moveCnt == 2) {
+                let x = 1;
             }
         }
 
