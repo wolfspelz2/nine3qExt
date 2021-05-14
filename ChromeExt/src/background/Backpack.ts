@@ -564,7 +564,7 @@ export class Backpack
                 if (ex.fact) {
                     reject(new ItemException(ItemException.factFrom(ex.fact), ItemException.reasonFrom(ex.reason), ex.detail));
                 } else {
-                    reject(new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.UnknownReason, as.String(ex.message, as.String(ex.status, ''))));
+                    reject(new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.NetworkProblem, as.String(ex.message, as.String(ex.status, ''))));
                 }
             }
         });

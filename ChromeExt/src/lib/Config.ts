@@ -269,7 +269,7 @@ export class Config
                     'Menu.Menu': 'Menu',
                     'Menu.Settings': 'Settings',
                     'Menu.Stay Here': 'Stay on tab change',
-                    'Menu.Backpack': 'Stuff',
+                    'Menu.Backpack': 'Backpack',
                     'Menu.Chat Window': 'Chat History',
                     'Menu.Video Conference': 'Video Conference',
                     'Menu.Chat': 'Chat',
@@ -373,6 +373,7 @@ export class Config
                     'ErrorReason.StillInProgress': 'Still in progress',
                     'ErrorReason.MissingResource': 'Missing resource',
                     'ErrorReason.InvalidCommandArgument': 'Invalid command argument',
+                    'ErrorReason.NetworkProblem': 'Netzwork problem',
 
                     'ErrorDetail.Applier.Apply': 'Applying an item to another',
                     'ErrorDetail.Pid.Id': 'Id',
@@ -546,6 +547,7 @@ export class Config
                     'ErrorReason.StillInProgress': 'Dauert noch an',
                     'ErrorReason.MissingResource': 'Zutat fehlt',
                     'ErrorReason.InvalidCommandArgument': 'Falsches Befehlsargument',
+                    'ErrorReason.NetworkProblem': 'Netzwerkproblem',
 
                     'ErrorDetail.Applier.Apply': 'Beim Anwenden eines Gegenstands auf einen anderen.',
                     'ErrorDetail.Pid.Id': 'Id',

@@ -117,6 +117,7 @@ export namespace ItemException
         StillInProgress,
         MissingResource,
         CapacityLimit,
+        NetworkProblem,
     }
 }
 
