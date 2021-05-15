@@ -12,11 +12,13 @@ export class _Changes
             ['Add', 'Toast when receiving an item'],
             ['Add', 'Popup can adjust height automatically'],
             ['Add', 'Some features for Frank to the iframe API'],
+            ['Add', 'Page API'],
             ['Change', 'Default item to quite transparent pyramid to remove visible space used'],
             ['Fix', 'Item state is not visible remotely'],
             ['Fix', 'Claim certificate not visible remotely'],
             ['Fix', 'Not all signed item properties are sent thru presence, which fails the sig'],
             ['Fix', 'Animated items start animations w/ a hickup'],
+            ['Fix', 'Unclosed DIV in chat line'],
         ]],
         ['1.1.0', 'Benji', [
             ['Add', 'Scripting to iframe API & Autorez (Benji, Meerkat)'],
