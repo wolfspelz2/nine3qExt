@@ -3,10 +3,11 @@ import { as } from '../lib/as';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Config } from '../lib/Config';
 import { ItemException } from '../lib/ItemException';
-import { ItemProperties, Pid } from '../lib/ItemProperties';
+import { ItemProperties, ItemPropertiesSet, Pid } from '../lib/ItemProperties';
 import { Utils } from '../lib/Utils';
 import { WeblinClientApi } from '../lib/WeblinClientApi';
 import { WeblinClientIframeApi } from '../lib/WeblinClientIframeApi';
+import { WeblinClientPageApi } from '../lib/WeblinClientPageApi';
 import { ContentApp } from './ContentApp';
 import { ItemExceptionToast, SimpleErrorToast, SimpleToast } from './Toast';
 
@@ -80,6 +81,10 @@ export class IframeApi
                 await this.handle_IframeApi(<WeblinClientIframeApi.Request>request);
             }
         }
+
+        if (request[Config.get('iframeApi.messageMagicPage', 'x7ft76zst7g_pageApi')]) {
+            await this.handle_PageApi(<WeblinClientPageApi.Request>request);
+        }
     }
 
     async handle_W2WMigration(cid: string, nickname: string)
@@ -118,6 +123,67 @@ export class IframeApi
             await BackgroundMessage.loadWeb3BackpackItems();
         } catch (ex) {
             log.info('IframeApi.handle_CreateCryptoWallet', ex);
+        }
+    }
+
+    async handle_PageApi(request: WeblinClientPageApi.Request)
+    {
+        let response: WeblinClientApi.Response = null;
+
+        try {
+
+            switch (request.type) {
+                case WeblinClientPageApi.ClientCreateItemRequest.type: {
+                    response = await this.handle_ClientCreateItemRequest(<WeblinClientPageApi.ClientCreateItemRequest>request);
+                } break;
+                case WeblinClientPageApi.ItemFindRequest.type: {
+                    response = await this.handle_ItemFindRequest(<WeblinClientPageApi.ItemFindRequest>request);
+                } break;
+            }
+
+        } catch (ex) {
+            log.info('IframeApi.handle_CreateCryptoWallet', ex);
+        }
+
+        if (request.id) {
+            if (response == null) { response = new WeblinClientApi.SuccessResponse(); }
+            response.id = request.id;
+            response[Config.get('iframeApi.messageMagic2Page', 'df7d86ozgh76_2pageApi')] = true;
+            window.postMessage(response, '*');
+    }
+    }
+
+    async handle_ClientCreateItemRequest(request: WeblinClientPageApi.ClientCreateItemRequest): Promise<WeblinClientApi.Response>
+    {
+        try {
+
+            let props = await BackgroundMessage.createBackpackItemFromTemplate(request.template, request.args ?? {});
+            let itemId = props[Pid.Id];
+
+            let nick = this.app.getRoom().getMyNick();
+            let participant = this.app.getRoom().getParticipant(nick);
+            let x = participant.getPosition() + as.Int(request.dx, 120);
+            await BackgroundMessage.rezBackpackItem(itemId, this.app.getRoom().getJid(), x, this.app.getRoom().getDestination(), {});
+
+        } catch (error) {
+            return new WeblinClientApi.ErrorResponse(error);
+        }
+    }
+
+    async handle_ItemFindRequest(request: WeblinClientPageApi.ItemFindRequest): Promise<WeblinClientApi.Response>
+    {
+        try {
+
+            let propSet = await BackgroundMessage.findBackpackItemProperties(request.filter);
+
+            let items = [];
+            for (let id in propSet) {
+                items.push(id);
+            }
+            return new WeblinClientPageApi.ItemFindResponse(items);
+    
+        } catch (error) {
+            return new WeblinClientApi.ErrorResponse(error);
         }
     }
 
@@ -184,7 +250,7 @@ export class IframeApi
                 case WeblinClientIframeApi.BackpackSetVisibilityRequest.type: {
                     response = this.handle_BackpackSetVisibilityRequest(<WeblinClientIframeApi.BackpackSetVisibilityRequest>request);
                 } break;
-                
+
                 case WeblinClientIframeApi.ClientNavigateRequest.type: {
                     response = this.handle_ClientNavigateRequest(<WeblinClientIframeApi.ClientNavigateRequest>request);
                 } break;

@@ -154,6 +154,8 @@ export class Config
         },
         iframeApi: {
             messageMagic: 'a67igu67puz_iframeApi',
+            messageMagicPage: 'x7ft76zst7g_pageApi',
+            messageMagic2Page: 'df7d86ozgh76_2pageApi',
             messageMagicRezactive: 'tr67rftghg_Rezactive',
             messageMagic2Screen: 'uzv65b76t_weblin2screen',
             messageMagicW2WMigration: 'hbv67u5rf_w2wMigrate',
@@ -354,7 +356,7 @@ export class Config
                     'ErrorFact.NotTransferred': 'Item not transferred',
 
                     'ErrorReason.UnknownReason': 'Unknown reason :-(',
-                    'ErrorReason.ItemAlreadyRezzed': 'Item already on page.',
+                    'ErrorReason.ItemAlreadyRezzed': 'Item already on a page.',
                     'ErrorReason.ItemNotRezzedHere': 'Item is not on this page',
                     'ErrorReason.ItemsNotAvailable': 'Items not available. The feature may be disabled.',
                     'ErrorReason.ItemDoesNotExist': 'This is an not a known item.',

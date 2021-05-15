@@ -470,7 +470,7 @@ export class Avatar implements IObserver
 
         if (group.startsWith('move')) {
             this.moveCnt++;
-            log.debug('##### startNextAnimation', group, this.moveCnt, Date.now() / 1000);
+            //log.debug('##### startNextAnimation', group, this.moveCnt, Date.now() / 1000);
             if (this.moveCnt == 2) {
                 let x = 1;
             }
