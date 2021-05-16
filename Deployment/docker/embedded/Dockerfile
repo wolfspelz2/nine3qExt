@@ -1,9 +1,13 @@
 # === build js
-FROM node AS build
+FROM ubuntu AS build
 
 WORKDIR /app
 COPY ./ChromeExt ./
 
+RUN apt-get update
+RUN apt-get install -y curl python build-essential
+RUN curl -fsSL https://deb.nodesource.com/setup_15.x | bash -
+RUN apt-get install -y nodejs=15.14.0-deb-1nodesource1
 RUN npm install
 RUN npm run release-embedded
 
