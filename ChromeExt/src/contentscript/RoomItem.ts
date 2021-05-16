@@ -143,8 +143,12 @@ export class RoomItem extends Entity
         }
 
         if (this.myItem) {
-            newProperties = await BackgroundMessage.getBackpackItemProperties(this.roomNick);
-            newProviderId = as.String(newProperties[Pid.Provider], '');
+            try {
+                newProperties = await BackgroundMessage.getBackpackItemProperties(this.roomNick);
+                newProviderId = as.String(newProperties[Pid.Provider], '');
+            } catch (error) {
+                log.debug('RoomItem.onPresenceAvailable', 'no properties for', this.roomNick);                
+            }
         } else {
             let vpPropsNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
             if (vpPropsNode) {

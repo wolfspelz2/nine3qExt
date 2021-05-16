@@ -623,8 +623,12 @@ export class BackgroundApp
     handle_getBackpackItemProperties(itemId: string, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            let props = this.backpack.getItemProperties(itemId);
-            sendResponse(new GetBackpackItemPropertiesResponse(props));
+            try {
+                let props = this.backpack.getItemProperties(itemId);
+                sendResponse(new GetBackpackItemPropertiesResponse(props));
+            } catch (iex) {
+                sendResponse(new BackgroundItemExceptionResponse(iex));
+            }
         } else {
             sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.UnknownError, ItemException.Reason.ItemsNotAvailable)));
         }
@@ -686,9 +690,9 @@ export class BackgroundApp
                     return true;
                 }
             }
-        // If no backpack, then silently ignore points activity so that the content script does not have to know that points are implemented thru backpack            
-        // } else {
-        //     sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotChanged, ItemException.Reason.ItemsNotAvailable)));
+            // If no backpack, then silently ignore points activity so that the content script does not have to know that points are implemented thru backpack            
+            // } else {
+            //     sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotChanged, ItemException.Reason.ItemsNotAvailable)));
         }
         sendResponse(new BackgroundSuccessResponse());
         return false;
