@@ -6,6 +6,7 @@ import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
 import { ContentApp } from './ContentApp';
 import { Memory } from '../lib/Memory';
+import { runInThisContext } from 'vm';
 
 type WindowOptions = any;
 
@@ -21,18 +22,20 @@ export class Window
 
     protected windowElem: HTMLElement;
     protected contentElem: HTMLElement;
+    protected closeIsHide = false;
 
     constructor(protected app: ContentApp) { }
 
     show(options: WindowOptions)
     {
         this.onClose = options.onClose;
+        this.closeIsHide = options.closeIsHide;
 
         if (!this.windowElem) {
             let windowId = Utils.randomString(15);
             let resizable = as.Bool(options.resizable, false);
             let undockable = as.Bool(options.undockable, false);
-            
+
             let windowElem = <HTMLElement>$('<div id="' + windowId + '" class="n3q-base n3q-window n3q-shadow-medium" data-translate="children" />').get(0);
             let titleBarElem = <HTMLElement>$('<div class="n3q-base n3q-window-title-bar" data-translate="children" />').get(0);
             let titleElem = <HTMLElement>$('<div class="n3q-base n3q-window-title" data-translate="children" />').get(0);
@@ -103,7 +106,11 @@ export class Window
             this.isClosing = false;
             $(closeElem).click(ev =>
             {
-                this.close();
+                if (this.closeIsHide) {
+                    this.setVisibility(false);
+                } else {
+                    this.close();
+                }
             });
 
             $(windowElem).click(ev =>
@@ -136,7 +143,7 @@ export class Window
         }
     }
 
-    async getSavedOptions(name: string, presetOptions : any): Promise<any>
+    async getSavedOptions(name: string, presetOptions: any): Promise<any>
     {
         let savedOptions = await Memory.getLocal('window.' + name, null);
         let options = presetOptions;

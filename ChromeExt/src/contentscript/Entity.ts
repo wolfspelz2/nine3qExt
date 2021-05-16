@@ -12,6 +12,7 @@ import { ContentApp } from './ContentApp';
 export class Entity
 {
     protected elem: HTMLElement;
+    protected rangeElem: HTMLElement;
     protected visible: boolean = false;
     protected avatarDisplay: Avatar;
     protected positionX: number = -1;
@@ -23,15 +24,13 @@ export class Entity
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-entity" />').get(0);
         this.elem.style.display = 'none';
 
-        $(this.elem).append(this.elem);
-
         $(app.getDisplay()).append(this.elem);
     }
 
     getRoom(): Room { return this.room; }
     getElem(): HTMLElement { return this.elem; }
     getDefaultAvatar(): string { return imgDefaultAvatar; }
-    getAvatar() { return this.avatarDisplay; }
+    getAvatar(): Avatar { return this.avatarDisplay; }
     getIsSelf(): boolean { return this.isSelf; }
 
     show(visible: boolean, durationSec: number = 0.0): void
@@ -55,6 +54,27 @@ export class Entity
         this.show(false);
         $(this.elem).remove();
         delete this.elem;
+    }
+
+    showEffect(effect: any): void
+    {
+        let pulseElem = <HTMLDivElement>$('<div class="n3q-base n3q-pulse" />').get(0);
+        $(this.elem).append(pulseElem)
+        window.setTimeout(() => { $(pulseElem).remove(); }, 1000);
+    }
+
+    setRange(left: number, right: number): void
+    {
+        this.removeRange();
+        this.rangeElem = <HTMLDivElement>$('<div class="n3q-base n3q-range" />').get(0);
+        $(this.rangeElem).css({ left: left, width: right - left });
+        $(this.elem).prepend(this.rangeElem);
+        $(this.elem).css( { 'z-index': '' });
+    }
+
+    removeRange(): void
+    {
+        if (this.rangeElem) { $(this.rangeElem).remove(); }
     }
 
     setPosition(x: number): void

@@ -16,6 +16,7 @@ import { ChatWindow } from './ChatWindow'; // Wants to be after Participant and 
 import { VidconfWindow } from './VidconfWindow';
 import { VpiResolver } from './VpiResolver';
 import { BackpackItem } from './BackpackItem';
+import { SimpleToast } from './Toast';
 
 export interface IRoomInfoLine extends Array<string | string> { 0: string, 1: string }
 export interface IRoomInfo extends Array<IRoomInfoLine> { }
@@ -62,7 +63,7 @@ export class Room
     getJid(): string { return this.jid; }
     getDestination(): string { return this.destination; }
     getParticipant(nick: string): Participant { return this.participants[nick]; }
-    getItem(nick: string) { return this.items[nick]; }
+    getItem(nick: string): RoomItem { return this.items[nick]; }
     getParticipantIds(): Array<string>
     {
         let ids = [];
@@ -214,6 +215,7 @@ export class Room
                 );
             }
 
+            // log.debug('#### send', presence.children[1].attrs);
             this.app.sendStanza(presence);
         } catch (error) {
             log.info(error);
@@ -228,7 +230,7 @@ export class Room
 
     async getBackpackItemProperty(filterProperties: ItemProperties, propertyPid: string, defautValue: any): Promise<any>
     {
-        if (Config.get('backpack.enabled', false)) {
+        if (Utils.isBackpackEnabled()) {
             let propSet = await BackgroundMessage.findBackpackItemProperties(filterProperties);
             let item = null;
             for (let id in propSet) {
@@ -531,13 +533,19 @@ export class Room
         }
     }
 
-    confirmItemTransfer(itemId: string, nick: string)
+    async confirmItemTransfer(itemId: string, nick: string)
     {
         try {
             let message = xml('message', { type: 'chat', to: this.jid + '/' + nick, from: this.jid + '/' + this.myNick })
                 .append(xml('x', { 'xmlns': 'vp:transfer', 'type': 'confirm', 'item': itemId }))
                 ;
             this.app.sendStanza(message);
+
+            let props = await BackgroundMessage.getBackpackItemProperties(itemId);
+            let senderName = this.getParticipant(nick).getDisplayName();
+            let toast = new SimpleToast(this.app, 'itemtransfer-afterthefact', Config.get('backpack.receiveToastDurationSec', 20), 'notice', senderName, this.app.translateText('Toast.ItemTransferred') + ': ' + this.app.translateText('ItemLabel.' + props[Pid.Label]));
+            toast.show(() => { });
+
         } catch (error) {
 
         }

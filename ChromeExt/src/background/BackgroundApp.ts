@@ -3,11 +3,10 @@ import { client, xml, jid } from '@xmpp/client';
 import { as } from '../lib/as';
 import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
-import { BackgroundEmptyResponse, BackgroundErrorResponse, BackgroundItemExceptionResponse, BackgroundMessage, BackgroundResponse, BackgroundSuccessResponse, CreateBackpackItemFromTemplateResponse, FindBackpackItemPropertiesResponse, GetBackpackItemPropertiesResponse, GetBackpackStateResponse, IsBackpackItemResponse } from '../lib/BackgroundMessage';
-import { Client } from '../lib/Client';
+import { BackgroundErrorResponse, BackgroundItemExceptionResponse, BackgroundMessage, BackgroundResponse, BackgroundSuccessResponse, CreateBackpackItemFromTemplateResponse, FindBackpackItemPropertiesResponse, GetBackpackItemPropertiesResponse, GetBackpackStateResponse, IsBackpackItemResponse } from '../lib/BackgroundMessage';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { ContentMessage } from '../lib/ContentMessage';
-import { ItemException } from '../lib/ItemExcption';
+import { ItemException } from '../lib/ItemException';
 import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 import { Memory } from '../lib/Memory';
 import { ConfigUpdater } from './ConfigUpdater';
@@ -138,7 +137,7 @@ export class BackgroundApp
     async onConfigUpdated()
     {
         if (this.backpack == null) {
-            if (Config.get('backpack.enabled', false)) {
+            if (Utils.isBackpackEnabled()) {
                 this.backpack = new Backpack(this);
                 await this.backpack.init();
             }
@@ -624,10 +623,14 @@ export class BackgroundApp
     handle_getBackpackItemProperties(itemId: string, sendResponse: (response?: any) => void): boolean
     {
         if (this.backpack) {
-            let props = this.backpack.getItemProperties(itemId);
-            sendResponse(new GetBackpackItemPropertiesResponse(props));
+            try {
+                let props = this.backpack.getItemProperties(itemId);
+                sendResponse(new GetBackpackItemPropertiesResponse(props));
+            } catch (iex) {
+                sendResponse(new BackgroundItemExceptionResponse(iex));
+            }
         } else {
-            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemsNotAvailable)));
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.UnknownError, ItemException.Reason.ItemsNotAvailable)));
         }
         return false;
     }
@@ -651,7 +654,7 @@ export class BackgroundApp
             }
             sendResponse(new FindBackpackItemPropertiesResponse(propertiesSet));
         } else {
-            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemsNotAvailable)));
+            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.UnknownError, ItemException.Reason.ItemsNotAvailable)));
         }
         return false;
     }
@@ -687,8 +690,9 @@ export class BackgroundApp
                     return true;
                 }
             }
-        } else {
-            sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotChanged, ItemException.Reason.ItemsNotAvailable)));
+            // If no backpack, then silently ignore points activity so that the content script does not have to know that points are implemented thru backpack            
+            // } else {
+            //     sendResponse(new BackgroundItemExceptionResponse(new ItemException(ItemException.Fact.NotChanged, ItemException.Reason.ItemsNotAvailable)));
         }
         sendResponse(new BackgroundSuccessResponse());
         return false;

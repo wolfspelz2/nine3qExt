@@ -13,7 +13,7 @@ import { ContentApp } from './ContentApp';
 import { Window } from './Window';
 import { BackpackItem as BackpackItem } from './BackpackItem';
 import { Environment } from '../lib/Environment';
-import { ItemException } from '../lib/ItemExcption';
+import { ItemException } from '../lib/ItemException';
 import { ItemExceptionToast, SimpleErrorToast, SimpleToast } from './Toast';
 import { RoomItem } from './RoomItem';
 import { Avatar } from './Avatar';
@@ -43,9 +43,9 @@ export class BackpackWindow extends Window
         super.show(options);
 
         let aboveElem: HTMLElement = options.above;
-        let bottom = as.Int(options.bottom, 250);
-        let width = as.Int(options.width, 400);
-        let height = as.Int(options.height, 300);
+        let bottom = as.Int(options.bottom, 200);
+        let width = as.Int(options.width, 600);
+        let height = as.Int(options.height, 400);
 
         if (this.windowElem) {
             let windowElem = this.windowElem;

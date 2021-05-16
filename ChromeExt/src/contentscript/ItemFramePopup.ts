@@ -37,13 +37,13 @@ export class ItemFramePopup extends Popup
 
             let json = as.String(options.item.getProperties()[Pid.IframeOptions], '{}');
             let iframeOptions = JSON.parse(json);
-
             options.width = as.Int(iframeOptions.width, 100);
             options.height = as.Int(iframeOptions.height, 100);
             options.left = as.Int(iframeOptions.left, -options.width / 2);
             options.bottom = as.Int(iframeOptions.bottom, 50);
             options.closeButton = as.Bool(iframeOptions.closeButton, true);
             options.transparent = as.Bool(iframeOptions.transparent, false);
+            options.closeIsHide = as.Bool(iframeOptions.closeIsHide, false);
 
             log.debug('ItemFramePopup', url);
             super.show(options);
@@ -72,9 +72,18 @@ export class ItemFramePopup extends Popup
         return this.windowElem != null;
     }
 
-    position(width: number, height: number, left: number, bottom: number): void
+    position(width: number, height: number, left: number, bottom: number, options: any = null): void
     {
-        $(this.windowElem).css({ width: width + 'px', height: height + 'px', left: left + 'px', bottom: bottom + 'px' });
+        if (options != null && as.Bool(options.animate, false)) {
+            $(this.windowElem).animate({ width: width + 'px', height: height + 'px', left: left + 'px', bottom: bottom + 'px' }, as.Int(options.duration, 200));
+        } else {
+            $(this.windowElem).css({ width: width + 'px', height: height + 'px', left: left + 'px', bottom: bottom + 'px' });
+        }
+    }
+
+    toFront(): void
+    {
+        this.app.toFront(this.windowElem, ContentApp.LayerPopup);
     }
 
     update(): void

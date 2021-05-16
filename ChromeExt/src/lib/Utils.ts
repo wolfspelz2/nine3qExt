@@ -2,6 +2,8 @@ import { xml } from '@xmpp/client';
 import log = require('loglevel');
 import { as } from './as';
 import { Config } from './Config';
+import { Environment } from './Environment';
+import { ItemProperties } from './ItemProperties';
 
 export class Point2D
 {
@@ -20,7 +22,15 @@ export class Utils
     static localStorageKey_Id(): string { return 'me.id'; }
     static localStorageKey_Nickname(): string { return 'me.nickname'; }
     static localStorageKey_Avatar(): string { return 'me.avatar'; }
+    static localStorageKey_BackpackPhase(): string { return 'backpack.phase'; }
 
+    static isBackpackEnabled()
+    {
+        if (Environment.isExtension()) { return Config.get('backpack.enabled', false); }
+        if (Environment.isEmbedded()) { return Config.get('backpack.embeddedEnabled', false); }
+        return true;
+    }
+    
     static makeGifExplicit(avatarId: string): string
     {
         let parts = avatarId.split('/');
@@ -136,4 +146,21 @@ export class Utils
         return false;
     }
 
+    static sortObjectByKey(o: any): any
+    {
+        return Object.keys(o).sort().reduce(
+            (obj, key) =>
+            {
+                obj[key] = o[key];
+                return obj;
+            },
+            {}
+        );
+    }
+
+    static cloneObject(obj: any): any
+    {
+        let clone = {};
+        return Object.assign(clone, obj);
+    }
 }

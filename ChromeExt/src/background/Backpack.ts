@@ -4,7 +4,7 @@ import { xml, jid } from '@xmpp/client';
 import { Config } from '../lib/Config';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { BackpackShowItemData, BackpackRemoveItemData, BackpackSetItemData, ContentMessage } from '../lib/ContentMessage';
-import { ItemException } from '../lib/ItemExcption';
+import { ItemException } from '../lib/ItemException';
 import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 import { RpcProtocol } from '../lib/RpcProtocol';
 import { RpcClient } from '../lib/RpcClient';
@@ -40,7 +40,7 @@ export class Backpack
     {
         await this.loadLocalItems();
 
-        if (Config.get('backpack.loadWeb3Items', false)) {
+        if (Config.get('Backpack.loadWeb3Items', false)) {
             await this.loadWeb3Items();
         }
     }
@@ -51,7 +51,7 @@ export class Backpack
 
         let itemIds = await Memory.getLocal(this.getBackpackIdsKey(), []);
         if (itemIds == null || !Array.isArray(itemIds)) {
-            log.warn('Local storage', this.getBackpackIdsKey(), 'not an array');
+            log.warn('Backpack.loadLocalItems', this.getBackpackIdsKey(), 'not an array');
             return;
         }
 
@@ -60,7 +60,7 @@ export class Backpack
 
             let props = await Memory.getLocal(Backpack.BackpackPropsPrefix + itemId, null);
             if (props == null || typeof props != 'object') {
-                log.warn('Local storage', Backpack.BackpackPropsPrefix + itemId, 'not an object, skipping');
+                log.info('Backpack.loadLocalItems', Backpack.BackpackPropsPrefix + itemId, 'not an object, skipping');
                 continue;
             }
 
@@ -73,9 +73,7 @@ export class Backpack
             }
         }
 
-        if (isFirstLoad) {
-            this.createInitialItems();
-        }
+        this.createInitialItems();
     }
 
     async checkIsFirstLoad(): Promise<boolean>
@@ -90,13 +88,37 @@ export class Backpack
 
     async createInitialItems(): Promise<void>
     {
-        let template: string;
-        let item: Item;
+        await this.createInitialItemsPhase1();
+    }
+
+    async createInitialItemsPhase1(): Promise<void>
+    {
+        let nextPhase = 1;
+        let currentPhase = as.Int(await Memory.getLocal(Utils.localStorageKey_BackpackPhase(), 0));
+        if (currentPhase < nextPhase) {
+            if (true
+                && await this.createInitialItem('BlueprintLibrary', 68, 58)
+                && await this.createInitialItem('Maker', 167, 54)
+                && await this.createInitialItem('Recycler', 238, 54)
+                && await this.createInitialItem('MiningDrill', 310, 54)
+                && await this.createInitialItem('WaterPump', 78, 188)
+                && await this.createInitialItem('SolarPanel', 250, 188)
+                && await this.createInitialItem('CoffeeBeans', 382, 143)
+                && await this.createInitialItem('PirateFlag', 371, 45)
+            ) {
+                await Memory.setLocal(Utils.localStorageKey_BackpackPhase(), nextPhase);
+            }
+        }
+    }
+
+    async createInitialItem(template: string, x: number = -1, y: number = -1): Promise<boolean>
+    {
         try {
-            template = 'PirateFlag'; item = await this.createItemByTemplate(template, {});
-            template = 'Points'; item = await this.createItemByTemplate(template, {});
+            let item = await this.createItemByTemplate(template, { [Pid.InventoryX]: as.String(x), [Pid.InventoryY]: as.String(y), });
+            return true;
         } catch (error) {
-            log.info('Backpack.loadLocalItems', 'failed to create starter items', template, error);
+            log.info('Backpack.createInitialItem', 'failed to create starter item', template, error);
+            return false;
         }
     }
 
@@ -245,8 +267,13 @@ export class Backpack
             }
             return maxItem;
         } else if (pointsItems.length == 0) {
-            let item = await this.createItemByTemplate('Points', {});
-            return item;
+            let template = 'Points';
+            try {
+                return await this.createItemByTemplate(template, {});
+            } catch (error) {
+                log.info('Backpack.getOrCreatePointsItem', 'failed to create item', template, error);
+            }
+            return null;
         } else if (pointsItems.length == 1) {
             return pointsItems[0]
         }
@@ -403,14 +430,14 @@ export class Backpack
     getItem(itemId: string): Item
     {
         let item = this.items[itemId];
-        if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
+        if (item == null) { throw new ItemException(ItemException.Fact.UnknownError, ItemException.Reason.ItemDoesNotExist, itemId); }
         return item;
     }
 
     async setItemProperties(itemId: string, props: ItemProperties, options: ItemChangeOptions): Promise<void>
     {
         let item = this.items[itemId];
-        if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
+        if (item == null) { throw new ItemException(ItemException.Fact.UnknownError, ItemException.Reason.ItemDoesNotExist, itemId); }
 
         item.setProperties(props, options);
         await this.persistentSaveItem(itemId);
@@ -419,23 +446,24 @@ export class Backpack
     getItemProperties(itemId: string): ItemProperties
     {
         let item = this.items[itemId];
-        if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
+        if (item == null) { throw new ItemException(ItemException.Fact.UnknownError, ItemException.Reason.ItemDoesNotExist, itemId); } // throw unhandled, maybe return null?
         return item.getProperties();
     }
 
     async modifyItemProperties(itemId: string, changed: ItemProperties, deleted: Array<string>, options: ItemChangeOptions): Promise<void>
     {
         let item = this.items[itemId];
-        if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
+        if (item == null) { throw new ItemException(ItemException.Fact.UnknownError, ItemException.Reason.ItemDoesNotExist, itemId); }
 
-        let props = item.getProperties();
+        let clonedProps = Utils.cloneObject(item.getProperties());
+
         for (let key in changed) {
-            props[key] = changed[key];
+            clonedProps[key] = changed[key];
         }
         for (let i = 0; i < deleted.length; i++) {
-            delete props[deleted[i]];
+            delete clonedProps[deleted[i]];
         }
-        item.setProperties(props, options);
+        item.setProperties(clonedProps, options);
         await this.persistentSaveItem(itemId);
     }
 
@@ -532,8 +560,12 @@ export class Backpack
                 }
 
                 resolve();
-            } catch (error) {
-                reject(new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.InternalError, as.String(error.message, as.String(error.status, ''))));
+            } catch (ex) {
+                if (ex.fact) {
+                    reject(new ItemException(ItemException.factFrom(ex.fact), ItemException.reasonFrom(ex.reason), ex.detail));
+                } else {
+                    reject(new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.NetworkProblem, as.String(ex.message, as.String(ex.status, ''))));
+                }
             }
         });
     }
@@ -556,22 +588,22 @@ export class Backpack
 
         this.addToRoom(itemId, roomJid);
 
-        let props = item.getProperties();
+        let clonedProps = Utils.cloneObject(item.getProperties());
 
-        props[Pid.IsRezzed] = 'true';
+        clonedProps[Pid.IsRezzed] = 'true';
         if (rezzedX >= 0) {
-            props[Pid.RezzedX] = '' + rezzedX;
+            clonedProps[Pid.RezzedX] = '' + rezzedX;
         }
-        if (as.Int(props[Pid.RezzedX], -1) < 0) {
-            props[Pid.RezzedX] = '' + Utils.randomInt(100, 400);
+        if (as.Int(clonedProps[Pid.RezzedX], -1) < 0) {
+            clonedProps[Pid.RezzedX] = '' + Utils.randomInt(100, 400);
         }
-        props[Pid.RezzedDestination] = destinationUrl;
-        props[Pid.RezzedLocation] = roomJid;
-        props[Pid.OwnerName] = await Memory.getLocal(Utils.localStorageKey_Nickname(), as.String(props[Pid.OwnerName]));
+        clonedProps[Pid.RezzedDestination] = destinationUrl;
+        clonedProps[Pid.RezzedLocation] = roomJid;
+        clonedProps[Pid.OwnerName] = await Memory.getLocal(Utils.localStorageKey_Nickname(), as.String(clonedProps[Pid.OwnerName]));
 
         let setPropertiesOption = { skipPresenceUpdate: true };
         Object.assign(setPropertiesOption, options);
-        item.setProperties(props, setPropertiesOption);
+        item.setProperties(clonedProps, setPropertiesOption);
 
         if (!options.skipPersistentStorage) {
             await this.persistentSaveItem(itemId);
@@ -589,29 +621,29 @@ export class Backpack
         if (!item.isRezzed()) { return; }
         if (!item.isRezzedTo(roomJid)) { throw new ItemException(ItemException.Fact.NotDerezzed, ItemException.Reason.ItemNotRezzedHere); }
 
-        let props = item.getProperties();
+        let clonedProps = Utils.cloneObject(item.getProperties());
 
         this.removeFromRoom(itemId, roomJid);
 
-        delete props[Pid.IsRezzed];
+        delete clonedProps[Pid.IsRezzed];
         if (inventoryX > 0 && inventoryY > 0) {
-            props[Pid.InventoryX] = '' + inventoryX;
-            props[Pid.InventoryY] = '' + inventoryY;
+            clonedProps[Pid.InventoryX] = '' + inventoryX;
+            clonedProps[Pid.InventoryY] = '' + inventoryY;
         }
         // delete props[Pid.RezzedX]; // preserve for rez by button
-        delete props[Pid.RezzedDestination];
-        delete props[Pid.RezzedLocation];
+        delete clonedProps[Pid.RezzedDestination];
+        delete clonedProps[Pid.RezzedLocation];
 
         for (let pid in changed) {
-            props[pid] = changed[pid];
+            clonedProps[pid] = changed[pid];
         }
         for (let i = 0; i < deleted.length; i++) {
-            delete props[deleted[i]];
+            delete clonedProps[deleted[i]];
         }
 
         let setPropertiesOption = { skipPresenceUpdate: true };
         Object.assign(setPropertiesOption, options);
-        item.setProperties(props, setPropertiesOption);
+        item.setProperties(clonedProps, setPropertiesOption);
 
         if (!options.skipPersistentStorage) {
             await this.persistentSaveItem(itemId);

@@ -7,7 +7,7 @@ import { Utils } from '../lib/Utils';
 import { IObserver } from '../lib/ObservableProperty';
 import { Pid } from '../lib/ItemProperties';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
-import { ItemException } from '../lib/ItemExcption';
+import { ItemException } from '../lib/ItemException';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Room } from './Room';
@@ -22,6 +22,7 @@ import { PrivateVidconfWindow } from './PrivateVidconfWindow';
 import { PointsBar } from './PointsBar';
 import { VpProtocol } from '../lib/VpProtocol';
 import { BackpackItem } from './BackpackItem';
+import { WeblinClientIframeApi } from '../lib/WeblinClientIframeApi';
 
 export class Participant extends Entity
 {
@@ -71,7 +72,6 @@ export class Participant extends Entity
 
     // presence
 
-    private cntSelf = 0;
     async onPresenceAvailable(stanza: any): Promise<void>
     {
         let hasPosition: boolean = false;
@@ -95,6 +95,8 @@ export class Participant extends Entity
 
         let isFirstPresence = this.isFirstPresence;
         this.isFirstPresence = false;
+
+        // log.debug('#### recv', stanza.children[1].attrs);
 
         {
             let from = stanza.attrs.from
@@ -151,6 +153,7 @@ export class Participant extends Entity
                     vpAvatarId = as.String(attrs.AvatarId, '');
                     if (vpAvatarId == '') { vpAvatarId = as.String(attrs.avatar, ''); }
                     vpAnimationsUrl = as.String(attrs.AnimationsUrl, '');
+                    vpAnimationsUrl = as.String(attrs.AvatarUrl, vpAnimationsUrl);
                     vpImageUrl = as.String(attrs.ImageUrl, '');
                 }
             }
@@ -188,7 +191,7 @@ export class Participant extends Entity
 
         if (isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, this.isSelf);
-            if (Config.get('backpack.enabled', false)) {
+            if (Utils.isBackpackEnabled()) {
                 this.avatarDisplay.addClass('n3q-participant-avatar');
                 this.avatarDisplay.makeDroppable();
             }
@@ -313,17 +316,15 @@ export class Participant extends Entity
 
         if (isFirstPresence) {
             if (this.isSelf) {
-                this.cntSelf++;
-                if (this.cntSelf == 2) {
-                    let x = 1;
-                }
-                let propSet = await BackgroundMessage.findBackpackItemProperties({ [Pid.AutorezAspect]: 'true', [Pid.AutorezIsActive]: 'true' });
-                for (const itemId in propSet) {
-                    let props = propSet[itemId];
-                    if (props[Pid.IsRezzed]) {
-                        await BackgroundMessage.derezBackpackItem(itemId, props[Pid.RezzedLocation], -1, -1, {}, [], {});
+                if (Utils.isBackpackEnabled()) {
+                    let propSet = await BackgroundMessage.findBackpackItemProperties({ [Pid.AutorezAspect]: 'true', [Pid.AutorezIsActive]: 'true' });
+                    for (const itemId in propSet) {
+                        let props = propSet[itemId];
+                        if (props[Pid.IsRezzed]) {
+                            await BackgroundMessage.derezBackpackItem(itemId, props[Pid.RezzedLocation], -1, -1, {}, [], {});
+                        }
+                        await BackgroundMessage.rezBackpackItem(itemId, this.room.getJid(), -1, this.room.getDestination(), {});
                     }
-                    await BackgroundMessage.rezBackpackItem(itemId, this.room.getJid(), -1, this.room.getDestination(), {});
                 }
             }
         }
@@ -576,7 +577,7 @@ export class Participant extends Entity
 
                                     await BackgroundMessage.addBackpackItem(itemId, props, {});
                                     await BackgroundMessage.derezBackpackItem(itemId, this.room.getJid(), -1, -1, {}, [Pid.AutorezIsActive, Pid.TransferState], {});
-                                    this.room.confirmItemTransfer(itemId, this.roomNick);
+                                    await this.room.confirmItemTransfer(itemId, this.roomNick);
                                 }
                             }
                         break;
@@ -811,7 +812,7 @@ export class Participant extends Entity
 
         let itemIds = this.room.getAllScriptedItems();
         for (let i = 0; i < itemIds.length; i++) {
-            this.room.getItem(itemIds[i])?.sendParticipantMovedToScriptFrame(participantData);
+            this.room.getItem(itemIds[i])?.sendMessageToScriptFrame(new WeblinClientIframeApi.ParticipantMovedNotification(participantData));
         }
     }
 
@@ -826,7 +827,7 @@ export class Participant extends Entity
 
         let itemIds = this.room.getAllScriptedItems();
         for (let i = 0; i < itemIds.length; i++) {
-            this.room.getItem(itemIds[i])?.sendParticipantChatToScriptFrame(participantData, text);
+            this.room.getItem(itemIds[i])?.sendMessageToScriptFrame(new WeblinClientIframeApi.ParticipantChatNotification(participantData, text));
         }
     }
 
@@ -841,7 +842,7 @@ export class Participant extends Entity
 
         let itemIds = this.room.getAllScriptedItems();
         for (let i = 0; i < itemIds.length; i++) {
-            this.room.getItem(itemIds[i])?.sendParticipantEventToAllScriptFrames(participantData, data);
+            this.room.getItem(itemIds[i])?.sendMessageToScriptFrame(new WeblinClientIframeApi.ParticipantEventNotification(participantData, data));
         }
     }
 
@@ -947,8 +948,8 @@ export class Participant extends Entity
             log.debug('Participant.applyItem', 'transfer', itemId, 'room', roomJid);
 
             if (!as.Bool(roomItem.getProperties()[Pid.IsTransferable], true)) {
-                let fact = ItemException.Fact[ItemException.Fact.NotTransferred];
-                let reason = ItemException.Reason[ItemException.Reason.ItemIsNotTransferable];
+                let fact = ItemException.fact2String(ItemException.Fact.NotTransferred);
+                let reason = ItemException.reason2String(ItemException.Reason.ItemIsNotTransferable);
                 new SimpleErrorToast(this.app, 'Warning-' + fact + '-' + reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', fact, reason, '').show();
             } else {
                 await this.room?.transferItem(itemId, this.roomNick);

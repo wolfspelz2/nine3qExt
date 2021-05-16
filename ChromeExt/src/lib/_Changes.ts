@@ -6,6 +6,21 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
+        ['1.1.1', 'Crafting', [
+            ['Add', 'Crafting'],
+            ['Add', 'Iframe API library'],
+            ['Add', 'Toast when receiving an item'],
+            ['Add', 'Popup can adjust height automatically'],
+            ['Add', 'Some features for Frank to the iframe API'],
+            ['Add', 'Page API'],
+            ['Change', 'Default item to quite transparent pyramid to remove visible space used'],
+            ['Change', 'Disable items for embedded'],
+            ['Fix', 'Item state is not visible remotely'],
+            ['Fix', 'Claim certificate not visible remotely'],
+            ['Fix', 'Not all signed item properties are sent thru presence, which fails the sig'],
+            ['Fix', 'Animated items start animations w/ a hickup'],
+            ['Fix', 'Unclosed DIV in chat line'],
+        ]],
         ['1.1.0', 'Benji', [
             ['Add', 'Scripting to iframe API & Autorez (Benji, Meerkat)'],
             ['Add', 'Inactive mode (xmpp: presence-show away) and multi-tab presence-show management'],

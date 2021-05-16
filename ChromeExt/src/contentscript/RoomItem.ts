@@ -8,8 +8,9 @@ import { Config } from '../lib/Config';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { Memory } from '../lib/Memory';
-import { ItemException } from '../lib/ItemExcption';
+import { ItemException } from '../lib/ItemException';
 import { Payload } from '../lib/Payload';
+import { WeblinClientIframeApi } from '../lib/WeblinClientIframeApi';
 import { SimpleErrorToast, SimpleToast } from './Toast';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
@@ -19,7 +20,6 @@ import { RoomItemStats } from './RoomItemStats';
 import { ItemFrameUnderlay } from './ItemFrameUnderlay';
 import { ItemFrameWindow, ItemFrameWindowOptions } from './ItemFrameWindow';
 import { ItemFramePopup } from './ItemFramePopup';
-import { WeblinClientApi } from './IframeApi';
 
 export class RoomItem extends Entity
 {
@@ -31,6 +31,7 @@ export class RoomItem extends Entity
     protected statsDisplay: RoomItemStats;
     protected screenUnderlay: ItemFrameUnderlay;
     protected myItem: boolean = false;
+    protected state = '';
 
     constructor(app: ContentApp, room: Room, roomNick: string, isSelf: boolean)
     {
@@ -39,7 +40,7 @@ export class RoomItem extends Entity
         $(this.getElem()).addClass('n3q-item');
         $(this.getElem()).attr('data-nick', roomNick);
 
-        if (Config.get('backpack.enabled', false)) {
+        if (Utils.isBackpackEnabled()) {
             $(this.getElem()).hover(() =>
             {
                 this.statsDisplay?.close();
@@ -56,13 +57,31 @@ export class RoomItem extends Entity
     getDefaultAvatar(): string { return imgDefaultItem; }
     getRoomNick(): string { return this.roomNick; }
     getDisplayName(): string { return as.String(this.getProperties()[Pid.Label], this.roomNick); }
-    getProperties(): any { return this.properties; }
 
-    setProperties(properties: { [pid: string]: string; })
+    getProperties(pids: Array<string> = null): any
     {
-        this.properties = properties;
-        if (as.Bool(this.properties[Pid.IframeAspect])) {
-            this.sendPropertiesToScriptFrame(null);
+        if (pids == null) {
+            return this.properties;
+        }
+        let filteredProperties = new ItemProperties();
+        for (let pid in this.properties) {
+            if (pids.includes(pid)) {
+                filteredProperties[pid] = this.properties[pid];
+            }
+        }
+        return filteredProperties;
+    }
+
+    setProperties(props: ItemProperties)
+    {
+        let changed = !ItemProperties.areEqual(this.properties, props)
+        if (changed) {
+            this.properties = props;
+
+            // if (as.Bool(this.properties[Pid.IframeLive], false)) {
+            //     this.sendMessageToScriptFrame(new WeblinClientIframeApi.ItemGetPropertiesResponse(this.properties));
+            // }
+            this.sendItemPropertiesToAllScriptFrames();
         }
     }
 
@@ -91,11 +110,8 @@ export class RoomItem extends Entity
 
     async onPresenceAvailable(stanza: any): Promise<void>
     {
-        let presenceHasPosition: boolean = false;
+        let hasPosition: boolean = false;
         let newX: number = 123;
-
-        let presenceHasCondition: boolean = false;
-        let newCondition: string = '';
 
         let vpAnimationsUrl = '';
         let vpImageUrl = '';
@@ -116,13 +132,8 @@ export class RoomItem extends Entity
                 if (positionNode) {
                     newX = as.Int(positionNode.attrs.x, -1);
                     if (newX != -1) {
-                        presenceHasPosition = true;
+                        hasPosition = true;
                     }
-                }
-                presenceHasCondition = true;
-                let conditionNode = stateNode.getChild('condition');
-                if (conditionNode) {
-                    newCondition = as.String(conditionNode.attrs.status, '');
                 }
             }
         }
@@ -132,8 +143,12 @@ export class RoomItem extends Entity
         }
 
         if (this.myItem) {
-            newProperties = await BackgroundMessage.getBackpackItemProperties(this.roomNick);
-            newProviderId = as.String(newProperties[Pid.Provider], '');
+            try {
+                newProperties = await BackgroundMessage.getBackpackItemProperties(this.roomNick);
+                newProviderId = as.String(newProperties[Pid.Provider], '');
+            } catch (error) {
+                log.debug('RoomItem.onPresenceAvailable', 'no properties for', this.roomNick);                
+            }
         } else {
             let vpPropsNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
             if (vpPropsNode) {
@@ -193,7 +208,7 @@ export class RoomItem extends Entity
 
         if (isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, false);
-            if (Config.get('backpack.enabled', false)) {
+            if (Utils.isBackpackEnabled()) {
                 this.avatarDisplay.addClass('n3q-item-avatar');
             }
             if (as.Bool(newProperties[Pid.ApplierAspect], false)) {
@@ -235,8 +250,10 @@ export class RoomItem extends Entity
             }
         }
 
-        if (presenceHasCondition) {
-            this.avatarDisplay?.setCondition(newCondition);
+        let newState = as.String(newProperties[Pid.State], '');
+        if (newState != this.state) {
+            this.avatarDisplay.setState(newState);
+            this.state = newState;
         }
 
         if (vpRezzedX >= 0) {
@@ -244,13 +261,13 @@ export class RoomItem extends Entity
         }
 
         if (isFirstPresence) {
-            if (!presenceHasPosition && vpRezzedX < 0) {
+            if (!hasPosition && vpRezzedX < 0) {
                 newX = this.isSelf ? await this.app.getSavedPosition() : this.app.getDefaultPosition(this.roomNick);
             }
             if (newX < 0) { newX = 100; }
             this.setPosition(newX);
         } else {
-            if (presenceHasPosition || vpRezzedX >= 0) {
+            if (hasPosition || vpRezzedX >= 0) {
                 if (this.getPosition() != newX) {
                     this.move(newX);
                 }
@@ -263,10 +280,14 @@ export class RoomItem extends Entity
 
         if (isFirstPresence) {
             if (as.Bool(this.getProperties()[Pid.IframeAspect], false)) {
-                if (as.Bool(this.getProperties()[Pid.IframeAuto], false) || as.Bool(this.getProperties()[Pid.IframeLive], false)) {
+                if (as.Bool(this.getProperties()[Pid.IframeAuto], false)) {
                     this.openFrame(this.getElem());
                 }
             }
+        }
+
+        if (isFirstPresence) {
+            this.sendItemEventToAllScriptFrames({ event: 'rez' });
         }
 
         if (isFirstPresence) {
@@ -297,6 +318,9 @@ export class RoomItem extends Entity
         if (Config.get('roomItem.chatlogItemDisappeared', true)) {
             this.room?.showChatMessage(this.getDisplayName(), 'disappeared');
         }
+
+        this.sendItemEventToAllScriptFrames({ event: 'derez' });
+
         this.remove();
     }
 
@@ -308,12 +332,20 @@ export class RoomItem extends Entity
             let frame = as.String(JSON.parse(as.String(this.properties[Pid.IframeOptions], '{}')).frame, 'Window');
             if (frame == 'Popup') {
                 if (this.framePopup) {
-                    this.framePopup.close();
+                    this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Window.Close' }, '*');
+                    window.setTimeout(() => { this.framePopup.close(); }, 100);
                 } else {
                     this.openFrame(this.getElem());
                 }
             } else {
-                this.openFrame(this.getElem());
+                if (this.frameWindow) {
+                    if (this.frameWindow.isOpen()) {
+                        this.frameWindow.setVisibility(true);
+                        this.frameWindow.toFront();
+                    }
+                } else {
+                    this.openFrame(this.getElem());
+                }
             }
         }
 
@@ -382,8 +414,16 @@ export class RoomItem extends Entity
         let itemId = this.roomNick;
         if (this.myItem) {
             let props = await BackgroundMessage.getBackpackItemProperties(itemId);
-            if (as.Bool(props[Pid.IframeAspect], false)) {
-                this.sendItemMovedToScriptFrame(newX);
+            if (as.Bool(props[Pid.IframeLive], false)) {
+
+                let itemData = {
+                    id: itemId,
+                    x: newX,
+                    isOwn: this.myItem,
+                    properties: this.properties,
+                };
+
+                this.sendMessageToScriptFrame(new WeblinClientIframeApi.ItemMovedNotification(itemData, newX));
             }
         }
     }
@@ -393,16 +433,20 @@ export class RoomItem extends Entity
         let itemId = this.roomNick;
         let passiveItemId = passiveItem.getRoomNick();
 
+        if (this.framePopup) {
+            this.getScriptWindow()?.postMessage({ [Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')]: true, type: 'Window.Close' }, '*');
+            window.setTimeout(() => { this.framePopup.close(); }, 100);
+        }
+
         if (!await BackgroundMessage.isBackpackItem(passiveItemId)) {
-            let fact = ItemException.Fact[ItemException.Fact.NotApplied];
-            let reason = ItemException.Reason[ItemException.Reason.NotYourItem];
+            let fact = ItemException.fact2String(ItemException.Fact.NotApplied);
+            let reason = ItemException.reason2String(ItemException.Reason.NotYourItem);
             let detail = passiveItemId;
             new SimpleErrorToast(this.app, 'Warning-' + fact + '-' + reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', fact, reason, detail).show();
             return;
         }
 
         if (this.myItem) {
-
             try {
                 await BackgroundMessage.executeBackpackItemAction(itemId, 'Applier.Apply', { 'passive': passiveItemId }, [itemId, passiveItemId]);
                 if (Config.get('points.enabled', false)) {
@@ -410,10 +454,10 @@ export class RoomItem extends Entity
                 }
             } catch (ex) {
                 // new SimpleErrorToast(this.app, 'Warning-' + error.fact + '-' + error.reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', error.fact, error.reason, error.detail).show();
-                let fact = typeof ex.fact === 'number' ? ItemException.Fact[ex.fact] : ex.fact;
-                let reason = typeof ex.reason === 'number' ? ItemException.Reason[ex.reason] : ex.reason;
+                let fact = ItemException.factFrom(ex.fact);
+                let reason = ItemException.reasonFrom(ex.reason);
                 let detail = ex.detail;
-                new SimpleErrorToast(this.app, 'Warning-' + fact + '-' + reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', fact, reason, detail).show();
+                new SimpleErrorToast(this.app, 'Warning-' + fact + '-' + reason, Config.get('room.applyItemErrorToastDurationSec', 5), 'warning', ItemException.fact2String(fact), ItemException.reason2String(reason), detail).show();
             }
         }
     }
@@ -505,12 +549,12 @@ export class RoomItem extends Entity
         }
     }
 
-    setFrameVisibility(state: boolean)
+    setFrameVisibility(visible: boolean)
     {
         if (this.framePopup) {
-            this.framePopup.setVisibility(state);
+            this.framePopup.setVisibility(visible);
         } else if (this.frameWindow) {
-            this.frameWindow.setVisibility(state);
+            this.frameWindow.setVisibility(visible);
         }
     }
 
@@ -562,16 +606,31 @@ export class RoomItem extends Entity
         }
     }
 
+    positionFrame(width: number, height: number, left: number, bottom: number, options: any = null)
+    {
+        this.framePopup?.position(width, height, left, bottom, options);
+        this.frameWindow?.position(width, height, left, bottom);
+    }
+
+    toFrontFrame()
+    {
+        this.framePopup?.toFront();
+        this.frameWindow?.toFront();
+    }
+
     async setItemProperty(pid: string, value: any)
     {
         if (await BackgroundMessage.isBackpackItem(this.roomNick)) {
-            BackgroundMessage.modifyBackpackItemProperties(this.roomNick, { [pid]: value }, [], {});
+            await BackgroundMessage.modifyBackpackItemProperties(this.roomNick, { [pid]: value }, [], {});
         }
     }
 
     async setItemState(state: string)
     {
-        this.avatarDisplay?.setState(state);
+        // this.avatarDisplay?.setState(state);
+        if (await BackgroundMessage.isBackpackItem(this.roomNick)) {
+            await BackgroundMessage.modifyBackpackItemProperties(this.roomNick, { [Pid.State]: state }, [], {});
+        }
     }
 
     async setItemCondition(condition: string)
@@ -579,49 +638,42 @@ export class RoomItem extends Entity
         this.avatarDisplay?.setCondition(condition);
     }
 
-    async showItemEffect(effect: any)
+    async showItemRange(visible: boolean, range: any)
     {
-        this.avatarDisplay?.showEffect(effect);
+        if (visible) {
+            this.setRange(range.left, range.right);
+        } else {
+            this.removeRange();
+        }
     }
 
-    sendPropertiesToScriptFrame(requestId: string)
+    sendItemEventToAllScriptFrames(data: any): void
     {
-        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Item.Properties', id: requestId, properties: this.properties }, '*');
+        let itemData = {
+            id: this.getRoomNick(),
+            x: this.getPosition(),
+            isOwn: this.isMyItem(),
+            properties: this.getProperties([Pid.Template, Pid.OwnerId]),
+        };
+
+        let itemIds = this.room.getAllScriptedItems();
+        for (let i = 0; i < itemIds.length; i++) {
+            this.room.getItem(itemIds[i])?.sendMessageToScriptFrame(new WeblinClientIframeApi.ItemEventNotification(itemData, data));
+        }
     }
 
-    sendParticipantsToScriptFrame(requestId: string, participants: Array<WeblinClientApi.ParticipantData>)
+    sendItemPropertiesToAllScriptFrames(): void
     {
-        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Room.Participants', id: requestId, participants: participants }, '*');
+        let itemIds = this.room.getAllScriptedItems();
+        for (let i = 0; i < itemIds.length; i++) {
+            this.room.getItem(itemIds[i])?.sendMessageToScriptFrame(new WeblinClientIframeApi.ItemPropertiesChangedNotification(this.roomNick, this.properties));
+        }
     }
 
-    sendRoomInfoToScriptFrame(requestId: string, info: WeblinClientApi.RoomInfo)
+    sendMessageToScriptFrame(message: any)
     {
-        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Room.Info', id: requestId, info: info }, '*');
+        message[Config.get('iframeApi.messageMagicRezactive', 'tr67rftghg_Rezactive')] = true;
+        this.getScriptWindow()?.postMessage(message, '*');
     }
 
-    sendParticipantMovedToScriptFrame(participant: WeblinClientApi.ParticipantData)
-    {
-        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Participant.Moved', participant: participant }, '*');
-    }
-
-    sendParticipantChatToScriptFrame(participant: WeblinClientApi.ParticipantData, text: string)
-    {
-        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Participant.Chat', participant: participant, text: text }, '*');
-    }
-
-    sendParticipantEventToAllScriptFrames(participant: WeblinClientApi.ParticipantData, data: any)
-    {
-        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Participant.Event', participant: participant, data: data }, '*');
-    }
-
-    sendItemMovedToScriptFrame(newX: number)
-    {
-        this.getScriptWindow()?.postMessage({ 'tr67rftghg_Rezactive': true, type: 'Item.Moved', x: newX }, '*');
-    }
-
-    positionFrame(width: number, height: number, left: number, bottom: number)
-    {
-        this.framePopup?.position(width, height, left, bottom);
-        this.frameWindow?.position(width, height, left, bottom);
-    }
 }

@@ -1,5 +1,6 @@
 import log = require('loglevel');
 import { as } from './as';
+import { Utils } from './Utils';
 const NodeRSA = require('node-rsa');
 
 export class Pid
@@ -21,6 +22,7 @@ export class Pid
     static readonly RezzedDestination = 'RezzedDestination';
     static readonly InventoryX = 'InventoryX';
     static readonly InventoryY = 'InventoryY';
+    static readonly State = 'State';
     static readonly Provider = 'Provider';
     static readonly Stats = 'Stats';
     static readonly Display = 'Display';
@@ -72,6 +74,7 @@ export class Pid
     static readonly Web3WalletAspect = 'Web3WalletAspect';
     static readonly Web3WalletAddress = 'Web3WalletAddress';
     static readonly Web3WalletNetwork = 'Web3WalletNetwork';
+    static readonly ShopImageUrl = 'ShopImageUrl';
 
     static readonly TransferState_Source = 'Source';
     static readonly TransferState_Destination = 'Destination';
@@ -135,6 +138,13 @@ export class ItemProperties
         }
         return '';
     }
+
+    static areEqual(left: ItemProperties, right: ItemProperties)
+    {
+        let leftSorted = Utils.sortObjectByKey(left);
+        let rightSorted = Utils.sortObjectByKey(right);
+        return JSON.stringify(leftSorted) == JSON.stringify(rightSorted);
+    }
 }
 
 export class ItemPropertiesSet { [id: string]: ItemProperties }
@@ -152,6 +162,7 @@ export class Property
         [Pid.Description]: { inPresence: true },
         [Pid.OwnerId]: { inPresence: true },
         [Pid.OwnerName]: { inPresence: true },
+        [Pid.State]: { inPresence: true },
         [Pid.Provider]: { inPresence: true },
         [Pid.ImageUrl]: { inPresence: true },
         [Pid.AnimationsUrl]: { inPresence: true },
@@ -176,6 +187,7 @@ export class Property
         [Pid.Signed]: { inPresence: true },
         [Pid.SignatureRsa]: { inPresence: true },
         [Pid.DeactivatableIsInactive]: { inPresence: true },
+        [Pid.ShopImageUrl]: { inPresence: true },
 
         // For unit test
         ['Test1']: { inPresence: true },
