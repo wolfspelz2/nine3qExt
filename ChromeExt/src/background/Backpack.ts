@@ -4,7 +4,7 @@ import { xml, jid } from '@xmpp/client';
 import { Config } from '../lib/Config';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
 import { BackpackShowItemData, BackpackRemoveItemData, BackpackSetItemData, ContentMessage } from '../lib/ContentMessage';
-import { ItemException } from '../lib/ItemExcption';
+import { ItemException } from '../lib/ItemException';
 import { ItemChangeOptions } from '../lib/ItemChangeOptions';
 import { RpcProtocol } from '../lib/RpcProtocol';
 import { RpcClient } from '../lib/RpcClient';
@@ -12,6 +12,8 @@ import { Memory } from '../lib/Memory';
 import { Utils } from '../lib/Utils';
 import { BackgroundApp } from './BackgroundApp';
 import { Item } from './Item';
+//const Web3 = require('web3');
+const Web3Eth = require('web3-eth');
 
 export class Backpack
 {
@@ -21,6 +23,14 @@ export class Backpack
     private rooms: { [jid: string]: Array<string>; } = {};
     private rpcClient: RpcClient = new RpcClient();
 
+    getBackpackIdsKey(): string
+    {
+        if (Config.get('config.clusterName', 'prod') == 'dev') {
+            return Backpack.BackpackIdsKey + '-dev';
+        }
+        return Backpack.BackpackIdsKey;
+    }
+
     constructor(private app: BackgroundApp, rpcClient: RpcClient = null)
     {
         if (rpcClient) { this.rpcClient = rpcClient; }
@@ -28,14 +38,20 @@ export class Backpack
 
     async init(): Promise<void>
     {
-        await this.loadItems();
+        await this.loadLocalItems();
+
+        if (Config.get('Backpack.loadWeb3Items', false)) {
+            await this.loadWeb3Items();
+        }
     }
 
-    async loadItems()
+    async loadLocalItems()
     {
-        let itemIds = await Memory.getLocal(Backpack.BackpackIdsKey, []);
+        let isFirstLoad = await this.checkIsFirstLoad();
+
+        let itemIds = await Memory.getLocal(this.getBackpackIdsKey(), []);
         if (itemIds == null || !Array.isArray(itemIds)) {
-            log.warn('Local storage', Backpack.BackpackIdsKey, 'not an array');
+            log.warn('Backpack.loadLocalItems', this.getBackpackIdsKey(), 'not an array');
             return;
         }
 
@@ -44,7 +60,7 @@ export class Backpack
 
             let props = await Memory.getLocal(Backpack.BackpackPropsPrefix + itemId, null);
             if (props == null || typeof props != 'object') {
-                log.warn('Local storage', Backpack.BackpackPropsPrefix + itemId, 'not an object, skipping');
+                log.info('Backpack.loadLocalItems', Backpack.BackpackPropsPrefix + itemId, 'not an object, skipping');
                 continue;
             }
 
@@ -56,6 +72,182 @@ export class Backpack
                 }
             }
         }
+
+        this.createInitialItems();
+    }
+
+    async checkIsFirstLoad(): Promise<boolean>
+    {
+        let itemIds = await Memory.getLocal(this.getBackpackIdsKey(), null);
+        if (itemIds == null) {
+            await Memory.setLocal(this.getBackpackIdsKey(), []);
+            return true;
+        }
+        return false;
+    }
+
+    async createInitialItems(): Promise<void>
+    {
+        await this.createInitialItemsPhase1();
+    }
+
+    async createInitialItemsPhase1(): Promise<void>
+    {
+        let nextPhase = 1;
+        let currentPhase = as.Int(await Memory.getLocal(Utils.localStorageKey_BackpackPhase(), 0));
+        if (currentPhase < nextPhase) {
+            if (true
+                && await this.createInitialItem('BlueprintLibrary', 68, 58)
+                && await this.createInitialItem('Maker', 167, 54)
+                && await this.createInitialItem('Recycler', 238, 54)
+                && await this.createInitialItem('MiningDrill', 310, 54)
+                && await this.createInitialItem('WaterPump', 78, 188)
+                && await this.createInitialItem('SolarPanel', 250, 188)
+                && await this.createInitialItem('CoffeeBeans', 382, 143)
+                && await this.createInitialItem('PirateFlag', 371, 45)
+            ) {
+                await Memory.setLocal(Utils.localStorageKey_BackpackPhase(), nextPhase);
+            }
+        }
+    }
+
+    async createInitialItem(template: string, x: number = -1, y: number = -1): Promise<boolean>
+    {
+        try {
+            let item = await this.createItemByTemplate(template, { [Pid.InventoryX]: as.String(x), [Pid.InventoryY]: as.String(y), });
+            return true;
+        } catch (error) {
+            log.info('Backpack.createInitialItem', 'failed to create starter item', template, error);
+            return false;
+        }
+    }
+
+    async loadWeb3Items(): Promise<void>
+    {
+        let currentWeb3ItemIds = this.findItems(props => { return (as.Bool(props[Pid.Web3BasedAspect], false)); }).map(item => item.getProperties()[Pid.Id]);
+        let unverifiedWeb3ItemIds = currentWeb3ItemIds;
+
+        let wallets = this.findItems(props => { return (as.Bool(props[Pid.Web3WalletAspect], false)); });
+        if (wallets.length == 0) {
+            if (Config.get('log.web3', true)) { log.info('backpack.loadWeb3Items', 'No wallet item'); }
+            return;
+        }
+
+        for (let walletsIdx = 0; walletsIdx < wallets.length; walletsIdx++) {
+            let wallet = wallets[walletsIdx];
+            let ownerAddress = wallet.getProperties()[Pid.Web3WalletAddress];
+            let network = wallet.getProperties()[Pid.Web3WalletNetwork];
+            let httpProvider = Config.get('web3.provider.' + network, '');
+            let contractAddress = Config.get('web3.weblinItemContractAddess.' + network, '');
+            if (httpProvider == '' || contractAddress == '') {
+                log.info('backpack.loadWeb3Items', 'No httpProvider or contractAddress for network', network, 'httpProvider=', httpProvider, 'contractAddress=', contractAddress);
+            } else {
+                let claimItemIdsOfWallet = await this.loadWeb3ItemsFromWallet(ownerAddress, httpProvider, contractAddress);
+
+                for (let claimItemIdsOfWalletIdx = 0; claimItemIdsOfWalletIdx < claimItemIdsOfWallet.length; claimItemIdsOfWalletIdx++) {
+                    let id = claimItemIdsOfWallet[claimItemIdsOfWalletIdx];
+                    const index = unverifiedWeb3ItemIds.indexOf(id, 0);
+                    if (index > -1) { unverifiedWeb3ItemIds.splice(index, 1); }
+                }
+            }
+        }
+
+        for (let previousClaimItemIdsIdx = 0; previousClaimItemIdsIdx < unverifiedWeb3ItemIds.length; previousClaimItemIdsIdx++) {
+            this.deleteItem(unverifiedWeb3ItemIds[previousClaimItemIdsIdx], { skipContentNotification: true, skipPresenceUpdate: true });
+        }
+    }
+
+    async loadWeb3ItemsFromWallet(ownerAddress: string, httpProvider: string, contractAddress: string): Promise<Array<string>>
+    {
+        if (ownerAddress == '' || httpProvider == '') {
+            log.info('backpack.loadWeb3ItemsFromWallet', 'Missing ownerAddress=', ownerAddress, 'httpProvider=', httpProvider);
+            return [];
+        }
+
+        let knownIds: Array<string> = [];
+        try {
+            let web3eth = new Web3Eth(new Web3Eth.providers.HttpProvider(httpProvider));
+            let contractABI = Config.get('web3.weblinItemContractAbi', null);
+            if (contractAddress == null || contractAddress == '' || contractABI == null) {
+                log.info('backpack.loadWeb3ItemsFromWallet', 'Missing contract config', 'contractAddress=', contractAddress, 'contractABI=', contractABI);
+            } else {
+                let contract = new web3eth.Contract(contractABI, contractAddress);
+                let numberOfItems = await contract.methods.balanceOf(ownerAddress).call();
+                for (let i = 0; i < numberOfItems; i++) {
+                    let tokenId = await contract.methods.tokenOfOwnerByIndex(ownerAddress, i).call();
+                    let tokenUri = await contract.methods.tokenURI(tokenId).call();
+
+                    if (Config.get('config.clusterName', 'prod') == 'dev') {
+                        tokenUri = tokenUri.replace('https://webit.vulcan.weblin.com/', 'http://localhost:5000/');
+                        tokenUri = tokenUri.replace('https://item.weblin.com/', 'http://localhost:5000/');
+                    }
+
+                    let response = await fetch(tokenUri);
+
+                    if (!response.ok) {
+                        log.info('backpack.loadWeb3ItemsFromWallet', 'fetch failed', 'tokenId', tokenId, 'tokenUri', tokenUri, response);
+                    } else {
+                        const metadata = await response.json();
+
+                        let ids = await this.getOrCreateWeb3ItemFromMetadata(ownerAddress, metadata);
+                        for (let i = 0; i < ids.length; i++) {
+                            knownIds.push(ids[i]);
+                        }
+
+                    }
+                }
+            }
+        } catch (error) {
+            log.info(error);
+        }
+
+        return knownIds;
+    }
+
+    async getOrCreateWeb3ItemFromMetadata(ownerAddress: string, metadata: any): Promise<Array<string>>
+    {
+        let data = metadata.data;
+        if (data == null) {
+            log.info('backpack.getOrCreateWeb3ItemFromMetadata', 'No item creation data in', metadata);
+            return [];
+        }
+
+        let knownIds: Array<string> = [];
+
+        data[Pid.Web3BasedOwner] = ownerAddress;
+
+        let template = as.String(data[Pid.Template], '');
+        switch (template) {
+
+            case 'CryptoClaim': {
+                let domain = as.String(data[Pid.ClaimUrl], '');
+                let existingItems = this.findItems(props =>
+                {
+                    return as.Bool(props[Pid.Web3BasedAspect], false) && as.Bool(props[Pid.ClaimAspect], false) && as.String(props[Pid.ClaimUrl], '') == domain;
+                });
+                if (existingItems.length == 0) {
+                    try {
+                        let item = await this.createItemByTemplate(template, data);
+                        knownIds.push(item.getId());
+                        if (Config.get('log.web3', true)) { log.info('Backpack.getOrCreateWeb3ItemFromMetadata', 'Creating', template, item.getId()); }
+                    } catch (error) {
+                        log.info(error);
+                    }
+                } else {
+                    for (let i = 0; i < existingItems.length; i++) {
+                        let item = existingItems[i];
+                        knownIds.push(item.getId());
+                        if (Config.get('log.web3', true)) { log.info('Backpack.getOrCreateWeb3ItemFromMetadata', 'Confirming', template, item.getId()); }
+                    }
+                }
+            } break;
+
+            default:
+                log.info('Backpack.getOrCreateWeb3ItemFromMetadata', 'Not supported', data);
+                break;
+        }
+
+        return knownIds;
     }
 
     async getOrCreatePointsItem(): Promise<Item>
@@ -63,10 +255,25 @@ export class Backpack
         let pointsItems = this.findItems(props => as.Bool(props[Pid.PointsAspect], false));
 
         if (pointsItems.length > 1) {
-            log.debug('Backpack.getOrCreatePointsItem', 'Too many points items: ' + pointsItems.length);
+            let maxPoints = -1;
+            let maxItem: Item;
+            for (let i = 0; i < pointsItems.length; i++) {
+                let item = pointsItems[i];
+                let points = as.Int(item.getProperties()[Pid.PointsTotal], 0);
+                if (points > maxPoints) {
+                    maxPoints = points;
+                    maxItem = item;
+                }
+            }
+            return maxItem;
         } else if (pointsItems.length == 0) {
-            let item = await this.createItemByTemplate('Points');
-            return item;
+            let template = 'Points';
+            try {
+                return await this.createItemByTemplate(template, {});
+            } catch (error) {
+                log.info('Backpack.getOrCreatePointsItem', 'failed to create item', template, error);
+            }
+            return null;
         } else if (pointsItems.length == 1) {
             return pointsItems[0]
         }
@@ -77,6 +284,11 @@ export class Backpack
         let item = await this.createRepositoryItem(itemId, props);
 
         if (item.isRezzed()) {
+            let roomJid = item.getProperties()[Pid.RezzedLocation];
+            if (roomJid) {
+                this.addToRoom(itemId, roomJid);
+            }
+
             if (!options.skipPresenceUpdate) {
                 item.sendPresence();
             }
@@ -99,7 +311,7 @@ export class Backpack
             if (item.isRezzed()) {
                 let roomJid = item.getProperties()[Pid.RezzedLocation];
                 if (roomJid) {
-                    await this.derezItem(itemId, roomJid, -1, -1, options);
+                    await this.derezItem(itemId, roomJid, -1, -1, {}, [], options);
                 }
             }
 
@@ -134,9 +346,7 @@ export class Backpack
 
     private async createRepositoryItem(itemId: string, props: ItemProperties): Promise<Item>
     {
-        if (props[Pid.OwnerId] == null) {
-            props[Pid.OwnerId] = await Memory.getSync(Utils.syncStorageKey_Id(), '');
-        }
+        props[Pid.OwnerId] = await Memory.getLocal(Utils.localStorageKey_Id(), '');
 
         let item = this.items[itemId];
         if (item == null) {
@@ -158,12 +368,12 @@ export class Backpack
         let item = this.items[itemId];
         if (item) {
             let props = item.getProperties();
-            let itemIds = await Memory.getLocal(Backpack.BackpackIdsKey, []);
+            let itemIds = await Memory.getLocal(this.getBackpackIdsKey(), []);
             if (itemIds && Array.isArray(itemIds)) {
                 await Memory.setLocal(Backpack.BackpackPropsPrefix + itemId, props);
                 if (!itemIds.includes(itemId)) {
                     itemIds.push(itemId);
-                    await Memory.setLocal(Backpack.BackpackIdsKey, itemIds);
+                    await Memory.setLocal(this.getBackpackIdsKey(), itemIds);
                 }
             }
         }
@@ -171,14 +381,14 @@ export class Backpack
 
     private async persistentDeleteItem(itemId: string): Promise<void>
     {
-        let itemIds = await Memory.getLocal(Backpack.BackpackIdsKey, []);
+        let itemIds = await Memory.getLocal(this.getBackpackIdsKey(), []);
         if (itemIds && Array.isArray(itemIds)) {
             await Memory.deleteLocal(Backpack.BackpackPropsPrefix + itemId);
             if (itemIds.includes(itemId)) {
                 const index = itemIds.indexOf(itemId, 0);
                 if (index > -1) {
                     itemIds.splice(index, 1);
-                    await Memory.setLocal(Backpack.BackpackIdsKey, itemIds);
+                    await Memory.setLocal(this.getBackpackIdsKey(), itemIds);
                 }
             }
         }
@@ -217,10 +427,17 @@ export class Backpack
         return false;
     }
 
+    getItem(itemId: string): Item
+    {
+        let item = this.items[itemId];
+        if (item == null) { throw new ItemException(ItemException.Fact.UnknownError, ItemException.Reason.ItemDoesNotExist, itemId); }
+        return item;
+    }
+
     async setItemProperties(itemId: string, props: ItemProperties, options: ItemChangeOptions): Promise<void>
     {
         let item = this.items[itemId];
-        if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
+        if (item == null) { throw new ItemException(ItemException.Fact.UnknownError, ItemException.Reason.ItemDoesNotExist, itemId); }
 
         item.setProperties(props, options);
         await this.persistentSaveItem(itemId);
@@ -229,34 +446,34 @@ export class Backpack
     getItemProperties(itemId: string): ItemProperties
     {
         let item = this.items[itemId];
-        if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
-
+        if (item == null) { throw new ItemException(ItemException.Fact.UnknownError, ItemException.Reason.ItemDoesNotExist, itemId); } // throw unhandled, maybe return null?
         return item.getProperties();
     }
 
     async modifyItemProperties(itemId: string, changed: ItemProperties, deleted: Array<string>, options: ItemChangeOptions): Promise<void>
     {
         let item = this.items[itemId];
-        if (item == null) { throw new ItemException(ItemException.Fact.Error, ItemException.Reason.ItemDoesNotExist, itemId); }
+        if (item == null) { throw new ItemException(ItemException.Fact.UnknownError, ItemException.Reason.ItemDoesNotExist, itemId); }
 
-        let props = item.getProperties();
+        let clonedProps = Utils.cloneObject(item.getProperties());
+
         for (let key in changed) {
-            props[key] = changed[key];
+            clonedProps[key] = changed[key];
         }
         for (let i = 0; i < deleted.length; i++) {
-            delete props[deleted[i]];
+            delete clonedProps[deleted[i]];
         }
-        item.setProperties(props, options);
+        item.setProperties(clonedProps, options);
         await this.persistentSaveItem(itemId);
     }
 
-    createItemByTemplate(templateName: string): Promise<Item>
+    createItemByTemplate(templateName: string, args: ItemProperties): Promise<Item>
     {
         return new Promise(async (resolve, reject) =>
         {
             try {
 
-                let userId = await Memory.getSync(Utils.syncStorageKey_Id(), '');
+                let userId = await Memory.getLocal(Utils.localStorageKey_Id(), '');
                 if (userId == null || userId == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.NoUserId); }
 
                 let providerId = 'nine3q';
@@ -267,6 +484,7 @@ export class Backpack
                 request.method = RpcProtocol.BackpackCreateRequest.method;
                 request.user = userId;
                 request.template = templateName;
+                request.args = args;
 
                 let response = <RpcProtocol.BackpackCreateResponse>await this.rpcClient.call(apiUrl, request);
 
@@ -291,7 +509,7 @@ export class Backpack
                 let item = this.items[itemId];
                 if (item == null) { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.ItemDoesNotExist, itemId); }
 
-                let userId = await Memory.getSync(Utils.syncStorageKey_Id(), '');
+                let userId = await Memory.getLocal(Utils.localStorageKey_Id(), '');
                 if (userId == null || userId == '') { throw new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.NoUserId); }
 
                 let providerId = 'nine3q';
@@ -342,8 +560,12 @@ export class Backpack
                 }
 
                 resolve();
-            } catch (error) {
-                reject(error);
+            } catch (ex) {
+                if (ex.fact) {
+                    reject(new ItemException(ItemException.factFrom(ex.fact), ItemException.reasonFrom(ex.reason), ex.detail));
+                } else {
+                    reject(new ItemException(ItemException.Fact.NotExecuted, ItemException.Reason.NetworkProblem, as.String(ex.message, as.String(ex.status, ''))));
+                }
             }
         });
     }
@@ -366,46 +588,72 @@ export class Backpack
 
         this.addToRoom(itemId, roomJid);
 
-        let props = item.getProperties();
-        props[Pid.IsRezzed] = 'true';
-        props[Pid.RezzedX] = '' + rezzedX;
-        props[Pid.RezzedDestination] = destinationUrl;
-        props[Pid.RezzedLocation] = roomJid;
-        props[Pid.OwnerName] = await Memory.getSync(Utils.syncStorageKey_Nickname(), as.String(props[Pid.OwnerName]));
-        item.setProperties(props, options);
+        let clonedProps = Utils.cloneObject(item.getProperties());
+
+        clonedProps[Pid.IsRezzed] = 'true';
+        if (rezzedX >= 0) {
+            clonedProps[Pid.RezzedX] = '' + rezzedX;
+        }
+        if (as.Int(clonedProps[Pid.RezzedX], -1) < 0) {
+            clonedProps[Pid.RezzedX] = '' + Utils.randomInt(100, 400);
+        }
+        clonedProps[Pid.RezzedDestination] = destinationUrl;
+        clonedProps[Pid.RezzedLocation] = roomJid;
+        clonedProps[Pid.OwnerName] = await Memory.getLocal(Utils.localStorageKey_Nickname(), as.String(clonedProps[Pid.OwnerName]));
+
+        let setPropertiesOption = { skipPresenceUpdate: true };
+        Object.assign(setPropertiesOption, options);
+        item.setProperties(clonedProps, setPropertiesOption);
 
         if (!options.skipPersistentStorage) {
             await this.persistentSaveItem(itemId);
         }
+
+        if (!options.skipPresenceUpdate) {
+            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
+        }
     }
 
-    async derezItem(itemId: string, roomJid: string, inventoryX: number, inventoryY: number, options: ItemChangeOptions): Promise<void>
+    async derezItem(itemId: string, roomJid: string, inventoryX: number, inventoryY: number, changed: ItemProperties, deleted: Array<string>, options: ItemChangeOptions): Promise<void>
     {
         let item = this.items[itemId];
         if (item == null) { throw new ItemException(ItemException.Fact.NotDerezzed, ItemException.Reason.ItemDoesNotExist, itemId); }
         if (!item.isRezzed()) { return; }
         if (!item.isRezzedTo(roomJid)) { throw new ItemException(ItemException.Fact.NotDerezzed, ItemException.Reason.ItemNotRezzedHere); }
 
+        let clonedProps = Utils.cloneObject(item.getProperties());
+
         this.removeFromRoom(itemId, roomJid);
 
-        let props = item.getProperties();
-        delete props[Pid.IsRezzed];
+        delete clonedProps[Pid.IsRezzed];
         if (inventoryX > 0 && inventoryY > 0) {
-            props[Pid.InventoryX] = '' + inventoryX;
-            props[Pid.InventoryY] = '' + inventoryY;
+            clonedProps[Pid.InventoryX] = '' + inventoryX;
+            clonedProps[Pid.InventoryY] = '' + inventoryY;
         }
-        delete props[Pid.RezzedX];
-        delete props[Pid.RezzedDestination];
-        delete props[Pid.RezzedLocation];
+        // delete props[Pid.RezzedX]; // preserve for rez by button
+        delete clonedProps[Pid.RezzedDestination];
+        delete clonedProps[Pid.RezzedLocation];
 
-        options.skipPresenceUpdate = true;
-        item.setProperties(props, options);
+        for (let pid in changed) {
+            clonedProps[pid] = changed[pid];
+        }
+        for (let i = 0; i < deleted.length; i++) {
+            delete clonedProps[deleted[i]];
+        }
+
+        let setPropertiesOption = { skipPresenceUpdate: true };
+        Object.assign(setPropertiesOption, options);
+        item.setProperties(clonedProps, setPropertiesOption);
 
         if (!options.skipPersistentStorage) {
             await this.persistentSaveItem(itemId);
         }
 
         if (!options.skipContentNotification) {
+            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
+        }
+
+        if (!options.skipPresenceUpdate) {
             this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
         }
     }

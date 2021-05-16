@@ -8,6 +8,8 @@ import '../contentscript/contentscript.scss';
 import * as $ from 'jquery';
 import { Panic } from '../lib/Panic';
 import { Config } from '../lib/Config';
+import { Memory } from '../lib/Memory';
+import { Utils } from '../lib/Utils';
 
 declare var n3q: any;
 
@@ -39,37 +41,40 @@ function activateAll()
         log.setLevel(log.levels.DEBUG);
     }
 
-    let app: BackgroundApp = null;
+    let appBackground: BackgroundApp = null;
 
     async function activate()
     {
         log.debug('Background.activate');
-        if (app == null) {
-            app = new BackgroundApp();
-            BackgroundMessage.background = app;
+        if (appBackground == null) {
+            appBackground = new BackgroundApp();
+            BackgroundMessage.background = appBackground;
 
             try {
-                await app.start();
+                if (n3q && n3q.devConfig) {
+                    await Memory.setLocal(Utils.localStorageKey_CustomConfig(), JSON.stringify(n3q.devConfig));
+                }
+                await appBackground.start();
             }
             catch (error) {
-                app = null;
+                appBackground = null;
             }
         }
     }
 
     function deactivate()
     {
-        if (app != null) {
-            app.stop();
-            app = null;
+        if (appBackground != null) {
+            appBackground.stop();
+            appBackground = null;
         }
     }
 
     window.addEventListener('message', (event) =>
     {
         if (event.data.type === BackgroundMessage.userSettingsChanged.name) {
-            if (app) {
-                app.handle_userSettingsChanged();
+            if (appBackground) {
+                appBackground.handle_userSettingsChanged();
             }
         }
     }, false);

@@ -5,13 +5,18 @@ import { Config } from '../lib/Config';
 import { Utils } from '../lib/Utils';
 import { Panic } from '../lib/Panic';
 import { ItemProperties, Pid } from '../lib/ItemProperties';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { Translator } from '../lib/Translator';
+import { VpProtocol } from '../lib/VpProtocol';
 import { ContentApp } from './ContentApp';
 import { Entity } from './Entity';
 import { Participant } from './Participant';
 import { RoomItem } from './RoomItem';
 import { ChatWindow } from './ChatWindow'; // Wants to be after Participant and Item otherwise $().resizable does not work
 import { VidconfWindow } from './VidconfWindow';
-import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { VpiResolver } from './VpiResolver';
+import { BackpackItem } from './BackpackItem';
+import { SimpleToast } from './Toast';
 
 export interface IRoomInfoLine extends Array<string | string> { 0: string, 1: string }
 export interface IRoomInfo extends Array<IRoomInfoLine> { }
@@ -30,6 +35,8 @@ export class Room
     private chatWindow: ChatWindow;
     private vidconfWindow: VidconfWindow;
     private myNick: string;
+    private showAvailability = '';
+    private statusMessage = '';
 
     constructor(protected app: ContentApp, private jid: string, private destination: string, private posX: number) 
     {
@@ -51,11 +58,28 @@ export class Room
         ];
     }
 
+    getChatWindow(): ChatWindow { return this.chatWindow; }
     getMyNick(): string { return this.myNick; }
     getJid(): string { return this.jid; }
     getDestination(): string { return this.destination; }
     getParticipant(nick: string): Participant { return this.participants[nick]; }
-    getItem(nick: string) { return this.items[nick]; }
+    getItem(nick: string): RoomItem { return this.items[nick]; }
+    getParticipantIds(): Array<string>
+    {
+        let ids = [];
+        for (let id in this.participants) {
+            ids.push(id);
+        }
+        return ids;
+    }
+    getItemIds(): Array<string>
+    {
+        let ids = [];
+        for (let id in this.items) {
+            ids.push(id);
+        }
+        return ids;
+    }
 
     getPageClaimItem(): RoomItem
     {
@@ -78,8 +102,10 @@ export class Room
     async enter(): Promise<void>
     {
         try {
-            this.resource = await this.app.getUserNickname();
-            this.avatar = await this.app.getUserAvatar();
+            let nickname = await this.app.getUserNickname();
+            let avatar = await this.app.getUserAvatar();
+            this.resource = await this.getBackpackItemNickname(nickname);
+            this.avatar = await this.getBackpackItemAvatarId(avatar);
         } catch (error) {
             log.info(error);
             this.resource = 'new-user';
@@ -90,10 +116,24 @@ export class Room
         this.sendPresence();
     }
 
+    sleep(statusMessage: string)
+    {
+        this.showAvailability = 'away';
+        this.statusMessage = statusMessage;
+        this.sendPresence();
+    }
+
+    wakeup()
+    {
+        this.showAvailability = '';
+        this.sendPresence();
+    }
+
     leave(): void
     {
         this.sendPresenceUnavailable();
         this.removeAllParticipants();
+        this.removeAllItems();
         this.onUnload();
     }
 
@@ -102,66 +142,107 @@ export class Room
         this.stopKeepAlive();
     }
 
-    async getMyPoints(): Promise<number>
+    async onUserSettingsChanged(): Promise<void>
     {
-        let propSet = await BackgroundMessage.findBackpackItemProperties({ [Pid.PointsAspect]: 'true' });
-
-        let item = null;
-        for (let id in propSet) {
-            let props = propSet[id];
-            if (props) {
-                let points = as.Int(props[Pid.PointsTotal], 0);
-                return points;
-            }
-        }
-
-        return 0;
+        await this.enter();
+        window.setTimeout(async () => { await this.sendPresence(); }, Config.get('xmpp.resendPresenceAfterResourceChangeBecauseServerSendsOldPresenceDataWithNewResourceToForceNewDataDelaySec', 1.0) * 1000);
     }
 
     async sendPresence(): Promise<void>
     {
-        let presence = xml('presence', { to: this.jid + '/' + this.resource })
-            .append(
-                xml('x', { xmlns: 'firebat:avatar:state', })
-                    .append(xml('position', { x: as.Int(this.posX) }))
-            );
+        try {
+            let vpProps = { xmlns: 'vp:props', 'timestamp': Date.now(), 'Nickname': this.resource, 'AvatarId': this.avatar, 'nickname': this.resource, 'avatar': 'gif/' + this.avatar };
 
-        let vpProps = { xmlns: 'vp:props', 'Nickname': this.resource, 'AvatarId': this.avatar, 'nickname': this.resource, 'avatar': this.avatar };
-        let points = 0;
-        if (Config.get('points.enabled', false)) {
-            points = await this.getMyPoints();
-            if (points > 0) {
-                vpProps['Points'] = points;
+            let nickname = await this.getBackpackItemNickname(this.resource);
+            if (nickname != '') {
+                vpProps['Nickname'] = nickname;
+                vpProps['nickname'] = nickname;
             }
-        } presence.append(xml('x', vpProps));
 
-        let identityUrl = Config.get('identity.url', '');
-        let identityDigest = Config.get('identity.digest', '1');
-        if (identityUrl == '') {
-            let avatarUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'https://webex.vulcan.weblin.com/avatars/gif/{id}/config.xml')).replace('{id}', this.avatar);
-            identityDigest = as.String(Utils.hash(this.resource + avatarUrl));
-            identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}&points={points}'))
-                .replace('{nickname}', encodeURIComponent(this.resource))
-                .replace('{avatarUrl}', encodeURIComponent(avatarUrl))
-                .replace('{digest}', encodeURIComponent(identityDigest))
-                .replace('{imageUrl}', encodeURIComponent(''))
-                ;
-            if (points > 0) { identityUrl = identityUrl.replace('{points}', encodeURIComponent('' + points)); }
-        }
-        if (identityUrl != '') {
-            presence.append(
-                xml('x', { xmlns: 'firebat:user:identity', 'jid': this.userJid, 'src': identityUrl, 'digest': identityDigest })
-            );
-        }
+            let avatarUrl = await this.getBackpackItemAvatarUrl('');
+            if (avatarUrl != '') {
+                vpProps['AvatarUrl'] = avatarUrl;
+                delete vpProps['AvatarId'];
+                delete vpProps['avatar'];
+            }
 
-        if (!this.isEntered) {
-            presence.append(
-                xml('x', { xmlns: 'http://jabber.org/protocol/muc' })
-                    .append(xml('history', { seconds: '180', maxchars: '3000', maxstanzas: '10' }))
-            );
-        }
+            let points = 0;
+            if (Config.get('points.enabled', false)) {
+                points = await this.getPointsItemPoints(0);
+                if (points > 0) {
+                    vpProps['Points'] = points;
+                }
+            }
 
-        this.app.sendStanza(presence);
+            let presence = xml('presence', { to: this.jid + '/' + this.resource });
+
+            presence.append(xml('x', { xmlns: 'firebat:avatar:state', }).append(xml('position', { x: as.Int(this.posX) })));
+
+            if (this.showAvailability != '') {
+                presence.append(xml('show', {}, this.showAvailability));
+            }
+            if (this.statusMessage != '') {
+                presence.append(xml('status', {}, this.statusMessage));
+            }
+
+            presence.append(xml('x', vpProps));
+
+            let identityUrl = Config.get('identity.url', '');
+            let identityDigest = Config.get('identity.digest', '1');
+            if (identityUrl == '') {
+                if (avatarUrl == '') {
+                    avatarUrl = Utils.getAvatarUrlFromAvatarId(this.avatar);
+                }
+                identityDigest = as.String(Utils.hash(this.resource + avatarUrl));
+                identityUrl = as.String(Config.get('identity.identificatorUrlTemplate', 'https://webex.vulcan.weblin.com/Identity/Generated?avatarUrl={avatarUrl}&nickname={nickname}&digest={digest}&imageUrl={imageUrl}&points={points}'))
+                    .replace('{nickname}', encodeURIComponent(nickname))
+                    .replace('{avatarUrl}', encodeURIComponent(avatarUrl))
+                    .replace('{digest}', encodeURIComponent(identityDigest))
+                    .replace('{imageUrl}', encodeURIComponent(''))
+                    ;
+                if (points > 0) { identityUrl = identityUrl.replace('{points}', encodeURIComponent('' + points)); }
+            }
+            if (identityUrl != '') {
+                presence.append(
+                    xml('x', { xmlns: 'firebat:user:identity', 'jid': this.userJid, 'src': identityUrl, 'digest': identityDigest })
+                );
+            }
+
+            if (!this.isEntered) {
+                presence.append(
+                    xml('x', { xmlns: 'http://jabber.org/protocol/muc' })
+                        .append(xml('history', { seconds: '180', maxchars: '3000', maxstanzas: '10' }))
+                );
+            }
+
+            // log.debug('#### send', presence.children[1].attrs);
+            this.app.sendStanza(presence);
+        } catch (error) {
+            log.info(error);
+            Panic.now();
+        }
+    }
+
+    async getPointsItemPoints(defaultValue: number): Promise<number> { return as.Int(await this.getBackpackItemProperty({ [Pid.PointsAspect]: 'true' }, Pid.PointsTotal, defaultValue)); }
+    async getBackpackItemAvatarId(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.AvatarAspect]: 'true', [Pid.DeactivatableIsInactive]: 'false' }, Pid.AvatarAvatarId, defaultValue)); }
+    async getBackpackItemAvatarUrl(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.AvatarAspect]: 'true', [Pid.DeactivatableIsInactive]: 'false' }, Pid.AvatarAnimationsUrl, defaultValue)); }
+    async getBackpackItemNickname(defaultValue: string): Promise<string> { return as.String(await this.getBackpackItemProperty({ [Pid.NicknameAspect]: 'true', [Pid.DeactivatableIsInactive]: 'false' }, Pid.NicknameText, defaultValue)); }
+
+    async getBackpackItemProperty(filterProperties: ItemProperties, propertyPid: string, defautValue: any): Promise<any>
+    {
+        if (Utils.isBackpackEnabled()) {
+            let propSet = await BackgroundMessage.findBackpackItemProperties(filterProperties);
+            let item = null;
+            for (let id in propSet) {
+                let props = propSet[id];
+                if (props) {
+                    if (props[propertyPid]) {
+                        return props[propertyPid];
+                    }
+                }
+            }
+        }
+        return defautValue;
     }
 
     private sendPresenceUnavailable(): void
@@ -314,13 +395,19 @@ export class Room
 
     private removeAllParticipants()
     {
-        let nicks = Array<string>();
-        for (let nick in this.participants) {
-            nicks.push(nick);
-        }
+        let nicks = this.getParticipantIds();
         nicks.forEach(nick =>
         {
             this.participants[nick].remove();
+        });
+    }
+
+    private removeAllItems()
+    {
+        let itemIds = this.getItemIds();
+        itemIds.forEach(itemId =>
+        {
+            this.items[itemId].remove();
         });
     }
 
@@ -416,11 +503,26 @@ export class Room
         }
     }
 
+    sendPrivateVidconf(nick: string, url: string)
+    {
+        let message = xml('message', { type: 'chat', to: this.jid + '/' + nick, from: this.jid + '/' + this.myNick })
+            .append(xml('x', { 'xmlns': VpProtocol.PrivateVideoconfRequest.xmlns, [VpProtocol.PrivateVideoconfRequest.key_url]: url }))
+            ;
+        this.app.sendStanza(message);
+    }
+
+    sendDeclinePrivateVidconfResponse(nick: string, comment: string)
+    {
+        let message = xml('message', { type: 'chat', to: this.jid + '/' + nick, from: this.jid + '/' + this.myNick })
+            .append(xml('x', { 'xmlns': VpProtocol.Response.xmlns, [VpProtocol.Response.key_to]: VpProtocol.PrivateVideoconfRequest.xmlns, [VpProtocol.PrivateVideoconfResponse.key_type]: [VpProtocol.PrivateVideoconfResponse.type_decline], [VpProtocol.PrivateVideoconfResponse.key_comment]: comment }))
+            ;
+        this.app.sendStanza(message);
+    }
+
     async transferItem(itemId: string, nick: string)
     {
         try {
-            await BackgroundMessage.derezBackpackItem(itemId, this.getJid(), -1, -1, {});
-            await BackgroundMessage.modifyBackpackItemProperties(itemId, { [Pid.TransferState]: Pid.TransferState_Source }, [], { skipPresenceUpdate: true });
+            await BackgroundMessage.derezBackpackItem(itemId, this.getJid(), -1, -1, { [Pid.TransferState]: Pid.TransferState_Source }, [], {});
             let props = await BackgroundMessage.getBackpackItemProperties(itemId);
             let message = xml('message', { type: 'chat', to: this.jid + '/' + nick, from: this.jid + '/' + this.myNick })
                 .append(xml('x', { 'xmlns': 'vp:transfer', 'type': 'request', 'item': itemId }, JSON.stringify(props)))
@@ -431,13 +533,19 @@ export class Room
         }
     }
 
-    confirmItemTransfer(itemId: string, nick: string)
+    async confirmItemTransfer(itemId: string, nick: string)
     {
         try {
             let message = xml('message', { type: 'chat', to: this.jid + '/' + nick, from: this.jid + '/' + this.myNick })
                 .append(xml('x', { 'xmlns': 'vp:transfer', 'type': 'confirm', 'item': itemId }))
                 ;
             this.app.sendStanza(message);
+
+            let props = await BackgroundMessage.getBackpackItemProperties(itemId);
+            let senderName = this.getParticipant(nick).getDisplayName();
+            let toast = new SimpleToast(this.app, 'itemtransfer-afterthefact', Config.get('backpack.receiveToastDurationSec', 20), 'notice', senderName, this.app.translateText('Toast.ItemTransferred') + ': ' + this.app.translateText('ItemLabel.' + props[Pid.Label]));
+            toast.show(() => { });
+
         } catch (error) {
 
         }
@@ -446,7 +554,9 @@ export class Room
     showChatWindow(aboveElem: HTMLElement): void
     {
         if (this.chatWindow) {
-            if (!this.chatWindow.isOpen()) {
+            if (this.chatWindow.isOpen()) {
+                this.chatWindow.close();
+            } else {
                 this.app.setChatIsOpen(true);
                 this.chatWindow.show({
                     'above': aboveElem,
@@ -470,14 +580,21 @@ export class Room
         }
     }
 
-    showChatMessage(nick: string, text: string)
+    showChatMessage(name: string, text: string)
     {
-        this.chatWindow.addLine(nick + Date.now(), nick, text);
+        this.chatWindow.addLine(name + Date.now(), name, text);
+    }
+
+    clearChatWindow()
+    {
+        this.chatWindow.clear();
     }
 
     showVideoConference(aboveElem: HTMLElement, displayName: string): void
     {
-        if (!this.vidconfWindow) {
+        if (this.vidconfWindow) {
+            this.vidconfWindow.close();
+        } else {
             let urlTemplate = Config.get('room.vidconfUrl', 'https://meet.jit.si/{room}#userInfo.displayName="{name}"');
             let url = urlTemplate
                 .replace('{room}', this.jid)
@@ -512,27 +629,93 @@ export class Room
         activeItem.applyItem(passiveItem);
     }
 
-    applyItemToParticipant(participant: Participant, passiveItem: RoomItem)
+    applyBackpackItemToParticipant(participant: Participant, backpackItem: BackpackItem)
     {
-        participant.applyItem(passiveItem);
+        participant.applyBackpackItem(backpackItem);
     }
 
-    claimDefersToExisting(props: ItemProperties): boolean
+    applyItemToParticipant(participant: Participant, roomItem: RoomItem)
     {
-        var competingRoomItem = this.getPageClaimItem();
-        if (competingRoomItem) {
-            let competingProps = competingRoomItem.getProperties();
+        participant.applyItem(roomItem);
+    }
+
+    async propsClaimDefersToExistingClaim(props: ItemProperties): Promise<boolean>
+    {
+        var roomItem = this.getPageClaimItem();
+        if (roomItem) {
+            let otherProps = roomItem.getProperties();
             let myId = as.String(props[Pid.Id], null);
-            let competingId = as.String(competingProps[Pid.Id], null);
-            if (myId != '' && myId != competingId) {
-                let competingStrength = as.Float(competingProps[Pid.ClaimStrength], 0.0);
+            let otherId = as.String(otherProps[Pid.Id], null);
+            if (myId != '' && myId != otherId) {
+                let otherStrength = as.Float(otherProps[Pid.ClaimStrength], 0.0);
                 let myStrength = as.Float(props[Pid.ClaimStrength], 0.0);
-                if (myStrength <= competingStrength) {
+                let myUrl = as.String(props[Pid.ClaimUrl], '');
+                let otherUrl = as.String(otherProps[Pid.ClaimUrl], '');
+
+                if (myUrl != '') {
+                    if (!await this.claimIsValidAndOriginal(props)) {
+                        myStrength = 0.0;
+                    }
+                }
+
+                if (otherUrl != '') {
+                    if (!await this.claimIsValidAndOriginal(otherProps)) {
+                        otherStrength = 0.0;
+                    }
+                }
+
+                if (myStrength <= otherStrength) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    async claimIsValidAndOriginal(props: ItemProperties): Promise<boolean>
+    {
+        let url = this.normalizeClaimUrl(props[Pid.ClaimUrl]);
+
+        let mappedRoom = await this.app.vpiMap(url);
+        let mappedRoomJid = jid(mappedRoom);
+        let mappedRoomName = mappedRoomJid.local;
+
+        let currentRoom = this.getJid();
+        let currentRoomJid = jid(currentRoom);
+        let currentRoomName = currentRoomJid.local;
+
+        if (mappedRoomName == currentRoomName) {
+            let publicKey = Config.get('backpack.signaturePublicKey', '');
+            if (ItemProperties.verifySignature(props, publicKey)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    normalizeClaimUrl(url: string): string
+    {
+        if (url.startsWith('https://')) { return url; }
+        if (url.startsWith('http://')) { return url; }
+        if (url.startsWith('//')) { return 'https:' + url; }
+        return 'https://' + url;
+    }
+
+    getAllScriptedItems(): Array<string>
+    {
+        let scriptItemIds = new Array<string>();
+
+        let itemIds = this.getItemIds();
+        for (let i = 0; i < itemIds.length; i++) {
+            let itemId = itemIds[i];
+            let props = this.getItem(itemId).getProperties();
+            if (as.Bool(props[Pid.IframeLive], false)) {
+                scriptItemIds.push(itemId);
+            }
+        }
+
+        return scriptItemIds;
     }
 
 }

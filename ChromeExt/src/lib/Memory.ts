@@ -22,8 +22,10 @@ export class Memory
     static async getSync(key: string, defaultValue: any): Promise<any>
     {
         if (Utils.hasChromeStorage()) {
-            return new Promise((resolve, reject) => {
-                chrome.storage.sync.get([key], result => {
+            return new Promise((resolve, reject) =>
+            {
+                chrome.storage.sync.get([key], result =>
+                {
                     if (result[key] != undefined) {
                         resolve(result[key]);
                     } else {
@@ -39,15 +41,30 @@ export class Memory
     static async setSync(key: string, value: any): Promise<void>
     {
         if (Utils.hasChromeStorage()) {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve, reject) =>
+            {
                 let dict = {};
                 dict[key] = value;
-                    chrome.storage.sync.set(dict, () => {
-                        resolve();
-                    });
+                chrome.storage.sync.set(dict, () =>
+                {
+                    resolve();
+                });
             });
         } else {
             return Memory.setLocal(key, value);
+        }
+    }
+
+    static async deleteSync(key: string): Promise<void>
+    {
+        if (Utils.hasChromeStorage()) {
+            return new Promise((resolve, reject) =>
+            {
+                chrome.storage.sync.remove(key, () =>
+                {
+                    resolve();
+                });
+            });
         }
     }
 
@@ -56,7 +73,8 @@ export class Memory
         return new Promise(resolve =>
         {
             if (Utils.hasChromeStorage()) {
-                chrome.storage.local.get([key], result => {
+                chrome.storage.local.get([key], result =>
+                {
                     if (result[key] != undefined) {
                         resolve(result[key]);
                     } else {
@@ -87,7 +105,8 @@ export class Memory
             let dict = {};
             dict[key] = value;
             if (Utils.hasChromeStorage()) {
-                chrome.storage.local.set(dict, () => {
+                chrome.storage.local.set(dict, () =>
+                {
                     resolve();
                 });
             } else if (window.localStorage) {
@@ -105,7 +124,8 @@ export class Memory
         return new Promise(resolve =>
         {
             if (Utils.hasChromeStorage()) {
-                chrome.storage.local.remove(key, () => {
+                chrome.storage.local.remove(key, () =>
+                {
                     resolve();
                 });
             } else if (window.localStorage) {

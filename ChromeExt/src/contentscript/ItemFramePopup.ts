@@ -2,28 +2,32 @@ import * as $ from 'jquery';
 import 'webpack-jquery-ui';
 import log = require('loglevel');
 import { as } from '../lib/as';
-import { Point2D } from '../lib/Utils';
+import { Point2D, Utils } from '../lib/Utils';
 import { ContentApp } from './ContentApp';
 import { Popup } from './Popup';
-import { RepositoryItem } from './RepositoryItem';
 import { Pid } from '../lib/ItemProperties';
+import { Config } from '../lib/Config';
+import { threadId } from 'worker_threads';
 
 type PopupOptions = any;
 
 interface ItemFramePopupOptions extends PopupOptions
 {
-    item: RepositoryItem;
-    clickPos: Point2D;
+    elem: HTMLElement;
     url: string;
     onClose: { (): void };
 }
 
 export class ItemFramePopup extends Popup
 {
+    private iframeElem: HTMLIFrameElement;
+
     constructor(app: ContentApp)
     {
         super(app);
     }
+
+    getIframeElem(): HTMLIFrameElement { return this.iframeElem; }
 
     async show(options: ItemFramePopupOptions)
     {
@@ -31,26 +35,31 @@ export class ItemFramePopup extends Popup
             let url: string = options.url;
             if (!url) { throw 'No url' }
 
-            options.minLeft = as.Int(options.minLeft, 10);
-            options.offsetLeft = as.Int(options.offsetLeft, 0);
-            options.offsetBottom = as.Int(options.offsetBottom, 10);
-            options.width = as.Int(options.item.getProperties()[Pid.IframeWidth], 400);
-            options.height = as.Int(options.item.getProperties()[Pid.IframeHeight], 400);
+            let json = as.String(options.item.getProperties()[Pid.IframeOptions], '{}');
+            let iframeOptions = JSON.parse(json);
+            options.width = as.Int(iframeOptions.width, 100);
+            options.height = as.Int(iframeOptions.height, 100);
+            options.left = as.Int(iframeOptions.left, -options.width / 2);
+            options.bottom = as.Int(iframeOptions.bottom, 50);
+            options.closeButton = as.Bool(iframeOptions.closeButton, true);
+            options.transparent = as.Bool(iframeOptions.transparent, false);
+            options.closeIsHide = as.Bool(iframeOptions.closeIsHide, false);
 
             log.debug('ItemFramePopup', url);
             super.show(options);
 
             $(this.windowElem).addClass('n3q-itemframepopup');
 
-            let left = Math.max(options.clickPos.x - options.width / 2 + options.offsetLeft, options.minLeft);
-            let top = options.clickPos.y - options.offsetBottom - options.height;
+            this.iframeElem = <HTMLIFrameElement>$('<iframe class="n3q-base n3q-itemframepopup-content" src="' + url + ' " frameborder="0"></iframe>').get(0);
 
-            let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-itemframepopup-content" src="' + url + ' " frameborder="0"></iframe>').get(0);
+            if (options.hidden) { this.setVisibility(false); }
 
-            $(this.windowElem).append(iframeElem);
+            $(this.windowElem).append(this.iframeElem);
             this.app.translateElem(this.windowElem);
-            $(this.windowElem).css({ 'width': options.width + 'px', 'height': options.height + 'px', 'left': left + 'px', 'top': top + 'px' });
-            this.app.toFront(this.windowElem, ContentApp.DisplayLayer_Popup)
+
+            this.position(options.width, options.height, options.left, options.bottom);
+
+            this.app.toFront(this.windowElem, ContentApp.LayerPopup)
 
         } catch (error) {
             log.info('ItemFramePopup', error);
@@ -61,5 +70,26 @@ export class ItemFramePopup extends Popup
     isOpen(): boolean
     {
         return this.windowElem != null;
+    }
+
+    position(width: number, height: number, left: number, bottom: number, options: any = null): void
+    {
+        if (options != null && as.Bool(options.animate, false)) {
+            $(this.windowElem).animate({ width: width + 'px', height: height + 'px', left: left + 'px', bottom: bottom + 'px' }, as.Int(options.duration, 200));
+        } else {
+            $(this.windowElem).css({ width: width + 'px', height: height + 'px', left: left + 'px', bottom: bottom + 'px' });
+        }
+    }
+
+    toFront(): void
+    {
+        this.app.toFront(this.windowElem, ContentApp.LayerPopup);
+    }
+
+    update(): void
+    {
+        if (this.iframeElem) {
+            let src = this.iframeElem.src;
+        }
     }
 }

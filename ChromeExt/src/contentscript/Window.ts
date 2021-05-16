@@ -6,6 +6,7 @@ import { Utils } from '../lib/Utils';
 import { Config } from '../lib/Config';
 import { ContentApp } from './ContentApp';
 import { Memory } from '../lib/Memory';
+import { runInThisContext } from 'vm';
 
 type WindowOptions = any;
 
@@ -21,12 +22,14 @@ export class Window
 
     protected windowElem: HTMLElement;
     protected contentElem: HTMLElement;
+    protected closeIsHide = false;
 
     constructor(protected app: ContentApp) { }
 
     show(options: WindowOptions)
     {
         this.onClose = options.onClose;
+        this.closeIsHide = options.closeIsHide;
 
         if (!this.windowElem) {
             let windowId = Utils.randomString(15);
@@ -51,7 +54,6 @@ export class Window
             ).get(0);
 
             let contentElem = <HTMLElement>$('<div class="n3q-base n3q-window-content" data-translate="children" />').get(0);
-            let resizeElem = resizable ? <HTMLElement>$('<div class="n3q-base n3q-window-resize n3q-window-resize-se"/>').get(0) : null;
 
             $(titleElem).append(titleTextElem);
             $(titleBarElem).append(titleElem);
@@ -60,12 +62,15 @@ export class Window
             $(windowElem).append(titleBarElem);
 
             $(windowElem).append(contentElem);
+
+            let resizeElem = resizable ? <HTMLElement>$('<div class="n3q-base n3q-window-resize n3q-window-resize-se"/>').get(0) : null;
             $(windowElem).append(resizeElem);
 
             this.contentElem = contentElem;
             this.windowElem = windowElem;
 
             $(this.app.getDisplay()).append(windowElem);
+            this.app.toFront(windowElem, ContentApp.LayerWindow);
 
             let maskId = Utils.randomString(15);
 
@@ -101,12 +106,16 @@ export class Window
             this.isClosing = false;
             $(closeElem).click(ev =>
             {
-                this.close();
+                if (this.closeIsHide) {
+                    this.setVisibility(false);
+                } else {
+                    this.close();
+                }
             });
 
             $(windowElem).click(ev =>
             {
-                this.app.toFront(windowElem);
+                this.app.toFront(windowElem, ContentApp.LayerWindow);
             });
 
             $(windowElem).draggable({
@@ -119,7 +128,7 @@ export class Window
                 containment: 'document',
                 start: (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) =>
                 {
-                    this.app.toFront(windowElem);
+                    this.app.toFront(windowElem, ContentApp.LayerWindow);
                     if (this.onDragStart) { this.onDragStart(ev, ui); }
                 },
                 drag: (ev: JQueryEventObject, ui: JQueryUI.DraggableEventUIParams) =>
@@ -134,7 +143,7 @@ export class Window
         }
     }
 
-    async getSavedOptions(name: string, presetOptions : any): Promise<any>
+    async getSavedOptions(name: string, presetOptions: any): Promise<any>
     {
         let savedOptions = await Memory.getLocal('window.' + name, null);
         let options = presetOptions;
@@ -161,7 +170,7 @@ export class Window
         undocked.focus();
         undocked.onload = function ()
         {
-            let html = `<div style="font-size:30px">Undocked</div>`;
+            let html = `<div style="font-size:30px">Undocked, but not really. Override Window.undock()</div>`;
             undocked.document.body.insertAdjacentHTML('afterbegin', html);
         };
     }
@@ -175,6 +184,21 @@ export class Window
             if (this.onClose) { this.onClose(); }
             $(this.windowElem).remove();
             this.windowElem = null;
+        }
+    }
+
+    getVisibility(): boolean
+    {
+        return !$(this.windowElem).hasClass('n3q-hidden');
+    }
+    setVisibility(visible: boolean): void
+    {
+        if (visible != this.getVisibility()) {
+            if (visible) {
+                $(this.windowElem).removeClass('n3q-hidden');
+            } else {
+                $(this.windowElem).addClass('n3q-hidden');
+            }
         }
     }
 }

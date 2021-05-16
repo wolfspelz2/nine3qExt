@@ -22,9 +22,6 @@ export class Nickname implements IObserver
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-nickname n3q-shadow-small" />').get(0);
         $(this.elem).click(() => { this.participant?.select(); });
 
-        // $(this.elem).on('mouseenter', ev => this.participant?.onMouseEnterAvatar(ev));
-        // $(this.elem).on('mouseleave', ev => this.participant?.onMouseLeaveAvatar(ev));
-
         let menu = new Menu(this.app, Utils.randomString(15));
 
         if (this.isSelf) {
@@ -33,22 +30,22 @@ export class Nickname implements IObserver
             column.addItem('chat', 'Chat', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.toggleChatin(); });
             if (Environment.isDevelopment()) { column.addItem('test', 'Test', MenuHasIcon.No, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.app.test(); }); }
 
-            if (Config.get('backpack.enabled', false)) {
+            if (Utils.isBackpackEnabled()) {
                 column.addItem('inventory', 'Backpack', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.app.showBackpackWindow(); });
             }
 
-            column.addItem(
-                'tabstay',
-                'Stay Here',
-                MenuHasIcon.Yes,
-                app.getStayHereIsChecked() ? MenuHasCheckbox.YesChecked : MenuHasCheckbox.YesUnchecked,
-                MenuOnClickClose.Yes,
-                ev =>
-                {
-                    this.app.toggleStayHereIsChecked();
-                    menu.setCheckbox('main', 'tabstay', app.getStayHereIsChecked() ? MenuHasCheckbox.YesChecked : MenuHasCheckbox.YesUnchecked);
-                }
-            );
+            // column.addItem(
+            //     'tabstay',
+            //     'Stay Here',
+            //     MenuHasIcon.Yes,
+            //     app.getStayHereIsChecked() ? MenuHasCheckbox.YesChecked : MenuHasCheckbox.YesUnchecked,
+            //     MenuOnClickClose.Yes,
+            //     ev =>
+            //     {
+            //         this.app.toggleStayHereIsChecked();
+            //         menu.setCheckbox('main', 'tabstay', app.getStayHereIsChecked() ? MenuHasCheckbox.YesChecked : MenuHasCheckbox.YesUnchecked);
+            //     }
+            // );
 
             column.addItem('settings', 'Settings', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { if (this.participant) { this.app.showSettings(this.participant.getElem()); } });
 
@@ -76,9 +73,10 @@ export class Nickname implements IObserver
 
         if (!this.isSelf) {
             let column = new MenuColumn(menu, 'interaction');
-            // column.addItem('chat', 'Chat', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.toggleChatout(); });
+            column.addItem('privatevidconf', 'Private Videoconf', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.initiatePrivateVidconf(this.participant.getElem()); });
             column.addItem('privatechat', 'Private Chat', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.openPrivateChat(this.participant.getElem()); });
             column.addItem('greet', 'Greet', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.sendPoke('greet'); });
+            column.addItem('bye', 'Bye', MenuHasIcon.Yes, MenuHasCheckbox.No, MenuOnClickClose.Yes, ev => { this.participant?.sendPoke('bye'); });
             menu.addColumn(column);
         }
 
@@ -100,7 +98,9 @@ export class Nickname implements IObserver
 
     updateObservableProperty(name: string, value: string): void
     {
-        this.setNickname(value);
+        if (name == 'Nickname') {
+            this.setNickname(value);
+        }
     }
 
     setNickname(nickname: string): void

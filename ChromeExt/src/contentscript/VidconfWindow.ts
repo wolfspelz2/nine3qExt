@@ -54,6 +54,7 @@ export class VidconfWindow extends Window
 
             this.title = options.titleText; // member for undock
             this.url = options.url; // member for undock
+
             this.url = encodeURI(this.url);
             let iframeElem = <HTMLElement>$('<iframe class="n3q-base n3q-vidconfwindow-content" src="' + this.url + ' " frameborder="0" allow="camera; microphone; fullscreen; display-capture"></iframe>').get(0);
 
@@ -91,7 +92,9 @@ export class VidconfWindow extends Window
         let url = this.url;
         let title = this.title;
 
+        this.close();
         let undocked = window.open(url, Utils.randomString(10), params);
+        undocked.focus();
 
         // let undocked = window.open('about:blank', Utils.randomString(10), params);
         // undocked.onload = function ()
@@ -107,9 +110,6 @@ export class VidconfWindow extends Window
         //     undocked.document.body.insertAdjacentHTML('afterbegin', html);
         //     undocked.document.title = title;
         // };
-
-        undocked.focus();
-        this.close();
     }
 
     async saveCoordinates(left: number, bottom: number, width: number, height: number)

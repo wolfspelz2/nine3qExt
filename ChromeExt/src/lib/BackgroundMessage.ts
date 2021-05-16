@@ -1,6 +1,6 @@
 import log = require('loglevel');
 import { ItemChangeOptions } from './ItemChangeOptions';
-import { ItemException } from './ItemExcption';
+import { ItemException } from './ItemException';
 import { ItemProperties, ItemPropertiesSet } from './ItemProperties';
 import { BackgroundApp } from '../background/BackgroundApp';
 import { Environment } from './Environment';
@@ -46,6 +46,11 @@ export class IsBackpackItemResponse extends BackgroundResponse
 }
 
 export class GetBackpackItemPropertiesResponse extends BackgroundResponse
+{
+    constructor(public properties: ItemProperties) { super(true); }
+}
+
+export class CreateBackpackItemFromTemplateResponse extends BackgroundResponse
 {
     constructor(public properties: ItemProperties) { super(true); }
 }
@@ -156,6 +161,16 @@ export class BackgroundMessage
         return BackgroundMessage.sendMessage({ 'type': BackgroundMessage.userSettingsChanged.name });
     }
 
+    static clientNotification(target: string, data: any): Promise<void>
+    {
+        return BackgroundMessage.sendMessage({ 'type': BackgroundMessage.clientNotification.name, 'target': target, 'data': data });
+    }
+
+    static log(...pieces: any): Promise<void>
+    {
+        return BackgroundMessage.sendMessage({ 'type': BackgroundMessage.log.name, 'pieces': pieces });
+    }
+
     static pointsActivity(channel: string, n: number): Promise<void>
     {
         return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.pointsActivity.name, 'channel': channel, 'n': n });
@@ -181,14 +196,19 @@ export class BackgroundMessage
         return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.modifyBackpackItemProperties.name, 'itemId': itemId, 'changed': changed, 'deleted': deleted, 'options': options });
     }
 
+    static loadWeb3BackpackItems(): Promise<void>
+    {
+        return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.loadWeb3BackpackItems.name });
+    }
+
     static rezBackpackItem(itemId: string, roomJid: string, x: number, destination: string, options: ItemChangeOptions): Promise<void>
     {
         return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.rezBackpackItem.name, 'itemId': itemId, 'roomJid': roomJid, 'x': x, 'destination': destination, 'options': options });
     }
 
-    static derezBackpackItem(itemId: string, roomJid: string, x: number, y: number, options: ItemChangeOptions): Promise<void>
+    static derezBackpackItem(itemId: string, roomJid: string, x: number, y: number, changed: ItemProperties, deleted: Array<string>, options: ItemChangeOptions): Promise<void>
     {
-        return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.derezBackpackItem.name, 'itemId': itemId, 'roomJid': roomJid, 'x': x, 'y': y, 'options': options });
+        return BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.derezBackpackItem.name, 'itemId': itemId, 'roomJid': roomJid, 'x': x, 'y': y, 'changed': changed, 'deleted': deleted, 'options': options });
     }
 
     static deleteBackpackItem(itemId: string, options: ItemChangeOptions): Promise<void>
@@ -216,6 +236,19 @@ export class BackgroundMessage
             try {
                 let response = await BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.getBackpackItemProperties.name, 'itemId': itemId });
                 resolve((<GetBackpackItemPropertiesResponse>response).properties);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    static createBackpackItemFromTemplate(template: string, args: ItemProperties): Promise<ItemProperties>
+    {
+        return new Promise(async (resolve, reject) =>
+        {
+            try {
+                let response = await BackgroundMessage.sendMessageCheckOk({ 'type': BackgroundMessage.createBackpackItemFromTemplate.name, 'template': template, 'args': args });
+                resolve((<CreateBackpackItemFromTemplateResponse>response).properties);
             } catch (error) {
                 reject(error);
             }

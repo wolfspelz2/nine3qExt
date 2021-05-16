@@ -12,18 +12,17 @@ import { ContentApp } from './ContentApp';
 export class Entity
 {
     protected elem: HTMLElement;
+    protected rangeElem: HTMLElement;
     protected visible: boolean = false;
     protected avatarDisplay: Avatar;
     protected positionX: number = -1;
     protected defaultSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
     protected inMove: boolean = false;
 
-    constructor(protected app: ContentApp, protected room: Room, protected isSelf: boolean)
+    constructor(protected app: ContentApp, protected room: Room, protected roomNick: string, protected isSelf: boolean)
     {
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-entity" />').get(0);
         this.elem.style.display = 'none';
-
-        $(this.elem).append(this.elem);
 
         $(app.getDisplay()).append(this.elem);
     }
@@ -31,7 +30,8 @@ export class Entity
     getRoom(): Room { return this.room; }
     getElem(): HTMLElement { return this.elem; }
     getDefaultAvatar(): string { return imgDefaultAvatar; }
-    getAvatar() { return this.avatarDisplay; }
+    getAvatar(): Avatar { return this.avatarDisplay; }
+    getIsSelf(): boolean { return this.isSelf; }
 
     show(visible: boolean, durationSec: number = 0.0): void
     {
@@ -54,6 +54,27 @@ export class Entity
         this.show(false);
         $(this.elem).remove();
         delete this.elem;
+    }
+
+    showEffect(effect: any): void
+    {
+        let pulseElem = <HTMLDivElement>$('<div class="n3q-base n3q-pulse" />').get(0);
+        $(this.elem).append(pulseElem)
+        window.setTimeout(() => { $(pulseElem).remove(); }, 1000);
+    }
+
+    setRange(left: number, right: number): void
+    {
+        this.removeRange();
+        this.rangeElem = <HTMLDivElement>$('<div class="n3q-base n3q-range" />').get(0);
+        $(this.rangeElem).css({ left: left, width: right - left });
+        $(this.elem).prepend(this.rangeElem);
+        $(this.elem).css( { 'z-index': '' });
+    }
+
+    removeRange(): void
+    {
+        if (this.rangeElem) { $(this.rangeElem).remove(); }
     }
 
     setPosition(x: number): void
@@ -84,6 +105,13 @@ export class Entity
             }
         }
 
+        if (this.avatarDisplay) {
+            if (!this.avatarDisplay.hasSpeed()) {
+                this.quickSlide(newX);
+                return;
+            }
+        }
+
         let speedPixelPerSec = as.Float(this.avatarDisplay.getSpeedPixelPerSec(), this.defaultSpeedPixelPerSec);
         var durationSec = absDiffX / speedPixelPerSec;
 
@@ -91,9 +119,12 @@ export class Entity
             .stop(true)
             .animate(
                 { left: newX + 'px' },
-                durationSec * 1000,
-                'linear',
-                () => this.onMoveDestinationReached(newX)
+                {
+                    duration: durationSec * 1000,
+                    step: (x) => { this.positionX = x; },
+                    easing: 'linear',
+                    complete: () => this.onMoveDestinationReached(newX)
+                }
             );
     }
 
@@ -117,9 +148,12 @@ export class Entity
             .stop(true)
             .animate(
                 { left: newX + 'px' },
-                100,
-                'linear',
-                () => this.onQuickSlideReached(newX)
+                {
+                    duration: Config.get('room.quickSlideSec', 0.1) * 1000,
+                    step: (x) => { this.positionX = x; },
+                    easing: 'linear',
+                    complete: () => this.onQuickSlideReached(newX)
+                }
             );
     }
 
@@ -158,7 +192,7 @@ export class Entity
 
     select(): void
     {
-        this.app.toFront(this.elem);
+        this.app.toFront(this.elem, ContentApp.LayerEntity);
     }
 
     // Drag
@@ -167,7 +201,7 @@ export class Entity
     onDragAvatarStart(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
     {
         this.dragStartPosition = ui.position;
-        this.app.toFront(this.elem);
+        this.app.toFront(this.elem, ContentApp.LayerEntity);
     }
 
     onDragAvatar(ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams): void
@@ -183,8 +217,5 @@ export class Entity
 
     onDraggedTo(newX: number): void
     {
-        if (this.getPosition() != newX) {
-            this.quickSlide(newX);
-        }
     }
 }

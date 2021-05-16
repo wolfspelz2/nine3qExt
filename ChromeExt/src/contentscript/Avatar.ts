@@ -26,15 +26,15 @@ class AvatarGetAnimationResult
 export class Avatar implements IObserver
 {
     private elem: HTMLDivElement;
+    private imageElem: HTMLImageElement;
     private hasAnimation = false;
     private animations: AnimationsXml.AnimationsDefinition;
     private defaultGroup: string;
     private currentCondition: string = '';
     private currentState: string = '';
     private currentAction: string = '';
-    private inDrag: boolean = false;
     private isDefault: boolean = true;
-    private currentSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
+    private speedPixelPerSec: number = 0;
     private defaultSpeedPixelPerSec: number = as.Float(Config.get('room.defaultAvatarSpeedPixelPerSec', 100));
 
     private clickDblClickSeparationTimer: number;
@@ -44,18 +44,55 @@ export class Avatar implements IObserver
     ignoreDrag(): void { this.ignoreNextDragFlag = true; }
 
     isDefaultAvatar(): boolean { return this.isDefault; }
+    getElem(): HTMLElement { return this.elem; }
+
+    private mousedownX: number;
+    private mousedownY: number;
 
     constructor(protected app: ContentApp, private entity: Entity, private isSelf: boolean)
     {
+        this.imageElem = <HTMLImageElement>$('<img class="n3q-base n3q-avatar-image" />').get(0);
         this.elem = <HTMLDivElement>$('<div class="n3q-base n3q-avatar" />').get(0);
+        $(this.elem).append(this.imageElem);
 
         // var url = 'https://www.virtual-presence.org/images/wolf.png';
         // var url = app.getAssetUrl('default-avatar.png');
         var url = entity.getDefaultAvatar();
         // this.elem.src = url;
         this.setImage(url);
-        this.setSize(38, 94);
+        this.setSize(38, 38);
         this.isDefault = true;
+
+        $(this.imageElem).on('mousedown', (ev: JQueryMouseEventObject) =>
+        {
+            this.mousedownX = ev.clientX;
+            this.mousedownY = ev.clientY;
+        });
+
+        $(this.imageElem).on('click', (ev: JQueryMouseEventObject) =>
+        {
+            if (Math.abs(this.mousedownX - ev.clientX) > 2 || Math.abs(this.mousedownY - ev.clientY) > 2) {
+                return;
+            }
+
+            let elem = this.elemBelowTransparentImageAtMouse(ev);
+            if (elem) {
+                // let newEv = new jQuery.Event('click');
+                // newEv.clientX = ev.clientY;
+                // newEv.clientY = ev.clientY;
+                // $(elem).trigger('click', newEv);
+                if ($(elem).hasClass('n3q-avatar-image')) {
+                    let belowAvatarElem = elem.parentElement;
+                    if (belowAvatarElem) {
+                        let belowEntityElem = belowAvatarElem.parentElement;
+                        if (belowEntityElem) {
+                            this.app.toFront(belowEntityElem, ContentApp.LayerEntity);
+                        }
+                    }
+                }
+                ev.stopPropagation();
+            }
+        });
 
         $(this.elem).on('click', ev =>
         {
@@ -89,18 +126,30 @@ export class Avatar implements IObserver
 
         $(entity.getElem()).append(this.elem);
 
-        $(this.elem).draggable({
+        $(this.imageElem).draggable({
             scroll: false,
             stack: '.n3q-item',
             opacity: 0.5,
             distance: 4,
-            helper: 'clone',
-            // zIndex: 1100000000,
+            // helper: 'clone',
+            helper: () =>
+            {
+                let dragElem = $(this.elem).clone().get(0);
+                let nick = Avatar.getEntityIdByAvatarElem(this.elem);
+                $(dragElem).data('nick', nick);
+                $(dragElem).detach();
+                this.app.getDisplay().append(dragElem);
+                this.app.toFront(dragElem, ContentApp.LayerDrag);
+                return dragElem;
+            },
             containment: 'document',
             start: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
             {
-                this.app.enableScreen(true);
-                this.inDrag = true;
+                let elem = this.elemBelowTransparentImageAtMouse(ev);
+                if (elem) {
+                    return false;
+                }
+
                 this.entity.onDragAvatarStart(ev, ui);
             },
             drag: (ev: JQueryMouseEventObject, ui: JQueryUI.DraggableEventUIParams) =>
@@ -120,29 +169,71 @@ export class Avatar implements IObserver
                     this.entity.onDragAvatarStop(ev, ui);
                 }
 
-                this.inDrag = false;
-                this.app.enableScreen(false);
-                $(this.elem).css('z-index', '');
-
                 this.hackSuppressNextClickOtherwiseDraggableClicks = true;
                 setTimeout(() => { this.hackSuppressNextClickOtherwiseDraggableClicks = false; }, 200);
             }
         });
     }
 
+    elemBelowTransparentImageAtMouse(ev: JQueryMouseEventObject): Element
+    {
+        if (typeof ev.pageX === 'undefined') { return null; }
+
+        let elemBelow: Element = null;
+        let self = this.imageElem;
+        let canvasElem = document.createElement('canvas');
+        let ctx = canvasElem.getContext('2d');
+
+        // Get click coordinates
+        let x = ev.pageX - $(self).offset().left;
+        let y = ev.pageY - $(self).offset().top;
+        let w = ctx.canvas.width = $(self).width();
+        let h = ctx.canvas.height = $(self).height();
+
+        // Draw image to canvas
+        // and read Alpha channel value
+        ctx.drawImage(self, 0, 0, w, h);
+        let alpha = ctx.getImageData(x, y, 1, 1).data[3]; // [0]R [1]G [2]B [3]A
+
+        $(canvasElem).remove();
+
+        // If pixel is transparent, retrieve the element underneath
+        if (alpha === 0) {
+            let imagePointerEvents = self.style.pointerEvents;
+            let parentPointerEvents = self.parentElement.style.pointerEvents;
+            self.style.pointerEvents = 'none';
+            self.parentElement.style.pointerEvents = 'none';
+            elemBelow = document.elementFromPoint(ev.clientX, ev.clientY);
+            self.style.pointerEvents = imagePointerEvents;
+            self.parentElement.style.pointerEvents = parentPointerEvents;
+        }
+
+        return elemBelow;
+    }
+
     addClass(className: string): void
     {
-        $(this.elem).addClass(className);
+        $(this.imageElem).addClass(className);
     }
 
     makeDroppable(): void
     {
         $(this.elem).droppable({
             hoverClass: 'n3q-avatar-drophilite',
-            accept: function (draggable)
+            accept: (draggable) =>
             {
-                if (draggable.hasClass('n3q-item-avatar')) {
-                    return true;
+                if (draggable[0]) { draggable = draggable[0]; } // wtf
+
+                if ($(draggable).hasClass('n3q-avatar-image')) {
+                    if (Avatar.getEntityIdByAvatarElem(draggable) != Avatar.getEntityIdByAvatarElem(this.getElem())) {
+                        return true;
+                    }
+                }
+
+                if ($(draggable).hasClass('n3q-backpack-item')) {
+                    if (!this.isSelf) {
+                        return true;
+                    }
                 }
             },
             drop: async (ev: JQueryEventObject, ui: JQueryUI.DroppableEventUIParam) =>
@@ -163,11 +254,20 @@ export class Avatar implements IObserver
                         let itemId = droppedRoomItem.getRoomNick();
                         if (await BackgroundMessage.isBackpackItem(itemId)) {
                             let thisParticipant = this.getParticipantByAvatarElem(this.elem);
-                            this.app.getRoom().applyItemToParticipant(thisParticipant, droppedRoomItem);
+                            if (thisParticipant) {
+                                this.app.getRoom().applyItemToParticipant(thisParticipant, droppedRoomItem);
+                            }
                         }
                     }
                 } else {
                     let droppedBackpackItem = this.getBackpackItemByDomElem(droppedElem);
+
+                    if (droppedBackpackItem) {
+                        let thisParticipant = this.getParticipantByAvatarElem(this.elem);
+                        if (thisParticipant) {
+                            this.app.getRoom().applyBackpackItemToParticipant(thisParticipant, droppedBackpackItem);
+                        }
+                    }
                 }
             }
         });
@@ -183,7 +283,7 @@ export class Avatar implements IObserver
 
     getRoomItemByDomElem(elem: HTMLElement): RoomItem
     {
-        let avatarEntityId = this.getEntityIdByAvatarElem(elem);
+        let avatarEntityId = Avatar.getEntityIdByAvatarElem(elem);
         if (avatarEntityId) {
             return this.app.getRoom().getItem(avatarEntityId);
         }
@@ -191,18 +291,28 @@ export class Avatar implements IObserver
 
     getParticipantByAvatarElem(elem: HTMLElement): Participant
     {
-        let avatarEntityId = this.getEntityIdByAvatarElem(elem);
+        let avatarEntityId = Avatar.getEntityIdByAvatarElem(elem);
         if (avatarEntityId) {
             return this.app.getRoom().getParticipant(avatarEntityId);
         }
     }
 
-    getEntityIdByAvatarElem(elem: HTMLElement): string
+    static getEntityIdByAvatarElem(elem: HTMLElement): string
     {
         if (elem) {
-            let avatarEntityElem = elem.parentElement;
-            if (avatarEntityElem) {
-                return $(avatarEntityElem).data('nick');
+            let nick = $(elem).data('nick');
+            if (nick) { if (nick != '') { return nick; } }
+
+            let avatarElem = elem.parentElement;
+            if (avatarElem) {
+                if ($(avatarElem).hasClass('n3q-entity')) {
+                    return $(avatarElem).data('nick');
+                } else {
+                    let avatarEntityElem = avatarElem.parentElement;
+                    if (avatarEntityElem) {
+                        return $(avatarEntityElem).data('nick');
+                    }
+                }
             }
         }
     }
@@ -218,9 +328,9 @@ export class Avatar implements IObserver
     hilite(on: boolean)
     {
         if (on) {
-            $(this.elem).addClass('n3q-avatar-hilite');
+            $(this.imageElem).addClass('n3q-avatar-hilite');
         } else {
-            $(this.elem).removeClass('n3q-avatar-hilite');
+            $(this.imageElem).removeClass('n3q-avatar-hilite');
         }
     }
 
@@ -244,7 +354,6 @@ export class Avatar implements IObserver
                 }
             } break;
             case 'AnimationsUrl': {
-                this.hasAnimation = true;
                 let defaultSize = Config.get('room.defaultAnimationSize', 100);
                 this.setSize(defaultSize, defaultSize);
                 this.setAnimations(value);
@@ -271,15 +380,15 @@ export class Avatar implements IObserver
     setImage(url: string): void
     {
         if (url.startsWith('data:')) {
-            $(this.elem).css({ 'background-image': 'url("' + url + '")' });
+            $(this.imageElem).attr('src', url);
         } else {
             try {
                 this.getDataUrlImage(url).then(dataUrlImage =>
                 {
-                    $(this.elem).css({ 'background-image': 'url("' + dataUrlImage + '")' });
+                    $(this.imageElem).attr('src', dataUrlImage);
                 });
             } catch (error) {
-                $(this.elem).css({ 'background-image': 'url("' + url + '")' });
+                $(this.imageElem).attr('src', url);
             }
         }
     }
@@ -291,20 +400,26 @@ export class Avatar implements IObserver
 
     setCondition(condition: string): void
     {
-        this.currentCondition = condition;
-        this.startNextAnimation();
+        if (this.currentCondition != condition) {
+            this.currentCondition = condition;
+            this.startNextAnimation();
+        }
     }
 
     setState(state: string): void
     {
-        this.currentState = state;
-        this.startNextAnimation();
+        if (this.currentState != state) {
+            this.currentState = state;
+            this.startNextAnimation();
+        }
     }
 
     setAction(action: string): void
     {
-        this.currentAction = action;
-        this.startNextAnimation();
+        if (this.currentAction != action) {
+            this.currentAction = action;
+            this.startNextAnimation();
+        }
     }
 
     async setAnimations(url: string): Promise<void>
@@ -312,35 +427,32 @@ export class Avatar implements IObserver
         let response = await BackgroundMessage.fetchUrl(url, '');
         if (response.ok) {
             try {
+                
                 let parsed = AnimationsXml.AnimationsXml.parseXml(url, response.data);
                 let width = as.Int(parsed.params['width'], -1);
                 let height = as.Int(parsed.params['height'], -1);
                 if (width > 0 && height > 0) {
                     this.setSize(width, height);
                 }
-                this.onAnimations(parsed);
+
+                this.animations = parsed;
+                this.defaultGroup = this.getDefaultGroup();
+
+                if (!this.hasAnimation) {
+                    this.startNextAnimation();
+                    this.hasAnimation = true;
+                }
+
             } catch (error) {
                 log.info(error);
             }
         }
     }
 
-    onAnimations(data: AnimationsXml.AnimationsDefinition): void
-    {
-        this.animations = data;
-        this.defaultGroup = this.getDefaultGroup();
-
-        //this.currentAction = 'wave';
-        //this.currentState = 'moveleft';
-
-        this.startNextAnimation();
-    }
-
+    private moveCnt = 0;
     private animationTimer: number = undefined;
     startNextAnimation(): void
     {
-        this.currentSpeedPixelPerSec = this.defaultSpeedPixelPerSec;
-
         let once = true;
         let group = this.currentAction;
         this.currentAction = '';
@@ -357,6 +469,14 @@ export class Avatar implements IObserver
             }
         }
 
+        if (group.startsWith('move')) {
+            this.moveCnt++;
+            //log.debug('##### startNextAnimation', group, this.moveCnt, Date.now() / 1000);
+            if (this.moveCnt == 2) {
+                let x = 1;
+            }
+        }
+
         let durationSec: number = animation.duration / 1000;
         if (durationSec < 0.1) {
             durationSec = 1.0;
@@ -364,10 +484,7 @@ export class Avatar implements IObserver
 
         // this.currentSpeedPixelPerSec = Math.abs(animation.dx) / durationSec;
         // dx means pixels per sec, not pixels per duration
-        let newSpeedPixelPerSec = Math.abs(animation.dx) / 1.0;
-        if (newSpeedPixelPerSec > 0) {
-            this.currentSpeedPixelPerSec = Math.abs(animation.dx) / 1.0;
-        }
+        this.setSpeed(Math.abs(animation.dx) / 1.0);
 
         this.setImage(animation.url);
 
@@ -378,9 +495,19 @@ export class Avatar implements IObserver
         this.animationTimer = <number><unknown>setTimeout(() => { this.startNextAnimation(); }, durationSec * 1000);
     }
 
+    hasSpeed(): boolean
+    {
+        return this.speedPixelPerSec != 0;
+    }
+
     getSpeedPixelPerSec(): Number
     {
-        return this.currentSpeedPixelPerSec;
+        return this.speedPixelPerSec;
+    }
+
+    setSpeed(pixelPerSec: number): void
+    {
+        this.speedPixelPerSec = pixelPerSec;
     }
 
     getAnimationByGroup(group: string): AvatarGetAnimationResult

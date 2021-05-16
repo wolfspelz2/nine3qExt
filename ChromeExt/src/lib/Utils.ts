@@ -1,5 +1,9 @@
 import { xml } from '@xmpp/client';
-import { uniqueNamesGenerator, Config, adjectives, colors, animals } from 'unique-names-generator';
+import log = require('loglevel');
+import { as } from './as';
+import { Config } from './Config';
+import { Environment } from './Environment';
+import { ItemProperties } from './ItemProperties';
 
 export class Point2D
 {
@@ -10,14 +14,45 @@ export class Utils
 {
     static localStorageKey_X(): string { return 'me.x'; }
     static localStorageKey_Active(): string { return 'me.active'; }
-    static localStorageKey_StayOnTabChange(roomJid: string): string { return 'room.' + roomJid + '.stayOnTabChange'; }
+    // static localStorageKey_StayOnTabChange(roomJid: string): string { return 'room.' + roomJid + '.stayOnTabChange'; }
     static localStorageKey_BackpackIsOpen(roomJid: string): string { return 'room.' + roomJid + '.backpackIsOpen'; }
     static localStorageKey_VidconfIsOpen(roomJid: string): string { return 'room.' + roomJid + '.vidconfIsOpen'; }
     static localStorageKey_ChatIsOpen(roomJid: string): string { return 'room.' + roomJid + '.chatIsOpen'; }
     static localStorageKey_CustomConfig(): string { return 'dev.config'; }
-    static syncStorageKey_Id(): string { return 'me.id'; }
-    static syncStorageKey_Nickname(): string { return 'me.nickname'; }
-    static syncStorageKey_Avatar(): string { return 'me.avatar'; }
+    static localStorageKey_Id(): string { return 'me.id'; }
+    static localStorageKey_Nickname(): string { return 'me.nickname'; }
+    static localStorageKey_Avatar(): string { return 'me.avatar'; }
+    static localStorageKey_BackpackPhase(): string { return 'backpack.phase'; }
+
+    static isBackpackEnabled()
+    {
+        if (Environment.isExtension()) { return Config.get('backpack.enabled', false); }
+        if (Environment.isEmbedded()) { return Config.get('backpack.embeddedEnabled', false); }
+        return true;
+    }
+    
+    static makeGifExplicit(avatarId: string): string
+    {
+        let parts = avatarId.split('/');
+        if (parts.length == 1) { return 'gif/002/' + avatarId; }
+        else if (parts.length == 2) { return 'gif/' + avatarId; }
+        return 'gif/' + avatarId;
+    }
+
+    static fixDuplicateGif(avatarUrl: string): string
+    {
+        if (avatarUrl.search('gif/gif/') > 0) {
+            return avatarUrl.replace('gif/gif/', 'gif/');
+        }
+        return avatarUrl;
+    }
+
+    static getAvatarUrlFromAvatarId(avatarId: string): string
+    {
+        let avatarUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'https://webex.vulcan.weblin.com/avatars/{id}/config.xml')).replace('{id}', Utils.makeGifExplicit(avatarId));
+        avatarUrl = Utils.fixDuplicateGif(avatarUrl);
+        return avatarUrl;
+    }
 
     static jsObject2xmlObject(stanza: any): xml
     {
@@ -69,19 +104,6 @@ export class Utils
         return i;
     }
 
-    static randomNickname(): string
-    {
-        const customConfig: Config = {
-            dictionaries: [colors, animals],
-            separator: ' ',
-            length: 2,
-            style: 'capital',
-        };
-
-        const randomName: string = uniqueNamesGenerator(customConfig);
-        return randomName;
-    }
-
     static hash(s: string): number
     {
         var hash = 0;
@@ -108,7 +130,8 @@ export class Utils
         return window.atob(s);
     }
 
-    static hasChromeStorage(): boolean {
+    static hasChromeStorage(): boolean
+    {
         return (typeof chrome !== 'undefined' && typeof chrome.storage !== 'undefined');
     }
 
@@ -123,4 +146,21 @@ export class Utils
         return false;
     }
 
+    static sortObjectByKey(o: any): any
+    {
+        return Object.keys(o).sort().reduce(
+            (obj, key) =>
+            {
+                obj[key] = o[key];
+                return obj;
+            },
+            {}
+        );
+    }
+
+    static cloneObject(obj: any): any
+    {
+        let clone = {};
+        return Object.assign(clone, obj);
+    }
 }

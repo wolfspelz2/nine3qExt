@@ -10,6 +10,7 @@ import { Memory } from '../lib/Memory';
 import { BackgroundMessage } from '../lib/BackgroundMessage';
 import { Translator } from '../lib/Translator';
 import { AvatarGallery } from '../lib/AvatarGallery';
+import { RandomNames } from '../lib/RandomNames';
 
 export class PopupApp
 {
@@ -54,8 +55,8 @@ export class PopupApp
 
         this.display = $('<div id="n3q-id-popup" class="n3q-base" data-translate="children"/>').get(0);
 
-        let nickname = as.String(await Memory.getSync(Utils.syncStorageKey_Nickname(), 'Your name'));
-        let avatar = as.String(await Memory.getSync(Utils.syncStorageKey_Avatar(), ''));
+        let nickname = as.String(await Memory.getLocal(Utils.localStorageKey_Nickname(), 'Your name'));
+        let avatar = as.String(await Memory.getLocal(Utils.localStorageKey_Avatar(), ''));
 
         {
             let group = $('<div class="n3q-base n3q-popup-header" data-translate="children"/>').get(0);
@@ -98,7 +99,7 @@ export class PopupApp
             let button = $('<button class="n3q-base n3q-popup-random" data-translate="text:Popup">Random</button>').get(0);
             $(button).bind('click', async ev =>
             {
-                $('#n3q-id-popup-nickname').val(Utils.randomNickname());
+                $('#n3q-id-popup-nickname').val(RandomNames.getRandomNickname());
             });
             group.append(button);
 
@@ -115,7 +116,7 @@ export class PopupApp
                 if (avatarIdx < 0) {
                     avatar = '004/pinguin';
                 }
-                await Memory.setSync(Utils.syncStorageKey_Avatar(), avatar);
+                await Memory.setLocal(Utils.localStorageKey_Avatar(), avatar);
             }
 
             let group = $('<div class="n3q-base n3q-popup-group n3q-popup-group-avatar" data-translate="children"/>').get(0);
@@ -170,10 +171,10 @@ export class PopupApp
             {
                 $(saving).fadeTo(200, 1.0);
                 let nickname2Save = $('#n3q-id-popup-nickname').val();
-                await Memory.setSync(Utils.syncStorageKey_Nickname(), nickname2Save);
+                await Memory.setLocal(Utils.localStorageKey_Nickname(), nickname2Save);
 
                 let avatar2Save = $('#n3q-id-popup-avatar').val();
-                await Memory.setSync(Utils.syncStorageKey_Avatar(), avatar2Save);
+                await Memory.setLocal(Utils.localStorageKey_Avatar(), avatar2Save);
 
                 await BackgroundMessage.userSettingsChanged();
 
@@ -236,12 +237,12 @@ export class PopupApp
     {
         // $(nameElem).text(id);
         $(hiddenElem).val(id);
-        displayElem.src = this.getAvatarDisplayUrlFromAvatarId(id);
+        displayElem.src = this.getAvatarImageUrlFromAvatarId(id);
     }
 
-    private getAvatarDisplayUrlFromAvatarId(id: string)
+    private getAvatarImageUrlFromAvatarId(id: string)
     {
-        let avatarUrl = as.String(Config.get('avatars.animationsUrlTemplate', 'https://avatar.zweitgeist.com/gif/{id}/config.xml')).replace('{id}', id);
+        let avatarUrl = Utils.getAvatarUrlFromAvatarId(id);
         let idleUrl = new URL('idle.gif', avatarUrl);
         return idleUrl.toString();
     }

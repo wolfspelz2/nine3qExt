@@ -51,6 +51,7 @@ export namespace RpcProtocol
         static method = 'CreateItem';
         user: string;
         template: string;
+        args: ItemProperties;
     }
 
     export class BackpackCreateResponse extends BackpackResponse

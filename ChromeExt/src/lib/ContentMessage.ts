@@ -32,6 +32,7 @@ export class ContentMessage
     static readonly type_onBackpackSetItem = 'onBackpackSetItem';
     static readonly type_onBackpackHideItem = 'onBackpackHideItem';
     static readonly type_sendPresence = 'sendPresence';
+    static readonly type_clientNotification = 'clientNotification';
 
     static content: ContentApp;
 

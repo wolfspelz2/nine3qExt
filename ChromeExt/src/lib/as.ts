@@ -6,6 +6,7 @@
         '>': '&gt;',
         '\'': '&quot;',
         '"': '&#39;',
+        '\n': '<br/>',
     }
 
     private static readonly typeBoolean: string = typeof true;
@@ -101,7 +102,7 @@
     static Html(val: any, alt?: string): string
     {
         let res = as.String(val, alt);
-        let htmlEncoded = String(res).replace(/[&<>'"]/g, (s) => this.escapeHtml_entityMap[s]);
+        let htmlEncoded = String(res).replace(/[&<>'"\n]/g, (s) => this.escapeHtml_entityMap[s]);
         return htmlEncoded;
     }
 
