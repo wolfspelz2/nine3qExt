@@ -40,7 +40,7 @@ export class RoomItem extends Entity
         $(this.getElem()).addClass('n3q-item');
         $(this.getElem()).attr('data-nick', roomNick);
 
-        if (Config.get('backpack.enabled', false)) {
+        if (Utils.isBackpackEnabled()) {
             $(this.getElem()).hover(() =>
             {
                 this.statsDisplay?.close();
@@ -204,7 +204,7 @@ export class RoomItem extends Entity
 
         if (isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, false);
-            if (Config.get('backpack.enabled', false)) {
+            if (Utils.isBackpackEnabled()) {
                 this.avatarDisplay.addClass('n3q-item-avatar');
             }
             if (as.Bool(newProperties[Pid.ApplierAspect], false)) {

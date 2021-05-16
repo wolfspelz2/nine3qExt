@@ -2,6 +2,7 @@ import { xml } from '@xmpp/client';
 import log = require('loglevel');
 import { as } from './as';
 import { Config } from './Config';
+import { Environment } from './Environment';
 import { ItemProperties } from './ItemProperties';
 
 export class Point2D
@@ -23,6 +24,13 @@ export class Utils
     static localStorageKey_Avatar(): string { return 'me.avatar'; }
     static localStorageKey_BackpackPhase(): string { return 'backpack.phase'; }
 
+    static isBackpackEnabled()
+    {
+        if (Environment.isExtension()) { return Config.get('backpack.enabled', false); }
+        if (Environment.isEmbedded()) { return Config.get('backpack.embeddedEnabled', false); }
+        return true;
+    }
+    
     static makeGifExplicit(avatarId: string): string
     {
         let parts = avatarId.split('/');

@@ -72,7 +72,6 @@ export class Participant extends Entity
 
     // presence
 
-    private cntSelf = 0;
     async onPresenceAvailable(stanza: any): Promise<void>
     {
         let hasPosition: boolean = false;
@@ -96,6 +95,8 @@ export class Participant extends Entity
 
         let isFirstPresence = this.isFirstPresence;
         this.isFirstPresence = false;
+
+        // log.debug('#### recv', stanza.children[1].attrs);
 
         {
             let from = stanza.attrs.from
@@ -190,7 +191,7 @@ export class Participant extends Entity
 
         if (isFirstPresence) {
             this.avatarDisplay = new Avatar(this.app, this, this.isSelf);
-            if (Config.get('backpack.enabled', false)) {
+            if (Utils.isBackpackEnabled()) {
                 this.avatarDisplay.addClass('n3q-participant-avatar');
                 this.avatarDisplay.makeDroppable();
             }
@@ -315,17 +316,15 @@ export class Participant extends Entity
 
         if (isFirstPresence) {
             if (this.isSelf) {
-                this.cntSelf++;
-                if (this.cntSelf == 2) {
-                    let x = 1;
-                }
-                let propSet = await BackgroundMessage.findBackpackItemProperties({ [Pid.AutorezAspect]: 'true', [Pid.AutorezIsActive]: 'true' });
-                for (const itemId in propSet) {
-                    let props = propSet[itemId];
-                    if (props[Pid.IsRezzed]) {
-                        await BackgroundMessage.derezBackpackItem(itemId, props[Pid.RezzedLocation], -1, -1, {}, [], {});
+                if (Utils.isBackpackEnabled()) {
+                    let propSet = await BackgroundMessage.findBackpackItemProperties({ [Pid.AutorezAspect]: 'true', [Pid.AutorezIsActive]: 'true' });
+                    for (const itemId in propSet) {
+                        let props = propSet[itemId];
+                        if (props[Pid.IsRezzed]) {
+                            await BackgroundMessage.derezBackpackItem(itemId, props[Pid.RezzedLocation], -1, -1, {}, [], {});
+                        }
+                        await BackgroundMessage.rezBackpackItem(itemId, this.room.getJid(), -1, this.room.getDestination(), {});
                     }
-                    await BackgroundMessage.rezBackpackItem(itemId, this.room.getJid(), -1, this.room.getDestination(), {});
                 }
             }
         }

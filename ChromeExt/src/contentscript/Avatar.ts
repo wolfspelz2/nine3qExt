@@ -435,9 +435,10 @@ export class Avatar implements IObserver
                     this.setSize(width, height);
                 }
 
+                this.animations = parsed;
+                this.defaultGroup = this.getDefaultGroup();
+
                 if (!this.hasAnimation) {
-                    this.animations = parsed;
-                    this.defaultGroup = this.getDefaultGroup();
                     this.startNextAnimation();
                     this.hasAnimation = true;
                 }

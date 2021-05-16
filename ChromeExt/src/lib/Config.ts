@@ -163,6 +163,7 @@ export class Config
         },
         backpack: {
             enabled: true,
+            embeddedEnabled: false,
             itemSize: 64,
             borderPadding: 4,
             dropZoneHeight: 100,

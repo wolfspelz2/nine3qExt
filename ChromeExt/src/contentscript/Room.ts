@@ -215,6 +215,7 @@ export class Room
                 );
             }
 
+            // log.debug('#### send', presence.children[1].attrs);
             this.app.sendStanza(presence);
         } catch (error) {
             log.info(error);
@@ -229,7 +230,7 @@ export class Room
 
     async getBackpackItemProperty(filterProperties: ItemProperties, propertyPid: string, defautValue: any): Promise<any>
     {
-        if (Config.get('backpack.enabled', false)) {
+        if (Utils.isBackpackEnabled()) {
             let propSet = await BackgroundMessage.findBackpackItemProperties(filterProperties);
             let item = null;
             for (let id in propSet) {

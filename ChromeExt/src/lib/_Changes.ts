@@ -14,6 +14,7 @@ export class _Changes
             ['Add', 'Some features for Frank to the iframe API'],
             ['Add', 'Page API'],
             ['Change', 'Default item to quite transparent pyramid to remove visible space used'],
+            ['Change', 'Disable items for embedded'],
             ['Fix', 'Item state is not visible remotely'],
             ['Fix', 'Claim certificate not visible remotely'],
             ['Fix', 'Not all signed item properties are sent thru presence, which fails the sig'],
