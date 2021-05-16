@@ -152,6 +152,7 @@ export class Participant extends Entity
                     vpAvatarId = as.String(attrs.AvatarId, '');
                     if (vpAvatarId == '') { vpAvatarId = as.String(attrs.avatar, ''); }
                     vpAnimationsUrl = as.String(attrs.AnimationsUrl, '');
+                    vpAnimationsUrl = as.String(attrs.AvatarUrl, vpAnimationsUrl);
                     vpImageUrl = as.String(attrs.ImageUrl, '');
                 }
             }
