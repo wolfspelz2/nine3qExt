@@ -221,6 +221,7 @@ export class RoomItem extends Entity
                 let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://webex.vulcan.weblin.com/Avatar/InlineData?url={url}')).replace('{url}', encodeURIComponent(vpAnimationsUrl));
                 this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
             } else {
+                this.avatarDisplay?.updateObservableProperty('AnimationsUrl', '');
                 if (vpImageUrl != '') {
                     this.avatarDisplay?.updateObservableProperty('ImageUrl', vpImageUrl);
                 }

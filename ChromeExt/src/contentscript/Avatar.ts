@@ -354,9 +354,13 @@ export class Avatar implements IObserver
                 }
             } break;
             case 'AnimationsUrl': {
-                let defaultSize = Config.get('room.defaultAnimationSize', 100);
-                this.setSize(defaultSize, defaultSize);
-                this.setAnimations(value);
+                if (value == '') {
+                    this.setAnimations(value);
+                } else {
+                    let defaultSize = Config.get('room.defaultAnimationSize', 100);
+                    this.setSize(defaultSize, defaultSize);
+                    this.setAnimations(value);
+                }
             } break;
         }
     }
@@ -424,27 +428,32 @@ export class Avatar implements IObserver
 
     async setAnimations(url: string): Promise<void>
     {
-        let response = await BackgroundMessage.fetchUrl(url, '');
-        if (response.ok) {
-            try {
-                
-                let parsed = AnimationsXml.AnimationsXml.parseXml(url, response.data);
-                let width = as.Int(parsed.params['width'], -1);
-                let height = as.Int(parsed.params['height'], -1);
-                if (width > 0 && height > 0) {
-                    this.setSize(width, height);
+        if (url == '') { 
+            this.animations = null;
+            this.hasAnimation = false;
+        } else {
+            let response = await BackgroundMessage.fetchUrl(url, '');
+            if (response.ok) {
+                try {
+
+                    let parsed = AnimationsXml.AnimationsXml.parseXml(url, response.data);
+                    let width = as.Int(parsed.params['width'], -1);
+                    let height = as.Int(parsed.params['height'], -1);
+                    if (width > 0 && height > 0) {
+                        this.setSize(width, height);
+                    }
+
+                    this.animations = parsed;
+                    this.defaultGroup = this.getDefaultGroup();
+
+                    if (!this.hasAnimation) {
+                        this.startNextAnimation();
+                        this.hasAnimation = true;
+                    }
+
+                } catch (error) {
+                    log.info(error);
                 }
-
-                this.animations = parsed;
-                this.defaultGroup = this.getDefaultGroup();
-
-                if (!this.hasAnimation) {
-                    this.startNextAnimation();
-                    this.hasAnimation = true;
-                }
-
-            } catch (error) {
-                log.info(error);
             }
         }
     }
