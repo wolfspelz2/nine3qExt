@@ -174,8 +174,8 @@ export class Config
             itemInfoDelay: 300,
             deleteToastDurationSec: 100,
             receiveToastDurationSec: 10,
-            dependentPresenceItemsLimit: 5,
-            dependentPresenceItemsWarning: 3,
+            dependentPresenceItemsLimit: 25,
+            dependentPresenceItemsWarning: 20,
             dependentPresenceItemsWarningIntervalSec: 30,
             loadWeb3Items: true,
             signaturePublicKey: '-----BEGIN PUBLIC KEY-----\n' +
