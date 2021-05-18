@@ -39,7 +39,7 @@ export class Item
     {
         if (this.isRezzed()) {
             let roomJid = this.properties[Pid.RezzedLocation];
-            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
+            this.app.sendToTabsForRoom(roomJid, { 'type': ContentMessage.type_sendPresence });
         }
     }
 

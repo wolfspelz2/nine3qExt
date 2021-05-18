@@ -1267,14 +1267,14 @@ export class BackgroundApp
         }
     }
 
-    sendToTabsForRoom(room: string, type: string)
+    sendToTabsForRoom(room: string, message: any)
     {
         try {
             let tabIds = this.getRoomJid2TabIds(room);
             if (tabIds) {
                 for (let i = 0; i < tabIds.length; i++) {
                     let tabId = tabIds[i];
-                    ContentMessage.sendMessage(tabId, { 'type': type });
+                    ContentMessage.sendMessage(tabId, message);
                 }
             }
         } catch (error) {

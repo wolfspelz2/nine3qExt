@@ -12,6 +12,7 @@ import { Memory } from '../lib/Memory';
 import { Utils } from '../lib/Utils';
 import { BackgroundApp } from './BackgroundApp';
 import { Item } from './Item';
+import { WeblinClientApi } from '../lib/WeblinClientApi';
 //const Web3 = require('web3');
 const Web3Eth = require('web3-eth');
 
@@ -610,7 +611,7 @@ export class Backpack
         }
 
         if (!options.skipPresenceUpdate) {
-            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
+            this.app.sendToTabsForRoom(roomJid, { 'type': ContentMessage.type_sendPresence });
         }
     }
 
@@ -650,11 +651,11 @@ export class Backpack
         }
 
         if (!options.skipContentNotification) {
-            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
+            this.app.sendToTabsForRoom(roomJid, { 'type': ContentMessage.type_sendPresence });
         }
 
         if (!options.skipPresenceUpdate) {
-            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
+            this.app.sendToTabsForRoom(roomJid, { 'type': ContentMessage.type_sendPresence });
         }
     }
 
@@ -689,18 +690,67 @@ export class Backpack
         return stanza;
     }
 
+    private warningNotificatonTime = 0;
+    private limitNotificatonTime = 0;
     private getDependentPresence(roomJid: string): xml
     {
         let result = xml('x', { 'xmlns': 'vp:dependent' });
 
+        let ids = [];
+
         for (let id in this.items) {
             if (this.items[id].isRezzedTo(roomJid)) {
-                let itemPresence: xml = this.items[id].getDependentPresence(roomJid);
-                result.append(itemPresence);
+                ids.push(id);
             }
         }
 
+        if (ids.length > Config.get('backpack.dependentPresenceItemsWarning', 20)) {
+            let now = Date.now();
+            if (ids.length > Config.get('backpack.dependentPresenceItemsLimit', 25)) {
+                if ((now - this.limitNotificatonTime) / 1000 > Config.get('backpack.dependentPresenceItemsWarningIntervalSec', 30.0)) {
+                    this.limitNotificatonTime = now;
+                    this.showToast(roomJid,
+                        this.app.translateText('Backpack.Too many items'),
+                        this.app.translateText('Backpack.Page items disabled.'),
+                        'DependentPresenceLimit',
+                        WeblinClientApi.ClientNotificationRequest.iconType_warning,
+                        'Limit=' + Config.get('backpack.dependentPresenceItemsLimit', 25)
+                    );
+                }
+                return result;
+            } else {
+
+                if ((now - this.warningNotificatonTime) / 1000 > Config.get('backpack.dependentPresenceItemsWarningIntervalSec', 30.0)) {
+                    this.warningNotificatonTime = now;
+                    this.showToast(roomJid,
+                        this.app.translateText('Backpack.Too many items'),
+                        this.app.translateText('Backpack.You are close to the limit of items on a page.'),
+                        'DependentPresenceWarning',
+                        WeblinClientApi.ClientNotificationRequest.iconType_notice,
+                        'Current=' + ids.length + ' Limit=' + Config.get('backpack.dependentPresenceItemsLimit', 25)
+                    );
+                }
+            }
+        }
+
+        for (let i = 0; i < ids.length; i++) {
+            let id = ids[i];
+            let itemPresence: xml = this.items[id].getDependentPresence(roomJid);
+            result.append(itemPresence);
+        }
+
         return result;
+    }
+
+    private showToast(roomJid: string, title: string, text: string, type: string, iconType: string, detail: string): void
+    {
+        let data = new WeblinClientApi.ClientNotificationRequest(WeblinClientApi.ClientNotificationRequest.type, '');
+        data.title = title;
+        data.text = text;
+        data.type = type;
+        data.iconType = iconType;
+        data.detail = detail;
+        this.app.sendToTabsForRoom(roomJid, { 'type': ContentMessage.type_clientNotification, 'data': data });
     }
 
 }

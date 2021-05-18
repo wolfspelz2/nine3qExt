@@ -174,6 +174,9 @@ export class Config
             itemInfoDelay: 300,
             deleteToastDurationSec: 100,
             receiveToastDurationSec: 10,
+            dependentPresenceItemsLimit: 5,
+            dependentPresenceItemsWarning: 3,
+            dependentPresenceItemsWarningIntervalSec: 30,
             loadWeb3Items: true,
             signaturePublicKey: '-----BEGIN PUBLIC KEY-----\n' +
                 'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAL8cd14UE+Fy2QV6rtvbBA3UGo8TllmX\n' +
@@ -318,6 +321,9 @@ export class Config
                     'Backpack.Go to item': 'Go there',
                     'Backpack.Derez item': 'Pick up',
                     'Backpack.Rez item': 'Drop',
+                    'Backpack.Too many items': 'Too many items',
+                    'Backpack.You are close to the limit of items on a page.': 'You are close to the limit of items on a page. All items will be hidden if the number rises above the limit.',
+                    'Backpack.Page items disabled.': 'Page items have been disabled. Collect items from the backpack to show them again.',
 
                     'Toast.Do not show this message again': 'Do not show this message again',
                     'Toast.greets': '...greeted you',
@@ -492,6 +498,9 @@ export class Config
                     'Backpack.Go to item': 'Dort hingehen',
                     'Backpack.Derez item': 'Einsammeln',
                     'Backpack.Rez item': 'Ablegen',
+                    'Backpack.Too many items': 'Zu viele Gegenstände',
+                    'Backpack.You are close to the limit of items on a page.': 'Du hast bald zu viele Gegenstände auf der Seite. Wenn die Grenze überschritten wird, werden alle Gegenstände ausgeblendet.',
+                    'Backpack.Page items disabled.': 'Die Gegenstände auf der Seite sind ausgeblendet. Gehe in den Rucksack und sammle einige ein, um sie wieder anzuzeigen.',
 
                     'Toast.Do not show this message again': 'Diese Nachricht nicht mehr anzeigen',
                     'Toast.greets': '...hat dich gegrüßt',

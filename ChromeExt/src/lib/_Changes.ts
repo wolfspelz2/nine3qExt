@@ -7,7 +7,7 @@ export class _Changes
 {
     static data: IHistory = [
         ['1.1.2', 'xx', [
-            ['Add', 'xx'],
+            ['Add', 'Limit and warning for items on page'],
         ]],
         ['1.1.1', 'Crafting', [
             ['Add', 'Crafting'],
