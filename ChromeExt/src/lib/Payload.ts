@@ -13,17 +13,23 @@ export class Payload
             'entropy': Utils.randomString(20),
             'expires': expires
         };
+        
         for (let key in payloadOptions) {
             payload[key] = payloadOptions[key];
         }
-        let hash = await this.getPayloadHash(api, payload);
+
+        // let hash = await this.getPayloadHash(api, payload);
+        let hash = '_ignored';
+
         let token = {
             'payload': payload,
             'hash': hash
         }
+
         for (let key in tokenOptions) {
             token[key] = tokenOptions[key];
         }
+
         let tokenString = JSON.stringify(token);
         let tokenBase64Encoded = Utils.base64Encode(tokenString);
         return tokenBase64Encoded;
