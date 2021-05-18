@@ -511,7 +511,7 @@ export class Config
                     'Toast.Refuses to join the private videoconference': 'Lehnt die Videokonferenz ab',
                     'Toast.Accept': 'Annehmen',
                     'Toast.Decline': 'Ablehnen',
-                    'Toast.ItemTransferred': '...hat dir einen Gegenstand geschickt',
+                    'Toast.ItemTransferred': '...hat dir einen Gegenstand gegeben',
                     'Toast.Duplicate item': 'Doppelter Gegenstand',
                     'Toast.This would create an identical item': 'Das würde einen identischen Gegenstand nochmal erzeugen',
                     'Toast.NotExecuted': 'Nicht ausgeführt',
