@@ -23,6 +23,8 @@ import { PointsBar } from './PointsBar';
 import { VpProtocol } from '../lib/VpProtocol';
 import { BackpackItem } from './BackpackItem';
 import { WeblinClientIframeApi } from '../lib/WeblinClientIframeApi';
+import { ChatWindow } from './ChatWindow';
+import { Environment } from '../lib/Environment';
 
 export class Participant extends Entity
 {
@@ -398,6 +400,36 @@ export class Participant extends Entity
             if (imageUrl && imageUrl != '') {
                 avatarDisplay.updateObservableProperty('VCardImageUrl', imageUrl);
             }
+        });
+    }
+
+    fetchVersionInfo(chatWindow: IObserver)
+    {
+        let stanzaId = Utils.randomString(15);
+        let attr = { 'xmlns': 'jabber:iq:version' };
+        if (Environment.isDevelopment()) {
+            attr['auth'] = Config.get('xmpp.verboseVersionQueryWeakAuth', '');
+        }
+        let query = xml('query', attr);
+        let iq = xml('iq', { 'type': 'get', 'id': stanzaId, 'to': this.room.getJid() + '/' + this.roomNick }).append(query);
+
+        this.app.sendStanza(iq, stanzaId, (stanza: xml) =>
+        {
+            // chatWindow.addLine(this.roomNick + Date.now(), this.roomNick, 'xx');
+
+            let info = {};
+            let versionQuery = stanza.getChildren('query').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'jabber:iq:version');
+            if (versionQuery) {
+                let children = versionQuery.children;
+                if (children) {
+                    for (let i = 0; i < children.length; i++) {
+                        let child = children[i];
+                        info[child.name] = child.text();
+                    }
+                }
+            }
+
+            chatWindow.updateObservableProperty('VersionInfo', JSON.stringify(info));
         });
     }
 

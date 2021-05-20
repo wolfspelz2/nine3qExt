@@ -13,6 +13,7 @@ import { ConfigUpdater } from './ConfigUpdater';
 import { Backpack } from './Backpack';
 import { Translator } from '../lib/Translator';
 import { Environment } from '../lib/Environment';
+import { Client } from '../lib/Client';
 
 interface ILocationMapperResponse
 {
@@ -34,10 +35,16 @@ export class BackgroundApp
     private configUpdater: ConfigUpdater;
     private resource: string;
     private isReady: boolean = false;
-    private clientDetails: string = '"weblin.io"';
     private backpack: Backpack = null;
     private xmppStarted = false;
     private babelfish: Translator;
+
+    private startupTime = Date.now();
+    private waitReadyCount = 0;
+    private waitReadyTime = 0;
+    private xmppConnectCount = 0;
+    private stanzasOutCount = 0;
+    private stanzasInCount = 0;
 
     private readonly stanzaQ: Array<xml> = [];
     private readonly roomJid2tabId: Map<string, Array<number>> = new Map<string, Array<number>>();
@@ -63,6 +70,14 @@ export class BackgroundApp
         }
 
         Environment.NODE_ENV = Config.get('environment.NODE_ENV', null);
+
+        let firstStart = await Memory.getLocal('client.firstStart', 0);
+        if (firstStart == 0) {
+            await Memory.setLocal('client.firstStart', Date.now());
+        }
+        let startCount = await Memory.getLocal('client.startCount', 0);
+        startCount++;
+        await Memory.setLocal('client.startCount', startCount);
 
         await this.migrateSyncToLocalBecauseItsConfusingConsideredThatItemsAreLocal();
         await this.assertThatThereIsAUserId();
@@ -453,6 +468,8 @@ export class BackgroundApp
     {
         if (Config.get('log.contentStart', true)) { log.info('BackgroundApp.handle_waitReady'); }
         let sendResponseIsAsync = false;
+        this.waitReadyCount++;
+        this.waitReadyTime = Date.now();
 
         if (this.isReady) {
             sendResponse({});
@@ -1026,6 +1043,7 @@ export class BackgroundApp
 
     public sendStanza(stanza: xml): void
     {
+        this.stanzasOutCount++;
         if (!this.xmppConnected) {
             this.stanzaQ.push(stanza);
         } else {
@@ -1072,8 +1090,10 @@ export class BackgroundApp
         this.sendStanza(xml('presence'));
     }
 
-    private recvStanza(stanza: any)
+    private async recvStanza(stanza: xml)
     {
+        this.stanzasInCount++;
+
         let isConnectionPresence = false;
         {
             if (stanza.name == 'presence') {
@@ -1106,6 +1126,10 @@ export class BackgroundApp
                         delete this.iqStanzaTabId[stanzaId];
                         ContentMessage.sendMessage(tabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
                     }
+                }
+
+                if (stanzaType == 'get' && stanzaId) {
+                    await this.onIqGet(stanza);
                 }
             }
         }
@@ -1160,6 +1184,73 @@ export class BackgroundApp
         }
     }
 
+    async onIqGet(stanza: any): Promise<void>
+    {
+        let versionQuery = stanza.getChildren('query').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'jabber:iq:version');
+        if (versionQuery) {
+            await this.onIqGetVersion(stanza);
+        }
+    }
+
+    async onIqGetVersion(stanza: any): Promise<void>
+    {
+        if (stanza.attrs) {
+            let id = stanza.attrs.id;
+            if (id) {
+                let versionQuery = stanza.getChildren('query').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'jabber:iq:version');
+                if (versionQuery) {
+                    let queryResponse = xml('query', { xmlns: 'jabber:iq:version', });
+
+                    queryResponse.append(xml('name', {}, Config.get('client.name', '_noname')))
+                    queryResponse.append(xml('version', {}, Client.getVersion()))
+
+                    let verbose = false;
+                    let auth = as.String(versionQuery.attrs.auth, '');
+                    if (auth != '' && auth == Config.get('xmpp.verboseVersionQueryWeakAuth', '')) {
+                        verbose = true;
+                    }
+                    if (verbose) {
+                        if (!Config.get('xmpp.verboseVersionQuery', false)) {
+                            verbose = true;
+                        }
+                    }
+                    if (verbose) {
+                        let now = Date.now();
+                        let firstStart = await Memory.getLocal('client.firstStart', 0);
+                        let startCount = await Memory.getLocal('client.startCount', 0);
+                        let userId = await Memory.getLocal(Utils.localStorageKey_Id(), '');
+                        let itemCount = this.backpack != null ? this.backpack.getItemCount() : -1;
+                        let rezzedItemCount = this.backpack != null ? this.backpack.getRezzedItemCount() : -1;
+
+                        queryResponse.append(xml('Variant', {}, Client.getVariant()))
+                        queryResponse.append(xml('Language', {}, navigator.language))
+                        queryResponse.append(xml('IsDevelopment', {}, as.String(Environment.isDevelopment())));
+                        queryResponse.append(xml('Id', {}, userId));
+                        queryResponse.append(xml('SecSinceFirstStart', {}, Math.round((now - firstStart) / 1000)));
+                        queryResponse.append(xml('SecSinceStart', {}, Math.round((now - this.startupTime) / 1000)));
+                        queryResponse.append(xml('SecSincePage', {}, Math.round((now - this.waitReadyTime) / 1000)));
+                        queryResponse.append(xml('Startups', {}, startCount));
+                        queryResponse.append(xml('ContentStartups', {}, this.waitReadyCount));
+                        queryResponse.append(xml('XmppConnects', {}, this.xmppConnectCount));
+                        queryResponse.append(xml('StanzasOut', {}, this.stanzasOutCount));
+                        queryResponse.append(xml('StanzasIn', {}, this.stanzasInCount));
+                        queryResponse.append(xml('ItemCount', {}, itemCount));
+                        queryResponse.append(xml('RezzedItemCount', {}, rezzedItemCount));
+                        // queryResponse.append(xml('LastActivity', {}, 'xx'));
+                    }
+
+                    if (Config.get('xmpp.versionQueryShareOs', false)) {
+                        queryResponse.append(xml('os', {}, navigator.userAgent));
+                    }
+
+                    let response = xml('iq', { type: 'result', 'id': id, 'to': stanza.attrs.from }).append(queryResponse);
+                    this.sendStanza(response);
+                }
+
+            }
+        }
+    }
+
     // xmpp
 
     private async startXmpp()
@@ -1204,14 +1295,16 @@ export class BackgroundApp
 
                 this.sendPresence();
 
+                this.xmppConnectCount++;
                 this.xmppConnected = true;
+
                 while (this.stanzaQ.length > 0) {
                     let stanza = this.stanzaQ.shift();
                     this.sendStanzaUnbuffered(stanza);
                 }
             });
 
-            this.xmpp.on('stanza', (stanza: any) => this.recvStanza(stanza));
+            this.xmpp.on('stanza', (stanza: xml) => this.recvStanza(stanza));
 
             this.xmpp.start().catch(log.info);
         } catch (error) {

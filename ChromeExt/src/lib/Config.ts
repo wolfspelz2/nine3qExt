@@ -58,7 +58,6 @@ export class Config
         },
         client: {
             name: 'weblin.io',
-            variant: '',
             notificationToastDurationSec: 30,
         },
         design: {
@@ -117,6 +116,7 @@ export class Config
             itemStatsTooltip: true,
             itemStatsTooltipDelay: 500,
             itemStatsTooltipOffset: { x: 3, y: 3 },
+            showPrivateChatInfoButton: false,
         },
         xmpp: {
             service: 'wss://xmpp.vulcan.weblin.com/xmpp-websocket',
@@ -126,6 +126,9 @@ export class Config
             deferUnavailableSec: 3.0,
             deferAwaySec: 0.2,
             resendPresenceAfterResourceChangeBecauseServerSendsOldPresenceDataWithNewResourceToForceNewDataDelaySec: 1.0,
+            versionQueryShareOs: true,
+            verboseVersionQuery: true,
+            verboseVersionQueryWeakAuth: 'K4QfJptO750u',
         },
         avatars: {
             animationsProxyUrlTemplate: 'https://webex.vulcan.weblin.com/Avatar/InlineData?url={url}',

@@ -24,6 +24,27 @@ export class Backpack
     private rooms: { [jid: string]: Array<string>; } = {};
     private rpcClient: RpcClient = new RpcClient();
 
+    getItemCount(): number
+    {
+        let count = 0;
+        for (let id in this.items) {
+            count++;
+        }
+        return count;
+    }
+
+    getRezzedItemCount(): number
+    {
+        let count = 0;
+        for (let id in this.items) {
+            let item = this.items[id];
+            if (item.isRezzed()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     getBackpackIdsKey(): string
     {
         if (Config.get('config.clusterName', 'prod') == 'dev') {

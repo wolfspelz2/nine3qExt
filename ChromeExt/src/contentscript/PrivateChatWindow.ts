@@ -21,6 +21,15 @@ export class PrivateChatWindow extends ChatWindow
         if (options.titleText == null) { options.titleText = this.app.translateText('PrivateChat.Private Chat with', 'Private Chat with') + ' ' + this.participant.getDisplayName(); }
 
         await super.show(options);
+
+        if (Config.get('room.showPrivateChatInfoButton', false)) {
+            let infoElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-chatwindow-clear" title="Info" data-translate="attr:title:Chatwindow text:Chatwindow">Info</div>').get(0);
+            $(this.contentElem).append(infoElem);
+            $(infoElem).on('click', ev =>
+            {
+                this.sendVersionQuery();
+            });
+        }
     }
 
     protected sendChat(): void
@@ -40,6 +49,25 @@ export class PrivateChatWindow extends ChatWindow
                 .val('')
                 .focus()
                 ;
+        }
+    }
+
+    protected sendVersionQuery(): void
+    {
+        let nick = this.participant.getRoomNick();
+        let participant = this.room.getParticipant(nick);
+        participant?.fetchVersionInfo(this);
+    }
+
+    public updateObservableProperty(name: string, value: string): void
+    {
+        if (name == 'VersionInfo') {
+            let nick = this.participant.getRoomNick();
+            let displayName = this.participant.getDisplayName();
+            let json = JSON.parse(value);
+            for (let key in json) {
+                this.addLine(Utils.randomString(10), key, json[key]);
+            }
         }
     }
 }
