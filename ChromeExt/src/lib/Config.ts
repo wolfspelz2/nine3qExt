@@ -127,7 +127,7 @@ export class Config
             deferAwaySec: 0.2,
             resendPresenceAfterResourceChangeBecauseServerSendsOldPresenceDataWithNewResourceToForceNewDataDelaySec: 1.0,
             versionQueryShareOs: true,
-            verboseVersionQuery: true,
+            sendVerboseVersionQueryResponse: true,
             verboseVersionQueryWeakAuth: 'K4QfJptO750u',
         },
         avatars: {

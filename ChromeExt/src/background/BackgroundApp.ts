@@ -1210,8 +1210,8 @@ export class BackgroundApp
                         verbose = true;
                     }
                     if (verbose) {
-                        if (!Config.get('xmpp.verboseVersionQuery', false)) {
-                            verbose = true;
+                        if (!Config.get('xmpp.sendVerboseVersionQueryResponse', false)) {
+                            verbose = false;
                         }
                     }
                     if (verbose) {
