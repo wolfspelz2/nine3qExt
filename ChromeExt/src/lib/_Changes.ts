@@ -8,6 +8,7 @@ export class _Changes
     static data: IHistory = [
         ['1.1.2', 'xx', [
             ['Add', 'Limit and warning for items on page'],
+            ['Add', 'XMPP version response'],
             ['Fix', 'Animation remains even though AnimationsUrl property removed from item'],
         ]],
         ['1.1.1', 'Crafting', [
