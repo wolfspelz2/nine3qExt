@@ -407,7 +407,7 @@ export class Participant extends Entity
     {
         let stanzaId = Utils.randomString(15);
         let attr = { 'xmlns': 'jabber:iq:version' };
-        if (Environment.isDevelopment()) {
+        if (Environment.isDevelopment() || Config.get('xmpp.verboseVersionQuery', false)) {
             attr['auth'] = Config.get('xmpp.verboseVersionQueryWeakAuth', '');
         }
         let query = xml('query', attr);
