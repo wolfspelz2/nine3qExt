@@ -99,9 +99,9 @@ export class Entity
 
         if (this.avatarDisplay) {
             if (diffX < 0) {
-                this.avatarDisplay.setState('moveleft');
+                this.avatarDisplay.setActivity('moveleft');
             } else {
-                this.avatarDisplay.setState('moveright');
+                this.avatarDisplay.setActivity('moveright');
             }
         }
 
@@ -132,7 +132,7 @@ export class Entity
     {
         this.inMove = false;
         this.setPosition(newX);
-        this.avatarDisplay?.setState('');
+        this.avatarDisplay?.setActivity('');
     }
 
     getPosition(): number

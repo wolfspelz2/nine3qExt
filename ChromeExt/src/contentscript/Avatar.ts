@@ -32,6 +32,7 @@ export class Avatar implements IObserver
     private defaultGroup: string;
     private currentCondition: string = '';
     private currentState: string = '';
+    private currentActivity: string = '';
     private currentAction: string = '';
     private isDefault: boolean = true;
     private speedPixelPerSec: number = 0;
@@ -418,6 +419,14 @@ export class Avatar implements IObserver
         }
     }
 
+    setActivity(activity: string): void
+    {
+        if (this.currentActivity != activity) {
+            this.currentActivity = activity;
+            this.startNextAnimation();
+        }
+    }
+
     setAction(action: string): void
     {
         if (this.currentAction != action) {
@@ -467,6 +476,7 @@ export class Avatar implements IObserver
         this.currentAction = '';
         if (group == '') { group = this.currentCondition; once = false; }
         if (group == '') { group = this.currentState; once = false; }
+        if (group == '') { group = this.currentActivity; once = false; }
         if (group == '') { group = this.defaultGroup; }
 
         let animation = this.getAnimationByGroup(group);

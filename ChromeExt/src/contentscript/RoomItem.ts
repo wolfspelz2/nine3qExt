@@ -628,7 +628,6 @@ export class RoomItem extends Entity
 
     async setItemState(state: string)
     {
-        // this.avatarDisplay?.setState(state);
         if (await BackgroundMessage.isBackpackItem(this.roomNick)) {
             await BackgroundMessage.modifyBackpackItemProperties(this.roomNick, { [Pid.State]: state }, [], {});
         }
