@@ -200,11 +200,12 @@
     }
 
     div.n3q-shadow-small {
-        box-shadow: 1px 1px 2px #888;
+        border: none;
+        box-shadow: 2px 2px 8px #404040;
     }
 
     div.n3q-shadow-medium {
-        box-shadow: 2px 2px 9px #404040;;
+        box-shadow: 2px 2px 10px #606060;
     }
 
     div.n3q-transparent {
@@ -215,12 +216,13 @@
 
     div.n3q-button {
         color: #000000;
-        background-color: #f0f0f0;
-        border: 1px solid #808080;
+        background-color: #ffffff;
         text-align: center;
         padding: 4px;
         cursor: default;
         user-select: none;
+        // border: 1px solid #808080;
+        box-shadow: 1px 1px 3px #404040;
     }
 
     div.n3q-button:hover { filter: brightness(0.9); }
@@ -243,6 +245,7 @@
         display: inline-block;
         vertical-align: middle;
         border: none;
+        box-shadow: none;
         padding: 0;
     }
         
@@ -382,8 +385,8 @@
             position: absolute;
             left: 20px;
             bottom: 13px;
-            border: 1px solid #888;
-            padding: 1px 2px 1px 2px;
+            //border: 1px solid #888;
+            padding: 3px 4px;
             background-color: #ffffff;
             white-space: nowrap;
             z-index: 2;
@@ -432,7 +435,7 @@
             color: black;
             background-color: white;
             white-space: nowrap;
-            border: 1px solid #888;
+            //border: 1px solid #888;
             min-height: 14px;
             padding: 2px 4px 2px 2px;
             position: absolute;
@@ -545,7 +548,7 @@
         text-align: center;
         padding: 4px;
         background-color: #fff;
-        border: 1px solid #888;
+        //border: 1px solid #888;
         border-radius: 8px;
 
         :before {
@@ -576,7 +579,7 @@
         left: -70px;
         bottom: 30px;
         background-color: #FFFFFF;
-        border: 1px solid #808080;
+        //border: 1px solid #808080;
         border-radius: 4px;
         -webkit-border-radius: 5px;
         white-space: nowrap;
@@ -665,7 +668,7 @@
         position: absolute;
         max-width: 150px;
         background-color: #ffffff;
-        border: 1px solid #888;
+        //border: 1px solid #888;
         padding: 3px;
 
         div.n3q-description {
@@ -702,7 +705,7 @@
         left: -60px;
         // bottom: 70px;
         width: 130px;
-        opacity: 0.9;
+        //opacity: 0.9;
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
@@ -751,7 +754,7 @@
         height: 27px;
         // width: 400px;
         background-color: #ffffff;
-        border-bottom: 1px solid #808080;
+        //border-bottom: 1px solid #808080;
     }
 
     div.n3q-window-title {
@@ -815,6 +818,7 @@
         left: 0;
         bottom: 0;
         right: 0;
+        box-shadow: inset 0px 4px 5px -4px #404040;
     }
 
     div.n3q-window-resize {
@@ -1038,11 +1042,11 @@
         width: 60px;
         height: 60px;
         background: url(../assets/icons/shredder.svg) no-repeat center center / contain;
-        box-shadow: #404040 1px 1px 3px inset;
+        box-shadow: inset 1px 1px 3px #404040;
     }
 
     div.n3q-backpack-dump.ui-droppable-hover { 
-        box-shadow: #000000 3px 3px 10px inset;
+        box-shadow: inset 3px 3px 10px #000000;
         background-color: #808080;
     }
 
@@ -1058,7 +1062,7 @@
     div.n3q-backpack-item {
         display: block;
         position: absolute;
-        box-shadow: #505050 1px 1px 3px;
+        box-shadow: 1px 1px 3px #505050;
         background-color: rgba(255, 255, 255, 0.8);
 
         .n3q-backpack-item-image {
@@ -1131,7 +1135,10 @@
 
         div.n3q-window-content .n3q-chatwindow-soundcheckbox { 
             margin-left: 8px;
-            vertical-align: bottom;
+            width: 16px;
+            height: 16px;
+            box-shadow: 2px 2px 3px rgba(64, 64, 64, 0.7) inset;
+            vertical-align: middle;
         }
     }
 
@@ -1140,7 +1147,7 @@
         top: 36px;
         left: 8px;
         right: 8px;
-        bottom: 38px;
+        bottom: 44px;
         overflow-y: scroll;
     }
     
@@ -1161,20 +1168,22 @@
 
     div.n3q-chatwindow-chatin {
         position: absolute;
-        height: 22px;
+        height: 26px;
         left: 8px;
         right: 8px;
         bottom: 8px;
-        border: 1px solid #808080;
-        border-radius: 4px;
+        //border: 1px solid #808080;
+        //border-radius: 4px;
+        box-shadow: inset 0px 0px 4px #404040;
     }
     
     textarea.n3q-chatwindow-chatin-input, 
     input[type=text].n3q-chatwindow-chatin-input
     {
-        position: absolute;
-        left: 8px;
-        right: 22px;
+        // position: absolute;
+        // left: 8px;
+        // right: 22px;
+        margin: 6px 8px;
         padding-right: 20px;
         top: 4px;
         bottom: 4px;
@@ -1190,9 +1199,10 @@
     textarea.n3q-chatwindow-chatin-input:focus,
     input[type=text].n3q-chatwindow-chatin-input:focus
     {
-        position: absolute;
-        left: 8px;
-        right: 22px;
+        // position: absolute;
+        // left: 8px;
+        // right: 22px;
+        margin: 6px 8px;
         padding-right: 20px;
         top: 4px;
         bottom: 4px;
@@ -1209,11 +1219,16 @@
     
     div.n3q-chatwindow-chatin div.n3q-button-sendchat {
         position: absolute;
-        right: 4px;
-        top: 4px;
-        bottom: 4px;
+        right: 6px;
+        top: 6px;
+        // bottom: 4px;
         width: 14px;
         height: 14px;
+        box-shadow: none;
+    }
+    
+    div.n3q-chatin div.n3q-button-sendchat {
+        margin-right: 4px;
     }
     
 }

@@ -9,6 +9,7 @@ export class _Changes
         ['1.1.2', 'xx', [
             ['Add', 'Limit and warning for items on page'],
             ['Add', 'XMPP version response'],
+            ['Change', 'Design to borderless/shadow'],
             ['Fix', 'Animation remains even though AnimationsUrl property removed from item'],
         ]],
         ['1.1.1', 'Crafting', [
