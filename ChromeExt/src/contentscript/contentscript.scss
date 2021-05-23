@@ -201,7 +201,7 @@
 
     div.n3q-shadow-small {
         border: none;
-        box-shadow: 2px 2px 8px #404040;
+        box-shadow: 2px 2px 8px rgba(64, 64, 64, 0.8);
     }
 
     div.n3q-shadow-medium {
@@ -325,16 +325,33 @@
 
     div.n3q-participant {
         div.n3q-avatar {
-            z-index: 1;
+            z-index: 2;
+        }
+
+        div.n3q-activity {
+            position: absolute;
+            left: 20px;
+            bottom: 3px;
+            z-index: 3;
+            width: 80px;
+            height: 4px;
+            z-index: 3;
         }
 
         div.n3q-points {
             position: absolute;
             left: 20px;
-            bottom: 0px;
+            bottom: 6px;
             height: max-content;
             width: max-content;
-            z-index: 2;
+            z-index: 4;
+
+            div.n3q-activity {
+                height: 4px;
+                width: 80px;
+                background-color: #ffffff;
+                opacity: 50%;
+            }
 
             div.n3q-points-icon { 
                 height: 8px;
@@ -384,12 +401,12 @@
         div.n3q-nickname {
             position: absolute;
             left: 20px;
-            bottom: 13px;
+            bottom: 20px;
             //border: 1px solid #888;
             padding: 3px 4px;
             background-color: #ffffff;
             white-space: nowrap;
-            z-index: 2;
+            z-index: 5;
             user-select: none;
 
             div.n3q-text {
@@ -1156,6 +1173,10 @@
         line-height: 13px;
         margin-left: 20px; text-indent: -20px;
 
+        span.n3q-time {
+            margin: 0 0.4em 0 0;
+        }
+    
         span.n3q-nick {
             font-weight: bold;
         }
