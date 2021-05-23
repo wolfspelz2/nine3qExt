@@ -193,6 +193,15 @@ export class Config
             submissionIntervalSec: 300,
             fullLevels: 2,
             fractionalLevels: 1,
+            activityEnabled: false,
+            activities: {
+                PointsChannelChat      : { weight: 1, x0: 0, css: { backgroundColor: '#202020'} },
+                PointsChannelEmote     : { weight: 1, x0: 0, css: { backgroundColor: '#404040'} },
+                PointsChannelGreet     : { weight: 1, x0: 0, css: { backgroundColor: '#606060'} },
+                PointsChannelNavigation: { weight: 1, x0: 0, css: { backgroundColor: '#808080'} },
+                PointsChannelItemRez   : { weight: 1, x0: 0, css: { backgroundColor: '#a0a0a0'} },
+                PointsChannelItemApply : { weight: 1, x0: 0, css: { backgroundColor: '#c0c0c0'} },
+            }
         },
         itemProviders: {
             'nine3q':
@@ -353,6 +362,13 @@ export class Config
                     'Toast.NotExecuted': 'Not executed',
                     'Toast.NoBlueprint': 'No blueprint',
                     'Toast.TooManyBlueprints': 'Too many blueprints',
+
+                    'Activity.PointsChannelChat': 'Chat',
+                    'Activity.PointsChannelEmote': 'Emote',
+                    'Activity.PointsChannelGreet': 'Greet',
+                    'Activity.PointsChannelNavigation': 'Navigate',
+                    'Activity.PointsChannelItemRez': 'Drop item',
+                    'Activity.PointsChannelItemApply': 'Apply item',
 
                     'ErrorFact.UnknownError': 'UnknownError',
                     'ErrorFact.NotRezzed': 'Item not dropped',
@@ -530,6 +546,13 @@ export class Config
                     'Toast.NotExecuted': 'Nicht ausgeführt',
                     'Toast.NoBlueprint': 'Kein Bauplan',
                     'Toast.TooManyBlueprints': 'Mehr als ein Bauplan',
+
+                    'Activity.PointsChannelChat': 'Chat',
+                    'Activity.PointsChannelEmote': 'Emote',
+                    'Activity.PointsChannelGreet': 'Grüßen',
+                    'Activity.PointsChannelNavigation': 'Navigation',
+                    'Activity.PointsChannelItemRez': 'Gegenstand ablegen',
+                    'Activity.PointsChannelItemApply': 'Gegenstand anwenden',
 
                     'ErrorFact.UnknownError': 'Unbekannter Fehler',
                     'ErrorFact.NotRezzed': 'Ablegen fehlgeschlagen',

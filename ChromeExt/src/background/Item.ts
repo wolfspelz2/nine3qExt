@@ -62,7 +62,7 @@ export class Item
             if (Property.inPresence(pid) || (signed.length > 0 && signed.includes(pid))) {
                 attrs[pid] = this.properties[pid];
             }
-        }attrs
+        }
         // let attrs = Object.assign(protocolAttrs, this.properties);
         presence.append(xml('x', attrs));
         return presence;

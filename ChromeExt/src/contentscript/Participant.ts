@@ -20,6 +20,7 @@ import { SimpleErrorToast, SimpleToast, Toast } from './Toast';
 import { PrivateChatWindow } from './PrivateChatWindow';
 import { PrivateVidconfWindow } from './PrivateVidconfWindow';
 import { PointsBar } from './PointsBar';
+import { ActivityBar } from './ActivityBar';
 import { VpProtocol } from '../lib/VpProtocol';
 import { BackpackItem } from './BackpackItem';
 import { WeblinClientIframeApi } from '../lib/WeblinClientIframeApi';
@@ -30,6 +31,7 @@ export class Participant extends Entity
 {
     private nicknameDisplay: Nickname;
     private pointsDisplay: PointsBar;
+    private activityDisplay: ActivityBar;
     private chatoutDisplay: Chatout;
     private chatinDisplay: Chatin;
     private isFirstPresence: boolean = true;
@@ -217,14 +219,31 @@ export class Participant extends Entity
                 this.pointsDisplay = new PointsBar(this.app, this, this.getElem());
                 if (!this.isSelf) {
                     if (Config.get('room.pointsOnHover', true)) {
-                        let pointsElem = this.pointsDisplay.getElem();
-                        pointsElem.style.display = 'none';
+                        let elem = this.pointsDisplay.getElem();
+                        elem.style.display = 'none';
                         $(this.getElem()).hover(function ()
                         {
-                            if (pointsElem) { $(pointsElem).stop().fadeIn('fast'); }
+                            if (elem) { $(elem).stop().fadeIn('fast'); }
                         }, function ()
                         {
-                            if (pointsElem) { $(pointsElem).stop().fadeOut(); }
+                            if (elem) { $(elem).stop().fadeOut(); }
+                        });
+                    }
+                }
+            }
+
+            if (this.isSelf && Config.get('points.activityEnabled', false)) {
+                this.activityDisplay = new ActivityBar(this.app, this, this.getElem());
+                if (!this.isSelf) {
+                    if (Config.get('room.pointsOnHover', true)) {
+                        let elem = this.activityDisplay.getElem();
+                        elem.style.display = 'none';
+                        $(this.getElem()).hover(function ()
+                        {
+                            if (elem) { $(elem).stop().fadeIn('fast'); }
+                        }, function ()
+                        {
+                            if (elem) { $(elem).stop().fadeOut(); }
                         });
                     }
                 }
@@ -286,6 +305,10 @@ export class Participant extends Entity
                     this.app.getPropertyStorage().watch(this.userId, 'Points', this.pointsDisplay);
                 }
             }
+        }
+
+        if (this.activityDisplay) {
+            this.activityDisplay.setActivities({ [Pid.PointsChannelNavigation]: 10, [Pid.PointsChannelChat]: 3 });
         }
 
         if (hasCondition) {
