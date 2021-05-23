@@ -211,10 +211,12 @@ export class ChatWindow extends Window
 
     private showLine(nick: string, text: string)
     {
+        let time = new Date().toLocaleTimeString();
         let lineElem = <HTMLElement>$(
             '<div class="n3q-base n3q-chatwindow-line">'
-            + (nick != '' ?
-                '<span class="n3q-base n3q-text n3q-nick">' + as.Html(nick) + '</span>'
+            + (nick != '' ? ''
+                + '<span class="n3q-base n3q-text n3q-time">' + as.Html(time) + '</span>'
+                + '<span class="n3q-base n3q-text n3q-nick">' + as.Html(nick) + '</span>'
                 + '<span class="n3q-base n3q-text n3q-colon">' + this.app.translateText('Chatwindow.:') + '</span>'
                 : '')
             + '<span class="n3q-base n3q-text n3q-chat">' + as.Html(text) + '</span>'
