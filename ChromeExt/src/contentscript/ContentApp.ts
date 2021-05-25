@@ -227,9 +227,13 @@ export class ContentApp
         //this.showBackpackWindow(null);
     }
 
-    navigate(url: string, target: string)
+    navigate(url: string, target: string = '_top')
     {
-        document.location.replace(url);
+        if (target == '' || target == '_top') {
+            window.location.href = url;
+        } else {
+            window.location.href = url;
+        }
     }
 
     playSound(fluteSound: any)
