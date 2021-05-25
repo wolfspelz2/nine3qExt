@@ -224,6 +224,10 @@ export class IframeApi
                     response = await this.handle_ItemFindRequest(<WeblinClientIframeApi.ItemFindRequest>request);
                 } break;
 
+                case WeblinClientIframeApi.ParticipantEffectRequest.type: {
+                    response = this.handle_ParticipantEffectRequest(<WeblinClientIframeApi.ParticipantEffectRequest>request);
+                } break;
+
                 case WeblinClientIframeApi.RoomGetParticipantsRequest.type: {
                     response = this.handle_RoomGetParticipantsRequest(<WeblinClientIframeApi.RoomGetParticipantsRequest>request);
                 } break;
@@ -416,6 +420,24 @@ export class IframeApi
             }
         } catch (ex) {
             log.info('IframeApi.handle_ItemGetPropertiesRequest', ex);
+            return new WeblinClientApi.ErrorResponse(ex);
+        }
+    }
+
+    handle_ParticipantEffectRequest(request: WeblinClientIframeApi.ParticipantEffectRequest): WeblinClientApi.Response
+    {
+        try {
+            let participantId = request.participant;
+            if (participantId == null) {
+                participantId = this.app.getRoom().getMyNick();
+            }
+            let participant = this.app.getRoom().getParticipant(participantId);
+            if (participant) {
+                participant.showEffect(request.effect);
+            }
+            return new WeblinClientApi.SuccessResponse();
+        } catch (ex) {
+            log.info('IframeApi.handle_ParticipantEffectRequest', ex);
             return new WeblinClientApi.ErrorResponse(ex);
         }
     }

@@ -187,6 +187,13 @@ export namespace WeblinClientIframeApi
     }
     export class ItemGetPropertiesResponse extends WeblinClientApi.ContentResponse { constructor(public properties: ItemProperties) { super('Item.Properties'); } }
 
+    export class ParticipantEffectRequest extends Request
+    {
+        static type = 'Participant.Effect';
+        participant?: string;
+        effect: any;
+    }
+
     export class ParticipantMovedNotification extends WeblinClientApi.Message { constructor(public participant: ParticipantData) { super('Participant.Moved'); } }
 
     export class ParticipantChatNotification extends WeblinClientApi.Message { constructor(public participant: ParticipantData, public text: string) { super('Participant.Chat'); } }
