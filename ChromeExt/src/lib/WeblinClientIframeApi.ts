@@ -110,6 +110,13 @@ export namespace WeblinClientIframeApi
         range: any;
     }
 
+    export class ItemFindRequest extends Request
+    {
+        static type = 'Item.Find';
+        filter: ItemProperties;
+    }
+    export class ItemFindResponse extends WeblinClientApi.ContentResponse { constructor(public items: string[]) { super('Item.Find.Response'); } }
+
     export class ItemActionRequest extends Request
     {
         static type = 'Item.Action';

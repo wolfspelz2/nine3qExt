@@ -308,7 +308,7 @@ export class Participant extends Entity
         }
 
         if (this.activityDisplay) {
-            this.activityDisplay.setActivities({ [Pid.PointsChannelNavigation]: 10, [Pid.PointsChannelChat]: 3 });
+            await this.activityDisplay.setActivities();
         }
 
         if (hasCondition) {

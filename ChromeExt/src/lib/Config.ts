@@ -24,6 +24,7 @@ export class Config
         },
         extension: {
             id: 'cgfkfhdinajjhfeghebnljbanpcjdlkm',
+            storeUrl: 'https://chrome.google.com/webstore/detail/weblin/cgfkfhdinajjhfeghebnljbanpcjdlkm',
         },
         me: {
             nickname: '',//'新しいアバター',//'new-avatar',
@@ -195,12 +196,13 @@ export class Config
             fractionalLevels: 1,
             activityEnabled: false,
             activities: {
-                PointsChannelChat      : { weight: 1, x0: 0, css: { backgroundColor: '#202020'} },
-                PointsChannelEmote     : { weight: 1, x0: 0, css: { backgroundColor: '#404040'} },
-                PointsChannelGreet     : { weight: 1, x0: 0, css: { backgroundColor: '#606060'} },
-                PointsChannelNavigation: { weight: 1, x0: 0, css: { backgroundColor: '#808080'} },
-                PointsChannelItemRez   : { weight: 1, x0: 0, css: { backgroundColor: '#a0a0a0'} },
-                PointsChannelItemApply : { weight: 1, x0: 0, css: { backgroundColor: '#c0c0c0'} },
+                PointsChannelChat      : { weight: 1, x0: 0, css: { backgroundColor: '#ff0000'} },
+                PointsChannelEmote     : { weight: 1, x0: 0, css: { backgroundColor: '#00ff00'} },
+                PointsChannelGreet     : { weight: 1, x0: 0, css: { backgroundColor: '#0000ff'} },
+                PointsChannelPowerup   : { weight: 1, x0: 0, css: { backgroundColor: '#ffff00'} },
+                PointsChannelNavigation: { weight: 1, x0: 0, css: { backgroundColor: '#ff00ff'} },
+                PointsChannelItemRez   : { weight: 1, x0: 0, css: { backgroundColor: '#00ffff'} },
+                PointsChannelItemApply : { weight: 1, x0: 0, css: { backgroundColor: '#808080'} },
             }
         },
         itemProviders: {
@@ -306,6 +308,7 @@ export class Config
                     'Menu.Bye': 'Wave Goodbye',
                     'Menu.Private Chat': 'Private Chat',
                     'Menu.Private Videoconf': 'Private Videoconference',
+                    'Menu.Get weblin everywhere': 'Weblin für überall',
 
                     'Chatwindow.Chat History': 'Chat',
                     'Chatwindow.entered the room': '**entered the room**',
@@ -490,6 +493,7 @@ export class Config
                     'Menu.Bye': 'Verabschieden',
                     'Menu.Private Chat': 'Privater Chat',
                     'Menu.Private Videoconf': 'Private Videokonferenz',
+                    'Menu.Get weblin everywhere': 'Get weblin everywhere',
 
                     'Chatwindow.Chat History': 'Chat',
                     'Chatwindow.entered the room': '**hat den Raum betreten**',

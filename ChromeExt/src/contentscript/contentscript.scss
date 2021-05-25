@@ -403,10 +403,10 @@
             left: 20px;
             bottom: 20px;
             //border: 1px solid #888;
-            padding: 3px 4px;
+            padding: 3px 5px;
             background-color: #ffffff;
             white-space: nowrap;
-            z-index: 5;
+            z-index: 4;
             user-select: none;
 
             div.n3q-text {
@@ -493,6 +493,7 @@
             div.n3q-menuitem-settings div.n3q-menu-icon { background: url(../assets/icons/ic_baseline-settings.svg) no-repeat center center / contain; }
             // div.n3q-menuitem-tabstay div.n3q-menu-icon-unchecked { background: url(../assets/icons/ic-outline-check-box-outline-blank.svg) no-repeat center center / contain; }
             // div.n3q-menuitem-tabstay div.n3q-menu-icon-checked { background: url(../assets/icons/ic-outline-check-box.svg) no-repeat center center / contain; }
+            div.n3q-menuitem-getweblin div.n3q-menu-icon { background: url(../assets/icons/weblin.png) no-repeat center center / contain; }
             div.n3q-menuitem-privatevidconf div.n3q-menu-icon { background: url(../assets/icons/mdi_monitor-eye.svg) no-repeat center center / contain; }
             div.n3q-menuitem-privatechat div.n3q-menu-icon { background: url(../assets/icons/ri_chat-private-line.svg) no-repeat center center / contain; }
             div.n3q-menuitem-greet div.n3q-menu-icon { background: url(../assets/icons/mdi_human-greeting.svg) no-repeat center center / contain; }
@@ -521,6 +522,7 @@
             input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-deny           { transform: translate(-3px,  -66px) scale(1, 1); } 
             input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-yawn           { transform: translate(-3px,  -44px) scale(1, 1); } 
             
+            input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-getweblin      { transform: translate(60px, -132px) scale(1, 1); } 
             input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-privatevidconf { transform: translate(-3px, -110px) scale(1, 1); } 
             input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-privatechat    { transform: translate(-3px,  -88px) scale(1, 1); } 
             input[type=checkbox].n3q-menu-open:checked ~ div.n3q-menu-item.n3q-menuitem-greet          { transform: translate(-3px,  -66px) scale(1, 1); } 
@@ -601,7 +603,7 @@
         -webkit-border-radius: 5px;
         white-space: nowrap;
         padding: 0px 2px 0px 4px;
-        z-index: 4;
+        z-index: 5;
 
         input[type=text].n3q-text {
             margin: 6px;

@@ -5,6 +5,9 @@ import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
 import { Config } from '../lib/Config';
 import { PointsGenerator } from './PointsGenerator';
+import { Utils } from '../lib/Utils';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { Pid } from '../lib/ItemProperties';
 
 export class ActivitySet { [channel: string]: number }
 
@@ -32,18 +35,33 @@ export class ActivityBar implements IObserver
     {
         if (name == 'Activities') {
             let activities = JSON.parse(value);
-            this.setActivities(activities);
+            // this.setActivities(activities);
         }
     }
 
-    setActivities(activities: ActivitySet): void
+    async setActivities(): Promise<void>
     {
+        let activitiesConfig = Config.get('points.activities', {});
+
+        let activities = new ActivitySet();
+        if (Utils.isBackpackEnabled()) {
+            let propSet = await BackgroundMessage.findBackpackItemProperties({ [Pid.PointsAspect]: 'true' });
+            let item = null;
+            for (let id in propSet) {
+                let props = propSet[id];
+                for (let channel in activitiesConfig) {
+                    if (props[channel]) {
+                        activities[channel] = as.Int(props[channel], 0);
+                    }
+                }
+            }
+        }
+
         this.activities = activities;
         $(this.elem).empty();
 
         let channelContributions = new ActivitySet();
 
-        let activitiesConfig = Config.get('points.activities', {});
         for (let channel in activitiesConfig) {
             let config = activitiesConfig[channel];
             let value = as.Int(activities[channel], 0);

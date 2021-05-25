@@ -139,6 +139,10 @@ export class IframeApi
                 case WeblinClientPageApi.ItemFindRequest.type: {
                     response = await this.handle_ItemFindRequest(<WeblinClientPageApi.ItemFindRequest>request);
                 } break;
+
+                default: {
+                    response = new WeblinClientApi.ErrorResponse('Unhandled request: ' + request.type);
+                } break;
             }
 
         } catch (ex) {
@@ -150,7 +154,7 @@ export class IframeApi
             response.id = request.id;
             response[Config.get('iframeApi.messageMagic2Page', 'df7d86ozgh76_2pageApi')] = true;
             window.postMessage(response, '*');
-    }
+        }
     }
 
     async handle_ClientCreateItemRequest(request: WeblinClientPageApi.ClientCreateItemRequest): Promise<WeblinClientApi.Response>
@@ -181,7 +185,7 @@ export class IframeApi
                 items.push(id);
             }
             return new WeblinClientPageApi.ItemFindResponse(items);
-    
+
         } catch (error) {
             return new WeblinClientApi.ErrorResponse(error);
         }
@@ -215,6 +219,9 @@ export class IframeApi
                 } break;
                 case WeblinClientIframeApi.ItemRangeRequest.type: {
                     response = this.handle_ItemRangeRequest(<WeblinClientIframeApi.ItemRangeRequest>request);
+                } break;
+                case WeblinClientPageApi.ItemFindRequest.type: {
+                    response = await this.handle_ItemFindRequest(<WeblinClientIframeApi.ItemFindRequest>request);
                 } break;
 
                 case WeblinClientIframeApi.RoomGetParticipantsRequest.type: {
@@ -253,6 +260,10 @@ export class IframeApi
 
                 case WeblinClientIframeApi.ClientNavigateRequest.type: {
                     response = this.handle_ClientNavigateRequest(<WeblinClientIframeApi.ClientNavigateRequest>request);
+                } break;
+
+                default: {
+                    response = new WeblinClientApi.ErrorResponse('Unhandled request: ' + request.type);
                 } break;
             }
         } catch (error) {
