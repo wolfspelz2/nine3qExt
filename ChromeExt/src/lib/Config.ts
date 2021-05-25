@@ -199,10 +199,9 @@ export class Config
                 PointsChannelChat      : { weight: 1, x0: 0, css: { backgroundColor: '#ff0000'} },
                 PointsChannelEmote     : { weight: 1, x0: 0, css: { backgroundColor: '#00ff00'} },
                 PointsChannelGreet     : { weight: 1, x0: 0, css: { backgroundColor: '#0000ff'} },
-                PointsChannelPowerup   : { weight: 1, x0: 0, css: { backgroundColor: '#ffff00'} },
                 PointsChannelNavigation: { weight: 1, x0: 0, css: { backgroundColor: '#ff00ff'} },
-                PointsChannelItemRez   : { weight: 1, x0: 0, css: { backgroundColor: '#00ffff'} },
-                PointsChannelItemApply : { weight: 1, x0: 0, css: { backgroundColor: '#808080'} },
+                PointsChannelPowerup   : { weight: 1, x0: 0, css: { backgroundColor: '#ff00ff'} },
+                PointsChannelItemApply : { weight: 1, x0: 0, css: { backgroundColor: '#00ffff'} },
             }
         },
         itemProviders: {
@@ -400,6 +399,7 @@ export class Config
                     'ErrorReason.ItemIsNotTransferable': 'Item not transferable.',
                     'ErrorReason.NoMatch': 'Item do not match.',
                     'ErrorReason.NoSuchAspect': 'The item is missing a feature.',
+                    'ErrorReason.NoSuchItem': 'Missing item',
                     'ErrorReason.Ambiguous': 'Ambiguous',
                     'ErrorReason.Insufficient': 'Insufficient',
                     'ErrorReason.StillInProgress': 'Still in progress',
@@ -585,6 +585,7 @@ export class Config
                     'ErrorReason.ItemIsNotTransferable': 'Der Gegenstand ist nicht übertragbar.',
                     'ErrorReason.NoMatch': 'Gegenstände passen nicht.',
                     'ErrorReason.NoSuchAspect': 'Dem Gegenstand fehlt eine Eigenschaft.',
+                    'ErrorReason.NoSuchItem': 'Gegenstand fehlt',
                     'ErrorReason.Ambiguous': 'Mehrdeutig',
                     'ErrorReason.Insufficient': 'Ungenügend',
                     'ErrorReason.StillInProgress': 'Dauert noch an',
