@@ -191,7 +191,7 @@ export class Config
         points: {
             enabled: true,
             passiveEnabled: true,
-            submissionIntervalSec: 300,
+            submissionIntervalSec: 60,
             fullLevels: 2,
             fractionalLevels: 1,
             activityEnabled: false,

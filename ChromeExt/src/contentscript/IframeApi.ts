@@ -595,6 +595,7 @@ export class IframeApi
                 }
             }
             await BackgroundMessage.executeBackpackItemAction(itemId, actionName, args, involvedIds);
+            await BackgroundMessage.pointsActivity(Pid.PointsChannelItemApply, 1);
             return new WeblinClientApi.SuccessResponse();
         } catch (error) {
             let fact = ItemException.factFrom(error.fact);
