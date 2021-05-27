@@ -39,7 +39,7 @@ export class Toast
         $(bodyContainerElem).append(this.bodyElem);
         $(this.elem).append(bodyContainerElem);
 
-        let closeElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-button-overlay n3q-shadow-small" title="Close" data-translate="attr:title:Common"><div class="n3q-base n3q-button-symbol n3q-button-close-small" />').get(0);
+        let closeElem = <HTMLElement>$('<div class="n3q-base n3q-overlay-button n3q-shadow-small" title="Close" data-translate="attr:title:Common"><div class="n3q-base n3q-button-symbol n3q-button-close-small" />').get(0);
         $(closeElem).click(ev =>
         {
             $(this.elem).stop(true);

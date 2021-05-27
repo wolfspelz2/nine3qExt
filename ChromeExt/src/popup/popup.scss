@@ -95,6 +95,7 @@ div.n3q-window-content div#n3q-id-popup div.n3q-popup-label {
     div.n3q-window-content div#n3q-id-popup button.n3q-popup-random { 
         display: inline;
         margin-left: 10px;
+        padding: 4px 10px;
     }
 
     div.n3q-window-content div#n3q-id-popup button.n3q-popup-random:hover {
@@ -102,7 +103,10 @@ div.n3q-window-content div#n3q-id-popup div.n3q-popup-label {
     }
 
     div.n3q-window-content div#n3q-id-popup button.n3q-popup-random:active {
-        filter: brightness(0.8);
+        position: relative;
+        left: 1px;
+        top: 1px;
+        // filter: brightness(0.8);
     }
 
     // div.n3q-window-content div#n3q-id-popup button.n3q-popup-dev-apply { 
@@ -113,7 +117,10 @@ div.n3q-window-content div#n3q-id-popup div.n3q-popup-label {
     }
 
     div.n3q-window-content div#n3q-id-popup button.n3q-popup-dev-apply:active {
-        filter: brightness(0.8);
+        position: relative;
+        left: 1px;
+        top: 1px;
+        // filter: brightness(0.8);
     }
 
     // div.n3q-window-content div#n3q-id-popup div.n3q-popup-group-avatar {
@@ -147,7 +154,10 @@ div.n3q-window-content div#n3q-id-popup div.n3q-popup-label {
     }
     
     div.n3q-window-content div#n3q-id-popup button.n3q-popup-avatar-arrow:active {
-        filter: brightness(0.8);
+        position: relative;
+        left: 1px;
+        top: 1px;
+        // filter: brightness(0.8);
     }
 
 // div.n3q-window-content div#n3q-id-popup div.n3q-popup-group-active {
@@ -181,7 +191,10 @@ div.n3q-window-content div#n3q-id-popup div.n3q-popup-group-save {
     }
     
     div.n3q-window-content div#n3q-id-popup button.n3q-popup-save:active {
-        filter: brightness(0.9);
+        position: relative;
+        left: 1px;
+        top: 1px;
+        // filter: brightness(0.9);
     }
 
     div.n3q-window-content div#n3q-id-popup div.n3q-popup-save-saving {
