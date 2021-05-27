@@ -834,8 +834,12 @@ export class Participant extends Entity
 
     onMouseDoubleClickAvatar(ev: JQuery.Event): void
     {
-        super.onMouseClickAvatar(ev)
-        this.toggleChatWindow();
+        // super.onMouseClickAvatar(ev)
+        if (this.isSelf) {
+            this.toggleChatWindow();
+        } else {
+            this.togglePrivateChatWindow();
+        }
     }
 
     onDraggedTo(newX: number): void
@@ -952,6 +956,17 @@ export class Participant extends Entity
                 'above': aboveElem,
                 onClose: () => { this.privateChatWindow = null; },
             });
+        }
+    }
+
+    togglePrivateChatWindow(): void
+    {
+        if (this.privateChatWindow) {
+            if (this.privateChatWindow.isOpen()) {
+                this.privateChatWindow.close();
+            }
+        } else {
+            this.openPrivateChat(this.elem);
         }
     }
 

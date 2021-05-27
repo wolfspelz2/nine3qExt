@@ -10,6 +10,7 @@ export class _Changes
             ['Add', 'Limit and warning for items on page'],
             ['Add', 'XMPP version response'],
             ['Add', 'Time to chat log'],
+            ['Add', 'Toggle private chat window on other participants avatar ctrl-dbl-click'],
             ['Change', 'Design to borderless/shadow'],
             ['Fix', 'Animation remains even though AnimationsUrl property removed from item'],
         ]],
