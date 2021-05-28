@@ -5,6 +5,9 @@ import { ContentApp } from './ContentApp';
 import { Participant } from './Participant';
 import { Config } from '../lib/Config';
 import { PointsGenerator } from './PointsGenerator';
+import { Utils } from '../lib/Utils';
+import { BackgroundMessage } from '../lib/BackgroundMessage';
+import { Pid } from '../lib/ItemProperties';
 
 export class PointsBar implements IObserver
 {
@@ -29,15 +32,36 @@ export class PointsBar implements IObserver
     updateObservableProperty(name: string, value: string): void
     {
         if (name == 'Points') {
-            this.setPoints(as.Int(value, 0));
+            /*await*/ this.setPoints(as.Int(value, 0));
         }
     }
 
-    setPoints(points: number): void
+    async setPoints(points: number): Promise<void>
     {
         this.points = points;
         $(this.elem).empty();
-        $(this.elem).attr('title', '' + points);
+
+        let title = String(points);
+
+
+        if (Utils.isBackpackEnabled()) {
+            let activitiesConfig = Config.get('points.activities', {});
+            let propSet = await BackgroundMessage.findBackpackItemProperties({ [Pid.PointsAspect]: 'true' });
+            for (let id in propSet) {
+                let props = propSet[id];
+                for (let channel in activitiesConfig) {
+                    if (props[channel]) {
+                        let value = as.Int(props[channel], 0);
+                        if (value != 0) {
+                            this.app.translateText('Activity.' + channel) + ': ' + value;
+                        }
+                    }
+                }
+            }
+        }
+
+
+        $(this.elem).attr('title', '' + title);
 
         let pg = new PointsGenerator(4, 
             Config.get('points.fullLevels', 2), 

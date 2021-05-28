@@ -232,7 +232,7 @@ export class Participant extends Entity
                 }
             }
 
-            if (this.isSelf && Config.get('points.activityEnabled', false)) {
+            if (this.isSelf && Config.get('points.activityDisplayEnabled', false)) {
                 this.activityDisplay = new ActivityBar(this.app, this, this.getElem());
                 if (!this.isSelf) {
                     if (Config.get('room.pointsOnHover', true)) {

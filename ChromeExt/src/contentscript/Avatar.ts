@@ -61,7 +61,7 @@ export class Avatar implements IObserver
         var url = entity.getDefaultAvatar();
         // this.elem.src = url;
         this.setImage(url);
-        this.setSize(38, 38);
+        this.setSize(100, 100);
         this.isDefault = true;
 
         $(this.imageElem).on('mousedown', (ev: JQueryMouseEventObject) =>

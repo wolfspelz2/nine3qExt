@@ -194,7 +194,7 @@ export class Config
             submissionIntervalSec: 60,
             fullLevels: 2,
             fractionalLevels: 1,
-            activityEnabled: false,
+            activityDisplayEnabled: false,
             activities: {
                 PointsChannelChat      : { weight: 1, x0: 0, css: { backgroundColor: '#ff0000'} },
                 PointsChannelEmote     : { weight: 1, x0: 0, css: { backgroundColor: '#00ff00'} },
