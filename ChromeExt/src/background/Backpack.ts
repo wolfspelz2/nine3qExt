@@ -62,7 +62,7 @@ export class Backpack
     {
         await this.loadLocalItems();
 
-        if (Config.get('Backpack.loadWeb3Items', false)) {
+        if (Config.get('backpack.loadWeb3Items', false)) {
             await this.loadWeb3Items();
         }
     }
