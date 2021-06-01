@@ -369,7 +369,7 @@ export class Config
                     'Activity.PointsChannelEmote': 'Emote',
                     'Activity.PointsChannelGreet': 'Greet',
                     'Activity.PointsChannelNavigation': 'Navigate',
-                    'Activity.PointsChannelItemRez': 'Drop item',
+                    'Activity.PointsChannelPowerup': 'Powerup',
                     'Activity.PointsChannelItemApply': 'Apply item',
 
                     'ErrorFact.UnknownError': 'UnknownError',
@@ -555,7 +555,7 @@ export class Config
                     'Activity.PointsChannelEmote': 'Emote',
                     'Activity.PointsChannelGreet': 'Grüßen',
                     'Activity.PointsChannelNavigation': 'Navigation',
-                    'Activity.PointsChannelItemRez': 'Gegenstand ablegen',
+                    'Activity.PointsChannelPowerup': 'Powerup',
                     'Activity.PointsChannelItemApply': 'Gegenstand anwenden',
 
                     'ErrorFact.UnknownError': 'Unbekannter Fehler',
