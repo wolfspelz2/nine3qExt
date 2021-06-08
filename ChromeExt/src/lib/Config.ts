@@ -60,6 +60,7 @@ export class Config
         client: {
             name: 'weblin.io',
             notificationToastDurationSec: 30,
+            showIntroYou: 10,
         },
         design: {
             name: 'basic',
@@ -272,6 +273,9 @@ export class Config
                     'Common.Close': 'Close',
                     'Common.Undock': 'Open in separate window',
 
+                    'Intro.Got it': 'Got it',
+                    'Intro.You': 'You',
+
                     'Chatin.Enter chat here...': 'Enter chat here...',
                     'Chatin.SendChat': 'Send chat',
 
@@ -457,6 +461,9 @@ export class Config
 
                     'Common.Close': 'Schließen',
                     'Common.Undock': 'Im eigenen Fenster öffnen',
+
+                    'Intro.Got it': 'Verstanden',
+                    'Intro.You': 'Du',
 
                     'Chatin.Enter chat here...': 'Chat Text hier...',
                     'Chatin.SendChat': 'Chat abschicken',

@@ -25,6 +25,7 @@ import { TestWindow } from './TestWindow';
 import { BackpackWindow } from './BackpackWindow';
 import { SimpleToast } from './Toast';
 import { IframeApi } from './IframeApi';
+import { RandomNames } from '../lib/RandomNames';
 
 interface ILocationMapperResponse
 {
@@ -876,7 +877,8 @@ export class ContentApp
         try {
             let nickname = await Memory.getLocal(Utils.localStorageKey_Nickname(), '');
             if (nickname == '') {
-                await Memory.setLocal(Utils.localStorageKey_Nickname(), 'Your name');
+                nickname = RandomNames.getRandomNickname();
+                await Memory.setLocal(Utils.localStorageKey_Nickname(), nickname);
             }
         } catch (error) {
             log.info(error);
