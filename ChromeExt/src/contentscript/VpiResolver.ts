@@ -53,6 +53,7 @@ export class VpiResolver
         let locationUrl = '';
         let vpiUrl = this.config.get('vp.vpiRoot', 'https://lms.virtual-presence.org/v7/root.xml');
         let iterationCounter = this.config.get('vp.vpiMaxIterations', 10);
+        this.trace('Root', vpiUrl);
 
         do {
             iterationCounter--;

@@ -12,6 +12,7 @@ export class _Changes
             ['Add', 'Time to chat log'],
             ['Add', 'Toggle private chat window on other participants avatar ctrl-dbl-click'],
             ['Change', 'Design to borderless/shadow'],
+            ['Change', 'Pulse effect in front'],
             ['Fix', 'Animation remains even though AnimationsUrl property removed from item'],
         ]],
         ['1.1.1', 'Crafting', [

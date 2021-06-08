@@ -219,7 +219,7 @@ export class ChatWindow extends Window
                 + '<span class="n3q-base n3q-text n3q-nick">' + as.Html(nick) + '</span>'
                 + '<span class="n3q-base n3q-text n3q-colon">' + this.app.translateText('Chatwindow.:') + '</span>'
                 : '')
-            + '<span class="n3q-base n3q-text n3q-chat">' + as.Html(text) + '</span>'
+            + '<span class="n3q-base n3q-text n3q-chat">' + as.HtmlWithClickableLinks(text) + '</span>'
             + '</div>'
         ).get(0);
 
