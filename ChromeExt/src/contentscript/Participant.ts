@@ -80,7 +80,7 @@ export class Participant extends Entity
                     + '<div class="n3q-base n3q-intro-you n3q-bounce" data-translate="children">'
                     + '  <svg class="n3q-base n3q-shadow-small" width="72" height="48" xmlns="http://www.w3.org/2000/svg">'
                     + '    <g>'
-                    + '      <path fill="#9fc415" stroke-width="0" d="m0,25l36,-24l36,24l-18,0l0,24l-36,0l0,-24l-18,0l0,0z" id="svg_1" stroke="#000" transform="rotate(-180 36 24)"/>'
+                    + '      <path class="n3q-base" stroke-width="0" stroke="#000" d="m0,25l36,-24l36,24l-18,0l0,24l-36,0l0,-24l-18,0l0,0z" id="svg_1" transform="rotate(-180 36 24)"/>'
                     + '    </g>'
                     + '  </svg>'
                     + '  <div class="n3q-intro-you-label" data-translate="children"><div class="n3q-intro-you-label-text" data-translate="text:Intro">You</div></div>'
