@@ -157,7 +157,6 @@
             border-radius: 8px;
             background: rgba(171,193,21,0.2);
             border: 3px solid rgba(255,255,255,0.2);
-            // background: linear-gradient(0deg, rgba(171,193,21,0.5) 0%, rgba(171,193,21,0.5) 10%, rgba(255,255,255,0) 33%, rgba(255,255,255,0) 100%);
             pointer-events: none;
             z-index: -1;
         }
@@ -500,7 +499,6 @@
             vertical-align: middle;
             width: 14px;
             height: 14px;
-            // background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMWVtIiBoZWlnaHQ9IjFlbSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0IiBzdHlsZT0iLW1zLXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7IC13ZWJraXQtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsiPjxwYXRoIGQ9Ik0zIDE4aDE4di0ySDN2MnptMC01aDE4di0ySDN2MnptMC03djJoMThWNkgzeiIgZmlsbD0iY3VycmVudENvbG9yIi8+PC9zdmc+) center center / contain no-repeat;
             background: url(../assets/icons/menu.svg) no-repeat center center / contain;
         }
 
@@ -513,8 +511,6 @@
         }
 
         input[type=checkbox].n3q-menu-open:checked + label.n3q-menu-open-button {
-            // background: url('https://api.iconify.design/ic:outline-cancel.svg') no-repeat center center / contain;
-            // background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMWVtIiBoZWlnaHQ9IjFlbSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pZFlNaWQgbWVldCIgdmlld0JveD0iMCAwIDI0IDI0IiBzdHlsZT0iLW1zLXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7IC13ZWJraXQtdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsgdHJhbnNmb3JtOiByb3RhdGUoMzYwZGVnKTsiPjxwYXRoIGQ9Ik0xMiAyQzYuNDcgMiAyIDYuNDcgMiAxMnM0LjQ3IDEwIDEwIDEwczEwLTQuNDcgMTAtMTBTMTcuNTMgMiAxMiAyem0wIDE4Yy00LjQxIDAtOC0zLjU5LTgtOHMzLjU5LTggOC04czggMy41OSA4IDhzLTMuNTkgOC04IDh6bTMuNTktMTNMMTIgMTAuNTlMOC40MSA3TDcgOC40MUwxMC41OSAxMkw3IDE1LjU5TDguNDEgMTdMMTIgMTMuNDFMMTUuNTkgMTdMMTcgMTUuNTlMMTMuNDEgMTJMMTcgOC40MXoiIGZpbGw9ImN1cnJlbnRDb2xvciIvPjwvc3ZnPg') no-repeat center center / contain;
             background: url(../assets/icons/close-circle-o.svg) no-repeat center center / contain;
         }
         
