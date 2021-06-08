@@ -83,7 +83,7 @@ export class Participant extends Entity
                     + '      <path class="n3q-base" stroke-width="0" stroke="#000" d="m0,25l36,-24l36,24l-18,0l0,24l-36,0l0,-24l-18,0l0,0z" id="svg_1" transform="rotate(-180 36 24)"/>'
                     + '    </g>'
                     + '  </svg>'
-                    + '  <div class="n3q-intro-you-label" data-translate="children"><div class="n3q-intro-you-label-text" data-translate="text:Intro">You</div></div>'
+                    + '  <div class="n3q-base n3q-intro-you-label" data-translate="children"><div class="n3q-base n3q-intro-you-label-text" data-translate="text:Intro">You</div></div>'
                     + '</div>').get(0);
                 let closeElem = <HTMLElement>$('<div class="n3q-base n3q-overlay-button n3q-shadow-small" title="Got it" data-translate="attr:title:Intro"><div class="n3q-base n3q-button-symbol n3q-button-close-small" />').get(0);
                 $(closeElem).on('click', async ev =>
