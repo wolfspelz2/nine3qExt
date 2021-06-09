@@ -101,7 +101,7 @@ export class BackpackWindow extends Window
                 $(inElem).hide();
                 $(contentElem).append(inElem);
 
-                let toggleElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-backpack-button n3q-backpack-toggle">Input</div>').get(0);
+                let toggleElem = <HTMLElement>$('<div class="n3q-base n3q-absolutebutton n3q-backpack-toggle">Input</div>').get(0);
                 $(contentElem).append(toggleElem);
                 $(toggleElem).on('click', () =>
                 {
@@ -113,7 +113,7 @@ export class BackpackWindow extends Window
                     }
                 });
 
-                let addElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-backpack-button n3q-backpack-add">Add</div>').get(0);
+                let addElem = <HTMLElement>$('<div class="n3q-base n3q-absolutebutton n3q-backpack-add">Add</div>').get(0);
                 $(contentElem).append(addElem);
                 $(addElem).on('click', () =>
                 {

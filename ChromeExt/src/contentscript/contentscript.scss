@@ -224,7 +224,6 @@
         padding: 4px;
         cursor: default;
         user-select: none;
-        // border: 1px solid #808080;
         box-shadow: 1px 1px 3px #404040;
     }
 
@@ -235,7 +234,24 @@
         position: relative;
         left: 1px;
         top: 1px;
-        // filter: brightness(0.8);
+    }   
+
+    div.n3q-absolutebutton {
+        position: absolute;
+        color: #000000;
+        background-color: #ffffff;
+        text-align: center;
+        padding: 4px;
+        cursor: default;
+        user-select: none;
+        box-shadow: 1px 1px 3px #404040;
+    }
+
+    div.n3q-absolutebutton:hover { 
+        filter: brightness(0.9);
+    }
+    div.n3q-absolutebutton:active { 
+        filter: brightness(0.8);
     }   
 
     div.n3q-button-symbol:hover { 
@@ -1127,24 +1143,16 @@
         resize: auto;
     }
 
-    div.n3q-backpack-button { 
-        position: absolute;
-        width: 50px;
-        color: #000000;
-        background-color: #f0f0f0;
-        border: 1px solid #808080;
-        text-align: center;
-        padding: 4px;
-    }
-
     div.n3q-backpack-toggle { 
         right: 4px;
         top: 68px;
+        width: 50px;
     }
 
     div.n3q-backpack-add { 
         right: 4px;
         top: 92px;
+        width: 50px;
     }
 
     div.n3q-backpack-dump { 
