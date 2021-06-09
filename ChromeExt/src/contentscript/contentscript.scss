@@ -200,7 +200,7 @@
 
     div.n3q-shadow-small {
         border: none;
-        box-shadow: 2px 2px 8px rgba(64, 64, 64, 0.8);
+        box-shadow: 1px 1px 3px rgba(64, 64, 64, 0.8);
     }
 
     div.n3q-shadow-medium {
@@ -420,6 +420,20 @@
 
             div.n3q-overlay-button {
                 right: 10px;
+                background-color: #9fc415;
+
+                div.n3q-button-close-small {
+                    background: url(../assets/icons/inverse-close-circle-o.svg) no-repeat center center / contain;
+                    width: 14px;
+                    height: 14px;
+                }
+
+                div.n3q-button-symbol:hover { 
+                    filter: brightness(1.1);
+                }
+                div.n3q-button-symbol:active { 
+                    filter: brightness(1.1);
+                }
             }
 
             div.n3q-overlay-button:active { 
@@ -427,9 +441,9 @@
                 top: -6px;
             }
 
-           div.n3q-shadow-small {
-                box-shadow: 1px 1px 4px rgba(64, 64, 64, 0.8);
-            }
+        //    div.n3q-shadow-small {
+        //         box-shadow: 1px 1px 4px rgba(64, 64, 64, 0.8);
+        //     }
         }
 
         div.n3q-activity {
