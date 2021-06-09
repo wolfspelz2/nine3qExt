@@ -32,22 +32,26 @@ export class PointsBar implements IObserver
     updateObservableProperty(name: string, value: string): void
     {
         if (name == 'Points') {
-            /*await*/ this.setPoints(as.Int(value, 0));
-        }
-        if (name == 'Activities') {
-            /*await*/ this.refreshActivities();
+            this.setPoints(as.Int(value, 0));
+    
+            if (this.participant.getIsSelf()) {
+                /*await*/ this.refreshActivities();
+            }
         }
     }
 
-    async setPoints(points: number): Promise<void>
+    setPoints(points: number): void
     {
         this.points = points;
         $(this.elem).empty();
-        
-        let pg = new PointsGenerator(4, 
-            Config.get('points.fullLevels', 2), 
+
+        let title = String(this.points);
+        $(this.elem).attr('title', '' + title);
+
+        let pg = new PointsGenerator(4,
+            Config.get('points.fullLevels', 2),
             Config.get('points.fractionalLevels', 1)
-            );
+        );
         let digits = pg.getDigitList(points);
         let parts = pg.getPartsList(digits);
         let stars = parts.map(part => <HTMLDivElement>$('<div class="n3q-base n3q-points-icon n3q-points-icon-' + part + '" />').get(0));
