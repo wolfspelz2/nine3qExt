@@ -338,7 +338,9 @@ export class Participant extends Entity
                     this.app.getPropertyStorage().watch(this.userId, 'Points', this.pointsDisplay);
                 }
             }
-            this.pointsDisplay.refreshActivities();
+            if (this.isSelf) {
+                this.pointsDisplay.refreshActivities();
+            }
         }
 
         if (this.activityDisplay) {
