@@ -405,14 +405,14 @@
                 top: 16px;
                 width: 34px;
 
-                filter: drop-shadow(rgb(112,112,112) 1px 1px 3px);
-                // filter: drop-shadow(rgb(128, 128, 128) 1px 1px 2px);
 
                 div.n3q-intro-you-label-text {
                     font: 14px Arial, sans-serif;
                     font-weight: 600;
                     text-align: center;
 
+                    filter: drop-shadow(rgb(112,112,112) 1px 1px 2px);
+                    // filter: drop-shadow(rgb(128, 128, 128) 1px 1px 2px);
                     color: #ffffff;
                     // color: #000000;
                 }
