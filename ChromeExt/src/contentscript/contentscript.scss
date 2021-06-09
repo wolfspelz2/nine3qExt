@@ -405,6 +405,11 @@
             div.n3q-overlay-button {
                 right: 10px;
             }
+
+            div.n3q-overlay-button:active { 
+                right: 9px;
+                top: -6px;
+            }
         }
 
         div.n3q-activity {
