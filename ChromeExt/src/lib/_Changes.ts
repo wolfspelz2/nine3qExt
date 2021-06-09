@@ -12,6 +12,7 @@ export class _Changes
             ['Add', 'Time to chat log'],
             ['Add', 'Toggle private chat window on other participants avatar ctrl-dbl-click'],
             ['Add', 'A disposable marker to indicate which one is your avatar'],
+            ['Add', 'Show current points channels as tooltip'],
             ['Change', 'Design to borderless/shadow'],
             ['Change', 'Pulse effect in front'],
             ['Fix', 'Animation remains even though AnimationsUrl property removed from item'],
