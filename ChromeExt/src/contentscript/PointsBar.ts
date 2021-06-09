@@ -35,7 +35,7 @@ export class PointsBar implements IObserver
             this.setPoints(as.Int(value, 0));
     
             if (this.participant.getIsSelf()) {
-                /*await*/ this.refreshActivities();
+                /*await*/ this.showTitleWithActivities();
             }
         }
     }
@@ -58,7 +58,7 @@ export class PointsBar implements IObserver
         $(this.elem).append(stars);
     }
 
-    async refreshActivities(): Promise<void>
+    async showTitleWithActivities(): Promise<void>
     {
         let title = String(this.points);
 

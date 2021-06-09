@@ -341,7 +341,7 @@ export class Participant extends Entity
         }
 
         if (this.isSelf) {
-            this.pointsDisplay?.refreshActivities();
+            await this.pointsDisplay?.showTitleWithActivities();
         }
 
         if (hasCondition) {
