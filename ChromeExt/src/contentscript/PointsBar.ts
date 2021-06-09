@@ -34,15 +34,29 @@ export class PointsBar implements IObserver
         if (name == 'Points') {
             /*await*/ this.setPoints(as.Int(value, 0));
         }
+        if (name == 'Activities') {
+            /*await*/ this.refreshActivities();
+        }
     }
 
     async setPoints(points: number): Promise<void>
     {
         this.points = points;
         $(this.elem).empty();
+        
+        let pg = new PointsGenerator(4, 
+            Config.get('points.fullLevels', 2), 
+            Config.get('points.fractionalLevels', 1)
+            );
+        let digits = pg.getDigitList(points);
+        let parts = pg.getPartsList(digits);
+        let stars = parts.map(part => <HTMLDivElement>$('<div class="n3q-base n3q-points-icon n3q-points-icon-' + part + '" />').get(0));
+        $(this.elem).append(stars);
+    }
 
-        let title = String(points);
-
+    async refreshActivities(): Promise<void>
+    {
+        let title = String(this.points);
 
         if (Utils.isBackpackEnabled()) {
             let activitiesConfig = Config.get('points.activities', {});
@@ -62,14 +76,5 @@ export class PointsBar implements IObserver
 
 
         $(this.elem).attr('title', '' + title);
-
-        let pg = new PointsGenerator(4, 
-            Config.get('points.fullLevels', 2), 
-            Config.get('points.fractionalLevels', 1)
-            );
-        let digits = pg.getDigitList(points);
-        let parts = pg.getPartsList(digits);
-        let stars = parts.map(part => <HTMLDivElement>$('<div class="n3q-base n3q-points-icon n3q-points-icon-' + part + '" />').get(0));
-        $(this.elem).append(stars);
     }
 }
