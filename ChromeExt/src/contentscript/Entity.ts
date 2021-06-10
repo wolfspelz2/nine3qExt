@@ -59,7 +59,7 @@ export class Entity
     showEffect(effect: any): void
     {
         let pulseElem = <HTMLDivElement>$('<div class="n3q-base n3q-pulse" />').get(0);
-        $(this.elem).append(pulseElem)
+        $(this.elem).append(pulseElem);
         window.setTimeout(() => { $(pulseElem).remove(); }, 1000);
     }
 
