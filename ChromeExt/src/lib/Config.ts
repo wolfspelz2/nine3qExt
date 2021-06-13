@@ -68,7 +68,7 @@ export class Config
         },
         vp: {
             deferPageEnterSec: 0.3,
-            vpiRoot: 'https://lms.virtual-presence.org/v7/root.xml',
+            vpiRoot: 'https://webex.vulcan.weblin.com/vpi/v7/root.xml',
             vpiMaxIterations: 15,
             ignoredDomainSuffixes: ['vulcan.weblin.com'],
             strippedUrlPrefixes: ['https://cdn.weblin.io/?', 'https://cdn.weblin.io/'],
