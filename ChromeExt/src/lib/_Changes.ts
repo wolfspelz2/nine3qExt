@@ -16,6 +16,7 @@ export class _Changes
             ['Change', 'Design to borderless/shadow'],
             ['Change', 'Pulse effect in front'],
             ['Fix', 'Animation remains even though AnimationsUrl property removed from item'],
+            ['Fix', 'Presence error on presence w/o muc/join child after long downtime where room kicks user and demands explicit re-enter'],
         ]],
         ['1.1.1', 'Crafting', [
             ['Add', 'Crafting'],

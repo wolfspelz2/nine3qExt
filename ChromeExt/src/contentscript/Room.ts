@@ -208,12 +208,12 @@ export class Room
                 );
             }
 
-            if (!this.isEntered) {
+            // if (!this.isEntered) {
                 presence.append(
                     xml('x', { xmlns: 'http://jabber.org/protocol/muc' })
                         .append(xml('history', { seconds: '180', maxchars: '3000', maxstanzas: '10' }))
                 );
-            }
+            // }
 
             // log.debug('#### send', presence.children[1].attrs);
             this.app.sendStanza(presence);

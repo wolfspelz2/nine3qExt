@@ -1088,6 +1088,7 @@ export class BackgroundApp
     private sendPresence()
     {
         this.sendStanza(xml('presence'));
+        // this.sendStanza(xml('presence').append(xml('x', { xmlns: 'http://jabber.org/protocol/muc' })));
     }
 
     private async recvStanza(stanza: xml)
