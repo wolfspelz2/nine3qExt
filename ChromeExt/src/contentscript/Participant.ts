@@ -891,6 +891,14 @@ export class Participant extends Entity
     {
         super.onMoveDestinationReached(newX);
         this.sendParticipantMovedToAllScriptFrames();
+
+        if (this.isSelf) {
+            let items = this.getRoom().getAutoRangeItems();
+            for (let i = 0; i < items.length; i++) {
+                let item = items[i];
+                item.checkIframeAutoRange();
+            }
+        }
     }
 
     sendParticipantMovedToAllScriptFrames(): void

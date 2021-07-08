@@ -169,7 +169,7 @@ export class BackgroundApp
 
         if (!this.isReady) {
             this.isReady = true;
-            if (Config.get('log.startup', true)) { log.info('BackgroundApp', 'isReady'); }
+            if (Utils.logChannel('startup', true)) { log.info('BackgroundApp', 'isReady'); }
         }
     }
 
@@ -322,7 +322,7 @@ export class BackgroundApp
 
     maintainHttpCache(): void
     {
-        if (Config.get('log.backgroundFetchUrlCache', true)) { log.info('BackgroundApp.maintainHttpCache'); }
+        if (Utils.logChannel('backgroundFetchUrlCache', true)) { log.info('BackgroundApp.maintainHttpCache'); }
         let cacheTimeout = Config.get('httpCache.maxAgeSec', 3600);
         let now = Date.now();
         let deleteKeys = new Array<string>();
@@ -334,7 +334,7 @@ export class BackgroundApp
 
         deleteKeys.forEach(key =>
         {
-            if (Config.get('log.backgroundFetchUrlCache', true)) { log.info('BackgroundApp.maintainHttpCache', (now - this.httpCacheTime[key]) / 1000, 'sec', 'delete', key); }
+            if (Utils.logChannel('backgroundFetchUrlCache', true)) { log.info('BackgroundApp.maintainHttpCache', (now - this.httpCacheTime[key]) / 1000, 'sec', 'delete', key); }
             delete this.httpCacheData[key];
             delete this.httpCacheTime[key];
         });
@@ -342,7 +342,7 @@ export class BackgroundApp
 
     private async fetchJSON(url: string): Promise<any>
     {
-        if (Config.get('log.backgroundFetchUrl', true)) { log.info('BackgroundApp.fetchJSON', url); }
+        if (Utils.logChannel('backgroundFetchUrl', true)) { log.info('BackgroundApp.fetchJSON', url); }
 
         return new Promise((resolve, reject) =>
         {
@@ -368,7 +368,7 @@ export class BackgroundApp
         if (isCached) {
             // log.debug('BackgroundApp.handle_fetchUrl', 'cache-age', (now - this.httpCacheTime[key]) / 1000, url, 'version=', version);
         } else {
-            if (Config.get('log.backgroundFetchUrlCache', true)) { log.info('BackgroundApp.handle_fetchUrl', 'not-cached', url, 'version=', version); }
+            if (Utils.logChannel('backgroundFetchUrlCache', true)) { log.info('BackgroundApp.handle_fetchUrl', 'not-cached', url, 'version=', version); }
         }
 
         if (isCached) {
@@ -397,7 +397,7 @@ export class BackgroundApp
                             this.httpCacheTime[key] = now;
                         }
                         let response = { 'ok': true, 'data': text };
-                        if (Config.get('log.backgroundFetchUrl', true)) { log.info('BackgroundApp.handle_fetchUrl', 'response', url, text.length, response); }
+                        if (Utils.logChannel('backgroundFetchUrl', true)) { log.info('BackgroundApp.handle_fetchUrl', 'response', url, text.length, response); }
                         sendResponse(response);
                     })
                     .catch(ex =>
@@ -442,7 +442,7 @@ export class BackgroundApp
                 .then(text =>
                 {
                     let response = { 'ok': true, 'data': text };
-                    if (Config.get('log.backgroundJsonRpc', true)) { log.info('BackgroundApp.handle_jsonRpc', 'response', url, postBody, text.length, response); }
+                    if (Utils.logChannel('backgroundJsonRpc', true)) { log.info('BackgroundApp.handle_jsonRpc', 'response', url, postBody, text.length, response); }
                     sendResponse(response);
                 })
                 .catch(ex =>
@@ -466,7 +466,7 @@ export class BackgroundApp
 
     handle_waitReady(sendResponse: (response?: any) => void): boolean
     {
-        if (Config.get('log.contentStart', true)) { log.info('BackgroundApp.handle_waitReady'); }
+        if (Utils.logChannel('contentStart', true)) { log.info('BackgroundApp.handle_waitReady'); }
         let sendResponseIsAsync = false;
         this.waitReadyCount++;
         this.waitReadyTime = Date.now();
@@ -489,7 +489,7 @@ export class BackgroundApp
 
     handle_getConfigTree(name: any): any
     {
-        if (Config.get('log.contentStart', true)) { log.info('BackgroundApp.handle_getConfigTree', name, this.isReady); }
+        if (Utils.logChannel('contentStart', true)) { log.info('BackgroundApp.handle_getConfigTree', name, this.isReady); }
         switch (as.String(name, Config.onlineConfigName)) {
             case Config.devConfigName: return Config.getDevTree();
             case Config.onlineConfigName: return Config.getOnlineTree();
@@ -867,7 +867,7 @@ export class BackgroundApp
                     this.replayPresenceToTab(room, tabId);
                     if (!this.hasRoomJid2TabId(room, tabId)) {
                         this.addRoomJid2TabId(room, tabId);
-                        if (Config.get('log.room2tab', true)) { log.info('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId); }
+                        if (Utils.logChannel('room2tab', true)) { log.info('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId); }
                     }
                     if (send) {
                         send = this.deferPresenceToPreferShowAvailableOverAwayBecauseQuickSuccessionIsProbablyTabSwitch(to, xmlStanza);
@@ -962,10 +962,10 @@ export class BackgroundApp
         if (this.fullJid2TimerDeferredUnavailable[to]) {
             // wait for it
         } else {
-            if (Config.get('log.backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferUnavailable'); }
+            if (Utils.logChannel('backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferUnavailable'); }
             this.fullJid2TimerDeferredUnavailable[to] = window.setTimeout(() =>
             {
-                if (Config.get('log.backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferUnavailable', 'execute deferred'); }
+                if (Utils.logChannel('backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferUnavailable', 'execute deferred'); }
                 delete this.fullJid2TimerDeferredUnavailable[to];
                 let stanza = xml('presence', { type: 'unavailable', 'to': to });
                 this.sendStanza(stanza);
@@ -988,7 +988,7 @@ export class BackgroundApp
     {
         let timer = this.fullJid2TimerDeferredUnavailable[to];
         if (timer) {
-            if (Config.get('log.backgroundPresenceManagement', true)) { log.info('BackgroundApp.cancelDeferredUnavailable'); }
+            if (Utils.logChannel('backgroundPresenceManagement', true)) { log.info('BackgroundApp.cancelDeferredUnavailable'); }
             window.clearTimeout(timer);
             delete this.fullJid2TimerDeferredUnavailable[to];
         }
@@ -1007,10 +1007,10 @@ export class BackgroundApp
         }
 
         if (this.presenceIndicatesAway(stanza)) {
-            if (Config.get('log.backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferAway', 'record', 'away'); }
+            if (Utils.logChannel('backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferAway', 'record', 'away'); }
             deferRecord.awayStanza = stanza;
         } else {
-            if (Config.get('log.backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferAway', 'record', 'available'); }
+            if (Utils.logChannel('backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferAway', 'record', 'available'); }
             deferRecord.availableStanza = stanza;
         }
 
@@ -1030,7 +1030,7 @@ export class BackgroundApp
                     logWhich = 'available';
                     stanza = deferRecord.availableStanza;
                 }
-                if (Config.get('log.backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferAway', 'execute deferred', logWhich, 'of', logTotal); }
+                if (Utils.logChannel('backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferAway', 'execute deferred', logWhich, 'of', logTotal); }
                 delete this.fullJid2TimerDeferredAway[to];
                 if (stanza) {
                     this.sendStanza(stanza);
@@ -1069,7 +1069,7 @@ export class BackgroundApp
             isConnectionPresence = (!stanza.attrs || !stanza.attrs.to || jid(stanza.attrs.to).getResource() == this.resource);
         }
         if (!isConnectionPresence) {
-            if (Config.get('log.backgroundTraffic', true)) { log.info('BackgroundApp.sendStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to); }
+            if (Utils.logChannel('backgroundTraffic', true)) { log.info('BackgroundApp.sendStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to); }
 
             // if (stanza.name == 'presence' && as.String(stanza.type, 'available') == 'available') {
             //     let vpNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
@@ -1101,7 +1101,7 @@ export class BackgroundApp
                 isConnectionPresence = stanza.attrs.from && (jid(stanza.attrs.from).getResource() == this.resource);
             }
             if (!isConnectionPresence) {
-                if (Config.get('log.backgroundTraffic', true)) { log.info('BackgroundApp.recvStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to, 'from=', stanza.attrs.from); }
+                if (Utils.logChannel('backgroundTraffic', true)) { log.info('BackgroundApp.recvStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to, 'from=', stanza.attrs.from); }
 
                 // if (stanza.name == 'presence' && as.String(stanza.type, 'available') == 'available') {
                 //     let vpNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
@@ -1172,7 +1172,7 @@ export class BackgroundApp
             if (unavailableTabId >= 0) {
                 ContentMessage.sendMessage(unavailableTabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
                 this.removeRoomJid2TabId(room, unavailableTabId);
-                if (Config.get('log.room2tab', true)) { log.info('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', unavailableTabId, 'now:', this.roomJid2tabId); }
+                if (Utils.logChannel('room2tab', true)) { log.info('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', unavailableTabId, 'now:', this.roomJid2tabId); }
             } else {
                 let tabIds = this.getRoomJid2TabIds(room);
                 if (tabIds) {
@@ -1290,7 +1290,7 @@ export class BackgroundApp
 
             this.xmpp.on('online', (address: any) =>
             {
-                if (Config.get('log.startup', true)) { log.info('BackgroundApp xmpp.on.online', address); }
+                if (Utils.logChannel('startup', true)) { log.info('BackgroundApp xmpp.on.online', address); }
 
                 this.xmppJid = address;
 
@@ -1381,7 +1381,7 @@ export class BackgroundApp
     private lastPingTime: number = 0;
     handle_pingBackground(): BackgroundResponse
     {
-        if (Config.get('log.pingBackground', true)) { log.info('BackgroundApp.handle_pingBackground'); }
+        if (Utils.logChannel('pingBackground', true)) { log.info('BackgroundApp.handle_pingBackground'); }
         try {
             let now = Date.now();
             if (now - this.lastPingTime > 10000) {

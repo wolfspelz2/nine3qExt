@@ -17,6 +17,7 @@ import { VidconfWindow } from './VidconfWindow';
 import { VpiResolver } from './VpiResolver';
 import { BackpackItem } from './BackpackItem';
 import { SimpleToast } from './Toast';
+import { pid } from 'process';
 
 export interface IRoomInfoLine extends Array<string | string> { 0: string, 1: string }
 export interface IRoomInfo extends Array<IRoomInfoLine> { }
@@ -90,6 +91,18 @@ export class Room
             }
         }
         return null;
+    }
+
+    getAutoRangeItems(): Array<RoomItem>
+    {
+        let items = [];
+        for (let nick in this.items) {
+            let props = this.items[nick].getProperties();
+            if (as.Bool(props[Pid.IframeAspect], false) && as.String(props[Pid.IframeAutoRange], '') != '') {
+                items.push(this.getItem(nick));
+            }
+        }
+        return items;
     }
 
     iAmAlreadyHere()

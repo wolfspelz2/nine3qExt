@@ -20,6 +20,7 @@ import { RoomItemStats } from './RoomItemStats';
 import { ItemFrameUnderlay } from './ItemFrameUnderlay';
 import { ItemFrameWindow, ItemFrameWindowOptions } from './ItemFrameWindow';
 import { ItemFramePopup } from './ItemFramePopup';
+import { Participant } from './Participant';
 
 export class RoomItem extends Entity
 {
@@ -147,7 +148,7 @@ export class RoomItem extends Entity
                 newProperties = await BackgroundMessage.getBackpackItemProperties(this.roomNick);
                 newProviderId = as.String(newProperties[Pid.Provider], '');
             } catch (error) {
-                log.debug('RoomItem.onPresenceAvailable', 'no properties for', this.roomNick);                
+                log.debug('RoomItem.onPresenceAvailable', 'no properties for', this.roomNick);
             }
         } else {
             let vpPropsNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
@@ -288,6 +289,12 @@ export class RoomItem extends Entity
         }
 
         if (isFirstPresence) {
+            if (as.String(this.getProperties()[Pid.IframeAutoRange], '') != '') {
+                this.checkIframeAutoRange();
+            }
+        }
+
+        if (isFirstPresence) {
             this.sendItemEventToAllScriptFrames({ event: 'rez' });
         }
 
@@ -402,6 +409,10 @@ export class RoomItem extends Entity
     onQuickSlideReached(newX: number): void
     {
         super.onQuickSlideReached(newX);
+
+        if (as.String(this.getProperties()[Pid.IframeAutoRange], '') != '') {
+            this.checkIframeAutoRange();
+        }
     }
 
     sendMoveMessage(newX: number): void
@@ -426,6 +437,10 @@ export class RoomItem extends Entity
 
                 this.sendMessageToScriptFrame(new WeblinClientIframeApi.ItemMovedNotification(itemData, newX));
             }
+        }
+
+        if (as.String(this.getProperties()[Pid.IframeAutoRange], '') != '') {
+            this.checkIframeAutoRange();
         }
     }
 
@@ -505,6 +520,30 @@ export class RoomItem extends Entity
             let documentOptions = JSON.parse(as.String(this.properties[Pid.DocumentOptions], '{}'));
             this.openIframeAsWindow(aboveElem, url, documentOptions);
         }
+    }
+
+    checkIframeAutoRange()
+    {
+        let range = Utils.parseStringMap(as.String(this.getProperties()[Pid.IframeAutoRange], ''));
+        this.showItemRange(true, range);
+        if (this.isInRange(this.room?.getParticipant(this.room.getMyNick()), range)) {
+            this.openFrame(this.getElem());
+        } else {
+            this.closeFrame();
+        }
+    }
+
+    isInRange(participant: Participant, range: any)
+    {
+        let x = participant.getPosition();
+
+        let itemRect = this.elem.getBoundingClientRect();
+        let absPos = Math.floor(itemRect.x + itemRect.width / 2);
+        let absRangeLeft = absPos + as.Int(range['left'], 0);
+        let absRangeRight = absPos + as.Int(range['right'], 0);
+
+        let isInRange = x >= absRangeLeft && x <= absRangeRight;
+        return isInRange;
     }
 
     async openFrame(clickedElem: HTMLElement)

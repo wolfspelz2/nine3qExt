@@ -50,7 +50,7 @@ export class IframeApi
 
     async onMessage(ev: any): Promise<any>
     {
-        if (Config.get('log.iframeApi', false)) {
+        if (Utils.logChannel('iframeApi', false)) {
             log.debug('IframeApi.onMessage', ev);
         }
 

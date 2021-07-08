@@ -1,6 +1,7 @@
 import log = require('loglevel');
 import { Config } from './Config';
 import { RpcProtocol } from './RpcProtocol';
+import { Utils } from './Utils';
 
 export class RpcClient
 {
@@ -19,7 +20,7 @@ export class RpcClient
                 })
                     .then(httpResponse =>
                     {
-                        if (Config.get('log.rpcClient', false)) {
+                        if (Utils.logChannel('rpcClient', false)) {
                             log.debug('RpcClient.call', 'httpResponse', url, request, httpResponse);
                         }
                         if (httpResponse.ok) {

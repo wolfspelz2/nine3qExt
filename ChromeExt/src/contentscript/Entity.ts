@@ -67,7 +67,7 @@ export class Entity
     {
         this.removeRange();
         this.rangeElem = <HTMLDivElement>$('<div class="n3q-base n3q-range" />').get(0);
-        $(this.rangeElem).css({ left: left, width: right - left });
+        $(this.rangeElem).css({ left: left + 'px', width: (right - left)  + 'px' });
         $(this.elem).prepend(this.rangeElem);
         $(this.elem).css( { 'z-index': '' });
     }

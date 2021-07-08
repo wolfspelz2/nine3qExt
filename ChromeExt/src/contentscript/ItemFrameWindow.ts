@@ -45,7 +45,7 @@ export class ItemFrameWindow extends Window
             let iframeOptions = JSON.parse(json);
             options.closeIsHide = as.Bool(iframeOptions.closeIsHide, false);
 
-            if (Config.get('log.iframeApi', true)) { log.info('ItemFrameWindow.show', url); }
+            if (Utils.logChannel('iframeApi', true)) { log.info('ItemFrameWindow.show', url); }
             super.show(options);
 
             $(this.windowElem).addClass('n3q-itemframewindow');

@@ -69,7 +69,7 @@ export class VpiResolver
 
                     case VpiResolverEvaluateResultType.Delegate: {
                         this.trace(VpiResolverEvaluateResultType[result.status], result.delegate);
-                        if (Config.get('log.urlMapping', false)) {
+                        if (Utils.logChannel('urlMapping', false)) {
                             log.debug('VpiResolver', result.status, result.delegate);
                         }
                         vpiUrl = result.delegate;
@@ -77,7 +77,7 @@ export class VpiResolver
 
                     case VpiResolverEvaluateResultType.Location: {
                         this.trace(VpiResolverEvaluateResultType[result.status], result.location);
-                        if (Config.get('log.urlMapping', false)) {
+                        if (Utils.logChannel('urlMapping', false)) {
                             log.debug('VpiResolver', result.status, result.location);
                         }
                         locationUrl = result.location;
@@ -85,7 +85,7 @@ export class VpiResolver
 
                     case VpiResolverEvaluateResultType.Ignore: {
                         this.trace(VpiResolverEvaluateResultType[result.status], '');
-                        if (Config.get('log.urlMapping', false)) {
+                        if (Utils.logChannel('urlMapping', false)) {
                             log.debug('VpiResolver', result.status);
                         }
                         return '';
@@ -225,7 +225,7 @@ export class VpiResolver
                             }
                         }
                         location = protocol + ':' + room + suffix + '@' + server;
-                        if (Config.get('log.urlMapping', false)) {
+                        if (Utils.logChannel('urlMapping', false)) {
                             log.debug('VpiResolver', logData);
                         }
                         resultType = VpiResolverEvaluateResultType.Location;

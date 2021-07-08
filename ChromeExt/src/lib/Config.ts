@@ -41,6 +41,7 @@ export class Config
             itemServiceRpcUrl: 'http://localhost:5000/rpc',
         },
         log: {
+            all: false,
             startup: false,
             backgroundTraffic: false,
             backgroundPresenceManagement: false,
@@ -108,6 +109,7 @@ export class Config
             vidconfBottom: 200,
             vidconfWidth: 600,
             vidconfHeight: 400,
+            vidconfPopout: true,
             pokeToastDurationSec: 10,
             pokeToastDurationSec_bye: 60,
             privateVidconfToastDurationSec: 60,
@@ -433,6 +435,7 @@ export class Config
                     'ItemPid.CoinAmount': 'Amount',
                     'ItemPid.IframeUrl': 'URL',
                     'ItemPid.IframeAuto': 'Autostart',
+                    'ItemPid.IframeAutoRange': 'Automatic within a range',
                     'ItemPid.DocumentTitle': 'Title',
                     'ItemPid.DeactivatableIsInactive': 'Deactivated',
                     'ItemPid.Web3WalletAddress': 'Wallet',
@@ -622,6 +625,7 @@ export class Config
                     'ItemPid.CoinAmount': 'Betrag',
                     'ItemPid.IframeUrl': 'URL',
                     'ItemPid.IframeAuto': 'Automatisch',
+                    'ItemPid.IframeAutoRange': 'Automatisch in einem Bereich',
                     'ItemPid.DocumentTitle': 'Titel',
                     'ItemPid.DeactivatableIsInactive': 'Deaktiviert',
                     'ItemPid.Web3WalletAddress': 'Wallet',
@@ -720,19 +724,19 @@ export class Config
 
     static setDevTree(tree: any)
     {
-        if (Config.get('log.startup', true)) { log.info('Config.setDevTree'); }                            
+        if (Config.get('log.all', false) || Config.get('log.startup', true)) { log.info('Config.setDevTree'); }                            
         this.devConfig = tree;
     }
 
     static setOnlineTree(tree: any): void
     {
-        if (Config.get('log.startup', true)) { log.info('Config.setOnlineTree'); }
+        if (Config.get('log.all', false) || Config.get('log.startup', true)) { log.info('Config.setOnlineTree'); }
         this.onlineConfig = tree;
     }
 
     static setStaticTree(tree: any): void
     {
-        if (Config.get('log.startup', true)) { log.info('Config.setStaticTree'); }
+        if (Config.get('log.all', false) || Config.get('log.startup', true)) { log.info('Config.setStaticTree'); }
         this.staticConfig = tree;
     }
 
