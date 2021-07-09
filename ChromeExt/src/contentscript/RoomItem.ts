@@ -554,16 +554,21 @@ export class RoomItem extends Entity
         let userId = await Memory.getLocal(Utils.localStorageKey_Id(), '');
 
         if (iframeUrl != '' && room && apiUrl != '' && userId != '') {
-            // iframeUrl = 'https://jitsi.vulcan.weblin.com/{room}#userInfo.displayName="{name}"';
+            //iframeUrl = 'https://jitsi.vulcan.weblin.com/{room}#userInfo.displayName="{name}"';
+            //iframeUrl = 'https://jitsi.vulcan.weblin.com/8lgGTypkGd#userInfo.displayName="{name}"';
+            //iframeUrl = 'https://meet.jit.si/example-103#interfaceConfig.TOOLBAR_BUTTONS=%5B%22microphone%22%2C%22camera%22%2C%22desktop%22%2C%22fullscreen%22%2C%22hangup%22%2C%22profile%22%2C%22settings%22%2C%22videoquality%22%5D&interfaceConfig.SETTINGS_SECTIONS=%5B%22devices%22%2C%22language%22%5D&interfaceConfig.TOOLBAR_ALWAYS_VISIBLE=false';
+
             let roomJid = room.getJid();
             let tokenOptions = {};
             tokenOptions['properties'] = this.properties;
             try {
                 let contextToken = await Payload.getContextToken(apiUrl, userId, this.roomNick, 600, { 'room': roomJid }, tokenOptions);
+                let participantDisplayName = this.room.getParticipant(this.room.getMyNick()).getDisplayName();
+
                 iframeUrl = iframeUrl
                     .replace('{context}', encodeURIComponent(contextToken))
                     .replace('{room}', encodeURIComponent(roomJid))
-                    .replace('{name}', encodeURIComponent(this.getDisplayName()))
+                    .replace('{name}', encodeURIComponent(participantDisplayName))
                     ;
 
                 let iframeOptions = JSON.parse(as.String(this.properties[Pid.IframeOptions], '{}'));
@@ -639,7 +644,7 @@ export class RoomItem extends Entity
                 undockable: as.Bool(windowOptions.undockable, false),
                 transparent: as.Bool(windowOptions.transparent, false),
                 hidden: as.Bool(windowOptions.hidden, false),
-                titleText: as.String(this.properties[Pid.Label], 'Item'),
+                titleText: as.String(this.properties[Pid.Description], as.String(this.properties[Pid.Label], 'Item')),
             }
 
             this.frameWindow.show(options);
