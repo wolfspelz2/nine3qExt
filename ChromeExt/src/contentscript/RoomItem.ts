@@ -571,6 +571,8 @@ export class RoomItem extends Entity
                     .replace('{name}', encodeURIComponent(participantDisplayName))
                     ;
 
+                iframeUrl = iframeUrl.replace(/"/g, '%22');
+
                 let iframeOptions = JSON.parse(as.String(this.properties[Pid.IframeOptions], '{}'));
                 if (as.String(iframeOptions.frame, 'Window') == 'Popup') {
                     this.openIframeAsPopup(clickedElem, iframeUrl, iframeOptions);
@@ -612,6 +614,7 @@ export class RoomItem extends Entity
                 item: this,
                 elem: clickedElem,
                 url: iframeUrl,
+
                 onClose: () => { this.framePopup = null; },
                 width: as.Int(frameOptions.width, 100),
                 height: as.Int(frameOptions.height, 100),
