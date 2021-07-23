@@ -1011,9 +1011,17 @@ export class Participant extends Entity
         }
     }
 
-    initiatePrivateVidconf(aboveElem: HTMLElement): void
+    async initiatePrivateVidconf(aboveElem: HTMLElement): Promise<void>
     {
-        let confId = 'secret-' + Utils.randomString(30);
+        let roomJid = jid(this.room.getJid());
+
+        let vidconfSecret = await Memory.getLocal('client.vidconfSecret', '');
+        if (vidconfSecret == '') {
+            vidconfSecret = Utils.randomString(10);
+            await Memory.setLocal('client.vidconfSecret',vidconfSecret);
+        }
+
+        let confId = 'private-' + roomJid.getLocal() + '-' + vidconfSecret;
 
         let urlTemplate = Config.get('room.vidconfUrl', 'https://meet.jit.si/{room}#userInfo.displayName="{name}"');
         let url = urlTemplate
