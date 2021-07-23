@@ -17,6 +17,7 @@ export class _Changes
             ['Change', 'Pulse effect in front'],
             ['Fix', 'Animation remains even though AnimationsUrl property removed from item'],
             ['Fix', 'Presence error on presence w/o muc/join child after long downtime where room kicks user and demands explicit re-enter'],
+            ['Fix', 'Unable to re-join private video conference'],
         ]],
         ['1.1.1', 'Crafting', [
             ['Add', 'Crafting'],
