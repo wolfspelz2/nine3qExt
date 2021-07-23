@@ -17,6 +17,7 @@ import { VidconfWindow } from './VidconfWindow';
 import { VpiResolver } from './VpiResolver';
 import { BackpackItem } from './BackpackItem';
 import { SimpleToast } from './Toast';
+import { pid } from 'process';
 
 export interface IRoomInfoLine extends Array<string | string> { 0: string, 1: string }
 export interface IRoomInfo extends Array<IRoomInfoLine> { }
@@ -90,6 +91,18 @@ export class Room
             }
         }
         return null;
+    }
+
+    getAutoRangeItems(): Array<RoomItem>
+    {
+        let items = [];
+        for (let nick in this.items) {
+            let props = this.items[nick].getProperties();
+            if (as.Bool(props[Pid.IframeAspect], false) && as.String(props[Pid.IframeAutoRange], '') != '') {
+                items.push(this.getItem(nick));
+            }
+        }
+        return items;
     }
 
     iAmAlreadyHere()
@@ -208,12 +221,12 @@ export class Room
                 );
             }
 
-            if (!this.isEntered) {
+            // if (!this.isEntered) {
                 presence.append(
                     xml('x', { xmlns: 'http://jabber.org/protocol/muc' })
                         .append(xml('history', { seconds: '180', maxchars: '3000', maxstanzas: '10' }))
                 );
-            }
+            // }
 
             // log.debug('#### send', presence.children[1].attrs);
             this.app.sendStanza(presence);

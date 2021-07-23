@@ -50,7 +50,7 @@ export class IframeApi
 
     async onMessage(ev: any): Promise<any>
     {
-        if (Config.get('log.iframeApi', false)) {
+        if (Utils.logChannel('iframeApi', false)) {
             log.debug('IframeApi.onMessage', ev);
         }
 
@@ -139,6 +139,10 @@ export class IframeApi
                 case WeblinClientPageApi.ItemFindRequest.type: {
                     response = await this.handle_ItemFindRequest(<WeblinClientPageApi.ItemFindRequest>request);
                 } break;
+
+                default: {
+                    response = new WeblinClientApi.ErrorResponse('Unhandled request: ' + request.type);
+                } break;
             }
 
         } catch (ex) {
@@ -150,7 +154,7 @@ export class IframeApi
             response.id = request.id;
             response[Config.get('iframeApi.messageMagic2Page', 'df7d86ozgh76_2pageApi')] = true;
             window.postMessage(response, '*');
-    }
+        }
     }
 
     async handle_ClientCreateItemRequest(request: WeblinClientPageApi.ClientCreateItemRequest): Promise<WeblinClientApi.Response>
@@ -181,7 +185,7 @@ export class IframeApi
                 items.push(id);
             }
             return new WeblinClientPageApi.ItemFindResponse(items);
-    
+
         } catch (error) {
             return new WeblinClientApi.ErrorResponse(error);
         }
@@ -215,6 +219,13 @@ export class IframeApi
                 } break;
                 case WeblinClientIframeApi.ItemRangeRequest.type: {
                     response = this.handle_ItemRangeRequest(<WeblinClientIframeApi.ItemRangeRequest>request);
+                } break;
+                case WeblinClientPageApi.ItemFindRequest.type: {
+                    response = await this.handle_ItemFindRequest(<WeblinClientIframeApi.ItemFindRequest>request);
+                } break;
+
+                case WeblinClientIframeApi.ParticipantEffectRequest.type: {
+                    response = this.handle_ParticipantEffectRequest(<WeblinClientIframeApi.ParticipantEffectRequest>request);
                 } break;
 
                 case WeblinClientIframeApi.RoomGetParticipantsRequest.type: {
@@ -253,6 +264,10 @@ export class IframeApi
 
                 case WeblinClientIframeApi.ClientNavigateRequest.type: {
                     response = this.handle_ClientNavigateRequest(<WeblinClientIframeApi.ClientNavigateRequest>request);
+                } break;
+
+                default: {
+                    response = new WeblinClientApi.ErrorResponse('Unhandled request: ' + request.type);
                 } break;
             }
         } catch (error) {
@@ -405,6 +420,24 @@ export class IframeApi
             }
         } catch (ex) {
             log.info('IframeApi.handle_ItemGetPropertiesRequest', ex);
+            return new WeblinClientApi.ErrorResponse(ex);
+        }
+    }
+
+    handle_ParticipantEffectRequest(request: WeblinClientIframeApi.ParticipantEffectRequest): WeblinClientApi.Response
+    {
+        try {
+            let participantId = request.participant;
+            if (participantId == null) {
+                participantId = this.app.getRoom().getMyNick();
+            }
+            let participant = this.app.getRoom().getParticipant(participantId);
+            if (participant) {
+                participant.showEffect(request.effect);
+            }
+            return new WeblinClientApi.SuccessResponse();
+        } catch (ex) {
+            log.info('IframeApi.handle_ParticipantEffectRequest', ex);
             return new WeblinClientApi.ErrorResponse(ex);
         }
     }
@@ -562,6 +595,7 @@ export class IframeApi
                 }
             }
             await BackgroundMessage.executeBackpackItemAction(itemId, actionName, args, involvedIds);
+            await BackgroundMessage.pointsActivity(Pid.PointsChannelItemApply, 1);
             return new WeblinClientApi.SuccessResponse();
         } catch (error) {
             let fact = ItemException.factFrom(error.fact);

@@ -38,6 +38,7 @@ export class Pid
     static readonly AutorezAspect = 'AutorezAspect';
     static readonly AutorezIsActive = 'AutorezIsActive';
     static readonly IframeAuto = 'IframeAuto';
+    static readonly IframeAutoRange = 'IframeAutoRange';
     static readonly IframeLive = 'IframeLive';
     static readonly TransferState = 'TransferState';
     static readonly ImageUrl = 'ImageUrl';
@@ -176,6 +177,7 @@ export class Property
         [Pid.IframeOptions]: { inPresence: true },
         [Pid.IframeUrl]: { inPresence: true },
         [Pid.IframeAuto]: { inPresence: true },
+        [Pid.IframeAutoRange]: { inPresence: true },
         [Pid.DocumentOptions]: { inPresence: true },
         [Pid.DocumentUrl]: { inPresence: true },
         [Pid.DocumentTitle]: { inPresence: true },

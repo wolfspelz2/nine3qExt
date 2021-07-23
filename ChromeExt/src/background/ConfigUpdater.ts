@@ -72,7 +72,7 @@ export class ConfigUpdater
 
     private async fetchJson(url: string): Promise<any>
     {
-        if (Config.get('log.startup', true)) { log.info('ConfigUpdater.fetchConfig', url); }
+        if (Utils.logChannel('startup', true)) { log.info('ConfigUpdater.fetchConfig', url); }
 
         return new Promise((resolve, reject) =>
         {

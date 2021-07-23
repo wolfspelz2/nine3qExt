@@ -17,7 +17,10 @@ export namespace WeblinClientApi
         target?: string; // ['currentTab'|'notCurrentTab'|'activeTab'|'allTabs']
         static defaultTarget = 'currentTab';
 
-        iconType?: string; // ['warning'|'notice'|'question']
+        static iconType_warning = 'warning';
+        static iconType_notice = 'notice';
+        static iconType_question = 'question';
+        iconType?: string;
         static defaultIcon = 'notice';
 
         links?: Array<any>;

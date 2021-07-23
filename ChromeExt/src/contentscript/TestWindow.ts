@@ -45,7 +45,7 @@ export class TestWindow extends Window
             }
 
             let outElem = <HTMLElement>$('<div class="n3q-base n3q-testwindow-out" data-translate="children" />').get(0);
-            let runElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-testwindow-run" title="Run">Run</div>').get(0);
+            let runElem = <HTMLElement>$('<div class="n3q-base n3q-absolutebutton n3q-testwindow-run" title="Run">Run</div>').get(0);
 
             $(contentElem).append(outElem);
             $(contentElem).append(runElem);

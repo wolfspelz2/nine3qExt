@@ -1,27 +1,27 @@
 import { Config } from './Config';
+import { Environment } from './Environment';
 import { _Changes } from './_Changes';
 
 export class Client
 {
-    static getDetails(): string
+    static getDetails(): any
     {
-        let d = {
+        return {
             'client': Config.get('client.name', 'weblin.io'),
-            'clientVariant': Config.get('client.variant', ''),
-            'clientVersion': _Changes.data[0][0],
+            'clientVariant': this.getVariant(),
+            'clientVersion': this.getVersion(),
             'design': Config.get('design.name', ''),
             'designVersion': Config.get('design.version', ''),
         };
-        // let s = '';
-        // Object.entries(d).forEach(
-        //     ([key, value]) =>
-        //     {
-        //         if (value != '') {
-        //             s += key + '=' + value + '; ';
-        //         }
-        //     }
-        // );
-        let s = JSON.stringify(d);
-        return s;
+    }
+
+    static getVersion(): string
+    {
+        return _Changes.data[0][0];
+    }
+
+    static getVariant(): string
+    {
+        return Environment.isEmbedded() ? 'embedded' : (Environment.isExtension() ? 'extension' : '');
     }
 }

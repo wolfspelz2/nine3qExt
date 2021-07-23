@@ -25,6 +25,7 @@ import { TestWindow } from './TestWindow';
 import { BackpackWindow } from './BackpackWindow';
 import { SimpleToast } from './Toast';
 import { IframeApi } from './IframeApi';
+import { RandomNames } from '../lib/RandomNames';
 
 interface ILocationMapperResponse
 {
@@ -227,9 +228,13 @@ export class ContentApp
         //this.showBackpackWindow(null);
     }
 
-    navigate(url: string, target: string)
+    navigate(url: string, target: string = '_top')
     {
-        document.location.replace(url);
+        if (target == '' || target == '_top') {
+            window.location.href = url;
+        } else {
+            window.location.href = url;
+        }
     }
 
     playSound(fluteSound: any)
@@ -484,7 +489,7 @@ export class ContentApp
     handle_recvStanza(jsStanza: any): any
     {
         let stanza: xml = Utils.jsObject2xmlObject(jsStanza);
-        if (Config.get('log.contentTraffic', false)) {
+        if (Utils.logChannel('contentTraffic', false)) {
             log.debug('ContentApp.recvStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to, 'from=', stanza.attrs.from);
         }
 
@@ -572,7 +577,7 @@ export class ContentApp
             let oldSignificatParts = this.pageUrl ? this.getSignificantUrlParts(this.pageUrl) : '';
             if (newSignificatParts == oldSignificatParts) { return }
 
-            if (Config.get('log.urlMapping', false)) { log.info('Page changed', this.pageUrl, ' => ', pageUrl); }
+            if (Utils.logChannel('urlMapping', false)) { log.info('Page changed', this.pageUrl, ' => ', pageUrl); }
             this.pageUrl = pageUrl;
 
             let newRoomJid = await this.vpiMap(pageUrl);
@@ -585,7 +590,7 @@ export class ContentApp
             this.leavePage();
 
             this.roomJid = newRoomJid;
-            if (Config.get('log.urlMapping', false)) { log.info('Mapped', pageUrl, ' => ', this.roomJid); }
+            if (Utils.logChannel('urlMapping', false)) { log.info('Mapped', pageUrl, ' => ', this.roomJid); }
 
             if (this.roomJid != '') {
                 this.enterRoom(this.roomJid, pageUrl);
@@ -668,7 +673,7 @@ export class ContentApp
         this.leaveRoom();
 
         this.room = new Room(this, roomJid, roomDestination, await this.getSavedPosition());
-        if (Config.get('log.urlMapping', false)) { log.info('ContentApp.enterRoom', roomJid); }
+        if (Utils.logChannel('urlMapping', false)) { log.info('ContentApp.enterRoom', roomJid); }
 
         this.room.enter();
     }
@@ -676,7 +681,7 @@ export class ContentApp
     leaveRoom(): void
     {
         if (this.room) {
-            if (Config.get('log.urlMapping', false)) { log.info('ContentApp.leaveRoom', this.room.getJid()); }
+            if (Utils.logChannel('urlMapping', false)) { log.info('ContentApp.leaveRoom', this.room.getJid()); }
 
             this.room.leave();
             this.room = null;
@@ -727,7 +732,7 @@ export class ContentApp
 
     async sendStanza(stanza: xml, stanzaId: string = null, responseHandler: StanzaResponseHandler = null): Promise<void>
     {
-        if (Config.get('log.contentTraffic', false)) {
+        if (Utils.logChannel('contentTraffic', false)) {
             log.debug('ContentApp.sendStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to);
         }
         try {
@@ -872,7 +877,8 @@ export class ContentApp
         try {
             let nickname = await Memory.getLocal(Utils.localStorageKey_Nickname(), '');
             if (nickname == '') {
-                await Memory.setLocal(Utils.localStorageKey_Nickname(), 'Your name');
+                nickname = RandomNames.getRandomNickname();
+                await Memory.setLocal(Utils.localStorageKey_Nickname(), nickname);
             }
         } catch (error) {
             log.info(error);

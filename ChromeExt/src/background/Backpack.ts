@@ -12,6 +12,7 @@ import { Memory } from '../lib/Memory';
 import { Utils } from '../lib/Utils';
 import { BackgroundApp } from './BackgroundApp';
 import { Item } from './Item';
+import { WeblinClientApi } from '../lib/WeblinClientApi';
 //const Web3 = require('web3');
 const Web3Eth = require('web3-eth');
 
@@ -22,6 +23,27 @@ export class Backpack
     private items: { [id: string]: Item; } = {};
     private rooms: { [jid: string]: Array<string>; } = {};
     private rpcClient: RpcClient = new RpcClient();
+
+    getItemCount(): number
+    {
+        let count = 0;
+        for (let id in this.items) {
+            count++;
+        }
+        return count;
+    }
+
+    getRezzedItemCount(): number
+    {
+        let count = 0;
+        for (let id in this.items) {
+            let item = this.items[id];
+            if (item.isRezzed()) {
+                count++;
+            }
+        }
+        return count;
+    }
 
     getBackpackIdsKey(): string
     {
@@ -40,7 +62,7 @@ export class Backpack
     {
         await this.loadLocalItems();
 
-        if (Config.get('Backpack.loadWeb3Items', false)) {
+        if (Config.get('backpack.loadWeb3Items', false)) {
             await this.loadWeb3Items();
         }
     }
@@ -129,7 +151,7 @@ export class Backpack
 
         let wallets = this.findItems(props => { return (as.Bool(props[Pid.Web3WalletAspect], false)); });
         if (wallets.length == 0) {
-            if (Config.get('log.web3', true)) { log.info('backpack.loadWeb3Items', 'No wallet item'); }
+            if (Utils.logChannel('web3', true)) { log.info('backpack.loadWeb3Items', 'No wallet item'); }
             return;
         }
 
@@ -229,7 +251,7 @@ export class Backpack
                     try {
                         let item = await this.createItemByTemplate(template, data);
                         knownIds.push(item.getId());
-                        if (Config.get('log.web3', true)) { log.info('Backpack.getOrCreateWeb3ItemFromMetadata', 'Creating', template, item.getId()); }
+                        if (Utils.logChannel('web3', true)) { log.info('Backpack.getOrCreateWeb3ItemFromMetadata', 'Creating', template, item.getId()); }
                     } catch (error) {
                         log.info(error);
                     }
@@ -237,7 +259,7 @@ export class Backpack
                     for (let i = 0; i < existingItems.length; i++) {
                         let item = existingItems[i];
                         knownIds.push(item.getId());
-                        if (Config.get('log.web3', true)) { log.info('Backpack.getOrCreateWeb3ItemFromMetadata', 'Confirming', template, item.getId()); }
+                        if (Utils.logChannel('web3', true)) { log.info('Backpack.getOrCreateWeb3ItemFromMetadata', 'Confirming', template, item.getId()); }
                     }
                 }
             } break;
@@ -610,7 +632,7 @@ export class Backpack
         }
 
         if (!options.skipPresenceUpdate) {
-            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
+            this.app.sendToTabsForRoom(roomJid, { 'type': ContentMessage.type_sendPresence });
         }
     }
 
@@ -650,11 +672,11 @@ export class Backpack
         }
 
         if (!options.skipContentNotification) {
-            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
+            this.app.sendToTabsForRoom(roomJid, { 'type': ContentMessage.type_sendPresence });
         }
 
         if (!options.skipPresenceUpdate) {
-            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
+            this.app.sendToTabsForRoom(roomJid, { 'type': ContentMessage.type_sendPresence });
         }
     }
 
@@ -689,18 +711,67 @@ export class Backpack
         return stanza;
     }
 
+    private warningNotificatonTime = 0;
+    private limitNotificatonTime = 0;
     private getDependentPresence(roomJid: string): xml
     {
         let result = xml('x', { 'xmlns': 'vp:dependent' });
 
+        let ids = [];
+
         for (let id in this.items) {
             if (this.items[id].isRezzedTo(roomJid)) {
-                let itemPresence: xml = this.items[id].getDependentPresence(roomJid);
-                result.append(itemPresence);
+                ids.push(id);
             }
         }
 
+        if (ids.length > Config.get('backpack.dependentPresenceItemsWarning', 20)) {
+            let now = Date.now();
+            if (ids.length > Config.get('backpack.dependentPresenceItemsLimit', 25)) {
+                if ((now - this.limitNotificatonTime) / 1000 > Config.get('backpack.dependentPresenceItemsWarningIntervalSec', 30.0)) {
+                    this.limitNotificatonTime = now;
+                    this.showToast(roomJid,
+                        this.app.translateText('Backpack.Too many items'),
+                        this.app.translateText('Backpack.Page items disabled.'),
+                        'DependentPresenceLimit',
+                        WeblinClientApi.ClientNotificationRequest.iconType_warning,
+                        'Limit=' + Config.get('backpack.dependentPresenceItemsLimit', 25)
+                    );
+                }
+                return result;
+            } else {
+
+                if ((now - this.warningNotificatonTime) / 1000 > Config.get('backpack.dependentPresenceItemsWarningIntervalSec', 30.0)) {
+                    this.warningNotificatonTime = now;
+                    this.showToast(roomJid,
+                        this.app.translateText('Backpack.Too many items'),
+                        this.app.translateText('Backpack.You are close to the limit of items on a page.'),
+                        'DependentPresenceWarning',
+                        WeblinClientApi.ClientNotificationRequest.iconType_notice,
+                        'Current=' + ids.length + ' Limit=' + Config.get('backpack.dependentPresenceItemsLimit', 25)
+                    );
+                }
+            }
+        }
+
+        for (let i = 0; i < ids.length; i++) {
+            let id = ids[i];
+            let itemPresence: xml = this.items[id].getDependentPresence(roomJid);
+            result.append(itemPresence);
+        }
+
         return result;
+    }
+
+    private showToast(roomJid: string, title: string, text: string, type: string, iconType: string, detail: string): void
+    {
+        let data = new WeblinClientApi.ClientNotificationRequest(WeblinClientApi.ClientNotificationRequest.type, '');
+        data.title = title;
+        data.text = text;
+        data.type = type;
+        data.iconType = iconType;
+        data.detail = detail;
+        this.app.sendToTabsForRoom(roomJid, { 'type': ContentMessage.type_clientNotification, 'data': data });
     }
 
 }

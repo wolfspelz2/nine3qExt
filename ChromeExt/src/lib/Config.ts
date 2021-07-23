@@ -24,6 +24,7 @@ export class Config
         },
         extension: {
             id: 'cgfkfhdinajjhfeghebnljbanpcjdlkm',
+            storeUrl: 'https://chrome.google.com/webstore/detail/weblin/cgfkfhdinajjhfeghebnljbanpcjdlkm',
         },
         me: {
             nickname: '',//'新しいアバター',//'new-avatar',
@@ -40,6 +41,7 @@ export class Config
             itemServiceRpcUrl: 'http://localhost:5000/rpc',
         },
         log: {
+            all: false,
             startup: false,
             backgroundTraffic: false,
             backgroundPresenceManagement: false,
@@ -58,8 +60,8 @@ export class Config
         },
         client: {
             name: 'weblin.io',
-            variant: '',
             notificationToastDurationSec: 30,
+            showIntroYou: 10,
         },
         design: {
             name: 'basic',
@@ -67,7 +69,7 @@ export class Config
         },
         vp: {
             deferPageEnterSec: 0.3,
-            vpiRoot: 'https://lms.virtual-presence.org/v7/root.xml',
+            vpiRoot: 'https://webex.vulcan.weblin.com/vpi/v7/root.xml',
             vpiMaxIterations: 15,
             ignoredDomainSuffixes: ['vulcan.weblin.com'],
             strippedUrlPrefixes: ['https://cdn.weblin.io/?', 'https://cdn.weblin.io/'],
@@ -107,6 +109,7 @@ export class Config
             vidconfBottom: 200,
             vidconfWidth: 600,
             vidconfHeight: 400,
+            vidconfPopout: true,
             pokeToastDurationSec: 10,
             pokeToastDurationSec_bye: 60,
             privateVidconfToastDurationSec: 60,
@@ -117,6 +120,7 @@ export class Config
             itemStatsTooltip: true,
             itemStatsTooltipDelay: 500,
             itemStatsTooltipOffset: { x: 3, y: 3 },
+            showPrivateChatInfoButton: false,
         },
         xmpp: {
             service: 'wss://xmpp.vulcan.weblin.com/xmpp-websocket',
@@ -126,6 +130,10 @@ export class Config
             deferUnavailableSec: 3.0,
             deferAwaySec: 0.2,
             resendPresenceAfterResourceChangeBecauseServerSendsOldPresenceDataWithNewResourceToForceNewDataDelaySec: 1.0,
+            versionQueryShareOs: true,
+            verboseVersionQuery: false,
+            sendVerboseVersionQueryResponse: true,
+            verboseVersionQueryWeakAuth: 'K4QfJptO750u',
         },
         avatars: {
             animationsProxyUrlTemplate: 'https://webex.vulcan.weblin.com/Avatar/InlineData?url={url}',
@@ -174,6 +182,9 @@ export class Config
             itemInfoDelay: 300,
             deleteToastDurationSec: 100,
             receiveToastDurationSec: 10,
+            dependentPresenceItemsLimit: 25,
+            dependentPresenceItemsWarning: 20,
+            dependentPresenceItemsWarningIntervalSec: 30,
             loadWeb3Items: true,
             signaturePublicKey: '-----BEGIN PUBLIC KEY-----\n' +
                 'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAL8cd14UE+Fy2QV6rtvbBA3UGo8TllmX\n' +
@@ -183,9 +194,18 @@ export class Config
         points: {
             enabled: true,
             passiveEnabled: true,
-            submissionIntervalSec: 300,
+            submissionIntervalSec: 60,
             fullLevels: 2,
             fractionalLevels: 1,
+            activityDisplayEnabled: false,
+            activities: {
+                PointsChannelChat      : { weight: 1, x0: 0, css: { backgroundColor: '#ff0000'} },
+                PointsChannelEmote     : { weight: 1, x0: 0, css: { backgroundColor: '#00ff00'} },
+                PointsChannelGreet     : { weight: 1, x0: 0, css: { backgroundColor: '#0000ff'} },
+                PointsChannelNavigation: { weight: 1, x0: 0, css: { backgroundColor: '#ff00ff'} },
+                PointsChannelPowerup   : { weight: 1, x0: 0, css: { backgroundColor: '#ff00ff'} },
+                PointsChannelItemApply : { weight: 1, x0: 0, css: { backgroundColor: '#00ffff'} },
+            }
         },
         itemProviders: {
             'nine3q':
@@ -255,6 +275,9 @@ export class Config
                     'Common.Close': 'Close',
                     'Common.Undock': 'Open in separate window',
 
+                    'Intro.Got it': 'Got it',
+                    'Intro.You': 'You',
+
                     'Chatin.Enter chat here...': 'Enter chat here...',
                     'Chatin.SendChat': 'Send chat',
 
@@ -290,6 +313,7 @@ export class Config
                     'Menu.Bye': 'Wave Goodbye',
                     'Menu.Private Chat': 'Private Chat',
                     'Menu.Private Videoconf': 'Private Videoconference',
+                    'Menu.Get weblin everywhere': 'Weblin für überall',
 
                     'Chatwindow.Chat History': 'Chat',
                     'Chatwindow.entered the room': '**entered the room**',
@@ -318,6 +342,9 @@ export class Config
                     'Backpack.Go to item': 'Go there',
                     'Backpack.Derez item': 'Pick up',
                     'Backpack.Rez item': 'Drop',
+                    'Backpack.Too many items': 'Too many items',
+                    'Backpack.You are close to the limit of items on a page.': 'You are close to the limit of items on a page. All items will be hidden if the number rises above the limit.',
+                    'Backpack.Page items disabled.': 'Page items have been disabled. Collect items from the backpack to show them again.',
 
                     'Toast.Do not show this message again': 'Do not show this message again',
                     'Toast.greets': '...greeted you',
@@ -343,6 +370,13 @@ export class Config
                     'Toast.NotExecuted': 'Not executed',
                     'Toast.NoBlueprint': 'No blueprint',
                     'Toast.TooManyBlueprints': 'Too many blueprints',
+
+                    'Activity.PointsChannelChat': 'Chat',
+                    'Activity.PointsChannelEmote': 'Emote',
+                    'Activity.PointsChannelGreet': 'Greet',
+                    'Activity.PointsChannelNavigation': 'Navigate',
+                    'Activity.PointsChannelPowerup': 'Powerup',
+                    'Activity.PointsChannelItemApply': 'Apply item',
 
                     'ErrorFact.UnknownError': 'UnknownError',
                     'ErrorFact.NotRezzed': 'Item not dropped',
@@ -371,6 +405,7 @@ export class Config
                     'ErrorReason.ItemIsNotTransferable': 'Item not transferable.',
                     'ErrorReason.NoMatch': 'Item do not match.',
                     'ErrorReason.NoSuchAspect': 'The item is missing a feature.',
+                    'ErrorReason.NoSuchItem': 'Missing item',
                     'ErrorReason.Ambiguous': 'Ambiguous',
                     'ErrorReason.Insufficient': 'Insufficient',
                     'ErrorReason.StillInProgress': 'Still in progress',
@@ -400,6 +435,7 @@ export class Config
                     'ItemPid.CoinAmount': 'Amount',
                     'ItemPid.IframeUrl': 'URL',
                     'ItemPid.IframeAuto': 'Autostart',
+                    'ItemPid.IframeAutoRange': 'Automatic within a range',
                     'ItemPid.DocumentTitle': 'Title',
                     'ItemPid.DeactivatableIsInactive': 'Deactivated',
                     'ItemPid.Web3WalletAddress': 'Wallet',
@@ -428,6 +464,9 @@ export class Config
 
                     'Common.Close': 'Schließen',
                     'Common.Undock': 'Im eigenen Fenster öffnen',
+
+                    'Intro.Got it': 'Verstanden',
+                    'Intro.You': 'Du',
 
                     'Chatin.Enter chat here...': 'Chat Text hier...',
                     'Chatin.SendChat': 'Chat abschicken',
@@ -464,6 +503,7 @@ export class Config
                     'Menu.Bye': 'Verabschieden',
                     'Menu.Private Chat': 'Privater Chat',
                     'Menu.Private Videoconf': 'Private Videokonferenz',
+                    'Menu.Get weblin everywhere': 'Get weblin everywhere',
 
                     'Chatwindow.Chat History': 'Chat',
                     'Chatwindow.entered the room': '**hat den Raum betreten**',
@@ -492,6 +532,9 @@ export class Config
                     'Backpack.Go to item': 'Dort hingehen',
                     'Backpack.Derez item': 'Einsammeln',
                     'Backpack.Rez item': 'Ablegen',
+                    'Backpack.Too many items': 'Zu viele Gegenstände',
+                    'Backpack.You are close to the limit of items on a page.': 'Du hast bald zu viele Gegenstände auf der Seite. Wenn die Grenze überschritten wird, werden alle Gegenstände ausgeblendet.',
+                    'Backpack.Page items disabled.': 'Die Gegenstände auf der Seite sind ausgeblendet. Gehe in den Rucksack und sammle einige ein, um sie wieder anzuzeigen.',
 
                     'Toast.Do not show this message again': 'Diese Nachricht nicht mehr anzeigen',
                     'Toast.greets': '...hat dich gegrüßt',
@@ -511,12 +554,19 @@ export class Config
                     'Toast.Refuses to join the private videoconference': 'Lehnt die Videokonferenz ab',
                     'Toast.Accept': 'Annehmen',
                     'Toast.Decline': 'Ablehnen',
-                    'Toast.ItemTransferred': '...hat dir einen Gegenstand geschickt',
+                    'Toast.ItemTransferred': '...hat dir einen Gegenstand gegeben',
                     'Toast.Duplicate item': 'Doppelter Gegenstand',
                     'Toast.This would create an identical item': 'Das würde einen identischen Gegenstand nochmal erzeugen',
                     'Toast.NotExecuted': 'Nicht ausgeführt',
                     'Toast.NoBlueprint': 'Kein Bauplan',
                     'Toast.TooManyBlueprints': 'Mehr als ein Bauplan',
+
+                    'Activity.PointsChannelChat': 'Chat',
+                    'Activity.PointsChannelEmote': 'Emote',
+                    'Activity.PointsChannelGreet': 'Grüßen',
+                    'Activity.PointsChannelNavigation': 'Navigation',
+                    'Activity.PointsChannelPowerup': 'Powerup',
+                    'Activity.PointsChannelItemApply': 'Gegenstand anwenden',
 
                     'ErrorFact.UnknownError': 'Unbekannter Fehler',
                     'ErrorFact.NotRezzed': 'Ablegen fehlgeschlagen',
@@ -545,6 +595,7 @@ export class Config
                     'ErrorReason.ItemIsNotTransferable': 'Der Gegenstand ist nicht übertragbar.',
                     'ErrorReason.NoMatch': 'Gegenstände passen nicht.',
                     'ErrorReason.NoSuchAspect': 'Dem Gegenstand fehlt eine Eigenschaft.',
+                    'ErrorReason.NoSuchItem': 'Gegenstand fehlt',
                     'ErrorReason.Ambiguous': 'Mehrdeutig',
                     'ErrorReason.Insufficient': 'Ungenügend',
                     'ErrorReason.StillInProgress': 'Dauert noch an',
@@ -574,6 +625,7 @@ export class Config
                     'ItemPid.CoinAmount': 'Betrag',
                     'ItemPid.IframeUrl': 'URL',
                     'ItemPid.IframeAuto': 'Automatisch',
+                    'ItemPid.IframeAutoRange': 'Automatisch in einem Bereich',
                     'ItemPid.DocumentTitle': 'Titel',
                     'ItemPid.DeactivatableIsInactive': 'Deaktiviert',
                     'ItemPid.Web3WalletAddress': 'Wallet',
@@ -672,19 +724,19 @@ export class Config
 
     static setDevTree(tree: any)
     {
-        if (Config.get('log.startup', true)) { log.info('Config.setDevTree'); }                            
+        if (Config.get('log.all', false) || Config.get('log.startup', true)) { log.info('Config.setDevTree'); }                            
         this.devConfig = tree;
     }
 
     static setOnlineTree(tree: any): void
     {
-        if (Config.get('log.startup', true)) { log.info('Config.setOnlineTree'); }
+        if (Config.get('log.all', false) || Config.get('log.startup', true)) { log.info('Config.setOnlineTree'); }
         this.onlineConfig = tree;
     }
 
     static setStaticTree(tree: any): void
     {
-        if (Config.get('log.startup', true)) { log.info('Config.setStaticTree'); }
+        if (Config.get('log.all', false) || Config.get('log.startup', true)) { log.info('Config.setStaticTree'); }
         this.staticConfig = tree;
     }
 

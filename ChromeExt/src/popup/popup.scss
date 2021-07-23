@@ -21,15 +21,15 @@ div.n3q-window-content div#n3q-id-popup.n3q-base input[type="text"]:focus
 div.n3q-window-content div#n3q-id-popup button
 {
     display: inline;
-    border-width: 1px;
-    border-style: solid;
-    border-color: grey;
-    border-image: initial;
+    // border-width: 1px;
+    // border-style: solid;
+    // border-color: grey;
+    // border-image: initial;
+    // border-color: #808080;
+    box-shadow: 1px 1px 3px #404040;
     padding: 2px 10px;
-    background-color: #f0f0f0;
-    border-color: #808080;
+    background-color: #ffffff;
     color: #000000;
-    border-width: 1px;
     padding: 2px 6px;
 }
 
@@ -95,14 +95,18 @@ div.n3q-window-content div#n3q-id-popup div.n3q-popup-label {
     div.n3q-window-content div#n3q-id-popup button.n3q-popup-random { 
         display: inline;
         margin-left: 10px;
+        padding: 4px 10px;
     }
 
     div.n3q-window-content div#n3q-id-popup button.n3q-popup-random:hover {
-        filter: brightness(1.1);
+        filter: brightness(0.9);
     }
 
     div.n3q-window-content div#n3q-id-popup button.n3q-popup-random:active {
-        filter: brightness(0.8);
+        position: relative;
+        left: 1px;
+        top: 1px;
+        // filter: brightness(0.8);
     }
 
     // div.n3q-window-content div#n3q-id-popup button.n3q-popup-dev-apply { 
@@ -113,7 +117,10 @@ div.n3q-window-content div#n3q-id-popup div.n3q-popup-label {
     }
 
     div.n3q-window-content div#n3q-id-popup button.n3q-popup-dev-apply:active {
-        filter: brightness(0.8);
+        position: relative;
+        left: 1px;
+        top: 1px;
+        // filter: brightness(0.8);
     }
 
     // div.n3q-window-content div#n3q-id-popup div.n3q-popup-group-avatar {
@@ -137,17 +144,20 @@ div.n3q-window-content div#n3q-id-popup div.n3q-popup-label {
     div.n3q-window-content div#n3q-id-popup button.n3q-popup-avatar-arrow { 
         width: 20px;
         height: 100px;
-        border: 1px solid grey;
+        //border: 1px solid grey;
         background-repeat: no-repeat;
         cursor: pointer;
     }
 
     div.n3q-window-content div#n3q-id-popup button.n3q-popup-avatar-arrow:hover {
-        filter: brightness(1.2);
+        filter: brightness(0.9);
     }
     
     div.n3q-window-content div#n3q-id-popup button.n3q-popup-avatar-arrow:active {
-        filter: brightness(0.8);
+        position: relative;
+        left: 1px;
+        top: 1px;
+        // filter: brightness(0.8);
     }
 
 // div.n3q-window-content div#n3q-id-popup div.n3q-popup-group-active {
@@ -172,16 +182,19 @@ div.n3q-window-content div#n3q-id-popup div.n3q-popup-group-save {
     div.n3q-window-content div#n3q-id-popup button.n3q-popup-save {
         background-color: #b1c032;
         display: inline;
-        border: 1px solid grey;
-        padding: 2px 10px;
+        //border: 1px solid grey;
+        padding: 4px 10px;
     }
 
     div.n3q-window-content div#n3q-id-popup button.n3q-popup-save:hover {
-        filter: brightness(1.2);
+        filter: brightness(1.1);
     }
     
     div.n3q-window-content div#n3q-id-popup button.n3q-popup-save:active {
-        filter: brightness(0.8);
+        position: relative;
+        left: 1px;
+        top: 1px;
+        // filter: brightness(0.9);
     }
 
     div.n3q-window-content div#n3q-id-popup div.n3q-popup-save-saving {

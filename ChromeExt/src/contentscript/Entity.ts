@@ -59,7 +59,7 @@ export class Entity
     showEffect(effect: any): void
     {
         let pulseElem = <HTMLDivElement>$('<div class="n3q-base n3q-pulse" />').get(0);
-        $(this.elem).append(pulseElem)
+        $(this.elem).append(pulseElem);
         window.setTimeout(() => { $(pulseElem).remove(); }, 1000);
     }
 
@@ -67,7 +67,7 @@ export class Entity
     {
         this.removeRange();
         this.rangeElem = <HTMLDivElement>$('<div class="n3q-base n3q-range" />').get(0);
-        $(this.rangeElem).css({ left: left, width: right - left });
+        $(this.rangeElem).css({ left: left + 'px', width: (right - left)  + 'px' });
         $(this.elem).prepend(this.rangeElem);
         $(this.elem).css( { 'z-index': '' });
     }
@@ -99,9 +99,9 @@ export class Entity
 
         if (this.avatarDisplay) {
             if (diffX < 0) {
-                this.avatarDisplay.setState('moveleft');
+                this.avatarDisplay.setActivity('moveleft');
             } else {
-                this.avatarDisplay.setState('moveright');
+                this.avatarDisplay.setActivity('moveright');
             }
         }
 
@@ -132,7 +132,7 @@ export class Entity
     {
         this.inMove = false;
         this.setPosition(newX);
-        this.avatarDisplay?.setState('');
+        this.avatarDisplay?.setActivity('');
     }
 
     getPosition(): number

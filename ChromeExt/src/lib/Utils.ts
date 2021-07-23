@@ -31,6 +31,27 @@ export class Utils
         return true;
     }
     
+    static parseStringMap(s) {
+        let o = {};
+        let lines = s.split(' ');
+        for (let i = 0; i < lines.length; i++) {
+            let fields = lines[i].split('=', 2);
+            if (fields.length === 1) {
+                o[fields[0]] = '';
+            } else if (fields.length === 2) {
+                o[fields[0]] = fields[1];
+            }
+        }
+        return o;
+    }
+    
+    static logChannel(channel: string, defaultValue: boolean): boolean
+    {
+        if (Config.get('log.all', false)) { return true; }
+        if (Config.get('log.' + channel, true)) { return true; }
+        return defaultValue;
+    }
+    
     static makeGifExplicit(avatarId: string): string
     {
         let parts = avatarId.split('/');

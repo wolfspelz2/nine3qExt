@@ -20,14 +20,19 @@ import { SimpleErrorToast, SimpleToast, Toast } from './Toast';
 import { PrivateChatWindow } from './PrivateChatWindow';
 import { PrivateVidconfWindow } from './PrivateVidconfWindow';
 import { PointsBar } from './PointsBar';
+import { ActivityBar } from './ActivityBar';
 import { VpProtocol } from '../lib/VpProtocol';
 import { BackpackItem } from './BackpackItem';
 import { WeblinClientIframeApi } from '../lib/WeblinClientIframeApi';
+import { ChatWindow } from './ChatWindow';
+import { Environment } from '../lib/Environment';
+import { Memory } from '../lib/Memory';
 
 export class Participant extends Entity
 {
     private nicknameDisplay: Nickname;
     private pointsDisplay: PointsBar;
+    private activityDisplay: ActivityBar;
     private chatoutDisplay: Chatout;
     private chatinDisplay: Chatin;
     private isFirstPresence: boolean = true;
@@ -44,6 +49,7 @@ export class Participant extends Entity
 
         if (isSelf) {
             $(this.getElem()).addClass('n3q-participant-self');
+            /*await*/ this.showIntroYouOnce();
         } else {
             $(this.getElem()).addClass('n3q-participant-other');
         }
@@ -59,6 +65,37 @@ export class Participant extends Entity
             name = this.nicknameDisplay.getNickname();
         }
         return name;
+    }
+
+    async showIntroYouOnce(): Promise<void>
+    {
+        let maxShowIntroYou = Config.get('client.showIntroYou', 0);
+        if (maxShowIntroYou > 0) {
+            let countIntroYou = await Memory.getLocal('client.introYou', 0);
+            if (countIntroYou < maxShowIntroYou) {
+                countIntroYou++;
+                await Memory.setLocal('client.introYou', countIntroYou);
+
+                let introYouElem = $(''
+                    + '<div class="n3q-base n3q-intro-you n3q-bounce" data-translate="children">'
+                    + '  <svg class="n3q-base n3q-shadow-small" width="72" height="48" xmlns="http://www.w3.org/2000/svg">'
+                    + '    <g>'
+                    + '      <path class="n3q-base" stroke-width="0" stroke="#000" d="m0,25l36,-24l36,24l-18,0l0,24l-36,0l0,-24l-18,0l0,0z" id="svg_1" transform="rotate(-180 36 24)"/>'
+                    + '    </g>'
+                    + '  </svg>'
+                    + '  <div class="n3q-base n3q-intro-you-label" data-translate="children"><div class="n3q-base n3q-intro-you-label-text" data-translate="text:Intro">You</div></div>'
+                    + '</div>').get(0);
+                let closeElem = <HTMLElement>$('<div class="n3q-base n3q-overlay-button n3q-shadow-small" title="Got it" data-translate="attr:title:Intro"><div class="n3q-base n3q-button-symbol n3q-button-close-small" />').get(0);
+                $(closeElem).on('click', async ev =>
+                {
+                    await Memory.setLocal('client.introYou', maxShowIntroYou + 1);
+                    $(introYouElem).remove();
+                });
+                $(introYouElem).append(closeElem);
+                this.app.translateElem(introYouElem);
+                $(this.getElem()).append(introYouElem);
+            }
+        }
     }
 
     remove(): void
@@ -215,14 +252,31 @@ export class Participant extends Entity
                 this.pointsDisplay = new PointsBar(this.app, this, this.getElem());
                 if (!this.isSelf) {
                     if (Config.get('room.pointsOnHover', true)) {
-                        let pointsElem = this.pointsDisplay.getElem();
-                        pointsElem.style.display = 'none';
+                        let elem = this.pointsDisplay.getElem();
+                        elem.style.display = 'none';
                         $(this.getElem()).hover(function ()
                         {
-                            if (pointsElem) { $(pointsElem).stop().fadeIn('fast'); }
+                            if (elem) { $(elem).stop().fadeIn('fast'); }
                         }, function ()
                         {
-                            if (pointsElem) { $(pointsElem).stop().fadeOut(); }
+                            if (elem) { $(elem).stop().fadeOut(); }
+                        });
+                    }
+                }
+            }
+
+            if (this.isSelf && Config.get('points.activityDisplayEnabled', false)) {
+                this.activityDisplay = new ActivityBar(this.app, this, this.getElem());
+                if (!this.isSelf) {
+                    if (Config.get('room.pointsOnHover', true)) {
+                        let elem = this.activityDisplay.getElem();
+                        elem.style.display = 'none';
+                        $(this.getElem()).hover(function ()
+                        {
+                            if (elem) { $(elem).stop().fadeIn('fast'); }
+                        }, function ()
+                        {
+                            if (elem) { $(elem).stop().fadeOut(); }
                         });
                     }
                 }
@@ -284,6 +338,10 @@ export class Participant extends Entity
                     this.app.getPropertyStorage().watch(this.userId, 'Points', this.pointsDisplay);
                 }
             }
+        }
+
+        if (this.isSelf) {
+            await this.pointsDisplay?.showTitleWithActivities();
         }
 
         if (hasCondition) {
@@ -398,6 +456,36 @@ export class Participant extends Entity
             if (imageUrl && imageUrl != '') {
                 avatarDisplay.updateObservableProperty('VCardImageUrl', imageUrl);
             }
+        });
+    }
+
+    fetchVersionInfo(chatWindow: IObserver)
+    {
+        let stanzaId = Utils.randomString(15);
+        let attr = { 'xmlns': 'jabber:iq:version' };
+        if (Environment.isDevelopment() || Config.get('xmpp.verboseVersionQuery', false)) {
+            attr['auth'] = Config.get('xmpp.verboseVersionQueryWeakAuth', '');
+        }
+        let query = xml('query', attr);
+        let iq = xml('iq', { 'type': 'get', 'id': stanzaId, 'to': this.room.getJid() + '/' + this.roomNick }).append(query);
+
+        this.app.sendStanza(iq, stanzaId, (stanza: xml) =>
+        {
+            // chatWindow.addLine(this.roomNick + Date.now(), this.roomNick, 'xx');
+
+            let info = {};
+            let versionQuery = stanza.getChildren('query').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'jabber:iq:version');
+            if (versionQuery) {
+                let children = versionQuery.children;
+                if (children) {
+                    for (let i = 0; i < children.length; i++) {
+                        let child = children[i];
+                        info[child.name] = child.text();
+                    }
+                }
+            }
+
+            chatWindow.updateObservableProperty('VersionInfo', JSON.stringify(info));
         });
     }
 
@@ -779,8 +867,12 @@ export class Participant extends Entity
 
     onMouseDoubleClickAvatar(ev: JQuery.Event): void
     {
-        super.onMouseClickAvatar(ev)
-        this.toggleChatWindow();
+        // super.onMouseClickAvatar(ev)
+        if (this.isSelf) {
+            this.toggleChatWindow();
+        } else {
+            this.togglePrivateChatWindow();
+        }
     }
 
     onDraggedTo(newX: number): void
@@ -799,6 +891,14 @@ export class Participant extends Entity
     {
         super.onMoveDestinationReached(newX);
         this.sendParticipantMovedToAllScriptFrames();
+
+        if (this.isSelf) {
+            let items = this.getRoom().getAutoRangeItems();
+            for (let i = 0; i < items.length; i++) {
+                let item = items[i];
+                item.checkIframeAutoRange();
+            }
+        }
     }
 
     sendParticipantMovedToAllScriptFrames(): void
@@ -900,9 +1000,28 @@ export class Participant extends Entity
         }
     }
 
-    initiatePrivateVidconf(aboveElem: HTMLElement): void
+    togglePrivateChatWindow(): void
     {
-        let confId = 'secret-' + Utils.randomString(30);
+        if (this.privateChatWindow) {
+            if (this.privateChatWindow.isOpen()) {
+                this.privateChatWindow.close();
+            }
+        } else {
+            this.openPrivateChat(this.elem);
+        }
+    }
+
+    async initiatePrivateVidconf(aboveElem: HTMLElement): Promise<void>
+    {
+        let roomJid = jid(this.room.getJid());
+
+        let vidconfSecret = await Memory.getLocal('client.vidconfSecret', '');
+        if (vidconfSecret == '') {
+            vidconfSecret = Utils.randomString(10);
+            await Memory.setLocal('client.vidconfSecret',vidconfSecret);
+        }
+
+        let confId = 'private-' + roomJid.getLocal() + '-' + vidconfSecret;
 
         let urlTemplate = Config.get('room.vidconfUrl', 'https://meet.jit.si/{room}#userInfo.displayName="{name}"');
         let url = urlTemplate

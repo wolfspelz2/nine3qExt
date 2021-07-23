@@ -110,6 +110,13 @@ export namespace WeblinClientIframeApi
         range: any;
     }
 
+    export class ItemFindRequest extends Request
+    {
+        static type = 'Item.Find';
+        filter: ItemProperties;
+    }
+    export class ItemFindResponse extends WeblinClientApi.ContentResponse { constructor(public items: string[]) { super('Item.Find.Response'); } }
+
     export class ItemActionRequest extends Request
     {
         static type = 'Item.Action';
@@ -179,6 +186,13 @@ export namespace WeblinClientIframeApi
         pids: string[];
     }
     export class ItemGetPropertiesResponse extends WeblinClientApi.ContentResponse { constructor(public properties: ItemProperties) { super('Item.Properties'); } }
+
+    export class ParticipantEffectRequest extends Request
+    {
+        static type = 'Participant.Effect';
+        participant?: string;
+        effect: any;
+    }
 
     export class ParticipantMovedNotification extends WeblinClientApi.Message { constructor(public participant: ParticipantData) { super('Participant.Moved'); } }
 

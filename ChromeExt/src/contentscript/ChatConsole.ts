@@ -86,7 +86,7 @@ export class ChatConsole
                 break;
             case '/info':
                 ChatConsole.out(context, [
-                    ['info', Client.getDetails()]
+                    ['info', JSON.stringify(Client.getDetails())]
                 ]);
                 break;
             case '/room':

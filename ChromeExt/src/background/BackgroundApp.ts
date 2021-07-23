@@ -13,6 +13,7 @@ import { ConfigUpdater } from './ConfigUpdater';
 import { Backpack } from './Backpack';
 import { Translator } from '../lib/Translator';
 import { Environment } from '../lib/Environment';
+import { Client } from '../lib/Client';
 
 interface ILocationMapperResponse
 {
@@ -34,10 +35,16 @@ export class BackgroundApp
     private configUpdater: ConfigUpdater;
     private resource: string;
     private isReady: boolean = false;
-    private clientDetails: string = '"weblin.io"';
     private backpack: Backpack = null;
     private xmppStarted = false;
     private babelfish: Translator;
+
+    private startupTime = Date.now();
+    private waitReadyCount = 0;
+    private waitReadyTime = 0;
+    private xmppConnectCount = 0;
+    private stanzasOutCount = 0;
+    private stanzasInCount = 0;
 
     private readonly stanzaQ: Array<xml> = [];
     private readonly roomJid2tabId: Map<string, Array<number>> = new Map<string, Array<number>>();
@@ -63,6 +70,14 @@ export class BackgroundApp
         }
 
         Environment.NODE_ENV = Config.get('environment.NODE_ENV', null);
+
+        let firstStart = await Memory.getLocal('client.firstStart', 0);
+        if (firstStart == 0) {
+            await Memory.setLocal('client.firstStart', Date.now());
+        }
+        let startCount = await Memory.getLocal('client.startCount', 0);
+        startCount++;
+        await Memory.setLocal('client.startCount', startCount);
 
         await this.migrateSyncToLocalBecauseItsConfusingConsideredThatItemsAreLocal();
         await this.assertThatThereIsAUserId();
@@ -154,7 +169,7 @@ export class BackgroundApp
 
         if (!this.isReady) {
             this.isReady = true;
-            if (Config.get('log.startup', true)) { log.info('BackgroundApp', 'isReady'); }
+            if (Utils.logChannel('startup', true)) { log.info('BackgroundApp', 'isReady'); }
         }
     }
 
@@ -307,7 +322,7 @@ export class BackgroundApp
 
     maintainHttpCache(): void
     {
-        if (Config.get('log.backgroundFetchUrlCache', true)) { log.info('BackgroundApp.maintainHttpCache'); }
+        if (Utils.logChannel('backgroundFetchUrlCache', true)) { log.info('BackgroundApp.maintainHttpCache'); }
         let cacheTimeout = Config.get('httpCache.maxAgeSec', 3600);
         let now = Date.now();
         let deleteKeys = new Array<string>();
@@ -319,7 +334,7 @@ export class BackgroundApp
 
         deleteKeys.forEach(key =>
         {
-            if (Config.get('log.backgroundFetchUrlCache', true)) { log.info('BackgroundApp.maintainHttpCache', (now - this.httpCacheTime[key]) / 1000, 'sec', 'delete', key); }
+            if (Utils.logChannel('backgroundFetchUrlCache', true)) { log.info('BackgroundApp.maintainHttpCache', (now - this.httpCacheTime[key]) / 1000, 'sec', 'delete', key); }
             delete this.httpCacheData[key];
             delete this.httpCacheTime[key];
         });
@@ -327,7 +342,7 @@ export class BackgroundApp
 
     private async fetchJSON(url: string): Promise<any>
     {
-        if (Config.get('log.backgroundFetchUrl', true)) { log.info('BackgroundApp.fetchJSON', url); }
+        if (Utils.logChannel('backgroundFetchUrl', true)) { log.info('BackgroundApp.fetchJSON', url); }
 
         return new Promise((resolve, reject) =>
         {
@@ -353,7 +368,7 @@ export class BackgroundApp
         if (isCached) {
             // log.debug('BackgroundApp.handle_fetchUrl', 'cache-age', (now - this.httpCacheTime[key]) / 1000, url, 'version=', version);
         } else {
-            if (Config.get('log.backgroundFetchUrlCache', true)) { log.info('BackgroundApp.handle_fetchUrl', 'not-cached', url, 'version=', version); }
+            if (Utils.logChannel('backgroundFetchUrlCache', true)) { log.info('BackgroundApp.handle_fetchUrl', 'not-cached', url, 'version=', version); }
         }
 
         if (isCached) {
@@ -382,7 +397,7 @@ export class BackgroundApp
                             this.httpCacheTime[key] = now;
                         }
                         let response = { 'ok': true, 'data': text };
-                        if (Config.get('log.backgroundFetchUrl', true)) { log.info('BackgroundApp.handle_fetchUrl', 'response', url, text.length, response); }
+                        if (Utils.logChannel('backgroundFetchUrl', true)) { log.info('BackgroundApp.handle_fetchUrl', 'response', url, text.length, response); }
                         sendResponse(response);
                     })
                     .catch(ex =>
@@ -427,7 +442,7 @@ export class BackgroundApp
                 .then(text =>
                 {
                     let response = { 'ok': true, 'data': text };
-                    if (Config.get('log.backgroundJsonRpc', true)) { log.info('BackgroundApp.handle_jsonRpc', 'response', url, postBody, text.length, response); }
+                    if (Utils.logChannel('backgroundJsonRpc', true)) { log.info('BackgroundApp.handle_jsonRpc', 'response', url, postBody, text.length, response); }
                     sendResponse(response);
                 })
                 .catch(ex =>
@@ -451,8 +466,10 @@ export class BackgroundApp
 
     handle_waitReady(sendResponse: (response?: any) => void): boolean
     {
-        if (Config.get('log.contentStart', true)) { log.info('BackgroundApp.handle_waitReady'); }
+        if (Utils.logChannel('contentStart', true)) { log.info('BackgroundApp.handle_waitReady'); }
         let sendResponseIsAsync = false;
+        this.waitReadyCount++;
+        this.waitReadyTime = Date.now();
 
         if (this.isReady) {
             sendResponse({});
@@ -472,7 +489,7 @@ export class BackgroundApp
 
     handle_getConfigTree(name: any): any
     {
-        if (Config.get('log.contentStart', true)) { log.info('BackgroundApp.handle_getConfigTree', name, this.isReady); }
+        if (Utils.logChannel('contentStart', true)) { log.info('BackgroundApp.handle_getConfigTree', name, this.isReady); }
         switch (as.String(name, Config.onlineConfigName)) {
             case Config.devConfigName: return Config.getDevTree();
             case Config.onlineConfigName: return Config.getOnlineTree();
@@ -850,7 +867,7 @@ export class BackgroundApp
                     this.replayPresenceToTab(room, tabId);
                     if (!this.hasRoomJid2TabId(room, tabId)) {
                         this.addRoomJid2TabId(room, tabId);
-                        if (Config.get('log.room2tab', true)) { log.info('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId); }
+                        if (Utils.logChannel('room2tab', true)) { log.info('BackgroundApp.handle_sendStanza', 'adding room2tab mapping', room, '=>', tabId, 'now:', this.roomJid2tabId); }
                     }
                     if (send) {
                         send = this.deferPresenceToPreferShowAvailableOverAwayBecauseQuickSuccessionIsProbablyTabSwitch(to, xmlStanza);
@@ -945,10 +962,10 @@ export class BackgroundApp
         if (this.fullJid2TimerDeferredUnavailable[to]) {
             // wait for it
         } else {
-            if (Config.get('log.backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferUnavailable'); }
+            if (Utils.logChannel('backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferUnavailable'); }
             this.fullJid2TimerDeferredUnavailable[to] = window.setTimeout(() =>
             {
-                if (Config.get('log.backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferUnavailable', 'execute deferred'); }
+                if (Utils.logChannel('backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferUnavailable', 'execute deferred'); }
                 delete this.fullJid2TimerDeferredUnavailable[to];
                 let stanza = xml('presence', { type: 'unavailable', 'to': to });
                 this.sendStanza(stanza);
@@ -971,7 +988,7 @@ export class BackgroundApp
     {
         let timer = this.fullJid2TimerDeferredUnavailable[to];
         if (timer) {
-            if (Config.get('log.backgroundPresenceManagement', true)) { log.info('BackgroundApp.cancelDeferredUnavailable'); }
+            if (Utils.logChannel('backgroundPresenceManagement', true)) { log.info('BackgroundApp.cancelDeferredUnavailable'); }
             window.clearTimeout(timer);
             delete this.fullJid2TimerDeferredUnavailable[to];
         }
@@ -990,10 +1007,10 @@ export class BackgroundApp
         }
 
         if (this.presenceIndicatesAway(stanza)) {
-            if (Config.get('log.backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferAway', 'record', 'away'); }
+            if (Utils.logChannel('backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferAway', 'record', 'away'); }
             deferRecord.awayStanza = stanza;
         } else {
-            if (Config.get('log.backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferAway', 'record', 'available'); }
+            if (Utils.logChannel('backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferAway', 'record', 'available'); }
             deferRecord.availableStanza = stanza;
         }
 
@@ -1013,7 +1030,7 @@ export class BackgroundApp
                     logWhich = 'available';
                     stanza = deferRecord.availableStanza;
                 }
-                if (Config.get('log.backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferAway', 'execute deferred', logWhich, 'of', logTotal); }
+                if (Utils.logChannel('backgroundPresenceManagement', true)) { log.info('BackgroundApp.deferAway', 'execute deferred', logWhich, 'of', logTotal); }
                 delete this.fullJid2TimerDeferredAway[to];
                 if (stanza) {
                     this.sendStanza(stanza);
@@ -1026,6 +1043,7 @@ export class BackgroundApp
 
     public sendStanza(stanza: xml): void
     {
+        this.stanzasOutCount++;
         if (!this.xmppConnected) {
             this.stanzaQ.push(stanza);
         } else {
@@ -1051,7 +1069,7 @@ export class BackgroundApp
             isConnectionPresence = (!stanza.attrs || !stanza.attrs.to || jid(stanza.attrs.to).getResource() == this.resource);
         }
         if (!isConnectionPresence) {
-            if (Config.get('log.backgroundTraffic', true)) { log.info('BackgroundApp.sendStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to); }
+            if (Utils.logChannel('backgroundTraffic', true)) { log.info('BackgroundApp.sendStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to); }
 
             // if (stanza.name == 'presence' && as.String(stanza.type, 'available') == 'available') {
             //     let vpNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
@@ -1070,17 +1088,20 @@ export class BackgroundApp
     private sendPresence()
     {
         this.sendStanza(xml('presence'));
+        // this.sendStanza(xml('presence').append(xml('x', { xmlns: 'http://jabber.org/protocol/muc' })));
     }
 
-    private recvStanza(stanza: any)
+    private async recvStanza(stanza: xml)
     {
+        this.stanzasInCount++;
+
         let isConnectionPresence = false;
         {
             if (stanza.name == 'presence') {
                 isConnectionPresence = stanza.attrs.from && (jid(stanza.attrs.from).getResource() == this.resource);
             }
             if (!isConnectionPresence) {
-                if (Config.get('log.backgroundTraffic', true)) { log.info('BackgroundApp.recvStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to, 'from=', stanza.attrs.from); }
+                if (Utils.logChannel('backgroundTraffic', true)) { log.info('BackgroundApp.recvStanza', stanza, as.String(stanza.attrs.type, stanza.name == 'presence' ? 'available' : 'normal'), 'to=', stanza.attrs.to, 'from=', stanza.attrs.from); }
 
                 // if (stanza.name == 'presence' && as.String(stanza.type, 'available') == 'available') {
                 //     let vpNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
@@ -1106,6 +1127,10 @@ export class BackgroundApp
                         delete this.iqStanzaTabId[stanzaId];
                         ContentMessage.sendMessage(tabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
                     }
+                }
+
+                if (stanzaType == 'get' && stanzaId) {
+                    await this.onIqGet(stanza);
                 }
             }
         }
@@ -1147,7 +1172,7 @@ export class BackgroundApp
             if (unavailableTabId >= 0) {
                 ContentMessage.sendMessage(unavailableTabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
                 this.removeRoomJid2TabId(room, unavailableTabId);
-                if (Config.get('log.room2tab', true)) { log.info('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', unavailableTabId, 'now:', this.roomJid2tabId); }
+                if (Utils.logChannel('room2tab', true)) { log.info('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', unavailableTabId, 'now:', this.roomJid2tabId); }
             } else {
                 let tabIds = this.getRoomJid2TabIds(room);
                 if (tabIds) {
@@ -1156,6 +1181,73 @@ export class BackgroundApp
                         ContentMessage.sendMessage(tabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
                     }
                 }
+            }
+        }
+    }
+
+    async onIqGet(stanza: any): Promise<void>
+    {
+        let versionQuery = stanza.getChildren('query').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'jabber:iq:version');
+        if (versionQuery) {
+            await this.onIqGetVersion(stanza);
+        }
+    }
+
+    async onIqGetVersion(stanza: any): Promise<void>
+    {
+        if (stanza.attrs) {
+            let id = stanza.attrs.id;
+            if (id) {
+                let versionQuery = stanza.getChildren('query').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'jabber:iq:version');
+                if (versionQuery) {
+                    let queryResponse = xml('query', { xmlns: 'jabber:iq:version', });
+
+                    queryResponse.append(xml('name', {}, Config.get('client.name', '_noname')))
+                    queryResponse.append(xml('version', {}, Client.getVersion()))
+
+                    let verbose = false;
+                    let auth = as.String(versionQuery.attrs.auth, '');
+                    if (auth != '' && auth == Config.get('xmpp.verboseVersionQueryWeakAuth', '')) {
+                        verbose = true;
+                    }
+                    if (verbose) {
+                        if (!Config.get('xmpp.sendVerboseVersionQueryResponse', false)) {
+                            verbose = false;
+                        }
+                    }
+                    if (verbose) {
+                        let now = Date.now();
+                        let firstStart = await Memory.getLocal('client.firstStart', 0);
+                        let startCount = await Memory.getLocal('client.startCount', 0);
+                        let userId = await Memory.getLocal(Utils.localStorageKey_Id(), '');
+                        let itemCount = this.backpack != null ? this.backpack.getItemCount() : -1;
+                        let rezzedItemCount = this.backpack != null ? this.backpack.getRezzedItemCount() : -1;
+
+                        queryResponse.append(xml('Variant', {}, Client.getVariant()))
+                        queryResponse.append(xml('Language', {}, navigator.language))
+                        queryResponse.append(xml('IsDevelopment', {}, as.String(Environment.isDevelopment())));
+                        queryResponse.append(xml('Id', {}, userId));
+                        queryResponse.append(xml('SecSinceFirstStart', {}, Math.round((now - firstStart) / 1000)));
+                        queryResponse.append(xml('SecSinceStart', {}, Math.round((now - this.startupTime) / 1000)));
+                        queryResponse.append(xml('SecSincePage', {}, Math.round((now - this.waitReadyTime) / 1000)));
+                        queryResponse.append(xml('Startups', {}, startCount));
+                        queryResponse.append(xml('ContentStartups', {}, this.waitReadyCount));
+                        queryResponse.append(xml('XmppConnects', {}, this.xmppConnectCount));
+                        queryResponse.append(xml('StanzasOut', {}, this.stanzasOutCount));
+                        queryResponse.append(xml('StanzasIn', {}, this.stanzasInCount));
+                        queryResponse.append(xml('ItemCount', {}, itemCount));
+                        queryResponse.append(xml('RezzedItemCount', {}, rezzedItemCount));
+                        // queryResponse.append(xml('LastActivity', {}, 'xx'));
+                    }
+
+                    if (Config.get('xmpp.versionQueryShareOs', false)) {
+                        queryResponse.append(xml('os', {}, navigator.userAgent));
+                    }
+
+                    let response = xml('iq', { type: 'result', 'id': id, 'to': stanza.attrs.from }).append(queryResponse);
+                    this.sendStanza(response);
+                }
+
             }
         }
     }
@@ -1198,20 +1290,22 @@ export class BackgroundApp
 
             this.xmpp.on('online', (address: any) =>
             {
-                if (Config.get('log.startup', true)) { log.info('BackgroundApp xmpp.on.online', address); }
+                if (Utils.logChannel('startup', true)) { log.info('BackgroundApp xmpp.on.online', address); }
 
                 this.xmppJid = address;
 
                 this.sendPresence();
 
+                this.xmppConnectCount++;
                 this.xmppConnected = true;
+
                 while (this.stanzaQ.length > 0) {
                     let stanza = this.stanzaQ.shift();
                     this.sendStanzaUnbuffered(stanza);
                 }
             });
 
-            this.xmpp.on('stanza', (stanza: any) => this.recvStanza(stanza));
+            this.xmpp.on('stanza', (stanza: xml) => this.recvStanza(stanza));
 
             this.xmpp.start().catch(log.info);
         } catch (error) {
@@ -1267,14 +1361,14 @@ export class BackgroundApp
         }
     }
 
-    sendToTabsForRoom(room: string, type: string)
+    sendToTabsForRoom(room: string, message: any)
     {
         try {
             let tabIds = this.getRoomJid2TabIds(room);
             if (tabIds) {
                 for (let i = 0; i < tabIds.length; i++) {
                     let tabId = tabIds[i];
-                    ContentMessage.sendMessage(tabId, { 'type': type });
+                    ContentMessage.sendMessage(tabId, message);
                 }
             }
         } catch (error) {
@@ -1287,7 +1381,7 @@ export class BackgroundApp
     private lastPingTime: number = 0;
     handle_pingBackground(): BackgroundResponse
     {
-        if (Config.get('log.pingBackground', true)) { log.info('BackgroundApp.handle_pingBackground'); }
+        if (Utils.logChannel('pingBackground', true)) { log.info('BackgroundApp.handle_pingBackground'); }
         try {
             let now = Date.now();
             if (now - this.lastPingTime > 10000) {

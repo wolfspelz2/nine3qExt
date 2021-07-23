@@ -6,6 +6,19 @@ interface IHistory extends Array<IRelease> { }
 export class _Changes
 {
     static data: IHistory = [
+        ['1.1.2', 'Redesign', [
+            ['Add', 'Limit and warning for items on page'],
+            ['Add', 'XMPP version response'],
+            ['Add', 'Time to chat log'],
+            ['Add', 'Toggle private chat window on other participants avatar ctrl-dbl-click'],
+            ['Add', 'A disposable marker to indicate which one is your avatar'],
+            ['Add', 'Show current points channels as tooltip'],
+            ['Change', 'Design to borderless/shadow'],
+            ['Change', 'Pulse effect in front'],
+            ['Fix', 'Animation remains even though AnimationsUrl property removed from item'],
+            ['Fix', 'Presence error on presence w/o muc/join child after long downtime where room kicks user and demands explicit re-enter'],
+            ['Fix', 'Unable to re-join private video conference'],
+        ]],
         ['1.1.1', 'Crafting', [
             ['Add', 'Crafting'],
             ['Add', 'Iframe API library'],

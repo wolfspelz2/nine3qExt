@@ -39,7 +39,7 @@ export class Item
     {
         if (this.isRezzed()) {
             let roomJid = this.properties[Pid.RezzedLocation];
-            this.app.sendToTabsForRoom(roomJid, ContentMessage.type_sendPresence);
+            this.app.sendToTabsForRoom(roomJid, { 'type': ContentMessage.type_sendPresence });
         }
     }
 
@@ -62,7 +62,7 @@ export class Item
             if (Property.inPresence(pid) || (signed.length > 0 && signed.includes(pid))) {
                 attrs[pid] = this.properties[pid];
             }
-        }attrs
+        }
         // let attrs = Object.assign(protocolAttrs, this.properties);
         presence.append(xml('x', attrs));
         return presence;

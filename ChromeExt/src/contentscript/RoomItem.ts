@@ -20,6 +20,7 @@ import { RoomItemStats } from './RoomItemStats';
 import { ItemFrameUnderlay } from './ItemFrameUnderlay';
 import { ItemFrameWindow, ItemFrameWindowOptions } from './ItemFrameWindow';
 import { ItemFramePopup } from './ItemFramePopup';
+import { Participant } from './Participant';
 
 export class RoomItem extends Entity
 {
@@ -147,7 +148,7 @@ export class RoomItem extends Entity
                 newProperties = await BackgroundMessage.getBackpackItemProperties(this.roomNick);
                 newProviderId = as.String(newProperties[Pid.Provider], '');
             } catch (error) {
-                log.debug('RoomItem.onPresenceAvailable', 'no properties for', this.roomNick);                
+                log.debug('RoomItem.onPresenceAvailable', 'no properties for', this.roomNick);
             }
         } else {
             let vpPropsNode = stanza.getChildren('x').find(stanzaChild => (stanzaChild.attrs == null) ? false : stanzaChild.attrs.xmlns === 'vp:props');
@@ -221,6 +222,7 @@ export class RoomItem extends Entity
                 let proxiedAnimationsUrl = as.String(Config.get('avatars.animationsProxyUrlTemplate', 'https://webex.vulcan.weblin.com/Avatar/InlineData?url={url}')).replace('{url}', encodeURIComponent(vpAnimationsUrl));
                 this.avatarDisplay?.updateObservableProperty('AnimationsUrl', proxiedAnimationsUrl);
             } else {
+                this.avatarDisplay?.updateObservableProperty('AnimationsUrl', '');
                 if (vpImageUrl != '') {
                     this.avatarDisplay?.updateObservableProperty('ImageUrl', vpImageUrl);
                 }
@@ -283,6 +285,12 @@ export class RoomItem extends Entity
                 if (as.Bool(this.getProperties()[Pid.IframeAuto], false)) {
                     this.openFrame(this.getElem());
                 }
+            }
+        }
+
+        if (isFirstPresence) {
+            if (as.String(this.getProperties()[Pid.IframeAutoRange], '') != '') {
+                this.checkIframeAutoRange();
             }
         }
 
@@ -401,6 +409,10 @@ export class RoomItem extends Entity
     onQuickSlideReached(newX: number): void
     {
         super.onQuickSlideReached(newX);
+
+        if (as.String(this.getProperties()[Pid.IframeAutoRange], '') != '') {
+            this.checkIframeAutoRange();
+        }
     }
 
     sendMoveMessage(newX: number): void
@@ -425,6 +437,10 @@ export class RoomItem extends Entity
 
                 this.sendMessageToScriptFrame(new WeblinClientIframeApi.ItemMovedNotification(itemData, newX));
             }
+        }
+
+        if (as.String(this.getProperties()[Pid.IframeAutoRange], '') != '') {
+            this.checkIframeAutoRange();
         }
     }
 
@@ -506,6 +522,30 @@ export class RoomItem extends Entity
         }
     }
 
+    checkIframeAutoRange()
+    {
+        let range = Utils.parseStringMap(as.String(this.getProperties()[Pid.IframeAutoRange], ''));
+        this.showItemRange(true, range);
+        if (this.isInRange(this.room?.getParticipant(this.room.getMyNick()), range)) {
+            this.openFrame(this.getElem());
+        } else {
+            this.closeFrame();
+        }
+    }
+
+    isInRange(participant: Participant, range: any)
+    {
+        let x = participant.getPosition();
+
+        let itemRect = this.elem.getBoundingClientRect();
+        let absPos = Math.floor(itemRect.x + itemRect.width / 2);
+        let absRangeLeft = absPos + as.Int(range['left'], 0);
+        let absRangeRight = absPos + as.Int(range['right'], 0);
+
+        let isInRange = x >= absRangeLeft && x <= absRangeRight;
+        return isInRange;
+    }
+
     async openFrame(clickedElem: HTMLElement)
     {
         let iframeUrl = as.String(this.properties[Pid.IframeUrl], null);
@@ -514,17 +554,24 @@ export class RoomItem extends Entity
         let userId = await Memory.getLocal(Utils.localStorageKey_Id(), '');
 
         if (iframeUrl != '' && room && apiUrl != '' && userId != '') {
-            // iframeUrl = 'https://jitsi.vulcan.weblin.com/{room}#userInfo.displayName="{name}"';
+            //iframeUrl = 'https://jitsi.vulcan.weblin.com/{room}#userInfo.displayName="{name}"';
+            //iframeUrl = 'https://jitsi.vulcan.weblin.com/8lgGTypkGd#userInfo.displayName="{name}"';
+            //iframeUrl = 'https://meet.jit.si/example-103#interfaceConfig.TOOLBAR_BUTTONS=%5B%22microphone%22%2C%22camera%22%2C%22desktop%22%2C%22fullscreen%22%2C%22hangup%22%2C%22profile%22%2C%22settings%22%2C%22videoquality%22%5D&interfaceConfig.SETTINGS_SECTIONS=%5B%22devices%22%2C%22language%22%5D&interfaceConfig.TOOLBAR_ALWAYS_VISIBLE=false';
+
             let roomJid = room.getJid();
             let tokenOptions = {};
             tokenOptions['properties'] = this.properties;
             try {
                 let contextToken = await Payload.getContextToken(apiUrl, userId, this.roomNick, 600, { 'room': roomJid }, tokenOptions);
+                let participantDisplayName = this.room.getParticipant(this.room.getMyNick()).getDisplayName();
+
                 iframeUrl = iframeUrl
                     .replace('{context}', encodeURIComponent(contextToken))
                     .replace('{room}', encodeURIComponent(roomJid))
-                    .replace('{name}', encodeURIComponent(this.getDisplayName()))
+                    .replace('{name}', encodeURIComponent(participantDisplayName))
                     ;
+
+                iframeUrl = iframeUrl.replace(/"/g, '%22');
 
                 let iframeOptions = JSON.parse(as.String(this.properties[Pid.IframeOptions], '{}'));
                 if (as.String(iframeOptions.frame, 'Window') == 'Popup') {
@@ -567,6 +614,7 @@ export class RoomItem extends Entity
                 item: this,
                 elem: clickedElem,
                 url: iframeUrl,
+
                 onClose: () => { this.framePopup = null; },
                 width: as.Int(frameOptions.width, 100),
                 height: as.Int(frameOptions.height, 100),
@@ -599,7 +647,7 @@ export class RoomItem extends Entity
                 undockable: as.Bool(windowOptions.undockable, false),
                 transparent: as.Bool(windowOptions.transparent, false),
                 hidden: as.Bool(windowOptions.hidden, false),
-                titleText: as.String(this.properties[Pid.Label], 'Item'),
+                titleText: as.String(this.properties[Pid.Description], as.String(this.properties[Pid.Label], 'Item')),
             }
 
             this.frameWindow.show(options);
@@ -627,7 +675,6 @@ export class RoomItem extends Entity
 
     async setItemState(state: string)
     {
-        // this.avatarDisplay?.setState(state);
         if (await BackgroundMessage.isBackpackItem(this.roomNick)) {
             await BackgroundMessage.modifyBackpackItemProperties(this.roomNick, { [Pid.State]: state }, [], {});
         }

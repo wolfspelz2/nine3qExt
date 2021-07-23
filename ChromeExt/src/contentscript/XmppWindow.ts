@@ -49,9 +49,9 @@ export class XmppWindow extends Window
             let outElem = <HTMLElement>$('<div class="n3q-base n3q-xmppwindow-out" data-translate="children" />').get(0);
             let inElem = <HTMLElement>$('<div class="n3q-base n3q-xmppwindow-in" data-translate="children" />').get(0);
             let inInputElem = <HTMLElement>$('<textarea class="n3q-base n3q-xmppwindow-in-input n3q-input n3q-text" />').get(0);
-            let inSendElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-xmppwindow-in-send" title="Send">Send</div>').get(0);
-            let inSaveElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-xmppwindow-in-save" title="Save">Save</div>').get(0);
-            let outClearElem = <HTMLElement>$('<div class="n3q-base n3q-button n3q-xmppwindow-out-clear" title="Clear">Clear</div>').get(0);
+            let inSendElem = <HTMLElement>$('<div class="n3q-base n3q-absolutebutton n3q-xmppwindow-in-send" title="Send">Send</div>').get(0);
+            let inSaveElem = <HTMLElement>$('<div class="n3q-base n3q-absolutebutton n3q-xmppwindow-in-save" title="Save">Save</div>').get(0);
+            let outClearElem = <HTMLElement>$('<div class="n3q-base n3q-absolutebutton n3q-xmppwindow-out-clear" title="Clear">Clear</div>').get(0);
 
             $(inElem).append(inInputElem);
 
