@@ -261,6 +261,7 @@ export class Config
             ],
         },
         i18n: {
+            // overrideBrowserLanguage: 'fr-FR',
             defaultLanguage: 'en-US',
             languageMapping: {
                 'de': 'de-DE',

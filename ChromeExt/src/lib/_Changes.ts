@@ -7,7 +7,7 @@ export class _Changes
 {
     static data: IHistory = [
         ['1.1.3', '?', [
-            ['Add', 'new feature?'],
+            ['Add', 'Config i18n.overrideBrowserLanguage'],
         ]],
         ['1.1.2', 'Redesign', [
             ['Add', 'Limit and warning for items on page'],
