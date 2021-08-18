@@ -213,4 +213,9 @@ export namespace WeblinClientIframeApi
         url: string;
         target: string;
     }
+
+    export class ClientLoadWeb3ItemsRequest extends Request
+    {
+        static type = 'Client.LoadWeb3Items';
+    }
 }

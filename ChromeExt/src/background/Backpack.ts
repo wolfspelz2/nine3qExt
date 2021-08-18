@@ -157,73 +157,105 @@ export class Backpack
 
         for (let walletsIdx = 0; walletsIdx < wallets.length; walletsIdx++) {
             let wallet = wallets[walletsIdx];
-            let ownerAddress = wallet.getProperties()[Pid.Web3WalletAddress];
+            let walletAddress = wallet.getProperties()[Pid.Web3WalletAddress];
             let network = wallet.getProperties()[Pid.Web3WalletNetwork];
-            let httpProvider = Config.get('web3.provider.' + network, '');
-            let contractAddress = Config.get('web3.weblinItemContractAddess.' + network, '');
-            if (httpProvider == '' || contractAddress == '') {
-                log.info('backpack.loadWeb3Items', 'No httpProvider or contractAddress for network', network, 'httpProvider=', httpProvider, 'contractAddress=', contractAddress);
-            } else {
-                let claimItemIdsOfWallet = await this.loadWeb3ItemsFromWallet(ownerAddress, httpProvider, contractAddress);
 
-                for (let claimItemIdsOfWalletIdx = 0; claimItemIdsOfWalletIdx < claimItemIdsOfWallet.length; claimItemIdsOfWalletIdx++) {
-                    let id = claimItemIdsOfWallet[claimItemIdsOfWalletIdx];
-                    const index = unverifiedWeb3ItemIds.indexOf(id, 0);
-                    if (index > -1) { unverifiedWeb3ItemIds.splice(index, 1); }
-                }
+            let web3ItemIdsOfWallet = await this.loadWeb3ItemsForWallet(walletAddress, network);
+
+            for (let claimItemIdsOfWalletIdx = 0; claimItemIdsOfWalletIdx < web3ItemIdsOfWallet.length; claimItemIdsOfWalletIdx++) {
+                let id = web3ItemIdsOfWallet[claimItemIdsOfWalletIdx];
+                const index = unverifiedWeb3ItemIds.indexOf(id, 0);
+                if (index > -1) { unverifiedWeb3ItemIds.splice(index, 1); }
             }
         }
 
-        for (let previousClaimItemIdsIdx = 0; previousClaimItemIdsIdx < unverifiedWeb3ItemIds.length; previousClaimItemIdsIdx++) {
-            this.deleteItem(unverifiedWeb3ItemIds[previousClaimItemIdsIdx], { skipContentNotification: true, skipPresenceUpdate: true });
+        for (let previouWeb3ItemIdsIdx = 0; previouWeb3ItemIdsIdx < unverifiedWeb3ItemIds.length; previouWeb3ItemIdsIdx++) {
+            this.deleteItem(unverifiedWeb3ItemIds[previouWeb3ItemIdsIdx], { skipContentNotification: true, skipPresenceUpdate: true });
         }
     }
 
-    async loadWeb3ItemsFromWallet(ownerAddress: string, httpProvider: string, contractAddress: string): Promise<Array<string>>
+    async loadWeb3ItemsForWallet(walletAddress: string, network: string): Promise<Array<string>>
     {
-        if (ownerAddress == '' || httpProvider == '') {
-            log.info('backpack.loadWeb3ItemsFromWallet', 'Missing ownerAddress=', ownerAddress, 'httpProvider=', httpProvider);
+        if (walletAddress == '' || network == '') {
+            log.info('backpack.loadWeb3ItemsFromWallet', 'Missing walletAddress=', walletAddress, 'network=', network);
             return [];
         }
 
-        let knownIds: Array<string> = [];
+        let idsCreatedByWallet: Array<string> = [];
+
         try {
-            let web3eth = new Web3Eth(new Web3Eth.providers.HttpProvider(httpProvider));
+            let contractAddress = Config.get('web3.weblinItemContractAddess.' + network, '');
             let contractABI = Config.get('web3.weblinItemContractAbi', null);
             if (contractAddress == null || contractAddress == '' || contractABI == null) {
-                log.info('backpack.loadWeb3ItemsFromWallet', 'Missing contract config', 'contractAddress=', contractAddress, 'contractABI=', contractABI);
+                log.info('backpack.loadWeb3ItemsForWallet', 'Missing contract config', 'contractAddress=', contractAddress, 'contractABI=', contractABI);
             } else {
-                let contract = new web3eth.Contract(contractABI, contractAddress);
-                let numberOfItems = await contract.methods.balanceOf(ownerAddress).call();
-                for (let i = 0; i < numberOfItems; i++) {
-                    let tokenId = await contract.methods.tokenOfOwnerByIndex(ownerAddress, i).call();
-                    let tokenUri = await contract.methods.tokenURI(tokenId).call();
-
-                    if (Config.get('config.clusterName', 'prod') == 'dev') {
-                        tokenUri = tokenUri.replace('https://webit.vulcan.weblin.com/', 'http://localhost:5000/');
-                        tokenUri = tokenUri.replace('https://item.weblin.com/', 'http://localhost:5000/');
-                    }
-
-                    let response = await fetch(tokenUri);
-
-                    if (!response.ok) {
-                        log.info('backpack.loadWeb3ItemsFromWallet', 'fetch failed', 'tokenId', tokenId, 'tokenUri', tokenUri, response);
-                    } else {
-                        const metadata = await response.json();
-
-                        let ids = await this.getOrCreateWeb3ItemFromMetadata(ownerAddress, metadata);
-                        for (let i = 0; i < ids.length; i++) {
-                            knownIds.push(ids[i]);
-                        }
-
-                    }
+                let httpProvider = Config.get('web3.provider.' + network, '');
+                let idsCreatedByWalletAndContract = await this.loadWeb3ItemsForWalletFromContract(walletAddress, httpProvider, contractAddress, contractABI);
+                for (let i = 0; i < idsCreatedByWalletAndContract.length; i++) {
+                    idsCreatedByWallet.push(idsCreatedByWalletAndContract[i]);
                 }
             }
         } catch (error) {
             log.info(error);
         }
 
-        return knownIds;
+        try {
+            let contracts = this.findItems(props => { return (as.Bool(props[Pid.Web3ContractAspect], false)); });
+            for  (let contractIdx = 0; contractIdx < contracts.length; contractIdx++) {
+                let contract = contracts[contractIdx];
+
+                let contractAddress = as.String(contract.getProperties()[Pid.Web3ContractAddress], '');
+                let contractABI = Config.get('web3.erc721ContractAbi', null);
+                if (contractAddress == null || contractAddress == '' || contractABI == null) {
+                    log.info('backpack.loadWeb3ItemsForWallet', 'Missing contract config', 'contractAddress=', contractAddress, 'contractABI=', contractABI);
+                } else {
+                    let httpProvider = Config.get('web3.provider.' + network, '');
+                    let idsCreatedByWalletAndContract = await this.loadWeb3ItemsForWalletFromContract(walletAddress, httpProvider, contractAddress, contractABI);
+                    for (let i = 0; i < idsCreatedByWalletAndContract.length; i++) {
+                        idsCreatedByWallet.push(idsCreatedByWalletAndContract[i]);
+                    }
+                }
+
+            }
+        } catch (error) {
+            log.info(error);
+        }
+
+        return idsCreatedByWallet;
+    }
+
+    async loadWeb3ItemsForWalletFromContract(walletAddress: string, httpProvider: string, contractAddress: string, contractABI: any): Promise<Array<string>>
+    {
+        let createdIds: Array<string> = [];
+
+        let web3eth = new Web3Eth(new Web3Eth.providers.HttpProvider(httpProvider));
+        let contract = new web3eth.Contract(contractABI, contractAddress);
+        let numberOfItems = await contract.methods.balanceOf(walletAddress).call();
+        for (let i = 0; i < numberOfItems; i++) {
+            let tokenId = await contract.methods.tokenOfOwnerByIndex(walletAddress, i).call();
+            let tokenUri = await contract.methods.tokenURI(tokenId).call();
+
+            if (Config.get('config.clusterName', 'prod') == 'dev') {
+                tokenUri = tokenUri.replace('https://webit.vulcan.weblin.com/', 'http://localhost:5000/');
+                tokenUri = tokenUri.replace('https://item.weblin.com/', 'http://localhost:5000/');
+            }
+
+            let response = await fetch(tokenUri);
+
+            if (!response.ok) {
+                log.info('backpack.loadWeb3ItemsForWalletFromContract', 'fetch failed', 'tokenId', tokenId, 'tokenUri', tokenUri, response);
+            } else {
+                const metadata = await response.json();
+
+                let ids = await this.getOrCreateWeb3ItemFromMetadata(walletAddress, metadata);
+                for (let i = 0; i < ids.length; i++) {
+                    createdIds.push(ids[i]);
+                }
+
+            }
+        }
+
+        return createdIds;
     }
 
     async getOrCreateWeb3ItemFromMetadata(ownerAddress: string, metadata: any): Promise<Array<string>>

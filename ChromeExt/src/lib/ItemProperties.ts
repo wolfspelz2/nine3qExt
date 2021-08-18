@@ -75,6 +75,9 @@ export class Pid
     static readonly Web3WalletAspect = 'Web3WalletAspect';
     static readonly Web3WalletAddress = 'Web3WalletAddress';
     static readonly Web3WalletNetwork = 'Web3WalletNetwork';
+    static readonly Web3ContractAspect = 'Web3ContractAspect';
+    static readonly Web3ContractAddress = 'Web3ContractAddress';
+    static readonly Web3ContractNetwork = 'Web3ContractNetwork';
     static readonly ShopImageUrl = 'ShopImageUrl';
 
     static readonly TransferState_Source = 'Source';

@@ -266,6 +266,10 @@ export class IframeApi
                     response = this.handle_ClientNavigateRequest(<WeblinClientIframeApi.ClientNavigateRequest>request);
                 } break;
 
+                case WeblinClientIframeApi.ClientLoadWeb3ItemsRequest.type: {
+                    response = await this.handle_ClientLoadWeb3ItemsRequest(<WeblinClientIframeApi.ClientLoadWeb3ItemsRequest>request);
+                } break;
+
                 default: {
                     response = new WeblinClientApi.ErrorResponse('Unhandled request: ' + request.type);
                 } break;
@@ -390,6 +394,17 @@ export class IframeApi
             return new WeblinClientApi.SuccessResponse();
         } catch (ex) {
             log.info('IframeApi.handle_ClientNavigateRequest', ex);
+            return new WeblinClientApi.ErrorResponse(ex);
+        }
+    }
+
+    async handle_ClientLoadWeb3ItemsRequest(request: WeblinClientIframeApi.ClientLoadWeb3ItemsRequest): Promise<WeblinClientApi.Response>
+    {
+        try {
+            await BackgroundMessage.loadWeb3BackpackItems();
+            return new WeblinClientApi.SuccessResponse();
+        } catch (ex) {
+            log.info('IframeApi.handle_ClientLoadWeb3ItemsRequest', ex);
             return new WeblinClientApi.ErrorResponse(ex);
         }
     }

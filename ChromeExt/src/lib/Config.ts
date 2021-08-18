@@ -199,12 +199,12 @@ export class Config
             fractionalLevels: 1,
             activityDisplayEnabled: false,
             activities: {
-                PointsChannelChat      : { weight: 1, x0: 0, css: { backgroundColor: '#ff0000'} },
-                PointsChannelEmote     : { weight: 1, x0: 0, css: { backgroundColor: '#00ff00'} },
-                PointsChannelGreet     : { weight: 1, x0: 0, css: { backgroundColor: '#0000ff'} },
-                PointsChannelNavigation: { weight: 1, x0: 0, css: { backgroundColor: '#ff00ff'} },
-                PointsChannelPowerup   : { weight: 1, x0: 0, css: { backgroundColor: '#ff00ff'} },
-                PointsChannelItemApply : { weight: 1, x0: 0, css: { backgroundColor: '#00ffff'} },
+                PointsChannelChat: { weight: 1, x0: 0, css: { backgroundColor: '#ff0000' } },
+                PointsChannelEmote: { weight: 1, x0: 0, css: { backgroundColor: '#00ff00' } },
+                PointsChannelGreet: { weight: 1, x0: 0, css: { backgroundColor: '#0000ff' } },
+                PointsChannelNavigation: { weight: 1, x0: 0, css: { backgroundColor: '#ff00ff' } },
+                PointsChannelPowerup: { weight: 1, x0: 0, css: { backgroundColor: '#ff00ff' } },
+                PointsChannelItemApply: { weight: 1, x0: 0, css: { backgroundColor: '#00ffff' } },
             }
         },
         itemProviders: {
@@ -233,6 +233,33 @@ export class Config
                 rinkeby: '0xed3efa74b416566c9716280e05bebee04f3fbf47',
             },
             weblinItemContractAbi: [
+                {
+                    "name": "balanceOf",
+                    "constant": true,
+                    "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }],
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "payable": false,
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "name": "tokenOfOwnerByIndex",
+                    "constant": true,
+                    "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "uint256", "name": "index", "type": "uint256" }],
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "payable": false,
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "name": "tokenURI",
+                    "constant": true,
+                    "inputs": [{ "internalType": "uint256", "name": "_tokenId", "type": "uint256" }],
+                    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+                    "payable": false,
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+            ],
+            erc721ContractAbi: [
                 {
                     "name": "balanceOf",
                     "constant": true,
@@ -729,7 +756,7 @@ export class Config
 
     static setDevTree(tree: any)
     {
-        if (Config.get('log.all', false) || Config.get('log.startup', true)) { log.info('Config.setDevTree'); }                            
+        if (Config.get('log.all', false) || Config.get('log.startup', true)) { log.info('Config.setDevTree'); }
         this.devConfig = tree;
     }
 
