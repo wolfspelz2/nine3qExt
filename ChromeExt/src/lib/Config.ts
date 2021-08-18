@@ -451,6 +451,8 @@ export class Config
                     'ItemPid.BlueprintDurationSec': 'Duration',
                     'ItemPid.ProducerEfficiency': 'Efficiency',
                     'ItemPid.MinerEfficiency': 'Efficiency',
+                    'ItemPid.Web3ContractAddress': 'Contract',
+                    'ItemPid.Web3ContractNetwork': 'Network',
 
                     'ItemValue.true': 'Yes',
                     'ItemValue.false': 'No',
@@ -641,6 +643,8 @@ export class Config
                     'ItemPid.BlueprintDurationSec': 'Dauer',
                     'ItemPid.ProducerEfficiency': 'Effizienz',
                     'ItemPid.MinerEfficiency': 'Effizienz',
+                    'ItemPid.Web3ContractAddress': 'Contract',
+                    'ItemPid.Web3ContractNetwork': 'Netzwerk',
 
                     'ItemValue.true': 'Ja',
                     'ItemValue.false': 'Nein',
