@@ -259,7 +259,7 @@ export class Config
                     "type": "function"
                 },
             ],
-            erc721ContractAbi: [
+            minimumItemableContractAbi: [
                 {
                     "name": "balanceOf",
                     "constant": true,

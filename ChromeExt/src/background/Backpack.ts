@@ -205,7 +205,7 @@ export class Backpack
                 let contract = contracts[contractIdx];
 
                 let contractAddress = as.String(contract.getProperties()[Pid.Web3ContractAddress], '');
-                let contractABI = Config.get('web3.erc721ContractAbi', null);
+                let contractABI = Config.get('web3.minimumItemableContractAbi', null);
                 if (contractAddress == null || contractAddress == '' || contractABI == null) {
                     log.info('backpack.loadWeb3ItemsForWallet', 'Missing contract config', 'contractAddress=', contractAddress, 'contractABI=', contractABI);
                 } else {
