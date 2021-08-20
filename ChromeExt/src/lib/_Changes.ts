@@ -8,6 +8,8 @@ export class _Changes
     static data: IHistory = [
         ['1.1.3', '?', [
             ['Add', 'Config i18n.overrideBrowserLanguage'],
+            ['Add', 'Load web3 nft items for all web nft contract items'],
+            ['Fix', 'Remove main #n3q div before adding another one for SPAs'],
         ]],
         ['1.1.2', 'Redesign', [
             ['Add', 'Limit and warning for items on page'],
