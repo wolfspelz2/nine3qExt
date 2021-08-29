@@ -1153,35 +1153,37 @@ export class BackgroundApp
             let room = from.bare().toString();
             let nick = from.getResource();
 
-            if (as.String(stanza.attrs['type'], 'available') == 'available') {
-                if (!isConnectionPresence) {
-                    this.presenceStateAddPresence(room, nick, stanza);
+            if (nick != '') {
+                if (as.String(stanza.attrs['type'], 'available') == 'available') {
+                    if (!isConnectionPresence) {
+                        this.presenceStateAddPresence(room, nick, stanza);
+                    }
+                } else {
+                    this.presenceStateRemovePresence(room, nick);
                 }
-            } else {
-                this.presenceStateRemovePresence(room, nick);
-            }
 
-            let unavailableTabId: number = -1;
-            if (stanza.attrs && stanza.attrs['type'] == 'unavailable') {
-                unavailableTabId = this.fullJid2TabWhichSentUnavailable[from];
-                if (unavailableTabId) {
-                    delete this.fullJid2TabWhichSentUnavailable[from];
-                }
-            }
-
-            if (unavailableTabId >= 0) {
-                ContentMessage.sendMessage(unavailableTabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
-                this.removeRoomJid2TabId(room, unavailableTabId);
-                if (Utils.logChannel('room2tab', true)) { log.info('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', unavailableTabId, 'now:', this.roomJid2tabId); }
-            } else {
-                let tabIds = this.getRoomJid2TabIds(room);
-                if (tabIds) {
-                    for (let i = 0; i < tabIds.length; i++) {
-                        let tabId = tabIds[i];
-                        ContentMessage.sendMessage(tabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
+                let unavailableTabId: number = -1;
+                if (stanza.attrs && stanza.attrs['type'] == 'unavailable') {
+                    unavailableTabId = this.fullJid2TabWhichSentUnavailable[from];
+                    if (unavailableTabId) {
+                        delete this.fullJid2TabWhichSentUnavailable[from];
                     }
                 }
-            }
+
+                if (unavailableTabId >= 0) {
+                    ContentMessage.sendMessage(unavailableTabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
+                    this.removeRoomJid2TabId(room, unavailableTabId);
+                    if (Utils.logChannel('room2tab', true)) { log.info('BackgroundApp.recvStanza', 'removing room2tab mapping', room, '=>', unavailableTabId, 'now:', this.roomJid2tabId); }
+                } else {
+                    let tabIds = this.getRoomJid2TabIds(room);
+                    if (tabIds) {
+                        for (let i = 0; i < tabIds.length; i++) {
+                            let tabId = tabIds[i];
+                            ContentMessage.sendMessage(tabId, { 'type': ContentMessage.type_recvStanza, 'stanza': stanza });
+                        }
+                    }
+                }
+            } // nick
         }
     }
 
