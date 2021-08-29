@@ -10,6 +10,7 @@ export class _Changes
             ['Add', 'Config i18n.overrideBrowserLanguage'],
             ['Add', 'Load web3 nft items for all web nft contract items'],
             ['Fix', 'Remove main #n3q div before adding another one for SPAs'],
+            ['Fix', 'New ejabberd send room presence w/o nick: ignore'],
         ]],
         ['1.1.2', 'Redesign', [
             ['Add', 'Limit and warning for items on page'],
