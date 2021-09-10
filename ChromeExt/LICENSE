@@ -13,15 +13,20 @@ Licensor:             Lupus Labs UG (haftungsbeschraenkt)
 Licensed Work:        weblin.io browser extension, weblinEmbedded variant
                       The Licensed Work is (c) 2021 LupusLabs
 
-Additional Use Grant: You may use the Licensed Work when your application 
-                      uses the Licensed Work with just one messaging server 
-                      instance for any purpose. 
-                      You may use the Licensed Work before the change date 
-                      as long as you do not gain monetary value by operating, 
-                      providing, or otherwise using the Licensed Work. 
+Additional Use Grant: You may use the Licensed Work for any purpose with BSD 
+                      Zero Clause License as long as your application uses a 
+                      location mapping of document URLs to chat rooms 
+                      identical to the one provided by LupusLabs at any time. 
+                      In other words: the condition for an immediate BSD 
+                      Zero Clause License is that your users are able to meet 
+                      and interact with users of weblin.io and that you do 
+                      not create a walled garden but rather contribute to the 
+                      one metaverse where people meet on web pages.
 
-Change Date:          2 years after the date of upload of the source code to
-                      a public repository, i.e. the git commit date.
+Change Date:          Two years after the date of upload of the source code 
+                      to a public repository, i.e. the git commit date, but 
+                      at least two years after publishing the Licensed Work 
+                      under Business Source License 1.1.
 
 Change License:       BSD Zero Clause License, SPDX License Identifier: 0BSD
 
