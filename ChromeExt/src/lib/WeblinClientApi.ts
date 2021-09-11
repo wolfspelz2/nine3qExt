@@ -1,3 +1,5 @@
+import { ItemProperties } from './ItemProperties';
+
 export namespace WeblinClientApi
 {
     export class Message { constructor(public type: string) { } }
@@ -25,5 +27,13 @@ export namespace WeblinClientApi
 
         links?: Array<any>;
         detail?: any;
+    }
+
+    export class ClientCreateItemRequest extends Request
+    {
+        static type = 'Client.CreateItem';
+        template: string;
+        dx: number;
+        args: ItemProperties;        
     }
 }

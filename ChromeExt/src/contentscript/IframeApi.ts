@@ -77,13 +77,19 @@ export class IframeApi
         if (request[Config.get('iframeApi.messageMagic', 'a67igu67puz_iframeApi')]) {
             if (request.type == WeblinClientApi.ClientNotificationRequest.type) {
                 this.handle_ClientNotificationRequest(<WeblinClientApi.ClientNotificationRequest>request);
+            } else if (request.type == WeblinClientApi.ClientCreateItemRequest.type) {
+                this.handle_ClientCreateItemRequest(<WeblinClientApi.ClientCreateItemRequest>request);
             } else {
                 await this.handle_IframeApi(<WeblinClientIframeApi.Request>request);
             }
         }
 
         if (request[Config.get('iframeApi.messageMagicPage', 'x7ft76zst7g_pageApi')]) {
-            await this.handle_PageApi(<WeblinClientPageApi.Request>request);
+            if (request.type == WeblinClientApi.ClientCreateItemRequest.type) {
+                this.handle_ClientCreateItemRequest(<WeblinClientApi.ClientCreateItemRequest>request);
+            } else {
+                await this.handle_PageApi(<WeblinClientPageApi.Request>request);
+            }
         }
     }
 
@@ -133,9 +139,6 @@ export class IframeApi
         try {
 
             switch (request.type) {
-                case WeblinClientPageApi.ClientCreateItemRequest.type: {
-                    response = await this.handle_ClientCreateItemRequest(<WeblinClientPageApi.ClientCreateItemRequest>request);
-                } break;
                 case WeblinClientPageApi.ItemFindRequest.type: {
                     response = await this.handle_ItemFindRequest(<WeblinClientPageApi.ItemFindRequest>request);
                 } break;
@@ -157,7 +160,7 @@ export class IframeApi
         }
     }
 
-    async handle_ClientCreateItemRequest(request: WeblinClientPageApi.ClientCreateItemRequest): Promise<WeblinClientApi.Response>
+    async handle_ClientCreateItemRequest(request: WeblinClientApi.ClientCreateItemRequest): Promise<WeblinClientApi.Response>
     {
         try {
 
@@ -265,7 +268,6 @@ export class IframeApi
                 case WeblinClientIframeApi.ClientNavigateRequest.type: {
                     response = this.handle_ClientNavigateRequest(<WeblinClientIframeApi.ClientNavigateRequest>request);
                 } break;
-
                 case WeblinClientIframeApi.ClientLoadWeb3ItemsRequest.type: {
                     response = await this.handle_ClientLoadWeb3ItemsRequest(<WeblinClientIframeApi.ClientLoadWeb3ItemsRequest>request);
                 } break;

@@ -588,6 +588,7 @@ export class ContentApp
             let newRoomJid = await this.vpiMap(pageUrl);
 
             if (newRoomJid == this.roomJid) {
+                this.room.setPageUrl(pageUrl);
                 log.debug('ContentApp.checkPageUrlChanged', 'Same room', pageUrl, ' => ', this.roomJid);
                 return;
             }

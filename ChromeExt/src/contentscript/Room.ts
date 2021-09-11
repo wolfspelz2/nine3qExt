@@ -65,6 +65,7 @@ export class Room
     getJid(): string { return this.jid; }
     getDestination(): string { return this.destination; }
     getPageUrl(): string { return this.pageUrl; }
+    setPageUrl(pageUrl: string): void { this.pageUrl = pageUrl; }
     getParticipant(nick: string): Participant { return this.participants[nick]; }
     getItem(nick: string): RoomItem { return this.items[nick]; }
     getParticipantIds(): Array<string>
