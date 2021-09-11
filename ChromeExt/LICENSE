@@ -10,7 +10,10 @@ Parameters
 Licensor:             Lupus Labs UG (haftungsbeschraenkt) 
                       Short: LupusLabs
 
-Licensed Work:        weblin.io browser extension, weblinEmbedded variant
+Licensed Work:        weblin.io for use as
+                        - browser extension
+                        - embedded into html
+                        - native client
                       The Licensed Work is (c) 2021 LupusLabs
 
 Additional Use Grant: You may use the Licensed Work for any purpose with BSD 
