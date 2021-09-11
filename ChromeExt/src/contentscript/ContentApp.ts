@@ -598,7 +598,7 @@ export class ContentApp
             if (Utils.logChannel('urlMapping', false)) { log.info('Mapped', pageUrl, ' => ', this.roomJid); }
 
             if (this.roomJid != '') {
-                this.enterRoom(this.roomJid, pageUrl);
+                this.enterRoom(this.roomJid, pageUrl, pageUrl);
                 if (Config.get('points.enabled', false)) {
                     /* await */ BackgroundMessage.pointsActivity(Pid.PointsChannelNavigation, 1);
                 }
@@ -673,11 +673,11 @@ export class ContentApp
     //     }
     // }
 
-    async enterRoom(roomJid: string, roomDestination: string): Promise<void>
+    async enterRoom(roomJid: string, pageUrl: string, roomDestination: string): Promise<void>
     {
         this.leaveRoom();
 
-        this.room = new Room(this, roomJid, roomDestination, await this.getSavedPosition());
+        this.room = new Room(this, roomJid, pageUrl, roomDestination, await this.getSavedPosition());
         if (Utils.logChannel('urlMapping', false)) { log.info('ContentApp.enterRoom', roomJid); }
 
         this.room.enter();

@@ -39,7 +39,7 @@ export class Room
     private showAvailability = '';
     private statusMessage = '';
 
-    constructor(protected app: ContentApp, private jid: string, private destination: string, private posX: number) 
+    constructor(protected app: ContentApp, private jid: string, private pageUrl: string, private destination: string, private posX: number) 
     {
         let user = Config.get('xmpp.user', '');
         let domain = Config.get('xmpp.domain', '');
@@ -54,8 +54,9 @@ export class Room
     getInfo(): IRoomInfo
     {
         return [
-            ['url', this.destination],
-            ['jid', this.jid]
+            ['url', this.getPageUrl()],
+            ['jid', this.getJid()],
+            ['destination', this.getDestination()]
         ];
     }
 
@@ -63,6 +64,7 @@ export class Room
     getMyNick(): string { return this.myNick; }
     getJid(): string { return this.jid; }
     getDestination(): string { return this.destination; }
+    getPageUrl(): string { return this.pageUrl; }
     getParticipant(nick: string): Participant { return this.participants[nick]; }
     getItem(nick: string): RoomItem { return this.items[nick]; }
     getParticipantIds(): Array<string>
