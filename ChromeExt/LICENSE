@@ -16,14 +16,15 @@ Licensed Work:        weblin.io for use as
                         - native client
                       The Licensed Work is (c) 2021 LupusLabs
 
-Additional Use Grant: You may use the Licensed Work for any purpose with BSD 
-                      Zero Clause License as long as your application uses a 
+Additional Use Grant: You may use the Licensed Work for any purpose with the 
+                      Change License as long as your application uses a 
                       location mapping of document URLs to chat rooms 
-                      identical to the one provided by LupusLabs at any time. 
-                      In other words: the condition for an immediate BSD 
-                      Zero Clause License is that your users are able to meet 
-                      and interact with users of weblin.io and that you do 
-                      not create a walled garden but rather contribute to the 
+                      identical to the one provided by LupusLabs for the 
+                      public weblin.io operation at all times. In other 
+                      words: the condition for an immediate BSD Zero Clause 
+                      License is that your users are able to meet and 
+                      interact with users of weblin.io and that you do not 
+                      create a walled garden but rather contribute to the 
                       one metaverse where people meet on web pages.
 
 Change Date:          Two years after the date of upload of the source code 
