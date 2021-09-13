@@ -149,7 +149,7 @@ export class IframeApi
             }
 
         } catch (ex) {
-            log.info('IframeApi.handle_CreateCryptoWallet', ex);
+            log.info('IframeApi.handle_PageApi', ex);
         }
 
         if (request.id) {
