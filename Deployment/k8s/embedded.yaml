@@ -1,36 +1,3 @@
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: cdn-embedded
-  namespace: n3q-prod
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: modify-secrets
-  namespace: n3q-prod
-rules:
-  - apiGroups: [""]
-    resources: ["secrets"]
-    verbs: ["get", "watch", "list", "create", "delete"]
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: modify-secrets-to-sa
-  namespace: n3q-prod
-subjects:
-  - kind: ServiceAccount
-    name: cdn-embedded
-roleRef:
-  kind: Role
-  name: modify-secrets
-  apiGroup: rbac.authorization.k8s.io
-
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -49,14 +16,11 @@ spec:
       serviceAccountName: cdn-embedded
       containers:
         - name: n3q-embedded
-          image: docker.k8s.sui.li/n3q-embedded:5f44abf8
+          image: docker.k8s.sui.li/n3q-embedded:a6a66757
           ports:
             - containerPort: 80
               protocol: TCP
           volumeMounts:
-            - name: kubectl-binary
-              mountPath: /usr/bin/kubectl
-              readOnly: true
             - name: htdocs
               mountPath: /pod-shared
           lifecycle:
@@ -74,10 +38,9 @@ spec:
         - name: redis
           image: redis
 
+      nodeSelector:
+        n3qnode: "true"
       volumes:
-      - name: kubectl-binary
-        hostPath:
-          path: /usr/bin/kubectl
       - name: htdocs
         emptyDir: {}
 
